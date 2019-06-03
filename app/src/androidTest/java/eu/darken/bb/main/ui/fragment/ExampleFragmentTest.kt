@@ -22,7 +22,7 @@
 //class ExampleFragmentTest {
 //
 //    @get:Rule var mockitoRule: MockitoRule = MockitoJUnit.rule()
-//    @get:Rule var fragmentRule = FragmentTestRule(ExampleFragment::class.java)
+//    @get:Rule var fragmentRule = FragmentTestRule(OverviewFragment::class.java)
 //
 //    @Mock lateinit var presenter: ExampleFragmentPresenter
 //    @Mock lateinit var component: ExampleFragmentComponent
@@ -42,7 +42,7 @@
 //    @Before
 //    fun setUp() {
 //        doAnswer { invocation ->
-//            val exampleFragment = invocation.getArgument<ExampleFragment>(0)
+//            val exampleFragment = invocation.getArgument<OverviewFragment>(0)
 //            exampleFragment.presenter = presenter
 //            null
 //        }.`when`(component).inject(any())

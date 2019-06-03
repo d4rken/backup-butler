@@ -8,7 +8,7 @@ import dagger.multibindings.IntoMap
 import eu.darken.bb.common.dagger.DaggerViewModelFactory
 import eu.darken.bb.common.dagger.ViewModelKey
 import eu.darken.bb.main.ui.MainActivityViewModel
-import eu.darken.bb.main.ui.fragment.ExampleFragmentViewModel
+import eu.darken.bb.main.ui.fragment.OverviewFragmentViewModel
 
 @Module
 internal abstract class ViewModelBinder {
@@ -22,7 +22,7 @@ internal abstract class ViewModelBinder {
 
     @Binds
     @IntoMap
-    @ViewModelKey(ExampleFragmentViewModel::class)
-    abstract fun bindExampleFragmentVM(model: ExampleFragmentViewModel): ViewModel
+    @ViewModelKey(OverviewFragmentViewModel::class)
+    abstract fun bindExampleFragmentVM(model: OverviewFragmentViewModel): ViewModel
 
 }

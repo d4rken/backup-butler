@@ -3,6 +3,7 @@ package eu.darken.bb.main.ui.fragment
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -21,17 +22,18 @@ import eu.darken.bb.common.smart.SmartFragment
 import javax.inject.Inject
 
 
-class ExampleFragment : SmartFragment() {
+class OverviewFragment : SmartFragment() {
     companion object {
-        fun newInstance(): Fragment = ExampleFragment()
+        fun newInstance(): Fragment = OverviewFragment()
     }
 
     @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
     @BindView(R.id.emoji_text) lateinit var emojiText: TextView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+    @BindView(R.id.action_test) lateinit var testButton: Button
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var viewModel: ExampleFragmentViewModel
+    private lateinit var viewModel: OverviewFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -47,11 +49,13 @@ class ExampleFragment : SmartFragment() {
 
     @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(ExampleFragmentViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(OverviewFragmentViewModel::class.java)
 
         fab.clicks().subscribe { viewModel.updateEmoji() }
 
         viewModel.state.observe(this, Observer { emojiText.text = it.emoji })
+
+        testButton.clicks().subscribe { viewModel.test() }
 
         super.onViewCreated(view, savedInstanceState)
     }

@@ -13,7 +13,7 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.main.ui.fragment.ExampleFragment
+import eu.darken.bb.main.ui.fragment.OverviewFragment
 import javax.inject.Inject
 
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     fun showExampleFragment() {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (fragment == null) fragment = ExampleFragment.newInstance()
+        if (fragment == null) fragment = OverviewFragment.newInstance()
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commitAllowingStateLoss()
     }
 }

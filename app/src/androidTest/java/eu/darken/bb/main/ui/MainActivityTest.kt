@@ -11,7 +11,7 @@
 //import dagger.android.AndroidInjector
 //import eu.darken.bb.ExampleApplicationMock
 //import eu.darken.bb.R
-//import eu.darken.bb.main.ui.fragment.ExampleFragment
+//import eu.darken.bb.main.ui.fragment.OverviewFragment
 //import eu.darken.mvpbakery.injection.ComponentSource
 //import eu.darken.mvpbakery.injection.ManualInjector
 //import org.junit.Before
@@ -53,7 +53,7 @@
 //        `when`(mainPresenter.component).thenReturn(mainComponent)
 //
 //
-//        doAnswer { invocation -> null }.`when`(exampleFragmentComponent).inject(any<ExampleFragment>())
+//        doAnswer { invocation -> null }.`when`(exampleFragmentComponent).inject(any<OverviewFragment>())
 //        `when`(fragmentInjector.get(any())).then { invocation -> exampleFragmentComponent }
 //        `when`(exampleFragmentComponent.presenter).thenReturn(exampleFragmentPresemter)
 //        `when`(exampleFragmentPresemter.component).thenReturn(exampleFragmentComponent)

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.preference.PreferenceManager
+import androidx.work.WorkManager
 
 import dagger.Module
 import dagger.Provides
@@ -29,4 +30,8 @@ class AndroidModule {
     @Provides
     @AppComponent.Scope
     fun notificationManager(context: Context): NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    @Provides
+    @AppComponent.Scope
+    fun workManager() = WorkManager.getInstance()
 }

@@ -2,12 +2,12 @@ package eu.darken.bb.main.ui
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import eu.darken.bb.main.ui.fragment.ExampleFragment
-import eu.darken.bb.main.ui.fragment.ExampleFragmentModule
+import eu.darken.bb.main.ui.fragment.OverviewFragment
+import eu.darken.bb.main.ui.fragment.OverviewFragmentModule
 
-@Module(includes = [ExampleFragmentModule::class])
+@Module(includes = [OverviewFragmentModule::class])
 abstract class MainActivityModule {
 
-    @ContributesAndroidInjector(modules = [ExampleFragmentModule::class])
-    abstract fun exampleFragment(): ExampleFragment
+    @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
+    abstract fun exampleFragment(): OverviewFragment
 }

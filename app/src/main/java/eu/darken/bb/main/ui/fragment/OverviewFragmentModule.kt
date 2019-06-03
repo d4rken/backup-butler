@@ -4,5 +4,5 @@ import dagger.Module
 
 
 @Module
-abstract class ExampleFragmentModule
+abstract class OverviewFragmentModule
 
