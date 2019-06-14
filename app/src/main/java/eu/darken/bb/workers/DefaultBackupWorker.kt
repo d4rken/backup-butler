@@ -28,6 +28,8 @@ class DefaultBackupWorker @AssistedInject constructor(
 
         return Single
                 .create<BackupTask> {
+
+
                     val task = taskRepo.getTask(workerParams.id)
                     if (task != null) {
                         it.onSuccess(task)
@@ -44,7 +46,6 @@ class DefaultBackupWorker @AssistedInject constructor(
     }
 
     private fun doWork() {
-
     }
 
     override fun onStopped() {

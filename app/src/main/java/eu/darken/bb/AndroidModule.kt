@@ -10,12 +10,14 @@ import androidx.work.WorkManager
 
 import dagger.Module
 import dagger.Provides
+import eu.darken.bb.common.dagger.ApplicationContext
 
 
 @Module
 class AndroidModule {
 
     @Provides
+    @ApplicationContext
     @AppComponent.Scope
     fun context(app: Application): Context = app.applicationContext
 

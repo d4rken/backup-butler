@@ -13,12 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.android.support.AndroidSupportInjection
 import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.upgrades.UpgradeData
 import javax.inject.Inject
 
 
@@ -28,9 +28,9 @@ class OverviewFragment : SmartFragment() {
     }
 
     @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
-    @BindView(R.id.emoji_text) lateinit var emojiText: TextView
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.action_test) lateinit var testButton: Button
+    @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
+    @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
+    @BindView(R.id.card_debug_testbutton) lateinit var testButton: Button
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: OverviewFragmentViewModel
@@ -42,20 +42,24 @@ class OverviewFragment : SmartFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.example_fragment, container, false)
+        val layout = inflater.inflate(R.layout.overview_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
         return layout
     }
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(OverviewFragmentViewModel::class.java)
 
-        fab.clicks().subscribe { viewModel.updateEmoji() }
-
-        viewModel.state.observe(this, Observer { emojiText.text = it.emoji })
-
         testButton.clicks().subscribe { viewModel.test() }
+
+        viewModel.appState.observe(this, Observer {
+            appVersion.text = "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
+            upgradeInfos.text = when {
+                it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.label_pro_version)
+                else -> getString(R.string.label_basic_version)
+            }
+        })
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -72,7 +76,6 @@ class OverviewFragment : SmartFragment() {
         inflater.inflate(R.menu.menu_example, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_help -> {
