@@ -6,19 +6,18 @@ import java.util.*
 interface BackupTask : Jsonable {
     val id: UUID
 
-    val sources: List<Source>
+    val sources: List<Source.Config>
 
-    val destinations: List<Destination>
+    val destinations: List<Destination.Config>
 
-    interface Source {
+    interface Result {
+        enum class State {
+            SUCCESS, ERROR
+        }
 
-        fun provide(): Pair<MetaData, List<SFile>>
-
-        interface MetaData
-        interface SFile
+        val taskID: String
+        val state: State
+        val primary: String?
+        val secondary: String?
     }
-
-    interface Destination
-
-    interface Result
 }

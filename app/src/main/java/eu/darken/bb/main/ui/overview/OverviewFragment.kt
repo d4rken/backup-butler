@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.fragment
+package eu.darken.bb.main.ui.overview
 
 import android.annotation.SuppressLint
 import android.os.Bundle

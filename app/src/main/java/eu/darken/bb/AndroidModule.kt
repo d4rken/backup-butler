@@ -10,28 +10,28 @@ import androidx.work.WorkManager
 
 import dagger.Module
 import dagger.Provides
-import eu.darken.bb.common.dagger.ApplicationContext
+import eu.darken.bb.common.dagger.AppContext
 
 
 @Module
 class AndroidModule {
 
     @Provides
-    @ApplicationContext
+    @AppContext
     @AppComponent.Scope
     fun context(app: Application): Context = app.applicationContext
 
     @Provides
     @AppComponent.Scope
-    fun preferences(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    fun preferences(@AppContext context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
     @AppComponent.Scope
-    fun audioManager(context: Context): AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    fun audioManager(@AppContext context: Context): AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     @Provides
     @AppComponent.Scope
-    fun notificationManager(context: Context): NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    fun notificationManager(@AppContext context: Context): NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     @Provides
     @AppComponent.Scope

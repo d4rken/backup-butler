@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.os.TransactionTooLargeException
 import eu.darken.bb.App
 import eu.darken.bb.AppComponent
-import eu.darken.bb.common.dagger.ApplicationContext
+import eu.darken.bb.common.dagger.AppContext
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import javax.inject.Inject
@@ -17,7 +17,7 @@ import javax.inject.Inject
  */
 @AppComponent.Scope
 class IPCFunnel @Inject constructor(
-        @ApplicationContext private val packageManager: PackageManager
+        @AppContext private val packageManager: PackageManager
 ) {
     companion object {
         internal val TAG = App.logTag("IPCFunnel")

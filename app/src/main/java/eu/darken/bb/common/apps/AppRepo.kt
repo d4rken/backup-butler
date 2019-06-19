@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import eu.darken.bb.App
 import eu.darken.bb.AppComponent
 import eu.darken.bb.common.ApiHelper
-import eu.darken.bb.common.dagger.ApplicationContext
+import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.root.RootManager
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
@@ -26,7 +26,7 @@ import kotlin.concurrent.withLock
 
 @AppComponent.Scope
 class AppRepo @Inject constructor(
-        @ApplicationContext private val context: Context,
+        @AppContext private val context: Context,
         private val rootManager: RootManager,
         private val ipcFunnel: IPCFunnel
 ) {

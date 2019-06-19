@@ -2,12 +2,13 @@ package eu.darken.bb
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import eu.darken.bb.main.core.service.ExampleService
+import eu.darken.bb.main.core.service.BackupService
+import eu.darken.bb.main.core.service.BackupServiceModule
 
 
 @Module
 internal abstract class ServiceBinder {
-    @ContributesAndroidInjector
-    internal abstract fun exampleService(): ExampleService
+    @ContributesAndroidInjector(modules = [BackupServiceModule::class])
+    internal abstract fun backupService(): BackupService
 
 }

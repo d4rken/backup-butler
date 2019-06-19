@@ -8,4 +8,8 @@
     <string name="label_upgrade_status">Upgrade status</string>
     <string name="label_basic_version">Basic version</string>
     <string name="label_pro_version">Pro version</string>
+    <string name="label_progress_preparing">Preparing</string>
+    <string name="label_notification_channel_backup_progress">Backup progress notifications</string>
+    <string name="label_progress_loading_task">Loading task</string>
+    <string name="label_progress_processing_task">Processing task</string>
 </resources>

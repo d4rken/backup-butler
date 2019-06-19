@@ -11,7 +11,7 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.main.ui.fragment.OverviewFragment
+import eu.darken.bb.main.ui.overview.OverviewFragment
 import javax.inject.Inject
 
 

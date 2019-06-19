@@ -1,20 +1,21 @@
-package eu.darken.bb.main.ui.fragment
+package eu.darken.bb.main.ui.overview
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.SmartViewModel
+import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.main.core.service.BackupService
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
-import eu.darken.bb.workers.DefaultBackupWorker
 import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 
 class OverviewFragmentViewModel @Inject constructor(
         private val butler: BackupButler,
         private val upgradeControl: UpgradeControl,
-        private val workManager: WorkManager
+        @AppContext private val context: Context
 ) : SmartViewModel() {
 
     val appState: LiveData<AppState> = Observables
@@ -32,7 +33,7 @@ class OverviewFragmentViewModel @Inject constructor(
     }
 
     fun test() {
-        workManager.enqueue(OneTimeWorkRequestBuilder<DefaultBackupWorker>().build())
+        context.startService(Intent(context, BackupService::class.java))
     }
 
     data class AppState(

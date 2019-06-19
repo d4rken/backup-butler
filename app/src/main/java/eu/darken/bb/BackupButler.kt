@@ -1,12 +1,12 @@
 package eu.darken.bb
 
 import android.content.Context
-import eu.darken.bb.common.dagger.ApplicationContext
+import eu.darken.bb.common.dagger.AppContext
 import io.reactivex.Single
 import javax.inject.Inject
 
 class BackupButler @Inject constructor(
-        @ApplicationContext val context: Context
+        @AppContext val context: Context
 ) {
 
     val appInfo: Single<AppInfo> = Single.create<AppInfo> {

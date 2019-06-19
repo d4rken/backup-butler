@@ -5,7 +5,7 @@ import com.jakewharton.rx.replayingShare
 import eu.darken.bb.App
 import eu.darken.bb.AppComponent
 import eu.darken.bb.CoreSettings
-import eu.darken.bb.common.dagger.ApplicationContext
+import eu.darken.bb.common.dagger.AppContext
 import eu.darken.rxshell.root.RootContext
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @AppComponent.Scope
 class RootManager @Inject constructor(
-        @ApplicationContext private val context: Context,
+        @AppContext private val context: Context,
         private val coreSettings: CoreSettings
 ) {
     companion object {
