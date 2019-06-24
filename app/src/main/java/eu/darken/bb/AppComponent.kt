@@ -11,11 +11,12 @@ import eu.darken.bb.workers.WorkerBinder
 @AppComponent.Scope
 @Component(modules = [
     AndroidSupportInjectionModule::class,
+    AppModule::class,
+    AndroidModule::class,
+    ViewModelBinder::class,
     ServiceBinder::class,
     ReceiverBinder::class,
-    AndroidModule::class,
     ActivityBinder::class,
-    ViewModelBinder::class,
     AssistedInjectModule::class,
     WorkerBinder::class
 ])
