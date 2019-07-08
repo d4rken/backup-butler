@@ -6,12 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import butterknife.ButterKnife
 import dagger.android.support.AndroidSupportInjection
-import eu.darken.androidkotlinstarter.common.dagger.VDCSource
 import eu.darken.bb.R
+import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.vdcs
 import javax.inject.Inject
 
 
@@ -21,7 +21,7 @@ class HelloStepFragment : SmartFragment() {
     }
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val viewModel: HelloStepFragmentViewModel by viewModels { vdcSource.create(this, null) }
+    private val vdc: HelloStepFragmentVDC by vdcs { vdcSource }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)

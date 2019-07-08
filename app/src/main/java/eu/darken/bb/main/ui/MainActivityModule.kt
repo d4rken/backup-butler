@@ -1,10 +1,10 @@
 package eu.darken.bb.main.ui
 
-import androidx.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
+import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 import eu.darken.bb.main.ui.newtask.NewTaskFragment
@@ -17,8 +17,8 @@ abstract class MainActivityModule {
 
     @Binds
     @IntoMap
-    @VDCKey(MainActivityViewModel::class)
-    abstract fun mainActivityVDC(model: MainActivityViewModel.Factory): SavedStateVDCFactory<out ViewModel>
+    @VDCKey(MainActivityVDC::class)
+    abstract fun mainActivityVDC(model: MainActivityVDC.Factory): SavedStateVDCFactory<out VDC>
 
     @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
     abstract fun exampleFragment(): OverviewFragment

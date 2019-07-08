@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.BackupButler
-import eu.darken.bb.common.SmartViewModel
+import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.main.core.service.BackupService
@@ -15,12 +15,12 @@ import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
 
-class OverviewFragmentViewModel @AssistedInject constructor(
+class OverviewFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val butler: BackupButler,
         private val upgradeControl: UpgradeControl,
         @AppContext private val context: Context
-) : SmartViewModel() {
+) : SmartVDC() {
 
     val appState: LiveData<AppState> = Observables
             .zip(butler.appInfo.toObservable(), upgradeControl.upgradeData)
@@ -46,5 +46,5 @@ class OverviewFragmentViewModel @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : SavedStateVDCFactory<OverviewFragmentViewModel>
+    interface Factory : SavedStateVDCFactory<OverviewFragmentVDC>
 }

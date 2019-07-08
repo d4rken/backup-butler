@@ -8,16 +8,16 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.android.support.AndroidSupportInjection
-import eu.darken.androidkotlinstarter.common.dagger.VDCSource
 import eu.darken.bb.R
+import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.vdcs
 import eu.darken.bb.upgrades.UpgradeData
 import javax.inject.Inject
 
@@ -33,7 +33,7 @@ class OverviewFragment : SmartFragment() {
     @BindView(R.id.card_debug_testbutton) lateinit var testButton: Button
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val viewModel: OverviewFragmentViewModel by viewModels { vdcSource.create(this, null) }
+    private val vdc: OverviewFragmentVDC by vdcs { vdcSource }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -49,9 +49,9 @@ class OverviewFragment : SmartFragment() {
 
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        testButton.clicks().subscribe { viewModel.test() }
+        testButton.clicks().subscribe { vdc.test() }
 
-        viewModel.appState.observe(this, Observer {
+        vdc.appState.observe(this, Observer {
             appVersion.text = "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
             upgradeInfos.text = when {
                 it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.label_pro_version)

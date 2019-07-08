@@ -1,12 +1,12 @@
 package eu.darken.bb.onboarding.steps
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import eu.darken.bb.common.VDC
 import javax.inject.Inject
 
-class HelloStepFragmentViewModel @Inject constructor(
+class HelloStepFragmentVDC @Inject constructor(
 
-) : ViewModel() {
+) : VDC() {
 
     val state = MutableLiveData<State>(State(emoji = ""))
 

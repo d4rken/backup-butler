@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.support.AndroidSupportInjection
-import eu.darken.androidkotlinstarter.common.dagger.VDCSource
 import eu.darken.bb.R
+import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.vdcs
 import javax.inject.Inject
 
 
@@ -27,7 +27,7 @@ class NewTaskFragment : SmartFragment() {
     @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val viewModel: NewTaskFragmentViewModel by viewModels { vdcSource.create(this, null) }
+    private val vdc: NewTaskFragmentVDC by vdcs { vdcSource }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -43,7 +43,7 @@ class NewTaskFragment : SmartFragment() {
 
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.appState.observe(this, Observer {
+        vdc.appState.observe(this, Observer {
 
         })
 

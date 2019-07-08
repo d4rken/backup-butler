@@ -2,7 +2,6 @@ package eu.darken.bb.common
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.ViewModel
 import eu.darken.bb.App
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
@@ -11,10 +10,10 @@ import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-abstract class SmartViewModel : ViewModel() {
+abstract class SmartVDC : VDC() {
 
     companion object {
-        val TAG: String = App.logTag("SmartViewModel")
+        val TAG: String = App.logTag("SmartVDC")
 
         inline fun <T> Iterable<T>.firstIgnoreError(errorMsg: String? = null, predicate: (T) -> Boolean): T = try {
             this.first(predicate)
