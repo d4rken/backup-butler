@@ -3,16 +3,20 @@ package eu.darken.bb.main.ui.overview
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.SmartViewModel
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.main.core.service.BackupService
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
-import javax.inject.Inject
 
-class OverviewFragmentViewModel @Inject constructor(
+class OverviewFragmentViewModel @AssistedInject constructor(
+        @Assisted private val handle: SavedStateHandle,
         private val butler: BackupButler,
         private val upgradeControl: UpgradeControl,
         @AppContext private val context: Context
@@ -40,4 +44,7 @@ class OverviewFragmentViewModel @Inject constructor(
             val appInfo: BackupButler.AppInfo,
             val upgradeData: UpgradeData
     )
+
+    @AssistedInject.Factory
+    interface Factory : SavedStateVDCFactory<OverviewFragmentViewModel>
 }

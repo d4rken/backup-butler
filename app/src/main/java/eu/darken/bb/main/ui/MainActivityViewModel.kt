@@ -1,12 +1,15 @@
 package eu.darken.bb.main.ui
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import javax.inject.Inject
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.dagger.SavedStateVDCFactory
 
 
-class MainActivityViewModel @Inject constructor(
-
+class MainActivityViewModel @AssistedInject constructor(
+        @Assisted private val handle: SavedStateHandle
 ) : ViewModel() {
 
     val state: MutableLiveData<State> = MutableLiveData(State(false))
@@ -16,4 +19,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     data class State(val ready: Boolean)
+
+    @AssistedInject.Factory
+    interface Factory : SavedStateVDCFactory<MainActivityViewModel>
 }

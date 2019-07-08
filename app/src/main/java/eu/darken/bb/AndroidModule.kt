@@ -1,13 +1,11 @@
 package eu.darken.bb
 
-import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.preference.PreferenceManager
 import androidx.work.WorkManager
-
 import dagger.Module
 import dagger.Provides
 import eu.darken.bb.common.dagger.AppContext
@@ -19,7 +17,7 @@ class AndroidModule {
     @Provides
     @AppContext
     @AppComponent.Scope
-    fun context(app: Application): Context = app.applicationContext
+    fun appContext(app: App): Context = app.applicationContext
 
     @Provides
     @AppComponent.Scope

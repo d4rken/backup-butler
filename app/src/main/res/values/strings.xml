@@ -12,4 +12,5 @@
     <string name="label_notification_channel_backup_progress">Backup progress notifications</string>
     <string name="label_progress_loading_task">Loading task</string>
     <string name="label_progress_processing_task">Processing task</string>
+    <string name="label_new_task">New task</string>
 </resources>

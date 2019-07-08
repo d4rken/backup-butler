@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.overview
+package eu.darken.bb.main.ui.newtask
 
 import androidx.lifecycle.ViewModel
 import dagger.Binds
@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class OverviewFragmentModule {
+abstract class NewTaskFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(OverviewFragmentViewModel::class)
-    abstract fun overviewVDC(model: OverviewFragmentViewModel.Factory): SavedStateVDCFactory<out ViewModel>
+    @VDCKey(NewTaskFragmentViewModel::class)
+    abstract fun exampleFragmentVDC(factory: NewTaskFragmentViewModel.Factory): SavedStateVDCFactory<out ViewModel>
 }
 

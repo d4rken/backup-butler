@@ -1,4 +1,4 @@
-package eu.darken.bb
+package eu.darken.bb.common.dagger
 
 import com.squareup.inject.assisted.dagger2.AssistedModule
 import dagger.Module
@@ -6,4 +6,4 @@ import dagger.Module
 
 @AssistedModule
 @Module(includes = [AssistedInject_AssistedInjectModule::class])
-internal abstract class AssistedInjectModule
+interface AssistedInjectModule

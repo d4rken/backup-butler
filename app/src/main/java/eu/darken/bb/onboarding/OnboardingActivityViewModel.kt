@@ -1,12 +1,15 @@
 package eu.darken.bb.onboarding
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import javax.inject.Inject
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.dagger.SavedStateVDCFactory
 
 
-class OnboardingActivityViewModel @Inject constructor(
-
+class OnboardingActivityViewModel @AssistedInject constructor(
+        @Assisted private val handle: SavedStateHandle
 ) : ViewModel() {
 
     val state: MutableLiveData<State> = MutableLiveData(State(State.Step.HELLO))
@@ -17,4 +20,8 @@ class OnboardingActivityViewModel @Inject constructor(
             HELLO
         }
     }
+
+
+    @AssistedInject.Factory
+    interface Factory : SavedStateVDCFactory<OnboardingActivityViewModel>
 }

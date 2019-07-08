@@ -1,15 +1,15 @@
 package eu.darken.bb.onboarding
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
+import eu.darken.androidkotlinstarter.common.dagger.VDCSource
 import eu.darken.bb.R
 import eu.darken.bb.main.ui.overview.OverviewFragment
 import javax.inject.Inject
@@ -18,8 +18,8 @@ import javax.inject.Inject
 class OnboardingActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var viewModel: OnboardingActivityViewModel
+    @Inject lateinit var vdcSource: VDCSource.Factory
+    private val viewModel: OnboardingActivityViewModel by viewModels { vdcSource.create(this, null) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.BaseAppTheme_NoActionBar)
@@ -28,7 +28,6 @@ class OnboardingActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         setContentView(R.layout.main_activity)
         ButterKnife.bind(this)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(OnboardingActivityViewModel::class.java)
 
         viewModel.state.observe(this, Observer { showStep(it.step) })
     }

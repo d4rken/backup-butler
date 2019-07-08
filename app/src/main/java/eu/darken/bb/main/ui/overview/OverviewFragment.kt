@@ -8,14 +8,14 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.android.support.AndroidSupportInjection
+import eu.darken.androidkotlinstarter.common.dagger.VDCSource
 import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.upgrades.UpgradeData
@@ -32,8 +32,8 @@ class OverviewFragment : SmartFragment() {
     @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
     @BindView(R.id.card_debug_testbutton) lateinit var testButton: Button
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var viewModel: OverviewFragmentViewModel
+    @Inject lateinit var vdcSource: VDCSource.Factory
+    private val viewModel: OverviewFragmentViewModel by viewModels { vdcSource.create(this, null) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -49,8 +49,6 @@ class OverviewFragment : SmartFragment() {
 
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(OverviewFragmentViewModel::class.java)
-
         testButton.clicks().subscribe { viewModel.test() }
 
         viewModel.appState.observe(this, Observer {
