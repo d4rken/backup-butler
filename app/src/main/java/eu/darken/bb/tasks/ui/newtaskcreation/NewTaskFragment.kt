@@ -1,15 +1,11 @@
-package eu.darken.bb.main.ui.newtask
+package eu.darken.bb.tasks.ui.newtaskcreation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.support.AndroidSupportInjection
 import eu.darken.bb.R
@@ -24,8 +20,6 @@ class NewTaskFragment : SmartFragment() {
         fun newInstance(): Fragment = NewTaskFragment()
     }
 
-    @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
-
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: NewTaskFragmentVDC by vdcs { vdcSource }
 
@@ -36,26 +30,13 @@ class NewTaskFragment : SmartFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.overview_fragment, container, false)
+        val layout = inflater.inflate(R.layout.onboarding_step_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
         return layout
     }
 
-    @SuppressLint("CheckResult", "SetTextI18n")
+    @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.appState.observe(this, Observer {
-
-        })
-
         super.onViewCreated(view, savedInstanceState)
     }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        toolbar.setTitle(R.string.label_new_task)
-        toolbar.subtitle = null
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
-    }
-
 }

@@ -5,16 +5,14 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
-import dagger.android.support.AndroidSupportInjection
 import eu.darken.bb.R
+import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdcs
@@ -22,12 +20,11 @@ import eu.darken.bb.upgrades.UpgradeData
 import javax.inject.Inject
 
 
-class OverviewFragment : SmartFragment() {
+class OverviewFragment : SmartFragment(), AutoInject {
     companion object {
         fun newInstance(): Fragment = OverviewFragment()
     }
 
-    @BindView(R.id.toolbar) lateinit var toolbar: Toolbar
     @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
     @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
     @BindView(R.id.card_debug_testbutton) lateinit var testButton: Button
@@ -36,7 +33,6 @@ class OverviewFragment : SmartFragment() {
     private val vdc: OverviewFragmentVDC by vdcs { vdcSource }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidSupportInjection.inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
@@ -60,14 +56,6 @@ class OverviewFragment : SmartFragment() {
         })
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        toolbar.setTitle(R.string.app_name)
-        toolbar.subtitle = null
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

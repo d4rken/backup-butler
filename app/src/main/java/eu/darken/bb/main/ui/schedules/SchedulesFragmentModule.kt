@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.newtask
+package eu.darken.bb.main.ui.schedules
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class NewTaskFragmentModule {
+abstract class SchedulesFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(NewTaskFragmentVDC::class)
-    abstract fun exampleFragmentVDC(factory: NewTaskFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
+    @VDCKey(SchedulesFragmentVDC::class)
+    abstract fun overviewVDC(model: SchedulesFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
 }
 

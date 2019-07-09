@@ -1,4 +1,4 @@
-package eu.darken.bb.onboarding.steps
+package eu.darken.bb.tasks.ui.newtaskcreation
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,11 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class HelloStepFragmentModule {
+abstract class NewTaskFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(HelloStepFragmentVDC::class)
-    abstract fun hellostepVDC(model: HelloStepFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
+    @VDCKey(NewTaskFragmentVDC::class)
+    abstract fun newTaskVDC(model: NewTaskFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
 }
+
 

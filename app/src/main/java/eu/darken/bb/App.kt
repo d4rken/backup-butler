@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.app.Service
 import android.content.BroadcastReceiver
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.uber.rxdogtag.RxDogTag
@@ -42,6 +43,8 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
             Timber.plant(Timber.DebugTree())
             RxDogTag.builder().install()
         }
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         AppInjector.init(this)
 

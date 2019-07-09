@@ -1,4 +1,4 @@
-package eu.darken.bb.onboarding.steps
+package eu.darken.bb.tasks.ui.newtaskcreation
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -7,7 +7,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 
-class HelloStepFragmentVDC @AssistedInject constructor(
+class NewTaskFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle
 ) : VDC() {
 
@@ -16,5 +16,5 @@ class HelloStepFragmentVDC @AssistedInject constructor(
     data class State(val emoji: String)
 
     @AssistedInject.Factory
-    interface Factory : SavedStateVDCFactory<HelloStepFragmentVDC>
+    interface Factory : SavedStateVDCFactory<NewTaskFragmentVDC>
 }

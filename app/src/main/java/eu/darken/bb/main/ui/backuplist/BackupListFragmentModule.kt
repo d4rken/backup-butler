@@ -1,4 +1,4 @@
-package eu.darken.bb.onboarding.steps
+package eu.darken.bb.main.ui.backuplist
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class HelloStepFragmentModule {
+abstract class BackupListFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(HelloStepFragmentVDC::class)
-    abstract fun hellostepVDC(model: HelloStepFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
+    @VDCKey(BackupListFragmentVDC::class)
+    abstract fun overviewVDC(model: BackupListFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
 }
 

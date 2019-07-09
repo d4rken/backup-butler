@@ -6,30 +6,43 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
+import butterknife.BindView
 import butterknife.ButterKnife
-import dagger.android.AndroidInjection
+import com.google.android.material.tabs.TabLayout
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
+import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcs
-import eu.darken.bb.main.ui.overview.OverviewFragment
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: MainActivityVDC by vdcs { vdcSource }
 
+    @BindView(R.id.viewpager) lateinit var viewPager: ViewPager2
+    @BindView(R.id.tablayout) lateinit var tabLayout: TabLayout
+
+    @Inject lateinit var pagerPages: List<PagerAdapter.Page>
+    private val pagerAdapter by lazy { PagerAdapter(this, pagerPages) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.BaseAppTheme_NoActionBar)
-        AndroidInjection.inject(this)
+        setTheme(R.style.BaseAppTheme)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)
         ButterKnife.bind(this)
+
+        viewPager.adapter = pagerAdapter
+
+        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.OnConfigureTabCallback { tab, position ->
+            tab.setText(pagerAdapter.pages[position].titleRes)
+        }).attach()
 
         vdc.state.observe(this, Observer { if (it.ready) showExampleFragment() })
 
@@ -51,8 +64,8 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     fun showExampleFragment() {
-        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (fragment == null) fragment = OverviewFragment.newInstance()
-        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commitAllowingStateLoss()
+//        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
+//        if (fragment == null) fragment = OverviewFragment.newInstance()
+//        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commitAllowingStateLoss()
     }
 }
