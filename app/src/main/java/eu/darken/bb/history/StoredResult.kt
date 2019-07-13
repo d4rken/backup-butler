@@ -1,6 +1,6 @@
 package eu.darken.bb.history
 
-import eu.darken.bb.backup.BackupTask
+import eu.darken.bb.tasks.core.BackupTask
 
 data class StoredResult(
         val taskId: String,

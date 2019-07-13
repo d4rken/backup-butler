@@ -6,13 +6,13 @@ import dagger.android.AndroidInjection
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.processor.DefaultBackupProcessor
-import eu.darken.bb.backup.repo.BackupTaskRepo
 import eu.darken.bb.common.withCompositeDisposable
+import eu.darken.bb.tasks.core.BackupTaskRepo
+import eu.darken.bb.tasks.core.getTaskId
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 class BackupService : IntentService(TAG), ProgressHost, Progressable {
@@ -54,7 +54,7 @@ class BackupService : IntentService(TAG), ProgressHost, Progressable {
             return
         }
         publishPrimary(R.string.label_progress_loading_task)
-        val taskID = intent.getSerializableExtra("task.uuid") as? UUID
+        val taskID = intent.getTaskId()
         if (taskID == null) {
             Timber.tag(TAG).e("Intent had no UUID: %s", intent)
             return
@@ -78,6 +78,24 @@ class BackupService : IntentService(TAG), ProgressHost, Progressable {
     override fun publishPrimary(primary: String) {
         progress.take(1)
                 .map { it.copy(primary = primary) }
+                .subscribe { progressPub.onNext(it) }
+                .withCompositeDisposable(serviceDeathDisp)
+    }
+
+    override fun publishSecondary(secondary: Int) {
+        this.publishSecondary(getString(secondary))
+    }
+
+    override fun publishSecondary(secondary: String) {
+        progress.take(1)
+                .map { it.copy(secondary = secondary) }
+                .subscribe { progressPub.onNext(it) }
+                .withCompositeDisposable(serviceDeathDisp)
+    }
+
+    override fun publishProgress(current: Long, max: Long, progressType: Progressable.ProgressType) {
+        progress.take(1)
+                .map { it.copy(progressCurrent = current, progressMax = max, progressType = progressType) }
                 .subscribe { progressPub.onNext(it) }
                 .withCompositeDisposable(serviceDeathDisp)
     }

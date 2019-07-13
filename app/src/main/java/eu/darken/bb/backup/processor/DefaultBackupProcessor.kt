@@ -1,38 +1,44 @@
 package eu.darken.bb.backup.processor
 
+import dagger.Reusable
 import eu.darken.bb.App
-import eu.darken.bb.backup.BackupTask
-import eu.darken.bb.backup.Destination
-import eu.darken.bb.backup.Source
+import eu.darken.bb.backup.backups.Backup
+import eu.darken.bb.backup.backups.EndpointFactory
+import eu.darken.bb.backup.processor.cache.CacheRepo
+import eu.darken.bb.backup.repos.BackupRepo
+import eu.darken.bb.backup.repos.RepoFactory
+import eu.darken.bb.tasks.core.BackupTask
 import timber.log.Timber
 import javax.inject.Inject
 
+@Reusable
 class DefaultBackupProcessor @Inject constructor(
-
+        @EndpointFactory private val endpointFactories: Set<@JvmSuppressWildcards Backup.Endpoint.Factory>,
+        @RepoFactory private val repoFactories: Set<@JvmSuppressWildcards BackupRepo.Factory>,
+        private val cacheRepo: CacheRepo
 ) {
     companion object {
         private val TAG = App.logTag("DefaultBackupProcessor")
     }
 
-    private val sourceProcessors = mapOf<Source.Type, Source.Processor>()
-    private val destinationProcessors = mapOf<Destination.Type, Destination.Processor>()
-
     fun process(backupTask: BackupTask): BackupTask.Result {
         Timber.tag(TAG).i("Processing backup task: %s", backupTask)
-        backupTask.sources.forEach { sourceConfig ->
-            val sourceProcessor = sourceProcessors[sourceConfig.sourceType]!!
-            Timber.tag(TAG).d("Backing up %s using %s", sourceConfig, sourceProcessor)
+        backupTask.sources.forEach { backupConf ->
+            val endpoint = endpointFactories.find { it.isCompatible(backupConf) }!!.create(backupConf)
+            Timber.tag(TAG).d("Backing up %s using %s", backupConf, endpoint)
 
-            val piece = sourceProcessor.backup(sourceConfig)
-            Timber.tag(TAG).d("Backup piece created: %s", piece)
+            val backup = endpoint.backup(backupConf)
+            Timber.tag(TAG).d("Backup created: %s", backup)
 
-            backupTask.destinations.forEach { destinationConfig ->
-                val destinationProcessor = destinationProcessors[destinationConfig.destinationType]!!
-                Timber.tag(TAG).d("Storing piece %s to %s using %s", piece, destinationConfig, destinationProcessor)
+            backupTask.destinations.forEach { repoConf ->
+                val repo = repoFactories.find { it.isCompatible(repoConf) }!!.create(repoConf)
+                Timber.tag(TAG).d("Storing %s using %s", backup, repo)
 
-                val result = destinationProcessor.store(piece)
-                Timber.tag(TAG).d("Backup piece %s stored: %s", piece, result)
+                val result = repo.save(backup)
+                Timber.tag(TAG).d("Backup piece %s stored: %s", backup, result)
             }
+
+            cacheRepo.removeAll(backup.id)
         }
 
         Thread.sleep(5 * 1000)

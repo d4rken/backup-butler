@@ -1,4 +1,4 @@
-package eu.darken.bb.backup
+package eu.darken.bb.tasks.core
 
 class UnknownTaskException : Exception {
     constructor(message: String, cause: Throwable) : super(message, cause)

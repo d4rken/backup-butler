@@ -3,6 +3,7 @@ package eu.darken.bb
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.preference.PreferenceManager
 import androidx.work.WorkManager
@@ -22,6 +23,10 @@ class AndroidModule {
     @Provides
     @AppComponent.Scope
     fun preferences(@AppContext context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+    @Provides
+    @AppComponent.Scope
+    fun packageManager(@AppContext context: Context): PackageManager = context.packageManager
 
     @Provides
     @AppComponent.Scope

@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.backup.BackupTask
+import eu.darken.bb.tasks.core.BackupTask
 import io.reactivex.Single
 import timber.log.Timber
 

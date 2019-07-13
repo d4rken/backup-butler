@@ -11,9 +11,11 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.main.core.service.BackupService
+import eu.darken.bb.tasks.core.addTaskId
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
+import java.util.*
 
 class OverviewFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -37,7 +39,9 @@ class OverviewFragmentVDC @AssistedInject constructor(
     }
 
     fun test() {
-        context.startService(Intent(context, BackupService::class.java))
+        val intent = Intent(context, BackupService::class.java)
+        intent.addTaskId(UUID.randomUUID())
+        context.startService(intent)
     }
 
     data class AppState(
