@@ -4,7 +4,7 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.backup.backups.Backup
 import eu.darken.bb.backup.backups.EndpointFactory
-import eu.darken.bb.backup.processor.cache.CacheRepo
+import eu.darken.bb.backup.processor.tmp.TmpDataRepo
 import eu.darken.bb.backup.repos.BackupRepo
 import eu.darken.bb.backup.repos.RepoFactory
 import eu.darken.bb.tasks.core.BackupTask
@@ -15,30 +15,30 @@ import javax.inject.Inject
 class DefaultBackupProcessor @Inject constructor(
         @EndpointFactory private val endpointFactories: Set<@JvmSuppressWildcards Backup.Endpoint.Factory>,
         @RepoFactory private val repoFactories: Set<@JvmSuppressWildcards BackupRepo.Factory>,
-        private val cacheRepo: CacheRepo
+        private val tmpDataRepo: TmpDataRepo
 ) {
     companion object {
-        private val TAG = App.logTag("DefaultBackupProcessor")
+        private val TAG = App.logTag("BackupProcessor", "Default")
     }
 
     fun process(backupTask: BackupTask): BackupTask.Result {
         Timber.tag(TAG).i("Processing backup task: %s", backupTask)
         backupTask.sources.forEach { backupConf ->
             val endpoint = endpointFactories.find { it.isCompatible(backupConf) }!!.create(backupConf)
-            Timber.tag(TAG).d("Backing up %s using %s", backupConf, endpoint)
+            Timber.tag(TAG).i("Backing up %s using %s", backupConf, endpoint)
 
             val backup = endpoint.backup(backupConf)
-            Timber.tag(TAG).d("Backup created: %s", backup)
+            Timber.tag(TAG).i("Backup created: %s", backup)
 
             backupTask.destinations.forEach { repoConf ->
                 val repo = repoFactories.find { it.isCompatible(repoConf) }!!.create(repoConf)
-                Timber.tag(TAG).d("Storing %s using %s", backup, repo)
+                Timber.tag(TAG).i("Storing %s using %s", backup.id, repo)
 
                 val result = repo.save(backup)
-                Timber.tag(TAG).d("Backup piece %s stored: %s", backup, result)
+                Timber.tag(TAG).i("Backup (%s) stored: ", backup.id, result)
             }
 
-            cacheRepo.removeAll(backup.id)
+            tmpDataRepo.deleteAll(backup.id)
         }
 
         Thread.sleep(5 * 1000)

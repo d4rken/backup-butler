@@ -21,7 +21,7 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
         internal val TAG = logTag("App")
 
         fun logTag(vararg tags: String): String {
-            val sb = StringBuilder()
+            val sb = StringBuilder("BB:")
             for (i in tags.indices) {
                 sb.append(tags[i])
                 if (i < tags.size - 1) sb.append(":")

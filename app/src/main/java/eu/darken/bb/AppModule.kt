@@ -9,7 +9,6 @@ import eu.darken.bb.backup.backups.Backup
 
 @Module
 class AppModule {
-
     @Provides
     @AppComponent.Scope
     fun moshi(): Moshi {

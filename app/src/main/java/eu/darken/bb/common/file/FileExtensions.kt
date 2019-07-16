@@ -9,3 +9,7 @@ fun File.copyTo(file: File) {
         }
     }
 }
+
+fun File.asSFile(): SFile {
+    return JavaFile.build(path)
+}

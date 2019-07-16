@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.backups.app.AppBackup
 import eu.darken.bb.backup.backups.file.FileBackup
-import eu.darken.bb.backup.processor.cache.CacheRef
+import eu.darken.bb.backup.processor.tmp.TmpRef
 import java.util.*
 import javax.inject.Qualifier
 
@@ -20,10 +20,11 @@ interface Backup {
         APP_BACKUP, FILE
     }
 
+    val name: String
     val id: BackupId
     val backupType: Type
     val config: Config
-    val data: Map<String, Collection<CacheRef>>
+    val data: Map<String, Collection<TmpRef>>
 
     interface Endpoint {
         fun backup(config: Config): Backup
@@ -48,7 +49,9 @@ interface Backup {
     }
 }
 
-inline class BackupId(val id: UUID = UUID.randomUUID())
+inline class BackupId(val id: UUID = UUID.randomUUID()) {
+    override fun toString(): String = id.toString()
+}
 
 @Qualifier
 @MustBeDocumented
