@@ -9,7 +9,6 @@ import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
 import timber.log.Timber
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 @AppComponent.Scope
@@ -26,7 +25,7 @@ class TmpDataRepo @Inject constructor(
     }
 
     fun create(backupId: BackupId, type: TmpType = TmpType.FILE): TmpRef {
-        val refId = RefId()
+        val refId = TmpRefId()
         val cacheRef = TmpRef(
                 refId = refId,
                 backupId = backupId,
@@ -59,8 +58,4 @@ class TmpDataRepo @Inject constructor(
     companion object {
         val TAG = App.logTag("TmpDataRepo")
     }
-}
-
-inline class RefId(val id: UUID = UUID.randomUUID()) {
-    override fun toString(): String = id.toString()
 }

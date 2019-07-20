@@ -3,6 +3,9 @@ package eu.darken.bb.common.file
 import java.io.File
 
 data class JavaFile(val file: File) : SFile {
+
+    override val pathType: SFile.PathType = SFile.PathType.JAVA_FILE
+
     override val path: String
         get() = file.path
 

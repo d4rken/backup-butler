@@ -6,7 +6,7 @@ class BackupConfigTest {
 
     @Test
     fun `test that adapter knows all sub classes`() {
-//        Backup.Config.MOSHI_FACTORY.testAllSubTypesRegistered()
+//        Backup.BackupConfig.MOSHI_FACTORY.testAllSubTypesRegistered()
     }
 
 }

@@ -13,12 +13,12 @@ import javax.inject.Inject
 @AppComponent.Scope
 class BackupTaskRepo @Inject constructor() {
     fun getTask(id: UUID): BackupTask? {
-        val appConfig: Backup.Config = AppBackup.Config("com.laurencedawson.reddit_sync")
-        val backupRepoConfig: BackupRepo.Config = LocalStorageRepo.Config(JavaFile.build("/storage/emulated/0/BackupButler/testrepo"))
+        val appConfig: Backup.Config = AppBackup.Config("eu.thedarken.sdm")
+        val backupRepoBackupConfig: BackupRepo.RepoRef = LocalStorageRepo.Ref(JavaFile.build("/storage/emulated/0/BackupButler/testrepo"))
         val testTask = DefaultBackupTask(
                 id = id,
                 sources = listOf(appConfig),
-                destinations = listOf(backupRepoConfig)
+                destinations = listOf(backupRepoBackupConfig)
 
         )
         return testTask

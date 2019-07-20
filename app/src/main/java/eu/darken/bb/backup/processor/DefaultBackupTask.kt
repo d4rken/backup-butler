@@ -8,7 +8,7 @@ import java.util.*
 data class DefaultBackupTask(
         override val id: UUID,
         override val sources: List<Backup.Config>,
-        override val destinations: List<BackupRepo.Config>
+        override val destinations: List<BackupRepo.RepoRef>
 ) : BackupTask {
 
 

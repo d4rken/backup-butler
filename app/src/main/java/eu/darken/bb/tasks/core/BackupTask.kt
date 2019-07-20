@@ -11,7 +11,7 @@ interface BackupTask : Jsonable {
 
     val sources: List<Backup.Config>
 
-    val destinations: List<BackupRepo.Config>
+    val destinations: List<BackupRepo.RepoRef>
 
     interface Result {
         enum class State {
