@@ -1,7 +1,7 @@
 package eu.darken.bb.tasks.core
 
 import android.content.Intent
-import eu.darken.bb.backup.backups.Backup
+import eu.darken.bb.backup.backups.BackupConfig
 import eu.darken.bb.backup.repos.BackupRepo
 import eu.darken.bb.common.Jsonable
 import java.util.*
@@ -9,9 +9,9 @@ import java.util.*
 interface BackupTask : Jsonable {
     val id: UUID
 
-    val sources: List<Backup.Config>
+    val sources: List<BackupConfig>
 
-    val destinations: List<BackupRepo.RepoRef>
+    val destinations: List<BackupRepo.RepoReference>
 
     interface Result {
         enum class State {

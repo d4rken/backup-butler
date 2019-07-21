@@ -3,6 +3,8 @@ package eu.darken.bb.backup.backups.app
 import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.backup.backups.Backup
+import eu.darken.bb.backup.backups.BackupConfig
+import eu.darken.bb.backup.backups.BackupEndpoint
 import eu.darken.bb.backup.backups.BackupId
 import eu.darken.bb.backup.processor.tmp.TmpDataRepo
 import eu.darken.bb.backup.processor.tmp.TmpRef
@@ -13,38 +15,33 @@ import javax.inject.Inject
 class AppBackupEndpoint(
         private val apkExporter: APKExporter,
         private val tmpDataRepo: TmpDataRepo
-) : Backup.Endpoint {
+) : BackupEndpoint {
 
-    override fun backup(config: Backup.Config): AppBackup {
+    override fun backup(config: BackupConfig): Backup {
+        config as AppBackupConfig
+        val builder = AppBackupBuilder(config, BackupId())
 
-        config as AppBackup.Config
-        val backup = AppBackup(
-                packageName = config.packageName,
-                id = BackupId(),
-                config = config
-        )
         val apkData = apkExporter.getAPKFile(config.packageName)
 
-        val baseApkRef: TmpRef = tmpDataRepo.create(backupId = backup.id)
+        val baseApkRef: TmpRef = tmpDataRepo.create(backupId = builder.backupId)
         baseApkRef.originalPath = apkData.mainSource
 
         apkData.mainSource.asFile().copyTo(baseApkRef.file.asFile())
-        backup.baseApk = baseApkRef
+        builder.baseApk = baseApkRef
 
         val splitApkRefs = mutableListOf<TmpRef>()
         apkData.splitSources.forEach { splitApk ->
-            val splitSourceRef = tmpDataRepo.create(backup.id)
+            val splitSourceRef = tmpDataRepo.create(builder.backupId)
             splitSourceRef.originalPath = splitApk
             splitApk.asFile().copyTo(splitSourceRef.file.asFile())
             splitApkRefs.add(splitSourceRef)
         }
-        backup.splitApks = splitApkRefs
+        builder.splitApks = splitApkRefs
 
-        return backup
+        return builder.toBackup()
     }
 
     override fun restore(backup: Backup): Boolean {
-        backup as AppBackup
 
         TODO("not implemented")
     }
@@ -59,12 +56,12 @@ class AppBackupEndpoint(
     class Factory @Inject constructor(
             private val apkExporter: APKExporter,
             private val tmpDataRepo: TmpDataRepo
-    ) : Backup.Endpoint.Factory {
-        override fun isCompatible(config: Backup.Config): Boolean {
+    ) : BackupEndpoint.Factory {
+        override fun isCompatible(config: BackupConfig): Boolean {
             return config.configType == Backup.Type.APP_BACKUP
         }
 
-        override fun create(config: Backup.Config): AppBackupEndpoint {
+        override fun create(config: BackupConfig): AppBackupEndpoint {
             return AppBackupEndpoint(
                     apkExporter = apkExporter,
                     tmpDataRepo = tmpDataRepo

@@ -19,6 +19,15 @@ fun File.asSFile(): SFile {
     return JavaFile.build(path)
 }
 
+fun File.assertExists(): File {
+    if (!exists()) {
+        val ex = IllegalStateException("Path doesn't exist, but should: $this")
+        Timber.tag(TAG).w(ex)
+        throw ex
+    }
+    return this
+}
+
 fun File.tryMkDir(): File {
     if (exists()) {
         if (isDirectory) {

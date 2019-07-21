@@ -64,8 +64,8 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     fun showExampleFragment() {
-//        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
+//        var fragment = supportFragmentManager.findFragmentById(R.backupId.content_frame)
 //        if (fragment == null) fragment = OverviewFragment.newInstance()
-//        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commitAllowingStateLoss()
+//        supportFragmentManager.beginTransaction().replace(R.backupId.content_frame, fragment).commitAllowingStateLoss()
     }
 }

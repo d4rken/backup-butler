@@ -9,13 +9,14 @@ import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 @AppComponent.Scope
 class TmpDataRepo @Inject constructor(
         @AppContext private val context: Context
 ) {
-    private val tmpDir: File = File(context.cacheDir, "tmprepo")
+    private val tmpDir: File = File(context.externalCacheDir, "tmprepo")
     private val refMap = mutableMapOf<BackupId, MutableList<TmpRef>>()
 
     init {
@@ -24,13 +25,14 @@ class TmpDataRepo @Inject constructor(
         }
     }
 
-    fun create(backupId: BackupId, type: TmpType = TmpType.FILE): TmpRef {
-        val refId = TmpRefId()
+    @Synchronized
+    fun create(backupId: BackupId, type: TmpRef.Type = TmpRef.Type.FILE): TmpRef {
+        val refId = UUID.randomUUID()
         val cacheRef = TmpRef(
                 refId = refId,
                 backupId = backupId,
                 type = type,
-                file = File(tmpDir, refId.id.toString()).asSFile()
+                file = File(tmpDir, refId.toString()).asSFile()
         )
         if (!refMap.contains(backupId)) {
             refMap[backupId] = mutableListOf()
@@ -40,15 +42,16 @@ class TmpDataRepo @Inject constructor(
         return cacheRef
     }
 
+    @Synchronized
     fun deleteAll(backupId: BackupId) {
         Timber.tag(TAG).d("deleteAll(%s): %s", backupId, refMap[backupId])
         refMap[backupId]?.forEach { it ->
             when (it.type) {
-                TmpType.FILE -> {
+                TmpRef.Type.FILE -> {
                     val deleted = it.file.asFile().delete()
                     Timber.tag(TAG).v("Delete tmp file (success=%b): %s", deleted, it.file)
                 }
-                TmpType.DIRECTORY -> {
+                TmpRef.Type.DIRECTORY -> {
                     TODO()
                 }
             }
