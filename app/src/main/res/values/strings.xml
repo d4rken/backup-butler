@@ -14,6 +14,8 @@
     <string name="label_progress_processing_task">Processing task</string>
     <string name="label_new_task">New task</string>
     <string name="label_overview">Overview</string>
-    <string name="label_backups">Backups</string>
+    <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
+    <string name="label_tasks">Tasks</string>
+    <string name="repo_type_label_local_storage">Local storage</string>
 </resources>

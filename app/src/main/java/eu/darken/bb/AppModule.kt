@@ -5,7 +5,9 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import eu.darken.bb.backup.backups.BackupConfig
-import eu.darken.bb.backup.repos.BackupRepo
+import eu.darken.bb.backup.repos.RepoConfig
+import eu.darken.bb.backup.repos.RepoReference
+import eu.darken.bb.backup.repos.RevisionConfig
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.moshi.BackupIdAdapter
 import eu.darken.bb.common.moshi.DateAdapter
@@ -20,9 +22,9 @@ class AppModule {
     fun moshi(): Moshi = Moshi.Builder()
             .add(BackupConfig.MOSHI_FACTORY)
             .add(SFile.MOSHI_FACTORY)
-            .add(BackupRepo.RepoReference.MOSHI_FACTORY)
-            .add(BackupRepo.RepoConfig.MOSHI_FACTORY)
-            .add(BackupRepo.RevisionConfig.MOSHI_FACTORY)
+            .add(RepoReference.MOSHI_FACTORY)
+            .add(RepoConfig.MOSHI_FACTORY)
+            .add(RevisionConfig.MOSHI_FACTORY)
             .add(FileAdapter())
             .add(DateAdapter())
             .add(BackupIdAdapter())

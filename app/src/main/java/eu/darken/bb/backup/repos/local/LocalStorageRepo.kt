@@ -8,11 +8,11 @@ import eu.darken.bb.backup.backups.BackupConfig
 import eu.darken.bb.backup.backups.BackupId
 import eu.darken.bb.backup.backups.BaseBackupBuilder
 import eu.darken.bb.backup.processor.tmp.TmpDataRepo
-import eu.darken.bb.backup.repos.BackupRepo
-import eu.darken.bb.backup.repos.DefaultRevisionConfig
+import eu.darken.bb.backup.repos.*
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import io.reactivex.Observable
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -25,10 +25,10 @@ class LocalStorageRepo(
 ) : BackupRepo {
     private val dataPath = File(repoRef.path.asFile(), "data").tryMkDir()
     private val repoConfigFile = File(repoRef.path.asFile(), "repository.config")
-    private val repoConfigAdapter = moshi.adapter(BackupRepo.RepoConfig::class.java)
+    private val repoConfigAdapter = moshi.adapter(RepoConfig::class.java)
     private val backupConfigAdapter = moshi.adapter(BackupConfig::class.java)
     private val backupAdapter = moshi.adapter(Backup::class.java)
-    private val revisionConfigAdapter = moshi.adapter(BackupRepo.RevisionConfig::class.java)
+    private val revisionConfigAdapter = moshi.adapter(RevisionConfig::class.java)
     private val repoConfig: LocalStorageConfig
 
     init {
@@ -40,8 +40,12 @@ class LocalStorageRepo(
         repoConfig = config
     }
 
-    override fun getAll(): Collection<BackupRepo.BackupReference> {
-        val refs = mutableListOf<BackupRepo.BackupReference>()
+    override fun status(): Observable<RepoInfo> {
+        TODO("not implemented")
+    }
+
+    override fun getAll(): Collection<BackupReference> {
+        val refs = mutableListOf<BackupReference>()
         for (backupDir in dataPath.listFiles()) {
             if (backupDir.isFile) {
                 Timber.tag(TAG).e("Unexpected file within data directory: %s", backupDir)
@@ -68,7 +72,7 @@ class LocalStorageRepo(
         return refs
     }
 
-    override fun load(backupReference: BackupRepo.BackupReference, backupId: BackupId): Backup {
+    override fun load(backupReference: BackupReference, backupId: BackupId): Backup {
         backupReference as LocalStorageBackupReference
         val backupDir = backupReference.path.asFile().assertExists()
 
@@ -91,7 +95,7 @@ class LocalStorageRepo(
         return backupBuilder.toBackup()
     }
 
-    override fun save(backup: Backup): BackupRepo.BackupReference {
+    override fun save(backup: Backup): BackupReference {
         val backupDir = File(dataPath, backup.config.backupName).tryMkDir()
 
         val backupConfigFile = File(backupDir, BACKUP_CONFIG)
@@ -133,7 +137,7 @@ class LocalStorageRepo(
         return backupRef
     }
 
-    override fun remove(backupReference: BackupRepo.BackupReference): Boolean {
+    override fun remove(backupReference: BackupReference): Boolean {
         TODO("not implemented")
 
         // TODO update revision data

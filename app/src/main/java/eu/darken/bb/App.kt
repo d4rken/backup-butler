@@ -39,6 +39,7 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
 
     override fun onCreate() {
         super.onCreate()
+
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
             RxDogTag.builder().install()

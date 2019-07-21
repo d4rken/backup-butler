@@ -6,16 +6,16 @@ import java.util.*
 
 data class DefaultRevisionConfig(
         override val revisions: List<Revision>
-) : BackupRepo.RevisionConfig {
+) : RevisionConfig {
 
     override fun getRevision(backupId: BackupId): Revision? = revisions.find { it.backupId == backupId }
 
-    override val revisionType = BackupRepo.RevisionConfig.Type.SIMPLE
+    override val revisionType = RevisionConfig.Type.SIMPLE
 
     data class Revision(
             override val backupId: BackupId,
             override val createdAt: Date
-    ) : BackupRepo.RevisionConfig.Revision {
+    ) : RevisionConfig.Revision {
 
         fun getRevDir(base: File): File = File(base, backupId.toString())
     }

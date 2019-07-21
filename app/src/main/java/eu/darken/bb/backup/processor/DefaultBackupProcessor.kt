@@ -8,6 +8,7 @@ import eu.darken.bb.backup.processor.tmp.TmpDataRepo
 import eu.darken.bb.backup.repos.BackupRepo
 import eu.darken.bb.backup.repos.RepoFactory
 import eu.darken.bb.tasks.core.BackupTask
+import eu.darken.bb.tasks.core.DefaultBackupTask
 import timber.log.Timber
 import javax.inject.Inject
 

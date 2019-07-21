@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.backuplist
+package eu.darken.bb.tasks.ui.tasklist
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class BackupListFragmentModule {
+abstract class TaskListFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(BackupListFragmentVDC::class)
-    abstract fun overviewVDC(model: BackupListFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
+    @VDCKey(TaskListFragmentVDC::class)
+    abstract fun tasklistVDC(model: TaskListFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
 }
 

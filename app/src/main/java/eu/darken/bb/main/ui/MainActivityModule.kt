@@ -7,12 +7,14 @@ import dagger.multibindings.IntoMap
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.dagger.VDCKey
-import eu.darken.bb.main.ui.backuplist.BackupListFragment
-import eu.darken.bb.main.ui.backuplist.BackupListFragmentModule
 import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.main.ui.overview.OverviewFragmentModule
+import eu.darken.bb.main.ui.repos.RepoListFragment
+import eu.darken.bb.main.ui.repos.RepoListFragmentModule
 import eu.darken.bb.main.ui.schedules.SchedulesFragment
 import eu.darken.bb.main.ui.schedules.SchedulesFragmentModule
+import eu.darken.bb.tasks.ui.tasklist.TaskListFragment
+import eu.darken.bb.tasks.ui.tasklist.TaskListFragmentModule
 
 @Module(includes = [PagerModule::class])
 abstract class MainActivityModule {
@@ -25,9 +27,12 @@ abstract class MainActivityModule {
     @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
     abstract fun overviewFragment(): OverviewFragment
 
-    @ContributesAndroidInjector(modules = [BackupListFragmentModule::class])
-    abstract fun backuplistFragment(): BackupListFragment
+    @ContributesAndroidInjector(modules = [RepoListFragmentModule::class])
+    abstract fun repolistFragment(): RepoListFragment
+
+    @ContributesAndroidInjector(modules = [TaskListFragmentModule::class])
+    abstract fun tasklistFragment(): TaskListFragment
 
     @ContributesAndroidInjector(modules = [SchedulesFragmentModule::class])
-    abstract fun tasklistFragment(): SchedulesFragment
+    abstract fun schedulelistFragment(): SchedulesFragment
 }
