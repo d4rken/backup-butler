@@ -6,7 +6,7 @@ import dagger.android.AndroidInjection
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.processor.DefaultBackupProcessor
-import eu.darken.bb.common.withCompositeDisposable
+import eu.darken.bb.common.rx.withCompositeDisposable
 import eu.darken.bb.tasks.core.BackupTaskRepo
 import eu.darken.bb.tasks.core.getTaskId
 import io.reactivex.Observable
@@ -59,7 +59,7 @@ class BackupService : IntentService(TAG), ProgressHost, Progressable {
             Timber.tag(TAG).e("Intent had no UUID: %s", intent)
             return
         }
-        val task = backupTaskRepo.getTask(taskID)
+        val task = backupTaskRepo.get(taskID).blockingGet().value
         if (task == null) {
             Timber.tag(TAG).e("Unknown backup task: %s", taskID)
             return

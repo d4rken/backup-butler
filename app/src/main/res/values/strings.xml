@@ -18,4 +18,18 @@
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
     <string name="repo_type_label_local_storage">Local storage</string>
+    <string name="error_message_missing_file_x">Can\'t find %s</string>
+    <plurals name="x_revisions">
+        <item quantity="one">%d revision</item>
+        <item quantity="other">%d revisions</item>
+    </plurals>
+    <plurals name="x_items">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <string name="label_edit_task">Edit task</string>
+    <string name="label_task_name">Task name</string>
+    <string name="button_next">Next</string>
+    <string name="button_previous">Previous</string>
+    <string name="button_create">Create</string>
 </resources>

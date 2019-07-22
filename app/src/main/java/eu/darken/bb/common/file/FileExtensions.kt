@@ -28,7 +28,7 @@ fun File.assertExists(): File {
     return this
 }
 
-fun File.tryMkDir(): File {
+fun File.tryMkDirs(): File {
     if (exists()) {
         if (isDirectory) {
             Timber.tag(TAG).v("Directory already exists, not creating: %s", this)
@@ -62,7 +62,7 @@ fun File.tryMkFile(): File {
         }
     }
 
-    if (!parentFile.exists()) parentFile.tryMkDir()
+    if (!parentFile.exists()) parentFile.tryMkDirs()
 
     if (createNewFile()) {
         Timber.tag(TAG).v("File created: %s", this)

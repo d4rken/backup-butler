@@ -16,12 +16,12 @@
     <color name="colorError">#C51162</color>
     <!--The color used for elements displayed on top of your error color-->
     <color name="colorOnError">#FFFFFF</color>
-    <!--The color used for surfaces (i.e. Material “sheets”)-->
-    <color name="colorSurface">#FFFFFF</color>
-    <!--The color used for elements displayed on top of your surface color-->
-    <color name="colorOnSurface">#000000</color>
-    <!-- The color used for elements displayed on top of your background color-->
-    <color name="colorOnBackground">#000000</color>
-    <!--The color behind all other screen content-->
-    <color name="colorBackground">#FFFFFF</color>
+    <!--&lt;!&ndash;The color used for surfaces (i.e. Material “sheets”)&ndash;&gt;-->
+    <!--<color name="colorSurface">#FFFFFF</color>-->
+    <!--&lt;!&ndash;The color used for elements displayed on top of your surface color&ndash;&gt;-->
+    <!--<color name="colorOnSurface">#000000</color>-->
+    <!--&lt;!&ndash; The color used for elements displayed on top of your background color&ndash;&gt;-->
+    <!--<color name="colorOnBackground">#000000</color>-->
+    <!--&lt;!&ndash;The color behind all other screen content&ndash;&gt;-->
+    <!--<color name="colorBackground">#FFFFFF</color>-->
 </resources>

@@ -26,6 +26,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".onboarding.OnboardingActivity"/>
+        <activity
+            android:name=".tasks.ui.newtask.NewTaskActivity"
+            android:theme="@style/BaseAppTheme"
+            />
 
         <service android:name="eu.darken.bb.main.core.service.BackupService"/>
 

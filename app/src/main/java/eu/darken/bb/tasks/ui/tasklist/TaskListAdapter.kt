@@ -34,7 +34,7 @@ class TaskListAdapter @Inject constructor() : RecyclerView.Adapter<TaskListAdapt
 
         override fun bind(item: BackupTask) {
             taskName.text = item.taskName
-            primary.text = item.id.toString()
+            primary.text = item.taskId.toString()
             statusIcon.setImageResource(R.drawable.ic_error_outline)
             statusIcon.setColorFilter(getColor(R.color.colorError))
         }

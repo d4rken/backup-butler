@@ -5,9 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.BackupTask
 import eu.darken.bb.tasks.core.BackupTaskRepo
 import io.reactivex.Observable
@@ -20,16 +22,21 @@ class TaskListFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     val viewState: LiveData<ViewState> = Observables
-            .zip(taskRepo.getTasks(), Observable.just(""))
+            .zip(taskRepo.tasks.map { it.values }, Observable.just(""))
             .map { (repos, upgradeData) ->
                 return@map ViewState(
                         repos = repos.toList()
                 )
             }
             .toLiveData()
+    val newTaskEvent: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
     init {
 
+    }
+
+    fun newTask() {
+        newTaskEvent.postValue(true)
     }
 
     data class ViewState(

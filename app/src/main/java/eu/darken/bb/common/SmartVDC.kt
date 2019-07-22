@@ -1,9 +1,6 @@
 package eu.darken.bb.common
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import eu.darken.bb.App
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableObserver
@@ -76,9 +73,5 @@ abstract class SmartVDC : VDC() {
     override fun onCleared() {
         Timber.v("onCleared()")
         super.onCleared()
-    }
-
-    fun <T> Observable<T>.toLiveData(): LiveData<T> {
-        return LiveDataReactiveStreams.fromPublisher(this.toFlowable(BackpressureStrategy.ERROR))
     }
 }

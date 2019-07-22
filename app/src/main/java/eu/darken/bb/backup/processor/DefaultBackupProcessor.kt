@@ -5,8 +5,8 @@ import eu.darken.bb.App
 import eu.darken.bb.backup.backups.BackupEndpoint
 import eu.darken.bb.backup.backups.EndpointFactory
 import eu.darken.bb.backup.processor.tmp.TmpDataRepo
-import eu.darken.bb.backup.repos.BackupRepo
-import eu.darken.bb.backup.repos.RepoFactory
+import eu.darken.bb.repos.core.BackupRepo
+import eu.darken.bb.repos.core.RepoFactory
 import eu.darken.bb.tasks.core.BackupTask
 import eu.darken.bb.tasks.core.DefaultBackupTask
 import timber.log.Timber

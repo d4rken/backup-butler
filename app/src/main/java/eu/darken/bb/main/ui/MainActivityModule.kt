@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.main.ui.overview.OverviewFragmentModule
-import eu.darken.bb.main.ui.repos.RepoListFragment
-import eu.darken.bb.main.ui.repos.RepoListFragmentModule
 import eu.darken.bb.main.ui.schedules.SchedulesFragment
 import eu.darken.bb.main.ui.schedules.SchedulesFragmentModule
+import eu.darken.bb.repos.ui.list.RepoListFragment
+import eu.darken.bb.repos.ui.list.RepoListFragmentModule
 import eu.darken.bb.tasks.ui.tasklist.TaskListFragment
 import eu.darken.bb.tasks.ui.tasklist.TaskListFragmentModule
 

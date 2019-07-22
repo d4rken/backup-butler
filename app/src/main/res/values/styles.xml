@@ -48,4 +48,13 @@
         <item name="android:layout_height">24dp</item>
         <item name="android:layout_width">24dp</item>
     </style>
+
+    <style name="MyCardView" parent="Widget.MaterialComponents.CardView">
+
+    </style>
+
+    <style name="TextInputLayoutOutlinedDense" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">?colorOnPrimary</item>
+        <item name="hintTextColor">?colorOnPrimary</item>
+    </style>
 </resources>

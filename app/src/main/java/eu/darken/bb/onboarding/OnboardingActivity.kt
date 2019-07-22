@@ -38,4 +38,7 @@ class OnboardingActivity : AppCompatActivity(), HasSupportFragmentInjector, Auto
         if (fragment == null) fragment = OverviewFragment.newInstance()
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commitAllowingStateLoss()
     }
+    // https://github.com/AppIntro/AppIntro
+    // https://github.com/worker8/TourGuide
+    // https://github.com/deano2390/MaterialShowcaseView
 }

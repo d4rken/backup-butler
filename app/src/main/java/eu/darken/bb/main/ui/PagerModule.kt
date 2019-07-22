@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import eu.darken.bb.R
 import eu.darken.bb.main.ui.overview.OverviewFragment
-import eu.darken.bb.main.ui.repos.RepoListFragment
 import eu.darken.bb.main.ui.schedules.SchedulesFragment
+import eu.darken.bb.repos.ui.list.RepoListFragment
 import eu.darken.bb.tasks.ui.tasklist.TaskListFragment
 
 @Module

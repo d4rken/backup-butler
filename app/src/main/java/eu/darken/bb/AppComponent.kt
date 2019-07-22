@@ -4,6 +4,7 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import eu.darken.bb.common.dagger.AssistedInjectModule
+import eu.darken.bb.repos.core.RepoModule
 import eu.darken.bb.workers.WorkerBinder
 
 
@@ -16,7 +17,8 @@ import eu.darken.bb.workers.WorkerBinder
     ReceiverBinder::class,
     ActivityBinder::class,
     AppModule::class,
-    WorkerBinder::class
+    WorkerBinder::class,
+    RepoModule::class
 ])
 interface AppComponent : AndroidInjector<App> {
 

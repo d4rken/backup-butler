@@ -1,14 +1,14 @@
 package eu.darken.bb.tasks.core
 
 import eu.darken.bb.backup.backups.BackupConfig
-import eu.darken.bb.backup.repos.RepoReference
+import eu.darken.bb.repos.core.RepoRef
 import java.util.*
 
 data class DefaultBackupTask(
         override val taskName: String,
-        override val id: UUID,
+        override val taskId: UUID,
         override val sources: List<BackupConfig>,
-        override val destinations: List<RepoReference>
+        override val destinations: List<RepoRef>
 ) : BackupTask {
 
     data class Result(
