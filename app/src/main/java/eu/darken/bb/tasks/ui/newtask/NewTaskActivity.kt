@@ -13,18 +13,27 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.tasks.core.getTaskId
+import eu.darken.bb.tasks.core.putTaskId
+import java.util.*
 import javax.inject.Inject
-
 
 class NewTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: NewTaskActivityVDC by vdcs { vdcSource }
+
+    private val vdc: NewTaskActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as NewTaskActivityVDC.Factory
+        factory.create(handle, intent.getTaskId() ?: UUID.randomUUID())
+    })
 
     @BindView(R.id.button_previous) lateinit var buttonPrevious: Button
     @BindView(R.id.button_next) lateinit var buttonNext: Button
+
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -33,20 +42,37 @@ class NewTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.newtask_activity)
         ButterKnife.bind(this)
 
+        supportActionBar!!.title = getString(R.string.label_new_task)
+
         vdc.state.observe(this, Observer { state ->
-            buttonPrevious.visibility = if (state.allowPrevious) View.VISIBLE else View.INVISIBLE
-            buttonNext.isEnabled = state.allowNext
+
+            buttonPrevious.setText(if (state.step == NewTaskActivityVDC.State.Step.INTRO) R.string.button_cancel else R.string.button_previous)
+
+            buttonNext.isEnabled = state.allowNext || state.creatable
+
             buttonNext.setText(if (state.step == NewTaskActivityVDC.State.Step.DESTINATIONS) R.string.button_create else R.string.button_next)
-            showStep(state.step)
+        })
+        vdc.task.observe(this, Observer {
+            supportActionBar!!.subtitle = it.taskName
         })
 
-        buttonPrevious.setOnClickListener { vdc.changeStep(-1) }
-        buttonNext.setOnClickListener { vdc.changeStep(+1) }
+        vdc.steps.observe(this, Observer { (state, task) ->
+            buttonPrevious.visibility = View.VISIBLE
+            buttonNext.visibility = View.VISIBLE
+            showStep(state.step, task.taskId)
+        })
+
+        buttonPrevious.clicksDebounced().subscribe { vdc.previous() }
+        buttonNext.clicksDebounced().subscribe { vdc.next() }
+
+        vdc.finishActivity.observe(this, Observer { finish() })
     }
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+    override fun onBackPressed() {
+        vdc.previous()
+    }
 
-    private fun showStep(step: NewTaskActivityVDC.State.Step) {
+    private fun showStep(step: NewTaskActivityVDC.State.Step, taskId: UUID) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (step.fragmentClass.isInstance(fragment)) return
 
@@ -54,7 +80,7 @@ class NewTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
         if (fragment == null) {
             fragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, step.fragmentClass.qualifiedName!!)
         }
-
+        fragment.arguments = Bundle().apply { putTaskId(taskId) }
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, step.name).commitAllowingStateLoss()
     }
 }

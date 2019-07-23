@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.root.RootManager
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.concurrent.withLock
 
-@AppComponent.Scope
+@PerApp
 class AppRepo @Inject constructor(
         @AppContext private val context: Context,
         private val rootManager: RootManager,

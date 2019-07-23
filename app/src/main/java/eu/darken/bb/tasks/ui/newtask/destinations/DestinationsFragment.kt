@@ -10,14 +10,18 @@ import dagger.android.support.AndroidSupportInjection
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.tasks.core.getTaskId
 import javax.inject.Inject
 
 
 class DestinationsFragment : SmartFragment() {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: DestinationsFragmentVDC by vdcs { vdcSource }
+    private val vdc: DestinationsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as DestinationsFragmentVDC.Factory
+        factory.create(handle, arguments!!.getTaskId()!!)
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)

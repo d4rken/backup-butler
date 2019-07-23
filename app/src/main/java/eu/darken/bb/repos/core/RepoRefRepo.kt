@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -15,7 +15,7 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-@AppComponent.Scope
+@PerApp
 class RepoRefRepo @Inject constructor(
         @AppContext context: Context,
         moshi: Moshi

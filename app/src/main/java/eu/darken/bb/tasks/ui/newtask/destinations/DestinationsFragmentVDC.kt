@@ -5,10 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.VDC
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.dagger.VDCFactory
+import java.util.*
 
 class DestinationsFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+        @Assisted private val handle: SavedStateHandle,
+        @Assisted private val taskId: UUID
 ) : VDC() {
 
     val state = MutableLiveData<State>(State(emoji = ""))
@@ -16,5 +18,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     data class State(val emoji: String)
 
     @AssistedInject.Factory
-    interface Factory : SavedStateVDCFactory<DestinationsFragmentVDC>
+    interface Factory : VDCFactory<DestinationsFragmentVDC> {
+        fun create(handle: SavedStateHandle, taskId: UUID): DestinationsFragmentVDC
+    }
 }

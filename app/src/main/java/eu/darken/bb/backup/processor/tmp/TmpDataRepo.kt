@@ -2,9 +2,9 @@ package eu.darken.bb.backup.processor.tmp
 
 import android.content.Context
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.backup.backups.BackupId
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
 import timber.log.Timber
@@ -12,7 +12,7 @@ import java.io.File
 import java.util.*
 import javax.inject.Inject
 
-@AppComponent.Scope
+@PerApp
 class TmpDataRepo @Inject constructor(
         @AppContext private val context: Context
 ) {

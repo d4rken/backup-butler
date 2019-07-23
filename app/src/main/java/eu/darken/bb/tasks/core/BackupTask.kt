@@ -1,6 +1,5 @@
 package eu.darken.bb.tasks.core
 
-import android.content.Intent
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.backups.BackupConfig
 import eu.darken.bb.common.Jsonable
@@ -33,7 +32,3 @@ interface BackupTask : Jsonable {
                 .withSubtype(DefaultBackupTask::class.java, Type.SIMPLE.name)
     }
 }
-
-fun Intent.addTaskId(uuid: UUID) = apply { putExtra("backuptask.uuid", uuid) }
-
-fun Intent.getTaskId(): UUID? = getSerializableExtra("backuptask.uuid") as UUID?

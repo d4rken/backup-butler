@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.backup.backups.BackupConfig
 import eu.darken.bb.backup.backups.app.AppBackupConfig
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.JavaFile
 import eu.darken.bb.common.opt
 import eu.darken.bb.repos.core.RepoRef
@@ -21,7 +21,7 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-@AppComponent.Scope
+@PerApp
 class BackupTaskRepo @Inject constructor(
         @AppContext context: Context,
         val moshi: Moshi

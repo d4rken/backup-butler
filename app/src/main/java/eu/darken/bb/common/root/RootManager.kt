@@ -3,9 +3,9 @@ package eu.darken.bb.common.root
 import android.content.Context
 import com.jakewharton.rx.replayingShare
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.CoreSettings
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.rxshell.root.RootContext
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -15,7 +15,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-@AppComponent.Scope
+@PerApp
 class RootManager @Inject constructor(
         @AppContext private val context: Context,
         private val coreSettings: CoreSettings

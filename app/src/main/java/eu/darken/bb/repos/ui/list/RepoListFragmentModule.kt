@@ -4,7 +4,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import eu.darken.bb.common.VDC
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 
 
@@ -13,6 +13,6 @@ abstract class RepoListFragmentModule {
     @Binds
     @IntoMap
     @VDCKey(RepoListFragmentVDC::class)
-    abstract fun repolistVDC(model: RepoListFragmentVDC.Factory): SavedStateVDCFactory<out VDC>
+    abstract fun repolistVDC(model: RepoListFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

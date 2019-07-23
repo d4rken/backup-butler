@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import eu.darken.bb.common.VDC
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.main.ui.overview.OverviewFragmentModule
@@ -22,7 +22,7 @@ abstract class MainActivityModule {
     @Binds
     @IntoMap
     @VDCKey(MainActivityVDC::class)
-    abstract fun mainActivityVDC(model: MainActivityVDC.Factory): SavedStateVDCFactory<out VDC>
+    abstract fun mainActivityVDC(model: MainActivityVDC.Factory): VDCFactory<out VDC>
 
     @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
     abstract fun overviewFragment(): OverviewFragment

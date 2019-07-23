@@ -12,7 +12,7 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.main.core.service.BackupService
-import eu.darken.bb.tasks.core.addTaskId
+import eu.darken.bb.tasks.core.putTaskId
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
@@ -41,7 +41,7 @@ class OverviewFragmentVDC @AssistedInject constructor(
 
     fun test() {
         val intent = Intent(context, BackupService::class.java)
-        intent.addTaskId(UUID.randomUUID())
+        intent.putTaskId(UUID.randomUUID())
         context.startService(intent)
     }
 

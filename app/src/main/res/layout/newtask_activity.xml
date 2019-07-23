@@ -28,10 +28,12 @@
             android:layout_marginEnd="4dp"
             android:layout_marginTop="4dp"
             android:text="@string/button_next"
+            android:visibility="gone"
             app:backgroundTint="@color/colorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible"/>
 
         <Button
             android:id="@+id/button_previous"
@@ -40,8 +42,10 @@
             android:layout_height="wrap_content"
             android:text="@string/button_previous"
             android:textColor="@color/colorOnPrimary"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_next"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

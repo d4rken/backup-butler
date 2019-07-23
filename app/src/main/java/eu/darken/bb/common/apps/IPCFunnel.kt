@@ -5,8 +5,8 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.TransactionTooLargeException
 import eu.darken.bb.App
-import eu.darken.bb.AppComponent
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import javax.inject.Inject
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * Tries to reduce the chance that we hit the IPC buffer limit.
  * Hitting the buffer limit can result in crashes or more grave incomplete results.
  */
-@AppComponent.Scope
+@PerApp
 class IPCFunnel @Inject constructor(
         @AppContext private val packageManager: PackageManager
 ) {

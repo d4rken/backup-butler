@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 
 
 @Module
@@ -17,26 +18,26 @@ class AndroidModule {
 
     @Provides
     @AppContext
-    @AppComponent.Scope
+    @PerApp
     fun appContext(app: App): Context = app.applicationContext
 
     @Provides
-    @AppComponent.Scope
+    @PerApp
     fun preferences(@AppContext context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
-    @AppComponent.Scope
+    @PerApp
     fun packageManager(@AppContext context: Context): PackageManager = context.packageManager
 
     @Provides
-    @AppComponent.Scope
+    @PerApp
     fun audioManager(@AppContext context: Context): AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     @Provides
-    @AppComponent.Scope
+    @PerApp
     fun notificationManager(@AppContext context: Context): NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     @Provides
-    @AppComponent.Scope
+    @PerApp
     fun workManager() = WorkManager.getInstance()
 }
