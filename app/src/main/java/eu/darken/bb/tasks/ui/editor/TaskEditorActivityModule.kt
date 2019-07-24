@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask
+package eu.darken.bb.tasks.ui.editor
 
 import dagger.Module
 import dagger.Provides
@@ -9,13 +9,13 @@ import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 
 @Module
-class NewTaskActivityModule {
+class TaskEditorActivityModule {
 
     @PerActivity
     @Provides
     @IntoMap
-    @VDCKey(NewTaskActivityVDC::class)
-    fun taskActivity(factory: NewTaskActivityVDC.Factory): VDCFactory<out VDC> {
+    @VDCKey(TaskEditorActivityVDC::class)
+    fun taskActivity(factory: TaskEditorActivityVDC.Factory): VDCFactory<out VDC> {
         return factory
     }
 

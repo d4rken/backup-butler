@@ -3,27 +3,30 @@ package eu.darken.bb.tasks.ui.tasklist
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.BaseVH
-import eu.darken.bb.common.BindableVH
+import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.DataBinderModule
+import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.SimpleVHCreator
 import eu.darken.bb.tasks.core.BackupTask
 import javax.inject.Inject
 
-class TaskListAdapter @Inject constructor() : RecyclerView.Adapter<TaskListAdapter.BackupVH>() {
 
-    var data = listOf<BackupTask>()
+class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.BackupVH>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BackupVH = BackupVH(parent)
+    val data = mutableListOf<BackupTask>()
+
+    init {
+        modules.add(DataBinderModule<BackupTask, BackupVH>(data))
+        modules.add(SimpleVHCreator { BackupVH(it) })
+    }
 
     override fun getItemCount(): Int = data.size
 
-    override fun onBindViewHolder(holder: BackupVH, position: Int) = holder.bind(data[position])
-
-
-    class BackupVH(parent: ViewGroup) : BaseVH(R.layout.tasklist_adapter_line, parent), BindableVH<BackupTask> {
+    class BackupVH(parent: ViewGroup)
+        : ModularAdapter.VH(R.layout.tasklist_adapter_line, parent), BindableVH<BackupTask> {
         @BindView(R.id.name) lateinit var taskName: TextView
         @BindView(R.id.primary_description) lateinit var primary: TextView
         @BindView(R.id.type_icon) lateinit var statusIcon: ImageView

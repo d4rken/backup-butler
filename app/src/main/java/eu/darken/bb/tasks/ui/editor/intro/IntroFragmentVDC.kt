@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask.intro
+package eu.darken.bb.tasks.ui.editor.intro
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -8,6 +8,7 @@ import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.DefaultBackupTask
 import eu.darken.bb.tasks.core.TaskBuilder
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class IntroFragmentVDC @AssistedInject constructor(
@@ -19,10 +20,13 @@ class IntroFragmentVDC @AssistedInject constructor(
     val state = taskBuilder.task(taskId).toLiveData()
 
     fun updateTaskName(name: CharSequence) {
-        taskBuilder.update(taskId) {
-            it as DefaultBackupTask
-            it.copy(taskName = name.toString())
-        }
+        taskBuilder
+                .update(taskId) {
+                    it as DefaultBackupTask
+                    it.copy(taskName = name.toString())
+                }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     @AssistedInject.Factory

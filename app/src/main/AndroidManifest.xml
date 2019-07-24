@@ -27,7 +27,7 @@
         </activity>
         <activity android:name=".onboarding.OnboardingActivity"/>
         <activity
-            android:name=".tasks.ui.newtask.NewTaskActivity"
+            android:name=".tasks.ui.editor.TaskEditorActivity"
             android:theme="@style/BaseAppTheme"
             />
 

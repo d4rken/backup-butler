@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask.sources
+package eu.darken.bb.tasks.ui.tasklist.actions
 
 import dagger.Binds
 import dagger.Module
@@ -9,11 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class SourcesFragmentModule {
+abstract class TaskActionDialogModule {
     @Binds
     @IntoMap
-    @VDCKey(SourcesFragmentVDC::class)
-    abstract fun sourcesVDC(model: SourcesFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(TaskActionDialogVDC::class)
+    abstract fun taskactionVDC(model: TaskActionDialogVDC.Factory): VDCFactory<out VDC>
 }
-
 

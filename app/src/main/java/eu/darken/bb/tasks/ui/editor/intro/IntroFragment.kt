@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask.intro
+package eu.darken.bb.tasks.ui.editor.intro
 
 import android.annotation.SuppressLint
 import android.os.Bundle

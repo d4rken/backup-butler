@@ -12,35 +12,54 @@ import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.BackupTask
 import eu.darken.bb.tasks.core.BackupTaskRepo
+import eu.darken.bb.tasks.core.TaskBuilder
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
+import timber.log.Timber
+import java.util.*
 
 class TaskListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val taskRepo: BackupTaskRepo,
+        private val taskBuilder: TaskBuilder,
         @AppContext private val context: Context
 ) : SmartVDC() {
 
     val viewState: LiveData<ViewState> = Observables
-            .zip(taskRepo.tasks.map { it.values }, Observable.just(""))
+            .combineLatest(taskRepo.tasks.map { it.values }, Observable.just(""))
             .map { (repos, upgradeData) ->
                 return@map ViewState(
                         repos = repos.toList()
                 )
             }
             .toLiveData()
-    val newTaskEvent: SingleLiveEvent<Boolean> = SingleLiveEvent()
+    val editTaskEvent = SingleLiveEvent<EditActions>()
 
     init {
 
     }
 
     fun newTask() {
-        newTaskEvent.postValue(true)
+        taskBuilder.startEditor()
+    }
+
+    fun editTask(item: BackupTask) {
+        Timber.tag(TAG).d("editTask(%s)", item)
+        editTaskEvent.postValue(EditActions(
+                taskId = item.taskId,
+                allowEdit = true,
+                allowDelete = true
+        ))
     }
 
     data class ViewState(
             val repos: List<BackupTask>
+    )
+
+    data class EditActions(
+            val taskId: UUID,
+            val allowEdit: Boolean = false,
+            val allowDelete: Boolean = false
     )
 
     @AssistedInject.Factory

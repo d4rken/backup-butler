@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask
+package eu.darken.bb.tasks.ui.editor
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
@@ -10,11 +10,12 @@ import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.BackupTask
+import eu.darken.bb.tasks.core.BackupTaskRepo
 import eu.darken.bb.tasks.core.DefaultBackupTask
 import eu.darken.bb.tasks.core.TaskBuilder
-import eu.darken.bb.tasks.ui.newtask.destinations.DestinationsFragment
-import eu.darken.bb.tasks.ui.newtask.intro.IntroFragment
-import eu.darken.bb.tasks.ui.newtask.sources.SourcesFragment
+import eu.darken.bb.tasks.ui.editor.destinations.DestinationsFragment
+import eu.darken.bb.tasks.ui.editor.intro.IntroFragment
+import eu.darken.bb.tasks.ui.editor.sources.SourcesFragment
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -22,10 +23,11 @@ import java.util.*
 import kotlin.reflect.KClass
 
 
-class NewTaskActivityVDC @AssistedInject constructor(
+class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: UUID,
-        private val taskBuilder: TaskBuilder
+        private val taskBuilder: TaskBuilder,
+        private val taskRepo: BackupTaskRepo
 ) : SmartVDC() {
 
     private val taskObs = taskBuilder.task(taskId) {
@@ -41,7 +43,7 @@ class NewTaskActivityVDC @AssistedInject constructor(
             allowNext = true
     ))
     val task = taskObs
-            .doOnNext { task -> stateUpdater.update { it.copy(creatable = isComplete(task)) } }
+            .doOnNext { task -> stateUpdater.update { it.copy(saveable = isComplete(task)) } }
             .toLiveData()
     val steps = Observables.combineLatest(stateUpdater.data, taskObs)
             .toLiveData()
@@ -49,7 +51,11 @@ class NewTaskActivityVDC @AssistedInject constructor(
     val finishActivity = SingleLiveEvent<Boolean>()
 
     init {
-
+        taskRepo.get(taskId)
+                .subscribeOn(Schedulers.io())
+                .subscribe { optTask ->
+                    stateUpdater.update { it.copy(existingTask = optTask.isNotNull) }
+                }
     }
 
     private fun changeStep(dir: Int) {
@@ -71,20 +77,20 @@ class NewTaskActivityVDC @AssistedInject constructor(
         return backupTask.taskName.length > 3
     }
 
-    fun createTask() {
-        taskBuilder.store(taskId)
+    private fun createTask() {
+        taskBuilder.save(taskId)
                 .doOnSubscribe {
                     stateUpdater.update {
                         it.copy(allowNext = false, allowPrevious = false)
                     }
                 }
                 .subscribeOn(Schedulers.computation())
-                .subscribe {
+                .subscribe { savedTask ->
                     finishActivity.postValue(true)
                 }
     }
 
-    fun dismiss() {
+    private fun dismiss() {
         Timber.i("DIMISS")
         taskBuilder.remove(taskId)
         finishActivity.call()
@@ -110,7 +116,8 @@ class NewTaskActivityVDC @AssistedInject constructor(
             val step: Step,
             val allowPrevious: Boolean = false,
             val allowNext: Boolean = false,
-            val creatable: Boolean = false
+            val saveable: Boolean = false,
+            val existingTask: Boolean = false
     ) {
         enum class Step(
                 val stepPos: Int,
@@ -124,7 +131,7 @@ class NewTaskActivityVDC @AssistedInject constructor(
 
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<NewTaskActivityVDC> {
-        fun create(handle: SavedStateHandle, taskId: UUID): NewTaskActivityVDC
+    interface Factory : VDCFactory<TaskEditorActivityVDC> {
+        fun create(handle: SavedStateHandle, taskId: UUID): TaskEditorActivityVDC
     }
 }

@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask.sources
+package eu.darken.bb.tasks.ui.editor.sources
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle

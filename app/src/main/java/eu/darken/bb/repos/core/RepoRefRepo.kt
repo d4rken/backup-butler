@@ -37,7 +37,7 @@ class RepoRefRepo @Inject constructor(
 
     @Synchronized fun add(ref: RepoRef): Single<Opt<RepoRef>> = Single.fromCallable {
         val oldRef = internalRefs.put(ref.repoId, ref)
-        Timber.d("add(ref=%s) -> old=%s", ref, oldRef)
+        Timber.d("put(ref=%s) -> old=%s", ref, oldRef)
         update()
         return@fromCallable oldRef.opt()
     }

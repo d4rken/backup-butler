@@ -2,6 +2,7 @@ package eu.darken.bb.common
 
 import eu.darken.bb.App
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -14,7 +15,7 @@ open class HotData<T>(
     private val executor = Executors.newSingleThreadExecutor()
     private val scheduler = Schedulers.from(executor)
 
-    private val updatePub = PublishSubject.create<(T) -> T?>()
+    private val updatePub = PublishSubject.create<(T) -> T>()
     private val statePub = if (startValue != null) BehaviorSubject.createDefault<T>(startValue) else BehaviorSubject.create()
     val snapshot: T?
         get() = statePub.value
@@ -36,12 +37,22 @@ open class HotData<T>(
                 .subscribe { statePub.onNext(it) }
     }
 
-    fun update(action: (T) -> T?) {
+    fun update(action: (T) -> T) {
         updatePub.onNext(action)
     }
 
-    fun set(state: T) {
-        updatePub.onNext { state }
+    fun updateRx(action: (T) -> T) = Single.create<T> { emitter ->
+        val wrap: (T) -> T = { oldValue ->
+            try {
+                val newValue = action.invoke(oldValue)
+                emitter.onSuccess(newValue)
+                newValue
+            } catch (e: Throwable) {
+                emitter.onError(e)
+                oldValue
+            }
+        }
+        update(wrap)
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask
+package eu.darken.bb.tasks.ui.editor
 
 import android.os.Bundle
 import android.view.View
@@ -20,13 +20,13 @@ import eu.darken.bb.tasks.core.putTaskId
 import java.util.*
 import javax.inject.Inject
 
-class NewTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdc: NewTaskActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as NewTaskActivityVDC.Factory
+    private val vdcEditor: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as TaskEditorActivityVDC.Factory
         factory.create(handle, intent.getTaskId() ?: UUID.randomUUID())
     })
 
@@ -42,37 +42,46 @@ class NewTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.newtask_activity)
         ButterKnife.bind(this)
 
-        supportActionBar!!.title = getString(R.string.label_new_task)
+        vdcEditor.state.observe(this, Observer { state ->
 
-        vdc.state.observe(this, Observer { state ->
+            supportActionBar!!.title = if (state.existingTask) {
+                getString(R.string.label_edit_task)
+            } else {
+                getString(R.string.label_new_task)
+            }
 
-            buttonPrevious.setText(if (state.step == NewTaskActivityVDC.State.Step.INTRO) R.string.button_cancel else R.string.button_previous)
-
-            buttonNext.isEnabled = state.allowNext || state.creatable
-
-            buttonNext.setText(if (state.step == NewTaskActivityVDC.State.Step.DESTINATIONS) R.string.button_create else R.string.button_next)
         })
-        vdc.task.observe(this, Observer {
+        vdcEditor.task.observe(this, Observer {
             supportActionBar!!.subtitle = it.taskName
         })
 
-        vdc.steps.observe(this, Observer { (state, task) ->
+        vdcEditor.steps.observe(this, Observer { (state, task) ->
+            buttonPrevious.setText(if (state.step == TaskEditorActivityVDC.State.Step.INTRO) R.string.button_cancel else R.string.button_previous)
             buttonPrevious.visibility = View.VISIBLE
+
+            buttonNext.isEnabled = state.allowNext || state.saveable
+            val nextLabel = if (state.step == TaskEditorActivityVDC.State.Step.DESTINATIONS) {
+                if (state.existingTask) R.string.button_save else R.string.button_create
+            } else {
+                R.string.button_next
+            }
+            buttonNext.setText(nextLabel)
             buttonNext.visibility = View.VISIBLE
+
             showStep(state.step, task.taskId)
         })
 
-        buttonPrevious.clicksDebounced().subscribe { vdc.previous() }
-        buttonNext.clicksDebounced().subscribe { vdc.next() }
+        buttonPrevious.clicksDebounced().subscribe { vdcEditor.previous() }
+        buttonNext.clicksDebounced().subscribe { vdcEditor.next() }
 
-        vdc.finishActivity.observe(this, Observer { finish() })
+        vdcEditor.finishActivity.observe(this, Observer { finish() })
     }
 
     override fun onBackPressed() {
-        vdc.previous()
+        vdcEditor.previous()
     }
 
-    private fun showStep(step: NewTaskActivityVDC.State.Step, taskId: UUID) {
+    private fun showStep(step: TaskEditorActivityVDC.State.Step, taskId: UUID) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (step.fragmentClass.isInstance(fragment)) return
 

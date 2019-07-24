@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.newtask.intro
+package eu.darken.bb.tasks.ui.editor.sources
 
 import dagger.Binds
 import dagger.Module
@@ -9,11 +9,11 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class IntroFragmentModule {
+abstract class SourcesFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(IntroFragmentVDC::class)
-    abstract fun newTaskVDC(model: IntroFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(SourcesFragmentVDC::class)
+    abstract fun sourcesVDC(model: SourcesFragmentVDC.Factory): VDCFactory<out VDC>
 }
 
 

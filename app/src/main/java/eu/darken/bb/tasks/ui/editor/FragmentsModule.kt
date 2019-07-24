@@ -1,20 +1,20 @@
-package eu.darken.bb.tasks.ui.newtask
+package eu.darken.bb.tasks.ui.editor
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import eu.darken.bb.common.dagger.PerFragment
-import eu.darken.bb.tasks.ui.newtask.destinations.DestinationsFragment
-import eu.darken.bb.tasks.ui.newtask.destinations.DestinationsFragmentModule
-import eu.darken.bb.tasks.ui.newtask.intro.IntroFragment
-import eu.darken.bb.tasks.ui.newtask.intro.IntroFragmentModule
-import eu.darken.bb.tasks.ui.newtask.sources.SourcesFragment
-import eu.darken.bb.tasks.ui.newtask.sources.SourcesFragmentModule
+import eu.darken.bb.tasks.ui.editor.destinations.DestinationsFragment
+import eu.darken.bb.tasks.ui.editor.destinations.DestinationsFragmentModule
+import eu.darken.bb.tasks.ui.editor.intro.IntroFragment
+import eu.darken.bb.tasks.ui.editor.intro.IntroFragmentModule
+import eu.darken.bb.tasks.ui.editor.sources.SourcesFragment
+import eu.darken.bb.tasks.ui.editor.sources.SourcesFragmentModule
 
 @Module
 abstract class FragmentsModule {
     @PerFragment
     @ContributesAndroidInjector(modules = [IntroFragmentModule::class])
-    abstract fun newTaskFragment(): IntroFragment
+    abstract fun introFragment(): IntroFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [SourcesFragmentModule::class])

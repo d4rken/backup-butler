@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.BaseVH
-import eu.darken.bb.common.BindableVH
 import eu.darken.bb.common.getColorForAttr
+import eu.darken.bb.common.lists.BaseAdapter
+import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.repos.core.RepoStatus
 import javax.inject.Inject
@@ -25,7 +25,7 @@ class RepoListAdapter @Inject constructor() : RecyclerView.Adapter<RepoListAdapt
     override fun onBindViewHolder(holder: BackupVH, position: Int) = holder.bind(data[position])
 
 
-    class BackupVH(parent: ViewGroup) : BaseVH(R.layout.repolist_adapter_line, parent), BindableVH<RepoStatus> {
+    class BackupVH(parent: ViewGroup) : BaseAdapter.VH(R.layout.repolist_adapter_line, parent), BindableVH<RepoStatus> {
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
         @BindView(R.id.path) lateinit var path: TextView
