@@ -17,7 +17,7 @@
     <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
-    <string name="repo_type_label_local_storage">Local storage</string>
+    <string name="repo_type_local_storage_label">Local storage</string>
     <string name="error_message_missing_file_x">Can\'t find %s</string>
     <plurals name="x_revisions">
         <item quantity="one">%d revision</item>
@@ -38,4 +38,19 @@
     <string name="button_edit">Edit</string>
     <string name="button_delete">Delete</string>
     <string name="button_save">Save</string>
+    <string name="desc_newtask_intro_taskname">Give your backup task a memorable name. You can also change it later.</string>
+    <string name="label_destinations">Destinations</string>
+    <string name="add_destination">Add destination</string>
+    <string name="label_sources">Sources</string>
+    <string name="button_add_source">Add source</string>
+    <string name="label_apps">Apps</string>
+    <string name="label_files">Files</string>
+    <string name="button_view">View</string>
+    <string name="label_unknown">Unknown</string>
+    <string name="repo_type_local_storage_desc">Storage on this local device, e.g. internal, sdcards or USB.</string>
+    <string name="label_edit_storage">Edit storage</string>
+    <string name="label_create_storage">Create storage</string>
+    <string name="label_storage_selection">Select storage type</string>
+    <string name="label_location">Location</string>
+    <string name="label_options">Options</string>
 </resources>

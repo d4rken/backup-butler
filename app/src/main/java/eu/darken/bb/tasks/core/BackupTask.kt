@@ -1,16 +1,16 @@
 package eu.darken.bb.tasks.core
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import eu.darken.bb.backup.backups.BackupConfig
+import eu.darken.bb.backups.BackupConfig
 import eu.darken.bb.common.Jsonable
-import eu.darken.bb.repos.core.RepoRef
+import eu.darken.bb.storage.core.StorageRef
 import java.util.*
 
 interface BackupTask : Jsonable {
     val taskName: String
     val taskId: UUID
     val sources: List<BackupConfig>
-    val destinations: List<RepoRef>
+    val destinations: List<StorageRef>
 
     enum class Type {
         SIMPLE

@@ -6,6 +6,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.TaskBuilder
 import java.util.*
 
@@ -15,7 +16,9 @@ class SourcesFragmentVDC @AssistedInject constructor(
         private val taskBuilder: TaskBuilder
 ) : VDC() {
 
+    val sources = taskBuilder.task(taskId).toLiveData()
     val state = MutableLiveData<State>(State(emoji = ""))
+
 
     data class State(val emoji: String)
 

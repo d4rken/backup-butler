@@ -25,12 +25,9 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_appinfos"
-                style="@style/Widget.MaterialComponents.CardView"
+                style="@style/MyCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/mtrl_card_spacing"
-                android:layout_marginRight="@dimen/mtrl_card_spacing"
-                android:layout_marginTop="@dimen/mtrl_card_spacing">
+                android:layout_height="wrap_content">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -86,12 +83,9 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_debug"
-                style="@style/Widget.MaterialComponents.CardView"
+                style="@style/MyCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/mtrl_card_spacing"
-                android:layout_marginRight="@dimen/mtrl_card_spacing"
-                android:layout_marginTop="@dimen/mtrl_card_spacing">
+                android:layout_height="wrap_content">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"

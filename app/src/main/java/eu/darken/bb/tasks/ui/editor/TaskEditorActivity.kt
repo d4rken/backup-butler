@@ -27,7 +27,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     private val vdcEditor: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as TaskEditorActivityVDC.Factory
-        factory.create(handle, intent.getTaskId() ?: UUID.randomUUID())
+        factory.create(handle, intent.getTaskId()!!)
     })
 
     @BindView(R.id.button_previous) lateinit var buttonPrevious: Button

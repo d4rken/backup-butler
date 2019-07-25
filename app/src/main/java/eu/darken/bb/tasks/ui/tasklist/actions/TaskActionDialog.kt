@@ -31,7 +31,6 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
     private var unbinder: Unbinder? = null
 
     @Inject lateinit var taskRepo: BackupTaskRepo
-    @Inject lateinit var dialogHelper: DialogHelper
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @Inject lateinit var vdcSource: VDCSource.Factory
@@ -68,6 +67,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
                 data.addAll(state.allowedActions)
                 notifyDataSetChanged()
             }
+
             recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()

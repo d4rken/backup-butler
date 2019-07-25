@@ -7,7 +7,8 @@ import eu.darken.bb.main.ui.MainActivity
 import eu.darken.bb.main.ui.MainActivityModule
 import eu.darken.bb.onboarding.OnboardingActivity
 import eu.darken.bb.onboarding.OnboardingActivityModule
-import eu.darken.bb.tasks.ui.editor.FragmentsModule
+import eu.darken.bb.storage.ui.editor.StorageEditorActivity
+import eu.darken.bb.storage.ui.editor.StorageEditorActivityModule
 import eu.darken.bb.tasks.ui.editor.TaskEditorActivity
 import eu.darken.bb.tasks.ui.editor.TaskEditorActivityModule
 
@@ -24,6 +25,11 @@ abstract class ActivityBinder {
     abstract fun onboardingActivity(): OnboardingActivity
 
     @PerActivity
-    @ContributesAndroidInjector(modules = [TaskEditorActivityModule::class, FragmentsModule::class])
+    @ContributesAndroidInjector(modules = [TaskEditorActivityModule::class])
     abstract fun taskEditorActivity(): TaskEditorActivity
+
+    @PerActivity
+
+    @ContributesAndroidInjector(modules = [StorageEditorActivityModule::class])
+    abstract fun storageEditorActivity(): StorageEditorActivity
 }

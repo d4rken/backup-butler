@@ -1,7 +1,6 @@
 package eu.darken.bb.main.ui.overview
 
 import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -11,18 +10,15 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.main.core.service.BackupService
-import eu.darken.bb.tasks.core.putTaskId
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
-import java.util.*
 
 class OverviewFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
         private val butler: BackupButler,
         private val upgradeControl: UpgradeControl,
-        @AppContext private val context: Context
+        @AppContext private val context: Context,
+        @Assisted private val handle: SavedStateHandle
 ) : SmartVDC() {
 
     val appState: LiveData<AppState> = Observables
@@ -40,9 +36,7 @@ class OverviewFragmentVDC @AssistedInject constructor(
     }
 
     fun test() {
-        val intent = Intent(context, BackupService::class.java)
-        intent.putTaskId(UUID.randomUUID())
-        context.startService(intent)
+
     }
 
     data class AppState(

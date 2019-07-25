@@ -2,7 +2,7 @@ package eu.darken.bb.common.moshi
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
-import eu.darken.bb.backup.backups.BackupId
+import eu.darken.bb.backups.BackupId
 import java.util.*
 
 class BackupIdAdapter {

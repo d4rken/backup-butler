@@ -8,7 +8,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
-import eu.darken.bb.repos.core.RepoRefRepo
+import eu.darken.bb.storage.core.StorageRefRepo
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
@@ -52,7 +52,7 @@ class BackupTaskRepo @Inject constructor(
         val old = internalTasks.remove(taskId)
         Timber.tag(TAG).d("remove(taskId=%s) -> old=%s", taskId, old)
         update()
-        if (old == null) Timber.tag(RepoRefRepo.TAG).w("Tried to delete non-existant BackupTask: %s", taskId)
+        if (old == null) Timber.tag(StorageRefRepo.TAG).w("Tried to delete non-existant BackupTask: %s", taskId)
         return@fromCallable old.opt()
     }
 

@@ -6,11 +6,13 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.storage.core.StorageRefRepo
 import java.util.*
 
 class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: UUID
+        @Assisted private val taskId: UUID,
+        private val storageRefRepo: StorageRefRepo
 ) : VDC() {
 
     val state = MutableLiveData<State>(State(emoji = ""))

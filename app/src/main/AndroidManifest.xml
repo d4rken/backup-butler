@@ -25,13 +25,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".onboarding.OnboardingActivity"/>
+        <activity
+            android:name=".onboarding.OnboardingActivity"/>
         <activity
             android:name=".tasks.ui.editor.TaskEditorActivity"
-            android:theme="@style/BaseAppTheme"
-            />
+            android:theme="@style/BaseAppTheme"/>
+        <activity
+            android:name=".storage.ui.editor.StorageEditorActivity"
+            android:theme="@style/BaseAppTheme"/>
 
-        <service android:name="eu.darken.bb.main.core.service.BackupService"/>
+        <service
+            android:name="eu.darken.bb.main.core.service.BackupService"/>
 
         <provider
             android:name="androidx.work.impl.WorkManagerInitializer"

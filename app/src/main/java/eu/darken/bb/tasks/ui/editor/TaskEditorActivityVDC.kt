@@ -43,7 +43,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             allowNext = true
     ))
     val task = taskObs
-            .doOnNext { task -> stateUpdater.update { it.copy(saveable = isComplete(task)) } }
+            .doOnNext { task -> stateUpdater.update { it.copy(saveable = isTaskComplete(task)) } }
             .toLiveData()
     val steps = Observables.combineLatest(stateUpdater.data, taskObs)
             .toLiveData()
@@ -71,10 +71,10 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         }
     }
 
-    private fun isComplete(backupTask: BackupTask?): Boolean {
+    private fun isTaskComplete(backupTask: BackupTask?): Boolean {
         if (backupTask == null) return false
 
-        return backupTask.taskName.length > 3
+        return true
     }
 
     private fun createTask() {

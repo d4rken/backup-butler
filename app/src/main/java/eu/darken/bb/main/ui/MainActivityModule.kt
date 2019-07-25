@@ -11,8 +11,8 @@ import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.main.ui.overview.OverviewFragmentModule
 import eu.darken.bb.main.ui.schedules.SchedulesFragment
 import eu.darken.bb.main.ui.schedules.SchedulesFragmentModule
-import eu.darken.bb.repos.ui.list.RepoListFragment
-import eu.darken.bb.repos.ui.list.RepoListFragmentModule
+import eu.darken.bb.storage.ui.list.StorageListFragment
+import eu.darken.bb.storage.ui.list.StorageListFragmentModule
 import eu.darken.bb.tasks.ui.tasklist.TaskListFragment
 import eu.darken.bb.tasks.ui.tasklist.TaskListFragmentModule
 
@@ -27,8 +27,8 @@ abstract class MainActivityModule {
     @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
     abstract fun overviewFragment(): OverviewFragment
 
-    @ContributesAndroidInjector(modules = [RepoListFragmentModule::class])
-    abstract fun repolistFragment(): RepoListFragment
+    @ContributesAndroidInjector(modules = [StorageListFragmentModule::class])
+    abstract fun repolistFragment(): StorageListFragment
 
     @ContributesAndroidInjector(modules = [TaskListFragmentModule::class])
     abstract fun tasklistFragment(): TaskListFragment

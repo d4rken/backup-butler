@@ -32,16 +32,20 @@
         <item name="android:foreground">?selectableItemBackground</item>
     </style>
 
-    <style name="ThreeLineListItemContainer" parent="DefaultListItemContainer">
-        <item name="android:layout_height">88dp</item>
-        <item name="android:minHeight">88dp</item>
-    </style>
-
     <style name="OneLineListItemContainer" parent="DefaultListItemContainer">
         <item name="android:layout_height">56dp</item>
         <item name="android:minHeight">56dp</item>
     </style>
 
+    <style name="TwoLineListItemContainer" parent="DefaultListItemContainer">
+        <item name="android:layout_height">72dp</item>
+        <item name="android:minHeight">72dp</item>
+    </style>
+
+    <style name="ThreeLineListItemContainer" parent="DefaultListItemContainer">
+        <item name="android:layout_height">88dp</item>
+        <item name="android:minHeight">88dp</item>
+    </style>
 
     <style name="ListItemTextTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
 
@@ -62,7 +66,9 @@
     </style>
 
     <style name="MyCardView" parent="Widget.MaterialComponents.CardView">
-
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
     </style>
 
     <style name="TextInputLayoutOutlinedDense" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
@@ -79,5 +85,9 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:indeterminate">true</item>
         <item name="android:indeterminateTint">@color/colorSecondary</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.Button.Highlight" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">?colorSecondary</item>
     </style>
 </resources>

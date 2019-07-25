@@ -11,21 +11,42 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/TextInputLayoutOutlinedDense"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/MyCardView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:hint="@string/label_task_name"
-            app:endIconMode="clear_text">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/name_input"
-                style="@style/Widget.AppCompat.EditText"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/desc_newtask_intro_taskname"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/TextInputLayoutOutlinedDense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="@string/label_task_name"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/name_input"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
 
     </LinearLayout>
 

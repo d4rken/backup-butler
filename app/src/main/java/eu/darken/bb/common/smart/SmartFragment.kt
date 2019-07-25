@@ -3,8 +3,12 @@ package eu.darken.bb.common.smart
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import butterknife.ButterKnife
 import butterknife.Unbinder
 import eu.darken.bb.App
 import timber.log.Timber
@@ -32,6 +36,16 @@ abstract class SmartFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.tag(tag).v("onCreate(savedInstanceState=$savedInstanceState)")
         super.onCreate(savedInstanceState)
+    }
+
+    @LayoutRes var layoutRes: Int? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return layoutRes?.let {
+            val layout = inflater.inflate(it, container, false)
+            addUnbinder(ButterKnife.bind(this, layout))
+            layout
+        } ?: super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -11,7 +11,6 @@ import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.DataBinderModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.SimpleVHCreator
-import eu.darken.bb.tasks.ui.tasklist.TaskActions
 import javax.inject.Inject
 
 @PerChildFragment

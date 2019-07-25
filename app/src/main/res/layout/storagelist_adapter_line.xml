@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    style="@style/ThreeLineListItemContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/type_label"
+        style="@style/TextAppearance.MaterialComponents.Overline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/type_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Local storage"/>
+
+    <ImageView
+        android:id="@+id/type_icon"
+        style="@style/ListItemIconSecondary"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_sd_storage"/>
+
+    <TextView
+        android:id="@+id/label"
+        style="@style/ListItemTextTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="@+id/type_label"
+        app:layout_constraintStart_toStartOf="@+id/type_label"
+        app:layout_constraintTop_toBottomOf="@+id/type_label"
+        tools:text="/storage/emulated/0/BackupButler/backups/mybackup"/>
+
+    <TextView
+        android:id="@+id/repo_status"
+        style="@style/ListItemTextPrimary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/label"
+        app:layout_constraintTop_toBottomOf="@+id/label"
+        tools:text="27 backups - 5 GB (60% full)"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

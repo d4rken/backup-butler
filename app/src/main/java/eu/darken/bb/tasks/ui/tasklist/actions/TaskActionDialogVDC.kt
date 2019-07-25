@@ -6,17 +6,20 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.processor.ProcessorControl
 import eu.darken.bb.tasks.core.BackupTaskRepo
 import eu.darken.bb.tasks.core.TaskBuilder
 import eu.darken.bb.tasks.ui.editor.intro.IntroFragmentVDC
-import eu.darken.bb.tasks.ui.tasklist.TaskActions
-import eu.darken.bb.tasks.ui.tasklist.TaskActions.*
+import eu.darken.bb.tasks.ui.tasklist.actions.TaskActions.*
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class TaskActionDialogVDC @AssistedInject constructor(
         private val taskRepo: BackupTaskRepo,
         private val taskBuilder: TaskBuilder,
+        private val processorControl: ProcessorControl,
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: UUID
 ) : SmartVDC() {
@@ -45,24 +48,34 @@ class TaskActionDialogVDC @AssistedInject constructor(
 
     fun taskAction(action: TaskActions) {
         when (action) {
-            RUN -> TODO()
+            RUN -> {
+                taskRepo.get(taskId)
+                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .subscribeOn(Schedulers.io())
+                        .map { it.notNull() }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .subscribe { task ->
+                            processorControl.submit(task)
+                        }
+            }
             EDIT -> {
                 taskBuilder.load(taskId)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe { task ->
-                            // TODO launch edit activity
                             taskBuilder.startEditor(task.taskId)
-                            stateUpdater.update { it.copy(loading = false, finished = true) }
                         }
             }
             DELETE -> {
-                taskRepo.remove(taskId)
+                Single.timer(200, TimeUnit.MILLISECONDS)
+                        .flatMap { taskRepo.remove(taskId) }
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .subscribe { _ ->
-                            stateUpdater.update { it.copy(loading = false, finished = true) }
-                        }
+                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .subscribe()
             }
         }
     }
