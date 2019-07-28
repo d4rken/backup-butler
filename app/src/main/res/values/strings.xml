@@ -53,4 +53,6 @@
     <string name="label_storage_selection">Select storage type</string>
     <string name="label_location">Location</string>
     <string name="label_options">Options</string>
+    <string name="label_path">Path</string>
+    <string name="action_create">Create</string>
 </resources>

@@ -7,19 +7,22 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.main.core.service.BackupService
 import eu.darken.bb.storage.core.BackupStorage
-import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.core.StorageBuilder
+import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 class TypeSelectionFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        private val storageManager: StorageManager,
+        @Assisted private val storageId: UUID,
+        private val storageBuilder: StorageBuilder,
         @AppContext private val context: Context
 ) : SmartVDC() {
 
-    val state = storageManager.getSupportedStorageTypes()
+    val state = storageBuilder.getSupportedStorageTypes()
             .map { types ->
                 State(
                         supportedTypes = types.toList()
@@ -36,7 +39,9 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     }
 
     fun createType(type: BackupStorage.Type) {
-
+        storageBuilder.update(storageId) { it!!.copy(storageType = type) }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     data class State(
@@ -44,5 +49,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : SavedStateVDCFactory<TypeSelectionFragmentVDC>
+    interface Factory : VDCFactory<TypeSelectionFragmentVDC> {
+        fun create(handle: SavedStateHandle, storageId: UUID): TypeSelectionFragmentVDC
+    }
 }

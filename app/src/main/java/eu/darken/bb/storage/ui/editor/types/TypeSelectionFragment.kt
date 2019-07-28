@@ -1,5 +1,6 @@
 package eu.darken.bb.storage.ui.editor.types
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
@@ -13,15 +14,21 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.storage.core.getStorageId
 import javax.inject.Inject
 
 
 class TypeSelectionFragment : SmartFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: TypeSelectionFragmentVDC by vdcs { vdcSource }
+    private val vdc: TypeSelectionFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as TypeSelectionFragmentVDC.Factory
+        factory.create(handle, arguments!!.getStorageId()!!)
+    })
+
 
     @Inject lateinit var adapter: TypeSelectionAdapter
 
@@ -29,6 +36,12 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
 
     init {
         layoutRes = R.layout.storageeditor_typeselection_fragment
+    }
+
+    override fun onAttach(context: Context) {
+        setHasOptionsMenu(false)
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(false)
+        super.onAttach(context)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

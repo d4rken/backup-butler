@@ -2,6 +2,7 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -28,11 +29,23 @@
                     android:layout_height="match_parent"
                     android:text="@string/label_location"/>
 
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Body1"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/TextInputLayoutOutlinedDense"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Select a path for your backup files"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/label_path"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/path_input"
+                        style="@style/Widget.AppCompat.EditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:inputType="textNoSuggestions"
+                        tools:text="/storage/emulated/0/BackupButler"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 
@@ -57,9 +70,10 @@
 
                 <TextView
                     style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_marginTop="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Select options for this storage location, e.g. encryption."/>
+                    android:text="TODO"/>
 
             </LinearLayout>
 

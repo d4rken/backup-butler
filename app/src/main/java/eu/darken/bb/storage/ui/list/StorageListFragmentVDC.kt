@@ -9,6 +9,7 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Observable
@@ -17,11 +18,12 @@ import io.reactivex.rxkotlin.Observables
 class StorageListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val storageManager: StorageManager,
+        private val storageBuilder: StorageBuilder,
         @AppContext private val context: Context
 ) : SmartVDC() {
 
     val viewState: LiveData<ViewState> = Observables
-            .combineLatest(storageManager.status(), Observable.just(""))
+            .combineLatest(storageManager.info(), Observable.just(""))
             .map { (repos, _) ->
                 return@map ViewState(
                         storages = repos.toList()
@@ -34,11 +36,11 @@ class StorageListFragmentVDC @AssistedInject constructor(
     }
 
     fun createStorage() {
-        storageManager.startEditor()
+        storageBuilder.startEditor()
     }
 
     fun editStorage(storageInfo: StorageInfo) {
-        storageManager.startEditor(storageId = storageInfo.ref.storageId)
+        storageBuilder.startEditor(storageId = storageInfo.ref.storageId)
     }
 
     data class ViewState(

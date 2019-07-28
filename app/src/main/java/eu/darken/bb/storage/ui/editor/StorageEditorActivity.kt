@@ -65,4 +65,5 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         fragment.arguments = Bundle().apply { putStorageId(storageId) }
         supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, page.name).commitAllowingStateLoss()
     }
+
 }

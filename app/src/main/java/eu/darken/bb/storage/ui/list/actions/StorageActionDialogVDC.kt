@@ -23,7 +23,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
     val state = stateUpdater.state
 
     init {
-        storageManager.status(storageId)
+        storageManager.info(storageId)
                 .subscribeOn(Schedulers.io())
                 .subscribe { maybeTask ->
                     val storage = maybeTask.value

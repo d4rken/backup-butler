@@ -10,7 +10,7 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 open class HotData<T>(
-        startValue: T?
+        startValue: T? = null
 ) {
     private val executor = Executors.newSingleThreadExecutor()
     private val scheduler = Schedulers.from(executor)

@@ -12,7 +12,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.*
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
 @PerApp
@@ -20,9 +19,6 @@ class TaskBuilder @Inject constructor(
         @AppContext private val context: Context,
         private val taskRepo: BackupTaskRepo
 ) {
-
-    private val executor = Executors.newSingleThreadExecutor()
-    private val scheduler = Schedulers.from(executor)
 
     private val hotData = HotData<Map<UUID, BackupTask>>(mutableMapOf())
 
@@ -92,6 +88,6 @@ class TaskBuilder @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Task", "Builder", "Repo")
+        val TAG = App.logTag("Task", "Builder")
     }
 }

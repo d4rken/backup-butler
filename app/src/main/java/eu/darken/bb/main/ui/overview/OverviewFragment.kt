@@ -2,14 +2,15 @@ package eu.darken.bb.main.ui.overview
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
@@ -32,11 +33,6 @@ class OverviewFragment : SmartFragment(), AutoInject {
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: OverviewFragmentVDC by vdcs { vdcSource }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.overview_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
@@ -56,19 +52,6 @@ class OverviewFragment : SmartFragment(), AutoInject {
         })
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_example, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_help -> {
-            view?.let { Snackbar.make(it, R.string.app_name, Snackbar.LENGTH_SHORT).show() }
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
     }
 
 }

@@ -9,7 +9,7 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.storage.core.BackupStorage
-import eu.darken.bb.storage.core.StorageRefRepo
+import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import io.reactivex.schedulers.Schedulers
@@ -20,22 +20,21 @@ import kotlin.reflect.KClass
 class StorageEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: UUID,
-        private val storageRefRepo: StorageRefRepo
+        private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
     val finishActivity = SingleLiveEvent<Boolean>()
-    val state = storageRefRepo.references
+    val state = storageBuilder.storage(storageId) { StorageBuilder.Data(storageId = storageId) }
             .subscribeOn(Schedulers.io())
-            .map {
-                val ref = it[storageId]
-                val page = when (ref?.storageType) {
+            .map { data ->
+                val page = when (data.storageType) {
                     BackupStorage.Type.LOCAL_STORAGE -> State.Page.LOCAL
                     null -> State.Page.SELECTION
                 }
                 State(
                         page = page,
                         storageId = storageId,
-                        existing = ref != null
+                        existing = data.ref != null
                 )
             }
             .toLiveData()

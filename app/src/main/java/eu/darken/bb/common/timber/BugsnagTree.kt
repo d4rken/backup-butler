@@ -7,7 +7,7 @@ import java.util.*
 
 class BugsnagTree : Timber.Tree() {
 
-    // Adding one to the initial size accounts for the add before removeAll.
+    // Adding one to the initial size accounts for the put before removeAll.
     private val buffer = ArrayDeque<String>(BUFFER_SIZE + 1)
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {

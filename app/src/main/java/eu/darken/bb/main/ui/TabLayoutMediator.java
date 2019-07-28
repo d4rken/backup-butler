@@ -126,7 +126,7 @@ public final class TabLayoutMediator {
         mOnPageChangeCallback = new TabLayoutOnPageChangeCallback(mTabLayout);
         mViewPager.registerOnPageChangeCallback(mOnPageChangeCallback);
 
-        // Now we'll add a tab selected listener to set ViewPager's current item
+        // Now we'll put a tab selected listener to set ViewPager's current item
         mOnTabSelectedListener = new ViewPagerOnTabSelectedListener(mViewPager);
         mTabLayout.addOnTabSelectedListener(mOnTabSelectedListener);
 

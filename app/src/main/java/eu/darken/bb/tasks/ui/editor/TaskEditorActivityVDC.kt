@@ -18,7 +18,6 @@ import eu.darken.bb.tasks.ui.editor.intro.IntroFragment
 import eu.darken.bb.tasks.ui.editor.sources.SourcesFragment
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -77,7 +76,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         return true
     }
 
-    private fun createTask() {
+    private fun saveTask() {
         taskBuilder.save(taskId)
                 .doOnSubscribe {
                     stateUpdater.update {
@@ -91,7 +90,6 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     private fun dismiss() {
-        Timber.i("DIMISS")
         taskBuilder.remove(taskId)
         finishActivity.call()
     }
@@ -108,7 +106,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         if (stateUpdater.snapshot?.allowNext == true) {
             changeStep(+1)
         } else {
-            createTask()
+            saveTask()
         }
     }
 

@@ -35,7 +35,7 @@ class StorageRefRepo @Inject constructor(
         refPublisher.onNext(internalRefs)
     }
 
-    @Synchronized fun add(ref: StorageRef): Single<Opt<StorageRef>> = Single.fromCallable {
+    @Synchronized fun put(ref: StorageRef): Single<Opt<StorageRef>> = Single.fromCallable {
         val oldRef = internalRefs.put(ref.storageId, ref)
         Timber.d("put(ref=%s) -> old=%s", ref, oldRef)
         update()

@@ -1,11 +1,9 @@
 package eu.darken.bb.storage.core
 
 import android.content.Context
-import android.content.Intent
 import dagger.Reusable
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
@@ -24,26 +22,24 @@ class StorageManager @Inject constructor(
 
     }
 
-    fun getSupportedStorageTypes(): Observable<Collection<BackupStorage.Type>> = Observable.just(BackupStorage.Type.values().toList())
-
-    fun status(storageId: UUID): Observable<Opt<StorageInfo>> {
+    fun info(storageId: UUID): Observable<Opt<StorageInfo>> {
         return refRepo.references
                 .flatMap { map ->
                     val ref = map[storageId]
                     if (ref == null) return@flatMap Observable.just(Opt(null))
-                    else return@flatMap status(ref).map { Opt(it) }
+                    else return@flatMap info(ref).map { Opt(it) }
                 }
     }
 
-    fun status(storageRef: StorageRef): Observable<StorageInfo> = getStorage(storageRef)
+    fun info(storageRef: StorageRef): Observable<StorageInfo> = getStorage(storageRef)
             .flatMapObservable { it.info() }
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
 
-    fun status(): Observable<Collection<StorageInfo>> = refRepo.references
+    fun info(): Observable<Collection<StorageInfo>> = refRepo.references
             .map { it.values }
             .flatMap { refs ->
-                val statusObs = refs.map { status(it) }
+                val statusObs = refs.map { info(it) }
                 return@flatMap Observable.combineLatest<StorageInfo, List<StorageInfo>>(statusObs) {
                     return@combineLatest it.asList() as List<StorageInfo>
                 }
@@ -62,10 +58,4 @@ class StorageManager @Inject constructor(
         }
     }
 
-    fun startEditor(storageId: UUID = UUID.randomUUID()) {
-        val intent = Intent(context, StorageEditorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putStorageId(storageId)
-        context.startActivity(intent)
-    }
 }
