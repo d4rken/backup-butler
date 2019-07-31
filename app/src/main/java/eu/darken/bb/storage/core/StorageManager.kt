@@ -36,7 +36,7 @@ class StorageManager @Inject constructor(
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
 
-    fun info(): Observable<Collection<StorageInfo>> = refRepo.references
+    fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
             .map { it.values }
             .flatMap { refs ->
                 val statusObs = refs.map { info(it) }

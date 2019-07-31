@@ -33,8 +33,8 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         DefaultBackupTask(
                 taskName = "",
                 taskId = taskId,
-                sources = listOf(),
-                destinations = listOf()
+                sources = setOf(),
+                destinations = setOf()
         )
     }
     private val stateUpdater = StateUpdater(startValue = State(
@@ -95,7 +95,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun previous() {
-        if (stateUpdater.snapshot?.allowPrevious == true) {
+        if (stateUpdater.snapshot.allowPrevious == true) {
             changeStep(-1)
         } else {
             dismiss()
@@ -103,7 +103,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun next() {
-        if (stateUpdater.snapshot?.allowNext == true) {
+        if (stateUpdater.snapshot.allowNext == true) {
             changeStep(+1)
         } else {
             saveTask()

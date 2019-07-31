@@ -26,7 +26,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     val viewState: LiveData<ViewState> = Observables
-            .combineLatest(storageManager.info(), Observable.just(""))
+            .combineLatest(storageManager.infos(), Observable.just(""))
             .map { (repos, _) ->
                 return@map ViewState(
                         storages = repos.toList()

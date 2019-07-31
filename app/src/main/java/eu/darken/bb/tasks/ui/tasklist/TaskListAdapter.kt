@@ -37,7 +37,7 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
 
         override fun bind(item: BackupTask) {
             taskName.text = item.taskName
-            primary.text = item.taskId.toString()
+            primary.text = item.getDescription(context)
             statusIcon.setImageResource(R.drawable.ic_error_outline)
             statusIcon.setColorFilter(getColor(R.color.colorError))
         }

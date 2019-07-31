@@ -23,7 +23,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/TextAppearance.MaterialComponents.Headline6"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="@string/label_destinations"/>
@@ -35,7 +35,7 @@
 
                 <Button
                     android:id="@+id/add_destination"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"

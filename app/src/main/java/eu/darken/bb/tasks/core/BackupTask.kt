@@ -1,5 +1,6 @@
 package eu.darken.bb.tasks.core
 
+import android.content.Context
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backups.BackupConfig
 import eu.darken.bb.common.Jsonable
@@ -9,8 +10,10 @@ import java.util.*
 interface BackupTask : Jsonable {
     val taskName: String
     val taskId: UUID
-    val sources: List<BackupConfig>
-    val destinations: List<StorageRef>
+    val sources: Set<BackupConfig>
+    val destinations: Set<StorageRef>
+
+    fun getDescription(context: Context): String
 
     enum class Type {
         SIMPLE
