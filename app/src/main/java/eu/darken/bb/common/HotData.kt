@@ -10,15 +10,17 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 open class HotData<T>(
-        startValue: T? = null
+        startValue: T
 ) {
     private val executor = Executors.newSingleThreadExecutor()
     private val scheduler = Schedulers.from(executor)
 
     private val updatePub = PublishSubject.create<(T) -> T>()
-    private val statePub = if (startValue != null) BehaviorSubject.createDefault<T>(startValue) else BehaviorSubject.create()
-    val snapshot: T?
-        get() = statePub.value
+    private val statePub = BehaviorSubject.createDefault<T>(startValue)
+
+    val snapshot: T
+        get() = statePub.value!!
+
     val data: Observable<T> = statePub.hide()
 
     init {

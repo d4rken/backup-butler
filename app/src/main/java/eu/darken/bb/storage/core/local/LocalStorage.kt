@@ -7,6 +7,7 @@ import eu.darken.bb.backups.Backup
 import eu.darken.bb.backups.BackupConfig
 import eu.darken.bb.backups.BackupId
 import eu.darken.bb.backups.BaseBackupBuilder
+import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
@@ -17,25 +18,23 @@ import timber.log.Timber
 import java.io.File
 import java.util.*
 
-class LocalStorageStorage(
+class LocalStorage(
         private val context: Context,
         moshi: Moshi,
+        private val configEditorFactory: LocalStorageEditor.Factory,
         private val tmpDataRepo: TmpDataRepo,
-        private val repoRef: LocalStorageStorageRef
+        private val repoRef: LocalStorageRef
 ) : BackupStorage {
     private val dataDir = File(repoRef.path.asFile(), "data")
-    private val repoConfigFile = File(repoRef.path.asFile(), "repository.config")
-    private val repoConfigAdapter = moshi.adapter(StorageConfig::class.java)
     private val backupConfigAdapter = moshi.adapter(BackupConfig::class.java)
     private val revisionConfigAdapter = moshi.adapter(RevisionConfig::class.java)
     private val repoConfig: LocalStorageConfig
 
     init {
-        val config = repoConfigAdapter.fromFile(repoConfigFile) as? LocalStorageConfig
-        if (config == null) {
-            throw MissingFileException(repoConfigFile.asSFile())
-        }
-        repoConfig = config
+        val configEditor = configEditorFactory.create(repoRef.storageId)
+        val config = configEditor.load(repoRef).map { it as Opt<LocalStorageConfig> }.blockingGet()
+        if (config.isNull) throw MissingFileException(repoRef.path)
+        repoConfig = config.notNullValue()
         dataDir.tryMkDirs()
     }
 
@@ -147,7 +146,7 @@ class LocalStorageStorage(
         // TODO remove files
     }
 
-    override fun toString(): String = "LocalStorageStorage(repoConfig=$repoConfig)"
+    override fun toString(): String = "LocalStorage(repoConfig=$repoConfig)"
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")

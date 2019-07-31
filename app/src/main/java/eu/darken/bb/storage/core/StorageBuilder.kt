@@ -11,42 +11,42 @@ import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
 @PerApp
 class StorageBuilder @Inject constructor(
         @AppContext private val context: Context,
-        private val refRepo: StorageRefRepo
+        private val refRepo: StorageRefRepo,
+        private val editors: @JvmSuppressWildcards Map<BackupStorage.Type, StorageEditor.Factory<out StorageEditor>>
 ) {
 
     private val hotData = HotData<Map<UUID, Data>>(mutableMapOf())
 
+    init {
+        hotData.data
+                .observeOn(Schedulers.computation())
+                .subscribe { dataMap ->
+                    dataMap.entries.forEach { (uuid, data) ->
+                        if (data.storageType != null && data.editor == null) {
+                            val editor = editors.getValue(data.storageType).create(uuid)
+                            update(uuid) { it!!.copy(editor = editor) }.blockingGet()
+                        }
+                    }
+                }
+    }
+
     data class Data(
             val storageId: UUID,
             val storageType: BackupStorage.Type? = null,
-            val ref: StorageRef? = null
+            val editor: StorageEditor? = null
     )
 
     fun getSupportedStorageTypes(): Observable<Collection<BackupStorage.Type>> = Observable.just(BackupStorage.Type.values().toList())
 
-    fun storage(id: UUID, create: (() -> Data)? = null): Observable<Data> {
-        var consumed = create == null
+    fun storage(id: UUID): Observable<Data> {
         return hotData.data
-                .doOnNext {
-                    if (!it.containsKey(id) && !consumed) {
-                        consumed = true
-                        update(id) { create!!.invoke() }.subscribeOn(Schedulers.io()).subscribe()
-                    }
-                }
-                .flatMapSingle { data ->
-                    return@flatMapSingle if (!data.containsKey(id) && !consumed) {
-                        consumed = true
-                        update(id) { create!!.invoke() }.map { data }
-                    } else {
-                        Single.just(data)
-                    }
-                }
                 .filter { it.containsKey(id) }
                 .map { it[id] }
     }
@@ -64,6 +64,7 @@ class StorageBuilder @Inject constructor(
             .map { Opt(it[id]) }
 
     fun remove(id: UUID): Single<Opt<Data>> = Single.just(id)
+            .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap { id ->
                 hotData.data
                         .firstOrError()
@@ -73,16 +74,24 @@ class StorageBuilder @Inject constructor(
             }
 
     fun save(id: UUID): Single<StorageRef> = remove(id)
+            .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
                 if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
                 it.value
             }
-            .flatMap { data ->
-                if (data.ref == null) throw IllegalArgumentException("Can't save, ref is missing: $data")
-                return@flatMap refRepo.put(data.ref).map { data.ref }
+            .flatMap {
+                if (it.editor == null) throw IllegalStateException("Can't save builder data NULL editor: $it")
+                it.editor.save()
             }
+            .flatMap { (ref, _) ->
+                return@flatMap refRepo.put(ref).map { ref }
+            }
+            .doOnSuccess { Timber.tag(TAG).d("Saved %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
+            .map { it }
 
     fun load(id: UUID): Single<Data> = refRepo.references
+            .doOnSubscribe { Timber.tag(TAG).v("Loading %s", id) }
             .firstOrError()
             .map { Opt(it[id]) }
             .map {
@@ -90,20 +99,31 @@ class StorageBuilder @Inject constructor(
                 return@map it.value
             }
             .flatMap { ref ->
+                val editor = editors.getValue(ref.storageType).create(ref.storageId)
+                editor.load(ref).blockingGet()
                 val builderData = Data(
                         storageId = ref.storageId,
                         storageType = ref.storageType,
-                        ref = ref
+                        editor = editor
                 )
                 return@flatMap update(id) { builderData }.map { builderData }
             }
-
+            .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
     fun startEditor(storageId: UUID = UUID.randomUUID()) {
-        val intent = Intent(context, StorageEditorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putStorageId(storageId)
-        context.startActivity(intent)
+        load(storageId)
+                .onErrorResumeNext {
+                    Timber.tag(TAG).d("No existing ref for id %s, creating new builder.", storageId)
+                    update(storageId) { Data(storageId = storageId) }.map { it.value!! }
+                }
+                .subscribe { data ->
+                    Timber.tag(TAG).v("Starting editor for ID %s", storageId)
+                    val intent = Intent(context, StorageEditorActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.putStorageId(data.storageId)
+                    context.startActivity(intent)
+                }
     }
 
     companion object {

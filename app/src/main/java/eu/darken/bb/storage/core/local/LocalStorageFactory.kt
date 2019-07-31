@@ -13,16 +13,22 @@ import javax.inject.Inject
 class LocalStorageFactory @Inject constructor(
         @AppContext private val context: Context,
         private val moshi: Moshi,
+        private val localStorageEditorFactory: LocalStorageEditor.Factory,
         private val tmpDataRepo: TmpDataRepo
 ) : BackupStorage.Factory {
 
     override fun isCompatible(storageRef: StorageRef): Boolean {
-        return storageRef.storageType == BackupStorage.Type.LOCAL_STORAGE
+        return storageRef.storageType == BackupStorage.Type.LOCAL
     }
 
     override fun create(storageRef: StorageRef): BackupStorage {
-        storageRef as LocalStorageStorageRef
-        return LocalStorageStorage(context, moshi, tmpDataRepo, storageRef)
+        return LocalStorage(
+                context,
+                moshi,
+                localStorageEditorFactory,
+                tmpDataRepo,
+                storageRef as LocalStorageRef
+        )
     }
 
 }

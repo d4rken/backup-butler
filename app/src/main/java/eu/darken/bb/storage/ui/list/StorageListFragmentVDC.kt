@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
@@ -14,6 +15,8 @@ import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
+import timber.log.Timber
+import java.util.*
 
 class StorageListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -31,6 +34,8 @@ class StorageListFragmentVDC @AssistedInject constructor(
             }
             .toLiveData()
 
+    val editTaskEvent = SingleLiveEvent<EditActions>()
+
     init {
 
     }
@@ -39,12 +44,25 @@ class StorageListFragmentVDC @AssistedInject constructor(
         storageBuilder.startEditor()
     }
 
-    fun editStorage(storageInfo: StorageInfo) {
-        storageBuilder.startEditor(storageId = storageInfo.ref.storageId)
+    fun editStorage(item: StorageInfo) {
+        Timber.tag(TAG).d("editStorage(%s)", item)
+        editTaskEvent.postValue(EditActions(
+                storageId = item.ref.storageId,
+                allowView = true,
+                allowEdit = true,
+                allowDelete = true
+        ))
     }
 
     data class ViewState(
             val storages: List<StorageInfo>
+    )
+
+    data class EditActions(
+            val storageId: UUID,
+            val allowView: Boolean = false,
+            val allowEdit: Boolean = false,
+            val allowDelete: Boolean = false
     )
 
     @AssistedInject.Factory

@@ -5,11 +5,11 @@ import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageRef
 import java.util.*
 
-data class LocalStorageStorageRef(
+data class LocalStorageRef(
         val path: SFile,
         override val storageId: UUID = UUID.randomUUID()
 ) : StorageRef {
 
-    override val storageType: BackupStorage.Type = BackupStorage.Type.LOCAL_STORAGE
+    override val storageType: BackupStorage.Type = BackupStorage.Type.LOCAL
 
 }

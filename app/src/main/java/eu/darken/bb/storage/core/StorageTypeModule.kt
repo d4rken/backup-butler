@@ -1,8 +1,11 @@
 package eu.darken.bb.storage.core
 
 import dagger.Binds
+import dagger.MapKey
 import dagger.Module
+import dagger.multibindings.IntoMap
 import dagger.multibindings.IntoSet
+import eu.darken.bb.storage.core.local.LocalStorageEditor
 import eu.darken.bb.storage.core.local.LocalStorageFactory
 import javax.inject.Qualifier
 
@@ -13,6 +16,11 @@ abstract class StorageTypeModule {
     @IntoSet
     @StorageFactory
     abstract fun localRepo(repo: LocalStorageFactory): BackupStorage.Factory
+
+    @Binds
+    @IntoMap
+    @StorageTypeKey(BackupStorage.Type.LOCAL)
+    abstract fun localStorageEditor(repo: LocalStorageEditor.Factory): StorageEditor.Factory<out StorageEditor>
 }
 
 
@@ -21,7 +29,8 @@ abstract class StorageTypeModule {
 @Retention(AnnotationRetention.RUNTIME)
 annotation class StorageFactory
 
-@Qualifier
-@MustBeDocumented
+
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class StorageEditor
+@MapKey
+annotation class StorageTypeKey(val value: BackupStorage.Type)

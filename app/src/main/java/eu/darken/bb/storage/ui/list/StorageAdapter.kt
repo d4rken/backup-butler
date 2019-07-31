@@ -22,7 +22,7 @@ class StorageAdapter @Inject constructor() : ModularAdapter<DestinationsAdapter.
 
     init {
         modules.add(DataBinderModule<StorageInfo, VH>(data))
-        modules.add(SimpleVHCreator { DestinationsAdapter.VH(it) })
+        modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size

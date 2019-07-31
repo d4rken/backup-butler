@@ -19,7 +19,7 @@ class LocalStorageConfigTest {
         val json = adapter.toJson(original)
         assertThat(json)
                 .contains("\"label\":\"testlabel\"")
-                .contains("\"storageType\":\"${BackupStorage.Type.LOCAL_STORAGE}\"")
+                .contains("\"storageType\":\"${BackupStorage.Type.LOCAL}\"")
 
         val restored = adapter.fromJson(json)
         assertThat(restored).isInstanceOf(LocalStorageConfig::class.java)

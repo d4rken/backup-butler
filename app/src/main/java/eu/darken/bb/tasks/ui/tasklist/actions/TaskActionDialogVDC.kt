@@ -52,7 +52,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                 taskRepo.get(taskId)
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .subscribeOn(Schedulers.io())
-                        .map { it.notNull() }
+                        .map { it.notNullValue() }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe { task ->

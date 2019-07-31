@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
@@ -22,14 +25,16 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdcs
+import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
 
 
-class StorageListFragment : SmartFragment(), AutoInject {
+class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
     companion object {
         fun newInstance(): Fragment = StorageListFragment()
     }
 
+    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageListFragmentVDC by vdcs { vdcSource }
 
@@ -37,6 +42,8 @@ class StorageListFragment : SmartFragment(), AutoInject {
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storagelist_fragment, container, false)
@@ -62,6 +69,11 @@ class StorageListFragment : SmartFragment(), AutoInject {
         })
 
         fab.clicksDebounced().subscribe { vdc.createStorage() }
+
+        vdc.editTaskEvent.observe(this, Observer {
+            val bs = StorageActionDialog.newInstance(it.storageId)
+            bs.show(childFragmentManager, it.storageId.toString())
+        })
 
         super.onViewCreated(view, savedInstanceState)
     }

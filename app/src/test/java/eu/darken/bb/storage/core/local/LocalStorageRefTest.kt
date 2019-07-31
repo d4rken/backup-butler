@@ -7,10 +7,10 @@ import eu.darken.bb.storage.core.StorageRef
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class LocalStorageStorageRefTest {
+class LocalStorageRefTest {
     @Test
     fun testSerialization() {
-        val original = LocalStorageStorageRef(
+        val original = LocalStorageRef(
                 SimpleFile.build("test", "path")
         )
 
@@ -20,11 +20,11 @@ class LocalStorageStorageRefTest {
         val json = adapter.toJson(original)
         assertThat(json)
                 .contains("\"path\":\"test/path\"")
-                .contains("\"storageType\":\"${BackupStorage.Type.LOCAL_STORAGE.name}\"")
+                .contains("\"storageType\":\"${BackupStorage.Type.LOCAL.name}\"")
                 .contains("\"storageId\":\"${original.storageId}\"")
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(LocalStorageStorageRef::class.java)
+        assertThat(restored).isInstanceOf(LocalStorageRef::class.java)
         assertThat(restored).isEqualTo(original)
     }
 }

@@ -6,17 +6,20 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.tasks.ui.editor.intro.IntroFragmentVDC
 import io.reactivex.schedulers.Schedulers
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class StorageActionDialogVDC @AssistedInject constructor(
-        private val storageManager: StorageManager,
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: UUID
+        @Assisted private val storageId: UUID,
+        private val storageManager: StorageManager,
+        private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
     private val stateUpdater = StateUpdater(State(loading = true))
@@ -47,7 +50,14 @@ class StorageActionDialogVDC @AssistedInject constructor(
                 TODO()
             }
             EDIT -> {
-                TODO()
+                storageBuilder.load(storageId)
+                        .subscribeOn(Schedulers.io())
+                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .subscribe { storage ->
+                            storageBuilder.startEditor(storage.storageId)
+                        }
             }
             DELETE -> {
                 TODO()

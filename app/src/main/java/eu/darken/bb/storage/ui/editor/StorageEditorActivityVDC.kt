@@ -20,32 +20,26 @@ import kotlin.reflect.KClass
 class StorageEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: UUID,
-        private val storageBuilder: StorageBuilder
+        storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
     val finishActivity = SingleLiveEvent<Boolean>()
-    val state = storageBuilder.storage(storageId) { StorageBuilder.Data(storageId = storageId) }
+    val state = storageBuilder
+            .storage(storageId)
             .subscribeOn(Schedulers.io())
             .map { data ->
                 val page = when (data.storageType) {
-                    BackupStorage.Type.LOCAL_STORAGE -> State.Page.LOCAL
+                    BackupStorage.Type.LOCAL -> State.Page.LOCAL
+                    BackupStorage.Type.SAF -> TODO()
                     null -> State.Page.SELECTION
                 }
                 State(
                         page = page,
                         storageId = storageId,
-                        existing = data.ref != null
+                        existing = data.editor?.isExistingStorage() == true
                 )
             }
             .toLiveData()
-
-    init {
-
-    }
-
-    private fun dismiss() {
-        finishActivity.call()
-    }
 
     data class State(
             val storageId: UUID,

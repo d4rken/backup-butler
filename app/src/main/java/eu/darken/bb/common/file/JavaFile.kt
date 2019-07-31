@@ -14,6 +14,10 @@ class JavaFile(
     override val name: String
         get() = file.name
 
+    override fun toString(): String {
+        return "JavaFile(file=$file)"
+    }
+
     companion object {
         fun build(base: File, vararg crumbs: String): JavaFile {
             return build(base.path, *crumbs)

@@ -4,117 +4,103 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.file.JavaFile
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.storage.core.StorageBuilder
-import eu.darken.bb.storage.core.local.LocalStorageConfigEditor
-import eu.darken.bb.storage.core.local.LocalStorageStorageRef
+import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
-import java.io.File
+import timber.log.Timber
 import java.util.*
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: UUID,
         @AppContext private val context: Context,
-        private val storageBuilder: StorageBuilder,
-        private val editor: LocalStorageConfigEditor
+        private val builder: StorageBuilder
 ) : SmartVDC() {
 
     private val stateUpdater = HotData(State())
-    val state = Observables
-            .combineLatest(
-                    stateUpdater.data,
-                    storageBuilder.storage(storageId)
-            )
-            .map { (state, builder) ->
-                val config = builder.config as LocalStorageConfigEditor
+
+    private val editorObs = builder.storage(storageId)
+            .filter { it.editor != null }
+            .map { it.editor as LocalStorageEditor }
+
+    private val configObs = editorObs
+            .flatMap { it.config }
+
+    val state = Observables.combineLatest(stateUpdater.data, configObs)
+            .subscribeOn(Schedulers.io())
+            .map { (state, config) ->
                 state.copy(
-                        canGoBack = builder.ref == null
+                        label = config.label,
+                        validPath = editor.isRefPathValid(state.path),
+                        allowCreate = editor.isRefPathValid(state.path) && editor.isValidConfig(),
+                        working = false,
+                        existing = editor.isExistingStorage()
                 )
             }
             .toLiveData()
 
+    private val editor: LocalStorageEditor by lazy {
+        editorObs.blockingFirst()
+    }
+
+    val finishActivity = SingleLiveEvent<Boolean>()
+
     init {
-        // If not null, get the path put it into the state and prevent the path edittext from being edited,
-        // Can't change existing paths for now
-        TODO()
-
-        // If the ref is not null then try to load an existing config
-
-
-        // LocalStorageConfigEditor should be used to load/save the data to have a single location that deals with different config revisions
-
-        storageBuilder.storage(storageId)
+        editorObs.firstOrError()
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
-                .filter { it.ref != null }
-                .map { it.ref!! }
-                .flatMapSingle { editor.load(it) }
-                .subscribe { config ->
-                    configUpdater.update { config }
+                .filter { editor.refPath != null }
+                .subscribe { editor ->
+                    stateUpdater.update { it.copy(path = editor.refPath!!.path) }
                 }
-
-
     }
 
     fun createStorage() {
-        // Create a new ref with path
-        // Save the config to the ref
-        // Save the ref into the repo -> other tools pick it up
-
+        editor.updateRefPath(stateUpdater.snapshot.path)
         stateUpdater.data
-                .subscribeOn(Schedulers.io())
                 .firstOrError()
-                .map { state ->
-                    LocalStorageStorageRef(
-                            storageId = storageId,
-                            path = JavaFile.build(state.path)
-                    )
-                }
-                .flatMap { ref ->
-                    editor.save(ref).map { ref }
-                }
-                .flatMap {
-                    storageBuilder.save(storageId)
-                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
+                .doFinally { finishActivity.postValue(true) }
+                .flatMap { builder.save(storageId) }
                 .subscribe()
-
-        TODO()
     }
 
-    fun updatePath(text: CharSequence) {
-        // Where do we update the config???
-        // Update config in the state? Or as Hotdata
-        TODO()
-        stateUpdater.update {
-            it.copy(
-                    path = text.toString(),
-                    validPath = isValidPath(text.toString())
-            )
-        }
+    fun updateName(label: String) {
+        Timber.tag(TAG).v("Updating label: %s", label)
+        editor.updateLabel(label)
     }
 
-    private fun isValidPath(path: String): Boolean = try {
-        var file = File(path)
-        while (!file.exists() && file.parent != null) {
-            file = file.parentFile
-        }
-        file.isDirectory && file.canRead() && file.canWrite() && file.canExecute()
-    } catch (e: Exception) {
-        false
+    fun updatePath(path: String) {
+        Timber.tag(TAG).v("Updating path: %s", path)
+        stateUpdater.update { it.copy(path = path) }
+        editor.updateRefPath(path)
     }
 
     fun onGoBack(): Boolean {
-        storageBuilder
+        if (editor.isExistingStorage()) {
+            builder.remove(storageId)
+                    .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe { data ->
+                        finishActivity.postValue(true)
+                    }
+            return true
+        }
+
+        builder
                 .update(storageId) { data ->
                     data!!.copy(
-                            storageType = null
+                            storageType = null,
+                            editor = null
                     )
                 }
                 .subscribeOn(Schedulers.io())
@@ -123,14 +109,20 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
+            val label: String = "",
             val path: String = "",
             val validPath: Boolean = false,
-            val canGoBack: Boolean = false,
-            val working: Boolean = true
+            val working: Boolean = true,
+            val allowCreate: Boolean = false,
+            val existing: Boolean = false
     )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: UUID): LocalEditorFragmentVDC
+    }
+
+    companion object {
+        val TAG = App.logTag("Storage", "Local", "Editor", "VDC")
     }
 }

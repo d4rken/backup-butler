@@ -17,7 +17,6 @@
     <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
-    <string name="repo_type_local_storage_label">Local storage</string>
     <string name="error_message_missing_file_x">Can\'t find %s</string>
     <plurals name="x_revisions">
         <item quantity="one">%d revision</item>
@@ -47,7 +46,6 @@
     <string name="label_files">Files</string>
     <string name="button_view">View</string>
     <string name="label_unknown">Unknown</string>
-    <string name="repo_type_local_storage_desc">Storage on this local device, e.g. internal, sdcards or USB.</string>
     <string name="label_edit_storage">Edit storage</string>
     <string name="label_create_storage">Create storage</string>
     <string name="label_storage_selection">Select storage type</string>
@@ -55,4 +53,11 @@
     <string name="label_options">Options</string>
     <string name="label_path">Path</string>
     <string name="action_create">Create</string>
+    <string name="repo_type_local_storage_label">Local storage</string>
+    <string name="repo_type_local_storage_desc">Local storage that is directly accessible, e.g. internal sdcard.</string>
+    <string name="repo_type_saf_storage_label">Device storage</string>
+    <string name="repo_type_saf_storage_desc">Any type of device storage accessible through the Storage Access Framework.</string>
+    <string name="label_name">Name</string>
+    <string name="core_settings">Core settings</string>
+    <string name="action_save">Save</string>
 </resources>

@@ -13,7 +13,8 @@ interface BackupStorage {
             @Transient @StringRes val labelRes: Int,
             @Transient @StringRes val descriptionRes: Int
     ) {
-        LOCAL_STORAGE(R.drawable.ic_sd_storage, R.string.repo_type_local_storage_label, R.string.repo_type_local_storage_desc);
+        LOCAL(R.drawable.ic_sd_storage, R.string.repo_type_local_storage_label, R.string.repo_type_local_storage_desc),
+        SAF(R.drawable.ic_sd_storage, R.string.repo_type_saf_storage_label, R.string.repo_type_saf_storage_desc);
     }
 
     fun info(): Observable<StorageInfo>

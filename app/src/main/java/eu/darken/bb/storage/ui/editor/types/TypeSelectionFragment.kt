@@ -2,7 +2,9 @@ package eu.darken.bb.storage.ui.editor.types
 
 import android.content.Context
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -39,8 +41,14 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
     }
 
     override fun onAttach(context: Context) {
-        setHasOptionsMenu(false)
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(false)
+        setHasOptionsMenu(true)
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
+        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                vdc.dismiss()
+            }
+        })
         super.onAttach(context)
     }
 
@@ -60,6 +68,13 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
             }
         })
 
+        vdc.finishActivity.observe(this, Observer { requireActivity().finish() })
+
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        android.R.id.home -> vdc.dismiss()
+        else -> super.onOptionsItemSelected(item)
     }
 }
