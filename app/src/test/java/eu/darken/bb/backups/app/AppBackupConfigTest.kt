@@ -1,7 +1,8 @@
 package eu.darken.bb.backups.app
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.backups.BackupConfig
+import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.app.AppBackupConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,7 +16,7 @@ class AppBackupConfigTest {
 
         val json = adapter.toJson(config)
         assertThat(json)
-                .contains("{\"revisionType\":\"APP\"")
+                .contains("{\"configType\":\"APP\"")
                 .contains("\"packageName\":\"test.package\"")
                 .contains("\"label\":\"pkg-test.package\"")
 

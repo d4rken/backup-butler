@@ -33,6 +33,9 @@
         <activity
             android:name=".storage.ui.editor.StorageEditorActivity"
             android:theme="@style/BaseAppTheme"/>
+        <activity
+            android:name=".backups.ui.editor.BackupEditorActivity"
+            android:theme="@style/BaseAppTheme"/>
 
         <service
             android:name="eu.darken.bb.main.core.service.BackupService"/>

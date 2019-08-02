@@ -3,8 +3,8 @@ package eu.darken.bb.tasks.ui.editor.sources
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupConfig
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC

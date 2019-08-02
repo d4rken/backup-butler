@@ -3,10 +3,10 @@ package eu.darken.bb.storage.core.local
 import android.content.Context
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupConfig
-import eu.darken.bb.backups.BackupId
-import eu.darken.bb.backups.BaseBackupBuilder
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backups.core.BaseBackupBuilder
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromFile

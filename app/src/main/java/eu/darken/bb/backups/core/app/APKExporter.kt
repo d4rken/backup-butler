@@ -1,4 +1,4 @@
-package eu.darken.bb.backups.app
+package eu.darken.bb.backups.core.app
 
 import android.content.pm.PackageManager
 import dagger.Reusable

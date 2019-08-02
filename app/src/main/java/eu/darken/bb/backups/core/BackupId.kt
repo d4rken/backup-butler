@@ -1,4 +1,4 @@
-package eu.darken.bb.backups
+package eu.darken.bb.backups.core
 
 import java.util.*
 

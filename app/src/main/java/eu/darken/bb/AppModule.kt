@@ -4,7 +4,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
-import eu.darken.bb.backups.BackupConfig
+import eu.darken.bb.backups.core.BackupConfig
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.moshi.BackupIdAdapter

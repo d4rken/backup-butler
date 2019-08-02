@@ -1,11 +1,11 @@
-package eu.darken.bb.backups.app
+package eu.darken.bb.backups.core.app
 
 import dagger.Reusable
 import eu.darken.bb.App
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupConfig
-import eu.darken.bb.backups.BackupId
-import eu.darken.bb.backups.Endpoint
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backups.core.Endpoint
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.copyTo
 import eu.darken.bb.processor.tmp.TmpDataRepo

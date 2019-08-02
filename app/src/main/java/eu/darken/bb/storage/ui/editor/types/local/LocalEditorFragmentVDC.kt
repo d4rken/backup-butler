@@ -94,18 +94,18 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                         finishActivity.postValue(true)
                     }
             return true
+        } else {
+            builder
+                    .update(storageId) { data ->
+                        data!!.copy(
+                                storageType = null,
+                                editor = null
+                        )
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .subscribe()
+            return true
         }
-
-        builder
-                .update(storageId) { data ->
-                    data!!.copy(
-                            storageType = null,
-                            editor = null
-                    )
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-        return true
     }
 
     data class State(

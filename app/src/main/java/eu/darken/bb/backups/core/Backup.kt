@@ -1,4 +1,4 @@
-package eu.darken.bb.backups
+package eu.darken.bb.backups.core
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
@@ -16,10 +16,11 @@ data class Backup(
     @Keep
     enum class Type constructor(
             @DrawableRes val iconRes: Int,
-            @StringRes val labelRes: Int
+            @StringRes val labelRes: Int,
+            @StringRes val descriptionRes: Int
     ) {
-        APP(R.drawable.ic_apps, R.string.label_apps),
-        FILE(R.drawable.ic_folder, R.string.label_files);
+        APP(R.drawable.ic_apps, R.string.label_backuptype_app, R.string.descr_backuptype_app),
+        FILE(R.drawable.ic_folder, R.string.label_backuptype_file, R.string.descr_backuptype_file);
     }
 }
 

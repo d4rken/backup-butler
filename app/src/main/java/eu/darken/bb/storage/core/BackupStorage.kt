@@ -3,8 +3,8 @@ package eu.darken.bb.storage.core
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import eu.darken.bb.R
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupId
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupId
 import io.reactivex.Observable
 
 interface BackupStorage {

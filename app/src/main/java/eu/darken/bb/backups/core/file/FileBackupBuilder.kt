@@ -1,8 +1,8 @@
-package eu.darken.bb.backups.file
+package eu.darken.bb.backups.core.file
 
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupId
-import eu.darken.bb.backups.BaseBackupBuilder
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backups.core.BaseBackupBuilder
 
 class FileBackupBuilder : BaseBackupBuilder<FileBackupConfig> {
 

@@ -1,6 +1,6 @@
 package eu.darken.bb.storage.core
 
-import eu.darken.bb.backups.BackupConfig
+import eu.darken.bb.backups.core.BackupConfig
 
 interface BackupReference {
     val backupConfig: BackupConfig

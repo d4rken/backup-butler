@@ -1,9 +1,9 @@
-package eu.darken.bb.backups.file
+package eu.darken.bb.backups.core.file
 
 import dagger.Reusable
-import eu.darken.bb.backups.Backup
-import eu.darken.bb.backups.BackupConfig
-import eu.darken.bb.backups.Endpoint
+import eu.darken.bb.backups.core.Backup
+import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.Endpoint
 import java.io.File
 import javax.inject.Inject
 

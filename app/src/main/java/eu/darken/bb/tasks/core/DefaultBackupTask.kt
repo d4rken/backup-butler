@@ -2,7 +2,7 @@ package eu.darken.bb.tasks.core
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.backups.BackupConfig
+import eu.darken.bb.backups.core.BackupConfig
 import eu.darken.bb.storage.core.StorageRef
 import java.util.*
 

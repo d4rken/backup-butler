@@ -2,8 +2,8 @@ package eu.darken.bb.processor
 
 import dagger.Reusable
 import eu.darken.bb.App
-import eu.darken.bb.backups.Endpoint
-import eu.darken.bb.backups.EndpointFactory
+import eu.darken.bb.backups.core.Endpoint
+import eu.darken.bb.backups.core.EndpointFactory
 import eu.darken.bb.processor.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageFactory

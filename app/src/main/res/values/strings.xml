@@ -42,8 +42,6 @@
     <string name="add_destination">Add destination</string>
     <string name="label_sources">Sources</string>
     <string name="button_add_source">Add source</string>
-    <string name="label_apps">Apps</string>
-    <string name="label_files">Files</string>
     <string name="button_view">View</string>
     <string name="label_unknown">Unknown</string>
     <string name="label_edit_storage">Edit storage</string>
@@ -61,4 +59,12 @@
     <string name="core_settings">Core settings</string>
     <string name="action_save">Save</string>
     <string name="default_backuptask_description_x_sources_x_destinations">%d sources, %d destinations</string>
+    <string name="label_backuptype_selection">Select backup type</string>
+    <string name="backuptype_app_label">App backup</string>
+    <string name="label_edit_backupconfig">Edit backup configuration</string>
+    <string name="label_create_backupconfig">Create backup configuration</string>
+    <string name="label_backuptype_app">App backup</string>
+    <string name="descr_backuptype_app">Backups apps and their files</string>
+    <string name="label_backuptype_file">File backup</string>
+    <string name="descr_backuptype_file">Backup of an arbitrary file path</string>
 </resources>

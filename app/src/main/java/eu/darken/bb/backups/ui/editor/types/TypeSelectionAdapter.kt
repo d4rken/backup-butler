@@ -1,4 +1,4 @@
-package eu.darken.bb.tasks.ui.editor.sources
+package eu.darken.bb.backups.ui.editor.types
 
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -6,7 +6,7 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.Backup
 import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.DataBinderModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -14,19 +14,19 @@ import eu.darken.bb.common.lists.SimpleVHCreator
 import javax.inject.Inject
 
 
-class SourcesAdapter @Inject constructor() : ModularAdapter<SourcesAdapter.VH>() {
+class TypeSelectionAdapter @Inject constructor() : ModularAdapter<TypeSelectionAdapter.VH>() {
 
-    val data = mutableListOf<BackupConfig>()
+    val data = mutableListOf<Backup.Type>()
 
     init {
-        modules.add(DataBinderModule<BackupConfig, VH>(data))
+        modules.add(DataBinderModule<Backup.Type, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.tasklist_adapter_line, parent), BindableVH<BackupConfig> {
+        : ModularAdapter.VH(R.layout.backupconfig_editor_typeselection_adapter_line, parent), BindableVH<Backup.Type> {
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.description) lateinit var description: TextView
@@ -35,10 +35,10 @@ class SourcesAdapter @Inject constructor() : ModularAdapter<SourcesAdapter.VH>()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: BackupConfig) {
-            icon.setImageResource(item.configType.iconRes)
-            label.setText(item.configType.labelRes)
-//            description.text = item.description
+        override fun bind(item: Backup.Type) {
+            icon.setImageResource(item.iconRes)
+            label.setText(item.labelRes)
+            description.setText(item.descriptionRes)
         }
 
     }

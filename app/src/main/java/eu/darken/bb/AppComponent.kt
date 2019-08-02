@@ -3,6 +3,7 @@ package eu.darken.bb
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
+import eu.darken.bb.backups.core.BackupTypeModule
 import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.storage.core.StorageTypeModule
@@ -19,7 +20,8 @@ import eu.darken.bb.workers.WorkerBinder
     ActivityBinder::class,
     AppModule::class,
     WorkerBinder::class,
-    StorageTypeModule::class
+    StorageTypeModule::class,
+    BackupTypeModule::class
 ])
 interface AppComponent : AndroidInjector<App> {
 
