@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/MyCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Overline"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/core_settings"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:paddingTop="16dp"
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:id="@+id/core_settings_progress"
+                        style="@style/ProgressStyleSpinner"
+                        android:visibility="invisible"
+                        tools:visibility="visible"/>
+
+                    <LinearLayout
+                        android:id="@+id/core_settings_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:focusableInTouchMode="true"
+                        android:visibility="invisible"
+                        tools:visibility="visible">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/TextInputLayoutOutlinedDense"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/label_name"
+                            app:endIconMode="clear_text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/name_input"
+                                style="@style/Widget.AppCompat.EditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:singleLine="true"
+                                tools:text="My local backup"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+                </FrameLayout>
+            </FrameLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/MyCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Overline"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/label_options"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:paddingTop="8dp"
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:id="@+id/options_progress"
+                        style="@style/ProgressStyleSpinner"
+                        android:visibility="invisible"
+                        tools:visibility="visible"/>
+
+                    <LinearLayout
+                        android:id="@+id/options_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="invisible"
+                        tools:visibility="visible">
+
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Body1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="8dp"
+                            android:text="TODO"/>
+
+                    </LinearLayout>
+                </FrameLayout>
+
+            </FrameLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

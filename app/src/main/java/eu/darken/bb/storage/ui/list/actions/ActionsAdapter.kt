@@ -27,7 +27,7 @@ class ActionsAdapter @Inject constructor()
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.tasklist_action_adapter_line, parent), BindableVH<StorageAction> {
+        : ModularAdapter.VH(R.layout.task_list_action_adapter_line, parent), BindableVH<StorageAction> {
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.name) lateinit var label: TextView
 

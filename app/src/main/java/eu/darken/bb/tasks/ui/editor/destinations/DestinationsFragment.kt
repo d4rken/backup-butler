@@ -41,7 +41,7 @@ class DestinationsFragment : SmartFragment(), AutoInject {
     @Inject lateinit var pickerAdapterProvider: Provider<StorageAdapter>
 
     init {
-        layoutRes = R.layout.newtask_destinations_fragment
+        layoutRes = R.layout.task_editor_destinations_fragment
     }
 
     @SuppressLint("CheckResult")

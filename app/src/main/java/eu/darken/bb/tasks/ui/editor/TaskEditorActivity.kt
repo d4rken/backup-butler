@@ -39,7 +39,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.newtask_activity)
+        setContentView(R.layout.task_editor_activity)
         ButterKnife.bind(this)
 
         vdcEditor.state.observe(this, Observer { state ->

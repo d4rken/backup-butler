@@ -29,7 +29,7 @@ class StorageAdapter @Inject constructor() : ModularAdapter<DestinationsAdapter.
 
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storagelist_adapter_line, parent), BindableVH<StorageInfo> {
+        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<StorageInfo> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView

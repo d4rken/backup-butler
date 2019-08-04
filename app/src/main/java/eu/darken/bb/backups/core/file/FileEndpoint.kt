@@ -2,7 +2,7 @@ package eu.darken.bb.backups.core.file
 
 import dagger.Reusable
 import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.BackupSpec
 import eu.darken.bb.backups.core.Endpoint
 import java.io.File
 import javax.inject.Inject
@@ -13,17 +13,13 @@ class FileEndpoint : Endpoint {
         TODO("not implemented")
     }
 
-    override fun backup(config: BackupConfig): Backup {
+    override fun backup(spec: BackupSpec): Backup {
         TODO("not implemented")
     }
 
     @Reusable
     class Factory @Inject constructor() : Endpoint.Factory {
-        override fun isCompatible(config: BackupConfig): Boolean {
-            return config.configType == Backup.Type.FILE
-        }
-
-        override fun create(config: BackupConfig): Endpoint {
+        override fun create(spec: BackupSpec): Endpoint {
             return FileEndpoint()
         }
 

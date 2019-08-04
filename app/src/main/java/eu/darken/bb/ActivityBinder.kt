@@ -2,8 +2,8 @@ package eu.darken.bb
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import eu.darken.bb.backups.ui.editor.BackupEditorActivity
-import eu.darken.bb.backups.ui.editor.BackupEditorActivityModule
+import eu.darken.bb.backups.ui.generator.editor.GeneratorEditorActivity
+import eu.darken.bb.backups.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.main.ui.MainActivity
 import eu.darken.bb.main.ui.MainActivityModule
@@ -35,6 +35,6 @@ abstract class ActivityBinder {
     abstract fun storageEditorActivity(): StorageEditorActivity
 
     @PerActivity
-    @ContributesAndroidInjector(modules = [BackupEditorActivityModule::class])
-    abstract fun backupEditorActivity(): BackupEditorActivity
+    @ContributesAndroidInjector(modules = [GeneratorEditorActivityModule::class])
+    abstract fun backupEditorActivity(): GeneratorEditorActivity
 }

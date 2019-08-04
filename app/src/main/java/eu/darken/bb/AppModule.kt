@@ -4,7 +4,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
-import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.BackupSpec
+import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.moshi.BackupIdAdapter
@@ -22,7 +23,8 @@ class AppModule {
     @Provides
     @PerApp
     fun moshi(): Moshi = Moshi.Builder()
-            .add(BackupConfig.MOSHI_FACTORY)
+            .add(BackupSpec.MOSHI_FACTORY)
+            .add(SpecGenerator.Config.MOSHI_FACTORY)
             .add(SFile.MOSHI_FACTORY)
             .add(StorageRef.MOSHI_FACTORY)
             .add(StorageConfig.MOSHI_FACTORY)

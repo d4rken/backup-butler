@@ -9,7 +9,7 @@ import eu.darken.bb.processor.tmp.TmpRef
 data class Backup(
         val id: BackupId,
         val backupType: Type,
-        val config: BackupConfig,
+        val spec: BackupSpec,
         val data: Map<String, Collection<TmpRef>>
 ) {
 

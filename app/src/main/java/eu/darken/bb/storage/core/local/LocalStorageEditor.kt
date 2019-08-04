@@ -86,6 +86,6 @@ class LocalStorageEditor @AssistedInject constructor(
     interface Factory : StorageEditor.Factory<LocalStorageEditor>
 
     companion object {
-        const val STORAGE_CONFIG = "storage.config"
+        const val STORAGE_CONFIG = "storage.spec"
     }
 }

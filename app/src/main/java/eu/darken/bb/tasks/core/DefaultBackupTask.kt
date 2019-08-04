@@ -2,14 +2,14 @@ package eu.darken.bb.tasks.core
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.storage.core.StorageRef
 import java.util.*
 
 data class DefaultBackupTask(
         override val taskName: String,
         override val taskId: UUID,
-        override val sources: Set<BackupConfig>,
+        override val sources: Set<SpecGenerator.Config>,
         override val destinations: Set<StorageRef>
 ) : BackupTask {
 

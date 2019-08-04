@@ -4,13 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.BackupConfig
+import eu.darken.bb.backups.core.BackupSpec
+import eu.darken.bb.backups.core.GeneratorBuilder
+import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.tasks.core.DefaultBackupTask
 import eu.darken.bb.tasks.core.TaskBuilder
 import io.reactivex.rxkotlin.Observables
@@ -21,7 +22,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: UUID,
         private val taskBuilder: TaskBuilder,
-        private val storageManager: StorageManager
+        private val generatorBuilder: GeneratorBuilder
 ) : VDC() {
     private val stateUpdater = StateUpdater(State())
     private val taskObs = taskBuilder.task(taskId)
@@ -35,8 +36,12 @@ class SourcesFragmentVDC @AssistedInject constructor(
     val sourceCreatorEvent = SingleLiveEvent<List<Backup.Type>>()
 
     data class State(
-            val sources: List<BackupConfig> = emptyList()
+            val sources: List<SpecGenerator.Config> = emptyList()
     )
+
+    fun createSource() {
+        taskBuilder.startEditor()
+    }
 
     fun showSourcePicker() {
 //        storageManager.infos()
@@ -52,7 +57,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
 //                }
     }
 
-    fun addSource(source: BackupConfig) {
+    fun addSource(source: BackupSpec) {
         taskBuilder
                 .update(taskId) {
                     it as DefaultBackupTask
@@ -64,7 +69,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
                 .subscribe()
     }
 
-    fun removeSource(source: BackupConfig) {
+    fun removeSource(source: BackupSpec) {
         taskBuilder
                 .update(taskId) { task ->
                     task as DefaultBackupTask

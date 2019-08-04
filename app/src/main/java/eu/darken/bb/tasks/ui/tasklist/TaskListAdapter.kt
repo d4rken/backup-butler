@@ -26,7 +26,7 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
     override fun getItemCount(): Int = data.size
 
     class BackupVH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.tasklist_adapter_line, parent), BindableVH<BackupTask> {
+        : ModularAdapter.VH(R.layout.task_list_adapter_line, parent), BindableVH<BackupTask> {
         @BindView(R.id.name) lateinit var taskName: TextView
         @BindView(R.id.primary_description) lateinit var primary: TextView
         @BindView(R.id.type_icon) lateinit var statusIcon: ImageView

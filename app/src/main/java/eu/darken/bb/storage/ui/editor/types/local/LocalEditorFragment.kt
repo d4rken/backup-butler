@@ -44,7 +44,7 @@ class LocalEditorFragment : SmartFragment(), AutoInject {
     private var isExisting = false
 
     init {
-        layoutRes = R.layout.storageeditor_local_fragment
+        layoutRes = R.layout.storage_editor_local_fragment
     }
 
     override fun onAttach(context: Context) {

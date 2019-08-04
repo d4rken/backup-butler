@@ -16,11 +16,7 @@ import java.util.*
 
 
 abstract class SmartFragment : Fragment() {
-    internal val tag: String
-
-    init {
-        tag = App.logTag("Fragment", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
-    }
+    internal val tag: String = App.logTag("Fragment", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
 
     private val unbinders = HashSet<Unbinder>()
 

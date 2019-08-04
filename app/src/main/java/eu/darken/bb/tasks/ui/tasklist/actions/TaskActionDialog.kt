@@ -44,7 +44,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
     @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.tasklist_action_dialog, container, false)
+        val layout = inflater.inflate(R.layout.task_list_action_dialog, container, false)
         unbinder = ButterKnife.bind(this, layout)
         return layout
     }

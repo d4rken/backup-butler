@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
+import eu.darken.bb.backups.ui.generator.list.GeneratorsFragment
+import eu.darken.bb.backups.ui.generator.list.GeneratorsFragmentModule
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
@@ -35,4 +37,7 @@ abstract class MainActivityModule {
 
     @ContributesAndroidInjector(modules = [SchedulesFragmentModule::class])
     abstract fun schedulelistFragment(): SchedulesFragment
+
+    @ContributesAndroidInjector(modules = [GeneratorsFragmentModule::class])
+    abstract fun generatorListFragment(): GeneratorsFragment
 }

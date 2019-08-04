@@ -46,7 +46,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.storagelist_fragment, container, false)
+        val layout = inflater.inflate(R.layout.storage_list_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
         return layout
     }

@@ -27,7 +27,7 @@ class IntroFragment : SmartFragment(), AutoInject {
     @BindView(R.id.name_input) lateinit var nameInput: EditText
 
     init {
-        layoutRes = R.layout.newtask_intro_fragment
+        layoutRes = R.layout.task_editor_intro_fragment
     }
 
     @SuppressLint("CheckResult")

@@ -4,8 +4,8 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.BackupConfig
 import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backups.core.BackupSpec
 import eu.darken.bb.backups.core.BaseBackupBuilder
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
@@ -26,7 +26,7 @@ class LocalStorage(
         private val repoRef: LocalStorageRef
 ) : BackupStorage {
     private val dataDir = File(repoRef.path.asFile(), "data")
-    private val backupConfigAdapter = moshi.adapter(BackupConfig::class.java)
+    private val backupConfigAdapter = moshi.adapter(BackupSpec::class.java)
     private val revisionConfigAdapter = moshi.adapter(RevisionConfig::class.java)
     private val repoConfig: LocalStorageConfig
 
@@ -55,7 +55,7 @@ class LocalStorage(
 
             val backupConfig = backupConfigAdapter.fromFile(File(backupDir, BACKUP_CONFIG))
             if (backupConfig == null) {
-                Timber.tag(TAG).e("Dir without config file: %s", backupDir)
+                Timber.tag(TAG).e("Dir without spec file: %s", backupDir)
                 continue
             }
             val revisionConfig = revisionConfigAdapter.fromFile(File(backupDir, REVISION_CONFIG)) as? DefaultRevisionConfig
@@ -65,7 +65,7 @@ class LocalStorage(
             }
             val ref = LocalStorageBackupReference(
                     path = backupDir.asSFile(),
-                    backupConfig = backupConfig,
+                    backupSpec = backupConfig,
                     revisionConfig = revisionConfig
             )
             refs.add(ref)
@@ -82,7 +82,7 @@ class LocalStorage(
             throw IllegalArgumentException("BackupReference $backupReference does not contain $backupId")
         }
 
-        val backupBuilder = BaseBackupBuilder(backupReference.backupConfig, backupId)
+        val backupBuilder = BaseBackupBuilder(backupReference.backupSpec, backupId)
 
         val revisionPath = File(backupDir, revision.backupId.toString()).assertExists()
 
@@ -97,15 +97,15 @@ class LocalStorage(
     }
 
     override fun save(backup: Backup): BackupReference {
-        val backupDir = File(dataDir, backup.config.label).tryMkDirs()
+        val backupDir = File(dataDir, backup.spec.label).tryMkDirs()
 
         val backupConfigFile = File(backupDir, BACKUP_CONFIG)
         if (!backupConfigFile.exists()) {
-            backupConfigAdapter.toFile(backup.config, backupConfigFile)
+            backupConfigAdapter.toFile(backup.spec, backupConfigFile)
         } else {
             val existingConfig = backupConfigAdapter.fromFile(backupConfigFile)
-            if (existingConfig != backup.config) {
-                throw IllegalStateException("BackupConfig missmatch:\nExisting: $existingConfig\n\nNew: ${backup.config}")
+            if (existingConfig != backup.spec) {
+                throw IllegalStateException("BackupSpec missmatch:\nExisting: $existingConfig\n\nNew: ${backup.spec}")
             }
         }
 
@@ -132,7 +132,7 @@ class LocalStorage(
 
         val backupRef = LocalStorageBackupReference(
                 path = backupDir.asSFile(),
-                backupConfig = backup.config,
+                backupSpec = backup.spec,
                 revisionConfig = revisionConfig
         )
         return backupRef
@@ -150,8 +150,8 @@ class LocalStorage(
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")
-        const val BACKUP_CONFIG = "backup.config"
-        const val REVISION_CONFIG = "revision.config"
+        const val BACKUP_CONFIG = "backup.spec"
+        const val REVISION_CONFIG = "revision.spec"
     }
 
 }

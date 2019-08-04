@@ -24,7 +24,7 @@ class SchedulesFragment : SmartFragment(), AutoInject {
     private val vdc: SchedulesFragmentVDC by vdcs { vdcSource }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.schedulelist_fragment, container, false)
+        val layout = inflater.inflate(R.layout.schedule_list_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
         return layout
     }

@@ -37,7 +37,7 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
 
     init {
-        layoutRes = R.layout.storageeditor_typeselection_fragment
+        layoutRes = R.layout.storage_editor_typeselection_fragment
     }
 
     override fun onAttach(context: Context) {

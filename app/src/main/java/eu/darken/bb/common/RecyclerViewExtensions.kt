@@ -5,8 +5,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-fun RecyclerView.setupDefaults() = apply {
+fun RecyclerView.setupDefaults(adapter: RecyclerView.Adapter<*>? = null) = apply {
     layoutManager = LinearLayoutManager(context)
     itemAnimator = DefaultItemAnimator()
     addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+    if (adapter != null) this.adapter = adapter
 }

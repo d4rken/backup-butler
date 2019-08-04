@@ -42,7 +42,7 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.tasklist_fragment, container, false)
+        val layout = inflater.inflate(R.layout.task_list_fragment, container, false)
         addUnbinder(ButterKnife.bind(this, layout))
         return layout
     }

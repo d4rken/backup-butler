@@ -26,7 +26,7 @@ class DestinationsAdapter @Inject constructor() : ModularAdapter<DestinationsAda
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.tasklist_adapter_line, parent), BindableVH<StorageRef> {
+        : ModularAdapter.VH(R.layout.task_list_adapter_line, parent), BindableVH<StorageRef> {
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.description) lateinit var description: TextView

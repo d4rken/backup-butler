@@ -4,11 +4,11 @@ import eu.darken.bb.backups.core.Backup
 import eu.darken.bb.backups.core.BackupId
 import eu.darken.bb.backups.core.BaseBackupBuilder
 
-class FileBackupBuilder : BaseBackupBuilder<FileBackupConfig> {
+class FileBackupBuilder : BaseBackupBuilder<FileBackupSpec> {
 
     constructor(backup: Backup) : super(backup)
 
-    constructor(config: FileBackupConfig, backupId: BackupId) : super(config, backupId)
+    constructor(config: FileBackupSpec, backupId: BackupId) : super(config, backupId)
 
     var backupName: String
         get() = backupConfig.label
