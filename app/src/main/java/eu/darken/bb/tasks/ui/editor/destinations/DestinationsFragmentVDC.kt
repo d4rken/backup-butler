@@ -7,12 +7,10 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.tasks.core.DefaultBackupTask
 import eu.darken.bb.tasks.core.TaskBuilder
-import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -22,14 +20,18 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         private val taskBuilder: TaskBuilder,
         private val storageManager: StorageManager
 ) : VDC() {
-    private val stateUpdater = StateUpdater(State())
+
     private val taskObs = taskBuilder.task(taskId)
-    val state = Observables.combineLatest(stateUpdater.data, taskObs)
-            .map { (state, task) ->
+            .doOnNext { task ->
                 val storageStatuses = task.destinations.map { storageManager.info(it).blockingFirst() }
-                state.copy(destinations = storageStatuses)
+                stateUpdater.update { it.copy(destinations = storageStatuses) }
             }
-            .toLiveData()
+
+    private val stateUpdater: StateUpdater<State> = StateUpdater(State())
+            .addLiveDep { taskObs.subscribe() }
+
+    val state = stateUpdater.state
+
     val storagePickerEvent = SingleLiveEvent<List<StorageInfo>>()
 
     data class State(

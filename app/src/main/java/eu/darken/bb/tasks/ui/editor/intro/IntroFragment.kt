@@ -35,7 +35,6 @@ class IntroFragment : SmartFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivityActionBar().setSubtitle(R.string.label_introduction)
 
-
         vdc.state.observe(this, Observer {
             if (nameInput.text.toString() != it.taskName) nameInput.setText(it.taskName)
         })

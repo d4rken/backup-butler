@@ -33,7 +33,7 @@ class DestinationsFragment : SmartFragment(), AutoInject {
         factory.create(handle, arguments!!.getTaskId()!!)
     })
 
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
+    @BindView(R.id.recyclerview_selected) lateinit var selectedList: RecyclerView
     @BindView(R.id.add_destination) lateinit var addDestination: Button
 
     @Inject lateinit var adapter: StorageAdapter
@@ -47,7 +47,7 @@ class DestinationsFragment : SmartFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivityActionBar().setSubtitle(R.string.label_destinations)
 
-        recyclerView.setupDefaults(adapter)
+        selectedList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
 

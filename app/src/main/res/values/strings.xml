@@ -70,4 +70,7 @@
     <string name="label_introduction">Introduction</string>
     <string name="action_create_source">Create source</string>
     <string name="action_create_destination">Create destination</string>
+    <string name="label_selected">Selected</string>
+    <string name="label_suggestions">Suggestions</string>
+    <string name="action_show_available">Show available</string>
 </resources>

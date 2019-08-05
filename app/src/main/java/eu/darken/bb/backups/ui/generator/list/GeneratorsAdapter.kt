@@ -11,7 +11,8 @@ import eu.darken.bb.common.lists.*
 import javax.inject.Inject
 
 
-class GeneratorsAdapter @Inject constructor() : ModularAdapter<GeneratorsAdapter.VH>(), DataAdapter<SpecGenerator.Config> {
+class GeneratorsAdapter @Inject constructor()
+    : ModularAdapter<GeneratorsAdapter.VH>(), DataAdapter<SpecGenerator.Config> {
 
     override val data = mutableListOf<SpecGenerator.Config>()
 

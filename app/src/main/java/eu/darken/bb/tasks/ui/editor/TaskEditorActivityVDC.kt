@@ -8,7 +8,6 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.tasks.core.BackupTask
 import eu.darken.bb.tasks.core.BackupTaskRepo
 import eu.darken.bb.tasks.core.DefaultBackupTask
@@ -16,7 +15,6 @@ import eu.darken.bb.tasks.core.TaskBuilder
 import eu.darken.bb.tasks.ui.editor.destinations.DestinationsFragment
 import eu.darken.bb.tasks.ui.editor.intro.IntroFragment
 import eu.darken.bb.tasks.ui.editor.sources.SourcesFragment
-import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 import kotlin.reflect.KClass
@@ -29,24 +27,27 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         private val taskRepo: BackupTaskRepo
 ) : SmartVDC() {
 
-    private val taskObs = taskBuilder.task(taskId) {
-        DefaultBackupTask(
-                taskName = "",
-                taskId = taskId,
-                sources = setOf(),
-                destinations = setOf()
-        )
-    }
-    private val stateUpdater = StateUpdater(startValue = State(
-            step = State.Step.INTRO,
-            allowNext = true
-    ))
-    val task = taskObs
-            .doOnNext { task -> stateUpdater.update { it.copy(saveable = isTaskComplete(task)) } }
-            .toLiveData()
-    val steps = Observables.combineLatest(stateUpdater.data, taskObs)
-            .toLiveData()
+    private val taskObs = taskBuilder
+            .task(taskId) {
+                DefaultBackupTask(
+                        taskName = "",
+                        taskId = taskId,
+                        sources = setOf(),
+                        destinations = setOf()
+                )
+            }
+            .doOnNext { task ->
+                stateUpdater.update {
+                    it.copy(saveable = isTaskComplete(task))
+                }
+            }
+
+    private val stateUpdater: StateUpdater<State> = StateUpdater(
+            startValue = State(step = State.Step.INTRO, allowNext = true, taskId = taskId)
+    )
+            .addLiveDep { taskObs.subscribe() }
     val state = stateUpdater.state
+
     val finishActivity = SingleLiveEvent<Boolean>()
 
     init {
@@ -72,7 +73,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     private fun isTaskComplete(backupTask: BackupTask?): Boolean {
         if (backupTask == null) return false
-
+        backupTask.taskName.isNotBlank()
         return true
     }
 
@@ -95,7 +96,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun previous() {
-        if (stateUpdater.snapshot.allowPrevious == true) {
+        if (stateUpdater.snapshot.allowPrevious) {
             changeStep(-1)
         } else {
             dismiss()
@@ -103,7 +104,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun next() {
-        if (stateUpdater.snapshot.allowNext == true) {
+        if (stateUpdater.snapshot.allowNext) {
             changeStep(+1)
         } else {
             saveTask()
@@ -115,7 +116,8 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             val allowPrevious: Boolean = false,
             val allowNext: Boolean = false,
             val saveable: Boolean = false,
-            val existingTask: Boolean = false
+            val existingTask: Boolean = false,
+            val taskId: UUID
     ) {
         enum class Step(
                 val stepPos: Int,

@@ -50,12 +50,6 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 getString(R.string.label_new_task)
             }
 
-        })
-        vdcEditor.task.observe(this, Observer {
-            supportActionBar!!.subtitle = it.taskName
-        })
-
-        vdcEditor.steps.observe(this, Observer { (state, task) ->
             buttonPrevious.setText(if (state.step == TaskEditorActivityVDC.State.Step.INTRO) R.string.action_cancel else R.string.action_previous)
             buttonPrevious.visibility = View.VISIBLE
 
@@ -68,7 +62,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
             buttonNext.setText(nextLabel)
             buttonNext.visibility = View.VISIBLE
 
-            showStep(state.step, task.taskId)
+            showStep(state.step, state.taskId)
         })
 
         buttonPrevious.clicksDebounced().subscribe { vdcEditor.previous() }
