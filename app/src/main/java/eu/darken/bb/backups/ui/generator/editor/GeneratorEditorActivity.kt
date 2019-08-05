@@ -47,12 +47,12 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
 
         vdc.state.observe(this, Observer { state ->
             if (state.existing) {
-                supportActionBar!!.title = getString(R.string.label_edit_backupconfig)
+                supportActionBar!!.title = getString(R.string.label_edit_source_config)
             } else {
-                supportActionBar!!.title = getString(R.string.label_create_backupconfig)
+                supportActionBar!!.title = getString(R.string.label_create_source_config)
             }
             supportActionBar!!.subtitle = when (state.page) {
-                GeneratorEditorActivityVDC.State.Page.SELECTION -> getString(R.string.label_backuptype_selection)
+                GeneratorEditorActivityVDC.State.Page.SELECTION -> getString(R.string.label_select_type)
                 GeneratorEditorActivityVDC.State.Page.APP -> getString(R.string.backuptype_app_label)
                 GeneratorEditorActivityVDC.State.Page.FILES -> getString(R.string.backuptype_files_label)
             }

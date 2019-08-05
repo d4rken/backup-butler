@@ -6,17 +6,15 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.*
 import eu.darken.bb.storage.core.BackupStorage
 import javax.inject.Inject
 
 
-class TypeSelectionAdapter @Inject constructor() : ModularAdapter<TypeSelectionAdapter.VH>() {
+class TypeSelectionAdapter @Inject constructor()
+    : ModularAdapter<TypeSelectionAdapter.VH>(), DataAdapter<BackupStorage.Type> {
 
-    val data = mutableListOf<BackupStorage.Type>()
+    override val data = mutableListOf<BackupStorage.Type>()
 
     init {
         modules.add(DataBinderModule<BackupStorage.Type, VH>(data))

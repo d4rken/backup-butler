@@ -10,7 +10,7 @@ import eu.darken.bb.processor.ProcessorControl
 import eu.darken.bb.tasks.core.BackupTaskRepo
 import eu.darken.bb.tasks.core.TaskBuilder
 import eu.darken.bb.tasks.ui.editor.intro.IntroFragmentVDC
-import eu.darken.bb.tasks.ui.tasklist.actions.TaskActions.*
+import eu.darken.bb.tasks.ui.tasklist.actions.TaskAction.*
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.*
@@ -39,14 +39,14 @@ class TaskActionDialogVDC @AssistedInject constructor(
                             it.copy(
                                     taskName = task.taskName,
                                     loading = false,
-                                    allowedActions = TaskActions.values().toList()
+                                    allowedActions = TaskAction.values().toList()
                             )
                         }
                     }
                 }
     }
 
-    fun taskAction(action: TaskActions) {
+    fun taskAction(action: TaskAction) {
         when (action) {
             RUN -> {
                 taskRepo.get(taskId)
@@ -84,7 +84,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
             val loading: Boolean = false,
             val finished: Boolean = false,
             val taskName: String = "",
-            val allowedActions: List<TaskActions> = listOf()
+            val allowedActions: List<TaskAction> = listOf()
     )
 
     @AssistedInject.Factory

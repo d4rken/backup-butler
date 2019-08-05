@@ -7,17 +7,14 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.PerChildFragment
-import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.*
 import javax.inject.Inject
 
 @PerChildFragment
 class ActionsAdapter @Inject constructor()
-    : ModularAdapter<ActionsAdapter.VH>() {
+    : ModularAdapter<ActionsAdapter.VH>(), DataAdapter<StorageAction> {
 
-    val data = mutableListOf<StorageAction>()
+    override val data = mutableListOf<StorageAction>()
 
     init {
         modules.add(DataBinderModule<StorageAction, VH>(data))

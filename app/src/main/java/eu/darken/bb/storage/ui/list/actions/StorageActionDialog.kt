@@ -7,9 +7,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -20,6 +17,8 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
@@ -51,10 +50,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = actionsAdapter
+        recyclerView.setupDefaults(actionsAdapter)
 
         actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
             vdc.storageAction(actionsAdapter.data[i])
@@ -66,11 +62,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
                 typeLabel.text = getString(state.storage.ref.storageType.labelRes)
             }
 
-            actionsAdapter.apply {
-                data.clear()
-                data.addAll(state.allowedActions)
-                notifyDataSetChanged()
-            }
+            actionsAdapter.update(state.allowedActions)
 
             recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE

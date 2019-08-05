@@ -8,6 +8,6 @@ enum class GeneratorsAction constructor(
         @DrawableRes val iconRes: Int,
         @StringRes val labelRes: Int
 ) {
-    EDIT(R.drawable.ic_mode_edit, R.string.button_edit),
-    DELETE(R.drawable.ic_delete, R.string.button_delete)
+    EDIT(R.drawable.ic_mode_edit, R.string.action_edit),
+    DELETE(R.drawable.ic_delete, R.string.action_delete)
 }

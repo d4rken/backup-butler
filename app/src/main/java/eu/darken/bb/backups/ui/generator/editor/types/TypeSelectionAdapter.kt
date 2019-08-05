@@ -7,16 +7,14 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.*
 import javax.inject.Inject
 
 
-class TypeSelectionAdapter @Inject constructor() : ModularAdapter<TypeSelectionAdapter.VH>() {
+class TypeSelectionAdapter @Inject constructor()
+    : ModularAdapter<TypeSelectionAdapter.VH>(), DataAdapter<Backup.Type> {
 
-    val data = mutableListOf<Backup.Type>()
+    override val data = mutableListOf<Backup.Type>()
 
     init {
         modules.add(DataBinderModule<Backup.Type, VH>(data))

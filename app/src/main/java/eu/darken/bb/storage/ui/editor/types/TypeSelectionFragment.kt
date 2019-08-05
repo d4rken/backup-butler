@@ -6,9 +6,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -16,7 +13,9 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
@@ -53,19 +52,12 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 
         vdc.state.observe(this, Observer {
-            adapter.apply {
-                data.clear()
-                data.addAll(it.supportedTypes)
-                notifyDataSetChanged()
-            }
+            adapter.update(it.supportedTypes)
         })
 
         vdc.finishActivity.observe(this, Observer { requireActivity().finish() })

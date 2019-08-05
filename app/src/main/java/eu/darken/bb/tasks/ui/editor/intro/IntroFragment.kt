@@ -10,6 +10,7 @@ import com.jakewharton.rxbinding3.widget.textChanges
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.tasks.core.getTaskId
@@ -32,6 +33,8 @@ class IntroFragment : SmartFragment(), AutoInject {
 
     @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivityActionBar().setSubtitle(R.string.label_introduction)
+
 
         vdc.state.observe(this, Observer {
             if (nameInput.text.toString() != it.taskName) nameInput.setText(it.taskName)

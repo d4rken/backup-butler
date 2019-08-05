@@ -56,14 +56,14 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         })
 
         vdcEditor.steps.observe(this, Observer { (state, task) ->
-            buttonPrevious.setText(if (state.step == TaskEditorActivityVDC.State.Step.INTRO) R.string.button_cancel else R.string.button_previous)
+            buttonPrevious.setText(if (state.step == TaskEditorActivityVDC.State.Step.INTRO) R.string.action_cancel else R.string.action_previous)
             buttonPrevious.visibility = View.VISIBLE
 
             buttonNext.isEnabled = state.allowNext || state.saveable
             val nextLabel = if (state.step == TaskEditorActivityVDC.State.Step.DESTINATIONS) {
-                if (state.existingTask) R.string.button_save else R.string.button_create
+                if (state.existingTask) R.string.action_save else R.string.action_create
             } else {
-                R.string.button_next
+                R.string.action_next
             }
             buttonNext.setText(nextLabel)
             buttonNext.visibility = View.VISIBLE

@@ -6,17 +6,15 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.*
 import eu.darken.bb.tasks.core.BackupTask
 import javax.inject.Inject
 
 
-class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.BackupVH>() {
+class TaskListAdapter @Inject constructor()
+    : ModularAdapter<TaskListAdapter.BackupVH>(), DataAdapter<BackupTask> {
 
-    val data = mutableListOf<BackupTask>()
+    override val data = mutableListOf<BackupTask>()
 
     init {
         modules.add(DataBinderModule<BackupTask, BackupVH>(data))

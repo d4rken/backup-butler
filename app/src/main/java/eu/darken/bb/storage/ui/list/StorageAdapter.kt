@@ -7,18 +7,15 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
-import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.storage.core.StorageInfo
-import eu.darken.bb.tasks.ui.editor.destinations.DestinationsAdapter
 import javax.inject.Inject
 
-class StorageAdapter @Inject constructor() : ModularAdapter<DestinationsAdapter.VH>() {
+class StorageAdapter @Inject constructor()
+    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<StorageInfo> {
 
-    val data = mutableListOf<StorageInfo>()
+    override val data = mutableListOf<StorageInfo>()
 
     init {
         modules.add(DataBinderModule<StorageInfo, VH>(data))

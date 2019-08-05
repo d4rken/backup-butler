@@ -1,5 +1,6 @@
 package eu.darken.bb.main.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -16,12 +17,15 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcs
+import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: MainActivityVDC by vdcs { vdcSource }
 
@@ -56,12 +60,14 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     fun showExampleFragment() {
 //        var fragment = supportFragmentManager.findFragmentById(R.backupId.content_frame)

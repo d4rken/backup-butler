@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.BackupSpec
 import eu.darken.bb.backups.core.GeneratorBuilder
 import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.common.SingleLiveEvent
@@ -39,8 +38,12 @@ class SourcesFragmentVDC @AssistedInject constructor(
             val sources: List<SpecGenerator.Config> = emptyList()
     )
 
+    fun addSource() {
+        generatorBuilder.startEditor().subscribe()
+    }
+
     fun createSource() {
-        taskBuilder.startEditor()
+
     }
 
     fun showSourcePicker() {
@@ -57,28 +60,16 @@ class SourcesFragmentVDC @AssistedInject constructor(
 //                }
     }
 
-    fun addSource(source: BackupSpec) {
-        taskBuilder
-                .update(taskId) {
-                    it as DefaultBackupTask
-//                    it.copy(
-//                            destinations = it.destinations.toMutableSet().apply { add(storage.ref) }.toSet()
-//                    )
-                }
-                .subscribeOn(Schedulers.computation())
-                .subscribe()
-    }
-
-    fun removeSource(source: BackupSpec) {
+    fun removeSource(source: SpecGenerator.Config) {
         taskBuilder
                 .update(taskId) { task ->
                     task as DefaultBackupTask
-//                    task.copy(
-//                            sources = task.sources
-//                                    .toMutableSet()
-//                                    .filterNot { it.storageId == storageInfo.ref.storageId }
-//                                    .toSet()
-//                    )
+                    task.copy(
+                            sources = task.sources
+                                    .toMutableSet()
+                                    .filterNot { it.generatorId == source.generatorId }
+                                    .toSet()
+                    )
                 }
                 .subscribeOn(Schedulers.computation())
                 .subscribe()

@@ -7,9 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -22,7 +19,9 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdcs
 import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
@@ -53,19 +52,12 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
+        recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
-        recyclerView.adapter = adapter
         vdc.viewState.observe(this, Observer {
-            adapter.apply {
-                data.clear()
-                data.addAll(it.storages)
-                notifyDataSetChanged()
-            }
+            adapter.update(it.storages)
         })
 
         fab.clicksDebounced().subscribe { vdc.createStorage() }

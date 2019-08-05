@@ -6,9 +6,6 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -16,6 +13,8 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
@@ -46,21 +45,16 @@ class DestinationsFragment : SmartFragment(), AutoInject {
 
     @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.itemAnimator = DefaultItemAnimator()
-        recyclerView.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = adapter
+        requireActivityActionBar().setSubtitle(R.string.label_destinations)
+
+        recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
 
         addDestination.clicksDebounced().subscribe { vdc.showDestinationPicker() }
 
         vdc.state.observe(this, Observer { state ->
-            adapter.apply {
-                data.clear()
-                data.addAll(state.destinations)
-                notifyDataSetChanged()
-            }
+            adapter.update(state.destinations)
         })
 
         vdc.storagePickerEvent.observe(this, Observer { availableStorages ->
