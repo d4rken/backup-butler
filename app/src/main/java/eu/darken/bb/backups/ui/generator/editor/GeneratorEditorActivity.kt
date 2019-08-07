@@ -82,7 +82,7 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_generator_editor, menu)
+        menuInflater.inflate(R.menu.menu_generator_editor_activity, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

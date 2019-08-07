@@ -67,9 +67,8 @@ class DestinationsFragment : SmartFragment(), AutoInject {
             pickerRecycler.setupDefaults()
 
             val pickerAdapter = pickerAdapterProvider.get()
-            pickerAdapter.apply {
-                data.addAll(availableStorages)
-            }
+            pickerAdapter.update(availableStorages)
+
             pickerRecycler.adapter = pickerAdapter
             pickerAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
                 vdc.addDestination(pickerAdapter.data[i])

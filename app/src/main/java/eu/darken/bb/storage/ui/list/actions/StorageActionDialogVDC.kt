@@ -31,13 +31,21 @@ class StorageActionDialogVDC @AssistedInject constructor(
         storageManager.info(storageId)
                 .subscribeOn(Schedulers.io())
                 .subscribe { maybeTask ->
-                    val storage = maybeTask.value
+                    val storageInfo = maybeTask.value
+                    val allowedActions = mutableSetOf<StorageAction>()
+                    if (storageInfo != null) {
+                        if (storageInfo.config != null) {
+                            allowedActions.add(EDIT)
+                        } else {
+                            allowedActions.add(DELETE)
+                        }
+                    }
                     stateUpdater.update {
-                        if (storage == null) {
+                        if (storageInfo == null) {
                             it.copy(loading = true, finished = true)
                         } else {
                             it.copy(
-                                    storage = storage,
+                                    storageInfo = storageInfo,
                                     loading = false,
                                     allowedActions = values().toList()
                             )
@@ -76,7 +84,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
     data class State(
             val loading: Boolean = false,
             val finished: Boolean = false,
-            val storage: StorageInfo? = null,
+            val storageInfo: StorageInfo? = null,
             val allowedActions: List<StorageAction> = listOf()
     )
 

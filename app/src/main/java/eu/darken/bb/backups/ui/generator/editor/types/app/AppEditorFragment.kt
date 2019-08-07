@@ -2,7 +2,10 @@ package eu.darken.bb.backups.ui.generator.editor.types.app
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.KeyEvent
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -48,7 +51,6 @@ class AppEditorFragment : SmartFragment(), AutoInject {
     }
 
     override fun onAttach(context: Context) {
-        setHasOptionsMenu(true)
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 vdc.onGoBack()
@@ -86,11 +88,6 @@ class AppEditorFragment : SmartFragment(), AutoInject {
         }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_storageeditor_local, menu)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

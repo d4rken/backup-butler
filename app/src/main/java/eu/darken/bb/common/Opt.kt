@@ -4,9 +4,9 @@ data class Opt<out T>(val value: T?) {
     val isNotNull: Boolean = value != null
     val isNull: Boolean = value == null
 
-    fun notNullValue(): T {
+    fun notNullValue(errorMessage: String? = null): T {
         if (value == null) {
-            throw IllegalStateException("Value shouldn't be null")
+            throw IllegalStateException(errorMessage ?: "Value shouldn't be null")
         }
         return value
     }

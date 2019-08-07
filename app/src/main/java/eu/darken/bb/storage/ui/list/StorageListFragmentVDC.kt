@@ -1,17 +1,14 @@
 package eu.darken.bb.storage.ui.list
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.storage.core.StorageBuilder
-import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
@@ -21,33 +18,28 @@ import java.util.*
 class StorageListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val storageManager: StorageManager,
-        private val storageBuilder: StorageBuilder,
-        @AppContext private val context: Context
+        private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
     val viewState: LiveData<ViewState> = Observables
             .combineLatest(storageManager.infos(), Observable.just(""))
-            .map { (repos, _) ->
+            .map { (storages, _) ->
                 return@map ViewState(
-                        storages = repos.toList()
+                        storages = storages.map { StorageInfoOpt(it) }
                 )
             }
             .toLiveData()
 
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
-    init {
-
-    }
-
     fun createStorage() {
         storageBuilder.startEditor()
     }
 
-    fun editStorage(item: StorageInfo) {
+    fun editStorage(item: StorageInfoOpt) {
         Timber.tag(TAG).d("editStorage(%s)", item)
         editTaskEvent.postValue(EditActions(
-                storageId = item.ref.storageId,
+                storageId = item.storageId,
                 allowView = true,
                 allowEdit = true,
                 allowDelete = true
@@ -55,7 +47,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
     }
 
     data class ViewState(
-            val storages: List<StorageInfo>
+            val storages: List<StorageInfoOpt>
     )
 
     data class EditActions(

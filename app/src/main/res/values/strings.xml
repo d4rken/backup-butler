@@ -17,7 +17,7 @@
     <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
-    <string name="error_message_missing_file_x">Can\'t find %s</string>
+    <string name="error_message_cant_find_x">Can\'t find %s</string>
     <plurals name="x_revisions">
         <item quantity="one">%d revision</item>
         <item quantity="other">%d revisions</item>

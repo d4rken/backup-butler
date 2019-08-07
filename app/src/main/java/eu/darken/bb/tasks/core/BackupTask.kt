@@ -2,16 +2,14 @@ package eu.darken.bb.tasks.core
 
 import android.content.Context
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.common.Jsonable
-import eu.darken.bb.storage.core.StorageRef
 import java.util.*
 
 interface BackupTask : Jsonable {
-    val taskName: String
     val taskId: UUID
-    val sources: Set<SpecGenerator.Config>
-    val destinations: Set<StorageRef>
+    val taskName: String
+    val sources: Set<UUID>
+    val destinations: Set<UUID>
 
     fun getDescription(context: Context): String
 
@@ -24,8 +22,9 @@ interface BackupTask : Jsonable {
             SUCCESS, ERROR
         }
 
-        val taskID: String
+        val taskID: UUID
         val state: State
+        val error: Exception?
         val primary: String?
         val secondary: String?
     }

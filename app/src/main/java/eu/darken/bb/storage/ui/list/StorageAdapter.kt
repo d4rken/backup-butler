@@ -9,16 +9,15 @@ import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.tryLocalizedErrorMessage
-import eu.darken.bb.storage.core.StorageInfo
 import javax.inject.Inject
 
 class StorageAdapter @Inject constructor()
-    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<StorageInfo> {
+    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<StorageInfoOpt> {
 
-    override val data = mutableListOf<StorageInfo>()
+    override val data = mutableListOf<StorageInfoOpt>()
 
     init {
-        modules.add(DataBinderModule<StorageInfo, VH>(data))
+        modules.add(DataBinderModule<StorageInfoOpt, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
@@ -26,36 +25,51 @@ class StorageAdapter @Inject constructor()
 
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<StorageInfo> {
+        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<StorageInfoOpt> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
-        @BindView(R.id.label) lateinit var repoLabel: TextView
-        @BindView(R.id.repo_status) lateinit var repoStatus: TextView
+        @BindView(R.id.label) lateinit var labelText: TextView
+        @BindView(R.id.repo_status) lateinit var statusText: TextView
 
 
         init {
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: StorageInfo) {
-            typeLabel.setText(item.ref.storageType.labelRes)
-            typeIcon.setImageResource(item.ref.storageType.iconRes)
+        override fun bind(item: StorageInfoOpt) {
+            if (item.info != null) {
+                val info = item.info
+                typeLabel.setText(info.ref.storageType.labelRes)
+                typeIcon.setImageResource(info.ref.storageType.iconRes)
+                typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
 
-            if (item.config != null) {
-                repoLabel.text = item.config.label
-            }
+                labelText.text = info.config?.label ?: "?"
 
-            if (item.status != null) {
-                repoStatus.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
-                repoStatus.text = "Count: TODO; Size: TODO"
-            }
+                when {
+                    info.error != null -> {
+                        statusText.setTextColor(getColor(R.color.colorError))
+                        statusText.text = info.error.tryLocalizedErrorMessage(context)
+                    }
+                    info.status != null -> {
+                        statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
+                        statusText.text = "Count: TODO; Size: TODO"
+                    }
+                    else -> {
+                        statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
+                        statusText.text = null
+                    }
+                }
+            } else {
+                typeLabel.setText(R.string.label_unknown)
+                typeIcon.setColorFilter(getColor(R.color.colorError))
+                typeIcon.setImageResource(R.drawable.ic_error_outline)
 
-            if (item.error != null) {
-                repoStatus.setTextColor(getColor(R.color.colorError))
-                repoStatus.text = item.error.tryLocalizedErrorMessage(context)
+                labelText.text = "?"
+
+                statusText.text = getString(R.string.error_message_cant_find_x, item.storageId)
             }
         }
-
     }
+
 }

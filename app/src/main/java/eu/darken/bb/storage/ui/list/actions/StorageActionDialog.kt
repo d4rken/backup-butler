@@ -57,9 +57,9 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            if (state.storage != null) {
-                storageLabel.text = state.storage.config?.label ?: getString(R.string.label_unknown)
-                typeLabel.text = getString(state.storage.ref.storageType.labelRes)
+            if (state.storageInfo != null) {
+                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.label_unknown)
+                typeLabel.text = getString(state.storageInfo.ref.storageType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)

@@ -4,13 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
+import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
-import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -21,44 +21,61 @@ class StorageRefRepo @Inject constructor(
         moshi: Moshi
 ) {
     private val preferences: SharedPreferences = context.getSharedPreferences("repo_references", Context.MODE_PRIVATE)
-    private val repoRefAdapter = moshi.adapter(StorageRef::class.java)
-    private val internalRefs = mutableMapOf<UUID, StorageRef>()
-    private val refPublisher = BehaviorSubject.create<Map<UUID, StorageRef>>()
-
-    val references: Observable<Map<UUID, StorageRef>> = refPublisher.hide()
-
-    init {
+    private val refAdapter = moshi.adapter(StorageRef::class.java)
+    private val internalData = HotData<Map<UUID, StorageRef>> {
+        val internalRefs = mutableMapOf<UUID, StorageRef>()
         preferences.all.forEach {
-            val ref = repoRefAdapter.fromJson(it.value as String)!!
+            val ref = refAdapter.fromJson(it.value as String)!!
             internalRefs[ref.storageId] = ref
         }
-        refPublisher.onNext(internalRefs)
+        internalRefs
     }
 
-    @Synchronized fun put(ref: StorageRef): Single<Opt<StorageRef>> = Single.fromCallable {
-        val oldRef = internalRefs.put(ref.storageId, ref)
-        Timber.d("put(ref=%s) -> old=%s", ref, oldRef)
-        update()
-        return@fromCallable oldRef.opt()
+    val references = internalData.data
+
+    init {
+        internalData.data
+                .subscribeOn(Schedulers.io())
+                .subscribe { data ->
+                    preferences.edit().clear().apply()
+                    data.values.forEach {
+                        preferences.edit().putString("${it.storageId}", refAdapter.toJson(it)).apply()
+                    }
+                }
     }
 
-    @Synchronized fun remove(refId: UUID): Single<Opt<StorageRef>> = Single.fromCallable {
-        val old = internalRefs.remove(refId)
-        Timber.d("remove(refId=%s) -> old=%s", refId, old)
-        update()
-        if (old == null) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
-        return@fromCallable old.opt()
+    fun get(id: UUID): Single<Opt<StorageRef>> = internalData.data
+            .firstOrError()
+            .map { Opt(it[id]) }
+
+    fun put(ref: StorageRef): Single<Opt<StorageRef>> {
+        var oldValue: StorageRef? = null
+        return internalData
+                .updateRx { data ->
+                    data.toMutableMap().apply {
+                        oldValue = put(ref.storageId, ref)
+                    }
+                }
+                .map { oldValue.opt() }
+                .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
     }
 
-
-    @Synchronized private fun update() {
-        internalRefs.values.forEach {
-            preferences.edit().putString("${it.storageId}", repoRefAdapter.toJson(it)).apply()
-        }
-        refPublisher.onNext(internalRefs)
+    fun remove(refId: UUID): Single<Opt<StorageRef>> {
+        var oldValue: StorageRef? = null
+        return internalData
+                .updateRx { data ->
+                    data.toMutableMap().apply {
+                        oldValue = remove(refId)
+                    }
+                }
+                .map { oldValue.opt() }
+                .doOnSuccess {
+                    Timber.d("remove(refId=%s) -> old=%s", refId, it.value)
+                    if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
+                }
     }
 
     companion object {
-        val TAG = App.logTag("Repo", "RefRepo")
+        val TAG = App.logTag("Storage", "RefRepo")
     }
 }

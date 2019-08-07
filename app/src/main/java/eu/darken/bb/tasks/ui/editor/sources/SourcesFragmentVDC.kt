@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backups.core.GeneratorRepo
-import eu.darken.bb.backups.core.SpecGenerator
+import eu.darken.bb.backups.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC
@@ -22,27 +22,33 @@ class SourcesFragmentVDC @AssistedInject constructor(
 ) : VDC() {
 
     private val taskObs = taskBuilder.task(taskId)
+
+    private val sourcesUpdater = taskObs
             .doOnNext { task ->
-                val sources = task.sources.toList()
-                stateUpdater.update { it.copy(sources = sources) }
+                val configs = task.sources.map { id ->
+                    val config = generatorRepo.get(id).blockingGet().value
+                    GeneratorConfigOpt(id, config)
+                }
+                stateUpdater.update { it.copy(sources = configs) }
             }
+
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
-            .addLiveDep { taskObs.subscribe() }
+            .addLiveDep { sourcesUpdater.subscribe() }
 
     val state = stateUpdater.state
 
-    val sourcePickerEvent = SingleLiveEvent<List<SpecGenerator.Config>>()
+    val sourcePickerEvent = SingleLiveEvent<List<GeneratorConfigOpt>>()
 
     data class State(
-            val sources: List<SpecGenerator.Config> = emptyList()
+            val sources: List<GeneratorConfigOpt> = emptyList()
     )
 
-    fun addSource(config: SpecGenerator.Config) {
+    fun addSource(config: GeneratorConfigOpt) {
         taskBuilder
                 .update(taskId) {
                     it as DefaultBackupTask
                     it.copy(
-                            sources = it.sources.toMutableSet().apply { add(config) }.toSet()
+                            sources = it.sources.toMutableSet().apply { add(config.generatorId) }.toSet()
                     )
                 }
                 .subscribeOn(Schedulers.computation())
@@ -55,23 +61,24 @@ class SourcesFragmentVDC @AssistedInject constructor(
                 .map { it.values }
                 .flatMap { all ->
                     taskObs.map { it.sources }.map { alreadyAdded ->
-                        return@map all.filter { !alreadyAdded.contains(it) }
+                        return@map all.filter { !alreadyAdded.contains(it.generatorId) }
                     }
                 }
                 .firstOrError()
+                .map { configs -> configs.map { GeneratorConfigOpt(it) } }
                 .subscribe { infos ->
                     sourcePickerEvent.postValue(infos.toList())
                 }
     }
 
-    fun removeSource(source: SpecGenerator.Config) {
+    fun removeSource(source: GeneratorConfigOpt) {
         taskBuilder
                 .update(taskId) { task ->
                     task as DefaultBackupTask
                     task.copy(
                             sources = task.sources
                                     .toMutableSet()
-                                    .filterNot { it.generatorId == source.generatorId }
+                                    .filterNot { it == source.generatorId }
                                     .toSet()
                     )
                 }

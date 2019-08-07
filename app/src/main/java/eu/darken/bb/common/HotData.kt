@@ -10,16 +10,24 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 open class HotData<T>(
-        startValue: T
+        initialValue: () -> T
 ) {
-    private val executor = Executors.newSingleThreadExecutor()
-    private val scheduler = Schedulers.from(executor)
+    constructor(initialValue: T) : this({ initialValue })
+
+    private val scheduler = Schedulers.from(Executors.newSingleThreadExecutor())
 
     private val updatePub = PublishSubject.create<(T) -> T>()
-    private val statePub = BehaviorSubject.createDefault<T>(startValue)
+    private val statePub = BehaviorSubject.create<T>()
+
+    init {
+        Single
+                .fromCallable { initialValue.invoke() }
+                .subscribeOn(scheduler)
+                .subscribe { value -> statePub.onNext(value) }
+    }
 
     val snapshot: T
-        get() = statePub.value!!
+        get() = data.blockingFirst()
 
     val data: Observable<T> = statePub.hide()
 
@@ -43,7 +51,7 @@ open class HotData<T>(
         updatePub.onNext(action)
     }
 
-    fun updateRx(action: (T) -> T) = Single.create<T> { emitter ->
+    fun updateRx(action: (T) -> T): Single<T> = Single.create<T> { emitter ->
         val wrap: (T) -> T = { oldValue ->
             try {
                 val newValue = action.invoke(oldValue)

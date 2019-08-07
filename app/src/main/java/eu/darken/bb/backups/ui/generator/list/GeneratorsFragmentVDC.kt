@@ -6,13 +6,10 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backups.core.GeneratorBuilder
 import eu.darken.bb.backups.core.GeneratorRepo
-import eu.darken.bb.backups.core.SpecGenerator
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
@@ -23,11 +20,11 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
         private val generatorBuilder: GeneratorBuilder
 ) : SmartVDC() {
 
-    val viewState: LiveData<ViewState> = Observables
-            .combineLatest(generatorRepo.configs.map { it.values }, Observable.just(""))
-            .map { (repos, _) ->
+    val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
+            .map { repos ->
+                val refs = repos.map { GeneratorConfigOpt(it) }
                 return@map ViewState(
-                        generators = repos.toList()
+                        generators = refs
                 )
             }
             .doOnSubscribe {
@@ -45,7 +42,7 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
     }
 
 
-    fun editGenerator(config: SpecGenerator.Config) {
+    fun editGenerator(config: GeneratorConfigOpt) {
         Timber.tag(TAG).d("editGenerator(%s)", config)
         editTaskEvent.postValue(EditActions(
                 generatorId = config.generatorId,
@@ -54,7 +51,7 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
     }
 
     data class ViewState(
-            val generators: List<SpecGenerator.Config>
+            val generators: List<GeneratorConfigOpt>
     )
 
     data class EditActions(

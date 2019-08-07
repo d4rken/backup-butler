@@ -8,7 +8,7 @@ import eu.darken.bb.common.file.SFile
 class MissingFileException(private val file: SFile) : IllegalArgumentException(), LocalizedError {
 
     override fun getLocalizedErrorMessage(context: Context): String {
-        return context.resources.getString(R.string.error_message_missing_file_x, file.path)
+        return context.resources.getString(R.string.error_message_cant_find_x, file.path)
     }
 
 }
