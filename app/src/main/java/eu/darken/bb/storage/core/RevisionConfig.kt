@@ -1,14 +1,14 @@
 package eu.darken.bb.storage.core
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import eu.darken.bb.backup.core.BackupId
+import eu.darken.bb.backup.core.Backup
 import java.util.*
 
 interface RevisionConfig {
     val revisionType: Type
     val revisions: List<Revision>
 
-    fun getRevision(backupId: BackupId): Revision?
+    fun getRevision(backupId: Backup.Id): Revision?
 
     enum class Type {
         SIMPLE
@@ -20,7 +20,7 @@ interface RevisionConfig {
     }
 
     interface Revision {
-        val backupId: BackupId
+        val backupId: Backup.Id
         val createdAt: Date
     }
 }

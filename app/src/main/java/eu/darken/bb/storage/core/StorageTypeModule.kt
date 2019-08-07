@@ -15,11 +15,11 @@ abstract class StorageTypeModule {
     @Binds
     @IntoSet
     @StorageFactory
-    abstract fun localRepo(repo: LocalStorageFactory): BackupStorage.Factory
+    abstract fun localRepo(repo: LocalStorageFactory): Storage.Factory
 
     @Binds
     @IntoMap
-    @StorageTypeKey(BackupStorage.Type.LOCAL)
+    @StorageTypeKey(Storage.Type.LOCAL)
     abstract fun localStorageEditor(repo: LocalStorageEditor.Factory): StorageEditor.Factory<out StorageEditor>
 }
 
@@ -33,4 +33,4 @@ annotation class StorageFactory
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey
-annotation class StorageTypeKey(val value: BackupStorage.Type)
+annotation class StorageTypeKey(val value: Storage.Type)

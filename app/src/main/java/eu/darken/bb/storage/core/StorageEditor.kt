@@ -5,17 +5,16 @@ import io.reactivex.Single
 
 interface StorageEditor {
 
-    fun load(ref: StorageRef): Single<Opt<StorageConfig>>
+    fun load(ref: Storage.Ref): Single<Opt<Storage.Config>>
 
-    fun save(): Single<Pair<StorageRef, StorageConfig>>
+    fun save(): Single<Pair<Storage.Ref, Storage.Config>>
 
     fun isExistingStorage(): Boolean
 
     fun isValidConfig(): Boolean
 
-
     interface Factory<EditorT : StorageEditor> {
-        fun create(storageId: BackupStorage.Id): EditorT
+        fun create(storageId: Storage.Id): EditorT
     }
 
 }

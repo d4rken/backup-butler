@@ -19,9 +19,9 @@ class TaskBuilder @Inject constructor(
         private val taskRepo: BackupTaskRepo
 ) {
 
-    private val hotData = HotData<Map<BackupTask.Id, BackupTask>>(mutableMapOf())
+    private val hotData = HotData<Map<Task.Id, Task>>(mutableMapOf())
 
-    fun task(id: BackupTask.Id, create: (() -> BackupTask)? = null): Observable<BackupTask> {
+    fun task(id: Task.Id, create: (() -> Task)? = null): Observable<Task> {
         var consumed = create == null
         return hotData.data
                 .doOnNext {
@@ -42,7 +42,7 @@ class TaskBuilder @Inject constructor(
                 .map { it[id] }
     }
 
-    fun update(id: BackupTask.Id, action: (BackupTask?) -> BackupTask?): Single<Opt<BackupTask>> = hotData
+    fun update(id: Task.Id, action: (Task?) -> Task?): Single<Opt<Task>> = hotData
             .updateRx {
                 val mutMap = it.toMutableMap()
                 val oldTask = mutMap.remove(id)
@@ -54,7 +54,7 @@ class TaskBuilder @Inject constructor(
             }
             .map { Opt(it[id]) }
 
-    fun remove(id: BackupTask.Id): Single<Opt<BackupTask>> = Single.just(id)
+    fun remove(id: Task.Id): Single<Opt<Task>> = Single.just(id)
             .flatMap { id ->
                 hotData.data
                         .firstOrError()
@@ -63,7 +63,7 @@ class TaskBuilder @Inject constructor(
                         }
             }
 
-    fun save(id: BackupTask.Id): Single<BackupTask> = remove(id)
+    fun save(id: Task.Id): Single<Task> = remove(id)
             .map {
                 if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
                 it.value
@@ -72,14 +72,14 @@ class TaskBuilder @Inject constructor(
                 return@flatMap taskRepo.put(toSave).map { toSave }
             }
 
-    fun load(id: BackupTask.Id): Single<BackupTask> = taskRepo.get(id)
+    fun load(id: Task.Id): Single<Task> = taskRepo.get(id)
             .map { optTask ->
                 if (!optTask.isNull) optTask.value
                 else throw IllegalArgumentException("Trying to load unknown task: $id")
             }
             .flatMap { task -> update(id) { task }.map { task } }
 
-    fun startEditor(taskId: BackupTask.Id = BackupTask.Id()) {
+    fun startEditor(taskId: Task.Id = Task.Id()) {
         val intent = Intent(context, TaskEditorActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putTaskId(taskId)

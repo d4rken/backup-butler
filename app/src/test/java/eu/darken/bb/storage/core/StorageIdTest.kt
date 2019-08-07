@@ -9,10 +9,10 @@ class StorageIdTest {
     @Test
     fun testSerialization() {
         val uuid = UUID.randomUUID()
-        val orig = BackupStorage.Id(uuid)
+        val orig = Storage.Id(uuid)
         assertThat(orig.toString()).isEqualTo("StorageId($uuid)")
 
-        val adapter = AppModule().moshi().adapter(BackupStorage.Id::class.java)
+        val adapter = AppModule().moshi().adapter(Storage.Id::class.java)
 
         val json = adapter.toJson(orig)
         assertThat(json).contains(uuid.toString())

@@ -7,10 +7,10 @@ object BackupTaskExtensions {
     internal const val STORAGEID_KEY = "storage.uuid"
 }
 
-fun Intent.putStorageId(id: BackupStorage.Id) = apply { putExtra(BackupTaskExtensions.STORAGEID_KEY, id) }
+fun Intent.putStorageId(id: Storage.Id) = apply { putExtra(BackupTaskExtensions.STORAGEID_KEY, id) }
 
-fun Intent.getStorageId(): BackupStorage.Id? = getParcelableExtra(BackupTaskExtensions.STORAGEID_KEY) as BackupStorage.Id?
+fun Intent.getStorageId(): Storage.Id? = getParcelableExtra(BackupTaskExtensions.STORAGEID_KEY) as Storage.Id?
 
-fun Bundle.putStorageId(id: BackupStorage.Id) = apply { putParcelable(BackupTaskExtensions.STORAGEID_KEY, id) }
+fun Bundle.putStorageId(id: Storage.Id) = apply { putParcelable(BackupTaskExtensions.STORAGEID_KEY, id) }
 
-fun Bundle.getStorageId(): BackupStorage.Id? = getParcelable(BackupTaskExtensions.STORAGEID_KEY) as BackupStorage.Id?
+fun Bundle.getStorageId(): Storage.Id? = getParcelable(BackupTaskExtensions.STORAGEID_KEY) as Storage.Id?

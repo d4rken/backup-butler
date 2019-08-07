@@ -8,8 +8,8 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.task.core.BackupTask
 import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Observables
@@ -39,7 +39,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
         taskBuilder.startEditor()
     }
 
-    fun editTask(item: BackupTask) {
+    fun editTask(item: Task) {
         Timber.tag(TAG).d("editTask(%s)", item)
         editTaskEvent.postValue(EditActions(
                 taskId = item.taskId,
@@ -49,11 +49,11 @@ class TaskListFragmentVDC @AssistedInject constructor(
     }
 
     data class ViewState(
-            val repos: List<BackupTask>
+            val repos: List<Task>
     )
 
     data class EditActions(
-            val taskId: BackupTask.Id,
+            val taskId: Task.Id,
             val allowEdit: Boolean = false,
             val allowDelete: Boolean = false
     )

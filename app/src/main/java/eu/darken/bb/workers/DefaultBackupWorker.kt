@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.task.core.BackupTask
+import eu.darken.bb.task.core.Task
 import io.reactivex.Single
 import timber.log.Timber
 
@@ -22,7 +22,7 @@ class DefaultBackupWorker @AssistedInject constructor(
         Timber.tag(TAG).i("createWork(): %s", this)
 
         return Single
-                .create<BackupTask> {
+                .create<Task> {
 
                 }
                 .map {

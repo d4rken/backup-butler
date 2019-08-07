@@ -1,8 +1,8 @@
 package eu.darken.bb.storage.core
 
 data class StorageInfo(
-        val ref: StorageRef,
-        val config: StorageConfig? = null,
+        val ref: Storage.Ref,
+        val config: Storage.Config? = null,
         val status: Status? = null,
         val error: Throwable? = null
 ) {

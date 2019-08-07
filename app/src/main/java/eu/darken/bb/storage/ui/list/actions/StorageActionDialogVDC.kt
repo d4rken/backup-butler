@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 class StorageActionDialogVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: BackupStorage.Id,
+        @Assisted private val storageId: Storage.Id,
         private val storageManager: StorageManager,
         private val storageBuilder: StorageBuilder,
         private val storageRefRepo: StorageRefRepo
@@ -86,6 +86,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): StorageActionDialogVDC
+        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageActionDialogVDC
     }
 }

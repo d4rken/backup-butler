@@ -8,7 +8,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.storage.core.BackupStorage
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Observable
@@ -51,7 +51,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
     )
 
     data class EditActions(
-            val storageId: BackupStorage.Id,
+            val storageId: Storage.Id,
             val allowView: Boolean = false,
             val allowEdit: Boolean = false,
             val allowDelete: Boolean = false

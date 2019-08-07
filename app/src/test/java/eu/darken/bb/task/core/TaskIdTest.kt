@@ -9,10 +9,10 @@ class TaskIdTest {
     @Test
     fun testSerialization() {
         val uuid = UUID.randomUUID()
-        val orig = BackupTask.Id(uuid)
+        val orig = Task.Id(uuid)
         assertThat(orig.toString()).isEqualTo("TaskId($uuid)")
 
-        val adapter = AppModule().moshi().adapter(BackupTask.Id::class.java)
+        val adapter = AppModule().moshi().adapter(Task.Id::class.java)
 
         val json = adapter.toJson(orig)
         assertThat(json).contains(uuid.toString())

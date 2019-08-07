@@ -4,7 +4,6 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupId
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.common.Opt
@@ -24,7 +23,7 @@ class LocalStorage(
         private val configEditorFactory: LocalStorageEditor.Factory,
         private val tmpDataRepo: TmpDataRepo,
         private val repoRef: LocalStorageRef
-) : BackupStorage {
+) : Storage {
     private val dataDir = File(repoRef.path.asFile(), "data")
     private val backupConfigAdapter = moshi.adapter(BackupSpec::class.java)
     private val revisionConfigAdapter = moshi.adapter(RevisionConfig::class.java)
@@ -73,7 +72,7 @@ class LocalStorage(
         return refs
     }
 
-    override fun load(backupReference: BackupReference, backupId: BackupId): Backup {
+    override fun load(backupReference: BackupReference, backupId: Backup.Id): Backup {
         backupReference as LocalStorageBackupReference
         val backupDir = backupReference.path.asFile().assertExists()
 

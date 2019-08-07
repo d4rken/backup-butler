@@ -7,36 +7,36 @@ import eu.darken.bb.backup.core.Endpoint
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.processor.tmp.TmpDataRepo
-import eu.darken.bb.storage.core.BackupStorage
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.task.core.BackupTask
-import eu.darken.bb.task.core.DefaultBackupTask
+import eu.darken.bb.task.core.DefaultTask
+import eu.darken.bb.task.core.Task
 import timber.log.Timber
 import javax.inject.Inject
 
 @Reusable
 class DefaultBackupProcessor @Inject constructor(
         private val endpointFactories: @JvmSuppressWildcards Map<Backup.Type, Endpoint.Factory>,
-        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards BackupStorage.Factory>,
+        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo
 ) {
 
-    fun process(backupTask: BackupTask): BackupTask.Result {
-        Timber.tag(TAG).i("Processing backup task: %s", backupTask)
+    fun process(task: Task): Task.Result {
+        Timber.tag(TAG).i("Processing backup task: %s", task)
         return try {
-            doProcess(backupTask)
+            doProcess(task)
         } catch (exception: Exception) {
-            Timber.tag(TAG).e(exception, "BackupTask failed: %s", backupTask)
-            DefaultBackupTask.Result(backupTask.taskId, exception)
+            Timber.tag(TAG).e(exception, "Task failed: %s", task)
+            DefaultTask.Result(task.taskId, exception)
         }
     }
 
-    private fun doProcess(backupTask: BackupTask): BackupTask.Result {
-        backupTask.sources.forEach { generatorId ->
+    private fun doProcess(task: Task): Task.Result {
+        task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId)
                     .blockingGet()
                     .notNullValue(errorMessage = "Can't find generator config for $generatorId")
@@ -51,7 +51,7 @@ class DefaultBackupProcessor @Inject constructor(
                 val backup = endpoint.backup(config)
                 Timber.tag(TAG).i("Backup created: %s", backup)
 
-                backupTask.destinations.forEach { storageId ->
+                task.destinations.forEach { storageId ->
                     val storageRef = storageRefRepo.get(storageId)
                             .blockingGet()
                             .notNullValue(errorMessage = "Can't find storage for $storageId")
@@ -69,7 +69,7 @@ class DefaultBackupProcessor @Inject constructor(
 
         Thread.sleep(5 * 1000)
 
-        return DefaultBackupTask.Result(backupTask.taskId, BackupTask.Result.State.SUCCESS)
+        return DefaultTask.Result(task.taskId, Task.Result.State.SUCCESS)
     }
 
     companion object {

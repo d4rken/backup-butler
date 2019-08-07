@@ -9,14 +9,14 @@ import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.StorageInfoOpt
-import eu.darken.bb.task.core.BackupTask
-import eu.darken.bb.task.core.DefaultBackupTask
+import eu.darken.bb.task.core.DefaultTask
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import io.reactivex.schedulers.Schedulers
 
 class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: BackupTask.Id,
+        @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
         private val storageManager: StorageManager
 ) : VDC() {
@@ -58,7 +58,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     fun addDestination(storage: StorageInfoOpt) {
         taskBuilder
                 .update(taskId) {
-                    it as DefaultBackupTask
+                    it as DefaultTask
                     it.copy(
                             destinations = it.destinations.toMutableSet().apply { add(storage.storageId) }.toSet()
                     )
@@ -70,7 +70,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     fun removeDestination(storage: StorageInfoOpt) {
         taskBuilder
                 .update(taskId) { task ->
-                    task as DefaultBackupTask
+                    task as DefaultTask
                     task.copy(
                             destinations = task.destinations
                                     .toMutableSet()
@@ -84,6 +84,6 @@ class DestinationsFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<DestinationsFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: BackupTask.Id): DestinationsFragmentVDC
+        fun create(handle: SavedStateHandle, taskId: Task.Id): DestinationsFragmentVDC
     }
 }

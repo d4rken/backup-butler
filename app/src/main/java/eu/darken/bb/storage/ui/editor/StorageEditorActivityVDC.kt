@@ -8,7 +8,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.storage.core.BackupStorage
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
 
 class StorageEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: BackupStorage.Id,
+        @Assisted private val storageId: Storage.Id,
         storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
@@ -28,8 +28,8 @@ class StorageEditorActivityVDC @AssistedInject constructor(
             .subscribeOn(Schedulers.io())
             .map { data ->
                 val page = when (data.storageType) {
-                    BackupStorage.Type.LOCAL -> State.Page.LOCAL
-                    BackupStorage.Type.SAF -> TODO()
+                    Storage.Type.LOCAL -> State.Page.LOCAL
+                    Storage.Type.SAF -> TODO()
                     null -> State.Page.SELECTION
                 }
                 State(
@@ -41,7 +41,7 @@ class StorageEditorActivityVDC @AssistedInject constructor(
             .toLiveData()
 
     data class State(
-            val storageId: BackupStorage.Id,
+            val storageId: Storage.Id,
             val page: Page,
             val existing: Boolean = false
     ) {
@@ -55,6 +55,6 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<StorageEditorActivityVDC> {
-        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): StorageEditorActivityVDC
+        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageEditorActivityVDC
     }
 }

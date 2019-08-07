@@ -12,16 +12,16 @@ import javax.inject.Inject
 class StorageManager @Inject constructor(
         @AppContext private val context: Context,
         private val refRepo: StorageRefRepo,
-        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards BackupStorage.Factory>
+        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>
 ) {
 
-    private val repoCache = mutableMapOf<BackupStorage.Id, BackupStorage>()
+    private val repoCache = mutableMapOf<Storage.Id, Storage>()
 
     init {
         // TODO remove removed refs from cache
     }
 
-    fun info(storageId: BackupStorage.Id): Observable<Opt<StorageInfo>> {
+    fun info(storageId: Storage.Id): Observable<Opt<StorageInfo>> {
         return refRepo.references
                 .flatMap { map ->
                     val ref = map[storageId]
@@ -30,7 +30,7 @@ class StorageManager @Inject constructor(
                 }
     }
 
-    fun info(storageRef: StorageRef): Observable<StorageInfo> = getStorage(storageRef)
+    fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
             .flatMapObservable { it.info() }
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
@@ -44,7 +44,7 @@ class StorageManager @Inject constructor(
                 }
             }
 
-    private fun getStorage(ref: StorageRef): Single<BackupStorage> = Single.fromCallable {
+    private fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
         synchronized(repoCache) {
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo

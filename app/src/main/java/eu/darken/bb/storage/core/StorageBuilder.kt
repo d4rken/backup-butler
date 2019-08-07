@@ -18,10 +18,10 @@ import javax.inject.Inject
 class StorageBuilder @Inject constructor(
         @AppContext private val context: Context,
         private val refRepo: StorageRefRepo,
-        private val editors: @JvmSuppressWildcards Map<BackupStorage.Type, StorageEditor.Factory<out StorageEditor>>
+        private val editors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
 ) {
 
-    private val hotData = HotData<Map<BackupStorage.Id, Data>>(mutableMapOf())
+    private val hotData = HotData<Map<Storage.Id, Data>>(mutableMapOf())
 
     init {
         hotData.data
@@ -37,20 +37,20 @@ class StorageBuilder @Inject constructor(
     }
 
     data class Data(
-            val storageId: BackupStorage.Id,
-            val storageType: BackupStorage.Type? = null,
+            val storageId: Storage.Id,
+            val storageType: Storage.Type? = null,
             val editor: StorageEditor? = null
     )
 
-    fun getSupportedStorageTypes(): Observable<Collection<BackupStorage.Type>> = Observable.just(BackupStorage.Type.values().toList())
+    fun getSupportedStorageTypes(): Observable<Collection<Storage.Type>> = Observable.just(Storage.Type.values().toList())
 
-    fun storage(id: BackupStorage.Id): Observable<Data> {
+    fun storage(id: Storage.Id): Observable<Data> {
         return hotData.data
                 .filter { it.containsKey(id) }
                 .map { it[id] }
     }
 
-    fun update(id: BackupStorage.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
+    fun update(id: Storage.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
             .updateRx {
                 val mutMap = it.toMutableMap()
                 val oldStorage = mutMap.remove(id)
@@ -62,7 +62,7 @@ class StorageBuilder @Inject constructor(
             }
             .map { Opt(it[id]) }
 
-    fun remove(id: BackupStorage.Id): Single<Opt<Data>> = Single.just(id)
+    fun remove(id: Storage.Id): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap { storageId ->
                 hotData.data
@@ -72,7 +72,7 @@ class StorageBuilder @Inject constructor(
                         }
             }
 
-    fun save(id: BackupStorage.Id): Single<StorageRef> = remove(id)
+    fun save(id: Storage.Id): Single<Storage.Ref> = remove(id)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
                 if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
@@ -89,7 +89,7 @@ class StorageBuilder @Inject constructor(
             .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
             .map { it }
 
-    fun load(id: BackupStorage.Id): Single<Data> = refRepo.references
+    fun load(id: Storage.Id): Single<Data> = refRepo.references
             .doOnSubscribe { Timber.tag(TAG).v("Loading %s", id) }
             .firstOrError()
             .map { Opt(it[id]) }
@@ -110,7 +110,7 @@ class StorageBuilder @Inject constructor(
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
             .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
-    fun startEditor(storageId: BackupStorage.Id = BackupStorage.Id()) {
+    fun startEditor(storageId: Storage.Id = Storage.Id()) {
         load(storageId)
                 .onErrorResumeNext {
                     Timber.tag(TAG).d("No existing ref for id %s, creating new builder.", storageId)

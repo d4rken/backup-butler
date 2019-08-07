@@ -9,14 +9,14 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.task.core.BackupTask
-import eu.darken.bb.task.core.DefaultBackupTask
+import eu.darken.bb.task.core.DefaultTask
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import io.reactivex.schedulers.Schedulers
 
 class SourcesFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: BackupTask.Id,
+        @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
         private val generatorRepo: GeneratorRepo
 ) : VDC() {
@@ -46,7 +46,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
     fun addSource(config: GeneratorConfigOpt) {
         taskBuilder
                 .update(taskId) {
-                    it as DefaultBackupTask
+                    it as DefaultTask
                     it.copy(
                             sources = it.sources.toMutableSet().apply { add(config.generatorId) }.toSet()
                     )
@@ -74,7 +74,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
     fun removeSource(source: GeneratorConfigOpt) {
         taskBuilder
                 .update(taskId) { task ->
-                    task as DefaultBackupTask
+                    task as DefaultTask
                     task.copy(
                             sources = task.sources
                                     .toMutableSet()
@@ -88,6 +88,6 @@ class SourcesFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<SourcesFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: BackupTask.Id): SourcesFragmentVDC
+        fun create(handle: SavedStateHandle, taskId: Task.Id): SourcesFragmentVDC
     }
 }

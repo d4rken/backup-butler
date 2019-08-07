@@ -2,7 +2,7 @@ package eu.darken.bb.processor.tmp
 
 import android.content.Context
 import eu.darken.bb.App
-import eu.darken.bb.backup.core.BackupId
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.asFile
@@ -17,7 +17,7 @@ class TmpDataRepo @Inject constructor(
         @AppContext private val context: Context
 ) {
     private val tmpDir: File = File(context.externalCacheDir, "tmprepo")
-    private val refMap = mutableMapOf<BackupId, MutableList<TmpRef>>()
+    private val refMap = mutableMapOf<Backup.Id, MutableList<TmpRef>>()
 
     init {
         if (tmpDir.mkdirs()) {
@@ -26,7 +26,7 @@ class TmpDataRepo @Inject constructor(
     }
 
     @Synchronized
-    fun create(backupId: BackupId, type: TmpRef.Type = TmpRef.Type.FILE): TmpRef {
+    fun create(backupId: Backup.Id, type: TmpRef.Type = TmpRef.Type.FILE): TmpRef {
         val refId = UUID.randomUUID()
         val cacheRef = TmpRef(
                 refId = refId,
@@ -43,7 +43,7 @@ class TmpDataRepo @Inject constructor(
     }
 
     @Synchronized
-    fun deleteAll(backupId: BackupId) {
+    fun deleteAll(backupId: Backup.Id) {
         Timber.tag(TAG).d("deleteAll(%s): %s", backupId, refMap[backupId])
         refMap[backupId]?.forEach { it ->
             when (it.type) {

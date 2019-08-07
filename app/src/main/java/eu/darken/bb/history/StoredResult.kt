@@ -1,6 +1,6 @@
 package eu.darken.bb.history
 
-import eu.darken.bb.task.core.BackupTask
+import eu.darken.bb.task.core.Task
 
 data class StoredResult(
         val taskId: String,
@@ -8,5 +8,5 @@ data class StoredResult(
         val endTime: Long,
         val primary: String,
         val secondary: String,
-        val state: BackupTask.Result.State
+        val state: Task.Result.State
 )

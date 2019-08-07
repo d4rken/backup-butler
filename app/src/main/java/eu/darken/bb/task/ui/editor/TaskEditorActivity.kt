@@ -15,7 +15,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.vdcsAssisted
-import eu.darken.bb.task.core.BackupTask
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
@@ -75,7 +75,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         vdcEditor.previous()
     }
 
-    private fun showStep(step: TaskEditorActivityVDC.State.Step, taskId: BackupTask.Id) {
+    private fun showStep(step: TaskEditorActivityVDC.State.Step, taskId: Task.Id) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (step.fragmentClass.isInstance(fragment)) return
 

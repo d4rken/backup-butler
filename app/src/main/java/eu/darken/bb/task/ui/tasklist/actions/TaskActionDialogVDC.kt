@@ -7,8 +7,8 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.processor.ProcessorControl
-import eu.darken.bb.task.core.BackupTask
 import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.ui.editor.intro.IntroFragmentVDC
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
@@ -21,7 +21,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
         private val taskBuilder: TaskBuilder,
         private val processorControl: ProcessorControl,
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: BackupTask.Id
+        @Assisted private val taskId: Task.Id
 ) : SmartVDC() {
 
     private val stateUpdater = StateUpdater(State(loading = true))
@@ -89,6 +89,6 @@ class TaskActionDialogVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: BackupTask.Id): TaskActionDialogVDC
+        fun create(handle: SavedStateHandle, taskId: Task.Id): TaskActionDialogVDC
     }
 }

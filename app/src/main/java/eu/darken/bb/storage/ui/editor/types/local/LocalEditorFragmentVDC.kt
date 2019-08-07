@@ -11,7 +11,7 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.storage.core.BackupStorage
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.rxkotlin.Observables
@@ -20,7 +20,7 @@ import timber.log.Timber
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: BackupStorage.Id,
+        @Assisted private val storageId: Storage.Id,
         @AppContext private val context: Context,
         private val builder: StorageBuilder
 ) : SmartVDC() {
@@ -119,7 +119,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): LocalEditorFragmentVDC
+        fun create(handle: SavedStateHandle, storageId: Storage.Id): LocalEditorFragmentVDC
     }
 
     companion object {

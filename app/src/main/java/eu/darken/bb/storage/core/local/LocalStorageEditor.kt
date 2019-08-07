@@ -12,16 +12,14 @@ import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
-import eu.darken.bb.storage.core.BackupStorage
-import eu.darken.bb.storage.core.StorageConfig
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
-import eu.darken.bb.storage.core.StorageRef
 import io.reactivex.Single
 import java.io.File
 
 class LocalStorageEditor @AssistedInject constructor(
         moshi: Moshi,
-        @Assisted private val storageId: BackupStorage.Id
+        @Assisted private val storageId: Storage.Id
 ) : StorageEditor {
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
@@ -61,7 +59,7 @@ class LocalStorageEditor @AssistedInject constructor(
                 && configPub.snapshot.label.isNotEmpty()
     }
 
-    override fun load(ref: StorageRef): Single<Opt<StorageConfig>> = Single.fromCallable {
+    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
         ref as LocalStorageRef
         val config = Opt(configAdapter.fromFile(File(ref.path.asFile(), STORAGE_CONFIG)))
         if (config.isNotNull) {
@@ -72,7 +70,7 @@ class LocalStorageEditor @AssistedInject constructor(
         return@fromCallable config
     }
 
-    override fun save(): Single<Pair<StorageRef, StorageConfig>> = Single.fromCallable {
+    override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
         val config = configPub.snapshot
         val ref = LocalStorageRef(
                 storageId = config.storageId,

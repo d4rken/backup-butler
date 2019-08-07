@@ -8,9 +8,9 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.task.core.BackupTask
 import eu.darken.bb.task.core.BackupTaskRepo
-import eu.darken.bb.task.core.DefaultBackupTask
+import eu.darken.bb.task.core.DefaultTask
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.ui.editor.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.intro.IntroFragment
@@ -21,14 +21,14 @@ import kotlin.reflect.KClass
 
 class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: BackupTask.Id,
+        @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
         private val taskRepo: BackupTaskRepo
 ) : SmartVDC() {
 
     private val taskObs = taskBuilder
             .task(taskId) {
-                DefaultBackupTask(
+                DefaultTask(
                         taskName = "",
                         taskId = taskId,
                         sources = setOf(),
@@ -70,9 +70,9 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         }
     }
 
-    private fun isTaskComplete(backupTask: BackupTask?): Boolean {
-        if (backupTask == null) return false
-        backupTask.taskName.isNotBlank()
+    private fun isTaskComplete(task: Task?): Boolean {
+        if (task == null) return false
+        task.taskName.isNotBlank()
         return true
     }
 
@@ -116,7 +116,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             val allowNext: Boolean = false,
             val saveable: Boolean = false,
             val existingTask: Boolean = false,
-            val taskId: BackupTask.Id
+            val taskId: Task.Id
     ) {
         enum class Step(
                 val stepPos: Int,
@@ -131,6 +131,6 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<TaskEditorActivityVDC> {
-        fun create(handle: SavedStateHandle, taskId: BackupTask.Id): TaskEditorActivityVDC
+        fun create(handle: SavedStateHandle, taskId: Task.Id): TaskEditorActivityVDC
     }
 }

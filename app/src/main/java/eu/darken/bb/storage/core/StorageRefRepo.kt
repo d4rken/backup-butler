@@ -20,9 +20,9 @@ class StorageRefRepo @Inject constructor(
         moshi: Moshi
 ) {
     private val preferences: SharedPreferences = context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
-    private val refAdapter = moshi.adapter(StorageRef::class.java)
-    private val internalData = HotData<Map<BackupStorage.Id, StorageRef>> {
-        val internalRefs = mutableMapOf<BackupStorage.Id, StorageRef>()
+    private val refAdapter = moshi.adapter(Storage.Ref::class.java)
+    private val internalData = HotData<Map<Storage.Id, Storage.Ref>> {
+        val internalRefs = mutableMapOf<Storage.Id, Storage.Ref>()
         preferences.all.forEach {
             val ref = refAdapter.fromJson(it.value as String)!!
             internalRefs[ref.storageId] = ref
@@ -43,12 +43,12 @@ class StorageRefRepo @Inject constructor(
                 }
     }
 
-    fun get(id: BackupStorage.Id): Single<Opt<StorageRef>> = internalData.data
+    fun get(id: Storage.Id): Single<Opt<Storage.Ref>> = internalData.data
             .firstOrError()
             .map { Opt(it[id]) }
 
-    fun put(ref: StorageRef): Single<Opt<StorageRef>> {
-        var oldValue: StorageRef? = null
+    fun put(ref: Storage.Ref): Single<Opt<Storage.Ref>> {
+        var oldValue: Storage.Ref? = null
         return internalData
                 .updateRx { data ->
                     data.toMutableMap().apply {
@@ -59,8 +59,8 @@ class StorageRefRepo @Inject constructor(
                 .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
     }
 
-    fun remove(refId: BackupStorage.Id): Single<Opt<StorageRef>> {
-        var oldValue: StorageRef? = null
+    fun remove(refId: Storage.Id): Single<Opt<Storage.Ref>> {
+        var oldValue: Storage.Ref? = null
         return internalData
                 .updateRx { data ->
                     data.toMutableMap().apply {

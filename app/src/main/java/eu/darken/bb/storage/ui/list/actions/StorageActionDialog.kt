@@ -20,7 +20,7 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdcsAssisted
-import eu.darken.bb.storage.core.BackupStorage
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.task.core.BackupTaskRepo
@@ -72,7 +72,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     companion object {
-        fun newInstance(storageId: BackupStorage.Id): BottomSheetDialogFragment = StorageActionDialog().apply {
+        fun newInstance(storageId: Storage.Id): BottomSheetDialogFragment = StorageActionDialog().apply {
             arguments = Bundle().putStorageId(storageId)
         }
     }

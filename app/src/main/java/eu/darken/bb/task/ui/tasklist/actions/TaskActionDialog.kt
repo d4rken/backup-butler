@@ -20,8 +20,8 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdcsAssisted
-import eu.darken.bb.task.core.BackupTask
 import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
@@ -68,7 +68,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     companion object {
-        fun newInstance(taskId: BackupTask.Id): BottomSheetDialogFragment = TaskActionDialog().apply {
+        fun newInstance(taskId: Task.Id): BottomSheetDialogFragment = TaskActionDialog().apply {
             arguments = Bundle().putTaskId(taskId)
         }
     }
