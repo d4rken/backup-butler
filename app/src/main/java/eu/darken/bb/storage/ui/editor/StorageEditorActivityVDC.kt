@@ -13,13 +13,12 @@ import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 import kotlin.reflect.KClass
 
 
 class StorageEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: UUID,
+        @Assisted private val storageId: BackupStorage.Id,
         storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
@@ -42,7 +41,7 @@ class StorageEditorActivityVDC @AssistedInject constructor(
             .toLiveData()
 
     data class State(
-            val storageId: UUID,
+            val storageId: BackupStorage.Id,
             val page: Page,
             val existing: Boolean = false
     ) {
@@ -56,6 +55,6 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<StorageEditorActivityVDC> {
-        fun create(handle: SavedStateHandle, storageId: UUID): StorageEditorActivityVDC
+        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): StorageEditorActivityVDC
     }
 }

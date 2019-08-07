@@ -2,7 +2,6 @@ package eu.darken.bb.storage.core
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.local.LocalStorageConfig
-import java.util.*
 
 interface StorageConfig {
     companion object {
@@ -11,6 +10,6 @@ interface StorageConfig {
     }
 
     val label: String
-    val storageId: UUID
+    val storageId: BackupStorage.Id
     val storageType: BackupStorage.Type
 }

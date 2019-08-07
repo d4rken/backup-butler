@@ -1,11 +1,14 @@
 package eu.darken.bb.storage.core
 
+import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import eu.darken.bb.R
-import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.BackupId
 import io.reactivex.Observable
+import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 interface BackupStorage {
     enum class Type(
@@ -31,6 +34,11 @@ interface BackupStorage {
         fun isCompatible(storageRef: StorageRef): Boolean
 
         fun create(storageRef: StorageRef): BackupStorage
+    }
+
+    @Parcelize
+    data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+        override fun toString(): String = "StorageId($id)"
     }
 }
 

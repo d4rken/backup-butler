@@ -7,11 +7,11 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
-import eu.darken.bb.tasks.core.BackupTaskRepo
-import eu.darken.bb.tasks.core.TaskBuilder
-import eu.darken.bb.tasks.ui.editor.destinations.DestinationsFragment
-import eu.darken.bb.tasks.ui.editor.intro.IntroFragment
-import eu.darken.bb.tasks.ui.editor.sources.SourcesFragment
+import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.ui.editor.destinations.DestinationsFragment
+import eu.darken.bb.task.ui.editor.intro.IntroFragment
+import eu.darken.bb.task.ui.editor.sources.SourcesFragment
 import kotlin.reflect.KClass
 
 

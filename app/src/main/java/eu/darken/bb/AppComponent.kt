@@ -3,7 +3,7 @@ package eu.darken.bb
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import eu.darken.bb.backups.core.BackupTypeModule
+import eu.darken.bb.backup.core.BackupTypeModule
 import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.storage.core.StorageTypeModule

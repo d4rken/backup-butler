@@ -17,13 +17,11 @@ class CheckSummerTest : BaseTest() {
     @get:Rule var rule: MockitoRule = MockitoJUnit.rule()
 
     @Before
-    @Throws(Exception::class)
     override fun setup() {
         super.setup()
     }
 
     @After
-    @Throws(Exception::class)
     override fun tearDown() {
         super.tearDown()
     }

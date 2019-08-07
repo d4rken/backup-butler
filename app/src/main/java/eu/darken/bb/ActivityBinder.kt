@@ -2,8 +2,8 @@ package eu.darken.bb
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import eu.darken.bb.backups.ui.generator.editor.GeneratorEditorActivity
-import eu.darken.bb.backups.ui.generator.editor.GeneratorEditorActivityModule
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.main.ui.MainActivity
 import eu.darken.bb.main.ui.MainActivityModule
@@ -13,8 +13,8 @@ import eu.darken.bb.settings.ui.SettingsActivity
 import eu.darken.bb.settings.ui.SettingsActivityModule
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityModule
-import eu.darken.bb.tasks.ui.editor.TaskEditorActivity
-import eu.darken.bb.tasks.ui.editor.TaskEditorActivityModule
+import eu.darken.bb.task.ui.editor.TaskEditorActivity
+import eu.darken.bb.task.ui.editor.TaskEditorActivityModule
 
 
 @Module

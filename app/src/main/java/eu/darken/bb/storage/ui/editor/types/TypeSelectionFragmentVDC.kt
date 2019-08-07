@@ -12,11 +12,10 @@ import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageBuilder
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 
 class TypeSelectionFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: UUID,
+        @Assisted private val storageId: BackupStorage.Id,
         private val builder: StorageBuilder,
         @AppContext private val context: Context
 ) : SmartVDC() {
@@ -52,6 +51,6 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<TypeSelectionFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: UUID): TypeSelectionFragmentVDC
+        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): TypeSelectionFragmentVDC
     }
 }

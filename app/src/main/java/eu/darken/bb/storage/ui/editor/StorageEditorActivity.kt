@@ -11,9 +11,9 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
-import java.util.*
 import javax.inject.Inject
 
 class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
@@ -54,7 +54,7 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
 
-    private fun showPage(page: StorageEditorActivityVDC.State.Page, storageId: UUID) {
+    private fun showPage(page: StorageEditorActivityVDC.State.Page, storageId: BackupStorage.Id) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (page.fragmentClass.isInstance(fragment)) return
 

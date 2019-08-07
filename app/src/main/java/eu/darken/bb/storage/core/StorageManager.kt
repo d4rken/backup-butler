@@ -6,7 +6,6 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.*
 import javax.inject.Inject
 
 @Reusable
@@ -16,13 +15,13 @@ class StorageManager @Inject constructor(
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards BackupStorage.Factory>
 ) {
 
-    private val repoCache = mutableMapOf<UUID, BackupStorage>()
+    private val repoCache = mutableMapOf<BackupStorage.Id, BackupStorage>()
 
     init {
         // TODO remove removed refs from cache
     }
 
-    fun info(storageId: UUID): Observable<Opt<StorageInfo>> {
+    fun info(storageId: BackupStorage.Id): Observable<Opt<StorageInfo>> {
         return refRepo.references
                 .flatMap { map ->
                     val ref = map[storageId]

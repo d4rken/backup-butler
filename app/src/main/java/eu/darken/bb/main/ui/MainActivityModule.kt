@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import eu.darken.bb.backups.ui.generator.list.GeneratorsFragment
-import eu.darken.bb.backups.ui.generator.list.GeneratorsFragmentModule
+import eu.darken.bb.backup.ui.generator.list.GeneratorsFragment
+import eu.darken.bb.backup.ui.generator.list.GeneratorsFragmentModule
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
@@ -15,8 +15,8 @@ import eu.darken.bb.main.ui.schedules.SchedulesFragment
 import eu.darken.bb.main.ui.schedules.SchedulesFragmentModule
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragmentModule
-import eu.darken.bb.tasks.ui.tasklist.TaskListFragment
-import eu.darken.bb.tasks.ui.tasklist.TaskListFragmentModule
+import eu.darken.bb.task.ui.tasklist.TaskListFragment
+import eu.darken.bb.task.ui.tasklist.TaskListFragmentModule
 
 @Module(includes = [PagerModule::class])
 abstract class MainActivityModule {

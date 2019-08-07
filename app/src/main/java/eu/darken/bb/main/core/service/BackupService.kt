@@ -7,8 +7,8 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.rx.withCompositeDisposable
 import eu.darken.bb.processor.DefaultBackupProcessor
-import eu.darken.bb.tasks.core.BackupTaskRepo
-import eu.darken.bb.tasks.core.getTaskId
+import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.getTaskId
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject

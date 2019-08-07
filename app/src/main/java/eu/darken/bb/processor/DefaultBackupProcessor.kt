@@ -2,16 +2,16 @@ package eu.darken.bb.processor
 
 import dagger.Reusable
 import eu.darken.bb.App
-import eu.darken.bb.backups.core.Backup
-import eu.darken.bb.backups.core.Endpoint
-import eu.darken.bb.backups.core.GeneratorRepo
-import eu.darken.bb.backups.core.SpecGenerator
+import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.Endpoint
+import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.processor.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.tasks.core.BackupTask
-import eu.darken.bb.tasks.core.DefaultBackupTask
+import eu.darken.bb.task.core.BackupTask
+import eu.darken.bb.task.core.DefaultBackupTask
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class DefaultBackupProcessor @Inject constructor(
         private val endpointFactories: @JvmSuppressWildcards Map<Backup.Type, Endpoint.Factory>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards BackupStorage.Factory>,
-        private val generators: @JvmSuppressWildcards Map<Backup.Type, SpecGenerator>,
+        private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo

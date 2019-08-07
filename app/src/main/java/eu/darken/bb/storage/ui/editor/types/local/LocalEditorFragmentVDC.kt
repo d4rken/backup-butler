@@ -11,16 +11,16 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.util.*
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: UUID,
+        @Assisted private val storageId: BackupStorage.Id,
         @AppContext private val context: Context,
         private val builder: StorageBuilder
 ) : SmartVDC() {
@@ -90,7 +90,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
             builder.remove(storageId)
                     .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
                     .subscribeOn(Schedulers.io())
-                    .subscribe { data ->
+                    .subscribe { _ ->
                         finishActivity.postValue(true)
                     }
             return true
@@ -119,7 +119,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: UUID): LocalEditorFragmentVDC
+        fun create(handle: SavedStateHandle, storageId: BackupStorage.Id): LocalEditorFragmentVDC
     }
 
     companion object {

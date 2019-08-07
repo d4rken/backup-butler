@@ -1,0 +1,44 @@
+package eu.darken.bb.backup.core.app
+
+import android.content.Context
+import dagger.Reusable
+import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.file.SFile
+import javax.inject.Inject
+
+@Reusable
+class AppBackupGenerator @Inject constructor() : Generator {
+    override fun generate(config: Generator.Config): Collection<BackupSpec> {
+        config as AppBackupGenerator.Config
+        val specs = mutableListOf<BackupSpec>()
+        config.packagesIncluded.forEach { pkg ->
+            val app = AppBackupSpec(
+                    packageName = pkg
+            )
+            specs.add(app)
+        }
+        return specs
+    }
+
+    data class Config(
+            override val generatorId: Generator.Id,
+            override val label: String,
+            val autoIncludeApps: Boolean = false,
+            val includeSystemApps: Boolean = false,
+            val packagesIncluded: Collection<String> = listOf(),
+            val packagesExcluded: Collection<String> = listOf(),
+            val backupApk: Boolean = false,
+            val backupData: Boolean = false,
+            val extraPaths: Map<String, Collection<SFile>> = emptyMap()
+    ) : Generator.Config {
+
+
+        override fun getDescription(context: Context): String {
+            return generatorId.toString()
+        }
+
+        override val generatorType: Backup.Type = Backup.Type.APP
+    }
+}

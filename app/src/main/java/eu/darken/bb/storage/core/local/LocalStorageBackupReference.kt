@@ -1,6 +1,6 @@
 package eu.darken.bb.storage.core.local
 
-import eu.darken.bb.backups.core.BackupSpec
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.storage.core.BackupReference
 import eu.darken.bb.storage.core.DefaultRevisionConfig

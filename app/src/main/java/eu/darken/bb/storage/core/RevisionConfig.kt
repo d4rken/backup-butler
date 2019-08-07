@@ -1,7 +1,7 @@
 package eu.darken.bb.storage.core
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import eu.darken.bb.backups.core.BackupId
+import eu.darken.bb.backup.core.BackupId
 import java.util.*
 
 interface RevisionConfig {

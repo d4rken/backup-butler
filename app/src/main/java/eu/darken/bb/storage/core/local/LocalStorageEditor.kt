@@ -12,16 +12,16 @@ import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageConfig
 import eu.darken.bb.storage.core.StorageEditor
 import eu.darken.bb.storage.core.StorageRef
 import io.reactivex.Single
 import java.io.File
-import java.util.*
 
 class LocalStorageEditor @AssistedInject constructor(
         moshi: Moshi,
-        @Assisted private val storageId: UUID
+        @Assisted private val storageId: BackupStorage.Id
 ) : StorageEditor {
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)

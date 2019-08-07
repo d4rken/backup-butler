@@ -21,7 +21,7 @@ class LocalStorageRefTest {
         assertThat(json)
                 .contains("\"path\":\"test/path\"")
                 .contains("\"storageType\":\"${BackupStorage.Type.LOCAL.name}\"")
-                .contains("\"storageId\":\"${original.storageId}\"")
+                .contains("\"storageId\":\"${original.storageId.id}\"")
 
         val restored = adapter.fromJson(json)
         assertThat(restored).isInstanceOf(LocalStorageRef::class.java)

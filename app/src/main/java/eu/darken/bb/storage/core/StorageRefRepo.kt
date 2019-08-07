@@ -12,7 +12,6 @@ import eu.darken.bb.common.opt
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 @PerApp
@@ -20,10 +19,10 @@ class StorageRefRepo @Inject constructor(
         @AppContext context: Context,
         moshi: Moshi
 ) {
-    private val preferences: SharedPreferences = context.getSharedPreferences("repo_references", Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences = context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
     private val refAdapter = moshi.adapter(StorageRef::class.java)
-    private val internalData = HotData<Map<UUID, StorageRef>> {
-        val internalRefs = mutableMapOf<UUID, StorageRef>()
+    private val internalData = HotData<Map<BackupStorage.Id, StorageRef>> {
+        val internalRefs = mutableMapOf<BackupStorage.Id, StorageRef>()
         preferences.all.forEach {
             val ref = refAdapter.fromJson(it.value as String)!!
             internalRefs[ref.storageId] = ref
@@ -44,7 +43,7 @@ class StorageRefRepo @Inject constructor(
                 }
     }
 
-    fun get(id: UUID): Single<Opt<StorageRef>> = internalData.data
+    fun get(id: BackupStorage.Id): Single<Opt<StorageRef>> = internalData.data
             .firstOrError()
             .map { Opt(it[id]) }
 
@@ -60,7 +59,7 @@ class StorageRefRepo @Inject constructor(
                 .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
     }
 
-    fun remove(refId: UUID): Single<Opt<StorageRef>> {
+    fun remove(refId: BackupStorage.Id): Single<Opt<StorageRef>> {
         var oldValue: StorageRef? = null
         return internalData
                 .updateRx { data ->
