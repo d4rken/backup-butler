@@ -39,8 +39,8 @@ class DefaultBackupProcessor @Inject constructor(
 
                     val result = repo.save(backup)
                     Timber.tag(TAG).i("Backup (%s) stored: %s", backup.id, result)
-//                val loadedBackup = repo.load(result, result.revisionConfig.revisions.first().backupId)
-//                Timber.tag(TAG).i("Backup loaded: %s", loadedBackup)
+                    val loadedBackup = repo.load(result, result.revisionConfig.revisions.first().backupId)
+                    Timber.tag(TAG).i("Backup loaded: %s", loadedBackup)
                 }
 
                 tmpDataRepo.deleteAll(backup.id)

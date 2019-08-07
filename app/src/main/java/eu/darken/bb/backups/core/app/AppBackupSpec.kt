@@ -5,10 +5,9 @@ import eu.darken.bb.backups.core.BackupSpec
 
 
 data class AppBackupSpec(
-        val packageName: String? = null,
+        val packageName: String,
         override val label: String = "pkg-$packageName"
 ) : BackupSpec {
 
     override val configType: Backup.Type = Backup.Type.APP
-
 }

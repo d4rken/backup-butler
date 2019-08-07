@@ -27,6 +27,11 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor as AppSpecGeneratorEditor }
 
+    private val editor: AppSpecGeneratorEditor
+        get() {
+            return editorObs.blockingFirst()
+        }
+
     private val configObs = editorObs.flatMap { it.config }
 
     val state = Observables.combineLatest(stateUpdater.data, configObs)
@@ -34,7 +39,8 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             .map { (state, config) ->
                 state.copy(
                         label = config.label,
-                        allowCreate = config.label.isNotEmpty()
+                        allowCreate = config.label.isNotEmpty(),
+                        includedPackages = config.packagesIncluded.toList()
                 )
             }
             .toLiveData()
@@ -55,7 +61,11 @@ class AppEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun updateLabel(label: String) {
-        editorObs.blockingFirst().updateLabel(label)
+        editor.updateLabel(label)
+    }
+
+    fun updateIncludedPackages(pkgs: List<String>) {
+        editor.updateIncludedPackages(pkgs)
     }
 
     fun onGoBack(): Boolean {
@@ -83,7 +93,8 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             val label: String = "",
             val working: Boolean = true,
             val allowCreate: Boolean = false,
-            val existing: Boolean = false
+            val existing: Boolean = false,
+            val includedPackages: List<String> = emptyList()
     )
 
     @AssistedInject.Factory

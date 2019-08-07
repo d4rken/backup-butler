@@ -38,6 +38,10 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         configPub.update { it.copy(label = label) }
     }
 
+    fun updateIncludedPackages(pkgs: List<String>) {
+        configPub.update { it.copy(packagesIncluded = pkgs) }
+    }
+
     override fun save(): Single<SpecGenerator.Config> {
         return configPub.data.firstOrError().map { it }
     }

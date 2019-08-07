@@ -34,6 +34,7 @@ class AppEditorFragment : SmartFragment(), AutoInject {
 
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
+    @BindView(R.id.input_include_packages) lateinit var includedPackagesInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
     @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
@@ -60,7 +61,6 @@ class AppEditorFragment : SmartFragment(), AutoInject {
         vdc.state.observe(this, Observer { state ->
             labelInput.setTextIfDifferent(state.label)
 
-
             allowCreate = state.allowCreate
             isExisting = state.existing
             requireActivity().invalidateOptionsMenu()
@@ -72,12 +72,18 @@ class AppEditorFragment : SmartFragment(), AutoInject {
             coreSettingsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
             optionsContainer.visibility = if (state.working) View.INVISIBLE else View.VISIBLE
             optionsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
+
+            includedPackagesInput.setTextIfDifferent(state.includedPackages.joinToString(","))
         })
 
         vdc.finishActivity.observe(this, Observer { requireActivity().finish() })
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
+
+        includedPackagesInput.userTextChangeEvents().subscribe {
+            vdc.updateIncludedPackages(it.text.split(','))
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

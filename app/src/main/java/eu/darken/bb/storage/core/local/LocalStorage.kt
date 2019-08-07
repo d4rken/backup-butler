@@ -150,8 +150,8 @@ class LocalStorage(
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")
-        const val BACKUP_CONFIG = "backup.spec"
-        const val REVISION_CONFIG = "revision.spec"
+        const val BACKUP_CONFIG = "backup.data"
+        const val REVISION_CONFIG = "revision.data"
     }
 
 }

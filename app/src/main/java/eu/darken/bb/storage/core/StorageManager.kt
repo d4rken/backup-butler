@@ -19,7 +19,7 @@ class StorageManager @Inject constructor(
     private val repoCache = mutableMapOf<UUID, BackupStorage>()
 
     init {
-
+        // TODO remove removed refs from cache
     }
 
     fun info(storageId: UUID): Observable<Opt<StorageInfo>> {

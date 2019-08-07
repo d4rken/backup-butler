@@ -5,12 +5,15 @@ import eu.darken.bb.storage.core.BackupStorage
 import eu.darken.bb.storage.core.StorageConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class LocalStorageConfigTest {
     @Test
     fun testSerialization() {
+        val testID = UUID.randomUUID()
         val original = LocalStorageConfig(
-                label = "testlabel"
+                label = "testlabel",
+                storageId = testID
         )
 
         val moshi = AppModule().moshi()
@@ -20,6 +23,7 @@ class LocalStorageConfigTest {
         assertThat(json)
                 .contains("\"label\":\"testlabel\"")
                 .contains("\"storageType\":\"${BackupStorage.Type.LOCAL}\"")
+                .contains("\"storageId\":\"$testID\"")
 
         val restored = adapter.fromJson(json)
         assertThat(restored).isInstanceOf(LocalStorageConfig::class.java)
