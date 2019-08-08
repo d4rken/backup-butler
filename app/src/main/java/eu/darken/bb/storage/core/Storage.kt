@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
 import io.reactivex.Observable
@@ -24,13 +25,19 @@ interface Storage {
 
     fun info(): Observable<StorageInfo>
 
-    fun getAll(): Collection<BackupReference>
+    fun content(): Observable<Collection<Content>>
 
-    fun load(backupReference: BackupReference, backupId: Backup.Id): Backup
+    fun load(content: Content, backupId: Backup.Id): Backup
 
-    fun save(backup: Backup): BackupReference
+    fun save(backup: Backup): Content
 
-    fun remove(backupReference: BackupReference): Boolean
+    fun remove(content: Content): Boolean
+
+    interface Content {
+        val storageId: Id
+        val backupSpec: BackupSpec
+        val versioning: Versioning
+    }
 
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {

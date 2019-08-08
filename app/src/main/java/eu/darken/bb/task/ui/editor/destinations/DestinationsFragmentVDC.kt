@@ -3,6 +3,7 @@ package eu.darken.bb.task.ui.editor.destinations
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.VDC
@@ -13,6 +14,7 @@ import eu.darken.bb.task.core.DefaultTask
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -24,9 +26,14 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     private val taskObs = taskBuilder.task(taskId)
     private val destinationUpdater = taskObs
             .doOnNext { task ->
-                val storageStatuses = task.destinations.map {
-                    val status = storageManager.info(it).blockingFirst().value
-                    StorageInfoOpt(it, status)
+                val storageStatuses = task.destinations.map { id ->
+                    try {
+                        val status = storageManager.info(id).blockingFirst()
+                        StorageInfoOpt(id, status)
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).w(e, "Failed to get StatusInfo for $id")
+                        StorageInfoOpt(id, null)
+                    }
                 }
                 stateUpdater.update { it.copy(destinations = storageStatuses) }
             }
@@ -85,5 +92,9 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     @AssistedInject.Factory
     interface Factory : VDCFactory<DestinationsFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): DestinationsFragmentVDC
+    }
+
+    companion object {
+        val TAG = App.logTag("Task", "Editor", "Destinations", "VDC")
     }
 }

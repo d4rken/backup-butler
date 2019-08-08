@@ -3,10 +3,7 @@ package eu.darken.bb.common.lists
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
-import androidx.annotation.ColorRes
-import androidx.annotation.LayoutRes
-import androidx.annotation.StringRes
+import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
@@ -34,6 +31,12 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
         fun getColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(context, colorRes)
 
         fun getString(@StringRes stringRes: Int, vararg args: Any): String = context.getString(stringRes, *args)
+
+        fun getQuantityString(@PluralsRes pluralRes: Int, quantity: Int, vararg args: Any): String =
+                context.resources.getQuantityString(pluralRes, quantity, *args)
+
+        fun getQuantityString(@PluralsRes pluralRes: Int, quantity: Int): String =
+                context.resources.getQuantityString(pluralRes, quantity, quantity)
 
     }
 }

@@ -1,9 +1,10 @@
 package eu.darken.bb.storage.core
 
 import android.content.Context
+import android.content.Intent
 import dagger.Reusable
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -21,19 +22,12 @@ class StorageManager @Inject constructor(
         // TODO remove removed refs from cache
     }
 
-    fun info(storageId: Storage.Id): Observable<Opt<StorageInfo>> {
-        return refRepo.references
-                .flatMap { map ->
-                    val ref = map[storageId]
-                    if (ref == null) return@flatMap Observable.just(Opt(null))
-                    else return@flatMap info(ref).map { Opt(it) }
-                }
-    }
+    fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
+            .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 
     fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
             .flatMapObservable { it.info() }
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
-
 
     fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
             .map { it.values }
@@ -44,7 +38,10 @@ class StorageManager @Inject constructor(
                 }
             }
 
-    private fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
+    fun getStorage(id: Storage.Id): Single<Storage> = refRepo.get(id)
+            .flatMap { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
+
+    fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
         synchronized(repoCache) {
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
@@ -55,6 +52,13 @@ class StorageManager @Inject constructor(
             repoCache[ref.storageId] = repo
             return@fromCallable repo
         }
+    }
+
+    fun startViewer(storageId: Storage.Id) {
+        val intent = Intent(context, StorageViewerActivity::class.java)
+        intent.putStorageId(storageId)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
 }

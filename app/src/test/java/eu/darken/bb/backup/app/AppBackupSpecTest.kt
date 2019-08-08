@@ -16,7 +16,7 @@ class AppBackupSpecTest {
 
         val json = adapter.toJson(config)
         assertThat(json)
-                .contains("{\"configType\":\"APP\"")
+                .contains("{\"backupType\":\"APP\"")
                 .contains("\"packageName\":\"test.package\"")
                 .contains("\"label\":\"pkg-test.package\"")
 

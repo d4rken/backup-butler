@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -10,6 +11,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
+import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
@@ -21,11 +23,10 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdc: StorageEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageEditorActivityVDC.Factory
+    private val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as StorageViewerActivityVDC.Factory
         factory.create(handle, intent.getStorageId()!!)
     })
-
 
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
@@ -33,28 +34,22 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.task_editor_activity)
+        setContentView(R.layout.storage_viewer_activity)
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->
-            if (state.existing) {
-                supportActionBar!!.title = getString(R.string.label_edit_storage)
-            } else {
-                supportActionBar!!.title = getString(R.string.label_create_storage)
-            }
-            supportActionBar!!.subtitle = when (state.page) {
-                StorageEditorActivityVDC.State.Page.SELECTION -> getString(R.string.label_storage_selection)
-                StorageEditorActivityVDC.State.Page.LOCAL -> getString(R.string.repo_type_local_storage_label)
-            }
-
             showPage(state.page, state.storageId)
+
+            if (state.error != null) {
+                Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
+            }
         })
 
         vdc.finishActivity.observe(this, Observer { finish() })
     }
 
 
-    private fun showPage(page: StorageEditorActivityVDC.State.Page, storageId: Storage.Id) {
+    private fun showPage(page: StorageViewerActivityVDC.State.Page, storageId: Storage.Id) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (page.fragmentClass.isInstance(fragment)) return
 

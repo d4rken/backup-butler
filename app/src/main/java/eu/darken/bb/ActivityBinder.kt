@@ -13,6 +13,8 @@ import eu.darken.bb.settings.ui.SettingsActivity
 import eu.darken.bb.settings.ui.SettingsActivityModule
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityModule
+import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
+import eu.darken.bb.storage.ui.viewer.StorageViewerActivityModule
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import eu.darken.bb.task.ui.editor.TaskEditorActivityModule
 
@@ -43,4 +45,8 @@ abstract class ActivityBinder {
     @PerActivity
     @ContributesAndroidInjector(modules = [GeneratorEditorActivityModule::class])
     abstract fun backupEditorActivity(): GeneratorEditorActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [StorageViewerActivityModule::class])
+    abstract fun storageViewerActivity(): StorageViewerActivity
 }

@@ -26,34 +26,40 @@ class StorageActionDialogVDC @AssistedInject constructor(
     init {
         storageManager.info(storageId)
                 .subscribeOn(Schedulers.io())
-                .subscribe { maybeTask ->
-                    val storageInfo = maybeTask.value
-                    val allowedActions = mutableSetOf<StorageAction>()
-                    if (storageInfo != null) {
-                        if (storageInfo.config != null) {
-                            allowedActions.add(EDIT)
-                        } else {
-                            allowedActions.add(DELETE)
+                .firstOrError()
+                .subscribe(
+                        { storageInfo ->
+                            val allowedActions = mutableSetOf<StorageAction>()
+                            if (storageInfo != null) {
+                                if (storageInfo.config != null) {
+                                    allowedActions.add(EDIT)
+                                } else {
+                                    allowedActions.add(DELETE)
+                                }
+                            }
+                            stateUpdater.update {
+                                if (storageInfo == null) {
+                                    it.copy(loading = true, finished = true)
+                                } else {
+                                    it.copy(
+                                            storageInfo = storageInfo,
+                                            loading = false,
+                                            allowedActions = values().toList()
+                                    )
+                                }
+                            }
+                        },
+                        {
+                            stateUpdater.update { it.copy(finished = true) }
                         }
-                    }
-                    stateUpdater.update {
-                        if (storageInfo == null) {
-                            it.copy(loading = true, finished = true)
-                        } else {
-                            it.copy(
-                                    storageInfo = storageInfo,
-                                    loading = false,
-                                    allowedActions = values().toList()
-                            )
-                        }
-                    }
-                }
+                )
     }
 
     fun storageAction(action: StorageAction) {
         when (action) {
             VIEW -> {
-                TODO()
+                storageManager.startViewer(storageId)
+                stateUpdater.update { it.copy(loading = false, finished = true) }
             }
             EDIT -> {
                 storageBuilder.load(storageId)
@@ -71,8 +77,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .subscribe { _ ->
-                        }
+                        .subscribe()
             }
         }
     }

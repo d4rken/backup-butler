@@ -45,7 +45,7 @@ class DefaultBackupProcessor @Inject constructor(
             val backupConfigs = generators.getValue(generatorConfig.generatorType).generate(generatorConfig)
 
             backupConfigs.forEach { config ->
-                val endpoint = endpointFactories.getValue(config.configType).create(config)
+                val endpoint = endpointFactories.getValue(config.backupType).create(config)
                 Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
                 val backup = endpoint.backup(config)

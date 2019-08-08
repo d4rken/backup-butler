@@ -2,15 +2,12 @@ package eu.darken.bb.main.ui.overview
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
-import butterknife.ButterKnife
 import com.jakewharton.rxbinding3.view.clicks
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
@@ -33,10 +30,8 @@ class OverviewFragment : SmartFragment(), AutoInject {
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: OverviewFragmentVDC by vdcs { vdcSource }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.overview_fragment, container, false)
-        addUnbinder(ButterKnife.bind(this, layout))
-        return layout
+    init {
+        layoutRes = R.layout.overview_fragment
     }
 
     @SuppressLint("CheckResult", "SetTextI18n")

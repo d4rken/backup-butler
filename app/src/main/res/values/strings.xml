@@ -18,9 +18,9 @@
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
     <string name="error_message_cant_find_x">Can\'t find %s</string>
-    <plurals name="x_revisions">
-        <item quantity="one">%d revision</item>
-        <item quantity="other">%d revisions</item>
+    <plurals name="x_versions">
+        <item quantity="one">%d version</item>
+        <item quantity="other">%d versions</item>
     </plurals>
     <plurals name="x_items">
         <item quantity="one">%d item</item>
@@ -73,4 +73,5 @@
     <string name="label_selected">Selected</string>
     <string name="label_suggestions">Suggestions</string>
     <string name="action_show_available">Show available</string>
+    <string name="versions_last_backup_time_x">Last backup: %s</string>
 </resources>

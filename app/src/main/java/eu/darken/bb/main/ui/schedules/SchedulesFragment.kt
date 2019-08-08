@@ -2,11 +2,8 @@ package eu.darken.bb.main.ui.schedules
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
@@ -23,10 +20,8 @@ class SchedulesFragment : SmartFragment(), AutoInject {
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: SchedulesFragmentVDC by vdcs { vdcSource }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.schedule_list_fragment, container, false)
-        addUnbinder(ButterKnife.bind(this, layout))
-        return layout
+    init {
+        layoutRes = R.layout.schedule_list_fragment
     }
 
     @SuppressLint("CheckResult", "SetTextI18n")

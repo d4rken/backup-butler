@@ -1,5 +1,7 @@
 package eu.darken.bb.storage.ui.list
 
+import android.annotation.SuppressLint
+import android.text.format.Formatter
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -37,6 +39,7 @@ class StorageAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
+
         override fun bind(item: StorageInfoOpt) {
             if (item.info != null) {
                 val info = item.info
@@ -53,7 +56,8 @@ class StorageAdapter @Inject constructor()
                     }
                     info.status != null -> {
                         statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
-                        statusText.text = "Count: TODO; Size: TODO"
+                        @SuppressLint("SetTextI18n")
+                        statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${Formatter.formatFileSize(context, info.status.totalSize)}"
                     }
                     else -> {
                         statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))

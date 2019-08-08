@@ -2,14 +2,11 @@ package eu.darken.bb.storage.ui.list
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
-import butterknife.ButterKnife
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -44,10 +41,8 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.storage_list_fragment, container, false)
-        addUnbinder(ButterKnife.bind(this, layout))
-        return layout
+    init {
+        layoutRes = R.layout.storage_list_fragment
     }
 
     @SuppressLint("CheckResult", "SetTextI18n")
@@ -56,7 +51,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
-        vdc.viewState.observe(this, Observer {
+        vdc.state.observe(this, Observer {
             adapter.update(it.storages)
         })
 

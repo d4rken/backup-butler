@@ -4,5 +4,5 @@ import eu.darken.bb.backup.core.BackupSpec
 
 interface BackupReference {
     val backupSpec: BackupSpec
-    val revisionConfig: RevisionConfig
+    val versioning: Versioning
 }

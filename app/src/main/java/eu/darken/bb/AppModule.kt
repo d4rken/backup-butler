@@ -10,8 +10,8 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.moshi.*
-import eu.darken.bb.storage.core.RevisionConfig
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.task.core.Task
 import java.util.*
 
@@ -27,7 +27,7 @@ class AppModule {
             .add(SFile.MOSHI_FACTORY)
             .add(Storage.Ref.MOSHI_FACTORY)
             .add(Storage.Config.MOSHI_FACTORY)
-            .add(RevisionConfig.MOSHI_FACTORY)
+            .add(Versioning.MOSHI_FACTORY)
             .add(Task.MOSHI_FACTORY)
             .add(FileAdapter())
             .add(BackupIdAdapter())

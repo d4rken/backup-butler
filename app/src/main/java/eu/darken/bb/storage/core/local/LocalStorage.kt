@@ -16,6 +16,8 @@ import io.reactivex.Observable
 import timber.log.Timber
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
+
 
 class LocalStorage(
         private val context: Context,
@@ -26,26 +28,46 @@ class LocalStorage(
 ) : Storage {
     private val dataDir = File(repoRef.path.asFile(), "data")
     private val backupConfigAdapter = moshi.adapter(BackupSpec::class.java)
-    private val revisionConfigAdapter = moshi.adapter(RevisionConfig::class.java)
-    private val repoConfig: LocalStorageConfig
+    private val revisionConfigAdapter = moshi.adapter(Versioning::class.java)
+    private val storageConfig: LocalStorageConfig
 
     init {
         val configEditor = configEditorFactory.create(repoRef.storageId)
         val config = configEditor.load(repoRef).map { it as Opt<LocalStorageConfig> }.blockingGet()
         if (config.isNull) throw MissingFileException(repoRef.path)
-        repoConfig = config.notNullValue()
+        storageConfig = config.notNullValue()
         dataDir.tryMkDirs()
     }
 
-    override fun info(): Observable<StorageInfo> {
-        return Observable.just(StorageInfo(
-                ref = repoRef,
-                config = repoConfig
-        ))
-    }
+    override fun info(): Observable<StorageInfo> = Observable
+            .create<StorageInfo> { emitter ->
+                var status: StorageInfo.Status? = null
+                try {
+                    val content = content().blockingFirst()
+                    status = StorageInfo.Status(content.size, 0)
+                } catch (e: Exception) {
+                    Timber.tag(TAG).w(e)
+                }
+                emitter.onNext(StorageInfo(
+                        ref = repoRef,
+                        config = storageConfig,
+                        status = status
+                ))
+                emitter.onComplete()
+            }
+            // TODO make nicer, maybe with filesystem observer?
+            .repeatWhen { it.delay(3, TimeUnit.SECONDS) }
+            .doOnDispose {
+                Timber.i("Dispose")
+            }
+            .doOnSubscribe {
+                Timber.i("SUBSCRIBE: %s", it)
+            }
 
-    override fun getAll(): Collection<BackupReference> {
-        val refs = mutableListOf<BackupReference>()
+    override fun content(): Observable<Collection<Storage.Content>> = Observable.fromCallable {
+        val content = mutableListOf<Storage.Content>()
+        if (!dataDir.exists()) throw MissingFileException(dataDir.asSFile())
+
         for (backupDir in dataDir.listFiles()) {
             if (backupDir.isFile) {
                 Timber.tag(TAG).e("Unexpected file within data directory: %s", backupDir)
@@ -57,31 +79,32 @@ class LocalStorage(
                 Timber.tag(TAG).e("Dir without spec file: %s", backupDir)
                 continue
             }
-            val revisionConfig = revisionConfigAdapter.fromFile(File(backupDir, REVISION_CONFIG)) as? DefaultRevisionConfig
+            val revisionConfig = revisionConfigAdapter.fromFile(File(backupDir, REVISION_CONFIG)) as? DefaultVersioning
             if (revisionConfig == null) {
                 Timber.tag(TAG).e("Dir without revision file: %s", backupDir)
                 continue
             }
-            val ref = LocalStorageBackupReference(
+            val ref = LocalStorageContent(
+                    storageId = storageConfig.storageId,
                     path = backupDir.asSFile(),
                     backupSpec = backupConfig,
-                    revisionConfig = revisionConfig
+                    versioning = revisionConfig
             )
-            refs.add(ref)
+            content.add(ref)
         }
-        return refs
+        return@fromCallable content
     }
 
-    override fun load(backupReference: BackupReference, backupId: Backup.Id): Backup {
-        backupReference as LocalStorageBackupReference
-        val backupDir = backupReference.path.asFile().assertExists()
+    override fun load(content: Storage.Content, backupId: Backup.Id): Backup {
+        content as LocalStorageContent
+        val backupDir = content.path.asFile().assertExists()
 
-        val revision = backupReference.revisionConfig.getRevision(backupId)
+        val revision = content.versioning.getRevision(backupId)
         if (revision == null) {
-            throw IllegalArgumentException("BackupReference $backupReference does not contain $backupId")
+            throw IllegalArgumentException("BackupReference $content does not contain $backupId")
         }
 
-        val backupBuilder = BaseBackupBuilder(backupReference.backupSpec, backupId)
+        val backupBuilder = BaseBackupBuilder(content.backupSpec, backupId)
 
         val revisionPath = File(backupDir, revision.backupId.toString()).assertExists()
 
@@ -95,8 +118,8 @@ class LocalStorage(
         return backupBuilder.toBackup()
     }
 
-    override fun save(backup: Backup): BackupReference {
-        val backupDir = File(dataDir, backup.spec.label).tryMkDirs()
+    override fun save(backup: Backup): Storage.Content {
+        val backupDir = File(dataDir, backup.spec.identifier).tryMkDirs()
 
         val backupConfigFile = File(backupDir, BACKUP_CONFIG)
         if (!backupConfigFile.exists()) {
@@ -108,14 +131,14 @@ class LocalStorage(
             }
         }
 
-        val newRevision = DefaultRevisionConfig.Revision(backupId = backup.id, createdAt = Date())
+        val newRevision = DefaultVersioning.Version(backupId = backup.id, createdAt = Date())
 
         val revisionConfigFile = File(backupDir, REVISION_CONFIG)
-        val revisionConfig: DefaultRevisionConfig = if (!revisionConfigFile.exists()) {
-            DefaultRevisionConfig(revisions = listOf(newRevision))
+        val revisionConfig: DefaultVersioning = if (!revisionConfigFile.exists()) {
+            DefaultVersioning(versions = listOf(newRevision))
         } else {
-            val existing = revisionConfigAdapter.fromFile(revisionConfigFile) as DefaultRevisionConfig
-            existing.copy(revisions = existing.revisions.toMutableList().apply { add(newRevision) }.toList())
+            val existing = revisionConfigAdapter.fromFile(revisionConfigFile) as DefaultVersioning
+            existing.copy(versions = existing.versions.toMutableList().apply { add(newRevision) }.toList())
         }
         revisionConfigAdapter.toFile(revisionConfig, revisionConfigFile)
 
@@ -129,15 +152,16 @@ class LocalStorage(
             }
         }
 
-        val backupRef = LocalStorageBackupReference(
+        val backupRef = LocalStorageContent(
                 path = backupDir.asSFile(),
+                storageId = storageConfig.storageId,
                 backupSpec = backup.spec,
-                revisionConfig = revisionConfig
+                versioning = revisionConfig
         )
         return backupRef
     }
 
-    override fun remove(backupReference: BackupReference): Boolean {
+    override fun remove(content: Storage.Content): Boolean {
         TODO("not implemented")
 
         // TODO update revision data
@@ -145,7 +169,7 @@ class LocalStorage(
         // TODO remove files
     }
 
-    override fun toString(): String = "LocalStorage(repoConfig=$repoConfig)"
+    override fun toString(): String = "LocalStorage(storageConfig=$storageConfig)"
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")

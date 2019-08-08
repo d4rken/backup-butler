@@ -2,14 +2,11 @@ package eu.darken.bb.task.ui.tasklist
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
-import butterknife.ButterKnife
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.android.AndroidInjector
@@ -40,10 +37,8 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.task_list_fragment, container, false)
-        addUnbinder(ButterKnife.bind(this, layout))
-        return layout
+    init {
+        layoutRes = R.layout.task_list_fragment
     }
 
     @SuppressLint("CheckResult", "SetTextI18n")

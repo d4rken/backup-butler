@@ -10,7 +10,7 @@ class FileBackupBuilder : BaseBackupBuilder<FileBackupSpec> {
     constructor(config: FileBackupSpec, backupId: Backup.Id) : super(config, backupId)
 
     var backupName: String
-        get() = backupConfig.label
+        get() = backupConfig.identifier
         set(value) {
             backupConfig = backupConfig.copy(name = value)
         }

@@ -7,6 +7,9 @@ data class StorageInfo(
         val error: Throwable? = null
 ) {
 
-    class Status
+    data class Status(
+            val itemCount: Int,
+            val totalSize: Long
+    )
 
 }
