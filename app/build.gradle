@@ -95,6 +95,11 @@ android {
             freeCompilerArgs = ['-XXLanguage:+InlineClasses']
         }
     }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -172,6 +177,9 @@ dependencies {
     testImplementation "org.mockito:mockito-core:2.24.5"
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0'
     testImplementation 'com.github.tmurakami:dexopener:1.0.2'
+
+    testImplementation "io.mockk:mockk:1.9.3.kotlin12"
+    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
 
     androidTestImplementation "org.mockito:mockito-core:2.24.5"
     androidTestImplementation 'org.mockito:mockito-android:2.23.0'

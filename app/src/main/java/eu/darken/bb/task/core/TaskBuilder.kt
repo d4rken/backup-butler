@@ -52,7 +52,7 @@ class TaskBuilder @Inject constructor(
                 }
                 mutMap.toMap()
             }
-            .map { Opt(it[id]) }
+            .map { Opt(it.newValue[id]) }
 
     fun remove(id: Task.Id): Single<Opt<Task>> = Single.just(id)
             .flatMap { id ->

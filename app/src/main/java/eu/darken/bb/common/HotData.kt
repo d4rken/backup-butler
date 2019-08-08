@@ -2,6 +2,7 @@ package eu.darken.bb.common
 
 import eu.darken.bb.App
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -10,11 +11,18 @@ import timber.log.Timber
 import java.util.concurrent.Executors
 
 open class HotData<T>(
-        initialValue: () -> T
+        initialValue: () -> T,
+        scheduler: Scheduler? = null
 ) {
-    constructor(initialValue: T) : this({ initialValue })
+    constructor(
+            initialValue: () -> T
+    ) : this(initialValue, null)
 
-    private val scheduler = Schedulers.from(Executors.newSingleThreadExecutor())
+    constructor(
+            initialValue: T
+    ) : this({ initialValue }, null)
+
+    private val scheduler = scheduler ?: Schedulers.from(Executors.newSingleThreadExecutor())
 
     private val updatePub = PublishSubject.create<(T) -> T>()
     private val statePub = BehaviorSubject.create<T>()
@@ -22,18 +30,17 @@ open class HotData<T>(
     init {
         Single
                 .fromCallable { initialValue.invoke() }
-                .subscribeOn(scheduler)
-                .subscribe { value -> statePub.onNext(value) }
-    }
+                .subscribeOn(this.scheduler)
+                .subscribe(
+                        { value -> statePub.onNext(value) },
+                        {
+                            Timber.tag(TAG).e(it, "Error while providing initial value.")
+                            statePub.onError(it)
+                        }
+                )
 
-    val snapshot: T
-        get() = data.blockingFirst()
-
-    val data: Observable<T> = statePub.hide()
-
-    init {
         updatePub
-                .observeOn(scheduler)
+                .observeOn(this.scheduler)
                 .flatMap { action ->
                     statePub.take(1).map { oldState ->
                         val newState = action.invoke(oldState)
@@ -44,18 +51,29 @@ open class HotData<T>(
                         }
                     }
                 }
-                .subscribe { statePub.onNext(it) }
+                .subscribe(
+                        { statePub.onNext(it) },
+                        {
+                            Timber.tag(TAG).e(it, "Error while updating.")
+                            statePub.onError(it)
+                        }
+                )
     }
+
+    val snapshot: T
+        get() = data.blockingFirst()
+
+    val data: Observable<T> = statePub.hide()
 
     fun update(action: (T) -> T) {
         updatePub.onNext(action)
     }
 
-    fun updateRx(action: (T) -> T): Single<T> = Single.create<T> { emitter ->
+    fun updateRx(action: (T) -> T): Single<Update<T>> = Single.create { emitter ->
         val wrap: (T) -> T = { oldValue ->
             try {
                 val newValue = action.invoke(oldValue)
-                emitter.onSuccess(newValue)
+                emitter.onSuccess(Update(oldValue, newValue))
                 newValue
             } catch (e: Throwable) {
                 emitter.onError(e)
@@ -64,6 +82,8 @@ open class HotData<T>(
         }
         update(wrap)
     }
+
+    data class Update<T>(val oldValue: T, val newValue: T)
 
     companion object {
         private val TAG = App.logTag("HotData")

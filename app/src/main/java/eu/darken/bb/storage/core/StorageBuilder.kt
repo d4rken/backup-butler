@@ -60,7 +60,7 @@ class StorageBuilder @Inject constructor(
                 }
                 mutMap.toMap()
             }
-            .map { Opt(it[id]) }
+            .map { Opt(it.newValue[id]) }
 
     fun remove(id: Storage.Id): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
