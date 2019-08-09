@@ -13,8 +13,8 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.vdcsAssisted
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
+import eu.darken.bb.storage.core.putBackupSpecId
 import eu.darken.bb.storage.core.putStorageId
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageViewerActivityVDC.Factory
         factory.create(handle, intent.getStorageId()!!)
     })
@@ -40,27 +40,41 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
         vdc.state.observe(this, Observer { state ->
             supportActionBar?.subtitle = state.label
 
-            showPage(state.page, state.storageId)
-
             if (state.error != null) {
                 Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
             }
         })
 
+        vdc.pageEvent.observe(this, Observer { pageData ->
+            showPage(pageData)
+        })
+
         vdc.finishActivity.observe(this, Observer { finish() })
     }
 
+    private fun showPage(pageData: StorageViewerActivityVDC.PageData) {
+        val current = supportFragmentManager.findFragmentById(R.id.content_frame)
 
-    private fun showPage(page: StorageViewerActivityVDC.State.Page, storageId: Storage.Id) {
-        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (page.fragmentClass.isInstance(fragment)) return
-
-        fragment = supportFragmentManager.findFragmentByTag(page.name)
-        if (fragment == null) {
-            fragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, page.fragmentClass.qualifiedName!!)
+        val desired = supportFragmentManager.findFragmentByTag(pageData.page.name)
+        var newFragment = desired
+        if (newFragment == null) {
+            newFragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, pageData.page.fragmentClass.qualifiedName!!)
         }
-        fragment.arguments = Bundle().apply { putStorageId(storageId) }
-        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, page.name).commitAllowingStateLoss()
+        newFragment.arguments = Bundle().apply {
+            putStorageId(pageData.storageId)
+            if (pageData.backupSpecId != null) putBackupSpecId(pageData.backupSpecId)
+        }
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.content_frame, newFragment, pageData.toString())
+        if (current != null) transaction.addToBackStack(null)
+        transaction.commitAllowingStateLoss()
     }
 
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }

@@ -95,6 +95,23 @@ class LocalStorage(
         return@fromCallable content
     }
 
+    override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Backup.Details> = Observable.fromCallable {
+        content as LocalStorageContent
+        val backupDir = content.path.asFile().assertExists()
+        val versionDir = File(backupDir, backupId.id.toString()).assertExists()
+
+        val items = mutableListOf<Backup.Item>()
+
+        versionDir.listFiles().forEach { file ->
+            items.add(object : Backup.Item {
+                override val label: String
+                    get() = file.path.substring(versionDir.path.length)
+            })
+        }
+
+        return@fromCallable Backup.Details(items)
+    }
+
     override fun load(content: Storage.Content, backupId: Backup.Id): Backup {
         content as LocalStorageContent
         val backupDir = content.path.asFile().assertExists()

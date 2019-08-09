@@ -25,7 +25,7 @@ class ContentAdapter @Inject constructor()
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_contentlist_adapter_line, parent), BindableVH<Storage.Content> {
+        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<Storage.Content> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -36,7 +36,6 @@ class ContentAdapter @Inject constructor()
         init {
             ButterKnife.bind(this, itemView)
         }
-
 
         override fun bind(item: Storage.Content) {
             typeLabel.setText(item.backupSpec.backupType.labelRes)

@@ -29,7 +29,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
                 storageInfoObs.subscribe()
             }
 
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
     fun createStorage() {

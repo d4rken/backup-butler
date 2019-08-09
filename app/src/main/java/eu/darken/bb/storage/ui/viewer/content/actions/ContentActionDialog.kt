@@ -22,6 +22,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.task.core.BackupTaskRepo
 import javax.inject.Inject
 
@@ -37,13 +38,15 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
         factory.create(handle, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!)
     })
 
+    private val activityVdc by lazy { (requireActivity() as StorageViewerActivity).vdc }
+
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.storage_contentlist_action_dialog, container, false)
+        val layout = inflater.inflate(R.layout.storage_viewer_contentlist_action_dialog, container, false)
         unbinder = ButterKnife.bind(this, layout)
         return layout
     }
@@ -56,9 +59,9 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            if (state.storageInfo != null) {
-                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.label_unknown)
-                typeLabel.text = getString(state.storageInfo.ref.storageType.labelRes)
+            if (state.content != null) {
+                storageLabel.text = state.content.backupSpec.getLabel(requireContext())
+                typeLabel.text = getString(state.content.backupSpec.backupType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)
@@ -67,6 +70,12 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
         })
+
+        vdc.pageEvent.observe(this, Observer { pageData ->
+            activityVdc.goTo(pageData)
+            dismiss()
+        })
+
         super.onViewCreated(view, savedInstanceState)
     }
 

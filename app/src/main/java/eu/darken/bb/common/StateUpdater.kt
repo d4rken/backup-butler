@@ -5,9 +5,10 @@ import eu.darken.bb.common.rx.toLiveData
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
-class StateUpdater<T>(
-        startValue: T
-) : HotData<T>(startValue) {
+class StateUpdater<T> : HotData<T> {
+    constructor(startValue: T) : super(startValue)
+    constructor(startValueProvider: () -> T) : super(startValueProvider)
+
     private val liveDeps = mutableSetOf<() -> Disposable>()
     private var liveDepCompDis = CompositeDisposable()
 
@@ -15,7 +16,7 @@ class StateUpdater<T>(
         liveDeps.add(dep)
     }
 
-    val state: LiveData<T> = data
+    val liveData: LiveData<T> = data
             .doOnSubscribe {
                 liveDeps.forEach { liveDepCompDis.add(it.invoke()) }
             }

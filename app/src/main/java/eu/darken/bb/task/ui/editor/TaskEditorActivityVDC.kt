@@ -45,7 +45,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             startValue = State(step = State.Step.INTRO, allowNext = true, taskId = taskId)
     )
             .addLiveDep { taskObs.subscribe() }
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
 
     val finishActivity = SingleLiveEvent<Boolean>()
 

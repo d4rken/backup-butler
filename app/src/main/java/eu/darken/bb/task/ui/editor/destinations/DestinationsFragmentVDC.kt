@@ -40,7 +40,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
 
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
             .addLiveDep { destinationUpdater.subscribe() }
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
 
     val storagePickerEvent = SingleLiveEvent<List<StorageInfoOpt>>()
 

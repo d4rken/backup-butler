@@ -25,7 +25,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val stateUpdater = StateUpdater(State(loading = true))
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
 
     init {
         taskRepo.get(taskId)

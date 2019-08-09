@@ -22,7 +22,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val stateUpdater = StateUpdater(State(loading = true))
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
 
     init {
         generatorRepo.get(generatorId)

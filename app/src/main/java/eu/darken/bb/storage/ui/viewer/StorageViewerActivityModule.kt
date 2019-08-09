@@ -11,6 +11,8 @@ import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 import eu.darken.bb.storage.ui.viewer.content.StorageContentFragment
 import eu.darken.bb.storage.ui.viewer.content.StorageContentFragmentModule
+import eu.darken.bb.storage.ui.viewer.details.ContentDetailsFragment
+import eu.darken.bb.storage.ui.viewer.details.ContentDetailsFragmentModule
 
 @Module
 abstract class StorageViewerActivityModule {
@@ -25,4 +27,7 @@ abstract class StorageViewerActivityModule {
     @ContributesAndroidInjector(modules = [StorageContentFragmentModule::class])
     abstract fun storageContent(): StorageContentFragment
 
+    @PerFragment
+    @ContributesAndroidInjector(modules = [ContentDetailsFragmentModule::class])
+    abstract fun contentDetails(): ContentDetailsFragment
 }

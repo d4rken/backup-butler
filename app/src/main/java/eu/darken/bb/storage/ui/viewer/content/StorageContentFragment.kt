@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer.content
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
@@ -28,22 +30,27 @@ import javax.inject.Inject
 class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageContentFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageContentFragmentVDC.Factory
         factory.create(handle, arguments!!.getStorageId()!!)
     })
+
     @Inject lateinit var adapter: ContentAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
     init {
-        layoutRes = R.layout.storage_contentlist_fragment
+        layoutRes = R.layout.storage_viewer_contentlist_fragment
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
+
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
@@ -64,5 +71,13 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
         vdc.finishEvent.observe(this, Observer { activity?.finish() })
 
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        android.R.id.home -> {
+            requireActivity().finish()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

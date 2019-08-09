@@ -35,7 +35,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
             .addLiveDep { sourcesUpdater.subscribe() }
 
-    val state = stateUpdater.state
+    val state = stateUpdater.liveData
 
     val sourcePickerEvent = SingleLiveEvent<List<GeneratorConfigOpt>>()
 

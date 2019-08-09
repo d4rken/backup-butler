@@ -4,14 +4,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import eu.darken.bb.storage.ui.viewer.content.StorageContentFragment
+import eu.darken.bb.storage.ui.viewer.details.ContentDetailsFragment
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
@@ -22,12 +23,10 @@ class StorageViewerActivityVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         storageManager: StorageManager
 ) : SmartVDC() {
-
-    private val storageObs = storageManager.info(storageId).subscribeOn(Schedulers.io())
+    private val storageInfoObs = storageManager.info(storageId).subscribeOn(Schedulers.io())
             .doOnNext { info ->
                 stateUpdater.update { state ->
                     state.copy(
-                            page = State.Page.CONTENT,
                             storageId = storageId,
                             label = info.config?.label ?: ""
                     )
@@ -40,29 +39,38 @@ class StorageViewerActivityVDC @AssistedInject constructor(
                 finishActivity.postValue(true)
             }
             .onErrorResumeNext(Observable.empty())
-            .firstOrError()
 
-
-    private val stateUpdater: StateUpdater<State> = StateUpdater(State(storageId = storageId))
+    val pageEvent = SingleLiveEvent<PageData>()
+    private val stateUpdater: StateUpdater<State> = StateUpdater {
+        pageEvent.postValue(PageData(page = PageData.Page.CONTENT, storageId = storageId))
+        State(storageId = storageId)
+    }
             .addLiveDep {
-                storageObs.subscribe()
+                storageInfoObs.subscribe()
             }
 
     val finishActivity = SingleLiveEvent<Boolean>()
+    val state = stateUpdater.liveData
 
-    val state = stateUpdater.state
+    fun goTo(pageData: PageData) {
+        pageEvent.postValue(pageData)
+    }
 
     data class State(
             val storageId: Storage.Id,
-            val page: Page = Page.CONTENT,
             val label: String = "",
-            val error: Throwable? = null
+            val error: Throwable? = null,
+            val loading: Boolean = true
+    )
+
+    data class PageData(
+            val page: Page,
+            val storageId: Storage.Id,
+            val backupSpecId: BackupSpec.Id? = null
     ) {
-        enum class Page(
-                val fragmentClass: KClass<out Fragment>
-        ) {
+        enum class Page(val fragmentClass: KClass<out Fragment>) {
             CONTENT(StorageContentFragment::class),
-            DETAILS(LocalEditorFragment::class)
+            DETAILS(ContentDetailsFragment::class)
         }
     }
 

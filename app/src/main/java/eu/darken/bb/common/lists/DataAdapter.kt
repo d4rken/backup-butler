@@ -1,11 +1,13 @@
 package eu.darken.bb.common.lists
 
+import androidx.recyclerview.widget.RecyclerView
+
 interface DataAdapter<T> {
     val data: MutableList<T>
 }
 
-fun <X, T> X.update(newData: List<T>, notify: Boolean = true) where X : DataAdapter<T>, X : ModularAdapter<*> {
+fun <X, T> X.update(newData: List<T>?, notify: Boolean = true) where X : DataAdapter<T>, X : RecyclerView.Adapter<*> {
     data.clear()
-    data.addAll(newData)
+    if (newData != null) data.addAll(newData)
     if (notify) notifyDataSetChanged()
 }

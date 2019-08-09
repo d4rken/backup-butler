@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content
+package eu.darken.bb.storage.ui.viewer.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -10,19 +10,26 @@ import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.core.Versioning
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
-class StorageContentFragmentVDC @AssistedInject constructor(
+class ContentDetailsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
+        @Assisted private val backupSpecId: BackupSpec.Id,
         private val storageManager: StorageManager
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
     private val contentObs = storageObs.flatMapObservable { it.content() }
-            .doOnNext { storageContents ->
-                stateUpdater.update {
-                    it.copy(contents = storageContents.toList())
+            .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
+            .doOnNext { item ->
+                stateUpdater.update { state ->
+                    state.copy(
+                            backupSpec = item.backupSpec,
+                            versions = item.versioning.versions.sortedBy { it.createdAt }.reversed()
+                    )
                 }
             }
             .doOnError { error ->
@@ -32,43 +39,26 @@ class StorageContentFragmentVDC @AssistedInject constructor(
                             loading = false
                     )
                 }
-                finishEvent.postValue(true)
+                finishEvent.postValue(Any())
             }
-            .onErrorReturnItem(emptyList())
+            .onErrorResumeNext(Observable.empty<Storage.Content>())
 
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
             .addLiveDep {
                 contentObs.subscribe()
             }
     val state = stateUpdater.liveData
-
-    val finishEvent = SingleLiveEvent<Boolean>()
-    val contentActionEvent = SingleLiveEvent<ContentActions>()
-
-    fun viewContent(item: Storage.Content) {
-        contentActionEvent.postValue(ContentActions(
-                storageId = item.storageId,
-                backupSpecId = item.backupSpec.specId,
-                allowView = true,
-                allowDelete = true
-        ))
-    }
+    val finishEvent = SingleLiveEvent<Any>()
 
     data class State(
-            val contents: List<Storage.Content> = emptyList(),
+            val backupSpec: BackupSpec? = null,
+            val versions: List<Versioning.Version> = listOf(),
             val loading: Boolean = true,
             val error: Throwable? = null
     )
 
-    data class ContentActions(
-            val storageId: Storage.Id,
-            val backupSpecId: BackupSpec.Id,
-            val allowView: Boolean = false,
-            val allowDelete: Boolean = false
-    )
-
     @AssistedInject.Factory
-    interface Factory : VDCFactory<StorageContentFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageContentFragmentVDC
+    interface Factory : VDCFactory<ContentDetailsFragmentVDC> {
+        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ContentDetailsFragmentVDC
     }
 }

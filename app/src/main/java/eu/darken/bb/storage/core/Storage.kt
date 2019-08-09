@@ -27,6 +27,8 @@ interface Storage {
 
     fun content(): Observable<Collection<Content>>
 
+    fun details(content: Content, backupId: Backup.Id): Observable<Backup.Details>
+
     fun load(content: Content, backupId: Backup.Id): Backup
 
     fun save(backup: Backup): Pair<Content, Versioning.Version>

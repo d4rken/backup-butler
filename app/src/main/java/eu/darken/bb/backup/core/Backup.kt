@@ -30,5 +30,13 @@ data class Backup(
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
         override fun toString(): String = "BackupId($id)"
     }
+
+    data class Details(
+            val items: Collection<Item>
+    )
+
+    interface Item {
+        val label: String
+    }
 }
 
