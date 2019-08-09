@@ -5,7 +5,7 @@ import android.os.Bundle
 import eu.darken.bb.backup.core.BackupTaskExtensions.CONFIGID_KEY
 
 object BackupTaskExtensions {
-    internal const val CONFIGID_KEY = "generator.config.uuid"
+    internal const val CONFIGID_KEY = "generator.id"
 }
 
 fun Intent.putGeneratorId(id: Generator.Id) = apply { putExtra(CONFIGID_KEY, id) }

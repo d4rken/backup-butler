@@ -8,7 +8,7 @@ interface Versioning {
     val versioningType: Type
     val versions: List<Version>
 
-    fun getRevision(backupId: Backup.Id): Version?
+    fun getVersion(backupId: Backup.Id): Version?
 
     enum class Type {
         SIMPLE
@@ -16,11 +16,12 @@ interface Versioning {
 
     companion object {
         val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Versioning> = PolymorphicJsonAdapterFactory.of(Versioning::class.java, "versioningType")
-                .withSubtype(DefaultVersioning::class.java, Type.SIMPLE.name)
+                .withSubtype(SimpleVersioning::class.java, Type.SIMPLE.name)
     }
 
     interface Version {
         val backupId: Backup.Id
         val createdAt: Date
     }
+
 }

@@ -31,6 +31,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         { storageInfo ->
                             val allowedActions = mutableSetOf<StorageAction>()
                             if (storageInfo != null) {
+                                allowedActions.add(VIEW)
                                 if (storageInfo.config != null) {
                                     allowedActions.add(EDIT)
                                 } else {
@@ -44,7 +45,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                                     it.copy(
                                             storageInfo = storageInfo,
                                             loading = false,
-                                            allowedActions = values().toList()
+                                            allowedActions = allowedActions.toList()
                                     )
                                 }
                             }

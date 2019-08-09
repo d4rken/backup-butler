@@ -35,6 +35,7 @@ class AppModule {
             .add(GeneratorIdAdapter())
             .add(StorageIdAdapter())
             .add(TaskIdAdapter())
+            .add(BackupSpecIdentifierAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
 

@@ -79,7 +79,7 @@ class LocalStorage(
                 Timber.tag(TAG).e("Dir without spec file: %s", backupDir)
                 continue
             }
-            val revisionConfig = revisionConfigAdapter.fromFile(File(backupDir, REVISION_CONFIG)) as? DefaultVersioning
+            val revisionConfig = revisionConfigAdapter.fromFile(File(backupDir, REVISION_CONFIG)) as? SimpleVersioning
             if (revisionConfig == null) {
                 Timber.tag(TAG).e("Dir without revision file: %s", backupDir)
                 continue
@@ -99,14 +99,14 @@ class LocalStorage(
         content as LocalStorageContent
         val backupDir = content.path.asFile().assertExists()
 
-        val revision = content.versioning.getRevision(backupId)
-        if (revision == null) {
+        val version = content.versioning.getVersion(backupId)
+        if (version == null) {
             throw IllegalArgumentException("BackupReference $content does not contain $backupId")
         }
 
         val backupBuilder = BaseBackupBuilder(content.backupSpec, backupId)
 
-        val revisionPath = File(backupDir, revision.backupId.toString()).assertExists()
+        val revisionPath = File(backupDir, version.backupId.toString()).assertExists()
 
         revisionPath.listFiles().forEach { file ->
             val tmpRef = tmpDataRepo.create(backupId)
@@ -118,8 +118,8 @@ class LocalStorage(
         return backupBuilder.toBackup()
     }
 
-    override fun save(backup: Backup): Storage.Content {
-        val backupDir = File(dataDir, backup.spec.identifier).tryMkDirs()
+    override fun save(backup: Backup): Pair<Storage.Content, Versioning.Version> {
+        val backupDir = File(dataDir, backup.spec.specId.value).tryMkDirs()
 
         val backupConfigFile = File(backupDir, BACKUP_CONFIG)
         if (!backupConfigFile.exists()) {
@@ -131,13 +131,13 @@ class LocalStorage(
             }
         }
 
-        val newRevision = DefaultVersioning.Version(backupId = backup.id, createdAt = Date())
+        val newRevision = SimpleVersioning.Version(backupId = Backup.Id(), createdAt = Date())
 
         val revisionConfigFile = File(backupDir, REVISION_CONFIG)
-        val revisionConfig: DefaultVersioning = if (!revisionConfigFile.exists()) {
-            DefaultVersioning(versions = listOf(newRevision))
+        val revisionConfig: SimpleVersioning = if (!revisionConfigFile.exists()) {
+            SimpleVersioning(versions = listOf(newRevision))
         } else {
-            val existing = revisionConfigAdapter.fromFile(revisionConfigFile) as DefaultVersioning
+            val existing = revisionConfigAdapter.fromFile(revisionConfigFile) as SimpleVersioning
             existing.copy(versions = existing.versions.toMutableList().apply { add(newRevision) }.toList())
         }
         revisionConfigAdapter.toFile(revisionConfig, revisionConfigFile)
@@ -158,10 +158,10 @@ class LocalStorage(
                 backupSpec = backup.spec,
                 versioning = revisionConfig
         )
-        return backupRef
+        return Pair(backupRef, newRevision)
     }
 
-    override fun remove(content: Storage.Content): Boolean {
+    override fun remove(content: Storage.Content, backupId: Backup.Id?): Boolean {
         TODO("not implemented")
 
         // TODO update revision data

@@ -7,7 +7,7 @@ import eu.darken.bb.backup.core.BackupSpec
 
 data class AppBackupSpec(
         val packageName: String,
-        override val identifier: String = "pkg-$packageName"
+        override val specId: BackupSpec.Id = BackupSpec.Id("pkg-$packageName")
 ) : BackupSpec {
 
     override fun getLabel(context: Context): String = packageName

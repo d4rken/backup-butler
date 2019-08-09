@@ -4,22 +4,22 @@ import eu.darken.bb.processor.tmp.TmpRef
 
 open class BaseBackupBuilder<ConfigT : BackupSpec> {
     val data = mutableMapOf<String, MutableCollection<TmpRef>>()
-    val backupId: Backup.Id
     var backupConfig: ConfigT
+    val backupId: Backup.Id
 
     constructor(backup: Backup) {
-        this.backupId = backup.id
         this.backupConfig = backup.spec as ConfigT
+        this.backupId = backup.id
     }
 
     constructor(config: ConfigT, backupId: Backup.Id) {
-        this.backupId = backupId
         this.backupConfig = config
+        this.backupId = backupId
     }
 
     fun toBackup(): Backup = Backup(
-            id = backupId,
             spec = backupConfig,
+            id = backupId,
             backupType = Backup.Type.APP,
             data = data.toMap()
     )

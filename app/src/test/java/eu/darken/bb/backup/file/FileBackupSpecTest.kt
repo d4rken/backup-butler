@@ -21,7 +21,7 @@ class FileBackupSpecTest {
         val json = adapter.toJson(config)
         assertThat(json)
                 .contains("\"backupType\":\"FILE\"")
-                .contains("\"label\":\"files-TestName\"")
+                .contains("\"identifier\":\"files-TestName\"")
                 .contains("\"paths\":[")
 
         val configRestored = adapter.fromJson(json)

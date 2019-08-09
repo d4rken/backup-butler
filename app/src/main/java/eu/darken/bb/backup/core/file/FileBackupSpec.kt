@@ -8,7 +8,7 @@ import eu.darken.bb.common.file.SFile
 data class FileBackupSpec(
         val name: String,
         val paths: List<SFile>,
-        override val identifier: String = "files-$name"
+        override val specId: BackupSpec.Id = BackupSpec.Id("files-$name")
 ) : BackupSpec {
 
     override fun getLabel(context: Context): String = name

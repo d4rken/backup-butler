@@ -7,7 +7,8 @@ import eu.darken.bb.processor.tmp.TmpRef
 class AppBackupBuilder : BaseBackupBuilder<AppBackupSpec> {
     constructor(backup: Backup) : super(backup)
 
-    constructor(config: AppBackupSpec, backupId: Backup.Id) : super(config, backupId)
+    constructor(config: AppBackupSpec, backupId: Backup.Id)
+            : super(config, backupId)
 
     val packageName: String
         get() = backupConfig.packageName

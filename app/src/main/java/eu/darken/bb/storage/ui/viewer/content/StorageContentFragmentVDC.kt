@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.viewer.content
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.StateUpdater
@@ -10,7 +11,6 @@ import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 
 class StorageContentFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -40,19 +40,31 @@ class StorageContentFragmentVDC @AssistedInject constructor(
             .addLiveDep {
                 contentObs.subscribe()
             }
-    val finishEvent = SingleLiveEvent<Boolean>()
-
     val state = stateUpdater.state
 
-    fun viewContent(item: Storage.Content) {
-        Timber.tag(TAG).d("viewContent(%s)", item)
+    val finishEvent = SingleLiveEvent<Boolean>()
+    val contentActionEvent = SingleLiveEvent<ContentActions>()
 
+    fun viewContent(item: Storage.Content) {
+        contentActionEvent.postValue(ContentActions(
+                storageId = item.storageId,
+                backupSpecId = item.backupSpec.specId,
+                allowView = true,
+                allowDelete = true
+        ))
     }
 
     data class State(
             val contents: List<Storage.Content> = emptyList(),
             val loading: Boolean = true,
             val error: Throwable? = null
+    )
+
+    data class ContentActions(
+            val storageId: Storage.Id,
+            val backupSpecId: BackupSpec.Id,
+            val allowView: Boolean = false,
+            val allowDelete: Boolean = false
     )
 
     @AssistedInject.Factory

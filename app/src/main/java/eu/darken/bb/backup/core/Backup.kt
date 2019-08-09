@@ -28,7 +28,7 @@ data class Backup(
 
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
-        override fun toString(): String = "Id($id)"
+        override fun toString(): String = "BackupId($id)"
     }
 }
 

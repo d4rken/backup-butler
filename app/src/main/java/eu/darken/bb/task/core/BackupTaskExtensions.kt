@@ -5,7 +5,7 @@ import android.os.Bundle
 import eu.darken.bb.task.core.BackupTaskExtensions.TASKID_KEY
 
 object BackupTaskExtensions {
-    internal const val TASKID_KEY = "backuptask.uuid"
+    internal const val TASKID_KEY = "backuptask.id"
 }
 
 fun Intent.putTaskId(id: Task.Id) = apply { putExtra(TASKID_KEY, id) }

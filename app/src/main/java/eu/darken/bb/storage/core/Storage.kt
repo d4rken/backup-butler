@@ -29,9 +29,9 @@ interface Storage {
 
     fun load(content: Content, backupId: Backup.Id): Backup
 
-    fun save(backup: Backup): Content
+    fun save(backup: Backup): Pair<Content, Versioning.Version>
 
-    fun remove(content: Content): Boolean
+    fun remove(content: Content, backupId: Backup.Id? = null): Boolean
 
     interface Content {
         val storageId: Id

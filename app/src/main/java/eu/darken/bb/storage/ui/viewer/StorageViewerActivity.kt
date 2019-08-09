@@ -38,6 +38,8 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->
+            supportActionBar?.subtitle = state.label
+
             showPage(state.page, state.storageId)
 
             if (state.error != null) {

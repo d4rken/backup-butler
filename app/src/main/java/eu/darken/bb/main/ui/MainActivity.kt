@@ -71,8 +71,8 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
 
 
     fun showExampleFragment() {
-//        var fragment = supportFragmentManager.findFragmentById(R.backupId.content_frame)
+//        var fragment = supportFragmentManager.findFragmentById(R.versionId.content_frame)
 //        if (fragment == null) fragment = OverviewFragment.newInstance()
-//        supportFragmentManager.beginTransaction().replace(R.backupId.content_frame, fragment).commitAllowingStateLoss()
+//        supportFragmentManager.beginTransaction().replace(R.versionId.content_frame, fragment).commitAllowingStateLoss()
     }
 }
