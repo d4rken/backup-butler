@@ -22,7 +22,10 @@ class StorageContentFragmentVDC @AssistedInject constructor(
     private val contentObs = storageObs.flatMapObservable { it.content() }
             .doOnNext { storageContents ->
                 stateUpdater.update {
-                    it.copy(contents = storageContents.toList())
+                    it.copy(
+                            contents = storageContents.toList(),
+                            loading = false
+                    )
                 }
             }
             .doOnError { error ->

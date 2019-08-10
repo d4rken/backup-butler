@@ -108,9 +108,8 @@ class LocalStorage(
                     get() = file.path.substring(versionDir.path.length)
             })
         }
-
         return@fromCallable Backup.Details(items)
-    }
+    }.delay(2, TimeUnit.SECONDS)
 
     override fun load(content: Storage.Content, backupId: Backup.Id): Backup {
         content as LocalStorageContent

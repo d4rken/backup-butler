@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import butterknife.BindView
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -18,7 +19,6 @@ import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.TabLayoutMediator
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.getBackupSpecId
 import eu.darken.bb.storage.core.getStorageId

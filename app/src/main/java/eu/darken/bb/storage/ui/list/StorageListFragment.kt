@@ -20,6 +20,8 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdcs
 import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
@@ -38,6 +40,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
@@ -51,15 +54,19 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
-        vdc.state.observe(this, Observer {
-            adapter.update(it.storages)
+        vdc.state.observe(this, Observer { state ->
+            adapter.update(state.storages)
+
+            loadingOverlay.setInvisible(!state.isLoading)
+            recyclerView.setInvisible(state.isLoading)
+            fab.setInvisible(state.isLoading)
         })
 
         fab.clicksDebounced().subscribe { vdc.createStorage() }
 
         vdc.editTaskEvent.observe(this, Observer {
-            val bs = StorageActionDialog.newInstance(it.storageId)
-            bs.show(childFragmentManager, it.storageId.toString())
+            val bs = StorageActionDialog.newInstance(it)
+            bs.show(childFragmentManager, it.toString())
         })
 
         super.onViewCreated(view, savedInstanceState)

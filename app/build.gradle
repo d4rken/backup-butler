@@ -119,6 +119,8 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.0.0-alpha06'
     implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
 
+    implementation 'com.airbnb.android:lottie:3.0.7'
+
     implementation 'android.arch.work:work-runtime-ktx:1.0.1'
     implementation "android.arch.work:work-rxjava2:1.0.1"
 

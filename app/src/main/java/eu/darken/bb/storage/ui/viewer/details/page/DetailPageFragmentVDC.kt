@@ -12,6 +12,7 @@ import eu.darken.bb.common.StateUpdater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.core.Versioning
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -26,24 +27,36 @@ class DetailPageFragmentVDC @AssistedInject constructor(
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
     private val contentObs = storageObs.flatMapObservable { it.content() }
-    private val itemsObs = storageObs
-            .flatMapObservable { storage ->
-                contentObs.flatMap { contents ->
-                    val content = contents.find { it.backupSpec.specId == backupSpecId }!!
-                    storage.details(content, backupId)
+            .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
+            .doOnNext { content ->
+                val version = content.versioning.versions.find { it.backupId == backupId }!!
+                stateUpdater.update {
+                    it.copy(
+                            content = content,
+                            version = version,
+                            isLoadingInfos = false
+                    )
                 }
             }
+            .doOnError { finishEvent.postValue(Any()) }
+
+    private val itemsObs = contentObs
+            .flatMap { content -> storageObs.flatMapObservable { it.details(content, backupId) } }
             .doOnNext { details ->
-                stateUpdater.update { state -> state.copy(items = details.items.toList()) }
+                stateUpdater.update { state ->
+                    state.copy(
+                            items = details.items.toList(),
+                            isLoadingItems = false
+                    )
+                }
             }
-            .doOnError {
-                finishEvent.postValue(Any())
-            }
+            .doOnError { err -> stateUpdater.update { it.copy(error = err) } }
             .onErrorResumeNext(Observable.empty())
 
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
             .addLiveDep {
                 itemsObs.subscribe()
+                contentObs.subscribe()
             }
 
     init {
@@ -54,7 +67,12 @@ class DetailPageFragmentVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     data class State(
-            val items: List<Backup.Item> = emptyList()
+            val content: Storage.Content? = null,
+            val version: Versioning.Version? = null,
+            val items: List<Backup.Item> = emptyList(),
+            val isLoadingInfos: Boolean = true,
+            val isLoadingItems: Boolean = true,
+            val error: Throwable? = null
     )
 
     @AssistedInject.Factory

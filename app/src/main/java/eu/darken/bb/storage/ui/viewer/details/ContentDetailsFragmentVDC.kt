@@ -28,7 +28,8 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
                 stateUpdater.update { state ->
                     state.copy(
                             backupSpec = item.backupSpec,
-                            versions = item.versioning.versions.sortedBy { it.createdAt }.reversed()
+                            versions = item.versioning.versions.sortedBy { it.createdAt }.reversed(),
+                            loading = false
                     )
                 }
             }

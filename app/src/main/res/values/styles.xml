@@ -90,4 +90,10 @@
     <style name="Widget.MaterialComponents.Button.Highlight" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">?colorSecondary</item>
     </style>
+
+    <style name="LoadingOverlayViewStyle">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:id">@id/loading_overlay</item>
+    </style>
 </resources>

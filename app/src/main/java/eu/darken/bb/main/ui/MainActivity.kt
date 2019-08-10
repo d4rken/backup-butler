@@ -11,12 +11,12 @@ import androidx.viewpager2.widget.ViewPager2
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.ui.TabLayoutMediator
 import eu.darken.bb.common.vdcs
 import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject

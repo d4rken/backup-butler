@@ -31,12 +31,11 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         { storageInfo ->
                             val allowedActions = mutableSetOf<StorageAction>()
                             if (storageInfo != null) {
-                                allowedActions.add(VIEW)
                                 if (storageInfo.config != null) {
+                                    allowedActions.add(VIEW)
                                     allowedActions.add(EDIT)
-                                } else {
-                                    allowedActions.add(DELETE)
                                 }
+                                allowedActions.add(DELETE)
                             }
                             stateUpdater.update {
                                 if (storageInfo == null) {

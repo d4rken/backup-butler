@@ -21,7 +21,12 @@ class StorageListFragmentVDC @AssistedInject constructor(
 
     private val storageInfoObs = storageManager.infos().subscribeOn(Schedulers.io())
             .doOnNext { infos ->
-                stateUpdater.update { state -> state.copy(storages = infos.map { StorageInfoOpt(it) }) }
+                stateUpdater.update { state ->
+                    state.copy(
+                            storages = infos.map { StorageInfoOpt(it) },
+                            isLoading = false
+                    )
+                }
             }
 
     private val stateUpdater: StateUpdater<State> = StateUpdater(State())
@@ -30,7 +35,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
             }
 
     val state = stateUpdater.liveData
-    val editTaskEvent = SingleLiveEvent<EditActions>()
+    val editTaskEvent = SingleLiveEvent<Storage.Id>()
 
     fun createStorage() {
         storageBuilder.startEditor()
@@ -38,23 +43,12 @@ class StorageListFragmentVDC @AssistedInject constructor(
 
     fun editStorage(item: StorageInfoOpt) {
         Timber.tag(TAG).d("editStorage(%s)", item)
-        editTaskEvent.postValue(EditActions(
-                storageId = item.storageId,
-                allowView = true,
-                allowEdit = true,
-                allowDelete = true
-        ))
+        editTaskEvent.postValue(item.storageId)
     }
 
     data class State(
-            val storages: List<StorageInfoOpt> = emptyList()
-    )
-
-    data class EditActions(
-            val storageId: Storage.Id,
-            val allowView: Boolean = false,
-            val allowEdit: Boolean = false,
-            val allowDelete: Boolean = false
+            val storages: List<StorageInfoOpt> = emptyList(),
+            val isLoading: Boolean = true
     )
 
     @AssistedInject.Factory

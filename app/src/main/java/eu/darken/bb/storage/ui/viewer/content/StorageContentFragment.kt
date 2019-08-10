@@ -21,6 +21,8 @@ import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.viewer.content.actions.ContentActionDialog
@@ -41,6 +43,7 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
     @Inject lateinit var adapter: ContentAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
+    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     init {
         layoutRes = R.layout.storage_viewer_contentlist_fragment
@@ -55,11 +58,14 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
-        vdc.state.observe(this, Observer {
-            adapter.update(it.contents)
+        vdc.state.observe(this, Observer { state ->
+            adapter.update(state.contents)
 
-            if (it.error != null) {
-                Toast.makeText(requireContext(), it.error.tryLocalizedErrorMessage(requireContext()), Toast.LENGTH_LONG).show()
+            recyclerView.setInvisible(state.loading)
+            loadingOverlay.setInvisible(!state.loading)
+
+            if (state.error != null) {
+                Toast.makeText(requireContext(), state.error.tryLocalizedErrorMessage(requireContext()), Toast.LENGTH_LONG).show()
             }
         })
 
