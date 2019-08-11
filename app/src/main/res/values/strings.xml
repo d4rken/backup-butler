@@ -77,4 +77,9 @@
     <string name="progress_loading_label">Loading</string>
     <string name="created_at_label">Created at</string>
     <string name="error_generic_label">Error</string>
+    <string name="action_restore">Restore</string>
+    <string name="todo">TODO</string>
+    <string name="update_available_label">Update available</string>
+    <string name="action_update">Update</string>
+    <string name="action_changelog">Changelog</string>
 </resources>

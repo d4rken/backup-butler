@@ -7,4 +7,10 @@
         android:orderInCategory="100"
         android:title="@string/label_settings"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_help"
+        android:orderInCategory="100"
+        android:title="@string/label_help"
+        app:showAsAction="never"/>
 </menu>

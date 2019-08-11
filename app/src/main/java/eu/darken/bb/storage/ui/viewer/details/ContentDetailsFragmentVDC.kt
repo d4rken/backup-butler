@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -25,7 +25,7 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
     private val contentObs = storageObs.flatMapObservable { it.content() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .doOnNext { item ->
-                stateUpdater.update { state ->
+                stater.update { state ->
                     state.copy(
                             backupSpec = item.backupSpec,
                             versions = item.versioning.versions.sortedBy { it.createdAt }.reversed(),
@@ -34,7 +34,7 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
                 }
             }
             .doOnError { error ->
-                stateUpdater.update {
+                stater.update {
                     it.copy(
                             error = error,
                             loading = false
@@ -44,11 +44,11 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
             }
             .onErrorResumeNext(Observable.empty<Storage.Content>())
 
-    private val stateUpdater: StateUpdater<State> = StateUpdater(State())
+    private val stater: Stater<State> = Stater(State())
             .addLiveDep {
                 contentObs.subscribe()
             }
-    val state = stateUpdater.liveData
+    val state = stater.liveData
     val finishEvent = SingleLiveEvent<Any>()
 
     data class State(

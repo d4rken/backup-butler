@@ -5,7 +5,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -21,7 +21,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
 
     private val storageInfoObs = storageManager.infos().subscribeOn(Schedulers.io())
             .doOnNext { infos ->
-                stateUpdater.update { state ->
+                stater.update { state ->
                     state.copy(
                             storages = infos.map { StorageInfoOpt(it) },
                             isLoading = false
@@ -29,12 +29,12 @@ class StorageListFragmentVDC @AssistedInject constructor(
                 }
             }
 
-    private val stateUpdater: StateUpdater<State> = StateUpdater(State())
+    private val stater: Stater<State> = Stater(State())
             .addLiveDep {
                 storageInfoObs.subscribe()
             }
 
-    val state = stateUpdater.liveData
+    val state = stater.liveData
     val editTaskEvent = SingleLiveEvent<Storage.Id>()
 
     fun createStorage() {

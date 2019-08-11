@@ -9,7 +9,7 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import io.reactivex.rxkotlin.Observables
@@ -21,7 +21,7 @@ class AppEditorFragmentVDC @AssistedInject constructor(
         private val builder: GeneratorBuilder
 ) : SmartVDC() {
 
-    private val stateUpdater = StateUpdater(State())
+    private val stateUpdater = Stater(State())
 
     private val editorObs = builder.config(generatorId)
             .filter { it.editor != null }

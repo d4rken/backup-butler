@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -28,6 +28,7 @@ class ContentActionDialogVDC @AssistedInject constructor(
             .doOnNext { content ->
                 val allowedActions = mutableSetOf<ContentAction>()
                 allowedActions.add(ContentAction.VIEW)
+                allowedActions.add(ContentAction.RESTORE)
                 allowedActions.add(ContentAction.DELETE)
 
                 stateUpdater.update {
@@ -42,7 +43,7 @@ class ContentActionDialogVDC @AssistedInject constructor(
                 stateUpdater.update { it.copy(finished = true) }
             }
 
-    private val stateUpdater = StateUpdater(State(loading = true))
+    private val stateUpdater = Stater(State(loading = true))
             .addLiveDep { contentObs.subscribe() }
 
     val state = stateUpdater.liveData

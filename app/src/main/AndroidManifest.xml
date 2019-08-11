@@ -36,11 +36,13 @@
         <activity
             android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
             android:theme="@style/BaseAppTheme"/>
-        <activity android:name=".settings.ui.SettingsActivity"
-            />
+        <activity
+            android:name=".settings.ui.SettingsActivity"
+            android:theme="@style/BaseAppTheme"/>
         <activity
             android:name=".storage.ui.viewer.StorageViewerActivity"
             android:theme="@style/BaseAppTheme"/>
+
         <service
             android:name="eu.darken.bb.main.core.service.BackupService"/>
         <provider

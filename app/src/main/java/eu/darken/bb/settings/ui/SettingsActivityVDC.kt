@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.task.core.BackupTaskRepo
 import eu.darken.bb.task.core.TaskBuilder
@@ -21,7 +21,7 @@ class SettingsActivityVDC @AssistedInject constructor(
         private val taskRepo: BackupTaskRepo
 ) : SmartVDC() {
 
-    private val stateUpdater = StateUpdater(startValue = State(
+    private val stateUpdater = Stater(startValue = State(
             step = State.Step.INTRO,
             allowNext = true
     ))

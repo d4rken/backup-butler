@@ -7,7 +7,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -25,7 +25,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
 ) : SmartVDC() {
     private val storageInfoObs = storageManager.info(storageId).subscribeOn(Schedulers.io())
             .doOnNext { info ->
-                stateUpdater.update { state ->
+                stater.update { state ->
                     state.copy(
                             storageId = storageId,
                             label = info.config?.label ?: ""
@@ -33,7 +33,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
                 }
             }
             .doOnError { error ->
-                stateUpdater.update {
+                stater.update {
                     it.copy(error = error)
                 }
                 finishActivity.postValue(true)
@@ -41,7 +41,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
             .onErrorResumeNext(Observable.empty())
 
     val pageEvent = SingleLiveEvent<PageData>()
-    private val stateUpdater: StateUpdater<State> = StateUpdater {
+    private val stater: Stater<State> = Stater {
         pageEvent.postValue(PageData(page = PageData.Page.CONTENT, storageId = storageId))
         State(storageId = storageId)
     }
@@ -50,7 +50,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
             }
 
     val finishActivity = SingleLiveEvent<Boolean>()
-    val state = stateUpdater.liveData
+    val state = stater.liveData
 
     fun goTo(pageData: PageData) {
         pageEvent.postValue(pageData)

@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsAction.*
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -21,7 +21,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
         private val generatorRepo: GeneratorRepo
 ) : SmartVDC() {
 
-    private val stateUpdater = StateUpdater(State(loading = true))
+    private val stateUpdater = Stater(State(loading = true))
     val state = stateUpdater.liveData
 
     init {

@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.task.core.BackupTaskRepo
 import eu.darken.bb.task.core.DefaultTask
@@ -36,16 +36,16 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                 )
             }
             .doOnNext { task ->
-                stateUpdater.update {
+                stater.update {
                     it.copy(saveable = isTaskComplete(task))
                 }
             }
 
-    private val stateUpdater: StateUpdater<State> = StateUpdater(
+    private val stater: Stater<State> = Stater(
             startValue = State(step = State.Step.INTRO, allowNext = true, taskId = taskId)
     )
             .addLiveDep { taskObs.subscribe() }
-    val state = stateUpdater.liveData
+    val state = stater.liveData
 
     val finishActivity = SingleLiveEvent<Boolean>()
 
@@ -53,12 +53,12 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         taskRepo.get(taskId)
                 .subscribeOn(Schedulers.io())
                 .subscribe { optTask ->
-                    stateUpdater.update { it.copy(existingTask = optTask.isNotNull) }
+                    stater.update { it.copy(existingTask = optTask.isNotNull) }
                 }
     }
 
     private fun changeStep(dir: Int) {
-        stateUpdater.update { old ->
+        stater.update { old ->
             val new = State.Step.values().find { it.stepPos == old.step.stepPos + dir }
             val allowNext = State.Step.values().find { new != null && it.stepPos == new.stepPos + 1 } != null
             val allowPrevious = State.Step.values().find { new != null && it.stepPos == new.stepPos - 1 } != null
@@ -79,7 +79,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     private fun saveTask() {
         taskBuilder.save(taskId)
                 .doOnSubscribe {
-                    stateUpdater.update {
+                    stater.update {
                         it.copy(allowNext = false, allowPrevious = false)
                     }
                 }
@@ -95,7 +95,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun previous() {
-        if (stateUpdater.snapshot.allowPrevious) {
+        if (stater.snapshot.allowPrevious) {
             changeStep(-1)
         } else {
             dismiss()
@@ -103,7 +103,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
     fun next() {
-        if (stateUpdater.snapshot.allowNext) {
+        if (stater.snapshot.allowNext) {
             changeStep(+1)
         } else {
             saveTask()

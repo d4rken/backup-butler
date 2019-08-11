@@ -12,7 +12,7 @@ import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
 import io.reactivex.rxkotlin.Observables
@@ -27,7 +27,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val configObs = generatorBuilder.config(generatorId)
-    private val stateUpdater = StateUpdater(State(generatorId = generatorId))
+    private val stateUpdater = Stater(State(generatorId = generatorId))
     val state = Observables.combineLatest(stateUpdater.data, configObs)
             .subscribeOn(Schedulers.io())
             .map { (state, config) ->

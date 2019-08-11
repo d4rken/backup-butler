@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -30,7 +30,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .doOnNext { content ->
                 val version = content.versioning.versions.find { it.backupId == backupId }!!
-                stateUpdater.update {
+                stater.update {
                     it.copy(
                             content = content,
                             version = version,
@@ -43,17 +43,17 @@ class DetailPageFragmentVDC @AssistedInject constructor(
     private val itemsObs = contentObs
             .flatMap { content -> storageObs.flatMapObservable { it.details(content, backupId) } }
             .doOnNext { details ->
-                stateUpdater.update { state ->
+                stater.update { state ->
                     state.copy(
                             items = details.items.toList(),
                             isLoadingItems = false
                     )
                 }
             }
-            .doOnError { err -> stateUpdater.update { it.copy(error = err) } }
+            .doOnError { err -> stater.update { it.copy(error = err) } }
             .onErrorResumeNext(Observable.empty())
 
-    private val stateUpdater: StateUpdater<State> = StateUpdater(State())
+    private val stater: Stater<State> = Stater(State())
             .addLiveDep {
                 itemsObs.subscribe()
                 contentObs.subscribe()
@@ -63,7 +63,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
         Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
     }
 
-    val state = stateUpdater.liveData
+    val state = stater.liveData
     val finishEvent = SingleLiveEvent<Any>()
 
     data class State(

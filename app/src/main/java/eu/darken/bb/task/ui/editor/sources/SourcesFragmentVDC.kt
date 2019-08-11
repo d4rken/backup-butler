@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.task.core.DefaultTask
@@ -29,13 +29,13 @@ class SourcesFragmentVDC @AssistedInject constructor(
                     val config = generatorRepo.get(id).blockingGet().value
                     GeneratorConfigOpt(id, config)
                 }
-                stateUpdater.update { it.copy(sources = configs) }
+                stater.update { it.copy(sources = configs) }
             }
 
-    private val stateUpdater: StateUpdater<State> = StateUpdater(State())
+    private val stater: Stater<State> = Stater(State())
             .addLiveDep { sourcesUpdater.subscribe() }
 
-    val state = stateUpdater.liveData
+    val state = stater.liveData
 
     val sourcePickerEvent = SingleLiveEvent<List<GeneratorConfigOpt>>()
 

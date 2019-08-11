@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.StateUpdater
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.*
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
@@ -20,7 +20,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
         private val storageRefRepo: StorageRefRepo
 ) : SmartVDC() {
 
-    private val stateUpdater = StateUpdater(State(loading = true))
+    private val stateUpdater = Stater(State(loading = true))
     val state = stateUpdater.liveData
 
     init {

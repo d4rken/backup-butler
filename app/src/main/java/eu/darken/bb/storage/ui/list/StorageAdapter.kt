@@ -34,11 +34,9 @@ class StorageAdapter @Inject constructor()
         @BindView(R.id.label) lateinit var labelText: TextView
         @BindView(R.id.repo_status) lateinit var statusText: TextView
 
-
         init {
             ButterKnife.bind(this, itemView)
         }
-
 
         override fun bind(item: StorageInfoOpt) {
             if (item.info != null) {
