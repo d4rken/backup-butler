@@ -6,16 +6,21 @@ import java.io.File
 interface SFile {
     val path: String
     val name: String
-    val pathType: PathType
+    val type: Type
+    val sfileType: SFileType
 
-    enum class PathType {
+    enum class Type {
+        FILE, DIRECTORY
+    }
+
+    enum class SFileType {
         SIMPLE, JAVA_FILE
     }
 
     companion object {
-        val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<SFile> = PolymorphicJsonAdapterFactory.of(SFile::class.java, "pathType")
-                .withSubtype(JavaFile::class.java, PathType.JAVA_FILE.name)
-                .withSubtype(SimpleFile::class.java, PathType.SIMPLE.name)
+        val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<SFile> = PolymorphicJsonAdapterFactory.of(SFile::class.java, "sfileType")
+                .withSubtype(JavaFile::class.java, SFileType.JAVA_FILE.name)
+                .withSubtype(SimpleFile::class.java, SFileType.SIMPLE.name)
     }
 }
 

@@ -5,8 +5,9 @@ import java.io.File
 data class SimpleFile(
         override val path: String
 ) : SFile {
+    override val type: SFile.Type = SFile.Type.FILE
 
-    override val pathType: SFile.PathType = SFile.PathType.SIMPLE
+    override val sfileType: SFile.SFileType = SFile.SFileType.SIMPLE
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 

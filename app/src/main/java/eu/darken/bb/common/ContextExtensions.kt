@@ -1,6 +1,8 @@
 package eu.darken.bb.common
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.res.TypedArray
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -30,3 +32,8 @@ fun Context.getCompatColor(@ColorRes attrId: Int): Int {
 
 @ColorInt
 fun Fragment.getCompatColor(@ColorRes attrId: Int): Int = requireContext().getCompatColor(attrId)
+
+@SuppressLint("NewApi")
+fun Context.startServiceCompat(intent: Intent) {
+    if (ApiHelper.hasOreo()) startForegroundService(intent) else startService(intent)
+}

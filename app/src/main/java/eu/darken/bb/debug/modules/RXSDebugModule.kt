@@ -1,0 +1,66 @@
+package eu.darken.bb.debug.modules
+
+import android.util.Log
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
+import eu.darken.bb.debug.DebugModule
+import eu.darken.bb.debug.DebugOptions
+import eu.darken.bb.debug.compareIgnorePath
+import eu.darken.rxshell.extra.RXSDebug
+import eu.thedarken.sdm.tools.debug.DebugModuleHost
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
+import java.util.*
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
+
+class RXSDebugModule @AssistedInject constructor(
+        @Assisted host: DebugModuleHost
+) : DebugModule {
+    companion object {
+        internal val TAG = App.logTag("Debug", "RXSDebug")
+    }
+
+    internal val totalShellLaunchCount = AtomicLong()
+    internal val processSet: MutableSet<Process> = Collections.newSetFromMap(WeakHashMap())
+    internal val sem = Semaphore(1)
+    private val processCallback = object : RXSDebug.ProcessCallback {
+        override fun onProcessStart(process: Process?) {
+            sem.tryAcquire(500, TimeUnit.MILLISECONDS)
+            process?.let { processSet.add(it) }
+            totalShellLaunchCount.incrementAndGet()
+
+            Timber.tag(TAG).d("Start %s, now %d (total: %d) processes: %s",
+                    process, processSet.size, totalShellLaunchCount.get(), processSet)
+            sem.release()
+        }
+
+        override fun onProcessEnd(process: Process?) {
+            sem.tryAcquire(500, TimeUnit.MILLISECONDS)
+            process?.let { processSet.remove(it) }
+            Timber.tag(TAG).d("Stop %s, now %d (total: %d) processes: %s",
+                    process, processSet.size, totalShellLaunchCount.get(), processSet)
+            sem.release()
+        }
+    }
+
+    private var previousOptions: DebugOptions = DebugOptions.default()
+
+    init {
+        host.observeOptions()
+                .observeOn(Schedulers.io())
+                .filter { !previousOptions.compareIgnorePath(it) }
+                .doOnNext { previousOptions = it }
+                .subscribe { options ->
+                    RXSDebug.setDebug(options.level == Log.VERBOSE)
+                    if (options.level == Log.VERBOSE) RXSDebug.addCallback(processCallback)
+                    else RXSDebug.removeCallback(processCallback)
+                }
+    }
+
+
+    @AssistedInject.Factory
+    interface Factory : DebugModule.Factory<RXSDebugModule>
+}

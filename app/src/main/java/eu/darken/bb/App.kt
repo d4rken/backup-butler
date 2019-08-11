@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import com.uber.rxdogtag.RxDogTag
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
+import eu.darken.bb.debug.BBDebug
 import eu.darken.bb.workers.InjectionWorkerFactory
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,6 +37,8 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
     @Inject lateinit var serviceInjector: DispatchingAndroidInjector<Service>
 
     @Inject lateinit var workerFactory: InjectionWorkerFactory
+
+    @Inject lateinit var bbDebug: BBDebug
 
     override fun onCreate() {
         super.onCreate()

@@ -6,6 +6,7 @@ import dagger.android.support.AndroidSupportInjectionModule
 import eu.darken.bb.backup.core.BackupTypeModule
 import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.debug.DebugModuleModule
 import eu.darken.bb.storage.core.StorageTypeModule
 import eu.darken.bb.workers.WorkerBinder
 
@@ -19,6 +20,7 @@ import eu.darken.bb.workers.WorkerBinder
     ReceiverBinder::class,
     ActivityBinder::class,
     AppModule::class,
+    DebugModuleModule::class,
     WorkerBinder::class,
     StorageTypeModule::class,
     BackupTypeModule::class

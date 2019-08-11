@@ -25,4 +25,6 @@ class Stater<T> : HotData<T> {
                 liveDepCompDis = CompositeDisposable()
             }
             .toLiveData()
+
 }
+

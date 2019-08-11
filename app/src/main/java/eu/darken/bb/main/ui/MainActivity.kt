@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -19,6 +18,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcs
+import eu.darken.bb.debug.BBDebug
 import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
@@ -51,8 +51,6 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
             tab.setText(pagerAdapter.pages[position].titleRes)
         }).attach()
 
-        vdc.state.observe(this, Observer { if (it.ready) showExampleFragment() })
-
         vdc.onGo()
     }
 
@@ -61,6 +59,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
         return true
     }
 
+    @Inject lateinit var debug: BBDebug
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
@@ -73,12 +72,5 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-
-    fun showExampleFragment() {
-//        var fragment = supportFragmentManager.findFragmentById(R.versionId.content_frame)
-//        if (fragment == null) fragment = OverviewFragment.newInstance()
-//        supportFragmentManager.beginTransaction().replace(R.versionId.content_frame, fragment).commitAllowingStateLoss()
     }
 }

@@ -5,8 +5,14 @@ import java.io.File
 class JavaFile(
         val file: File
 ) : SFile {
+    override val type: SFile.Type
+        get() = when {
+            file.isDirectory -> SFile.Type.DIRECTORY
+            file.isFile -> SFile.Type.FILE
+            else -> throw NotImplementedError("Unknown type: $file")
+        }
 
-    override val pathType: SFile.PathType = SFile.PathType.JAVA_FILE
+    override val sfileType: SFile.SFileType = SFile.SFileType.JAVA_FILE
 
     override val path: String
         get() = file.path

@@ -5,6 +5,8 @@ import dagger.android.ContributesAndroidInjector
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
+import eu.darken.bb.debug.recording.ui.RecorderActivity
+import eu.darken.bb.debug.recording.ui.RecorderActivityModule
 import eu.darken.bb.main.ui.MainActivity
 import eu.darken.bb.main.ui.MainActivityModule
 import eu.darken.bb.onboarding.OnboardingActivity
@@ -49,4 +51,8 @@ abstract class ActivityBinder {
     @PerActivity
     @ContributesAndroidInjector(modules = [StorageViewerActivityModule::class])
     abstract fun storageViewerActivity(): StorageViewerActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [RecorderActivityModule::class])
+    abstract fun recoderActivity(): RecorderActivity
 }

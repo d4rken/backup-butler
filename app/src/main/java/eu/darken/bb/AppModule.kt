@@ -18,6 +18,7 @@ import java.util.*
 
 @Module
 class AppModule {
+
     @Provides
     @PerApp
     fun moshi(): Moshi = Moshi.Builder()

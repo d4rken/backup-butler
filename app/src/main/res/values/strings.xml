@@ -82,4 +82,9 @@
     <string name="update_available_label">Update available</string>
     <string name="action_update">Update</string>
     <string name="action_changelog">Changelog</string>
+    <string name="label_size">Size</string>
+    <string name="label_size_compressed">Compressed Size</string>
+    <string name="action_share">Share</string>
+    <string name="bug_reporting_labe">Bug reporting</string>
+    <string name="action_done">Done</string>
 </resources>
