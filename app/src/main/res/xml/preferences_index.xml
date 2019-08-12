@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:title="@string/account_settings_label"/>
+
+    <Preference
+        app:summary="@string/ui_settings_desc"
+        app:fragment="eu.darken.bb.settings.ui.ui.UIPrefFragment"
+        app:title="@string/ui_settings_label"/>
+
+    <PreferenceCategory android:title="@string/category_label_core">
+
+        <Preference
+            app:summary="@string/backup_settings_desc"
+            app:title="@string/backup_settings_label"/>
+        <Preference
+            app:summary="@string/storage_settings_desc"
+            app:title="@string/storage_settings_label"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/category_label_other">
+
+        <Preference
+            app:summary="@string/bugreporting_settings_desc"
+            app:title="@string/bugreporting_settings_label"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

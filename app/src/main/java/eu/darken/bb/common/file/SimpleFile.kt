@@ -7,7 +7,7 @@ data class SimpleFile(
 ) : SFile {
     override val type: SFile.Type = SFile.Type.FILE
 
-    override val sfileType: SFile.SFileType = SFile.SFileType.SIMPLE
+    override val pathType: SFile.SFileType = SFile.SFileType.SIMPLE
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 

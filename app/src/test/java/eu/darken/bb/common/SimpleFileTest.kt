@@ -16,7 +16,7 @@ class SimpleFileTest {
 
         val json = adapter.toJson(original)
         assertThat(json)
-                .contains("\"sfileType\":\"SIMPLE\"")
+                .contains("\"pathType\":\"SIMPLE\"")
                 .contains("\"path\":\"test/path\"")
 
         val restored = adapter.fromJson(json)

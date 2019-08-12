@@ -12,7 +12,7 @@ class JavaFile(
             else -> throw NotImplementedError("Unknown type: $file")
         }
 
-    override val sfileType: SFile.SFileType = SFile.SFileType.JAVA_FILE
+    override val pathType: SFile.SFileType = SFile.SFileType.JAVA_FILE
 
     override val path: String
         get() = file.path
