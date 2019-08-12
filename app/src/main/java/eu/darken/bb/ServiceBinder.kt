@@ -3,8 +3,8 @@ package eu.darken.bb
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import eu.darken.bb.debug.recording.core.RecorderService
-import eu.darken.bb.main.core.service.BackupService
-import eu.darken.bb.main.core.service.BackupServiceModule
+import eu.darken.bb.processor.core.service.BackupService
+import eu.darken.bb.processor.core.service.BackupServiceModule
 
 
 @Module

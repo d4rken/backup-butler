@@ -4,7 +4,7 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import dagger.Reusable
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.processor.tmp.TmpDataRepo
+import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 

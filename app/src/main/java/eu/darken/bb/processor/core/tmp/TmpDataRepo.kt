@@ -1,4 +1,4 @@
-package eu.darken.bb.processor.tmp
+package eu.darken.bb.processor.core.tmp
 
 import android.content.Context
 import eu.darken.bb.App

@@ -56,7 +56,7 @@
             android:theme="@style/AppTheme.Floating"/>
 
         <service
-            android:name="eu.darken.bb.main.core.service.BackupService"/>
+            android:name="eu.darken.bb.processor.core.service.BackupService"/>
         <service android:name=".debug.recording.core.RecorderService"/>
 
         <provider

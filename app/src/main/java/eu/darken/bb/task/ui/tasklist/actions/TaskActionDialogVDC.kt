@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.processor.ProcessorControl
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.BackupTaskRepo
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder

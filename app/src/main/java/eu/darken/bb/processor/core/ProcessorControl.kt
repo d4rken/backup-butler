@@ -1,10 +1,10 @@
-package eu.darken.bb.processor
+package eu.darken.bb.processor.core
 
 import android.content.Context
 import android.content.Intent
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.main.core.service.BackupService
+import eu.darken.bb.processor.core.service.BackupService
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject

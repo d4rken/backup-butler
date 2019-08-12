@@ -1,4 +1,4 @@
-package eu.darken.bb.main.core.service
+package eu.darken.bb.processor.core.service
 
 import androidx.annotation.StringRes
 import io.reactivex.Observable

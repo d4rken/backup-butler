@@ -2,7 +2,7 @@ package eu.darken.bb.backup.core.app
 
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BaseBackupBuilder
-import eu.darken.bb.processor.tmp.TmpRef
+import eu.darken.bb.processor.core.tmp.TmpRef
 
 class AppBackupBuilder : BaseBackupBuilder<AppBackupSpec> {
     constructor(backup: Backup) : super(backup)

@@ -1,6 +1,6 @@
 package eu.darken.bb.backup.core
 
-import eu.darken.bb.processor.tmp.TmpRef
+import eu.darken.bb.processor.core.tmp.TmpRef
 
 open class BaseBackupBuilder<ConfigT : BackupSpec> {
     val data = mutableMapOf<String, MutableCollection<TmpRef>>()

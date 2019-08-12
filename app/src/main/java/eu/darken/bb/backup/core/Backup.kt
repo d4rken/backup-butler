@@ -5,7 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import eu.darken.bb.R
-import eu.darken.bb.processor.tmp.TmpRef
+import eu.darken.bb.processor.core.tmp.TmpRef
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 

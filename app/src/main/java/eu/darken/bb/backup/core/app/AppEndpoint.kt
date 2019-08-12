@@ -6,8 +6,8 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Endpoint
 import eu.darken.bb.common.file.asFile
-import eu.darken.bb.processor.tmp.TmpDataRepo
-import eu.darken.bb.processor.tmp.TmpRef
+import eu.darken.bb.processor.core.tmp.TmpDataRepo
+import eu.darken.bb.processor.core.tmp.TmpRef
 import javax.inject.Inject
 
 class AppEndpoint(
