@@ -22,7 +22,7 @@ class OnboardingActivity : AppCompatActivity(), HasSupportFragmentInjector, Auto
     private val vdc: OnboardingActivityVDC by vdcs { vdcSource }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.BaseAppTheme_NoActionBar)
+        setTheme(R.style.AppTheme_Base_NoActionBar)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)

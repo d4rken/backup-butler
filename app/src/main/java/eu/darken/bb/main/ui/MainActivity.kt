@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
     private val pagerAdapter by lazy { PagerAdapter(this, pagerPages) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.BaseAppTheme)
+        setTheme(R.style.AppTheme_Base)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.main_activity)

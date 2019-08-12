@@ -1,39 +1,4 @@
 <resources>
-
-    <style name="BaseAppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar.Bridge">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-
-        <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
-    </style>
-
-    <style name="Theme.LauncherToMainActivity" parent="BaseAppTheme">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-    </style>
-
-    <style name="BaseAppTheme.NoActionBar" parent="BaseAppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="FloatingAppTHeme" parent="BaseAppTheme.NoActionBar">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-    </style>
-
-    <style name="BottomSheetTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
-        <item name="android:colorBackground">@color/colorPrimary</item>
-    </style>
-
     <style name="DefaultListItemContainer">
         <item name="android:layout_width">match_parent</item>
         <!--<item name="android:focusable">true</item>-->

@@ -10,7 +10,8 @@
         app:fragment="eu.darken.bb.settings.ui.ui.UIPrefFragment"
         app:title="@string/ui_settings_label"/>
 
-    <PreferenceCategory android:title="@string/category_label_core">
+    <PreferenceCategory
+        android:title="@string/category_label_core">
 
         <Preference
             app:summary="@string/backup_settings_desc"

@@ -3,6 +3,13 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false"/>
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -13,39 +20,40 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/BaseAppTheme.NoActionBar"
+        android:theme="@style/AppTheme.Base.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="eu.darken.bb.main.ui.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.LauncherToMainActivity">
+            android:theme="@style/AppTheme.LauncherToMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".onboarding.OnboardingActivity"/>
         <activity
             android:name=".task.ui.editor.TaskEditorActivity"
-            android:theme="@style/BaseAppTheme"/>
+            android:theme="@style/AppTheme.Base"/>
         <activity
             android:name=".storage.ui.editor.StorageEditorActivity"
-            android:theme="@style/BaseAppTheme"/>
+            android:theme="@style/AppTheme.Base"/>
         <activity
             android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
-            android:theme="@style/BaseAppTheme"/>
+            android:theme="@style/AppTheme.Base"/>
         <activity
             android:name=".settings.ui.SettingsActivity"
-            android:theme="@style/BaseAppTheme"/>
+            android:theme="@style/AppTheme.Base"/>
         <activity
             android:name=".storage.ui.viewer.StorageViewerActivity"
-            android:theme="@style/BaseAppTheme"/>
+            android:theme="@style/AppTheme.Base"/>
 
         <activity
             android:name=".debug.recording.ui.RecorderActivity"
-            android:theme="@style/FloatingAppTHeme"/>
+            android:theme="@style/AppTheme.Floating"/>
 
         <service
             android:name="eu.darken.bb.main.core.service.BackupService"/>
