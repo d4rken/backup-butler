@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.schedules
+package eu.darken.bb.schedule.ui.list
 
 import dagger.Binds
 import dagger.Module

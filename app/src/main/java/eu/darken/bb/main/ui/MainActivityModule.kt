@@ -11,8 +11,8 @@ import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
 import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.main.ui.overview.OverviewFragmentModule
-import eu.darken.bb.main.ui.schedules.SchedulesFragment
-import eu.darken.bb.main.ui.schedules.SchedulesFragmentModule
+import eu.darken.bb.schedule.ui.list.SchedulesFragment
+import eu.darken.bb.schedule.ui.list.SchedulesFragmentModule
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragmentModule
 import eu.darken.bb.task.ui.tasklist.TaskListFragment

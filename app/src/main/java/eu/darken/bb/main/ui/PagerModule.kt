@@ -5,7 +5,7 @@ import dagger.Provides
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorsFragment
 import eu.darken.bb.main.ui.overview.OverviewFragment
-import eu.darken.bb.main.ui.schedules.SchedulesFragment
+import eu.darken.bb.schedule.ui.list.SchedulesFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
 
