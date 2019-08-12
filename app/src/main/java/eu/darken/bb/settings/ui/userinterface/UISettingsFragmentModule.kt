@@ -1,4 +1,4 @@
-package eu.darken.bb.settings.ui.ui
+package eu.darken.bb.settings.ui.userinterface
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.dagger.VDCKey
 
 
 @Module
-abstract class UIPrefFragmentModule {
+abstract class UISettingsFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(UIPrefFragmentVDC::class)
-    abstract fun ui(model: UIPrefFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(UISettingsFragmentVDC::class)
+    abstract fun ui(model: UISettingsFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

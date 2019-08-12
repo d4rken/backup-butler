@@ -1,4 +1,4 @@
-package eu.darken.bb.settings.ui.index
+package eu.darken.bb.settings.ui
 
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
@@ -7,7 +7,7 @@ import eu.darken.bb.main.core.CoreSettings
 import eu.darken.bb.settings.core.Settings
 import javax.inject.Inject
 
-class IndexPrefFragment : SmartPreferenceFragment(), AutoInject {
+class IndexFragment : SmartPreferenceFragment(), AutoInject {
 
     @Inject lateinit var coreSettings: CoreSettings
 

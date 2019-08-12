@@ -9,9 +9,8 @@ import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.common.dagger.PerFragment
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.dagger.VDCKey
-import eu.darken.bb.settings.ui.index.IndexPrefFragment
-import eu.darken.bb.settings.ui.ui.UIPrefFragment
-import eu.darken.bb.settings.ui.ui.UIPrefFragmentModule
+import eu.darken.bb.settings.ui.userinterface.UISettingsFragment
+import eu.darken.bb.settings.ui.userinterface.UISettingsFragmentModule
 import eu.darken.bb.storage.ui.settings.StorageSettingsFragment
 import eu.darken.bb.storage.ui.settings.StorageSettingsFragmentModule
 
@@ -26,11 +25,11 @@ abstract class SettingsActivityModule {
 
     @PerFragment
     @ContributesAndroidInjector
-    abstract fun index(): IndexPrefFragment
+    abstract fun index(): IndexFragment
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [UIPrefFragmentModule::class])
-    abstract fun ui(): UIPrefFragment
+    @ContributesAndroidInjector(modules = [UISettingsFragmentModule::class])
+    abstract fun ui(): UISettingsFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [StorageSettingsFragmentModule::class])

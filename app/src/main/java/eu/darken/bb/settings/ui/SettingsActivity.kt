@@ -12,7 +12,6 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcs
-import eu.darken.bb.settings.ui.index.IndexPrefFragment
 import javax.inject.Inject
 
 class SettingsActivity
@@ -35,7 +34,7 @@ class SettingsActivity
         if (savedInstanceState == null) {
             supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.content_frame, IndexPrefFragment())
+                    .replace(R.id.content_frame, IndexFragment())
                     .commit()
         } else {
             title = savedInstanceState.getCharSequence(TITLE_TAG)
