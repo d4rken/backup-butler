@@ -1,4 +1,4 @@
-package eu.darken.bb.main.core.ui
+package eu.darken.bb.main.core
 
 import android.content.Context
 import android.content.SharedPreferences

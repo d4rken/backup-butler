@@ -10,7 +10,7 @@ import com.uber.rxdogtag.RxDogTag
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
 import eu.darken.bb.debug.BBDebug
-import eu.darken.bb.main.core.ui.UISettings
+import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
 import timber.log.Timber
 import javax.inject.Inject

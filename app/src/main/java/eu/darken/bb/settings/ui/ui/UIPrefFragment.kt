@@ -6,7 +6,7 @@ import androidx.preference.Preference
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
-import eu.darken.bb.main.core.ui.UISettings
+import eu.darken.bb.main.core.UISettings
 import javax.inject.Inject
 
 class UIPrefFragment : SmartPreferenceFragment(), AutoInject {

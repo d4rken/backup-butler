@@ -18,6 +18,7 @@
             app:title="@string/backup_settings_label"/>
         <Preference
             app:summary="@string/storage_settings_desc"
+            app:fragment="eu.darken.bb.storage.ui.settings.StorageSettingsFragment"
             app:title="@string/storage_settings_label"/>
 
     </PreferenceCategory>
