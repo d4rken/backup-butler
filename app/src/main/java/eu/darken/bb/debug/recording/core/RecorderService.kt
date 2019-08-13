@@ -12,7 +12,7 @@ import dagger.android.AndroidInjection
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.debug.BBDebug
-import eu.darken.bb.main.ui.MainActivity
+import eu.darken.bb.main.ui.start.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import timber.log.Timber

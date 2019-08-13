@@ -7,7 +7,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.BufferedReader

@@ -103,4 +103,10 @@
     <string name="theme_dark_label">Dark</string>
     <string name="theme_light_label">Light</string>
     <string name="theme_system_label">System</string>
+    <string name="record_debuglog_label">Record debug log</string>
+    <string name="record_debuglog_desc">Start recording everything the app does into a log file that you can share.</string>
+    <string name="creating_backup">Creating backup</string>
+    <string name="saving_to_storage">Saving to storage</string>
+    <string name="progress_working_label">Working</string>
+    <string name="progress_label_processing_x">Processing: %s</string>
 </resources>

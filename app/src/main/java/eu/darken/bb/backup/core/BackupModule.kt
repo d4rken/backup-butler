@@ -11,7 +11,7 @@ abstract class BackupModule {
     @Binds
     @IntoMap
     @EndpointFactory(Backup.Type.APP)
-    abstract fun appEndpoint(endpoint: AppEndpoint.Factory): Endpoint.Factory
+    abstract fun appEndpoint(endpoint: AppEndpoint.Factory): Endpoint.Factory<out Endpoint>
 }
 
 @Target(AnnotationTarget.FUNCTION)

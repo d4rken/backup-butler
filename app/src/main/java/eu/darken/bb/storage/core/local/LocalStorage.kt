@@ -3,13 +3,19 @@ package eu.darken.bb.storage.core.local
 import android.content.Context
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
+import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.progress.updateProgressCount
+import eu.darken.bb.common.progress.updateProgressPrimary
+import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.*
 import io.reactivex.Observable
@@ -20,12 +26,13 @@ import java.util.concurrent.TimeUnit
 
 
 class LocalStorage(
-        private val context: Context,
+        override val context: Context,
         moshi: Moshi,
         private val configEditorFactory: LocalStorageEditor.Factory,
         private val tmpDataRepo: TmpDataRepo,
-        private val repoRef: LocalStorageRef
-) : Storage {
+        private val repoRef: LocalStorageRef,
+        private val progressClient: Progress.Client?
+) : Storage, HasContext, Progress.Client {
     private val dataDir = File(repoRef.path.asFile(), "data")
     private val backupConfigAdapter = moshi.adapter(BackupSpec::class.java)
     private val revisionConfigAdapter = moshi.adapter(Versioning::class.java)
@@ -37,6 +44,10 @@ class LocalStorage(
         if (config.isNull) throw MissingFileException(repoRef.path)
         storageConfig = config.notNullValue()
         dataDir.tryMkDirs()
+    }
+
+    override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
+        progressClient?.updateProgress(update)
     }
 
     override fun info(): Observable<StorageInfo> = Observable
@@ -135,6 +146,10 @@ class LocalStorage(
     }
 
     override fun save(backup: Backup): Pair<Storage.Content, Versioning.Version> {
+        updateProgressPrimary(R.string.saving_to_storage)
+        updateProgressSecondary("")
+        updateProgressCount(Progress.Count.Indeterminate())
+
         val backupDir = File(dataDir, backup.spec.specId.value).tryMkDirs()
 
         val backupConfigFile = File(backupDir, BACKUP_CONFIG)
@@ -160,8 +175,13 @@ class LocalStorage(
 
         val revisionDir = newRevision.getRevDir(backupDir)
 
+        var current = 0
+        val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
+
         backup.data.entries.forEach { (key, refs) ->
             refs.forEach {
+                updateProgressSecondary(it.originalPath?.path ?: it.file.path)
+                updateProgressCount(Progress.Count.Counter(++current, max))
                 val target = File(revisionDir, "$key-${it.originalPath!!.name}")
                 if (target.exists()) throw IllegalStateException("File exists: $target")
                 it.file.asFile().copyTo(target)

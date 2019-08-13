@@ -4,6 +4,7 @@ import android.content.Context
 import com.squareup.moshi.Moshi
 import dagger.Reusable
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
@@ -20,13 +21,14 @@ class LocalStorageFactory @Inject constructor(
         return storageRef.storageType == Storage.Type.LOCAL
     }
 
-    override fun create(storageRef: Storage.Ref): Storage {
+    override fun create(storageRef: Storage.Ref, progressClient: Progress.Client?): Storage {
         return LocalStorage(
                 context,
                 moshi,
                 localStorageEditorFactory,
                 tmpDataRepo,
-                storageRef as LocalStorageRef
+                storageRef as LocalStorageRef,
+                progressClient
         )
     }
 

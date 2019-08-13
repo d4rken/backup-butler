@@ -48,7 +48,7 @@ class StorageManager @Inject constructor(
 
             val factory = storageFactories.find { it.isCompatible(ref) }
             if (factory == null) throw IllegalArgumentException("No factory compatible with $ref")
-            repo = factory.create(ref)
+            repo = factory.create(ref, null)
             repoCache[ref.storageId] = repo
             return@fromCallable repo
         }

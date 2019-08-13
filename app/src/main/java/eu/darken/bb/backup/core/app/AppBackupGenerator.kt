@@ -5,20 +5,30 @@ import dagger.Reusable
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.SFile
 import javax.inject.Inject
 
 @Reusable
-class AppBackupGenerator @Inject constructor() : Generator {
+class AppBackupGenerator @Inject constructor(
+        @AppContext private val context: Context
+) : Generator {
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as AppBackupGenerator.Config
         val specs = mutableListOf<BackupSpec>()
-        config.packagesIncluded.forEach { pkg ->
+        context.packageManager.getInstalledPackages(0)
+        context.packageManager.getInstalledPackages(0).map { it.packageName }.forEach { pkg ->
             val app = AppBackupSpec(
                     packageName = pkg
             )
             specs.add(app)
         }
+//        config.packagesIncluded.forEach { pkg ->
+//            val app = AppBackupSpec(
+//                    packageName = pkg
+//            )
+//            specs.add(app)
+//        }
         return specs
     }
 

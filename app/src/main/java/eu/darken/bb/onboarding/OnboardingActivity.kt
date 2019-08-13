@@ -11,7 +11,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.vdcs
-import eu.darken.bb.main.ui.overview.OverviewFragment
+import eu.darken.bb.main.ui.start.overview.OverviewFragment
 import javax.inject.Inject
 
 

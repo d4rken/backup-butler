@@ -7,7 +7,6 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 
 @TargetApi(Build.VERSION_CODES.N)

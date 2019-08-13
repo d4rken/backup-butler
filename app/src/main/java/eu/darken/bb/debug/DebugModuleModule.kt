@@ -7,7 +7,6 @@ import eu.darken.bb.debug.modules.EnvPrinter
 import eu.darken.bb.debug.modules.RXSDebugModule
 import eu.darken.bb.debug.modules.SysInfoModule
 import eu.darken.bb.debug.recording.core.RecorderModule
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 
 
 @Module

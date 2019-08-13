@@ -6,8 +6,6 @@ import androidx.preference.PreferenceDataStore
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.settings.core.PreferenceStoreMapper
-import eu.darken.bb.settings.core.Settings
 import javax.inject.Inject
 
 @PerApp

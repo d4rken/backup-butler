@@ -10,9 +10,9 @@ import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.debug.DebugModule
+import eu.darken.bb.debug.DebugModuleHost
 import eu.darken.bb.debug.DebugOptions
 import eu.darken.bb.debug.compareIgnorePath
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 

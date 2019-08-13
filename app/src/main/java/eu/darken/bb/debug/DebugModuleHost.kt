@@ -1,7 +1,6 @@
-package eu.thedarken.sdm.tools.debug
+package eu.darken.bb.debug
 
 import android.content.SharedPreferences
-import eu.darken.bb.debug.DebugOptions
 import io.reactivex.Observable
 
 interface DebugModuleHost {
@@ -10,6 +9,6 @@ interface DebugModuleHost {
 
     fun getSettings(): SharedPreferences
 
-    fun submit(options: DebugOptions)
+    fun submit(update: (DebugOptions) -> DebugOptions)
 
 }

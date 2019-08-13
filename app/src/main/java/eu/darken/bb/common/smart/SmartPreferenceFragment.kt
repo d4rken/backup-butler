@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.annotation.XmlRes
 import androidx.preference.PreferenceFragmentCompat
-import eu.darken.bb.settings.core.Settings
+import eu.darken.bb.main.core.Settings
 
 abstract class SmartPreferenceFragment
     : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {

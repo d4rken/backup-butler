@@ -11,8 +11,8 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.startServiceCompat
 import eu.darken.bb.debug.DebugModule
+import eu.darken.bb.debug.DebugModuleHost
 import eu.darken.bb.debug.recording.ui.RecorderActivity
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
@@ -35,7 +35,7 @@ class RecorderModule @AssistedInject constructor(
 
                         recorder!!.start(File(path))
                         host.getSettings().edit().putString(KEY_RECORDER_PATH, path).apply()
-                        host.submit(options.copy(recorderPath = path, level = Log.VERBOSE))
+                        host.submit { it.copy(recorderPath = path, level = Log.VERBOSE) }
 
                         context.startServiceCompat(Intent(context, RecorderService::class.java))
                     } else if (recorder != null && !options.isRecording) {
@@ -45,7 +45,7 @@ class RecorderModule @AssistedInject constructor(
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         context.startActivity(intent)
                         host.getSettings().edit().remove(KEY_RECORDER_PATH).apply()
-                        host.submit(options.copy(recorderPath = null))
+                        host.submit { it.copy(recorderPath = null) }
                     }
                 }
 
@@ -67,10 +67,7 @@ class RecorderModule @AssistedInject constructor(
         }
 
         if (recorderPath != null) {
-            host.observeOptions().firstOrError()
-                    .subscribe { debugOptions ->
-                        host.submit(debugOptions.copy(isRecording = true, recorderPath = recorderPath))
-                    }
+            host.submit { it.copy(isRecording = true, recorderPath = recorderPath) }
         }
     }
 

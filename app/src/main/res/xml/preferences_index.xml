@@ -7,7 +7,7 @@
 
     <Preference
         app:summary="@string/ui_settings_desc"
-        app:fragment="eu.darken.bb.settings.ui.ui.UIPrefFragment"
+        app:fragment="eu.darken.bb.main.ui.settings.userinterface.UISettingsFragment"
         app:title="@string/ui_settings_label"/>
 
     <PreferenceCategory
@@ -26,6 +26,7 @@
 
         <Preference
             app:summary="@string/bugreporting_settings_desc"
+            app:fragment="eu.darken.bb.main.ui.settings.debug.DebugSettingsFragment"
             app:title="@string/bugreporting_settings_label"/>
 
     </PreferenceCategory>

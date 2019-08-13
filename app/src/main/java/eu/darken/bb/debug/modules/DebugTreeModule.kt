@@ -4,7 +4,7 @@ import android.util.Log
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.debug.DebugModule
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
+import eu.darken.bb.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 

@@ -5,10 +5,10 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.debug.DebugModule
+import eu.darken.bb.debug.DebugModuleHost
 import eu.darken.bb.debug.DebugOptions
 import eu.darken.bb.debug.compareIgnorePath
 import eu.darken.rxshell.extra.RXSDebug
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*

@@ -1,13 +1,16 @@
 package eu.darken.bb.backup.core.file
 
-import dagger.Reusable
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Endpoint
+import eu.darken.bb.common.progress.Progress
 import java.io.File
-import javax.inject.Inject
 
-class FileEndpoint : Endpoint {
+class FileEndpoint @AssistedInject constructor(
+        @Assisted private val progressClient: Progress.Client?
+) : Endpoint {
     val basePath = File("/storage/emulated/0")
     override fun restore(backup: Backup): Boolean {
         TODO("not implemented")
@@ -17,11 +20,6 @@ class FileEndpoint : Endpoint {
         TODO("not implemented")
     }
 
-    @Reusable
-    class Factory @Inject constructor() : Endpoint.Factory {
-        override fun create(spec: BackupSpec): Endpoint {
-            return FileEndpoint()
-        }
-
-    }
+    @AssistedInject.Factory
+    interface Factory : Endpoint.Factory<FileEndpoint>
 }

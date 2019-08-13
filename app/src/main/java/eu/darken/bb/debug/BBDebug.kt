@@ -8,14 +8,13 @@ import android.util.Log
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.BugTrack
-import eu.thedarken.sdm.tools.debug.DebugModuleHost
 import io.reactivex.Observable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -31,7 +30,7 @@ class BBDebug @Inject constructor(
     }
 
     private var preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
-    private val debugOptions = BehaviorSubject.createDefault(DebugOptions.default())
+    private val optionsUpdater = HotData(DebugOptions.default())
     private val modules = mutableSetOf<DebugModule>()
 
     init {
@@ -54,7 +53,7 @@ class BBDebug @Inject constructor(
                     .permitDiskWrites()
                     .build())
 
-            submit(DebugOptions.default().copy(level = Log.VERBOSE))
+            submit { it.copy(level = Log.VERBOSE) }
         }
 
         RxJavaPlugins.setErrorHandler { error ->
@@ -80,20 +79,19 @@ class BBDebug @Inject constructor(
         }
     }
 
-    override fun observeOptions(): Observable<DebugOptions> = debugOptions
+    override fun observeOptions(): Observable<DebugOptions> = optionsUpdater.data
 
     override fun getSettings(): SharedPreferences = preferences
 
     @SuppressLint("LogNotTimber")
-    override fun submit(options: DebugOptions) {
-        Log.d(TAG, "Submitting options: $options")
-        debugOptions.onNext(options)
+    override fun submit(update: (DebugOptions) -> DebugOptions) {
+        optionsUpdater.update(update)
     }
 
-    fun isDebug(): Boolean = observeOptions().blockingFirst().isDebug()
+    fun isDebug(): Boolean = optionsUpdater.snapshot.isDebug()
 
     fun setRecording(recording: Boolean) {
-        observeOptions().firstOrError().subscribe { it -> submit(it.copy(level = Log.VERBOSE, isRecording = recording)) }
+        submit { it.copy(level = Log.VERBOSE, isRecording = recording) }
     }
 
 }

@@ -11,7 +11,7 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.processor.core.service.BackupService
+import eu.darken.bb.processor.core.service.ProcessorService
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
 import io.reactivex.rxkotlin.Observables
@@ -38,7 +38,7 @@ class SchedulesFragmentVDC @AssistedInject constructor(
     }
 
     fun test() {
-        context.startService(Intent(context, BackupService::class.java))
+        context.startService(Intent(context, ProcessorService::class.java))
     }
 
     data class AppState(

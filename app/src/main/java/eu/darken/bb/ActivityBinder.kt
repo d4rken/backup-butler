@@ -7,12 +7,14 @@ import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.debug.recording.ui.RecorderActivity
 import eu.darken.bb.debug.recording.ui.RecorderActivityModule
-import eu.darken.bb.main.ui.MainActivity
-import eu.darken.bb.main.ui.MainActivityModule
+import eu.darken.bb.main.ui.settings.SettingsActivity
+import eu.darken.bb.main.ui.settings.SettingsActivityModule
+import eu.darken.bb.main.ui.start.MainActivity
+import eu.darken.bb.main.ui.start.MainActivityModule
 import eu.darken.bb.onboarding.OnboardingActivity
 import eu.darken.bb.onboarding.OnboardingActivityModule
-import eu.darken.bb.settings.ui.SettingsActivity
-import eu.darken.bb.settings.ui.SettingsActivityModule
+import eu.darken.bb.processor.ui.ProcessorActivity
+import eu.darken.bb.processor.ui.ProcessorActivityModule
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityModule
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
@@ -55,4 +57,8 @@ abstract class ActivityBinder {
     @PerActivity
     @ContributesAndroidInjector(modules = [RecorderActivityModule::class])
     abstract fun recoderActivity(): RecorderActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [ProcessorActivityModule::class])
+    abstract fun processorActivity(): ProcessorActivity
 }

@@ -38,6 +38,16 @@ class HotDataTest {
     }
 
     @Test
+    fun `test close`() {
+        val hotData = HotData("strawberry")
+        val testSub = hotData.data.test()
+        testSub.assertNotTerminated()
+        hotData.close()
+        testSub.assertNoErrors()
+        testSub.assertComplete()
+    }
+
+    @Test
     fun `test init blocking constructor`() {
         val pub = PublishSubject.create<String>()
         val hotData = HotData { pub.blockingFirst() }

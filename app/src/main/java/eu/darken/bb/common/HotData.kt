@@ -83,6 +83,11 @@ open class HotData<T>(
         update(wrap)
     }
 
+    fun close() {
+        updatePub.onComplete()
+        statePub.onComplete()
+    }
+
     data class Update<T>(val oldValue: T, val newValue: T)
 
     companion object {

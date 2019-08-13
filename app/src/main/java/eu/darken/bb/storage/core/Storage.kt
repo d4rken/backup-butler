@@ -7,6 +7,7 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
 import io.reactivex.Observable
@@ -49,7 +50,7 @@ interface Storage {
     interface Factory {
         fun isCompatible(storageRef: Ref): Boolean
 
-        fun create(storageRef: Ref): Storage
+        fun create(storageRef: Ref, progressClient: Progress.Client?): Storage
     }
 
     interface Ref {
