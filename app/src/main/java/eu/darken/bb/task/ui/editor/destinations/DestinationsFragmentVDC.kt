@@ -10,9 +10,9 @@ import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.StorageInfoOpt
-import eu.darken.bb.task.core.DefaultTask
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -23,10 +23,14 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         private val storageManager: StorageManager
 ) : VDC() {
 
-    private val taskObs = taskBuilder.task(taskId)
-    private val destinationUpdater = taskObs
-            .doOnNext { task ->
-                val storageStatuses = task.destinations.map { id ->
+    private val editorObs = taskBuilder.task(taskId)
+            .filter { it.editor != null }
+            .map { it.editor as SimpleBackupTaskEditor }
+
+    private val destinationUpdater = editorObs
+            .flatMap { it.config }
+            .doOnNext { ed ->
+                val storageStatuses = ed.destinations.map { id ->
                     try {
                         val status = storageManager.info(id).blockingFirst()
                         StorageInfoOpt(id, status)
@@ -37,6 +41,10 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                 }
                 stater.update { it.copy(destinations = storageStatuses) }
             }
+
+    private val editor: SimpleBackupTaskEditor by lazy {
+        editorObs.blockingFirst()
+    }
 
     private val stater: Stater<State> = Stater(State())
             .addLiveDep { destinationUpdater.subscribe() }
@@ -52,7 +60,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         storageManager.infos()
                 .subscribeOn(Schedulers.io())
                 .flatMap { allStorages ->
-                    taskObs.map { it.destinations }.map { alreadyAddedStorages ->
+                    editor.config.map { it.destinations }.map { alreadyAddedStorages ->
                         return@map allStorages.filter { !alreadyAddedStorages.contains(it.ref.storageId) }.map { StorageInfoOpt(it) }
                     }
                 }
@@ -63,30 +71,11 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     }
 
     fun addDestination(storage: StorageInfoOpt) {
-        taskBuilder
-                .update(taskId) {
-                    it as DefaultTask
-                    it.copy(
-                            destinations = it.destinations.toMutableSet().apply { add(storage.storageId) }.toSet()
-                    )
-                }
-                .subscribeOn(Schedulers.computation())
-                .subscribe()
+        editor.addDesination(storage.storageId)
     }
 
     fun removeDestination(storage: StorageInfoOpt) {
-        taskBuilder
-                .update(taskId) { task ->
-                    task as DefaultTask
-                    task.copy(
-                            destinations = task.destinations
-                                    .toMutableSet()
-                                    .filterNot { it == storage.storageId }
-                                    .toSet()
-                    )
-                }
-                .subscribeOn(Schedulers.computation())
-                .subscribe()
+        editor.removeDesination(storage.storageId)
     }
 
     @AssistedInject.Factory

@@ -146,7 +146,7 @@ class LocalStorage(
     }
 
     override fun save(backup: Backup): Pair<Storage.Content, Versioning.Version> {
-        updateProgressPrimary(R.string.saving_to_storage)
+        updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 

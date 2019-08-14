@@ -8,10 +8,9 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.task.core.BackupTaskRepo
-import eu.darken.bb.task.core.DefaultTask
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.ui.editor.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.intro.IntroFragment
 import eu.darken.bb.task.ui.editor.sources.SourcesFragment
@@ -23,38 +22,28 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
-        private val taskRepo: BackupTaskRepo
+        private val taskRepo: TaskRepo
 ) : SmartVDC() {
 
-    private val taskObs = taskBuilder
-            .task(taskId) {
-                DefaultTask(
-                        taskName = "",
-                        taskId = taskId,
-                        sources = setOf(),
-                        destinations = setOf()
-                )
-            }
+    private val taskCheckerObs = taskBuilder.task(taskId)
+            .subscribeOn(Schedulers.io())
+            .filter { it.editor != null }
+            .flatMap { it.editor!!.config }
             .doOnNext { task ->
-                stater.update {
-                    it.copy(saveable = isTaskComplete(task))
-                }
+                stater.update { it.copy(saveable = isTaskComplete(task)) }
             }
 
-    private val stater: Stater<State> = Stater(
-            startValue = State(step = State.Step.INTRO, allowNext = true, taskId = taskId)
-    )
-            .addLiveDep { taskObs.subscribe() }
+    private val stater: Stater<State> = Stater(State(step = State.Step.INTRO, allowNext = true, taskId = taskId))
+            .addLiveDep { taskCheckerObs.subscribe() }
+
     val state = stater.liveData
 
     val finishActivity = SingleLiveEvent<Boolean>()
 
     init {
-        taskRepo.get(taskId)
+        taskBuilder.update(taskId) { it!!.copy(taskType = Task.Type.BACKUP_SIMPLE) }
                 .subscribeOn(Schedulers.io())
-                .subscribe { optTask ->
-                    stater.update { it.copy(existingTask = optTask.isNotNull) }
-                }
+                .subscribe()
     }
 
     private fun changeStep(dir: Int) {

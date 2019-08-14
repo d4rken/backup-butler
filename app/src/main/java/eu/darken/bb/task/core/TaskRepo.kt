@@ -9,19 +9,18 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
-import eu.darken.bb.storage.core.StorageRefRepo
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 @PerApp
-class BackupTaskRepo @Inject constructor(
+class TaskRepo @Inject constructor(
         @AppContext context: Context,
         val moshi: Moshi
 ) {
     private val taskAdapter = moshi.adapter(Task::class.java)
-    private val preferences: SharedPreferences = context.getSharedPreferences("backup_tasks", Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences = context.getSharedPreferences("task_repo", Context.MODE_PRIVATE)
     private val internalData = HotData<Map<Task.Id, Task>> {
         val initialData = mutableMapOf<Task.Id, Task>()
         preferences.all.forEach {
@@ -62,7 +61,7 @@ class BackupTaskRepo @Inject constructor(
             .map { it.oldValue[taskId].opt() }
             .doOnSuccess {
                 Timber.d("remove(taskId=%s) -> old=%s", taskId, it.value)
-                if (it.isNull) Timber.tag(StorageRefRepo.TAG).w("Tried to delete non-existant Task: %s", taskId)
+                if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant Task: %s", taskId)
             }
 
     companion object {

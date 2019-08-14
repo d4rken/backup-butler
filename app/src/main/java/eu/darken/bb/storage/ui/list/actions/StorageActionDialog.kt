@@ -23,13 +23,13 @@ import eu.darken.bb.common.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
-import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     private var unbinder: Unbinder? = null
 
-    @Inject lateinit var taskRepo: BackupTaskRepo
+    @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @Inject lateinit var vdcSource: VDCSource.Factory

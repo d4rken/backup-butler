@@ -20,8 +20,8 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdcsAssisted
-import eu.darken.bb.task.core.BackupTaskRepo
 import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
     private var unbinder: Unbinder? = null
 
-    @Inject lateinit var taskRepo: BackupTaskRepo
+    @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @Inject lateinit var vdcSource: VDCSource.Factory

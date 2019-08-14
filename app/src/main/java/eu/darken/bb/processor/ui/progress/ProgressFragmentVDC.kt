@@ -10,6 +10,7 @@ import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.ProcessorControl
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 
 class ProgressFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -17,6 +18,7 @@ class ProgressFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
     private val progressHostObs by lazy { backupServiceControl.progressHost?.progress ?: Observable.empty() }
     private val progressObs = progressHostObs
+            .subscribeOn(Schedulers.io())
             .doOnNext { progress ->
                 stater.update { state ->
                     state.copy(

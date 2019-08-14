@@ -8,6 +8,7 @@ import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.debug.DebugModuleModule
 import eu.darken.bb.storage.core.StorageTypeModule
+import eu.darken.bb.task.core.TaskTypeModule
 import eu.darken.bb.workers.WorkerBinder
 
 
@@ -23,7 +24,8 @@ import eu.darken.bb.workers.WorkerBinder
     DebugModuleModule::class,
     WorkerBinder::class,
     StorageTypeModule::class,
-    BackupTypeModule::class
+    BackupTypeModule::class,
+    TaskTypeModule::class
 ])
 interface AppComponent : AndroidInjector<App> {
 

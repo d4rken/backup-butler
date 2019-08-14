@@ -18,7 +18,7 @@ import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.task.core.DefaultTask
+import eu.darken.bb.task.core.SimpleBackupTask
 import eu.darken.bb.task.core.Task
 import timber.log.Timber
 import javax.inject.Inject
@@ -45,13 +45,13 @@ class DefaultBackupProcessor @Inject constructor(
         }
     }
 
-    fun process(task: Task): Task.Result {
+    fun process(task: Task.Backup): Task.Result {
         Timber.tag(TAG).i("Processing backup task: %s", task)
         return try {
             doProcess(task)
         } catch (exception: Exception) {
             Timber.tag(TAG).e(exception, "Task failed: %s", task)
-            DefaultTask.Result(task.taskId, exception)
+            SimpleBackupTask.Result(task.taskId, exception)
         } finally {
             progressParent.updateProgressSecondary(context, R.string.progress_working_label)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
@@ -59,7 +59,7 @@ class DefaultBackupProcessor @Inject constructor(
         }
     }
 
-    private fun doProcess(task: Task): Task.Result {
+    private fun doProcess(task: Task.Backup): Task.Result {
         task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId)
                     .blockingGet()
@@ -98,7 +98,7 @@ class DefaultBackupProcessor @Inject constructor(
         }
 
 
-        return DefaultTask.Result(task.taskId, Task.Result.State.SUCCESS)
+        return SimpleBackupTask.Result(task.taskId, Task.Result.State.SUCCESS)
     }
 
     companion object {

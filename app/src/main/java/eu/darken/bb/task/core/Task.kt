@@ -2,23 +2,28 @@ package eu.darken.bb.task.core
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.Keep
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.common.Jsonable
 import eu.darken.bb.storage.core.Storage
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
-interface Task : Jsonable {
+interface Task {
     val taskId: Id
     val taskName: String
-    val sources: Set<Generator.Id>
-    val destinations: Set<Storage.Id>
+    val taskType: Task.Type
+
+    interface Backup : Task {
+        val sources: Set<Generator.Id>
+        val destinations: Set<Storage.Id>
+    }
 
     fun getDescription(context: Context): String
 
+    @Keep
     enum class Type {
-        SIMPLE
+        BACKUP_SIMPLE
     }
 
     interface Result {
@@ -40,6 +45,6 @@ interface Task : Jsonable {
 
     companion object {
         val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Task> = PolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
-                .withSubtype(DefaultTask::class.java, Type.SIMPLE.name)
+                .withSubtype(SimpleBackupTask::class.java, Type.BACKUP_SIMPLE.name)
     }
 }

@@ -12,7 +12,8 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.processor.core.DefaultBackupProcessor
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.task.core.BackupTaskRepo
+import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.getTaskId
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -31,7 +32,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
 
     @Inject lateinit var notifications: ProcessorNotifications
     @Inject lateinit var backupProcessor: DefaultBackupProcessor
-    @Inject lateinit var backupTaskRepo: BackupTaskRepo
+    @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var serviceControl: ProcessorControl
 
     override val context: Context = this
@@ -69,7 +70,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
             return
         }
 
-        val task = backupTaskRepo.get(taskID).blockingGet().value
+        val task = taskRepo.get(taskID).blockingGet().value
         if (task == null) {
             Timber.tag(TAG).e("Unknown backup task: %s", taskID)
             return
@@ -78,7 +79,9 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         Timber.tag(TAG).i("Processing task: %s", task)
         updateProgressPrimary(task.taskName)
         backupProcessor.progressParent = this
-        val taskResult = backupProcessor.process(task)
+        val taskResult = when (task.taskType) {
+            Task.Type.BACKUP_SIMPLE -> backupProcessor.process(task as Task.Backup)
+        }
 
         Timber.tag(TAG).i("Finished processing %s: %s", task, taskResult)
 

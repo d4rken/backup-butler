@@ -9,9 +9,9 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.task.core.DefaultTask
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.schedulers.Schedulers
 
 class SourcesFragmentVDC @AssistedInject constructor(
@@ -20,10 +20,14 @@ class SourcesFragmentVDC @AssistedInject constructor(
         private val taskBuilder: TaskBuilder,
         private val generatorRepo: GeneratorRepo
 ) : VDC() {
-
-    private val taskObs = taskBuilder.task(taskId)
-
-    private val sourcesUpdater = taskObs
+    private val editorObs = taskBuilder.task(taskId)
+            .filter { it.editor != null }
+            .map { it.editor as SimpleBackupTaskEditor }
+    private val editor: SimpleBackupTaskEditor by lazy {
+        editorObs.blockingFirst()
+    }
+    private val sourcesUpdater = editorObs
+            .flatMap { it.config }
             .doOnNext { task ->
                 val configs = task.sources.map { id ->
                     val config = generatorRepo.get(id).blockingGet().value
@@ -44,15 +48,11 @@ class SourcesFragmentVDC @AssistedInject constructor(
     )
 
     fun addSource(config: GeneratorConfigOpt) {
-        taskBuilder
-                .update(taskId) {
-                    it as DefaultTask
-                    it.copy(
-                            sources = it.sources.toMutableSet().apply { add(config.generatorId) }.toSet()
-                    )
-                }
-                .subscribeOn(Schedulers.computation())
-                .subscribe()
+        editor.addSource(config.generatorId)
+    }
+
+    fun removeSource(source: GeneratorConfigOpt) {
+        editor.removeSource(source.generatorId)
     }
 
     fun showSourcePicker() {
@@ -60,7 +60,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .map { it.values }
                 .flatMap { all ->
-                    taskObs.map { it.sources }.map { alreadyAdded ->
+                    editor.config.map { it.sources }.map { alreadyAdded ->
                         return@map all.filter { !alreadyAdded.contains(it.generatorId) }
                     }
                 }
@@ -69,21 +69,6 @@ class SourcesFragmentVDC @AssistedInject constructor(
                 .subscribe { infos ->
                     sourcePickerEvent.postValue(infos.toList())
                 }
-    }
-
-    fun removeSource(source: GeneratorConfigOpt) {
-        taskBuilder
-                .update(taskId) { task ->
-                    task as DefaultTask
-                    task.copy(
-                            sources = task.sources
-                                    .toMutableSet()
-                                    .filterNot { it == source.generatorId }
-                                    .toSet()
-                    )
-                }
-                .subscribeOn(Schedulers.computation())
-                .subscribe()
     }
 
     @AssistedInject.Factory

@@ -7,9 +7,9 @@ import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.task.core.BackupTaskRepo
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.ui.editor.intro.IntroFragmentVDC
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
 import io.reactivex.Single
@@ -17,7 +17,7 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class TaskActionDialogVDC @AssistedInject constructor(
-        private val taskRepo: BackupTaskRepo,
+        private val taskRepo: TaskRepo,
         private val taskBuilder: TaskBuilder,
         private val processorControl: ProcessorControl,
         @Assisted private val handle: SavedStateHandle,
