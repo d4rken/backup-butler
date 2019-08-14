@@ -18,7 +18,7 @@ class AppBackupSpecTest {
         assertThat(json)
                 .contains("{\"backupType\":\"APP\"")
                 .contains("\"packageName\":\"test.package\"")
-                .contains("\"identifier\":\"pkg-test.package\"")
+                .contains("\"specId\":\"pkg-test.package\"")
 
         val configRestored = adapter.fromJson(json)
         assertThat(configRestored).isInstanceOf(AppBackupSpec::class.java)
