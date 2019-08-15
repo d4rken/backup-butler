@@ -1,7 +1,8 @@
-package eu.darken.bb.processor.core
+package eu.darken.bb.processor.core.processors
 
 import android.content.Context
-import dagger.Reusable
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -9,32 +10,32 @@ import eu.darken.bb.backup.core.Endpoint
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.HasContext
+import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.progress.updateProgressTertiary
+import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.task.core.SimpleBackupTask
 import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.backup.SimpleBackupTask
 import timber.log.Timber
-import javax.inject.Inject
 
-@Reusable
-class DefaultBackupProcessor @Inject constructor(
+class SimpleBackupProcessor @AssistedInject constructor(
         @AppContext override val context: Context,
         private val endpointFactories: @JvmSuppressWildcards Map<Backup.Type, Endpoint.Factory<out Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
-        private val storageRefRepo: StorageRefRepo
-) : HasContext {
+        private val storageRefRepo: StorageRefRepo,
+        @Assisted private val progressParent: Progress.Client
+) : Processor, HasContext {
 
-    lateinit var progressParent: Progress.Client
     private val progressChild = object : Progress.Client {
         override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
             progressParent.updateProgress { parent ->
@@ -44,22 +45,31 @@ class DefaultBackupProcessor @Inject constructor(
             }
         }
     }
+    private val resultBuilder = SimpleBackupTask.Result.Builder(context)
 
-    fun process(task: Task.Backup): Task.Result {
+    override fun process(task: Task): Task.Result {
         Timber.tag(TAG).i("Processing backup task: %s", task)
-        return try {
+        task as Task.Backup
+        try {
+            resultBuilder.forTask(task)
+            resultBuilder.startNow()
             doProcess(task)
+            resultBuilder.sucessful()
         } catch (exception: Exception) {
             Timber.tag(TAG).e(exception, "Task failed: %s", task)
-            SimpleBackupTask.Result(task.taskId, exception)
+            resultBuilder.error(exception)
         } finally {
             progressParent.updateProgressSecondary(context, R.string.progress_working_label)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
         }
+        return resultBuilder.createResult()
     }
 
-    private fun doProcess(task: Task.Backup): Task.Result {
+    private fun doProcess(task: Task.Backup) {
+        var success = 0
+        var skipped = 0
+        var error = 0
         task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId)
                     .blockingGet()
@@ -90,16 +100,24 @@ class DefaultBackupProcessor @Inject constructor(
                     Timber.tag(TAG).i("Storing %s using %s", backup.id, repo)
 
                     val result = repo.save(backup)
+                    success++
                     Timber.tag(TAG).i("Backup (%s) stored: %s", backup.id, result)
                 }
                 tmpDataRepo.deleteAll(backup.id)
             }
             progressParent.updateProgressTertiary("")
         }
-
-
-        return SimpleBackupTask.Result(task.taskId, Task.Result.State.SUCCESS)
+        resultBuilder.primary(
+                OpStatus(context).apply {
+                    this.success = success
+                    this.skipped = skipped
+                    this.failed = error
+                }.toDisplayString()
+        )
     }
+
+    @AssistedInject.Factory
+    interface Factory : Processor.Factory<SimpleBackupProcessor>
 
     companion object {
         private val TAG = App.logTag("Processor", "Default")

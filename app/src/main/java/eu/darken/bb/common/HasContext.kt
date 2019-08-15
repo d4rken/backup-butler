@@ -8,5 +8,5 @@ interface HasContext {
 }
 
 fun HasContext.getString(@StringRes stringRes: Int, vararg args: Any): String {
-    return context.getString(stringRes, args)
+    return context.getString(stringRes, *args)
 }

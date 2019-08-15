@@ -5,7 +5,6 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.HotData
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.task.core.SimpleBackupTask
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
 import io.reactivex.Completable

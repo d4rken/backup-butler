@@ -110,4 +110,7 @@
     <string name="progress_working_label">Working</string>
     <string name="progress_label_processing_x">Processing: %s</string>
     <string name="progress_label_saving">Saving</string>
+    <string name="result_x_successful">%d successful</string>
+    <string name="result_x_skipped">%d skipped</string>
+    <string name="result_x_failed">%d failed</string>
 </resources>
