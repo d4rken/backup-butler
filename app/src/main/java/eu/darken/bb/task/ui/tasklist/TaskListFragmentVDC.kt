@@ -1,34 +1,47 @@
 package eu.darken.bb.task.ui.tasklist
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.Opt
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.SmartVDC
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.SavedStateVDCFactory
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.Observables
 import timber.log.Timber
 
 class TaskListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val taskRepo: TaskRepo,
-        private val taskBuilder: TaskBuilder
+        private val taskBuilder: TaskBuilder,
+        private val processorControl: ProcessorControl
 ) : SmartVDC() {
 
-    val viewState: LiveData<ViewState> = Observables
-            .combineLatest(taskRepo.tasks.map { it.values }, Observable.just(""))
-            .map { (repos, upgradeData) ->
-                return@map ViewState(
-                        repos = repos.toList()
-                )
+    private val processHostObs: Observable<Opt<Progress.Host>> = processorControl.progressHost
+            .doOnNext { optHost ->
+                stater.update { it.copy(hasRunningTask = optHost.isNotNull) }
             }
-            .toLiveData()
+
+    private val taskRepoObs: Observable<List<Task>> = taskRepo.tasks.map { it.values }
+            .map { it.toList() }
+            .doOnNext { tasks ->
+                stater.update { it.copy(repos = tasks) }
+            }
+
+
+    private val stater = Stater(ViewState())
+            .addLiveDep {
+                processHostObs.subscribe()
+                taskRepoObs.subscribe()
+            }
+    val state = stater.liveData
+
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
     init {
@@ -49,7 +62,8 @@ class TaskListFragmentVDC @AssistedInject constructor(
     }
 
     data class ViewState(
-            val repos: List<Task>
+            val repos: List<Task> = emptyList(),
+            val hasRunningTask: Boolean = false
     )
 
     data class EditActions(

@@ -64,6 +64,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
         })
+
         super.onViewCreated(view, savedInstanceState)
     }
 

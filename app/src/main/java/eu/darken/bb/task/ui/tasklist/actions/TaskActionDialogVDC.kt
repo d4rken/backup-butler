@@ -39,7 +39,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                             it.copy(
                                     taskName = task.taskName,
                                     loading = false,
-                                    allowedActions = TaskAction.values().toList()
+                                    allowedActions = values().toList()
                             )
                         }
                     }

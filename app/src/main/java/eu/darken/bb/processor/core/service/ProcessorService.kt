@@ -49,12 +49,12 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         super.onCreate()
         updateProgressPrimary(R.string.label_progress_preparing)
         notifications.start(this)
-        serviceControl.progressHost = this
+        serviceControl.updateProgressHost(this)
     }
 
     override fun onDestroy() {
         progressUpdater.close()
-        serviceControl.progressHost = null
+        serviceControl.updateProgressHost(null)
         serviceDeathDisp.dispose()
         notifications.stop(this)
         super.onDestroy()
