@@ -17,8 +17,8 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.backup.core.putGeneratorId
-import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {

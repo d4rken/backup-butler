@@ -3,9 +3,9 @@ package eu.darken.bb.main.ui.settings.debug
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.debug.BBDebug
 import eu.darken.bb.debug.DebugOptions
 import io.reactivex.Observable

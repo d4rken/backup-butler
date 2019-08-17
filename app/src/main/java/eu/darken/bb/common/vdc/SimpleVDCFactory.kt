@@ -1,6 +1,4 @@
-package eu.darken.bb.common.dagger
-
-import eu.darken.bb.common.VDC
+package eu.darken.bb.common.vdc
 
 interface SimpleVDCFactory<T : VDC> : VDCFactory<T> {
     fun create(): T

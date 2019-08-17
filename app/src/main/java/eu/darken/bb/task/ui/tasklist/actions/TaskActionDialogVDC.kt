@@ -3,9 +3,9 @@ package eu.darken.bb.task.ui.tasklist.actions
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder

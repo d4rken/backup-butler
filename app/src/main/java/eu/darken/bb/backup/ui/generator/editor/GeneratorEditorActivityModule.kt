@@ -10,11 +10,11 @@ import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentModule
-import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.common.dagger.PerFragment
-import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.dagger.VDCKey
+import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.vdc.VDCKey
 
 @Module
 abstract class GeneratorEditorActivityModule {

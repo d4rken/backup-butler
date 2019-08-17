@@ -9,8 +9,8 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId

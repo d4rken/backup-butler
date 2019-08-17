@@ -11,10 +11,10 @@ import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass

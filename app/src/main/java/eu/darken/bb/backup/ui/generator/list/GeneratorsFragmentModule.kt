@@ -6,10 +6,10 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog
 import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialogModule
-import eu.darken.bb.common.VDC
 import eu.darken.bb.common.dagger.PerChildFragment
-import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.dagger.VDCKey
+import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module

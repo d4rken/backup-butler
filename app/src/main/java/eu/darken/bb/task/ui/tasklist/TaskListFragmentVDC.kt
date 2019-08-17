@@ -3,12 +3,13 @@ package eu.darken.bb.task.ui.tasklist
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -74,4 +75,9 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : SavedStateVDCFactory<TaskListFragmentVDC>
+
+
+    companion object {
+        val TAG = App.logTag("Task", "TaskList", "VDC")
+    }
 }

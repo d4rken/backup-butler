@@ -6,9 +6,9 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.ui.generator.list.GeneratorsFragment
 import eu.darken.bb.backup.ui.generator.list.GeneratorsFragmentModule
-import eu.darken.bb.common.VDC
-import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.dagger.VDCKey
+import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.vdc.VDCKey
 import eu.darken.bb.main.ui.start.overview.OverviewFragment
 import eu.darken.bb.main.ui.start.overview.OverviewFragmentModule
 import eu.darken.bb.schedule.ui.list.SchedulesFragment

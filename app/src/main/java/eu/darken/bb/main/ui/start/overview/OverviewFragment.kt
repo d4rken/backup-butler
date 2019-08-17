@@ -10,11 +10,11 @@ import androidx.lifecycle.Observer
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.upgrades.UpgradeData
 import javax.inject.Inject
 

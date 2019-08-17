@@ -1,12 +1,9 @@
-package eu.darken.bb.common
+package eu.darken.bb.common.vdc
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
-import eu.darken.bb.common.dagger.VDCFactory
-import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.viewmodel.viewModelsKeyed
 
 @MainThread
 inline fun <reified VM : VDC> Fragment.vdcs(

@@ -3,10 +3,11 @@ package eu.darken.bb.storage.ui.list
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.SmartVDC
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -53,4 +54,8 @@ class StorageListFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : SavedStateVDCFactory<StorageListFragmentVDC>
+
+    companion object {
+        val TAG = App.logTag("Storage", "StorageList", "VDC")
+    }
 }

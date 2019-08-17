@@ -10,14 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import javax.inject.Inject
 

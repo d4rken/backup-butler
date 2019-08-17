@@ -13,7 +13,6 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
@@ -23,7 +22,8 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.viewer.content.actions.ContentActionDialog
 import javax.inject.Inject

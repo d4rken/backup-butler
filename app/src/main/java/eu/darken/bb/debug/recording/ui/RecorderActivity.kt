@@ -14,12 +14,12 @@ import butterknife.ButterKnife
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdcsAssisted
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 class RecorderActivity

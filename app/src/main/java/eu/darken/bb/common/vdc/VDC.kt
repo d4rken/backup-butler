@@ -1,4 +1,4 @@
-package eu.darken.bb.common
+package eu.darken.bb.common.vdc
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.ViewModel

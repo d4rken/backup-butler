@@ -1,7 +1,6 @@
-package eu.darken.bb.common.dagger
+package eu.darken.bb.common.vdc
 
 import dagger.MapKey
-import eu.darken.bb.common.VDC
 import kotlin.reflect.KClass
 
 

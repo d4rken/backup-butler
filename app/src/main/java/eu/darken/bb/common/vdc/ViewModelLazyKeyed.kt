@@ -1,4 +1,4 @@
-package eu.darken.bb.common.viewmodel
+package eu.darken.bb.common.vdc
 
 /*
  * Copyright 2018 The Android Open Source Project

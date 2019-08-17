@@ -1,4 +1,4 @@
-package eu.darken.bb.common.dagger
+package eu.darken.bb.common.vdc
 
 import android.os.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.common.VDC
 
 class VDCSource @AssistedInject constructor(
         private val creators: @JvmSuppressWildcards Map<Class<out VDC>, VDCFactory<out VDC>>,

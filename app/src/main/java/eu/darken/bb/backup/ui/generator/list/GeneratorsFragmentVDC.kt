@@ -4,13 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.SmartVDC
-import eu.darken.bb.common.dagger.SavedStateVDCFactory
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -62,4 +63,8 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
 
     @AssistedInject.Factory
     interface Factory : SavedStateVDCFactory<GeneratorsFragmentVDC>
+
+    companion object {
+        val TAG = App.logTag("Backup", "GeneratorList", "VDC")
+    }
 }

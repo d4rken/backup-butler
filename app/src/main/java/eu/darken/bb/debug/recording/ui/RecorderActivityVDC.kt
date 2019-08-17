@@ -7,11 +7,11 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.ShareBuilder
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.VDC
 import eu.darken.bb.common.Zipper
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.VDCFactory
 import eu.darken.bb.common.file.JavaFile
+import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.ui.editor.intro.IntroFragmentVDC
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers

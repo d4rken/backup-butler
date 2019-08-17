@@ -6,8 +6,8 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.VDC
-import eu.darken.bb.common.dagger.VDCFactory
+import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import eu.darken.bb.task.core.Task

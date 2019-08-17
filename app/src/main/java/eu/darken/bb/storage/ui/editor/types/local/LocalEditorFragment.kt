@@ -10,10 +10,14 @@ import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
+import eu.darken.bb.common.getColorForAttr
+import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject

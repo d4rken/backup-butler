@@ -4,9 +4,9 @@ import androidx.lifecycle.Observer
 import androidx.preference.Preference
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.smart.SmartPreferenceFragment
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.core.DebugSettings
 import javax.inject.Inject
 

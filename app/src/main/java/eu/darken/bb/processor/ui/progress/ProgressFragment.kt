@@ -13,12 +13,12 @@ import com.airbnb.lottie.LottieAnimationView
 import dagger.android.DispatchingAndroidInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.dagger.VDCSource
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.tryTextElseHide
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
 

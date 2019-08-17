@@ -8,8 +8,8 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.VDCSource
-import eu.darken.bb.common.vdcs
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.progress.ProgressFragment
 import javax.inject.Inject
 
