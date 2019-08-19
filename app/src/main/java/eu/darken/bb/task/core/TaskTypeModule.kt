@@ -5,6 +5,7 @@ import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 
 @Module
 abstract class TaskTypeModule {
@@ -13,6 +14,11 @@ abstract class TaskTypeModule {
     @IntoMap
     @TaskTypeKey(Task.Type.BACKUP_SIMPLE)
     abstract fun backupSimple(repo: SimpleBackupTaskEditor.Factory): TaskEditor.Factory<out TaskEditor>
+
+    @Binds
+    @IntoMap
+    @TaskTypeKey(Task.Type.RESTORE_SIMPLE)
+    abstract fun restoreSimple(repo: SimpleRestoreTaskEditor.Factory): TaskEditor.Factory<out TaskEditor>
 }
 
 @Target(AnnotationTarget.FUNCTION)

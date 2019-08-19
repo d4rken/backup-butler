@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.sources
+package eu.darken.bb.task.ui.editor.backup.sources
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -40,7 +40,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
     @Inject lateinit var pickerAdapterProvider: Provider<GeneratorsAdapter>
 
     init {
-        layoutRes = R.layout.task_editor_sources_fragment
+        layoutRes = R.layout.task_editor_backup_sources_fragment
     }
 
     @SuppressLint("CheckResult")

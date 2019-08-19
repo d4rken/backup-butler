@@ -2,11 +2,15 @@ package eu.darken.bb.task.core
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
+import androidx.annotation.StringRes
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.backup.SimpleBackupTask
+import eu.darken.bb.task.core.restore.SimpleRestoreTask
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -20,11 +24,18 @@ interface Task {
         val destinations: Set<Storage.Id>
     }
 
+    interface Restore : Task
+
     fun getDescription(context: Context): String
 
     @Keep
-    enum class Type(val value: String) {
-        BACKUP_SIMPLE("backup_simple");
+    enum class Type(
+            @DrawableRes val iconRes: Int,
+            @StringRes val labelRes: Int,
+            val value: String
+    ) {
+        BACKUP_SIMPLE(R.drawable.ic_sd_storage, R.string.backup_task_label, "backup_simple"),
+        RESTORE_SIMPLE(R.drawable.ic_file_restore, R.string.restore_task_label, "restore_simple");
 
         companion object {
             private val VALUE_MAP = values().associateBy(Type::value)
@@ -53,6 +64,7 @@ interface Task {
         val primary: String?
         val secondary: String?
         val extra: String?
+        val taskLog: List<String>?
 
         @Parcelize
         data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
@@ -74,5 +86,6 @@ interface Task {
     companion object {
         val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Task> = PolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
                 .withSubtype(SimpleBackupTask::class.java, Type.BACKUP_SIMPLE.name)
+                .withSubtype(SimpleRestoreTask::class.java, Type.RESTORE_SIMPLE.name)
     }
 }

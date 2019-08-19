@@ -5,6 +5,14 @@ import androidx.annotation.CallSuper
 
 abstract class ModularAdapter<VH : ModularAdapter.VH> : BaseAdapter<VH>() {
     val modules = mutableListOf<Module>()
+    @CallSuper
+    override fun getItemViewType(position: Int): Int {
+        modules.filterIsInstance<TypeModule>().forEach {
+            val type = it.onGetItemType(this, position)
+            if (type != -1) return type
+        }
+        return super.getItemViewType(position)
+    }
 
     @CallSuper
     override fun onCreateBaseVH(parent: ViewGroup, viewType: Int): VH {
@@ -30,5 +38,9 @@ abstract class ModularAdapter<VH : ModularAdapter.VH> : BaseAdapter<VH>() {
 
     interface BinderModule<T : VH> : Module {
         fun onBindModularVH(adapter: ModularAdapter<T>, vh: T, pos: Int)
+    }
+
+    interface TypeModule {
+        fun onGetItemType(adapter: ModularAdapter<*>, pos: Int): Int
     }
 }

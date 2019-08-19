@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.destinations
+package eu.darken.bb.task.ui.editor.backup.destinations
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -40,7 +40,7 @@ class DestinationsFragment : SmartFragment(), AutoInject {
     @Inject lateinit var pickerAdapterProvider: Provider<StorageAdapter>
 
     init {
-        layoutRes = R.layout.task_editor_destinations_fragment
+        layoutRes = R.layout.task_editor_backup_destinations_fragment
     }
 
     @SuppressLint("CheckResult")

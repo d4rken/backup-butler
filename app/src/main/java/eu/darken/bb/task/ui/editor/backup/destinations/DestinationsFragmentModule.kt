@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.destinations
+package eu.darken.bb.task.ui.editor.backup.destinations
 
 import dagger.Binds
 import dagger.Module

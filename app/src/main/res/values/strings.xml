@@ -12,7 +12,7 @@
     <string name="label_notification_channel_backup_progress">Backup progress notifications</string>
     <string name="label_progress_loading_task">Loading task</string>
     <string name="label_progress_processing_task">Processing task</string>
-    <string name="label_new_task">New task</string>
+    <string name="label_new_backup_task">New backup task</string>
     <string name="label_overview">Overview</string>
     <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
@@ -26,7 +26,7 @@
         <item quantity="one">%d item</item>
         <item quantity="other">%d items</item>
     </plurals>
-    <string name="label_edit_task">Edit task</string>
+    <string name="label_edit_backup_task">Edit backup task</string>
     <string name="label_task_name">Task name</string>
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
@@ -114,4 +114,19 @@
     <string name="result_x_skipped">%d skipped</string>
     <string name="result_x_failed">%d failed</string>
     <string name="action_show">Show</string>
+    <string name="label_edit_restore_task">Edit restore task</string>
+    <string name="label_new_restore_task">New restore task</string>
+    <string name="backup_task_label">Backup task</string>
+    <string name="restore_task_label">Restore task</string>
+    <string name="restore_options_label">Restore options</string>
+    <string name="config_skip_existing_apps_label">Skip existing apps</string>
+    <string name="config_skip_existing_apps_desc">Don\'t restore apps that already exist.</string>
+    <string name="app_options_label">App options</string>
+    <string name="config_restore_apk_label">Restore APK</string>
+    <string name="config_restore_apk_desc">Restore the app itself.</string>
+    <string name="config_restore_data_label">Restore data</string>
+    <string name="config_restore_data_desc">Restore the app\'s data.</string>
+    <string name="config_skip_existing_files_label">Skip existing files</string>
+    <string name="config_skip_existing_files_desc">Don\'t replace a file if it already exists.</string>
+    <string name="file_options_label">File options</string>
 </resources>

@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.Provides
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.moshi.*
@@ -24,6 +25,7 @@ class AppModule {
     fun moshi(): Moshi = Moshi.Builder()
             .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
             .add(BackupSpec.MOSHI_FACTORY)
+            .add(Restore.Config.MOSHI_FACTORY)
             .add(Generator.Config.MOSHI_FACTORY)
             .add(SFile.MOSHI_FACTORY)
             .add(Storage.Ref.MOSHI_FACTORY)

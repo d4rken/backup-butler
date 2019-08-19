@@ -11,7 +11,7 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivityVDC
-import eu.darken.bb.task.ui.editor.intro.IntroFragmentVDC
+import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 

@@ -50,6 +50,7 @@ class TaskResultRepo @Inject constructor(
                         state = it.state,
                         primary = it.primary,
                         secondary = it.secondary,
+                        taskLog = it.taskLog,
                         extra = it.extra
                 )
             }

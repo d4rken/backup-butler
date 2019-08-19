@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.destinations
+package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted

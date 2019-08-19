@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor
+package eu.darken.bb.task.ui.editor.backup
 
 import dagger.Binds
 import dagger.Module
@@ -9,21 +9,21 @@ import eu.darken.bb.common.dagger.PerFragment
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
-import eu.darken.bb.task.ui.editor.destinations.DestinationsFragment
-import eu.darken.bb.task.ui.editor.destinations.DestinationsFragmentModule
-import eu.darken.bb.task.ui.editor.intro.IntroFragment
-import eu.darken.bb.task.ui.editor.intro.IntroFragmentModule
-import eu.darken.bb.task.ui.editor.sources.SourcesFragment
-import eu.darken.bb.task.ui.editor.sources.SourcesFragmentModule
+import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment
+import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentModule
+import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
+import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentModule
+import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
+import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentModule
 
 @Module
-abstract class TaskEditorActivityModule {
+abstract class BackupTaskActivityModule {
 
     @PerActivity
     @Binds
     @IntoMap
-    @VDCKey(TaskEditorActivityVDC::class)
-    abstract fun taskActivity(factory: TaskEditorActivityVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(BackupTaskActivityVDC::class)
+    abstract fun taskActivity(factory: BackupTaskActivityVDC.Factory): VDCFactory<out VDC>
 
     @PerFragment
     @ContributesAndroidInjector(modules = [IntroFragmentModule::class])

@@ -8,7 +8,10 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.*
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
-import eu.darken.bb.task.ui.editor.intro.IntroFragmentVDC
+import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
+import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -17,7 +20,8 @@ class StorageActionDialogVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         private val storageManager: StorageManager,
         private val storageBuilder: StorageBuilder,
-        private val storageRefRepo: StorageRefRepo
+        private val storageRefRepo: StorageRefRepo,
+        private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
 
     private val stateUpdater = Stater(State(loading = true))
@@ -33,6 +37,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             if (storageInfo != null) {
                                 if (storageInfo.config != null) {
                                     allowedActions.add(VIEW)
+                                    allowedActions.add(RESTORE)
                                     allowedActions.add(EDIT)
                                 }
                                 allowedActions.add(DELETE)
@@ -78,6 +83,21 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe()
+            }
+            RESTORE -> {
+                taskBuilder.createBuilder(type = Task.Type.RESTORE_SIMPLE)
+                        .subscribeOn(Schedulers.io())
+                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .map {
+                            (it.editor as SimpleRestoreTaskEditor).addStorageId(storageId)
+                            it
+                        }
+                        .flatMap { data -> taskBuilder.update(data.taskId) { data }.map { it.notNullValue() } }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .subscribe { data ->
+                            taskBuilder.startEditor(data.taskId)
+                        }
             }
         }
     }

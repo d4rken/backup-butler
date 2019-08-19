@@ -57,6 +57,7 @@ class BBDebug @Inject constructor(
         }
 
         RxJavaPlugins.setErrorHandler { error ->
+            Timber.tag(TAG).e(error, "Uncaught error")
             if (BuildConfig.DEBUG) {
                 val currentThread = Thread.currentThread()
                 currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)

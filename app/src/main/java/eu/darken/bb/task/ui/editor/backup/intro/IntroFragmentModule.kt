@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.intro
+package eu.darken.bb.task.ui.editor.backup.intro
 
 import dagger.Binds
 import dagger.Module

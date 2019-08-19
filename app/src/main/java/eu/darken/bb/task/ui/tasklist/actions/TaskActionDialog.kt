@@ -38,6 +38,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
         factory.create(handle, arguments!!.getTaskId()!!)
     })
 
+    @BindView(R.id.task_type_label) lateinit var taskTypeLabel: TextView
     @BindView(R.id.task_name) lateinit var taskName: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
@@ -56,6 +57,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
+            taskTypeLabel.setText(state.taskType?.labelRes ?: 0)
             taskName.text = state.taskName
 
             actionsAdapter.update(state.allowedActions)

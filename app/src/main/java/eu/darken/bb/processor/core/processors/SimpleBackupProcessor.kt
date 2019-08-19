@@ -22,7 +22,7 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.backup.SimpleBackupTask
+import eu.darken.bb.task.core.results.SimpleResult
 import timber.log.Timber
 
 class SimpleBackupProcessor @AssistedInject constructor(
@@ -45,7 +45,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
             }
         }
     }
-    private val resultBuilder = SimpleBackupTask.Result.Builder(context)
+    private val resultBuilder = SimpleResult.Builder(context)
 
     override fun process(task: Task): Task.Result {
         Timber.tag(TAG).i("Processing backup task: %s", task)

@@ -21,7 +21,8 @@
             style="@style/TextAppearance.MaterialComponents.Overline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_task"
+            android:id="@+id/task_type_label"
+            tools:text="@string/label_task"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 

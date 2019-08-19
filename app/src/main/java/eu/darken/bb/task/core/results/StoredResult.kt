@@ -17,6 +17,7 @@ data class StoredResult(
         override val duration: Long,
         override val primary: String?,
         override val secondary: String?,
-        override val extra: String?
+        override val extra: String?,
+        override val taskLog: List<String>?
 ) : Task.Result
 

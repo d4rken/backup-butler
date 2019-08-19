@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.backup.core.putBackupId
+import eu.darken.bb.backup.core.putBackupSpecId
 import eu.darken.bb.common.lists.DataAdapter
-import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.Versioning
+import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.storage.ui.viewer.details.page.DetailPageFragment
 
 

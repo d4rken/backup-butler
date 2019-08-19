@@ -14,6 +14,8 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.backup.core.getBackupSpecId
+import eu.darken.bb.backup.core.putBackupSpecId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -21,7 +23,9 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.getStorageId
+import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject

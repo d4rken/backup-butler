@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor
+package eu.darken.bb.task.ui.editor.backup
 
 import android.os.Bundle
 import android.view.View
@@ -20,13 +20,13 @@ import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
-class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class BackupTaskActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdcEditor: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as TaskEditorActivityVDC.Factory
+    private val vdcEditor: BackupTaskActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as BackupTaskActivityVDC.Factory
         factory.create(handle, intent.getTaskId()!!)
     })
 
@@ -39,22 +39,22 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.task_editor_activity)
+        setContentView(R.layout.task_editor_backup_activity)
         ButterKnife.bind(this)
 
         vdcEditor.state.observe(this, Observer { state ->
 
             supportActionBar!!.title = if (state.existingTask) {
-                getString(R.string.label_edit_task)
+                getString(R.string.label_edit_backup_task)
             } else {
-                getString(R.string.label_new_task)
+                getString(R.string.label_new_backup_task)
             }
 
-            buttonPrevious.setText(if (state.step == TaskEditorActivityVDC.State.Step.INTRO) R.string.action_cancel else R.string.action_previous)
+            buttonPrevious.setText(if (state.stepPos == 0) R.string.action_cancel else R.string.action_previous)
             buttonPrevious.visibility = View.VISIBLE
 
             buttonNext.isEnabled = state.allowNext || state.saveable
-            val nextLabel = if (state.step == TaskEditorActivityVDC.State.Step.DESTINATIONS) {
+            val nextLabel = if (state.stepPos == state.steps.size - 1) {
                 if (state.existingTask) R.string.action_save else R.string.action_create
             } else {
                 R.string.action_next
@@ -62,7 +62,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
             buttonNext.setText(nextLabel)
             buttonNext.visibility = View.VISIBLE
 
-            showStep(state.step, state.taskId)
+            showStep(state.steps[state.stepPos], state.taskId)
         })
 
         buttonPrevious.clicksDebounced().subscribe { vdcEditor.previous() }
@@ -75,7 +75,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         vdcEditor.previous()
     }
 
-    private fun showStep(step: TaskEditorActivityVDC.State.Step, taskId: Task.Id) {
+    private fun showStep(step: BackupTaskActivityVDC.State.Step, taskId: Task.Id) {
         var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
         if (step.fragmentClass.isInstance(fragment)) return
 

@@ -33,7 +33,7 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.task_editor_activity)
+        setContentView(R.layout.task_editor_backup_activity)
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->

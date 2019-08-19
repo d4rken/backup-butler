@@ -19,8 +19,10 @@ import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityModule
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivityModule
-import eu.darken.bb.task.ui.editor.TaskEditorActivity
-import eu.darken.bb.task.ui.editor.TaskEditorActivityModule
+import eu.darken.bb.task.ui.editor.backup.BackupTaskActivity
+import eu.darken.bb.task.ui.editor.backup.BackupTaskActivityModule
+import eu.darken.bb.task.ui.editor.restore.RestoreTaskActivity
+import eu.darken.bb.task.ui.editor.restore.RestoreTaskActivityModule
 
 
 @Module
@@ -39,8 +41,8 @@ abstract class ActivityBinder {
     abstract fun onboardingActivity(): OnboardingActivity
 
     @PerActivity
-    @ContributesAndroidInjector(modules = [TaskEditorActivityModule::class])
-    abstract fun taskEditorActivity(): TaskEditorActivity
+    @ContributesAndroidInjector(modules = [BackupTaskActivityModule::class])
+    abstract fun taskEditorActivity(): BackupTaskActivity
 
     @PerActivity
     @ContributesAndroidInjector(modules = [StorageEditorActivityModule::class])
@@ -61,4 +63,8 @@ abstract class ActivityBinder {
     @PerActivity
     @ContributesAndroidInjector(modules = [ProcessorActivityModule::class])
     abstract fun processorActivity(): ProcessorActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [RestoreTaskActivityModule::class])
+    abstract fun restoreActivity(): RestoreTaskActivity
 }
