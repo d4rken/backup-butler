@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.BugTrack
 import eu.darken.bb.task.core.Task
 import io.reactivex.Flowable
@@ -13,6 +14,7 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
+@PerApp
 class TaskResultRepo @Inject constructor(
         @AppContext private val context: Context
 ) {
@@ -64,7 +66,14 @@ class TaskResultRepo @Inject constructor(
             .doOnSubscribe { Timber.tag(TAG).v("Subscribing to results: %s", it) }
             .doOnError { Timber.tag(TAG).w(it, "Error gathering results.") }
             .doOnNext { Timber.tag(TAG).d("Current results: %s ", it) }
+            .doFinally { Timber.tag(TAG).d("FINISHED") }
             as Flowable<List<Task.Result>>
+
+    fun getLatestTaskResults(taskIds: List<Task.Id>) = database.storedResultDao().getLatestTaskResults(taskIds)
+            .doOnSubscribe { Timber.tag(TAG).v("Subscribing to for: %s", taskIds) }
+            .doOnError { Timber.tag(TAG).w(it, "Error gathering results for %s.", taskIds) }
+            .doOnNext { Timber.tag(TAG).d("Current results: %s for %s", it, taskIds) }
+            as Observable<List<Task.Result>>
 
 
     companion object {

@@ -31,7 +31,6 @@ abstract class SimpleBaseProcessor constructor(
 
     override fun process(task: Task): Task.Result {
         Timber.tag(TAG).i("Processing task: %s", task)
-        task as Task.Backup
         try {
             resultBuilder.forTask(task)
             resultBuilder.startNow()
@@ -48,7 +47,7 @@ abstract class SimpleBaseProcessor constructor(
         return resultBuilder.createResult()
     }
 
-    abstract fun doProcess(task: Task.Backup)
+    abstract fun doProcess(task: Task)
 
     companion object {
         private val TAG = App.logTag("Processor", "BaseProcessor")

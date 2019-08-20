@@ -4,6 +4,7 @@ import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.dagger.AppContext
@@ -22,7 +23,7 @@ class AppRestoreEndpoint @AssistedInject constructor(
         progressClient?.updateProgress(update)
     }
 
-    override fun restore(config: Restore.Config): Boolean {
+    override fun restore(config: Restore.Config, unit: Backup.Unit): Boolean {
         TODO("not implemented")
     }
 

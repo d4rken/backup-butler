@@ -20,8 +20,8 @@ import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
 
 class SimpleRestoreProcessor @AssistedInject constructor(
-        @AppContext context: Context,
         @Assisted progressParent: Progress.Client,
+        @AppContext context: Context,
         private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Restore.Endpoint.Factory<out Restore.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
@@ -31,7 +31,9 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 ) : SimpleBaseProcessor(context, progressParent) {
 
 
-    override fun doProcess(task: Task.Backup) {
+    override fun doProcess(task: Task) {
+        task as Task.Restore
+
         var success = 0
         var skipped = 0
         var error = 0

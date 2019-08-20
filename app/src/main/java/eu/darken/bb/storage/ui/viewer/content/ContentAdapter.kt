@@ -32,6 +32,7 @@ class ContentAdapter @Inject constructor()
         @BindView(R.id.label) lateinit var labelText: TextView
         @BindView(R.id.repo_status) lateinit var statusText: TextView
 
+        private val formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
         init {
             ButterKnife.bind(this, itemView)
@@ -46,7 +47,7 @@ class ContentAdapter @Inject constructor()
             val versionCount = getQuantityString(R.plurals.x_versions, item.versioning.versions.size)
             val lastBackup = getString(
                     R.string.versions_last_backup_time_x,
-                    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(item.versioning.versions.first().createdAt)
+                    formatter.format(item.versioning.versions.first().createdAt)
             )
             @SuppressLint("SetTextI18n")
             statusText.text = "$versionCount; $lastBackup"

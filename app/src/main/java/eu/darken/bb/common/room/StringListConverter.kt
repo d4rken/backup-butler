@@ -12,7 +12,7 @@ class StringListConverter {
     private val adapter: JsonAdapter<List<String>> = Moshi.Builder().build().adapter(type)
 
     @TypeConverter
-    fun fromValue(value: String?): List<String>? = value.let {
+    fun fromValue(value: String?): List<String>? = value?.let {
         adapter.fromJson(it)
     }
 

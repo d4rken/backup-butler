@@ -50,10 +50,10 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
 
         recyclerView.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i]) })
+        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
         vdc.state.observe(this, Observer { state ->
-            adapter.update(state.repos)
+            adapter.update(state.tasks)
 
             if (state.hasRunningTask && snackbar == null) {
                 Snackbar.make(view, R.string.label_progress_processing_task, Snackbar.LENGTH_INDEFINITE)

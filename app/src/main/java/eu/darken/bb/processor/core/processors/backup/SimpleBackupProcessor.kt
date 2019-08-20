@@ -33,7 +33,8 @@ class SimpleBackupProcessor @AssistedInject constructor(
         private val storageRefRepo: StorageRefRepo
 ) : SimpleBaseProcessor(context, progressParent) {
 
-    override fun doProcess(task: Task.Backup) {
+    override fun doProcess(task: Task) {
+        task as Task.Backup
         var success = 0
         var skipped = 0
         var error = 0
