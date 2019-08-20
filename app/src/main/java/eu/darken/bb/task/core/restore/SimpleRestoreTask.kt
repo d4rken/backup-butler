@@ -1,6 +1,7 @@
 package eu.darken.bb.task.core.restore
 
 import android.content.Context
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Restore
@@ -19,7 +20,7 @@ data class SimpleRestoreTask(
     override val taskType: Task.Type = Task.Type.RESTORE_SIMPLE
 
     override fun getDescription(context: Context): String {
-        return ""
+        return context.getString(R.string.task_restore_simple_description, storageIds.size, backupSpecIds.size, backupIds.size)
     }
 
 }

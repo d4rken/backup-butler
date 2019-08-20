@@ -25,17 +25,24 @@ class TaskListAdapter @Inject constructor()
 
     class BackupVH(parent: ViewGroup)
         : ModularAdapter.VH(R.layout.task_list_adapter_line, parent), BindableVH<Task> {
-        @BindView(R.id.name) lateinit var taskName: TextView
-        @BindView(R.id.primary_description) lateinit var primary: TextView
-        @BindView(R.id.type_icon) lateinit var statusIcon: ImageView
+
+        @BindView(R.id.type_label) lateinit var typeLabel: TextView
+        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
+        @BindView(R.id.task_label) lateinit var taskLabel: TextView
+        @BindView(R.id.primary) lateinit var primary: TextView
+        @BindView(R.id.status_icon) lateinit var statusIcon: ImageView
 
         init {
             ButterKnife.bind(this, itemView)
         }
 
         override fun bind(item: Task) {
-            taskName.text = item.taskName
+            typeLabel.setText(item.taskType.labelRes)
+            typeIcon.setImageResource(item.taskType.iconRes)
+
+            taskLabel.text = item.taskName
             primary.text = item.getDescription(context)
+
             statusIcon.setImageResource(R.drawable.ic_error_outline)
             statusIcon.setColorFilter(getColor(R.color.colorError))
         }

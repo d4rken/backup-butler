@@ -7,7 +7,7 @@ open class BaseBackupBuilder<ConfigT : BackupSpec> {
     var backupConfig: ConfigT
     val backupId: Backup.Id
 
-    constructor(backup: Backup) {
+    constructor(backup: Backup.Unit) {
         this.backupConfig = backup.spec as ConfigT
         this.backupId = backup.id
     }
@@ -17,7 +17,7 @@ open class BaseBackupBuilder<ConfigT : BackupSpec> {
         this.backupId = backupId
     }
 
-    fun toBackup(): Backup = Backup(
+    fun toBackup(): Backup.Unit = Backup.Unit(
             spec = backupConfig,
             id = backupId,
             backupType = Backup.Type.APP,

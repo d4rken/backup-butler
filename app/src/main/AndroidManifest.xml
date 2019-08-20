@@ -36,7 +36,7 @@
         <activity
             android:name=".onboarding.OnboardingActivity"/>
         <activity
-            android:name=".task.ui.editor.backup.BackupTaskActivity"
+            android:name=".task.ui.editor.TaskEditorActivity"
             android:theme="@style/AppTheme.Base"/>
         <activity
             android:name=".storage.ui.editor.StorageEditorActivity"
@@ -57,9 +57,6 @@
             android:name=".processor.ui.ProcessorActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Floating"/>
-        <activity
-            android:name="eu.darken.bb.task.ui.editor.restore.RestoreTaskActivity"
-            android:theme="@style/AppTheme.Base"/>
 
         <service
             android:name="eu.darken.bb.processor.core.service.ProcessorService"/>

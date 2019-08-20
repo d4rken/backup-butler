@@ -28,11 +28,11 @@ interface Storage {
 
     fun content(): Observable<Collection<Content>>
 
-    fun details(content: Content, backupId: Backup.Id): Observable<Backup.Details>
+    fun details(content: Content, backupId: Backup.Id): Observable<Content.Details>
 
-    fun load(content: Content, backupId: Backup.Id): Backup
+    fun load(content: Content, backupId: Backup.Id): Backup.Unit
 
-    fun save(backup: Backup): Pair<Content, Versioning.Version>
+    fun save(backup: Backup.Unit): Pair<Content, Versioning.Version>
 
     fun remove(content: Content, backupId: Backup.Id? = null): Boolean
 
@@ -40,6 +40,14 @@ interface Storage {
         val storageId: Id
         val backupSpec: BackupSpec
         val versioning: Versioning
+
+        data class Details(
+                val items: Collection<Item>
+        )
+
+        interface Item {
+            val label: String
+        }
     }
 
     @Parcelize

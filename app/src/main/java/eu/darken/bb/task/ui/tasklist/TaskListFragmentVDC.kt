@@ -56,9 +56,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
     fun editTask(item: Task) {
         Timber.tag(TAG).d("editTask(%s)", item)
         editTaskEvent.postValue(EditActions(
-                taskId = item.taskId,
-                allowEdit = true,
-                allowDelete = true
+                taskId = item.taskId
         ))
     }
 
@@ -68,9 +66,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
     )
 
     data class EditActions(
-            val taskId: Task.Id,
-            val allowEdit: Boolean = false,
-            val allowDelete: Boolean = false
+            val taskId: Task.Id
     )
 
     @AssistedInject.Factory

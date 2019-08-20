@@ -7,7 +7,6 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.Endpoint
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.asFile
@@ -18,18 +17,18 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.processor.core.tmp.TmpRef
 
-class AppEndpoint @AssistedInject constructor(
+class AppBackupEndpoint @AssistedInject constructor(
         @Assisted val progressClient: Progress.Client?,
         @AppContext override val context: Context,
         private val apkExporter: APKExporter,
         private val tmpDataRepo: TmpDataRepo
-) : Endpoint, Progress.Client, HasContext {
+) : Backup.Endpoint, Progress.Client, HasContext {
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
         progressClient?.updateProgress(update)
     }
 
-    override fun backup(spec: BackupSpec): Backup {
+    override fun backup(spec: BackupSpec): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupBuilder(spec, Backup.Id())
         updateProgressPrimary(R.string.creating_backup)
@@ -60,10 +59,6 @@ class AppEndpoint @AssistedInject constructor(
         return builder.toBackup()
     }
 
-    override fun restore(backup: Backup): Boolean {
-
-        TODO("not implemented")
-    }
 
     override fun toString(): String = "AppEndpoint()"
 
@@ -72,6 +67,6 @@ class AppEndpoint @AssistedInject constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : Endpoint.Factory<AppEndpoint>
+    interface Factory : Backup.Endpoint.Factory<AppBackupEndpoint>
 
 }

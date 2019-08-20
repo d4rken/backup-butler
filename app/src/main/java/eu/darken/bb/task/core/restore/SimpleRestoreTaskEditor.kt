@@ -12,7 +12,9 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
+import java.util.*
 
 
 class SimpleRestoreTaskEditor @AssistedInject constructor(
@@ -24,7 +26,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         val defaultConfigs = restoreConfigRepo.getDefaultConfigs().blockingGet()
         SimpleRestoreTask(
                 taskId = taskId,
-                taskName = "",
+                taskName = UUID.randomUUID().toString().substring(0, 8),
                 restoreConfigs = defaultConfigs
         )
     }
@@ -42,7 +44,9 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     override fun isExistingTask(): Boolean = isExisting
 
-    override fun isValidTask(): Boolean = true
+    override fun isValidTask(): Observable<Boolean> = config.map { task ->
+        task.taskName.isNotBlank()
+    }
 
     override fun updateLabel(label: String) {
         configPub.update {

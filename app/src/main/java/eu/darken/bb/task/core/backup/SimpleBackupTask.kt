@@ -16,7 +16,7 @@ data class SimpleBackupTask(
     override val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
 
     override fun getDescription(context: Context): String {
-        return context.getString(R.string.default_backuptask_description_x_sources_x_destinations, sources.size, destinations.size)
+        return context.getString(R.string.task_backup_simple_description, sources.size, destinations.size)
     }
 
 }

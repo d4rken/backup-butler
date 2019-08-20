@@ -8,6 +8,7 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
 import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 
@@ -35,7 +36,9 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 
     override fun isExistingTask(): Boolean = isExisting
 
-    override fun isValidTask(): Boolean = true
+    override fun isValidTask(): Observable<Boolean> = config.map { task ->
+        task.taskName.isNotBlank()
+    }
 
     override fun updateLabel(label: String) {
         configPub.update {

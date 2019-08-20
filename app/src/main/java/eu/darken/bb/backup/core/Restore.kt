@@ -3,8 +3,16 @@ package eu.darken.bb.backup.core
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.file.FileRestoreConfig
+import eu.darken.bb.common.progress.Progress
 
 interface Restore {
+    interface Endpoint {
+        fun restore(config: Config, backup: Backup.Unit): Boolean
+
+        interface Factory<T : Endpoint> {
+            fun create(progressClient: Progress.Client?): T
+        }
+    }
 
     interface Config {
         val restoreType: Backup.Type

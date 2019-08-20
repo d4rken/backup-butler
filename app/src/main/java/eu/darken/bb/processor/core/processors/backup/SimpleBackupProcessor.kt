@@ -1,15 +1,12 @@
-package eu.darken.bb.processor.core.processors
+package eu.darken.bb.processor.core.processors.backup
 
 import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.Endpoint
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
-import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
@@ -17,56 +14,26 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.results.SimpleResult
 import timber.log.Timber
 
 class SimpleBackupProcessor @AssistedInject constructor(
         @AppContext override val context: Context,
-        private val endpointFactories: @JvmSuppressWildcards Map<Backup.Type, Endpoint.Factory<out Endpoint>>,
+        @Assisted progressParent: Progress.Client,
+        private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Backup.Endpoint.Factory<out Backup.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
-        private val storageRefRepo: StorageRefRepo,
-        @Assisted private val progressParent: Progress.Client
-) : Processor, HasContext {
+        private val storageRefRepo: StorageRefRepo
+) : SimpleBaseProcessor(context, progressParent) {
 
-    private val progressChild = object : Progress.Client {
-        override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
-            progressParent.updateProgress { parent ->
-                val oldChild = parent.child ?: Progress.Data()
-                val newChild = update.invoke(oldChild)
-                parent.copy(child = newChild)
-            }
-        }
-    }
-    private val resultBuilder = SimpleResult.Builder(context)
-
-    override fun process(task: Task): Task.Result {
-        Timber.tag(TAG).i("Processing backup task: %s", task)
-        task as Task.Backup
-        try {
-            resultBuilder.forTask(task)
-            resultBuilder.startNow()
-            doProcess(task)
-            resultBuilder.sucessful()
-        } catch (exception: Exception) {
-            Timber.tag(TAG).e(exception, "Task failed: %s", task)
-            resultBuilder.error(exception)
-        } finally {
-            progressParent.updateProgressSecondary(context, R.string.progress_working_label)
-            progressParent.updateProgressCount(Progress.Count.Indeterminate())
-            progressParent.updateProgress { it.copy(child = null) }
-        }
-        return resultBuilder.createResult()
-    }
-
-    private fun doProcess(task: Task.Backup) {
+    override fun doProcess(task: Task.Backup) {
         var success = 0
         var skipped = 0
         var error = 0
@@ -84,7 +51,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 progressParent.updateProgressTertiary(config.getLabel(context))
                 progressParent.updateProgressCount(Progress.Count.Counter(backupConfigs.indexOf(config) + 1, backupConfigs.size))
 
-                val endpoint = endpointFactories.getValue(config.backupType).create(progressChild)
+                val endpoint = backupEndpointFactories.getValue(config.backupType).create(progressChild)
                 Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
                 val backup = endpoint.backup(config)
@@ -120,6 +87,6 @@ class SimpleBackupProcessor @AssistedInject constructor(
     interface Factory : Processor.Factory<SimpleBackupProcessor>
 
     companion object {
-        private val TAG = App.logTag("Processor", "Default")
+        private val TAG = App.logTag("Processor", "Backup", "Simple")
     }
 }

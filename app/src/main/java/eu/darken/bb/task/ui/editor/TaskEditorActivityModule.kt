@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.backup
+package eu.darken.bb.task.ui.editor
 
 import dagger.Binds
 import dagger.Module
@@ -15,15 +15,19 @@ import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentModule
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentModule
+import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment
+import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragmentModule
+import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment
+import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragmentModule
 
 @Module
-abstract class BackupTaskActivityModule {
+abstract class TaskEditorActivityModule {
 
     @PerActivity
     @Binds
     @IntoMap
-    @VDCKey(BackupTaskActivityVDC::class)
-    abstract fun taskActivity(factory: BackupTaskActivityVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(TaskEditorActivityVDC::class)
+    abstract fun taskActivity(factory: TaskEditorActivityVDC.Factory): VDCFactory<out VDC>
 
     @PerFragment
     @ContributesAndroidInjector(modules = [IntroFragmentModule::class])
@@ -36,4 +40,12 @@ abstract class BackupTaskActivityModule {
     @PerFragment
     @ContributesAndroidInjector(modules = [DestinationsFragmentModule::class])
     abstract fun destinationsFragment(): DestinationsFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [RestoreConfigFragmentModule::class])
+    abstract fun restoreConfig(): RestoreConfigFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [RestoreSourcesFragmentModule::class])
+    abstract fun restoreSources(): RestoreSourcesFragment
 }

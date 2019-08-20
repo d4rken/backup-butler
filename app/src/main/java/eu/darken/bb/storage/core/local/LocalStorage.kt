@@ -106,23 +106,23 @@ class LocalStorage(
         return@fromCallable content
     }
 
-    override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Backup.Details> = Observable.fromCallable {
+    override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Storage.Content.Details> = Observable.fromCallable {
         content as LocalStorageContent
         val backupDir = content.path.asFile().assertExists()
         val versionDir = File(backupDir, backupId.id.toString()).assertExists()
 
-        val items = mutableListOf<Backup.Item>()
+        val items = mutableListOf<Storage.Content.Item>()
 
         versionDir.listFiles().forEach { file ->
-            items.add(object : Backup.Item {
+            items.add(object : Storage.Content.Item {
                 override val label: String
                     get() = file.path.substring(versionDir.path.length)
             })
         }
-        return@fromCallable Backup.Details(items)
+        return@fromCallable Storage.Content.Details(items)
     }.delay(2, TimeUnit.SECONDS)
 
-    override fun load(content: Storage.Content, backupId: Backup.Id): Backup {
+    override fun load(content: Storage.Content, backupId: Backup.Id): Backup.Unit {
         content as LocalStorageContent
         val backupDir = content.path.asFile().assertExists()
 
@@ -145,7 +145,7 @@ class LocalStorage(
         return backupBuilder.toBackup()
     }
 
-    override fun save(backup: Backup): Pair<Storage.Content, Versioning.Version> {
+    override fun save(backup: Backup.Unit): Pair<Storage.Content, Versioning.Version> {
         updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())

@@ -69,7 +69,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
     data class State(
             val content: Storage.Content? = null,
             val version: Versioning.Version? = null,
-            val items: List<Backup.Item> = emptyList(),
+            val items: List<Storage.Content.Item> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
             val error: Throwable? = null

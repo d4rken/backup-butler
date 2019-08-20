@@ -56,7 +56,7 @@
     <string name="label_name">Name</string>
     <string name="core_settings">Core settings</string>
     <string name="action_save">Save</string>
-    <string name="default_backuptask_description_x_sources_x_destinations">%d sources, %d destinations</string>
+    <string name="task_backup_simple_description">Sources: %d, Destinations: %d</string>
     <string name="label_select_type">Select type</string>
     <string name="backuptype_app_label">App backup</string>
     <string name="label_edit_source_config">Edit source</string>
@@ -129,4 +129,5 @@
     <string name="config_skip_existing_files_label">Skip existing files</string>
     <string name="config_skip_existing_files_desc">Don\'t replace a file if it already exists.</string>
     <string name="file_options_label">File options</string>
+    <string name="task_restore_simple_description">Storages: %d, Backups: %d, Revisions: %d</string>
 </resources>

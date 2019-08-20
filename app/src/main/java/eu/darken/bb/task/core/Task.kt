@@ -34,8 +34,8 @@ interface Task {
             @StringRes val labelRes: Int,
             val value: String
     ) {
-        BACKUP_SIMPLE(R.drawable.ic_sd_storage, R.string.backup_task_label, "backup_simple"),
-        RESTORE_SIMPLE(R.drawable.ic_file_restore, R.string.restore_task_label, "restore_simple");
+        BACKUP_SIMPLE(R.drawable.ic_backup, R.string.backup_task_label, "backup_simple"),
+        RESTORE_SIMPLE(R.drawable.ic_restore, R.string.restore_task_label, "restore_simple");
 
         companion object {
             private val VALUE_MAP = values().associateBy(Type::value)

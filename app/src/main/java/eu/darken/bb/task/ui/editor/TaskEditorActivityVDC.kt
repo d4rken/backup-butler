@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.backup
+package eu.darken.bb.task.ui.editor
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
@@ -8,6 +8,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
@@ -15,14 +16,17 @@ import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment
+import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
 
 
-class BackupTaskActivityVDC @AssistedInject constructor(
+class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
+        private val processorControl: ProcessorControl,
         private val taskRepo: TaskRepo
 ) : SmartVDC() {
     private val taskObs = taskBuilder.task(taskId)
@@ -34,26 +38,27 @@ class BackupTaskActivityVDC @AssistedInject constructor(
             .doOnNext { editor ->
                 stater.update {
                     it.copy(
-                            existingTask = editor.isExistingTask()
+                            existingTask = editor.isExistingTask(),
+                            isLoading = false
                     )
                 }
             }
 
-    private val taskCheckerObs = editorObs
-            .flatMap { it.config }
-            .doOnNext { task ->
-                stater.update { it.copy(saveable = isTaskComplete(task)) }
+    private val configObs = editorObs
+            .flatMap { it.isValidTask() }
+            .doOnNext { isValid ->
+                stater.update { it.copy(isComplete = isValid) }
             }
 
     private val stater: Stater<State> = Stater {
         val data = taskObs.blockingFirst()
         val steps = when (data.taskType) {
-            Task.Type.BACKUP_SIMPLE -> listOf(State.Step.INTRO, State.Step.SOURCES, State.Step.DESTINATIONS)
-            Task.Type.RESTORE_SIMPLE -> TODO()
+            Task.Type.BACKUP_SIMPLE -> listOf(State.Step.BACKUP_INTRO, State.Step.BACKUP_SOURCES, State.Step.BACKUP_DESTINATIONS)
+            Task.Type.RESTORE_SIMPLE -> listOf(State.Step.RESTORE_SOURCES, State.Step.RESTORE_OPTIONS)
         }
         State(steps = steps, taskId = taskId, taskType = data.taskType)
     }
-            .addLiveDep { taskCheckerObs.subscribe() }
+            .addLiveDep { configObs.subscribe() }
 
     val state = stater.liveData
 
@@ -68,30 +73,20 @@ class BackupTaskActivityVDC @AssistedInject constructor(
                 newPos = old.steps.size - 1
             }
             return@update old.copy(
-                    stepPos = newPos,
-                    allowNext = newPos < old.steps.size - 1,
-                    allowPrevious = newPos > 0
+                    stepPos = newPos
             )
         }
     }
 
-    private fun isTaskComplete(task: Task?): Boolean {
-        if (task == null) return false
-        task.taskName.isNotBlank()
-        return true
-    }
-
-    private fun saveTask() {
-        taskBuilder.save(taskId)
+    private fun saveTask(): Single<Task> {
+        return taskBuilder.save(taskId)
                 .doOnSubscribe {
                     stater.update {
-                        it.copy(allowNext = false, allowPrevious = false)
+                        it.copy(isLoading = true)
                     }
                 }
                 .subscribeOn(Schedulers.computation())
-                .subscribe { savedTask ->
-                    finishActivity.postValue(true)
-                }
+
     }
 
     private fun dismiss() {
@@ -99,7 +94,7 @@ class BackupTaskActivityVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe {
                     stater.update {
-                        it.copy(allowNext = false, allowPrevious = false)
+                        it.copy(isLoading = true)
                     }
                 }
                 .subscribe { _ ->
@@ -108,19 +103,33 @@ class BackupTaskActivityVDC @AssistedInject constructor(
     }
 
     fun previous() {
-        if (stater.snapshot.allowPrevious) {
-            changeStep(-1)
+        if (stater.snapshot.stepPos == 0) {
+            cancel()
         } else {
-            dismiss()
+            changeStep(-1)
         }
     }
 
     fun next() {
-        if (stater.snapshot.allowNext) {
-            changeStep(+1)
-        } else {
-            saveTask()
+        changeStep(+1)
+    }
+
+    fun cancel() {
+        dismiss()
+    }
+
+    fun save() {
+        saveTask().subscribe { savedTask ->
+            finishActivity.postValue(true)
         }
+    }
+
+    fun execute() {
+        saveTask()
+                .subscribe { savedTask ->
+                    processorControl.submit(savedTask)
+                    finishActivity.postValue(true)
+                }
     }
 
     data class State(
@@ -128,24 +137,24 @@ class BackupTaskActivityVDC @AssistedInject constructor(
             val taskType: Task.Type,
             val steps: List<Step>,
             val stepPos: Int = 0,
-            val allowPrevious: Boolean = false,
-            val allowNext: Boolean = true,
-            val saveable: Boolean = false,
-            val existingTask: Boolean = false
+            val isComplete: Boolean = false,
+            val existingTask: Boolean = false,
+            val isLoading: Boolean = true
     ) {
         enum class Step(
                 val fragmentClass: KClass<out Fragment>
         ) {
-            INTRO(IntroFragment::class),
-            SOURCES(SourcesFragment::class),
-            DESTINATIONS(DestinationsFragment::class),
+            BACKUP_INTRO(IntroFragment::class),
+            BACKUP_SOURCES(SourcesFragment::class),
+            BACKUP_DESTINATIONS(DestinationsFragment::class),
+            RESTORE_SOURCES(RestoreSourcesFragment::class),
             RESTORE_OPTIONS(RestoreConfigFragment::class)
         }
     }
 
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<BackupTaskActivityVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): BackupTaskActivityVDC
+    interface Factory : VDCFactory<TaskEditorActivityVDC> {
+        fun create(handle: SavedStateHandle, taskId: Task.Id): TaskEditorActivityVDC
     }
 }

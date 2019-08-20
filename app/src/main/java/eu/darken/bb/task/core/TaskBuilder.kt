@@ -7,8 +7,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.task.ui.editor.backup.BackupTaskActivity
-import eu.darken.bb.task.ui.editor.restore.RestoreTaskActivity
+import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -114,10 +113,7 @@ class TaskBuilder @Inject constructor(
                 }
                 .subscribe { data ->
                     Timber.tag(TAG).v("Starting editor for ID %s", taskId)
-                    val intent = when (data.taskType) {
-                        Task.Type.BACKUP_SIMPLE -> Intent(context, BackupTaskActivity::class.java)
-                        Task.Type.RESTORE_SIMPLE -> Intent(context, RestoreTaskActivity::class.java)
-                    }
+                    val intent = Intent(context, TaskEditorActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     intent.putTaskId(data.taskId)
                     context.startActivity(intent)

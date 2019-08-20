@@ -5,16 +5,26 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import eu.darken.bb.R
+import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.tmp.TmpRef
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
-data class Backup(
-        val id: Id,
-        val backupType: Type,
-        val spec: BackupSpec,
-        val data: Map<String, Collection<TmpRef>>
-) {
+interface Backup {
+    interface Endpoint {
+        fun backup(spec: BackupSpec): Unit
+
+        interface Factory<T : Endpoint> {
+            fun create(progressClient: Progress.Client?): T
+        }
+    }
+
+    data class Unit(
+            val id: Id,
+            val backupType: Type,
+            val spec: BackupSpec,
+            val data: Map<String, Collection<TmpRef>>
+    )
 
     @Keep
     enum class Type constructor(
@@ -30,13 +40,4 @@ data class Backup(
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
         override fun toString(): String = "BackupId($id)"
     }
-
-    data class Details(
-            val items: Collection<Item>
-    )
-
-    interface Item {
-        val label: String
-    }
 }
-
