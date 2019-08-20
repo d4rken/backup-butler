@@ -23,8 +23,8 @@ import eu.darken.bb.task.core.Task
 import timber.log.Timber
 
 class SimpleBackupProcessor @AssistedInject constructor(
-        @AppContext override val context: Context,
         @Assisted progressParent: Progress.Client,
+        @AppContext context: Context,
         private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Backup.Endpoint.Factory<out Backup.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
