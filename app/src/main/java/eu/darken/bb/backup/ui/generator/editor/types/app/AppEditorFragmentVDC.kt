@@ -48,15 +48,10 @@ class AppEditorFragmentVDC @AssistedInject constructor(
     val finishActivity = SingleLiveEvent<Boolean>()
 
     init {
-        builder.config(generatorId)
-                .subscribeOn(Schedulers.io())
-                .subscribe { data ->
-                    stateUpdater.update { it.copy(existing = data.existing) }
-                }
         editorObs.firstOrError()
                 .subscribeOn(Schedulers.io())
                 .subscribe { editor ->
-                    stateUpdater.update { it.copy(working = false) }
+                    stateUpdater.update { it.copy(working = false, existing = editor.existingConfig) }
                 }
     }
 
@@ -80,14 +75,13 @@ class AppEditorFragmentVDC @AssistedInject constructor(
         } else {
             builder
                     .update(generatorId) { data ->
-                        data!!.copy(type = null, editor = null)
+                        data!!.copy(generatorType = null, editor = null)
                     }
                     .subscribeOn(Schedulers.io())
                     .subscribe()
             return true
         }
     }
-
 
     data class State(
             val label: String = "",

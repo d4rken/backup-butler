@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Parcelable
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppBackupGenerator
+import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.Single
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -14,14 +16,18 @@ interface Generator {
 
     interface Editor {
 
+        val config: Observable<out Config>
+
         val existingConfig: Boolean
 
-        val allowSave: Boolean
+        fun isValid(): Observable<Boolean>
 
-        fun save(): Single<Config>
+        fun save(): Single<out Config>
+
+        fun load(config: Config): Completable
 
         interface Factory<T : Editor> {
-            fun create(generatorId: Id, parentConfig: Config? = null): T
+            fun create(generatorId: Id): T
         }
     }
 

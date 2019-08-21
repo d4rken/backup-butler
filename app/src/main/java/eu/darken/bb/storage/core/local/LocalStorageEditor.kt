@@ -14,6 +14,7 @@ import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
+import io.reactivex.Observable
 import io.reactivex.Single
 import java.io.File
 
@@ -27,9 +28,11 @@ class LocalStorageEditor @AssistedInject constructor(
             label = "",
             storageId = storageId
     ))
-    val config = configPub.data
-    private var existingConfig: Boolean = false
+    override val config = configPub.data
+
     internal var refPath: SFile? = File(Environment.getExternalStorageDirectory(), "BackupButler").asSFile()
+
+    override var isExistingStorage: Boolean = false
 
     fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
 
@@ -52,11 +55,8 @@ class LocalStorageEditor @AssistedInject constructor(
         }
     }
 
-    override fun isExistingStorage(): Boolean = existingConfig
-
-    override fun isValidConfig(): Boolean {
-        return refPath != null
-                && configPub.snapshot.label.isNotEmpty()
+    override fun isValid(): Observable<Boolean> = config.map {
+        refPath != null && it.label.isNotEmpty()
     }
 
     override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
@@ -64,7 +64,7 @@ class LocalStorageEditor @AssistedInject constructor(
         val config = Opt(configAdapter.fromFile(File(ref.path.asFile(), STORAGE_CONFIG)))
         if (config.isNotNull) {
             configPub.update { config.notNullValue() }
-            existingConfig = true
+            isExistingStorage = true
         }
         refPath = ref.path
         return@fromCallable config

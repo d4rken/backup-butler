@@ -5,33 +5,27 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.HotData
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
 class AppSpecGeneratorEditor @AssistedInject constructor(
-        moshi: Moshi,
         @Assisted private val generatorId: Generator.Id,
-        @Assisted private val parentConfig: Generator.Config? = null
+        moshi: Moshi
 ) : Generator.Editor {
 
-    override val existingConfig: Boolean = parentConfig != null
+    private val configPub = HotData(AppBackupGenerator.Config(generatorId = generatorId, label = ""))
 
-    override val allowSave: Boolean
-        get() = true
+    override var existingConfig: Boolean = false
 
-    init {
-        if (parentConfig != null && parentConfig !is AppBackupGenerator.Config) {
-            throw IllegalArgumentException("$existingConfig is not an ${AppBackupGenerator.Config::class.simpleName}")
-        }
+    override fun isValid(): Observable<Boolean> = configPub.data.map { true }
+
+    override fun load(config: Generator.Config): Completable = Completable.fromCallable {
+        existingConfig = true
+        Any()
     }
 
-    private val configPub = HotData(
-            parentConfig as? AppBackupGenerator.Config ?: AppBackupGenerator.Config(
-                    generatorId = generatorId,
-                    label = ""
-            )
-    )
-    val config: Observable<AppBackupGenerator.Config> = configPub.data.hide()
+    override val config: Observable<AppBackupGenerator.Config> = configPub.data
 
     fun updateLabel(label: String) {
         configPub.update { it.copy(label = label) }

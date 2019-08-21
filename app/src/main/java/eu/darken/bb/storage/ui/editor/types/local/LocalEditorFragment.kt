@@ -2,7 +2,10 @@ package eu.darken.bb.storage.ui.editor.types.local
 
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.KeyEvent
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
@@ -44,9 +47,6 @@ class LocalEditorFragment : SmartFragment(), AutoInject {
     @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
     @BindView(R.id.options_progress) lateinit var optionsProgress: View
 
-    private var allowCreate = false
-    private var isExisting = false
-
     init {
         layoutRes = R.layout.storage_editor_local_fragment
     }
@@ -62,23 +62,20 @@ class LocalEditorFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
+        requireActivityActionBar().subtitle = getString(R.string.repo_type_local_storage_label)
+
         vdc.state.observe(this, Observer { state ->
             pathInput.setTextIfDifferent(state.path)
             labelInput.setTextIfDifferent(state.label)
 
             if (state.path.isNotEmpty()) {
                 pathInputLayout.isEnabled = !state.existing
-
                 pathInput.setTextColor(getColorForAttr(if (state.validPath || state.existing) R.attr.colorOnPrimarySurface else R.attr.colorError))
             }
 
-            allowCreate = state.allowCreate
-            isExisting = state.existing
+            requireActivityActionBar().setHomeAsUpIndicator(if (state.existing) R.drawable.ic_cancel else R.drawable.ic_arrow_back)
             requireActivity().invalidateOptionsMenu()
-
-
-            requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-            requireActivityActionBar().setDisplayHomeAsUpEnabled(!state.existing)
 
             coreSettingsContainer.visibility = if (state.working) View.INVISIBLE else View.VISIBLE
             coreSettingsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
@@ -95,24 +92,8 @@ class LocalEditorFragment : SmartFragment(), AutoInject {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_storageeditor_local, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (isExisting) R.string.action_save else R.string.action_create)
-
-        super.onPrepareOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         android.R.id.home -> vdc.onGoBack()
-        R.id.action_create -> {
-            vdc.createStorage()
-            true
-        }
         else -> super.onOptionsItemSelected(item)
     }
 }

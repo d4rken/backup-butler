@@ -1,17 +1,21 @@
 package eu.darken.bb.storage.ui.editor
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
+import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
 import javax.inject.Inject
@@ -19,21 +23,24 @@ import javax.inject.Inject
 class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var vdcSource: VDCSource.Factory
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
+    @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageEditorActivityVDC.Factory
         factory.create(handle, intent.getStorageId()!!)
     })
 
+    private var allowCreate: Boolean = false
+    private var existing: Boolean = false
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.task_editor_backup_activity)
+        setContentView(R.layout.storage_editor_activity)
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->
@@ -42,28 +49,58 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
             } else {
                 supportActionBar!!.title = getString(R.string.label_create_storage)
             }
-            supportActionBar!!.subtitle = when (state.page) {
-                StorageEditorActivityVDC.State.Page.SELECTION -> getString(R.string.label_storage_selection)
-                StorageEditorActivityVDC.State.Page.LOCAL -> getString(R.string.repo_type_local_storage_label)
+
+            allowCreate = state.allowSave
+            existing = state.existing
+            loadingOverlay.setGone(!state.isWorking)
+            invalidateOptionsMenu()
+        })
+
+        vdc.pageEvent.observe(this, Observer { pageEvent ->
+            val manager = supportFragmentManager
+
+            var fragment = manager.findFragmentByTag(pageEvent.getPage().name)
+            if (fragment == null) {
+                fragment = manager.fragmentFactory.instantiate(this.javaClass.classLoader!!, pageEvent.getPage().fragmentClass.qualifiedName!!)
             }
 
-            showPage(state.page, state.storageId)
+            fragment.arguments = Bundle().apply { putStorageId(pageEvent.storageId) }
+            manager
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.content_frame, fragment, pageEvent.getPage().name)
+                    .commit()
         })
 
         vdc.finishActivity.observe(this, Observer { finish() })
     }
 
-
-    private fun showPage(page: StorageEditorActivityVDC.State.Page, storageId: Storage.Id) {
-        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (page.fragmentClass.isInstance(fragment)) return
-
-        fragment = supportFragmentManager.findFragmentByTag(page.name)
-        if (fragment == null) {
-            fragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, page.fragmentClass.qualifiedName!!)
+    override fun onSupportNavigateUp(): Boolean {
+        return if (supportFragmentManager.popBackStackImmediate()) {
+            true
+        } else {
+            finish()
+            super.onSupportNavigateUp()
         }
-        fragment.arguments = Bundle().apply { putStorageId(storageId) }
-        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, page.name).commitAllowingStateLoss()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_storage_editor_activity, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.action_create).isVisible = allowCreate
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.action_save else R.string.action_create)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_create -> {
+            vdc.saveConfig()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
 }

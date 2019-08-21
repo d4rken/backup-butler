@@ -6,6 +6,8 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.core.app.AppBackupGenerator
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
+import eu.darken.bb.backup.core.file.FileBackupGenerator
+import eu.darken.bb.backup.core.file.FileSpecGeneratorEditor
 
 @Module
 abstract class BackupTypeModule {
@@ -13,12 +15,22 @@ abstract class BackupTypeModule {
     @Binds
     @IntoMap
     @BackupTypeKey(Backup.Type.APP)
-    abstract fun appConfigEditor(repo: AppSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
+    abstract fun appGeneratorEditor(repo: AppSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
 
     @Binds
     @IntoMap
     @GeneratorTypeKey(Backup.Type.APP)
-    abstract fun appConfigGenerator(repo: AppBackupGenerator): Generator
+    abstract fun appGenerator(repo: AppBackupGenerator): Generator
+
+    @Binds
+    @IntoMap
+    @BackupTypeKey(Backup.Type.FILE)
+    abstract fun fileGeneratorEditor(repo: FileSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
+
+    @Binds
+    @IntoMap
+    @GeneratorTypeKey(Backup.Type.FILE)
+    abstract fun fileGenerator(repo: FileBackupGenerator): Generator
 }
 
 

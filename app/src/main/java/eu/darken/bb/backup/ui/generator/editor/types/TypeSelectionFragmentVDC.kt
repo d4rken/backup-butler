@@ -29,7 +29,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     val finishActivity = SingleLiveEvent<Boolean>()
 
     fun createType(type: Backup.Type) {
-        builder.update(generatorId) { it!!.copy(type = type) }
+        builder.update(generatorId) { it!!.copy(generatorType = type) }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
     }
@@ -46,6 +46,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     data class State(
             val supportedTypes: List<Backup.Type>
     )
+
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<TypeSelectionFragmentVDC> {

@@ -72,9 +72,8 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .subscribe { storage ->
-                            storageBuilder.startEditor(storage.storageId)
-                        }
+                        .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
+                        .subscribe()
             }
             DELETE -> {
                 storageRefRepo.remove(storageId)
@@ -95,9 +94,8 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .flatMap { data -> taskBuilder.update(data.taskId) { data }.map { it.notNullValue() } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .subscribe { data ->
-                            taskBuilder.startEditor(data.taskId)
-                        }
+                        .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
+                        .subscribe()
             }
         }
     }

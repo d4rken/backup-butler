@@ -59,7 +59,7 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         } else {
             builder
                     .update(generatorId) { data ->
-                        data!!.copy(type = null, editor = null)
+                        data!!.copy(generatorType = null, editor = null)
                     }
                     .subscribeOn(Schedulers.io())
                     .subscribe()

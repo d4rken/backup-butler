@@ -7,18 +7,12 @@
     tools:context=".main.ui.start.MainActivity">
 
     <FrameLayout
-        android:id="@+id/working_indicator"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ProgressBar
-            style="@style/ProgressStyleSpinner"/>
-
-    </FrameLayout>
-
-    <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <eu.darken.bb.common.ui.LoadingOverlayView
+        android:id="@+id/loading_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </FrameLayout>

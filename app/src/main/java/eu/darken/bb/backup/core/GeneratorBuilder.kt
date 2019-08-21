@@ -29,20 +29,13 @@ class GeneratorBuilder @Inject constructor(
                 .observeOn(Schedulers.computation())
                 .subscribe { dataMap ->
                     dataMap.entries.forEach { (uuid, data) ->
-                        if (data.type != null && data.editor == null) {
-                            val editor = editors.getValue(data.type).create(uuid)
+                        if (data.generatorType != null && data.editor == null) {
+                            val editor = editors.getValue(data.generatorType).create(uuid)
                             update(uuid) { it!!.copy(editor = editor) }.blockingGet()
                         }
                     }
                 }
     }
-
-    data class Data(
-            val id: Generator.Id,
-            val type: Backup.Type? = null,
-            val editor: Generator.Editor? = null,
-            val existing: Boolean = false
-    )
 
     fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
 
@@ -58,11 +51,12 @@ class GeneratorBuilder @Inject constructor(
                 val old = mutMap.remove(id)
                 val new = action.invoke(old)
                 if (new != null) {
-                    mutMap[new.id] = new
+                    mutMap[new.generatorId] = new
                 }
                 mutMap.toMap()
             }
             .map { Opt(it.newValue[id]) }
+            .doOnSuccess { Timber.tag(TAG).v("Generator  updated: %s (%s): %s", id, action, it) }
 
     fun remove(id: Generator.Id): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
@@ -73,12 +67,13 @@ class GeneratorBuilder @Inject constructor(
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
             }
+            .doOnSuccess { Timber.tag(TAG).v("Removed generator: %s", id) }
 
     fun save(id: Generator.Id): Single<Generator.Config> = remove(id)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
                 if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
-                it.notNullValue()
+                it.value
             }
             .flatMap {
                 if (it.editor == null) throw IllegalStateException("Can't save builder data, NULL editor: $it")
@@ -91,43 +86,56 @@ class GeneratorBuilder @Inject constructor(
             .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
             .map { it }
 
-    fun load(id: Generator.Id): Single<Data> = generatorRepo.configs
-            .doOnSubscribe { Timber.tag(TAG).v("Loading %s", id) }
-            .firstOrError()
-            .map { Opt(it[id]) }
-            .map {
-                if (it.isNull) throw IllegalArgumentException("Trying to load unknown spec: $id")
-                return@map it.value
+    fun load(id: Generator.Id): Single<Data> = generatorRepo.get(id)
+            .map { optTask ->
+                if (!optTask.isNull) optTask.value
+                else throw IllegalArgumentException("Task not in repo: $id")
             }
             .flatMap { config ->
-                val editor = editors.getValue(config.generatorType).create(config.generatorId, config)
-                val builderData = Data(
-                        id = config.generatorId,
-                        type = config.generatorType,
-                        editor = editor,
-                        existing = true
+                val editor = editors.getValue(config.generatorType).create(config.generatorId)
+                editor.load(config).blockingGet()
+                val data = Data(
+                        generatorId = config.generatorId,
+                        generatorType = config.generatorType,
+                        editor = editor
                 )
-                return@flatMap update(id) { builderData }.map { builderData }
+                update(id) { data }.map { data }
             }
-            .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
-            .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
-    fun startEditor(configId: Generator.Id = Generator.Id()): Completable = load(configId)
+    fun startEditor(configId: Generator.Id = Generator.Id(), type: Backup.Type? = null): Completable = hotData.data.firstOrError()
+            .map { builderData ->
+                if (builderData.containsKey(configId)) builderData.getValue(configId)
+                else throw IllegalArgumentException("Config builder not in data: $configId")
+            }
+            .onErrorResumeNext { load(configId) }
             .onErrorResumeNext {
-                Timber.tag(TAG).d("No existing spec for id %s, creating new builder.", configId)
-                update(configId) { Data(id = configId) }.map { it.value!! }
+                Timber.tag(TAG).d("No existing generator config for id %s, creating new dataset.", configId)
+                update(configId) { Data(generatorId = configId, generatorType = type) }.map { it.value!! }
             }
             .doOnSuccess { data ->
                 Timber.tag(TAG).v("Starting editor for ID %s", configId)
                 val intent = Intent(context, GeneratorEditorActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.putGeneratorId(data.id)
+                intent.putGeneratorId(data.generatorId)
                 context.startActivity(intent)
-
             }
             .ignoreElement()
 
+    fun createBuilder(newId: Generator.Id = Generator.Id(), type: Backup.Type?): Single<Data> = Single.fromCallable {
+        Data(
+                generatorId = newId,
+                generatorType = type,
+                editor = editors[type]?.create(newId)
+        )
+    }
+
+    data class Data(
+            val generatorId: Generator.Id,
+            val generatorType: Backup.Type? = null,
+            val editor: Generator.Editor? = null
+    )
+
     companion object {
-        val TAG = App.logTag("Backup", "ConfigBuilder")
+        val TAG = App.logTag("Backup", "Generator", "Builder")
     }
 }

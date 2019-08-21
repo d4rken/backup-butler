@@ -11,9 +11,12 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
+import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
+import eu.darken.bb.backup.core.putGeneratorId
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setTextIfDifferent
@@ -40,17 +43,17 @@ class AppEditorFragment : SmartFragment(), AutoInject {
     @BindView(R.id.input_include_packages) lateinit var includedPackagesInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
+    @BindView(R.id.auto_include_apps) lateinit var autoIncludeApps: View
+
     @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
     @BindView(R.id.options_progress) lateinit var optionsProgress: View
-
-    private var allowCreate = false
-    private var isExisting = false
 
     init {
         layoutRes = R.layout.generator_editor_app_fragment
     }
 
     override fun onAttach(context: Context) {
+        setHasOptionsMenu(true)
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 vdc.onGoBack()
@@ -60,15 +63,15 @@ class AppEditorFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivityActionBar().subtitle = getString(R.string.backuptype_app_label)
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
+
         vdc.state.observe(this, Observer { state ->
             labelInput.setTextIfDifferent(state.label)
 
-            allowCreate = state.allowCreate
-            isExisting = state.existing
             requireActivity().invalidateOptionsMenu()
 
-            requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-            requireActivityActionBar().setDisplayHomeAsUpEnabled(!state.existing)
+            requireActivityActionBar().setHomeAsUpIndicator(if (state.existing) R.drawable.ic_cancel else R.drawable.ic_arrow_back)
 
             coreSettingsContainer.visibility = if (state.working) View.INVISIBLE else View.VISIBLE
             coreSettingsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
@@ -85,6 +88,15 @@ class AppEditorFragment : SmartFragment(), AutoInject {
 
         includedPackagesInput.userTextChangeEvents().subscribe {
             vdc.updateIncludedPackages(it.text.split(','))
+        }
+        autoIncludeApps.clicks().subscribe {
+            val frag = FilesEditorFragment()
+            frag.arguments = Bundle().apply { putGeneratorId(arguments!!.getGeneratorId()!!) }
+            requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.content_frame, frag)
+                    .commit()
         }
 
         super.onViewCreated(view, savedInstanceState)

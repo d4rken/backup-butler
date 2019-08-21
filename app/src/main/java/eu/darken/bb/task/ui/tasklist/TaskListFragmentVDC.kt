@@ -16,6 +16,7 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.results.TaskResultRepo
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 class TaskListFragmentVDC @AssistedInject constructor(
@@ -69,6 +70,8 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     fun newTask() {
         taskBuilder.startEditor()
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     fun editTask(item: Task) {

@@ -13,6 +13,7 @@ import javax.inject.Inject
 class AppBackupGenerator @Inject constructor(
         @AppContext private val context: Context
 ) : Generator {
+
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as AppBackupGenerator.Config
         val specs = mutableListOf<BackupSpec>()

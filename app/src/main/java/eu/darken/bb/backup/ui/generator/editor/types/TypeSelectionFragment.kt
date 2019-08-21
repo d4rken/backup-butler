@@ -40,8 +40,7 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
 
     override fun onAttach(context: Context) {
         setHasOptionsMenu(true)
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
+
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 vdc.dismiss()
@@ -51,6 +50,10 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
+        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
+
+        requireActivityActionBar().subtitle = getString(R.string.label_select_type)
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })

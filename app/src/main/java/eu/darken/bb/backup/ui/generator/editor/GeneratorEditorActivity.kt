@@ -3,8 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -14,9 +12,10 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.backup.core.putGeneratorId
+import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
@@ -31,7 +30,7 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
         factory.create(handle, intent.getGeneratorId()!!)
     })
 
-    @BindView(R.id.working_indicator) lateinit var workingIndicator: ViewGroup
+    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
@@ -51,34 +50,40 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
             } else {
                 supportActionBar!!.title = getString(R.string.label_create_source_config)
             }
-            supportActionBar!!.subtitle = when (state.page) {
-                GeneratorEditorActivityVDC.State.Page.SELECTION -> getString(R.string.label_select_type)
-                GeneratorEditorActivityVDC.State.Page.APP -> getString(R.string.backuptype_app_label)
-                GeneratorEditorActivityVDC.State.Page.FILES -> getString(R.string.backuptype_files_label)
-            }
 
             allowCreate = state.allowSave
             existing = state.existing
+            invalidateOptionsMenu()
 
-            workingIndicator.visibility = if (state.working) View.VISIBLE else View.GONE
+            loadingOverlay.setGone(!state.working)
+        })
 
-            showPage(state.page, state.generatorId)
+        vdc.pageEvent.observe(this, Observer { pageEvent ->
+            val manager = supportFragmentManager
+
+            var fragment = manager.findFragmentByTag(pageEvent.getPage().name)
+            if (fragment == null) {
+                fragment = manager.fragmentFactory.instantiate(this.javaClass.classLoader!!, pageEvent.getPage().fragmentClass.qualifiedName!!)
+            }
+
+            fragment.arguments = Bundle().apply { putGeneratorId(pageEvent.generatorId) }
+            manager
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.content_frame, fragment, pageEvent.getPage().name)
+                    .commit()
         })
 
         vdc.finishActivity.observe(this, Observer { finish() })
     }
 
-
-    private fun showPage(page: GeneratorEditorActivityVDC.State.Page, generatorId: Generator.Id) {
-        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (page.fragmentClass.isInstance(fragment)) return
-
-        fragment = supportFragmentManager.findFragmentByTag(page.name)
-        if (fragment == null) {
-            fragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, page.fragmentClass.qualifiedName!!)
+    override fun onSupportNavigateUp(): Boolean {
+        return if (supportFragmentManager.popBackStackImmediate()) {
+            true
+        } else {
+            finish()
+            super.onSupportNavigateUp()
         }
-        fragment.arguments = Bundle().apply { putGeneratorId(generatorId) }
-        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, page.name).commitAllowingStateLoss()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

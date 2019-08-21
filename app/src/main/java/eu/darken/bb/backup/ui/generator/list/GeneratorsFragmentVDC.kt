@@ -39,7 +39,9 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
     fun newGenerator() {
-        generatorBuilder.startEditor().subscribeOn(Schedulers.io()).subscribe()
+        generatorBuilder.startEditor()
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
 

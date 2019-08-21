@@ -8,6 +8,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -97,28 +98,28 @@ class TaskBuilder @Inject constructor(
                 )
                 update(id) { data }.map { data }
             }
+            .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
-    fun startEditor(taskId: Task.Id = Task.Id(), taskType: Task.Type = Task.Type.BACKUP_SIMPLE) {
-        hotData.data.firstOrError()
-                .map { builderData ->
-                    if (builderData.containsKey(taskId)) builderData.getValue(taskId)
-                    else throw IllegalArgumentException("Task not builder data: $taskId")
-                }
-                .onErrorResumeNext {
-                    load(taskId)
-                }
-                .onErrorResumeNext {
-                    Timber.tag(TAG).d("No existing task for id %s, creating new dataset.", taskId)
-                    update(taskId) { Data(taskId = taskId, taskType = taskType) }.map { it.value!! }
-                }
-                .subscribe { data ->
-                    Timber.tag(TAG).v("Starting editor for ID %s", taskId)
-                    val intent = Intent(context, TaskEditorActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    intent.putTaskId(data.taskId)
-                    context.startActivity(intent)
-                }
-    }
+    fun startEditor(taskId: Task.Id = Task.Id(), taskType: Task.Type = Task.Type.BACKUP_SIMPLE): Completable = hotData.data.firstOrError()
+            .map { builderData ->
+                if (builderData.containsKey(taskId)) builderData.getValue(taskId)
+                else throw IllegalArgumentException("Task not builder data: $taskId")
+            }
+            .onErrorResumeNext { load(taskId) }
+            .onErrorResumeNext {
+                Timber.tag(TAG).d("No existing task for id %s, creating new dataset.", taskId)
+                update(taskId) { Data(taskId = taskId, taskType = taskType) }.map { it.value!! }
+            }
+            .doOnSuccess { data ->
+                Timber.tag(TAG).v("Starting editor for ID %s", taskId)
+                val intent = Intent(context, TaskEditorActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.putTaskId(data.taskId)
+                context.startActivity(intent)
+            }
+            .ignoreElement()
+
 
     fun createBuilder(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = Single.fromCallable {
         Data(

@@ -40,6 +40,8 @@ class StorageListFragmentVDC @AssistedInject constructor(
 
     fun createStorage() {
         storageBuilder.startEditor()
+                .subscribeOn(Schedulers.io())
+                .subscribe()
     }
 
     fun editStorage(item: StorageInfoOpt) {

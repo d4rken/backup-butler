@@ -7,7 +7,7 @@ import eu.darken.bb.common.file.SFile
 
 data class FileBackupSpec(
         val name: String,
-        val paths: List<SFile>,
+        val path: SFile,
         override val specId: BackupSpec.Id = BackupSpec.Id("files-$name")
 ) : BackupSpec {
 

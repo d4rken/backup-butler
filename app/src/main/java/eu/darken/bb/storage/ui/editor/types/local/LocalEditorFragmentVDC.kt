@@ -40,9 +40,9 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 state.copy(
                         label = config.label,
                         validPath = editor.isRefPathValid(state.path),
-                        allowCreate = editor.isRefPathValid(state.path) && editor.isValidConfig(),
+                        allowCreate = editor.isRefPathValid(state.path) && editor.isValid().blockingFirst(),
                         working = false,
-                        existing = editor.isExistingStorage()
+                        existing = editor.isExistingStorage
                 )
             }
             .toLiveData()
@@ -86,7 +86,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun onGoBack(): Boolean {
-        if (editor.isExistingStorage()) {
+        if (editor.isExistingStorage) {
             builder.remove(storageId)
                     .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
                     .subscribeOn(Schedulers.io())

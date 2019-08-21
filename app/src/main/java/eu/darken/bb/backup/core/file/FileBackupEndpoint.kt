@@ -7,7 +7,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.progress.Progress
 import java.io.File
 
-class FileEndpoint @AssistedInject constructor(
+class FileBackupEndpoint @AssistedInject constructor(
         @Assisted private val progressClient: Progress.Client?
 ) : Backup.Endpoint {
     val basePath = File("/storage/emulated/0")
@@ -17,5 +17,5 @@ class FileEndpoint @AssistedInject constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : Backup.Endpoint.Factory<FileEndpoint>
+    interface Factory : Backup.Endpoint.Factory<FileBackupEndpoint>
 }
