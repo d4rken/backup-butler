@@ -7,6 +7,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -18,17 +19,16 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         private val builder: StorageBuilder,
         @AppContext private val context: Context
-) : SmartVDC() {
+) : SmartVDC(), BaseEditorFragment.VDC {
 
-    val state = builder.getSupportedStorageTypes()
+    override val state = builder.getSupportedStorageTypes()
             .map { types ->
                 State(
                         supportedTypes = types.toList()
                 )
             }
             .toLiveData()
-
-    val finishActivity = SingleLiveEvent<Boolean>()
+    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
 
     fun createType(type: Storage.Type) {
         builder.update(storageId) { it!!.copy(storageType = type) }
@@ -36,18 +36,20 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
                 .subscribe()
     }
 
-    fun dismiss(): Boolean {
+    override fun onNavigateBack(): Boolean {
         builder.remove(storageId)
                 .subscribeOn(Schedulers.io())
                 .subscribe { _ ->
-                    finishActivity.postValue(true)
+                    finishActivityEvent.postValue(true)
                 }
         return true
     }
 
     data class State(
-            val supportedTypes: List<Storage.Type>
-    )
+            val supportedTypes: List<Storage.Type>,
+            val isWorking: Boolean = false,
+            override val isExisting: Boolean = false
+    ) : BaseEditorFragment.VDC.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<TypeSelectionFragmentVDC> {

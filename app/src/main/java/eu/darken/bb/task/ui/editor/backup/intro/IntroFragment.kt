@@ -1,6 +1,5 @@
 package eu.darken.bb.task.ui.editor.backup.intro
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -31,7 +30,6 @@ class IntroFragment : SmartFragment(), AutoInject {
         layoutRes = R.layout.task_editor_intro_fragment
     }
 
-    @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivityActionBar().setSubtitle(R.string.label_introduction)
 

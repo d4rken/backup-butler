@@ -8,6 +8,7 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.schedulers.Schedulers
@@ -16,9 +17,9 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
-) : SmartVDC() {
+) : SmartVDC(), BaseEditorFragment.VDC {
 
-    val state = builder.getSupportedBackupTypes()
+    override val state = builder.getSupportedBackupTypes()
             .map { types ->
                 State(
                         supportedTypes = types.toList()
@@ -26,7 +27,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
             }
             .toLiveData()
 
-    val finishActivity = SingleLiveEvent<Boolean>()
+    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
 
     fun createType(type: Backup.Type) {
         builder.update(generatorId) { it!!.copy(generatorType = type) }
@@ -34,18 +35,20 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
                 .subscribe()
     }
 
-    fun dismiss(): Boolean {
+    override fun onNavigateBack(): Boolean {
         builder.remove(generatorId)
                 .subscribeOn(Schedulers.io())
                 .subscribe { _ ->
-                    finishActivity.postValue(true)
+                    finishActivityEvent.postValue(Any())
                 }
         return true
     }
 
     data class State(
-            val supportedTypes: List<Backup.Type>
-    )
+            val supportedTypes: List<Backup.Type>,
+            val isWorking: Boolean = false,
+            override val isExisting: Boolean = false
+    ) : BaseEditorFragment.VDC.State
 
 
     @AssistedInject.Factory

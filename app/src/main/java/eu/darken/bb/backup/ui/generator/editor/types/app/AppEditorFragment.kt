@@ -1,39 +1,29 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app
 
-import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
-import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
-import eu.darken.bb.backup.core.putGeneratorId
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setTextIfDifferent
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 
-class AppEditorFragment : SmartFragment(), AutoInject {
-    companion object {
-        fun newInstance(): Fragment = AppEditorFragment()
-    }
+class AppEditorFragment : BaseEditorFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: AppEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    override val vdc: AppEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as AppEditorFragmentVDC.Factory
         factory.create(handle, arguments!!.getGeneratorId()!!)
     })
@@ -52,36 +42,20 @@ class AppEditorFragment : SmartFragment(), AutoInject {
         layoutRes = R.layout.generator_editor_app_fragment
     }
 
-    override fun onAttach(context: Context) {
-        setHasOptionsMenu(true)
-        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                vdc.onGoBack()
-            }
-        })
-        super.onAttach(context)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivityActionBar().subtitle = getString(R.string.backuptype_app_label)
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
 
         vdc.state.observe(this, Observer { state ->
             labelInput.setTextIfDifferent(state.label)
 
-            requireActivity().invalidateOptionsMenu()
-
-            requireActivityActionBar().setHomeAsUpIndicator(if (state.existing) R.drawable.ic_cancel else R.drawable.ic_arrow_back)
-
-            coreSettingsContainer.visibility = if (state.working) View.INVISIBLE else View.VISIBLE
-            coreSettingsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
-            optionsContainer.visibility = if (state.working) View.INVISIBLE else View.VISIBLE
-            optionsProgress.visibility = if (state.working) View.VISIBLE else View.INVISIBLE
+            coreSettingsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
+            coreSettingsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            optionsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
+            optionsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
 
             includedPackagesInput.setTextIfDifferent(state.includedPackages.joinToString(","))
         })
 
-        vdc.finishActivity.observe(this, Observer { requireActivity().finish() })
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
@@ -89,21 +63,9 @@ class AppEditorFragment : SmartFragment(), AutoInject {
         includedPackagesInput.userTextChangeEvents().subscribe {
             vdc.updateIncludedPackages(it.text.split(','))
         }
-        autoIncludeApps.clicks().subscribe {
-            val frag = FilesEditorFragment()
-            frag.arguments = Bundle().apply { putGeneratorId(arguments!!.getGeneratorId()!!) }
-            requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.content_frame, frag)
-                    .commit()
-        }
 
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> vdc.onGoBack()
-        else -> super.onOptionsItemSelected(item)
-    }
+
 }

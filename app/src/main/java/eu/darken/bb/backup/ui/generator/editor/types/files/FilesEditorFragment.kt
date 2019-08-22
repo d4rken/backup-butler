@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import eu.darken.bb.R
@@ -22,9 +21,6 @@ import javax.inject.Inject
 
 
 class FilesEditorFragment : SmartFragment(), AutoInject {
-    companion object {
-        fun newInstance(): Fragment = FilesEditorFragment()
-    }
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->

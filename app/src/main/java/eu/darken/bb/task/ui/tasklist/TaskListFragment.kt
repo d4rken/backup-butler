@@ -1,6 +1,5 @@
 package eu.darken.bb.task.ui.tasklist
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -45,7 +44,6 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
         layoutRes = R.layout.task_list_fragment
     }
 
-    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         recyclerView.setupDefaults(adapter)
@@ -82,9 +80,5 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
             bs.show(childFragmentManager, it.taskId.toString())
         })
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    companion object {
-        fun newInstance(): Fragment = TaskListFragment()
     }
 }

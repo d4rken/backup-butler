@@ -80,6 +80,6 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Generator", "Editor", "Files", "VDC")
+        val TAG = App.logTag("Generator", "Files", "Editor", "VDC")
     }
 }

@@ -1,6 +1,5 @@
 package eu.darken.bb.storage.ui.list
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -28,9 +27,6 @@ import javax.inject.Inject
 
 
 class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
-    companion object {
-        fun newInstance(): Fragment = StorageListFragment()
-    }
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
@@ -48,7 +44,6 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         layoutRes = R.layout.storage_list_fragment
     }
 
-    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter)
 

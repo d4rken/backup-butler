@@ -40,7 +40,7 @@ class OverviewFragment : SmartFragment(), AutoInject {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.appState.observe(this, Observer {
-            @SuppressLint("CheckResult", "SetTextI18n")
+            @SuppressLint("SetTextI18n")
             appVersion.text = "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
             upgradeInfos.text = when {
                 it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.label_pro_version)

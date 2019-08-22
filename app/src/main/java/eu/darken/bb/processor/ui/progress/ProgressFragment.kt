@@ -23,9 +23,6 @@ import javax.inject.Inject
 
 
 class ProgressFragment : SmartFragment(), AutoInject {
-    companion object {
-        fun newInstance(): Fragment = ProgressFragment()
-    }
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory

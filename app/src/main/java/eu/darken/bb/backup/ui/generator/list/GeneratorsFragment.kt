@@ -1,6 +1,5 @@
 package eu.darken.bb.backup.ui.generator.list
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -41,7 +40,6 @@ class GeneratorsFragment : SmartFragment(), AutoInject, HasSupportFragmentInject
         layoutRes = R.layout.generator_list_fragment
     }
 
-    @SuppressLint("CheckResult", "SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         recyclerView.setupDefaults(adapter)

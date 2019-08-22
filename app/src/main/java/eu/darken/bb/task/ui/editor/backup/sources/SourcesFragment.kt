@@ -1,6 +1,5 @@
 package eu.darken.bb.task.ui.editor.backup.sources
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -43,7 +42,6 @@ class SourcesFragment : SmartFragment(), AutoInject {
         layoutRes = R.layout.task_editor_backup_sources_fragment
     }
 
-    @SuppressLint("CheckResult")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requireActivityActionBar().setSubtitle(R.string.label_sources)
 

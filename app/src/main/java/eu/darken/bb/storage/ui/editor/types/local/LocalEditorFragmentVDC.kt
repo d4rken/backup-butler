@@ -9,6 +9,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -23,7 +24,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         @AppContext private val context: Context,
         private val builder: StorageBuilder
-) : SmartVDC() {
+) : SmartVDC(), BaseEditorFragment.VDC {
 
     private val stateUpdater = HotData(State())
 
@@ -34,15 +35,15 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     private val configObs = editorObs
             .flatMap { it.config }
 
-    val state = Observables.combineLatest(stateUpdater.data, configObs)
+    override val state = Observables.combineLatest(stateUpdater.data, configObs)
             .subscribeOn(Schedulers.io())
             .map { (state, config) ->
                 state.copy(
                         label = config.label,
                         validPath = editor.isRefPathValid(state.path),
                         allowCreate = editor.isRefPathValid(state.path) && editor.isValid().blockingFirst(),
-                        working = false,
-                        existing = editor.isExistingStorage
+                        isWorking = false,
+                        isExisting = editor.isExistingStorage
                 )
             }
             .toLiveData()
@@ -51,7 +52,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editorObs.blockingFirst()
     }
 
-    val finishActivity = SingleLiveEvent<Boolean>()
+    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
 
     init {
         editorObs.firstOrError()
@@ -68,8 +69,8 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 .firstOrError()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
-                .doFinally { finishActivity.postValue(true) }
+                .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
+                .doFinally { finishActivityEvent.postValue(true) }
                 .flatMap { builder.save(storageId) }
                 .subscribe()
     }
@@ -85,13 +86,13 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editor.updateRefPath(path)
     }
 
-    fun onGoBack(): Boolean {
+    override fun onNavigateBack(): Boolean {
         if (editor.isExistingStorage) {
             builder.remove(storageId)
-                    .doOnSubscribe { stateUpdater.update { it.copy(working = true) } }
+                    .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                     .subscribeOn(Schedulers.io())
                     .subscribe { _ ->
-                        finishActivity.postValue(true)
+                        finishActivityEvent.postValue(true)
                     }
             return true
         } else {
@@ -112,10 +113,10 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
             val label: String = "",
             val path: String = "",
             val validPath: Boolean = false,
-            val working: Boolean = true,
             val allowCreate: Boolean = false,
-            val existing: Boolean = false
-    )
+            val isWorking: Boolean = false,
+            override val isExisting: Boolean = false
+    ) : BaseEditorFragment.VDC.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
