@@ -29,16 +29,16 @@ import javax.inject.Inject
 class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageListFragmentVDC by vdcs { vdcSource }
 
     @Inject lateinit var adapter: StorageAdapter
-
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     init {
         layoutRes = R.layout.storage_list_fragment
@@ -55,6 +55,9 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             loadingOverlay.setInvisible(!state.isLoading)
             recyclerView.setInvisible(state.isLoading)
             fab.setInvisible(state.isLoading)
+
+
+            requireActivity().invalidateOptionsMenu()
         })
 
         fab.clicksDebounced().subscribe { vdc.createStorage() }

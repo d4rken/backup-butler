@@ -22,7 +22,7 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
-    private val contentObs = storageObs.flatMapObservable { it.content() }
+    private val contentObs = storageObs.flatMap { it.content() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .doOnNext { item ->
                 stater.update { state ->

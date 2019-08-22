@@ -8,6 +8,7 @@ data class StorageInfo(
 ) {
 
     data class Status(
+            val isReadOnly: Boolean,
             val itemCount: Int,
             val totalSize: Long
     )

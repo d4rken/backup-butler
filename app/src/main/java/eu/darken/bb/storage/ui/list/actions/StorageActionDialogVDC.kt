@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.list.actions
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -24,8 +25,9 @@ class StorageActionDialogVDC @AssistedInject constructor(
         private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
 
-    private val stateUpdater = Stater(State(loading = true))
+    private val stateUpdater = Stater(State(isWorking = true))
     val state = stateUpdater.liveData
+    val finishedEvent = SingleLiveEvent<Any>()
 
     init {
         storageManager.info(storageId)
@@ -39,23 +41,25 @@ class StorageActionDialogVDC @AssistedInject constructor(
                                     allowedActions.add(VIEW)
                                     allowedActions.add(RESTORE)
                                     allowedActions.add(EDIT)
+                                    if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
                                 }
-                                allowedActions.add(DELETE)
+                                allowedActions.add(DETACH)
                             }
                             stateUpdater.update {
                                 if (storageInfo == null) {
-                                    it.copy(loading = true, finished = true)
+                                    finishedEvent.postValue(Any())
+                                    it.copy(isWorking = true)
                                 } else {
                                     it.copy(
                                             storageInfo = storageInfo,
-                                            loading = false,
+                                            isWorking = false,
                                             allowedActions = allowedActions.toList()
                                     )
                                 }
                             }
                         },
                         {
-                            stateUpdater.update { it.copy(finished = true) }
+                            finishedEvent.postValue(Any())
                         }
                 )
     }
@@ -64,47 +68,47 @@ class StorageActionDialogVDC @AssistedInject constructor(
         when (action) {
             VIEW -> {
                 storageManager.startViewer(storageId)
-                stateUpdater.update { it.copy(loading = false, finished = true) }
+                finishedEvent.postValue(Any())
             }
             EDIT -> {
                 storageBuilder.load(storageId)
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                         .delay(200, TimeUnit.MILLISECONDS)
-                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .doFinally { finishedEvent.postValue(Any()) }
                         .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
-                        .subscribe()
-            }
-            DELETE -> {
-                storageRefRepo.remove(storageId)
-                        .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .delay(200, TimeUnit.MILLISECONDS)
-                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe()
             }
             RESTORE -> {
                 taskBuilder.createBuilder(type = Task.Type.RESTORE_SIMPLE)
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                        .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                         .map {
                             (it.editor as SimpleRestoreTaskEditor).addStorageId(storageId)
                             it
                         }
                         .flatMap { data -> taskBuilder.update(data.taskId) { data }.map { it.notNullValue() } }
                         .delay(200, TimeUnit.MILLISECONDS)
-                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                        .doFinally { finishedEvent.postValue(Any()) }
                         .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
                         .subscribe()
             }
+            DETACH -> {
+                storageManager.detach(storageId)
+                        .subscribeOn(Schedulers.io())
+                        .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doFinally { finishedEvent.postValue(Any()) }
+                        .subscribe()
+            }
+            DELETE -> TODO()
         }
     }
 
     data class State(
-            val loading: Boolean = false,
-            val finished: Boolean = false,
             val storageInfo: StorageInfo? = null,
-            val allowedActions: List<StorageAction> = listOf()
+            val allowedActions: List<StorageAction> = listOf(),
+            val isWorking: Boolean = false
     )
 
     @AssistedInject.Factory

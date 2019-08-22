@@ -17,6 +17,7 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -58,16 +59,18 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
 
         vdc.state.observe(this, Observer { state ->
             if (state.storageInfo != null) {
-                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.label_unknown)
+                storageLabel.text = state.storageInfo.config?.label
+                        ?: getString(R.string.label_unknown)
                 typeLabel.text = getString(state.storageInfo.ref.storageType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)
 
-            recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
-            progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
-            if (state.finished) dismissAllowingStateLoss()
+            recyclerView.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
+            progressBar.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
         })
+        vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }
+
         super.onViewCreated(view, savedInstanceState)
     }
 

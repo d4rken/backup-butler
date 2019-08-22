@@ -20,6 +20,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.*
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
@@ -42,6 +43,7 @@ class LocalStorage(
     private var storageConfig: LocalStorageConfig
 
     private val dataDirEvents = Observable.fromCallable { dataDir.listFiles() }
+            .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
             .filterUnchanged { old, new -> old.toList() != new.toList() }
             .replayingShare()
@@ -57,7 +59,6 @@ class LocalStorage(
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
         progressClient?.updateProgress(update)
     }
-
 
     override fun content(): Observable<Collection<Storage.Content>> = contentObs
     private val contentObs: Observable<Collection<Storage.Content>> = dataDirEvents
@@ -101,7 +102,11 @@ class LocalStorage(
             .map { contents ->
                 var status: StorageInfo.Status? = null
                 try {
-                    status = StorageInfo.Status(contents.size, 0)
+                    status = StorageInfo.Status(
+                            itemCount = contents.size,
+                            totalSize = 0,
+                            isReadOnly = !dataDir.canWrite()
+                    )
                 } catch (e: Exception) {
                     Timber.tag(TAG).w(e)
                 }
@@ -132,7 +137,6 @@ class LocalStorage(
                     }
                     return@map Storage.Content.Details(items)
                 }
-                .delay(2, TimeUnit.SECONDS)
                 .replayingShare()
     }
 
@@ -224,7 +228,6 @@ class LocalStorage(
             }
             .map { it as LocalStorageContent }
             .map { contentItem ->
-                Thread.sleep(1000)
                 return@map if (backupId != null) {
                     val version = contentItem.versioning.getVersion(backupId) as SimpleVersioning.Version
                     val versionDir = version.getRevDir(getBackupDir(specId))
@@ -241,6 +244,16 @@ class LocalStorage(
                     contentItem.copy(versioning = SimpleVersioning())
                 }
             }
+
+    override fun detach(): Completable = Completable
+            .complete()
+            .doOnSubscribe { Timber.i("Detaching %s", repoRef) }
+
+    override fun wipe(): Completable = Completable
+            .fromCallable {
+                repoRef.path.asFile().deleteAll()
+            }
+            .doOnSubscribe { Timber.w("Wiping %s", repoRef) }
 
     private fun getBackupDir(specId: BackupSpec.Id): File {
         return File(dataDir, specId.value)

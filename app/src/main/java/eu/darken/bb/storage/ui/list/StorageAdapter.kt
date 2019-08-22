@@ -56,6 +56,7 @@ class StorageAdapter @Inject constructor()
                         statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
                         @SuppressLint("SetTextI18n")
                         statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${Formatter.formatFileSize(context, info.status.totalSize)}"
+                        if (info.status.isReadOnly) statusText.append("; " + getString(R.string.read_only_label))
                     }
                     else -> {
                         statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))

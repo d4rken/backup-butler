@@ -48,6 +48,13 @@ class LoadingOverlayView @JvmOverloads constructor(
         mode = Mode.LOADING
     }
 
+    fun setPrimaryText(primary: String?) {
+        if (primary == null) {
+            primaryText.setText(R.string.progress_loading_label)
+            return
+        }
+        primaryText.text = primary
+    }
 
     fun setError(error: Throwable?) {
         if (error == null) {

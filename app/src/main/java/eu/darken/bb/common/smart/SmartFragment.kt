@@ -86,4 +86,8 @@ abstract class SmartFragment : Fragment() {
         Timber.tag(tag).v("onActivityResult(requestCode=%d, resultCode=%d, data=%s)", requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+    fun invalidateOptionsMenu() {
+        requireActivity().invalidateOptionsMenu()
+    }
 }

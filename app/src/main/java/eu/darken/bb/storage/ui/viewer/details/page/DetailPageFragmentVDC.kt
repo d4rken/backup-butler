@@ -8,12 +8,13 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.onErrorComplete
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.Versioning
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -25,46 +26,50 @@ class DetailPageFragmentVDC @AssistedInject constructor(
         private val storageManager: StorageManager
 ) : SmartVDC() {
 
-    private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
-    private val contentObs = storageObs.flatMapObservable { it.content() }
+    private val storageObs = storageManager.getStorage(storageId)
+            .subscribeOn(Schedulers.io())
+            .share()
+    private val contentObs = storageObs.flatMap { it.content() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-            .doOnNext { content ->
-                val version = content.versioning.versions.find { it.backupId == backupId }!!
-                stater.update {
-                    it.copy(
-                            content = content,
-                            version = version,
-                            isLoadingInfos = false
-                    )
-                }
-            }
-            .doOnError { finishEvent.postValue(Any()) }
-
-    private val itemsObs = contentObs
-            .flatMap { content -> storageObs.flatMapObservable { it.details(content, backupId) } }
-            .doOnNext { details ->
-                stater.update { state ->
-                    state.copy(
-                            items = details.items.toList(),
-                            isLoadingItems = false
-                    )
-                }
-            }
-            .doOnError { err -> stater.update { it.copy(error = err) } }
-            .onErrorResumeNext(Observable.empty())
+            .share()
 
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep {
-                itemsObs.subscribe()
-                contentObs.subscribe()
-            }
+    val state = stater.liveData
+
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
+        contentObs
+                .doOnNext { content ->
+                    val version = content.versioning.versions.find { it.backupId == backupId }!!
+                    stater.update {
+                        it.copy(
+                                content = content,
+                                version = version,
+                                isLoadingInfos = false
+                        )
+                    }
+                }
+                .doOnError { finishEvent.postValue(Any()) }
+                .onErrorComplete()
+                .withStater(stater)
+
+        contentObs
+                .flatMap { content -> storageObs.flatMap { it.details(content, backupId) } }
+                .doOnNext { details ->
+                    stater.update { state ->
+                        state.copy(
+                                items = details.items.toList(),
+                                isLoadingItems = false
+                        )
+                    }
+                }
+                .doOnError { err -> stater.update { it.copy(error = err) } }
+                .onErrorComplete()
+                .withStater(stater)
     }
 
-    val state = stater.liveData
-    val finishEvent = SingleLiveEvent<Any>()
 
     data class State(
             val content: Storage.Content? = null,

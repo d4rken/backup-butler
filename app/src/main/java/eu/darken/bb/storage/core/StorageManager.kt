@@ -6,6 +6,7 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
@@ -28,7 +29,7 @@ class StorageManager @Inject constructor(
             .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 
     fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
-            .flatMapObservable { it.info() }
+            .flatMap { it.info() }
             .doOnError { Timber.tag(TAG).e(it) }
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
@@ -41,10 +42,25 @@ class StorageManager @Inject constructor(
                 }
             }
 
-    fun getStorage(id: Storage.Id): Single<Storage> = refRepo.get(id)
-            .flatMap { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
+    fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
+            .flatMapObservable { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
 
-    private fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
+    fun detach(id: Storage.Id): Single<Storage.Ref> = Completable
+            .fromCallable {
+                synchronized(repoCache) {
+                    val removed = repoCache.remove(id)
+                    Timber.tag(TAG).d("Evicted from cache: %s", removed)
+                }
+            }
+            .andThen(refRepo.remove(id))
+            .map { it.notNullValue() }
+            .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
+
+    fun wipe(id: Storage.Id): Single<Storage.Ref> = getStorage(id)
+            .switchMapCompletable { it.wipe() }
+            .andThen(detach(id))
+
+    private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo

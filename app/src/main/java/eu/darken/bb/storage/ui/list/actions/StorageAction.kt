@@ -11,5 +11,6 @@ enum class StorageAction constructor(
     VIEW(R.drawable.ic_eye, R.string.action_view),
     RESTORE(R.drawable.ic_restore_onprimary, R.string.action_restore),
     EDIT(R.drawable.ic_mode_edit, R.string.action_edit),
+    DETACH(R.drawable.ic_eject, R.string.action_detach),
     DELETE(R.drawable.ic_delete, R.string.action_delete)
 }

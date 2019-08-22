@@ -1,23 +1,38 @@
 package eu.darken.bb.common
 
-import eu.darken.bb.common.WorkId.Companion.EMPTY
 import java.util.*
 
-data class WorkId(val id: UUID = UUID.randomUUID()) {
+data class WorkId(val id: String = UUID.randomUUID().toString()) {
 
     interface State {
-        val workId: WorkId
+        val workIds: Set<WorkId>
 
         val isWorking: Boolean
-            get() = workId != EMPTY
+            get() = workIds.isNotEmpty()
     }
 
     companion object {
-        val DEFAULT = WorkId(UUID.fromString("0b92cbea-84f5-4a47-94cb-a0a7e1601ec0"))
-        val EMPTY = WorkId(UUID(0L, 0L))
+        val DEFAULT = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec0")
+        val ID1 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec1")
+        val ID2 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec2")
+        val ID3 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec3")
+        val ID4 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec4")
+        val ID5 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec5")
     }
 }
 
-fun WorkId.State.tryClearWorkId(id: WorkId = WorkId.DEFAULT): WorkId {
-    return if (this.workId == id) EMPTY else workId
+fun WorkId.State.addWorkId(id: String): Set<WorkId> {
+    return workIds.toMutableSet().apply { add(WorkId(id)) }.toSet()
+}
+
+fun WorkId.State.addWorkId(id: WorkId = WorkId.DEFAULT): Set<WorkId> {
+    return workIds.toMutableSet().apply { add(id) }.toSet()
+}
+
+fun WorkId.State.clearWorkId(id: String): Set<WorkId> {
+    return workIds.toMutableSet().apply { remove(WorkId(id)) }.toSet()
+}
+
+fun WorkId.State.clearWorkId(id: WorkId = WorkId.DEFAULT): Set<WorkId> {
+    return workIds.toMutableSet().apply { remove(id) }.toSet()
 }

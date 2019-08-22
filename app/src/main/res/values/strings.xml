@@ -130,4 +130,8 @@
     <string name="config_skip_existing_files_desc">Don\'t replace a file if it already exists.</string>
     <string name="file_options_label">File options</string>
     <string name="task_restore_simple_description">Storages: %d, Backups: %d, Revisions: %d</string>
+    <string name="action_detach">Detach</string>
+    <string name="action_delete_all">Delete all</string>
+    <string name="read_only_label">Read only</string>
+    <string name="progress_deleting_x">Deleting %s</string>
 </resources>
