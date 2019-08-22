@@ -11,6 +11,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
 import io.reactivex.Observable
+import io.reactivex.Single
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -34,7 +35,7 @@ interface Storage {
 
     fun save(backup: Backup.Unit): Pair<Content, Versioning.Version>
 
-    fun remove(content: Content, backupId: Backup.Id? = null): Boolean
+    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<Content>
 
     interface Content {
         val storageId: Id

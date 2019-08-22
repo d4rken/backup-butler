@@ -9,6 +9,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.content.StorageContentFragment
@@ -23,34 +24,36 @@ class StorageViewerActivityVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         storageManager: StorageManager
 ) : SmartVDC() {
-    private val storageInfoObs = storageManager.info(storageId).subscribeOn(Schedulers.io())
-            .doOnNext { info ->
-                stater.update { state ->
-                    state.copy(
-                            storageId = storageId,
-                            label = info.config?.label ?: ""
-                    )
-                }
-            }
-            .doOnError { error ->
-                stater.update {
-                    it.copy(error = error)
-                }
-                finishActivity.postValue(true)
-            }
-            .onErrorResumeNext(Observable.empty())
 
     val pageEvent = SingleLiveEvent<PageData>()
+
     private val stater: Stater<State> = Stater {
         pageEvent.postValue(PageData(page = PageData.Page.CONTENT, storageId = storageId))
         State(storageId = storageId)
     }
-            .addLiveDep {
-                storageInfoObs.subscribe()
-            }
+    val state = stater.liveData
 
     val finishActivity = SingleLiveEvent<Boolean>()
-    val state = stater.liveData
+
+    init {
+        storageManager.info(storageId).subscribeOn(Schedulers.io())
+                .doOnNext { info ->
+                    stater.update { state ->
+                        state.copy(
+                                storageId = storageId,
+                                label = info.config?.label ?: ""
+                        )
+                    }
+                }
+                .doOnError { error ->
+                    stater.update {
+                        it.copy(error = error)
+                    }
+                    finishActivity.postValue(true)
+                }
+                .onErrorResumeNext(Observable.empty())
+                .withStater(stater)
+    }
 
     fun goTo(pageData: PageData) {
         pageEvent.postValue(pageData)
@@ -63,11 +66,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
             val loading: Boolean = true
     )
 
-    data class PageData(
-            val page: Page,
-            val storageId: Storage.Id,
-            val backupSpecId: BackupSpec.Id? = null
-    ) {
+    data class PageData(val page: Page, val storageId: Storage.Id, val backupSpecId: BackupSpec.Id? = null) {
         enum class Page(val fragmentClass: KClass<out Fragment>) {
             CONTENT(StorageContentFragment::class),
             DETAILS(ContentDetailsFragment::class)

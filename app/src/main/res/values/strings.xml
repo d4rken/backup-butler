@@ -51,7 +51,7 @@
     <string name="action_create">Create</string>
     <string name="repo_type_local_storage_label">Local storage</string>
     <string name="repo_type_local_storage_desc">Local storage that is directly accessible, e.g. internal sdcard.</string>
-    <string name="repo_type_saf_storage_label">Device storage</string>
+    <string name="repo_type_saf_storage_label">SAF storage</string>
     <string name="repo_type_saf_storage_desc">Any type of device storage accessible through the Storage Access Framework.</string>
     <string name="label_name">Name</string>
     <string name="core_settings">Core settings</string>

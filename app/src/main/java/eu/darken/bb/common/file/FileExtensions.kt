@@ -3,6 +3,8 @@ package eu.darken.bb.common.file
 import eu.darken.bb.App
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
+
 
 val TAG: String = App.logTag("FileExtensions")
 
@@ -71,5 +73,20 @@ fun File.tryMkFile(): File {
         val ex = IllegalStateException("Couldn't create file: $this")
         Timber.tag(TAG).w(ex)
         throw ex
+    }
+}
+
+fun File.deleteAll() {
+    if (isDirectory) {
+        for (c in listFiles()) {
+            c.deleteAll()
+        }
+    }
+    if (delete()) {
+        Timber.tag(TAG).v("File.deleteAll(): Deleted %s", this)
+    } else if (!exists()) {
+        Timber.tag(TAG).w("File.deleteAll(): File didn't exist: %s", this)
+    } else {
+        throw FileNotFoundException("Failed to delete file: $this")
     }
 }

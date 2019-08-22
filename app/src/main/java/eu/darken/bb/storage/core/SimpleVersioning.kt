@@ -5,7 +5,7 @@ import java.io.File
 import java.util.*
 
 data class SimpleVersioning(
-        override val versions: List<Version>
+        override val versions: List<Version> = emptyList()
 ) : Versioning {
 
     override fun getVersion(backupId: Backup.Id): Version? = versions.find { it.backupId == backupId }

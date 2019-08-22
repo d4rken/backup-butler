@@ -4,8 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.*
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -23,31 +22,31 @@ class ContentActionDialogVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
-    private val contentObs: Observable<Storage.Content> = storageObs.flatMapObservable { it.content() }
-            .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-            .doOnNext { content ->
-                val allowedActions = mutableSetOf<ContentAction>()
-                allowedActions.add(ContentAction.VIEW)
-                allowedActions.add(ContentAction.RESTORE)
-                allowedActions.add(ContentAction.DELETE)
 
-                stateUpdater.update {
-                    it.copy(
-                            content = content,
-                            loading = false,
-                            allowedActions = allowedActions.toList()
-                    )
-                }
-            }
-            .doOnError {
-                stateUpdater.update { it.copy(finished = true) }
-            }
+    private val stater = Stater(State())
 
-    private val stateUpdater = Stater(State(loading = true))
-            .addLiveDep { contentObs.subscribe() }
-
-    val state = stateUpdater.liveData
+    val state = stater.liveData
     val pageEvent = SingleLiveEvent<StorageViewerActivityVDC.PageData>()
+    val finishedEvent = SingleLiveEvent<Any>()
+
+    init {
+        storageObs.flatMapObservable { it.content() }
+                .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
+                .doOnNext { content ->
+                    stater.update {
+                        it.copy(
+                                content = content,
+                                workId = it.tryClearWorkId(),
+                                allowedActions = ContentAction.values().toList()
+                        )
+                    }
+                }
+                .doOnError {
+                    finishedEvent.postValue(Any())
+                }
+                .onErrorResumeNext(Observable.empty())
+                .withStater(stater)
+    }
 
     fun storageAction(action: ContentAction) {
         when (action) {
@@ -55,17 +54,23 @@ class ContentActionDialogVDC @AssistedInject constructor(
                 pageEvent.postValue(StorageViewerActivityVDC.PageData(StorageViewerActivityVDC.PageData.Page.DETAILS, storageId, backupSpecId))
             }
             ContentAction.DELETE -> {
-                TODO()
+                val workId = WorkId()
+                storageObs
+                        .flatMap { it.remove(backupSpecId) }
+                        .subscribeOn(Schedulers.io())
+                        .doOnSubscribe { stater.update { it.copy(workId = workId) } }
+                        .doFinally { finishedEvent.postValue(Any()) }
+                        .subscribe()
             }
+            ContentAction.RESTORE -> TODO()
         }
     }
 
     data class State(
-            val loading: Boolean = false,
-            val finished: Boolean = false,
             val content: Storage.Content? = null,
-            val allowedActions: List<ContentAction> = listOf()
-    )
+            val allowedActions: List<ContentAction> = listOf(),
+            override val workId: WorkId = WorkId.DEFAULT
+    ) : WorkId.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {

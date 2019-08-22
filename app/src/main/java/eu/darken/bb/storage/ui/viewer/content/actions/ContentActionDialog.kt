@@ -70,15 +70,16 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
 
             actionsAdapter.update(state.allowedActions)
 
-            recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
-            progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
-            if (state.finished) dismissAllowingStateLoss()
+            recyclerView.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
+            progressBar.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
         })
 
         vdc.pageEvent.observe(this, Observer { pageData ->
             activityVdc.goTo(pageData)
             dismiss()
         })
+
+        vdc.finishedEvent.observe(this, Observer { dismissAllowingStateLoss() })
 
         super.onViewCreated(view, savedInstanceState)
     }

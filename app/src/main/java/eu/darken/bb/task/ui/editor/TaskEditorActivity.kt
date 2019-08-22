@@ -24,20 +24,19 @@ import javax.inject.Inject
 class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var vdcSource: VDCSource.Factory
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
+    @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdcEditor: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as TaskEditorActivityVDC.Factory
         factory.create(handle, intent.getTaskId()!!)
     })
-
     @BindView(R.id.button_cancel) lateinit var buttonCancel: Button
     @BindView(R.id.button_previous) lateinit var buttonPrevious: Button
     @BindView(R.id.button_next) lateinit var buttonNext: Button
     @BindView(R.id.button_save) lateinit var buttonSave: Button
-    @BindView(R.id.button_execute) lateinit var buttonExecute: Button
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+    @BindView(R.id.button_execute) lateinit var buttonExecute: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)

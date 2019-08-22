@@ -12,7 +12,7 @@ class FileBackupSpecTest {
     fun testSerialization() {
         val config = FileBackupSpec(
                 "TestName",
-                listOf(JavaFile.build("test/file"))
+                JavaFile.build("test/file")
         )
 
         val moshi = AppModule().moshi()
@@ -22,7 +22,8 @@ class FileBackupSpecTest {
         assertThat(json)
                 .contains("\"backupType\":\"FILE\"")
                 .contains("\"specId\":\"files-TestName\"")
-                .contains("\"paths\":[")
+                .contains("\"path\":{")
+                .contains("\"revisionLimit\":3")
 
         val configRestored = adapter.fromJson(json)
         assertThat(configRestored).isInstanceOf(FileBackupSpec::class.java)

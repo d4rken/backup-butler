@@ -20,7 +20,8 @@ class StorageListFragmentVDC @AssistedInject constructor(
         private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
-    private val storageInfoObs = storageManager.infos().subscribeOn(Schedulers.io())
+    private val storageInfoObs = storageManager.infos()
+            .subscribeOn(Schedulers.io())
             .doOnNext { infos ->
                 stater.update { state ->
                     state.copy(

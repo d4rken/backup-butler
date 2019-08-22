@@ -3,10 +3,12 @@ package eu.darken.bb.storage.core
 import android.content.Context
 import android.content.Intent
 import dagger.Reusable
+import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 import javax.inject.Inject
 
 @Reusable
@@ -27,6 +29,7 @@ class StorageManager @Inject constructor(
 
     fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
             .flatMapObservable { it.info() }
+            .doOnError { Timber.tag(TAG).e(it) }
             .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
     fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
@@ -41,7 +44,7 @@ class StorageManager @Inject constructor(
     fun getStorage(id: Storage.Id): Single<Storage> = refRepo.get(id)
             .flatMap { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
 
-    fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
+    private fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
         synchronized(repoCache) {
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
@@ -61,4 +64,7 @@ class StorageManager @Inject constructor(
         context.startActivity(intent)
     }
 
+    companion object {
+        private val TAG = App.logTag("Storage", "Manager")
+    }
 }

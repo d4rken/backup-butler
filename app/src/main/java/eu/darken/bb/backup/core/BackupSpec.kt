@@ -10,6 +10,7 @@ import kotlinx.android.parcel.Parcelize
 interface BackupSpec {
     val backupType: Backup.Type
     val specId: Id
+    val revisionLimit: Int
 
     fun getLabel(context: Context): String
 
