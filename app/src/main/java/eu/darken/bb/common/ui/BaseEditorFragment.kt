@@ -8,7 +8,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import eu.darken.bb.R
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 
@@ -22,7 +21,6 @@ abstract class BaseEditorFragment
         }
 
         val state: LiveData<out State>
-        val finishActivityEvent: SingleLiveEvent<Any>
 
         fun onNavigateBack(): Boolean
     }
@@ -41,7 +39,6 @@ abstract class BaseEditorFragment
         requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
 
         vdc.state.observe(this, Observer(this::onBaseStateUpdate))
-        vdc.finishActivityEvent.observe(this, Observer { requireActivity().finish() })
 
         super.onViewCreated(view, savedInstanceState)
     }

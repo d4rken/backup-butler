@@ -8,6 +8,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
@@ -23,41 +24,47 @@ class StorageEditorActivityVDC @AssistedInject constructor(
         private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
+    private val stater = Stater(State(storageId = storageId))
+    val state = stater.liveData
+
     private val dataObs = storageBuilder.storage(storageId)
             .subscribeOn(Schedulers.io())
 
-    private val validObs: Observable<Boolean> = dataObs
-            .switchMap { if (it.editor != null) it.editor.isValid() else Observable.just(false) }
-            .doOnNext { isValid -> stater.update { it.copy(allowSave = isValid) } }
-
-    private val existingObs: Observable<Boolean> = dataObs
-            .map { if (it.editor != null) it.editor.isExistingStorage else false }
-            .doOnNext { isExisting -> stater.update { it.copy(existing = isExisting) } }
-
-    private val pageObs: Observable<StorageBuilder.Data> = dataObs.doOnNext { data ->
-        val p = PageData(data.storageId, data.storageType)
-        if (stater.snapshot.currentPage != p.getPage()) {
-            pageEvent.postValue(p)
-            stater.update { it.copy(currentPage = p.getPage()) }
-        }
-    }
-
-    private val stater = Stater(State(storageId = storageId))
-            .addLiveDep {
-                validObs.subscribe()
-                existingObs.subscribe()
-                pageObs.subscribe()
-            }
-
-    val state = stater.liveData
-
     val pageEvent = SingleLiveEvent<PageData>()
-    val finishActivity = SingleLiveEvent<Boolean>()
+    val finishActivityEvent = SingleLiveEvent<Any>()
 
     init {
-        dataObs.take(1).subscribe {
-            stater.update { it.copy(isWorking = false) }
+        dataObs.apply {
+            this
+                    .take(1)
+                    .subscribe {
+                        stater.update { it.copy(isWorking = false) }
+                    }
+            this
+                    .switchMap { if (it.editor != null) it.editor.isValid() else Observable.just(false) }
+                    .doOnNext { isValid -> stater.update { it.copy(allowSave = isValid) } }
+                    .withStater(stater)
+            this
+                    .map { if (it.editor != null) it.editor.isExistingStorage else false }
+                    .doOnNext { isExisting -> stater.update { it.copy(existing = isExisting) } }
+                    .withStater(stater)
+            this
+                    .doOnNext { data ->
+                        val p = PageData(data.storageId, data.storageType)
+                        if (stater.snapshot.currentPage != p.getPage()) {
+                            pageEvent.postValue(p)
+                            stater.update { it.copy(currentPage = p.getPage()) }
+                        }
+                    }
+                    .withStater(stater)
         }
+
+        storageBuilder.builders
+                .filter { !it.containsKey(storageId) }
+                .doOnNext {
+                    finishActivityEvent.postValue(Any())
+                }
+                .withStater(stater)
     }
 
     fun saveConfig() {
@@ -65,7 +72,7 @@ class StorageEditorActivityVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .doFinally { finishActivity.postValue(true) }
+                .doFinally { finishActivityEvent.postValue(true) }
                 .subscribe()
     }
 

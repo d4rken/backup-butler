@@ -12,6 +12,7 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
+import eu.darken.bb.common.showFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
@@ -57,22 +58,13 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         })
 
         vdc.pageEvent.observe(this, Observer { pageEvent ->
-            val manager = supportFragmentManager
-
-            var fragment = manager.findFragmentByTag(pageEvent.getPage().name)
-            if (fragment == null) {
-                fragment = manager.fragmentFactory.instantiate(this.javaClass.classLoader!!, pageEvent.getPage().fragmentClass.qualifiedName!!)
-            }
-
-            fragment.arguments = Bundle().apply { putStorageId(pageEvent.storageId) }
-            manager
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.content_frame, fragment, pageEvent.getPage().name)
-                    .commit()
+            showFragment(
+                    fragmentClass = pageEvent.getPage().fragmentClass,
+                    arguments = Bundle().apply { putStorageId(pageEvent.storageId) }
+            )
         })
 
-        vdc.finishActivity.observe(this, Observer { finish() })
+        vdc.finishActivityEvent.observe(this, Observer { finish() })
     }
 
     override fun onSupportNavigateUp(): Boolean {

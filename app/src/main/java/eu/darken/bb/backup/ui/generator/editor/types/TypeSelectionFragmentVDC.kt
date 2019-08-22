@@ -6,7 +6,6 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -27,7 +26,6 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
             }
             .toLiveData()
 
-    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
 
     fun createType(type: Backup.Type) {
         builder.update(generatorId) { it!!.copy(generatorType = type) }
@@ -38,9 +36,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     override fun onNavigateBack(): Boolean {
         builder.remove(generatorId)
                 .subscribeOn(Schedulers.io())
-                .subscribe { _ ->
-                    finishActivityEvent.postValue(Any())
-                }
+                .subscribe()
         return true
     }
 

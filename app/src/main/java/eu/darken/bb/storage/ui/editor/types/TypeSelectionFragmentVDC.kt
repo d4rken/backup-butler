@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -28,7 +27,6 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
                 )
             }
             .toLiveData()
-    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
 
     fun createType(type: Storage.Type) {
         builder.update(storageId) { it!!.copy(storageType = type) }
@@ -39,9 +37,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     override fun onNavigateBack(): Boolean {
         builder.remove(storageId)
                 .subscribeOn(Schedulers.io())
-                .subscribe { _ ->
-                    finishActivityEvent.postValue(true)
-                }
+                .subscribe()
         return true
     }
 

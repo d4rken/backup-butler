@@ -14,6 +14,7 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.backup.core.putGeneratorId
+import eu.darken.bb.common.showFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
@@ -59,19 +60,10 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
         })
 
         vdc.pageEvent.observe(this, Observer { pageEvent ->
-            val manager = supportFragmentManager
-
-            var fragment = manager.findFragmentByTag(pageEvent.getPage().name)
-            if (fragment == null) {
-                fragment = manager.fragmentFactory.instantiate(this.javaClass.classLoader!!, pageEvent.getPage().fragmentClass.qualifiedName!!)
-            }
-
-            fragment.arguments = Bundle().apply { putGeneratorId(pageEvent.generatorId) }
-            manager
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.content_frame, fragment, pageEvent.getPage().name)
-                    .commit()
+            showFragment(
+                    fragmentClass = pageEvent.getPage().fragmentClass,
+                    arguments = Bundle().apply { putGeneratorId(pageEvent.generatorId) }
+            )
         })
 
         vdc.finishActivity.observe(this, Observer { finish() })

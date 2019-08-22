@@ -23,6 +23,7 @@ class StorageBuilder @Inject constructor(
 ) {
 
     private val hotData = HotData<Map<Storage.Id, Data>>(mutableMapOf())
+    val builders = hotData.data
 
     init {
         hotData.data

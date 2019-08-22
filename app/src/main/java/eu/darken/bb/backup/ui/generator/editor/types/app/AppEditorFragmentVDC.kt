@@ -7,7 +7,6 @@ import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -44,8 +43,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             }
             .toLiveData()
 
-    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
-
     init {
         editorObs.firstOrError()
                 .subscribeOn(Schedulers.io())
@@ -67,9 +64,7 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             builder.remove(generatorId)
                     .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                     .subscribeOn(Schedulers.io())
-                    .subscribe { _ ->
-                        finishActivityEvent.postValue(true)
-                    }
+                    .subscribe()
             return true
         } else {
             builder

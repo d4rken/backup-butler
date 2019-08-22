@@ -6,7 +6,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -52,8 +51,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editorObs.blockingFirst()
     }
 
-    override val finishActivityEvent: SingleLiveEvent<Any> = SingleLiveEvent()
-
     init {
         editorObs.firstOrError()
                 .subscribeOn(Schedulers.io())
@@ -61,18 +58,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 .subscribe { editor ->
                     stateUpdater.update { it.copy(path = editor.refPath!!.path) }
                 }
-    }
-
-    fun createStorage() {
-        editor.updateRefPath(stateUpdater.snapshot.path)
-        stateUpdater.data
-                .firstOrError()
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
-                .doFinally { finishActivityEvent.postValue(true) }
-                .flatMap { builder.save(storageId) }
-                .subscribe()
     }
 
     fun updateName(label: String) {
@@ -91,9 +76,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
             builder.remove(storageId)
                     .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                     .subscribeOn(Schedulers.io())
-                    .subscribe { _ ->
-                        finishActivityEvent.postValue(true)
-                    }
+                    .subscribe()
             return true
         } else {
             builder
