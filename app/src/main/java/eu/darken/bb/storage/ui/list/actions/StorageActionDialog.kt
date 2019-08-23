@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +18,7 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.setupDefaults
+import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
@@ -42,7 +42,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
+    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storage_list_action_dialog, container, false)
@@ -67,8 +67,9 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
             actionsAdapter.update(state.allowedActions)
 
             recyclerView.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            progressBar.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            loadingOverlay.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
         })
+
         vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }
 
         super.onViewCreated(view, savedInstanceState)

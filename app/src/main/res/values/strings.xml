@@ -134,4 +134,6 @@
     <string name="action_delete_all">Delete all</string>
     <string name="read_only_label">Read only</string>
     <string name="progress_deleting_x">Deleting %s</string>
+    <string name="action_grant">Grant</string>
+    <string name="storage_additional_permission_required_msg">Additional permission are required to use this storage location.</string>
 </resources>

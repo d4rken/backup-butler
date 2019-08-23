@@ -23,6 +23,7 @@ import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -43,6 +44,7 @@ class LocalStorage(
     private var storageConfig: LocalStorageConfig
 
     private val dataDirEvents = Observable.fromCallable { dataDir.listFiles() }
+            .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
             .filterUnchanged { old, new -> old.toList() != new.toList() }
@@ -62,7 +64,7 @@ class LocalStorage(
 
     override fun content(): Observable<Collection<Storage.Content>> = contentObs
     private val contentObs: Observable<Collection<Storage.Content>> = dataDirEvents
-            .map {
+            .map { files ->
                 val content = mutableListOf<Storage.Content>()
                 if (!dataDir.exists()) throw MissingFileException(dataDir.asSFile())
 
@@ -95,6 +97,8 @@ class LocalStorage(
                 return@map coll
             }
             .doOnError { Timber.tag(TAG).e(it) }
+            .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
+            .doFinally { Timber.tag(TAG).d("content().doFinally()") }
             .replayingShare()
 
     override fun info(): Observable<StorageInfo> = infoObs
@@ -117,6 +121,8 @@ class LocalStorage(
                 )
             }
             .doOnError { Timber.tag(TAG).e(it) }
+            .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
+            .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
     override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Storage.Content.Details> {
@@ -137,6 +143,8 @@ class LocalStorage(
                     }
                     return@map Storage.Content.Details(items)
                 }
+                .doOnSubscribe { Timber.tag(TAG).d("details(%s).doOnSubscribe()", backupId) }
+                .doFinally { Timber.tag(TAG).d("details(%s).doFinally()", backupId) }
                 .replayingShare()
     }
 
@@ -253,7 +261,8 @@ class LocalStorage(
             .fromCallable {
                 repoRef.path.asFile().deleteAll()
             }
-            .doOnSubscribe { Timber.w("Wiping %s", repoRef) }
+            .doOnSubscribe { Timber.w("wipe().doOnSubscribe %s", repoRef) }
+            .doFinally { Timber.w("wipe().dofinally%s", repoRef) }
 
     private fun getBackupDir(specId: BackupSpec.Id): File {
         return File(dataDir, specId.value)

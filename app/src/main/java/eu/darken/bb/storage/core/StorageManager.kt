@@ -35,10 +35,12 @@ class StorageManager @Inject constructor(
 
     fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
             .map { it.values }
-            .flatMap { refs ->
-                val statusObs = refs.map { info(it) }
-                return@flatMap Observable.combineLatest<StorageInfo, List<StorageInfo>>(statusObs) {
-                    return@combineLatest it.asList() as List<StorageInfo>
+            .switchMap { refs ->
+                return@switchMap if (refs.isEmpty()) {
+                    Observable.just(emptyList())
+                } else {
+                    val statusObs = refs.map { info(it) }
+                    Observable.combineLatest<StorageInfo, List<StorageInfo>>(statusObs) { it.asList() as List<StorageInfo> }
                 }
             }
 

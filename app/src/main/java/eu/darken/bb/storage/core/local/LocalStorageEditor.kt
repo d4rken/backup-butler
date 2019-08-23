@@ -1,11 +1,13 @@
 package eu.darken.bb.storage.core.local
 
+import android.Manifest
 import android.os.Environment
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.file.JavaFile
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.file.asFile
@@ -19,31 +21,36 @@ import io.reactivex.Single
 import java.io.File
 
 class LocalStorageEditor @AssistedInject constructor(
+        @Assisted private val storageId: Storage.Id,
         moshi: Moshi,
-        @Assisted private val storageId: Storage.Id
+        private val runtimePermissionTool: RuntimePermissionTool
 ) : StorageEditor {
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
-    private val configPub = HotData(LocalStorageConfig(
-            label = "",
-            storageId = storageId
-    ))
+    private val configPub = HotData(LocalStorageConfig(storageId = storageId))
     override val config = configPub.data
 
-    internal var refPath: SFile? = File(Environment.getExternalStorageDirectory(), "BackupButler").asSFile()
+    internal var refPath: SFile = File(Environment.getExternalStorageDirectory(), "BackupButler").asSFile()
 
     override var isExistingStorage: Boolean = false
 
+    var rawPath: String = refPath.path
+
     fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
 
-    fun updateRefPath(path: String) {
-        if (!isRefPathValid(path)) return
-        refPath = JavaFile.build(path)
+    fun updatePath(newPath: String) {
+        if (isExistingStorage && newPath != rawPath) {
+            throw IllegalArgumentException("Can't update path on existing storage")
+        }
+        rawPath = newPath
+        if (isRawPathValid()) {
+            refPath = JavaFile.build(newPath)
+        }
+        configPub.update { it }
     }
 
-    internal fun isRefPathValid(path: String?): Boolean {
-        if (path == null) return false
-        var file = File(path)
+    fun isRawPathValid(): Boolean {
+        var file = File(rawPath)
         if (file.exists()) return false
         return try {
             while (!file.exists() && file.parent != null) {
@@ -55,8 +62,14 @@ class LocalStorageEditor @AssistedInject constructor(
         }
     }
 
+    fun isPermissionGranted(): Boolean {
+        return runtimePermissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
+
     override fun isValid(): Observable<Boolean> = config.map {
-        refPath != null && it.label.isNotEmpty()
+        (isRawPathValid() || isExistingStorage)
+                && it.label.isNotEmpty()
+                && isPermissionGranted()
     }
 
     override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
@@ -74,7 +87,7 @@ class LocalStorageEditor @AssistedInject constructor(
         val config = configPub.snapshot
         val ref = LocalStorageRef(
                 storageId = config.storageId,
-                path = refPath ?: throw IllegalStateException("Refpath not set")
+                path = refPath
         )
         configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
         return@fromCallable Pair(ref, config)

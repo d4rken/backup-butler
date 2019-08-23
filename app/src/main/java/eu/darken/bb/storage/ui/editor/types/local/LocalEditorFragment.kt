@@ -1,24 +1,27 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
+import android.Manifest
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.getColorForAttr
-import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.setTextIfDifferent
+import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.ui.BaseEditorFragment
-import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.list.StorageAdapter
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -37,8 +40,9 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     @BindView(R.id.name_input) lateinit var labelInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
-    @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
-    @BindView(R.id.options_progress) lateinit var optionsProgress: View
+
+    @BindView(R.id.permission_card) lateinit var permissionCard: View
+    @BindView(R.id.permission_grant_button) lateinit var permissionGrant: Button
 
     init {
         layoutRes = R.layout.storage_editor_local_fragment
@@ -49,25 +53,41 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
 
         vdc.state.observe(this, Observer { state ->
             pathInput.setTextIfDifferent(state.path)
+            pathInput.setSelection(pathInput.text.length)
+
             labelInput.setTextIfDifferent(state.label)
+            labelInput.setSelection(labelInput.text.length)
 
             if (state.path.isNotEmpty()) {
                 pathInputLayout.isEnabled = !state.isExisting
-                pathInput.setTextColor(getColorForAttr(if (state.validPath || state.isExisting) R.attr.colorOnPrimarySurface else R.attr.colorError))
+                pathInput.setTextColor(getColorForAttr(if (state.validPath || state.isExisting) R.attr.colorOnBackground else R.attr.colorError))
             }
 
-            coreSettingsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            coreSettingsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
-            optionsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            optionsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            coreSettingsContainer.setInvisible(state.isWorking)
+            coreSettingsProgress.setInvisible(!state.isWorking)
+            permissionCard.setGone(state.isPermissionGranted)
         })
 
-        pathInput.userTextChangeEvents().subscribe { vdc.updatePath(it.text.toString()) }
+        pathInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updatePath(it.text.toString()) }
         pathInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { pathInput.clearFocus() }
-        labelInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
+        labelInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updateName(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
 
+        permissionGrant.clicksDebounced().subscribe { vdc.onGrantPermission() }
+
+        vdc.requestPermissionEvent.observe2(this) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        }
+
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1) {
+            vdc.onPermissionResult()
+        } else {
+            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
+        }
     }
 
 }

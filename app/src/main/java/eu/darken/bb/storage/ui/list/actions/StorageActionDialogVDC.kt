@@ -13,6 +13,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
+import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -41,9 +42,9 @@ class StorageActionDialogVDC @AssistedInject constructor(
                                     allowedActions.add(VIEW)
                                     allowedActions.add(RESTORE)
                                     allowedActions.add(EDIT)
-                                    if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
                                 }
                                 allowedActions.add(DETACH)
+                                if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
                             }
                             stateUpdater.update {
                                 if (storageInfo == null) {
@@ -94,15 +95,31 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .subscribe()
             }
             DETACH -> {
-                storageManager.detach(storageId)
+                detachSub = storageManager.detach(storageId)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { finishedEvent.postValue(Any()) }
                         .subscribe()
             }
-            DELETE -> TODO()
+            DELETE -> {
+                deletionSub = storageManager.wipe(storageId)
+                        .subscribeOn(Schedulers.io())
+                        .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
+                        .delay(200, TimeUnit.MILLISECONDS)
+                        .doOnSuccess { finishedEvent.postValue(Any()) }
+                        .subscribe()
+            }
         }
+    }
+
+    private var deletionSub = Disposables.disposed()
+    private var detachSub = Disposables.disposed()
+
+    override fun onCleared() {
+        detachSub.dispose()
+        deletionSub.dispose()
+        super.onCleared()
     }
 
     data class State(

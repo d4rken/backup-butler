@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer.details.page
 
 import androidx.lifecycle.SavedStateHandle
+import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
@@ -28,10 +29,10 @@ class DetailPageFragmentVDC @AssistedInject constructor(
 
     private val storageObs = storageManager.getStorage(storageId)
             .subscribeOn(Schedulers.io())
-            .share()
-    private val contentObs = storageObs.flatMap { it.content() }
+            .replayingShare()
+    private val contentObs = storageObs.switchMap { it.content() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-            .share()
+            .replayingShare()
 
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
@@ -51,12 +52,11 @@ class DetailPageFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }
-                .doOnError { finishEvent.postValue(Any()) }
-                .onErrorComplete()
+                .onErrorComplete { finishEvent.postValue(Any()) }
                 .withStater(stater)
 
         contentObs
-                .flatMap { content -> storageObs.flatMap { it.details(content, backupId) } }
+                .flatMap { content -> storageObs.switchMap { it.details(content, backupId) } }
                 .doOnNext { details ->
                     stater.update { state ->
                         state.copy(
@@ -65,8 +65,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }
-                .doOnError { err -> stater.update { it.copy(error = err) } }
-                .onErrorComplete()
+                .onErrorComplete { err -> stater.update { it.copy(error = err) } }
                 .withStater(stater)
     }
 

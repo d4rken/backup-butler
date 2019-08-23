@@ -8,6 +8,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -20,24 +21,24 @@ class StorageListFragmentVDC @AssistedInject constructor(
         private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
-    private val storageInfoObs = storageManager.infos()
-            .subscribeOn(Schedulers.io())
-            .doOnNext { infos ->
-                stater.update { state ->
-                    state.copy(
-                            storages = infos.map { StorageInfoOpt(it) },
-                            isLoading = false
-                    )
-                }
-            }
-
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep {
-                storageInfoObs.subscribe()
-            }
-
     val state = stater.liveData
+
     val editTaskEvent = SingleLiveEvent<Storage.Id>()
+
+    init {
+        storageManager.infos()
+                .subscribeOn(Schedulers.io())
+                .doOnNext { infos ->
+                    stater.update { state ->
+                        state.copy(
+                                storages = infos.map { StorageInfoOpt(it) },
+                                isLoading = false
+                        )
+                    }
+                }
+                .withStater(stater)
+    }
 
     fun createStorage() {
         storageBuilder.startEditor()

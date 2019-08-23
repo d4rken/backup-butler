@@ -56,7 +56,6 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             recyclerView.setInvisible(state.isLoading)
             fab.setInvisible(state.isLoading)
 
-
             requireActivity().invalidateOptionsMenu()
         })
 

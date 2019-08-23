@@ -5,6 +5,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.RawRes
@@ -40,6 +41,7 @@ class LoadingOverlayView @JvmOverloads constructor(
 
     @BindView(R.id.animation) lateinit var animation: LottieAnimationView
     @BindView(R.id.primary_text) lateinit var primaryText: TextView
+    @BindView(R.id.cancel_button) lateinit var cancelButton: Button
 
     init {
         View.inflate(context, R.layout.loading_overlay_view, this)
@@ -63,6 +65,16 @@ class LoadingOverlayView @JvmOverloads constructor(
         }
         mode = Mode.ERROR
         primaryText.text = error.tryLocalizedErrorMessage(context)
+    }
+
+    var isCancelable: Boolean = false
+        set(value) {
+            field = value
+            cancelButton.setGone(!isCancelable)
+        }
+
+    fun setOnCancelListener(function: (View) -> Unit) {
+        cancelButton.setOnClickListener(function)
     }
 
     enum class Mode(
