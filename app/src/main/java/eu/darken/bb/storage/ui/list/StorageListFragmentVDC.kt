@@ -6,9 +6,9 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -29,7 +29,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
     init {
         storageManager.infos()
                 .subscribeOn(Schedulers.io())
-                .doOnNext { infos ->
+                .subscribe { infos ->
                     stater.update { state ->
                         state.copy(
                                 storages = infos.map { StorageInfoOpt(it) },
@@ -37,7 +37,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }
-                .withStater(stater)
+                .withScopeVDC(this)
     }
 
     fun createStorage() {

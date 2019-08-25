@@ -6,6 +6,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
@@ -35,20 +36,6 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     private val editorObs = taskObs
             .filter { it.editor != null }
             .map { it.editor!! }
-            .doOnNext { editor ->
-                stater.update {
-                    it.copy(
-                            existingTask = editor.isExistingTask(),
-                            isLoading = false
-                    )
-                }
-            }
-
-    private val configObs = editorObs
-            .flatMap { it.isValidTask() }
-            .doOnNext { isValid ->
-                stater.update { it.copy(isComplete = isValid) }
-            }
 
     private val stater: Stater<State> = Stater {
         val data = taskObs.blockingFirst()
@@ -58,11 +45,29 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         }
         State(steps = steps, taskId = taskId, taskType = data.taskType)
     }
-            .addLiveDep { configObs.subscribe() }
-
     val state = stater.liveData
 
     val finishActivity = SingleLiveEvent<Boolean>()
+
+    init {
+        editorObs
+                .flatMap { it.isValidTask() }
+                .subscribe { isValid ->
+                    stater.update { it.copy(isComplete = isValid) }
+                }
+                .withScopeVDC(this)
+
+        editorObs
+                .subscribe { editor ->
+                    stater.update {
+                        it.copy(
+                                existingTask = editor.isExistingTask(),
+                                isLoading = false
+                        )
+                    }
+                }
+                .withScopeVDC(this)
+    }
 
     private fun changeStep(change: Int) {
         stater.update { old ->

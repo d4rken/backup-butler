@@ -7,6 +7,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 import java.util.concurrent.Executors
 
@@ -67,6 +68,10 @@ open class HotData<T>(
 
     fun update(action: (T) -> T) {
         updatePub.onNext(action)
+    }
+
+    suspend fun updateBlocking(action: (T) -> T): Update<T> {
+        return updateRx(action).await()
     }
 
     fun updateRx(action: (T) -> T): Single<Update<T>> = Single.create { emitter ->

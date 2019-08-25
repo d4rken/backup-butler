@@ -6,6 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -20,29 +21,26 @@ class ProgressFragmentVDC @AssistedInject constructor(
             .filter { it.isNotNull }
             .map { it.value }
 
-
-    private val progressObs = progressHostObs
-            .firstOrError()
-            .flatMapObservable { it.progress }
-            .doOnNext { progress ->
-                stater.update { state ->
-                    state.copy(
-                            taskProgress = progress,
-                            actionProgress = progress.child
-                    )
-                }
-            }
-            .doOnTerminate {
-                finishEvent.postValue(Any())
-            }
-
-
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep { progressObs.subscribe() }
-
     val state = stater.liveData
 
     val finishEvent = SingleLiveEvent<Any>()
+
+    init {
+        progressHostObs
+                .firstOrError()
+                .flatMapObservable { it.progress }
+                .doOnTerminate { finishEvent.postValue(Any()) }
+                .subscribe { progress ->
+                    stater.update { state ->
+                        state.copy(
+                                taskProgress = progress,
+                                actionProgress = progress.child
+                        )
+                    }
+                }
+                .withScopeVDC(this)
+    }
 
     data class State(
             val taskProgress: Progress.Data = Progress.Data(),

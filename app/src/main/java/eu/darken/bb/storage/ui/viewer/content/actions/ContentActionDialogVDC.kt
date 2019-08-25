@@ -5,7 +5,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
-import eu.darken.bb.common.rx.onErrorComplete
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -33,25 +33,27 @@ class ContentActionDialogVDC @AssistedInject constructor(
     init {
         storageObs.flatMap { it.content() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-                .doOnNext { content ->
+                .subscribe({ content ->
                     stater.update {
                         it.copy(content = content, workIds = it.clearWorkId(WorkId.ID1))
                     }
-                }
-                .onErrorComplete { finishedEvent.postValue(Any()) }
-                .withStater(stater)
+                }, {
+                    finishedEvent.postValue(Any())
+                })
+                .withScopeVDC(this)
 
         storageObs.flatMap { it.info() }
-                .doOnNext { info ->
+                .subscribe({ info ->
                     val actions = ContentAction.values().toMutableList().apply {
                         if (info.status?.isReadOnly == true) remove(ContentAction.DELETE)
                     }.toList()
                     stater.update {
                         it.copy(allowedActions = actions, workIds = it.clearWorkId(WorkId.ID2))
                     }
-                }
-                .onErrorComplete { finishedEvent.postValue(Any()) }
-                .withStater(stater)
+                }, {
+                    finishedEvent.postValue(Any())
+                })
+                .withScopeVDC(this)
     }
 
     fun storageAction(action: ContentAction) {

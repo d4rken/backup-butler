@@ -2,6 +2,7 @@ package eu.darken.bb.backup.ui.generator.editor
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
+import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
@@ -12,6 +13,7 @@ import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Observable
@@ -27,46 +29,42 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
 
     private val dataObs = generatorBuilder.config(generatorId)
             .subscribeOn(Schedulers.io())
-
-    private val validObs: Observable<Boolean> = dataObs
-            .switchMap { data ->
-                if (data.editor != null) data.editor.isValid()
-                else Observable.just(false)
-            }
-            .doOnNext { isValid ->
-                stater.update { it.copy(allowSave = isValid) }
-            }
-
-    private val existingObs: Observable<Boolean> = dataObs
-            .map { data ->
-                if (data.editor != null) data.editor.existingConfig
-                else false
-            }
-            .doOnNext { isExisting ->
-                stater.update { it.copy(existing = isExisting) }
-            }
-
-    private val pageObs: Observable<GeneratorBuilder.Data> = dataObs.doOnNext { data ->
-        val p = PageData(data.generatorId, data.generatorType)
-        if (stater.snapshot.currentPage != p.getPage()) {
-            pageEvent.postValue(p)
-            stater.update { it.copy(currentPage = p.getPage()) }
-        }
-    }
+            .replayingShare()
 
     private val stater = Stater(State(generatorId = generatorId))
-            .addLiveDep {
-                validObs.subscribe()
-                existingObs.subscribe()
-                pageObs.subscribe()
-            }
-
     val state = stater.liveData
+
     val pageEvent = SingleLiveEvent<PageData>()
     val finishActivity = SingleLiveEvent<Boolean>()
 
     init {
+        dataObs
+                .switchMap { data ->
+                    if (data.editor != null) data.editor.isValid()
+                    else Observable.just(false)
+                }
+                .subscribe { isValid: Boolean ->
+                    stater.update { it.copy(allowSave = isValid) }
+                }
+                .withScopeVDC(this)
 
+        dataObs
+                .map { data ->
+                    if (data.editor != null) data.editor.existingConfig else false
+                }
+                .subscribe { isExisting: Boolean ->
+                    stater.update { it.copy(existing = isExisting) }
+                }
+                .withScopeVDC(this)
+        dataObs
+                .subscribe { data: GeneratorBuilder.Data ->
+                    val p = PageData(data.generatorId, data.generatorType)
+                    if (stater.snapshot.currentPage != p.getPage()) {
+                        pageEvent.postValue(p)
+                        stater.update { it.copy(currentPage = p.getPage()) }
+                    }
+                }
+                .withScopeVDC(this)
     }
 
     fun saveConfig() {

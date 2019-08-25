@@ -5,6 +5,8 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.replace
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.StorageInfo
@@ -12,7 +14,6 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 class RestoreSourcesFragmentVDC @AssistedInject constructor(
@@ -26,38 +27,26 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor as SimpleRestoreTaskEditor }
 
-    private val configObs = editorObs.flatMap { it.config }
-            .doOnNext { current ->
-                stater.update {
-                    it.copy(
-
-                    )
-                }
-            }
-
-    private val storageObs: Observable<StorageInfo> = configObs.map { it.storageIds }
-            .flatMapIterable { it }
-            .flatMap { storageManager.info(it) }
-            .doOnNext { info ->
-                stater.update { oldState ->
-                    val newStorageInfos = oldState.sourceStorages.filterNot {
-                        it.ref.storageId == info.ref.storageId
-                    }.toMutableList()
-                    newStorageInfos.add(info)
-                    oldState.copy(sourceStorages = newStorageInfos.toList())
-                }
-            }
-
-    private val editor: SimpleRestoreTaskEditor by lazy {
-        editorObs.blockingFirst()
-    }
+    val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
 
     private val stater = Stater(State())
-            .addLiveDep {
-                storageObs.subscribe()
-            }
-
     val state = stater.liveData
+
+    init {
+        editorObs.flatMap { it.config }
+                .map { it.storageIds }
+                .flatMapIterable { it }
+                .flatMap { storageManager.info(it) }
+                .subscribe { info ->
+                    stater.update { oldState ->
+                        val newStorageInfos = oldState.sourceStorages
+                                .replace(info) { it.ref.storageId == info.ref.storageId }
+                                .toMutableList()
+                        oldState.copy(sourceStorages = newStorageInfos.toList())
+                    }
+                }
+                .withScopeVDC(this)
+    }
 
     fun updateConfig(config: Restore.Config) {
         stater.update { it.copy(isLoading = true) }

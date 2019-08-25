@@ -9,6 +9,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.onErrorComplete
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -40,31 +41,29 @@ class StorageContentFragmentVDC @AssistedInject constructor(
     init {
         storageObs.flatMap { it.info() }
                 .filter { it.status != null }.map { it.status!! }
-                .doOnNext { status ->
+                .onErrorComplete()
+                .subscribe { status ->
                     stater.update { it.copy(allowDeleteAll = !status.isReadOnly) }
                 }
-                .onErrorComplete()
-                .withStater(stater)
+                .withScopeVDC(this)
 
         storageObs.flatMap { it.content() }
-                .doOnNext { storageContents ->
+                .subscribe({ storageContents ->
                     stater.update {
                         it.copy(
                                 contents = storageContents.toList(),
                                 workIds = it.clearWorkId()
                         )
                     }
-                }
-                .doOnError { error ->
+                }, { error ->
                     stater.update {
                         it.copy(
                                 error = error
                         )
                     }
                     finishEvent.postValue(true)
-                }
-                .onErrorComplete()
-                .withStater(stater)
+                })
+                .withScopeVDC(this)
     }
 
     fun viewContent(item: Storage.Content) {

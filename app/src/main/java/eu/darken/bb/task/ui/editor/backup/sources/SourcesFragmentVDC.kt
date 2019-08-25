@@ -7,7 +7,8 @@ import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -19,29 +20,29 @@ class SourcesFragmentVDC @AssistedInject constructor(
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
         private val generatorRepo: GeneratorRepo
-) : VDC() {
+) : SmartVDC() {
     private val editorObs = taskBuilder.task(taskId)
             .filter { it.editor != null }
             .map { it.editor as SimpleBackupTaskEditor }
-    private val editor: SimpleBackupTaskEditor by lazy {
-        editorObs.blockingFirst()
-    }
-    private val sourcesUpdater = editorObs
-            .flatMap { it.config }
-            .doOnNext { task ->
-                val configs = task.sources.map { id ->
-                    val config = generatorRepo.get(id).blockingGet().value
-                    GeneratorConfigOpt(id, config)
-                }
-                stater.update { it.copy(sources = configs) }
-            }
+    private val editor: SimpleBackupTaskEditor by lazy { editorObs.blockingFirst() }
 
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep { sourcesUpdater.subscribe() }
-
     val state = stater.liveData
 
     val sourcePickerEvent = SingleLiveEvent<List<GeneratorConfigOpt>>()
+
+    init {
+        editorObs
+                .flatMap { it.config }
+                .subscribe { task ->
+                    val configs = task.sources.map { id ->
+                        val config = generatorRepo.get(id).blockingGet().value
+                        GeneratorConfigOpt(id, config)
+                    }
+                    stater.update { it.copy(sources = configs) }
+                }
+                .withScopeVDC(this)
+    }
 
     data class State(
             val sources: List<GeneratorConfigOpt> = emptyList()

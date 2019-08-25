@@ -6,15 +6,16 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import kotlin.reflect.KClass
 
 
@@ -29,42 +30,48 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
     private val dataObs = storageBuilder.storage(storageId)
             .subscribeOn(Schedulers.io())
+            .doFinally { Timber.i("FINALLY") }
+
 
     val pageEvent = SingleLiveEvent<PageData>()
     val finishActivityEvent = SingleLiveEvent<Any>()
 
     init {
-        dataObs.apply {
-            this
-                    .take(1)
-                    .subscribe {
-                        stater.update { it.copy(isWorking = false) }
+        dataObs.take(1)
+                .subscribe {
+                    stater.update { it.copy(isWorking = false) }
+                }
+
+        dataObs
+                .switchMap { if (it.editor != null) it.editor.isValid() else Observable.just(false) }
+                .subscribe { isValid: Boolean ->
+                    stater.update { it.copy(allowSave = isValid) }
+                }
+                .withScopeVDC(this)
+
+        dataObs
+                .map { if (it.editor != null) it.editor.isExistingStorage else false }
+                .subscribe { isExisting: Boolean ->
+                    stater.update { it.copy(existing = isExisting) }
+                }
+                .withScopeVDC(this)
+
+        dataObs
+                .subscribe { data: StorageBuilder.Data ->
+                    val p = PageData(data.storageId, data.storageType)
+                    if (stater.snapshot.currentPage != p.getPage()) {
+                        pageEvent.postValue(p)
+                        stater.update { it.copy(currentPage = p.getPage()) }
                     }
-            this
-                    .switchMap { if (it.editor != null) it.editor.isValid() else Observable.just(false) }
-                    .doOnNext { isValid -> stater.update { it.copy(allowSave = isValid) } }
-                    .withStater(stater)
-            this
-                    .map { if (it.editor != null) it.editor.isExistingStorage else false }
-                    .doOnNext { isExisting -> stater.update { it.copy(existing = isExisting) } }
-                    .withStater(stater)
-            this
-                    .doOnNext { data ->
-                        val p = PageData(data.storageId, data.storageType)
-                        if (stater.snapshot.currentPage != p.getPage()) {
-                            pageEvent.postValue(p)
-                            stater.update { it.copy(currentPage = p.getPage()) }
-                        }
-                    }
-                    .withStater(stater)
-        }
+                }
+                .withScopeVDC(this)
 
         storageBuilder.builders
                 .filter { !it.containsKey(storageId) }
-                .doOnNext {
+                .subscribe {
                     finishActivityEvent.postValue(Any())
                 }
-                .withStater(stater)
+                .withScopeVDC(this)
     }
 
     fun saveConfig() {

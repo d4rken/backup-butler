@@ -9,10 +9,9 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.rx.onErrorComplete
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.Versioning
@@ -42,7 +41,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
     init {
         Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
         contentObs
-                .doOnNext { content ->
+                .subscribe({ content ->
                     val version = content.versioning.versions.find { it.backupId == backupId }!!
                     stater.update {
                         it.copy(
@@ -51,22 +50,24 @@ class DetailPageFragmentVDC @AssistedInject constructor(
                                 isLoadingInfos = false
                         )
                     }
-                }
-                .onErrorComplete { finishEvent.postValue(Any()) }
-                .withStater(stater)
+                }, {
+                    finishEvent.postValue(Any())
+                })
+                .withScopeVDC(this)
 
         contentObs
                 .flatMap { content -> storageObs.switchMap { it.details(content, backupId) } }
-                .doOnNext { details ->
+                .subscribe({ details ->
                     stater.update { state ->
                         state.copy(
                                 items = details.items.toList(),
                                 isLoadingItems = false
                         )
                     }
-                }
-                .onErrorComplete { err -> stater.update { it.copy(error = err) } }
-                .withStater(stater)
+                }, { err ->
+                    stater.update { it.copy(error = err) }
+                })
+                .withScopeVDC(this)
     }
 
 

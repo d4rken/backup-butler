@@ -8,10 +8,10 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
@@ -47,11 +47,11 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 }
 
         editor.isValid()
-                .doOnNext { valid -> stater.update { it.copy(allowCreate = valid) } }
-                .withStater(stater)
+                .subscribe { valid -> stater.update { it.copy(allowCreate = valid) } }
+                .withScopeVDC(this)
 
         configObs
-                .doOnNext { config ->
+                .subscribe { config ->
                     stater.update { state ->
                         state.copy(
                                 label = config.label,
@@ -63,7 +63,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }
-                .withStater(stater)
+                .withScopeVDC(this)
     }
 
     fun updateName(label: String) {

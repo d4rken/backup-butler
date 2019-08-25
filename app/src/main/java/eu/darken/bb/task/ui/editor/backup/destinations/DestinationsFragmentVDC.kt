@@ -6,7 +6,8 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.StorageInfoOpt
@@ -21,36 +22,38 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
         private val storageManager: StorageManager
-) : VDC() {
+) : SmartVDC() {
 
     private val editorObs = taskBuilder.task(taskId)
             .filter { it.editor != null }
             .map { it.editor as SimpleBackupTaskEditor }
-
-    private val destinationUpdater = editorObs
-            .flatMap { it.config }
-            .doOnNext { ed ->
-                val storageStatuses = ed.destinations.map { id ->
-                    try {
-                        val status = storageManager.info(id).blockingFirst()
-                        StorageInfoOpt(id, status)
-                    } catch (e: Exception) {
-                        Timber.tag(TAG).w(e, "Failed to get StatusInfo for $id")
-                        StorageInfoOpt(id, null)
-                    }
-                }
-                stater.update { it.copy(destinations = storageStatuses) }
-            }
 
     private val editor: SimpleBackupTaskEditor by lazy {
         editorObs.blockingFirst()
     }
 
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep { destinationUpdater.subscribe() }
     val state = stater.liveData
 
     val storagePickerEvent = SingleLiveEvent<List<StorageInfoOpt>>()
+
+    init {
+        editorObs
+                .flatMap { it.config }
+                .subscribe { ed ->
+                    val storageStatuses = ed.destinations.map { id ->
+                        try {
+                            val status = storageManager.info(id).blockingFirst()
+                            StorageInfoOpt(id, status)
+                        } catch (e: Exception) {
+                            Timber.tag(TAG).w(e, "Failed to get StatusInfo for $id")
+                            StorageInfoOpt(id, null)
+                        }
+                    }
+                    stater.update { it.copy(destinations = storageStatuses) }
+                }
+                .withScopeVDC(this)
+    }
 
     data class State(
             val destinations: List<StorageInfoOpt> = emptyList()

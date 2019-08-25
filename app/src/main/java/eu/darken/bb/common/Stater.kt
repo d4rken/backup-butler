@@ -12,17 +12,23 @@ class Stater<T> : HotData<T> {
     private val liveDeps = mutableSetOf<() -> Disposable>()
     private var liveDepCompDis = CompositeDisposable()
 
-    fun addLiveDep(dep: () -> Disposable): Stater<T> = apply {
-        liveDeps.add(dep)
+    fun addLiveDataScopedDep(dep: () -> Disposable): Stater<T> = apply {
+        synchronized(liveDeps) {
+            liveDeps.add(dep)
+        }
     }
 
     val liveData: LiveData<T> = data
             .doOnSubscribe {
-                liveDeps.forEach { liveDepCompDis.add(it.invoke()) }
+                synchronized(liveDeps) {
+                    liveDeps.forEach { liveDepCompDis.add(it.invoke()) }
+                }
             }
             .doFinally {
-                liveDepCompDis.dispose()
-                liveDepCompDis = CompositeDisposable()
+                synchronized(liveDeps) {
+                    liveDepCompDis.dispose()
+                    liveDepCompDis = CompositeDisposable()
+                }
             }
             .toLiveData()
 

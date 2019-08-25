@@ -7,14 +7,13 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.common.withStater
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.content.StorageContentFragment
 import eu.darken.bb.storage.ui.viewer.details.ContentDetailsFragment
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
 
@@ -37,22 +36,23 @@ class StorageViewerActivityVDC @AssistedInject constructor(
 
     init {
         storageManager.info(storageId).subscribeOn(Schedulers.io())
-                .doOnNext { info ->
-                    stater.update { state ->
-                        state.copy(
-                                storageId = storageId,
-                                label = info.config?.label ?: ""
-                        )
-                    }
-                }
-                .doOnError { error ->
-                    stater.update {
-                        it.copy(error = error)
-                    }
-                    finishActivity.postValue(true)
-                }
-                .onErrorResumeNext(Observable.empty())
-                .withStater(stater)
+                .subscribe(
+                        { info ->
+                            stater.update { state ->
+                                state.copy(
+                                        storageId = storageId,
+                                        label = info.config?.label ?: ""
+                                )
+                            }
+                        },
+                        { error ->
+                            stater.update {
+                                it.copy(error = error)
+                            }
+                            finishActivity.postValue(true)
+                        }
+                )
+                .withScopeVDC(this)
     }
 
     fun goTo(pageData: PageData) {

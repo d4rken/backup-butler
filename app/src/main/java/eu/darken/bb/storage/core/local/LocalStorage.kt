@@ -74,15 +74,20 @@ class LocalStorage(
                         continue
                     }
 
-                    val backupConfig = specAdapter.fromFile(File(backupDir, SPEC_FILE))
+                    val backupConfig = try {
+                        specAdapter.fromFile(File(backupDir, SPEC_FILE))
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).w(e, "Failed to read specfile")
+                        null
+                    }
                     if (backupConfig == null) {
-                        Timber.tag(TAG).e("Dir without spec file: %s", backupDir)
+                        Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
                         continue
                     }
 
                     val versioning = getVersioning(backupConfig.specId)
                     if (versioning == null) {
-                        Timber.tag(TAG).e("Dir without revision file: %s", backupDir)
+                        Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
                         continue
                     }
                     val ref = LocalStorageContent(
@@ -270,7 +275,12 @@ class LocalStorage(
 
     private fun getVersioning(specId: BackupSpec.Id): Versioning? {
         val revisionConfigFile = File(getBackupDir(specId), VERSIONING_FILE)
-        return versioningAdapter.fromFile(revisionConfigFile)
+        return try {
+            versioningAdapter.fromFile(revisionConfigFile)
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Failed to get versioning for %s (%s)", revisionConfigFile, specId)
+            null
+        }
     }
 
     private fun updateVersioning(specId: BackupSpec.Id, update: (Versioning) -> Versioning): Versioning {

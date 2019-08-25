@@ -6,12 +6,12 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.Versioning
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
 class ContentDetailsFragmentVDC @AssistedInject constructor(
@@ -22,34 +22,33 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
-    private val contentObs = storageObs.flatMap { it.content() }
-            .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-            .doOnNext { item ->
-                stater.update { state ->
-                    state.copy(
-                            backupSpec = item.backupSpec,
-                            versions = item.versioning.versions.sortedBy { it.createdAt }.reversed(),
-                            loading = false
-                    )
-                }
-            }
-            .doOnError { error ->
-                stater.update {
-                    it.copy(
-                            error = error,
-                            loading = false
-                    )
-                }
-                finishEvent.postValue(Any())
-            }
-            .onErrorResumeNext(Observable.empty<Storage.Content>())
 
     private val stater: Stater<State> = Stater(State())
-            .addLiveDep {
-                contentObs.subscribe()
-            }
     val state = stater.liveData
     val finishEvent = SingleLiveEvent<Any>()
+
+    init {
+        storageObs.flatMap { it.content() }
+                .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
+                .subscribe({ item ->
+                    stater.update { state ->
+                        state.copy(
+                                backupSpec = item.backupSpec,
+                                versions = item.versioning.versions.sortedBy { it.createdAt }.reversed(),
+                                loading = false
+                        )
+                    }
+                }, { error ->
+                    stater.update {
+                        it.copy(
+                                error = error,
+                                loading = false
+                        )
+                    }
+                    finishEvent.postValue(Any())
+                })
+                .withScopeVDC(this)
+    }
 
     data class State(
             val backupSpec: BackupSpec? = null,

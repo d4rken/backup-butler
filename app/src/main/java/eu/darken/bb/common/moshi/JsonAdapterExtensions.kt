@@ -8,6 +8,7 @@ import eu.darken.bb.common.file.tryMkFile
 import okio.Okio
 import timber.log.Timber
 import java.io.File
+import java.io.InterruptedIOException
 
 val TAG: String = App.logTag("JsonAdapterExtensions")
 
@@ -17,6 +18,12 @@ fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
         JsonWriter.of(Okio.buffer(Okio.sink(file))).use {
             it.indent = "    "
             toJson(it, value)
+        }
+    } catch (e: Exception) {
+        if (e is InterruptedIOException) {
+            Timber.w("Interrupted! toFile(value=%s, file=%s)", value, file)
+        } else {
+            throw e
         }
     } finally {
         Timber.tag(TAG).v("toFile(value=%s, file=%s)", value, file)
@@ -30,6 +37,12 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T? {
             value = JsonReader.of(Okio.buffer(Okio.source(file))).use {
                 return@use fromJson(it)
             }
+        }
+    } catch (e: Exception) {
+        if (e is InterruptedIOException) {
+            Timber.w("Interrupted! fromFile(value=%s, file=%s)", value, file)
+        } else {
+            throw e
         }
     } finally {
         Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
