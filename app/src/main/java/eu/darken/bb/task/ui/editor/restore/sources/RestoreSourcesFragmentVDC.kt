@@ -1,15 +1,19 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
 import androidx.lifecycle.SavedStateHandle
+import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.replace
+import eu.darken.bb.common.WorkId
+import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -26,40 +30,46 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
             .subscribeOn(Schedulers.io())
             .filter { it.editor != null }
             .map { it.editor as SimpleRestoreTaskEditor }
+            .replayingShare()
 
-    val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
+    private val configObs = editorObs.flatMap { it.config }
+            .replayingShare()
 
-    private val stater = Stater(State())
-    val state = stater.liveData
+    private val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
+
+    private val countStater = Stater(CountState())
+    val countState = countStater.liveData
+
+    private val backupsStater = Stater(BackupsState())
+    val backupsState = backupsStater.liveData
 
     init {
-        editorObs.flatMap { it.config }
-                .map { it.storageIds }
-                .flatMapIterable { it }
-                .flatMap { storageManager.info(it) }
-                .subscribe { info ->
-                    stater.update { oldState ->
-                        val newStorageInfos = oldState.sourceStorages
-                                .replace(info) { it.ref.storageId == info.ref.storageId }
-                                .toMutableList()
-                        oldState.copy(sourceStorages = newStorageInfos.toList())
+        configObs
+                .subscribe { config ->
+                    countStater.update { oldState ->
+                        oldState.copy(
+                                sourceStorages = config.storageIds.toList(),
+                                sourceBackupSpecs = config.backupSpecIds.toList(),
+                                sourceBackups = config.backupIds.toList(),
+                                workIds = oldState.clearWorkId()
+                        )
                     }
                 }
                 .withScopeVDC(this)
     }
 
-    fun updateConfig(config: Restore.Config) {
-        stater.update { it.copy(isLoading = true) }
-        editor.updateConfig(config)
-    }
-
-    data class State(
-            val sourceStorages: List<StorageInfo> = emptyList(),
-            val sourceBackupSpecs: List<StorageInfo> = emptyList(),
-            val sourceBackups: List<StorageInfo> = emptyList(),
+    data class CountState(
+            val sourceStorages: List<Storage.Id> = emptyList(),
+            val sourceBackupSpecs: List<BackupSpec.Id> = emptyList(),
+            val sourceBackups: List<Backup.Id> = emptyList(),
             val restoreConfigs: List<Restore.Config> = emptyList(),
-            val isLoading: Boolean = true
-    )
+            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
+    ) : WorkId.State
+
+
+    data class BackupsState(
+            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
+    ) : WorkId.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<RestoreSourcesFragmentVDC> {

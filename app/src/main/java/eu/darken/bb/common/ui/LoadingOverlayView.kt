@@ -50,6 +50,10 @@ class LoadingOverlayView @JvmOverloads constructor(
         mode = Mode.LOADING
     }
 
+    fun setPrimaryText(@StringRes stringRes: Int) {
+        this.setPrimaryText(context.getString(stringRes))
+    }
+
     fun setPrimaryText(primary: String?) {
         if (primary == null) {
             primaryText.setText(R.string.progress_loading_label)

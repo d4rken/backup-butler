@@ -78,7 +78,7 @@
     <string name="created_at_label">Created at</string>
     <string name="error_generic_label">Error</string>
     <string name="action_restore">Restore</string>
-    <string name="todo">TODO</string>
+    <string name="todo">TODO (Not implemented yet)</string>
     <string name="update_available_label">Update available</string>
     <string name="action_update">Update</string>
     <string name="action_changelog">Changelog</string>
@@ -136,4 +136,21 @@
     <string name="progress_deleting_x">Deleting %s</string>
     <string name="action_grant">Grant</string>
     <string name="storage_additional_permission_required_msg">Additional permission are required to use this storage location.</string>
+    <string name="sources_selected_label">Selected sources</string>
+    <plurals name="restore_task_x_backup_storages_desc">
+        <item quantity="one">The content of %d backup storage.</item>
+        <item quantity="other">The content of %d backup storages.</item>
+    </plurals>
+    <plurals name="restore_task_x_backup_backupspecs_desc">
+        <item quantity="one">The latest version of %d backup.</item>
+        <item quantity="other">The latest version of %d backups.</item>
+    </plurals>
+    <plurals name="restore_task_x_backup_specific_desc">
+        <item quantity="one">A specific version of %d backup.</item>
+        <item quantity="other">A specific version of %d backups.</item>
+    </plurals>
+    <plurals name="restore_task_x_backups_selected_desc">
+        <item quantity="one">%d backup is selected for restoration.</item>
+        <item quantity="other">%d backups are selected for restoration.</item>
+    </plurals>
 </resources>
