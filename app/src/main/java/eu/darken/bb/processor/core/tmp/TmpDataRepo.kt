@@ -60,6 +60,14 @@ class TmpDataRepo @Inject constructor(
         }
     }
 
+    @Synchronized
+    fun wipe() {
+        Timber.tag(TAG).d("Wiping remaining ref cache.")
+        refMap.keys.forEach {
+            deleteAll(it)
+        }
+    }
+
     companion object {
         val TAG = App.logTag("TmpDataRepo")
     }

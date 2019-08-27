@@ -1,8 +1,9 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import android.content.Context
 import android.os.Environment
 import dagger.Reusable
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
@@ -12,14 +13,14 @@ import java.io.File
 import javax.inject.Inject
 
 @Reusable
-class LegacyFilesSpecGenerator @Inject constructor(
+class FilesSpecGenerator @Inject constructor(
         @AppContext private val context: Context
 ) : Generator {
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config
         val specs = mutableListOf<BackupSpec>()
 
-        val app = LegacyFilesBackupSpec(
+        val app = FilesBackupSpec(
                 label = config.path.path,
                 path = config.path
         )
@@ -38,6 +39,6 @@ class LegacyFilesSpecGenerator @Inject constructor(
             return path.path
         }
 
-        override val generatorType: Generator.Type = Generator.Type.FILE_LEGACY
+        override val generatorType: Backup.Type = Backup.Type.FILES
     }
 }

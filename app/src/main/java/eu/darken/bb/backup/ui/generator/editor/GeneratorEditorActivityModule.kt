@@ -8,8 +8,8 @@ import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
 import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragmentModule
-import eu.darken.bb.backup.ui.generator.editor.types.files.legacy.LegacyFilesEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.files.legacy.LegacyFilesEditorFragmentModule
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.common.dagger.PerFragment
 import eu.darken.bb.common.vdc.VDC
@@ -34,6 +34,6 @@ abstract class GeneratorEditorActivityModule {
     abstract fun appEditor(): AppEditorFragment
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [LegacyFilesEditorFragmentModule::class])
-    abstract fun filesEditor(): LegacyFilesEditorFragment
+    @ContributesAndroidInjector(modules = [FilesEditorFragmentModule::class])
+    abstract fun filesEditor(): FilesEditorFragment
 }

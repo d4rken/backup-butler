@@ -5,11 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.files.legacy.LegacyFilesEditorFragment
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
@@ -90,14 +91,14 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
             val working: Boolean = false
     )
 
-    data class PageData(val generatorId: Generator.Id, private val type: Generator.Type?) {
+    data class PageData(val generatorId: Generator.Id, private val type: Backup.Type?) {
 
         fun getPage(): Page = Page.values().first { it.backupType == type }
 
-        enum class Page(val backupType: Generator.Type?, val fragmentClass: KClass<out Fragment>) {
+        enum class Page(val backupType: Backup.Type?, val fragmentClass: KClass<out Fragment>) {
             SELECTION(null, TypeSelectionFragment::class),
-            APP(Generator.Type.APP, AppEditorFragment::class),
-            FILES_LEGACY(Generator.Type.FILE_LEGACY, LegacyFilesEditorFragment::class)
+            APP(Backup.Type.APP, AppEditorFragment::class),
+            FILES(Backup.Type.FILES, FilesEditorFragment::class)
         }
 
     }

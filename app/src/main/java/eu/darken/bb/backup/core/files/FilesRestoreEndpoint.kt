@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -7,7 +7,7 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.progress.Progress
 import java.io.File
 
-class LegacyFilesRestoreEndpoint @AssistedInject constructor(
+class FilesRestoreEndpoint @AssistedInject constructor(
         @Assisted private val progressClient: Progress.Client?
 ) : Restore.Endpoint {
     val basePath = File("/storage/emulated/0")
@@ -17,5 +17,5 @@ class LegacyFilesRestoreEndpoint @AssistedInject constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : Restore.Endpoint.Factory<LegacyFilesRestoreEndpoint>
+    interface Factory : Restore.Endpoint.Factory<FilesRestoreEndpoint>
 }

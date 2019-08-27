@@ -1,9 +1,9 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 
-data class LegacyFilesRestoreConfig(
+data class FilesRestoreConfig(
         val replaceFiles: Boolean = true
 ) : Restore.Config {
 

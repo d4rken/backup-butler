@@ -7,7 +7,7 @@ import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppRestoreConfig
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesRestoreConfig
+import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.ui.SwitchPreferenceView
 import javax.inject.Inject
@@ -21,7 +21,7 @@ class RestoreConfigAdapter @Inject constructor()
     init {
         modules.add(DataBinderModule<Pair<Restore.Config, (Restore.Config) -> Unit>, BaseVH>(data))
         modules.add(TypedVHCreator(0, { data[it].first is AppRestoreConfig }) { AppConfigVH(it) })
-        modules.add(TypedVHCreator(1, { data[it].first is LegacyFilesRestoreConfig }) { FileConfigVH(it) })
+        modules.add(TypedVHCreator(1, { data[it].first is FilesRestoreConfig }) { FileConfigVH(it) })
     }
 
     override fun getItemCount(): Int = data.size
@@ -69,7 +69,7 @@ class RestoreConfigAdapter @Inject constructor()
         }
 
         override fun bind(item: Pair<Restore.Config, (Restore.Config) -> Unit>) {
-            val config = item.first as LegacyFilesRestoreConfig
+            val config = item.first as FilesRestoreConfig
             val callback = item.second
             optionReplaceExisting.isChecked = config.replaceFiles
             optionReplaceExisting.setOnCheckedChangedListener { _, checked ->

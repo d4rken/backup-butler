@@ -40,6 +40,7 @@ abstract class SimpleBaseProcessor constructor(
             Timber.tag(TAG).e(exception, "Task failed: %s", task)
             resultBuilder.error(exception)
         } finally {
+            onCleanup()
             progressParent.updateProgressSecondary(context, R.string.progress_working_label)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
@@ -48,6 +49,10 @@ abstract class SimpleBaseProcessor constructor(
     }
 
     abstract fun doProcess(task: Task)
+
+    open fun onCleanup() {
+
+    }
 
     companion object {
         private val TAG = App.logTag("Processor", "BaseProcessor")

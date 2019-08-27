@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import android.content.Context
 import com.squareup.inject.assisted.Assisted
@@ -19,7 +19,7 @@ import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.processor.core.tmp.TmpRef
 import timber.log.Timber
 
-class LegacyFilesBackupEndpoint @AssistedInject constructor(
+class FilesBackupEndpoint @AssistedInject constructor(
         @Assisted private val progressClient: Progress.Client?,
         @AppContext override val context: Context,
         private val tmpDataRepo: TmpDataRepo
@@ -34,8 +34,8 @@ class LegacyFilesBackupEndpoint @AssistedInject constructor(
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        spec as LegacyFilesBackupSpec
-        val builder = LegacyFilesBackupBuilder(spec, Backup.Id())
+        spec as FilesBackupSpec
+        val builder = FilesBackupBuilder(spec, Backup.Id())
 
         val pathToBackup = spec.path.asFile()
 
@@ -70,5 +70,5 @@ class LegacyFilesBackupEndpoint @AssistedInject constructor(
 
 
     @AssistedInject.Factory
-    interface Factory : Backup.Endpoint.Factory<LegacyFilesBackupEndpoint>
+    interface Factory : Backup.Endpoint.Factory<FilesBackupEndpoint>
 }

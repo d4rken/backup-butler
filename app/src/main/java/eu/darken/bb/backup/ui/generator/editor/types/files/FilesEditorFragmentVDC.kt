@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.ui.generator.editor.types.files.legacy
+package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesSpecGeneratorEditor
+import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.addWorkId
@@ -17,7 +17,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.schedulers.Schedulers
 
-class LegacyFilesEditorFragmentVDC @AssistedInject constructor(
+class FilesEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
@@ -28,7 +28,7 @@ class LegacyFilesEditorFragmentVDC @AssistedInject constructor(
 
     private val editorObs = dataObs
             .filter { it.editor != null }
-            .map { it.editor as LegacyFilesSpecGeneratorEditor }
+            .map { it.editor as FilesSpecGeneratorEditor }
 
     private val configObs = editorObs.flatMap { it.config }
 
@@ -95,8 +95,8 @@ class LegacyFilesEditorFragmentVDC @AssistedInject constructor(
     ) : BaseEditorFragment.VDC.State, WorkId.State
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<LegacyFilesEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): LegacyFilesEditorFragmentVDC
+    interface Factory : VDCFactory<FilesEditorFragmentVDC> {
+        fun create(handle: SavedStateHandle, generatorId: Generator.Id): FilesEditorFragmentVDC
     }
 
     companion object {

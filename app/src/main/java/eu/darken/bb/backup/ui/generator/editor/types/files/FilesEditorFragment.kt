@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.ui.generator.editor.types.files.legacy
+package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.os.Bundle
 import android.view.View
@@ -20,11 +20,11 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 
-class LegacyFilesEditorFragment : BaseEditorFragment(), AutoInject {
+class FilesEditorFragment : BaseEditorFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: LegacyFilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as LegacyFilesEditorFragmentVDC.Factory
+    override val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as FilesEditorFragmentVDC.Factory
         factory.create(handle, arguments!!.getGeneratorId()!!)
     })
 

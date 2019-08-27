@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -9,13 +9,13 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
-class LegacyFilesSpecGeneratorEditor @AssistedInject constructor(
+class FilesSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         moshi: Moshi
 ) : Generator.Editor {
 
-    private val configPub = HotData(LegacyFilesSpecGenerator.Config(generatorId = generatorId))
-    override val config: Observable<LegacyFilesSpecGenerator.Config> = configPub.data
+    private val configPub = HotData(FilesSpecGenerator.Config(generatorId = generatorId))
+    override val config: Observable<FilesSpecGenerator.Config> = configPub.data
 
     override var existingConfig: Boolean = false
 
@@ -24,7 +24,7 @@ class LegacyFilesSpecGeneratorEditor @AssistedInject constructor(
     }
 
     override fun load(config: Generator.Config): Completable = Completable.fromCallable {
-        config as LegacyFilesSpecGenerator.Config
+        config as FilesSpecGenerator.Config
         existingConfig = true
         configPub.update { config }
         Any()
@@ -43,6 +43,6 @@ class LegacyFilesSpecGeneratorEditor @AssistedInject constructor(
     }
 
     @AssistedInject.Factory
-    interface Factory : Generator.Editor.Factory<LegacyFilesSpecGeneratorEditor>
+    interface Factory : Generator.Editor.Factory<FilesSpecGeneratorEditor>
 
 }

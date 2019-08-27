@@ -2,7 +2,7 @@ package eu.darken.bb.backup.core
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppRestoreConfig
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesRestoreConfig
+import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.progress.Progress
 
 interface Restore {
@@ -20,7 +20,7 @@ interface Restore {
         companion object {
             val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Config> = PolymorphicJsonAdapterFactory.of(Config::class.java, "restoreType")
                     .withSubtype(AppRestoreConfig::class.java, Backup.Type.APP.name)
-                    .withSubtype(LegacyFilesRestoreConfig::class.java, Backup.Type.FILES.name)
+                    .withSubtype(FilesRestoreConfig::class.java, Backup.Type.FILES.name)
         }
     }
 

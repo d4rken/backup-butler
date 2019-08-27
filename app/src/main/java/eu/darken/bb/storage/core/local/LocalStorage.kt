@@ -8,7 +8,7 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupSpec
+import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
@@ -206,7 +206,7 @@ class LocalStorage(
                 updateProgressSecondary(it.originalPath?.path ?: it.file.path)
                 updateProgressCount(Progress.Count.Counter(++current, max))
 
-                val strippedPath = File(it.originalPath!!.path.replace((backup.spec as LegacyFilesBackupSpec).path.path, ""))
+                val strippedPath = File(it.originalPath!!.path.replace((backup.spec as FilesBackupSpec).path.path, ""))
 
                 File(revisionDir, strippedPath.parentFile.path).apply {
                     mkdirs()

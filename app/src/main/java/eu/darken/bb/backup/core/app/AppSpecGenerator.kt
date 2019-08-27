@@ -2,6 +2,7 @@ package eu.darken.bb.backup.core.app
 
 import android.content.Context
 import dagger.Reusable
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
@@ -49,6 +50,6 @@ class AppSpecGenerator @Inject constructor(
             return generatorId.toString()
         }
 
-        override val generatorType: Generator.Type = Generator.Type.APP
+        override val generatorType: Backup.Type = Backup.Type.APP
     }
 }

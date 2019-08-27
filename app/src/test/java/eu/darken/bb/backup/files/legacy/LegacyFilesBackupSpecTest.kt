@@ -2,7 +2,7 @@ package eu.darken.bb.backup.files.legacy
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupSpec
+import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.CheckSummer
 import eu.darken.bb.common.file.JavaFile
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class LegacyFilesBackupSpecTest {
     @Test
     fun testSerialization() {
-        val config = LegacyFilesBackupSpec(
+        val config = FilesBackupSpec(
                 "TestName",
                 JavaFile.build("test/file")
         )
@@ -28,7 +28,7 @@ class LegacyFilesBackupSpecTest {
                 .contains("\"specId\":\"$expectedSpecId\"")
 
         val configRestored = adapter.fromJson(json)
-        assertThat(configRestored).isInstanceOf(LegacyFilesBackupSpec::class.java)
+        assertThat(configRestored).isInstanceOf(FilesBackupSpec::class.java)
         assertThat(configRestored).isEqualTo(config)
     }
 }

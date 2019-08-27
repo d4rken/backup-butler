@@ -1,14 +1,14 @@
-package eu.darken.bb.backup.core.files.legacy
+package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.processor.core.tmp.TmpRef
 
-class LegacyFilesBackupBuilder : BaseBackupBuilder<LegacyFilesBackupSpec> {
+class FilesBackupBuilder : BaseBackupBuilder<FilesBackupSpec> {
 
     constructor(backup: Backup.Unit) : super(backup)
 
-    constructor(config: LegacyFilesBackupSpec, backupId: Backup.Id)
+    constructor(config: FilesBackupSpec, backupId: Backup.Id)
             : super(config, backupId)
 
     init {

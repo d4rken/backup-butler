@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Parcelable
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppBackupSpec
-import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupSpec
+import eu.darken.bb.backup.core.files.FilesBackupSpec
 import kotlinx.android.parcel.Parcelize
 
 interface BackupSpec {
@@ -22,7 +22,7 @@ interface BackupSpec {
     companion object {
         val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<BackupSpec> = PolymorphicJsonAdapterFactory.of(BackupSpec::class.java, "backupType")
                 .withSubtype(AppBackupSpec::class.java, Backup.Type.APP.name)
-                .withSubtype(LegacyFilesBackupSpec::class.java, Backup.Type.FILES.name)
+                .withSubtype(FilesBackupSpec::class.java, Backup.Type.FILES.name)
     }
 
 }
