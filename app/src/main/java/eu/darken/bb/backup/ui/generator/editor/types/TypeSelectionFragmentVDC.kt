@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor.types
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.common.rx.toLiveData
@@ -27,7 +26,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
             .toLiveData()
 
 
-    fun createType(type: Backup.Type) {
+    fun createType(type: Generator.Type) {
         builder.update(generatorId) { it!!.copy(generatorType = type) }
                 .subscribeOn(Schedulers.io())
                 .subscribe()
@@ -41,7 +40,7 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val supportedTypes: List<Backup.Type>,
+            val supportedTypes: List<Generator.Type>,
             val isWorking: Boolean = false,
             override val isExisting: Boolean = false
     ) : BaseEditorFragment.VDC.State

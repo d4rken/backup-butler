@@ -5,7 +5,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.OpStatus
@@ -24,7 +23,6 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         @AppContext context: Context,
         private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Restore.Endpoint.Factory<out Restore.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
-        private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo

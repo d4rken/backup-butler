@@ -5,11 +5,11 @@ import android.view.View
 import android.widget.EditText
 import androidx.lifecycle.Observer
 import butterknife.BindView
-import com.jakewharton.rxbinding3.widget.textChanges
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.getTaskId
@@ -36,7 +36,7 @@ class IntroFragment : SmartFragment(), AutoInject {
         vdc.state.observe(this, Observer {
             if (nameInput.text.toString() != it.taskName) nameInput.setText(it.taskName)
         })
-        nameInput.textChanges().skipInitialValue().subscribe { vdc.updateTaskName(it) }
+        nameInput.userTextChangeEvents().subscribe { vdc.updateTaskName(it.text.toString()) }
 
         super.onViewCreated(view, savedInstanceState)
     }

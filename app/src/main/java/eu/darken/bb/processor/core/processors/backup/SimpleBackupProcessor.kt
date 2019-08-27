@@ -27,7 +27,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         @AppContext context: Context,
         private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Backup.Endpoint.Factory<out Backup.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
-        private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
+        private val generators: @JvmSuppressWildcards Map<Generator.Type, Generator>,
         private val tmpDataRepo: TmpDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo

@@ -5,12 +5,11 @@ import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
+import eu.darken.bb.backup.ui.generator.editor.types.files.legacy.LegacyFilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
@@ -35,7 +34,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
     val state = stater.liveData
 
     val pageEvent = SingleLiveEvent<PageData>()
-    val finishActivity = SingleLiveEvent<Boolean>()
+    val finishActivityEvent = SingleLiveEvent<Any>()
 
     init {
         dataObs
@@ -65,6 +64,13 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
                     }
                 }
                 .withScopeVDC(this)
+
+        generatorBuilder.builders
+                .filter { !it.containsKey(generatorId) }
+                .subscribe {
+                    finishActivityEvent.postValue(Any())
+                }
+                .withScopeVDC(this)
     }
 
     fun saveConfig() {
@@ -72,7 +78,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(working = true) } }
-                .doFinally { finishActivity.postValue(true) }
+                .doFinally { finishActivityEvent.postValue(Any()) }
                 .subscribe()
     }
 
@@ -84,14 +90,14 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
             val working: Boolean = false
     )
 
-    data class PageData(val generatorId: Generator.Id, private val type: Backup.Type?) {
+    data class PageData(val generatorId: Generator.Id, private val type: Generator.Type?) {
 
         fun getPage(): Page = Page.values().first { it.backupType == type }
 
-        enum class Page(val backupType: Backup.Type?, val fragmentClass: KClass<out Fragment>) {
+        enum class Page(val backupType: Generator.Type?, val fragmentClass: KClass<out Fragment>) {
             SELECTION(null, TypeSelectionFragment::class),
-            APP(Backup.Type.APP, AppEditorFragment::class),
-            FILES(Backup.Type.FILE, FilesEditorFragment::class)
+            APP(Generator.Type.APP, AppEditorFragment::class),
+            FILES_LEGACY(Generator.Type.FILE_LEGACY, LegacyFilesEditorFragment::class)
         }
 
     }

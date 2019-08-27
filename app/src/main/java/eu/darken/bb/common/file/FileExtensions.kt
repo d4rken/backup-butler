@@ -30,6 +30,15 @@ fun File.assertExists(): File {
     return this
 }
 
+fun File.assertNotExists(): File {
+    if (exists()) {
+        val ex = IllegalStateException("Path exist, but shouldn't: $this")
+        Timber.tag(TAG).w(ex)
+        throw ex
+    }
+    return this
+}
+
 fun File.tryMkDirs(): File {
     if (exists()) {
         if (isDirectory) {

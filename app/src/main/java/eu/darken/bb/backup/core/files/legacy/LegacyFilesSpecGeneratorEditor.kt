@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.core.app
+package eu.darken.bb.backup.core.files.legacy
 
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -9,20 +9,22 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
-class AppSpecGeneratorEditor @AssistedInject constructor(
+class LegacyFilesSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         moshi: Moshi
 ) : Generator.Editor {
 
-    private val configPub = HotData(AppSpecGenerator.Config(generatorId = generatorId, label = ""))
-    override val config: Observable<AppSpecGenerator.Config> = configPub.data
+    private val configPub = HotData(LegacyFilesSpecGenerator.Config(generatorId = generatorId))
+    override val config: Observable<LegacyFilesSpecGenerator.Config> = configPub.data
 
     override var existingConfig: Boolean = false
 
-    override fun isValid(): Observable<Boolean> = configPub.data.map { true }
+    override fun isValid(): Observable<Boolean> = config.map {
+        it.label.isNotEmpty() && it.path.path.length > 4
+    }
 
     override fun load(config: Generator.Config): Completable = Completable.fromCallable {
-        config as AppSpecGenerator.Config
+        config as LegacyFilesSpecGenerator.Config
         existingConfig = true
         configPub.update { config }
         Any()
@@ -36,11 +38,11 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         configPub.update { it.copy(label = label) }
     }
 
-    fun updateIncludedPackages(pkgs: List<String>) {
-        configPub.update { it.copy(packagesIncluded = pkgs) }
+    fun updatePath(path: String) {
+        TODO()
     }
 
     @AssistedInject.Factory
-    interface Factory : Generator.Editor.Factory<AppSpecGeneratorEditor>
+    interface Factory : Generator.Editor.Factory<LegacyFilesSpecGeneratorEditor>
 
 }

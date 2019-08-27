@@ -7,6 +7,7 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.file.asSFile
+import eu.darken.bb.common.file.deleteAll
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -52,7 +53,8 @@ class TmpDataRepo @Inject constructor(
                     Timber.tag(TAG).v("Delete tmp file (success=%b): %s", deleted, it.file)
                 }
                 TmpRef.Type.DIRECTORY -> {
-                    TODO()
+                    val deleted = it.file.asFile().deleteAll()
+                    Timber.tag(TAG).v("Delete tmp dir (success=%b): %s", deleted, it.file)
                 }
             }
         }

@@ -18,6 +18,10 @@ data class WorkId(val id: String = UUID.randomUUID().toString()) {
         val ID3 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec3")
         val ID4 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec4")
         val ID5 = WorkId("0b92cbea-84f5-4a47-94cb-a0a7e1601ec5")
+        val FOREVER: WorkId
+            get() {
+                return WorkId(UUID.randomUUID().toString())
+            }
     }
 }
 

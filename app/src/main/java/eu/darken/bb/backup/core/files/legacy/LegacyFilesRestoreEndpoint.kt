@@ -1,21 +1,21 @@
-package eu.darken.bb.backup.core.file
+package eu.darken.bb.backup.core.files.legacy
 
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.progress.Progress
 import java.io.File
 
-class FileBackupEndpoint @AssistedInject constructor(
+class LegacyFilesRestoreEndpoint @AssistedInject constructor(
         @Assisted private val progressClient: Progress.Client?
-) : Backup.Endpoint {
+) : Restore.Endpoint {
     val basePath = File("/storage/emulated/0")
 
-    override fun backup(spec: BackupSpec): Backup.Unit {
+    override fun restore(config: Restore.Config, backup: Backup.Unit): Boolean {
         TODO("not implemented")
     }
 
     @AssistedInject.Factory
-    interface Factory : Backup.Endpoint.Factory<FileBackupEndpoint>
+    interface Factory : Restore.Endpoint.Factory<LegacyFilesRestoreEndpoint>
 }

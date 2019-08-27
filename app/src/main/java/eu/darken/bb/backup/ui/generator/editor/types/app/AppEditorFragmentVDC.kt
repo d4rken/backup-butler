@@ -65,7 +65,7 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                     .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                     .subscribeOn(Schedulers.io())
                     .subscribe()
-            return true
+
         } else {
             builder
                     .update(generatorId) { data ->
@@ -73,8 +73,8 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                     }
                     .subscribeOn(Schedulers.io())
                     .subscribe()
-            return true
         }
+        return true
     }
 
     data class State(

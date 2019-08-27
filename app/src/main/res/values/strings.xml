@@ -64,7 +64,7 @@
     <string name="label_backuptype_app">App backup</string>
     <string name="descr_backuptype_app">Backups apps and their files</string>
     <string name="label_backuptype_file">File backup</string>
-    <string name="descr_backuptype_file">Backup of an arbitrary file path</string>
+    <string name="descr_backuptype_file">Backup of an arbitrary file path.</string>
     <string name="backuptype_files_label">File backup</string>
     <string name="label_source">Source</string>
     <string name="label_introduction">Introduction</string>
@@ -137,6 +137,14 @@
     <string name="action_grant">Grant</string>
     <string name="storage_additional_permission_required_msg">Additional permission are required to use this storage location.</string>
     <string name="sources_selected_label">Selected sources</string>
+    <string name="generator_type_app_label">Device apps</string>
+    <string name="generator_type_app_desc">Apps installed on this device.</string>
+    <string name="generator_type_file_legacy_label">Local files (legacy)</string>
+    <string name="generator_type_file_legacy_desc">Files on internal storage. Use SAF based sources on newer Android versions.</string>
+    <string name="generator_type_file_saf_label">Files (SAF)</string>
+    <string name="generator_type_file_saf_desc">Files accessible through the Storage Access Framework (SAF). Recommended in most cases.</string>
+    <string name="generator_type_file_root_label">Files (root)</string>
+    <string name="generator_type_file_root_desc">Files accessed through root permission (requires root, obviously).</string>
     <plurals name="restore_task_x_backup_storages_desc">
         <item quantity="one">The content of %d backup storage.</item>
         <item quantity="other">The content of %d backup storages.</item>

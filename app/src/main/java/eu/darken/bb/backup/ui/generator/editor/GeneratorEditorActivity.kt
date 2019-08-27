@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
@@ -14,6 +13,7 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.backup.core.putGeneratorId
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.showFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
@@ -45,7 +45,7 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
         setContentView(R.layout.generator_editor_activity)
         ButterKnife.bind(this)
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             if (state.existing) {
                 supportActionBar!!.title = getString(R.string.label_edit_source_config)
             } else {
@@ -57,16 +57,16 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
             invalidateOptionsMenu()
 
             loadingOverlay.setGone(!state.working)
-        })
+        }
 
-        vdc.pageEvent.observe(this, Observer { pageEvent ->
+        vdc.pageEvent.observe2(this) { pageEvent ->
             showFragment(
                     fragmentClass = pageEvent.getPage().fragmentClass,
                     arguments = Bundle().apply { putGeneratorId(pageEvent.generatorId) }
             )
-        })
+        }
 
-        vdc.finishActivity.observe(this, Observer { finish() })
+        vdc.finishActivityEvent.observe2(this) { finish() }
     }
 
     override fun onSupportNavigateUp(): Boolean {

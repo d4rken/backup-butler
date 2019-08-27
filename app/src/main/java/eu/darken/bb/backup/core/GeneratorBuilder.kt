@@ -19,10 +19,11 @@ import javax.inject.Inject
 class GeneratorBuilder @Inject constructor(
         @AppContext private val context: Context,
         private val generatorRepo: GeneratorRepo,
-        private val editors: @JvmSuppressWildcards Map<Backup.Type, Generator.Editor.Factory<out Generator.Editor>>
+        private val editors: @JvmSuppressWildcards Map<Generator.Type, Generator.Editor.Factory<out Generator.Editor>>
 ) {
 
     private val hotData = HotData<Map<Generator.Id, Data>>(mutableMapOf())
+    val builders = hotData.data
 
     init {
         hotData.data
@@ -37,7 +38,7 @@ class GeneratorBuilder @Inject constructor(
                 }
     }
 
-    fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
+    fun getSupportedBackupTypes(): Observable<Collection<Generator.Type>> = Observable.just(Generator.Type.values().toList())
 
     fun config(id: Generator.Id): Observable<Data> {
         return hotData.data
@@ -102,7 +103,7 @@ class GeneratorBuilder @Inject constructor(
                 update(id) { data }.map { data }
             }
 
-    fun startEditor(configId: Generator.Id = Generator.Id(), type: Backup.Type? = null): Completable = hotData.data.firstOrError()
+    fun startEditor(configId: Generator.Id = Generator.Id(), type: Generator.Type? = null): Completable = hotData.data.firstOrError()
             .map { builderData ->
                 if (builderData.containsKey(configId)) builderData.getValue(configId)
                 else throw IllegalArgumentException("Config builder not in data: $configId")
@@ -121,7 +122,7 @@ class GeneratorBuilder @Inject constructor(
             }
             .ignoreElement()
 
-    fun createBuilder(newId: Generator.Id = Generator.Id(), type: Backup.Type?): Single<Data> = Single.fromCallable {
+    fun createBuilder(newId: Generator.Id = Generator.Id(), type: Generator.Type?): Single<Data> = Single.fromCallable {
         Data(
                 generatorId = newId,
                 generatorType = type,
@@ -131,7 +132,7 @@ class GeneratorBuilder @Inject constructor(
 
     data class Data(
             val generatorId: Generator.Id,
-            val generatorType: Backup.Type? = null,
+            val generatorType: Generator.Type? = null,
             val editor: Generator.Editor? = null
     )
 

@@ -2,7 +2,7 @@ package eu.darken.bb.common.file
 
 import java.io.File
 
-class JavaFile(
+data class JavaFile(
         val file: File
 ) : SFile {
     override val type: SFile.Type
@@ -19,6 +19,9 @@ class JavaFile(
 
     override val name: String
         get() = file.name
+
+    override val parent: SFile
+        get() = file.parentFile.asSFile()
 
     override fun toString(): String {
         return "JavaFile(file=$file)"

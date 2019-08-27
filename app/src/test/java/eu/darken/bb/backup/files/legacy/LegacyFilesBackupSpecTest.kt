@@ -1,16 +1,17 @@
-package eu.darken.bb.backup.file
+package eu.darken.bb.backup.files.legacy
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.file.FileBackupSpec
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupSpec
+import eu.darken.bb.common.CheckSummer
 import eu.darken.bb.common.file.JavaFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class FileBackupSpecTest {
+class LegacyFilesBackupSpecTest {
     @Test
     fun testSerialization() {
-        val config = FileBackupSpec(
+        val config = LegacyFilesBackupSpec(
                 "TestName",
                 JavaFile.build("test/file")
         )
@@ -19,13 +20,15 @@ class FileBackupSpecTest {
         val adapter = moshi.adapter(BackupSpec::class.java)
 
         val json = adapter.toJson(config)
+        val expectedSpecId = BackupSpec.Id(CheckSummer.calculate(config.label + config.path.path, CheckSummer.Type.MD5)).value
         assertThat(json)
-                .contains("\"backupType\":\"FILE\"")
-                .contains("\"specId\":\"files-TestName\"")
+                .contains("\"backupType\":\"FILES\"")
                 .contains("\"path\":{")
                 .contains("\"revisionLimit\":3")
+                .contains("\"specId\":\"$expectedSpecId\"")
 
         val configRestored = adapter.fromJson(json)
-        assertThat(configRestored).isInstanceOf(FileBackupSpec::class.java)
+        assertThat(configRestored).isInstanceOf(LegacyFilesBackupSpec::class.java)
+        assertThat(configRestored).isEqualTo(config)
     }
 }

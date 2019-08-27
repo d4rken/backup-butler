@@ -11,6 +11,9 @@ data class SimpleFile(
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 
+    override val parent: SFile
+        get() = File(path).parentFile.asSFile()
+
     companion object {
         fun build(vararg crumbs: String): SimpleFile {
             var compacter = File(crumbs[0])

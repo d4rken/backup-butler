@@ -10,5 +10,5 @@ fun EditText.setTextIfDifferent(text: String) {
 }
 
 fun EditText.userTextChangeEvents(): Observable<TextViewTextChangeEvent> {
-    return textChangeEvents().filter { it.view.hasFocus() }
+    return textChangeEvents().skipInitialValue().filter { it.view.hasFocus() }
 }

@@ -9,6 +9,8 @@ interface SFile {
     val type: Type
     val pathType: SFileType
 
+    val parent: SFile
+
     enum class Type {
         FILE, DIRECTORY
     }

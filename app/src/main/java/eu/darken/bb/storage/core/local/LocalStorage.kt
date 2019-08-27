@@ -8,6 +8,7 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
@@ -19,6 +20,7 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.tmp.TmpDataRepo
+import eu.darken.bb.processor.core.tmp.TmpRef
 import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -138,14 +140,14 @@ class LocalStorage(
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                 .filterUnchanged()
                 .map {
-                    val items = mutableListOf<Storage.Content.Item>()
-
-                    versionDir.listFiles().forEach { file ->
-                        items.add(object : Storage.Content.Item {
-                            override val label: String
-                                get() = file.path.substring(versionDir.path.length)
-                        })
-                    }
+                    val items = versionDir.walkBottomUp()
+                            .filterNot { it == versionDir }
+                            .map { file ->
+                                object : Storage.Content.Item {
+                                    override val label: String = file.path.substring(versionDir.path.length)
+                                }
+                            }
+                            .toList()
                     return@map Storage.Content.Details(items)
                 }
                 .doOnSubscribe { Timber.tag(TAG).d("details(%s).doOnSubscribe()", backupId) }
@@ -199,13 +201,28 @@ class LocalStorage(
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
-        backup.data.entries.forEach { (key, refs) ->
+        backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach {
                 updateProgressSecondary(it.originalPath?.path ?: it.file.path)
                 updateProgressCount(Progress.Count.Counter(++current, max))
-                val target = File(revisionDir, "$key-${it.originalPath!!.name}")
-                if (target.exists()) throw IllegalStateException("File exists: $target")
-                it.file.asFile().copyTo(target)
+
+                val strippedPath = File(it.originalPath!!.path.replace((backup.spec as LegacyFilesBackupSpec).path.path, ""))
+
+                File(revisionDir, strippedPath.parentFile.path).apply {
+                    mkdirs()
+                    assertExists()
+                }
+
+                var key = baseKey
+                if (key.isNotBlank()) key += "-"
+
+                val target = File(revisionDir, "$key$strippedPath").assertNotExists()
+
+                when (it.type) {
+                    TmpRef.Type.FILE -> it.file.asFile().copyTo(target)
+                    TmpRef.Type.DIRECTORY -> it.file.asFile().mkdir()
+                }
+
             }
         }
 

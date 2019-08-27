@@ -4,33 +4,33 @@ import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import eu.darken.bb.backup.core.app.AppBackupGenerator
+import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
-import eu.darken.bb.backup.core.file.FileBackupGenerator
-import eu.darken.bb.backup.core.file.FileSpecGeneratorEditor
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesSpecGenerator
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesSpecGeneratorEditor
 
 @Module
 abstract class BackupTypeModule {
 
     @Binds
     @IntoMap
-    @BackupTypeKey(Backup.Type.APP)
+    @GeneratorTypeKey(Generator.Type.APP)
     abstract fun appGeneratorEditor(repo: AppSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
 
     @Binds
     @IntoMap
-    @GeneratorTypeKey(Backup.Type.APP)
-    abstract fun appGenerator(repo: AppBackupGenerator): Generator
+    @GeneratorTypeKey(Generator.Type.APP)
+    abstract fun appGenerator(repo: AppSpecGenerator): Generator
 
     @Binds
     @IntoMap
-    @BackupTypeKey(Backup.Type.FILE)
-    abstract fun fileGeneratorEditor(repo: FileSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
+    @GeneratorTypeKey(Generator.Type.FILE_LEGACY)
+    abstract fun fileGeneratorEditor(repo: LegacyFilesSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
 
     @Binds
     @IntoMap
-    @GeneratorTypeKey(Backup.Type.FILE)
-    abstract fun fileGenerator(repo: FileBackupGenerator): Generator
+    @GeneratorTypeKey(Generator.Type.FILE_LEGACY)
+    abstract fun fileGenerator(repo: LegacyFilesSpecGenerator): Generator
 }
 
 
@@ -42,4 +42,4 @@ annotation class BackupTypeKey(val value: Backup.Type)
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey
-annotation class GeneratorTypeKey(val value: Backup.Type)
+annotation class GeneratorTypeKey(val value: Generator.Type)

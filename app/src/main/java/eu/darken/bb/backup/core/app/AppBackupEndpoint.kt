@@ -20,8 +20,8 @@ import eu.darken.bb.processor.core.tmp.TmpRef
 class AppBackupEndpoint @AssistedInject constructor(
         @Assisted val progressClient: Progress.Client?,
         @AppContext override val context: Context,
-        private val apkExporter: APKExporter,
-        private val tmpDataRepo: TmpDataRepo
+        private val tmpDataRepo: TmpDataRepo,
+        private val apkExporter: APKExporter
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
@@ -63,7 +63,7 @@ class AppBackupEndpoint @AssistedInject constructor(
     override fun toString(): String = "AppEndpoint()"
 
     companion object {
-        val TAG = App.logTag("AppBackup", "Endpoint")
+        val TAG = App.logTag("Backup", "App", "BackupEndpoint")
     }
 
     @AssistedInject.Factory

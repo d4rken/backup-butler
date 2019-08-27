@@ -35,9 +35,8 @@ class TypeSelectionFragment : BaseEditorFragment(), AutoInject {
         layoutRes = R.layout.generator_editor_typeselection_fragment
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
+        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
 
         requireActivityActionBar().subtitle = getString(R.string.label_select_type)
         recyclerView.setupDefaults(adapter)
@@ -50,9 +49,4 @@ class TypeSelectionFragment : BaseEditorFragment(), AutoInject {
 
         super.onViewCreated(view, savedInstanceState)
     }
-
-    override fun onBaseStateUpdate(state: VDC.State) {
-        // NOP
-    }
-
 }

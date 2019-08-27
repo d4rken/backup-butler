@@ -15,7 +15,6 @@ import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import kotlin.reflect.KClass
 
 
@@ -30,7 +29,6 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
     private val dataObs = storageBuilder.storage(storageId)
             .subscribeOn(Schedulers.io())
-            .doFinally { Timber.i("FINALLY") }
 
 
     val pageEvent = SingleLiveEvent<PageData>()

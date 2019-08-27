@@ -6,8 +6,8 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.core.app.AppBackupEndpoint
 import eu.darken.bb.backup.core.app.AppRestoreEndpoint
-import eu.darken.bb.backup.core.file.FileBackupEndpoint
-import eu.darken.bb.backup.core.file.FileRestoreEndpoint
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesBackupEndpoint
+import eu.darken.bb.backup.core.files.legacy.LegacyFilesRestoreEndpoint
 
 @Module
 abstract class BackupModule {
@@ -23,13 +23,13 @@ abstract class BackupModule {
 
     @Binds
     @IntoMap
-    @EndpointFactory(Backup.Type.FILE)
-    abstract fun fileBackup(endpoint: FileBackupEndpoint.Factory): Backup.Endpoint.Factory<out Backup.Endpoint>
+    @EndpointFactory(Backup.Type.FILES)
+    abstract fun fileBackup(endpoint: LegacyFilesBackupEndpoint.Factory): Backup.Endpoint.Factory<out Backup.Endpoint>
 
     @Binds
     @IntoMap
-    @EndpointFactory(Backup.Type.FILE)
-    abstract fun fileRestore(endpoint: FileRestoreEndpoint.Factory): Restore.Endpoint.Factory<out Restore.Endpoint>
+    @EndpointFactory(Backup.Type.FILES)
+    abstract fun fileRestore(endpoint: LegacyFilesRestoreEndpoint.Factory): Restore.Endpoint.Factory<out Restore.Endpoint>
 }
 
 @Target(AnnotationTarget.FUNCTION)

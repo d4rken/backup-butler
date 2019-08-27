@@ -2,7 +2,6 @@ package eu.darken.bb.backup.core.app
 
 import android.content.Context
 import dagger.Reusable
-import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
@@ -10,12 +9,12 @@ import eu.darken.bb.common.file.SFile
 import javax.inject.Inject
 
 @Reusable
-class AppBackupGenerator @Inject constructor(
+class AppSpecGenerator @Inject constructor(
         @AppContext private val context: Context
 ) : Generator {
 
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
-        config as AppBackupGenerator.Config
+        config as AppSpecGenerator.Config
         val specs = mutableListOf<BackupSpec>()
         context.packageManager.getInstalledPackages(0)
         context.packageManager.getInstalledPackages(0).map { it.packageName }.forEach { pkg ->
@@ -50,6 +49,6 @@ class AppBackupGenerator @Inject constructor(
             return generatorId.toString()
         }
 
-        override val generatorType: Backup.Type = Backup.Type.APP
+        override val generatorType: Generator.Type = Generator.Type.APP
     }
 }
