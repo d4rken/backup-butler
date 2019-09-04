@@ -15,14 +15,14 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.processor.core.tmp.TmpDataRepo
-import eu.darken.bb.processor.core.tmp.TmpRef
+import eu.darken.bb.processor.core.mm.MMDataRepo
+import eu.darken.bb.processor.core.mm.MMRef
 import timber.log.Timber
 
 class FilesBackupEndpoint @AssistedInject constructor(
         @Assisted private val progressClient: Progress.Client?,
         @AppContext override val context: Context,
-        private val tmpDataRepo: TmpDataRepo
+        private val MMDataRepo: MMDataRepo
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
@@ -50,12 +50,11 @@ class FilesBackupEndpoint @AssistedInject constructor(
 
         for (item in items) {
             updateProgressSecondary(item.path)
-            val ref: TmpRef = tmpDataRepo.create(
+            val ref: MMRef = MMDataRepo.create(
                     backupId = builder.backupId,
-                    type = if (item.isDirectory) TmpRef.Type.DIRECTORY else TmpRef.Type.FILE
+                    orig = item.asSFile()
             )
-            ref.originalPath = item.asSFile()
-            item.copyTo(ref.file.asFile())
+            item.copyTo(ref.tmpPath)
             builder.addBackupItem(ref)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))

@@ -11,7 +11,6 @@ import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.file.JavaFile
 import eu.darken.bb.common.file.SFile
 import eu.darken.bb.common.file.asFile
-import eu.darken.bb.common.file.asSFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
 import eu.darken.bb.storage.core.Storage
@@ -30,7 +29,7 @@ class LocalStorageEditor @AssistedInject constructor(
     private val configPub = HotData(LocalStorageConfig(storageId = storageId))
     override val config = configPub.data
 
-    internal var refPath: SFile = File(Environment.getExternalStorageDirectory(), "BackupButler").asSFile()
+    internal var refPath = File(Environment.getExternalStorageDirectory(), "BackupButler")
 
     override var isExistingStorage: Boolean = false
 
@@ -44,7 +43,7 @@ class LocalStorageEditor @AssistedInject constructor(
         }
         rawPath = newPath
         if (isRawPathValid()) {
-            refPath = JavaFile.build(newPath)
+            refPath = File(newPath)
         }
         configPub.update { it }
     }
@@ -79,7 +78,7 @@ class LocalStorageEditor @AssistedInject constructor(
             configPub.update { config.notNullValue() }
             isExistingStorage = true
         }
-        refPath = ref.path
+        refPath = ref.path.asFile()
         return@fromCallable config
     }
 
@@ -87,7 +86,7 @@ class LocalStorageEditor @AssistedInject constructor(
         val config = configPub.snapshot
         val ref = LocalStorageRef(
                 storageId = config.storageId,
-                path = refPath
+                path = JavaFile.build(SFile.Type.DIRECTORY, refPath)
         )
         configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
         return@fromCallable Pair(ref, config)

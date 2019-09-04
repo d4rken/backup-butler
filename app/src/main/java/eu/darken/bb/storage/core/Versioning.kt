@@ -10,6 +10,10 @@ interface Versioning {
 
     fun getVersion(backupId: Backup.Id): Version?
 
+    fun getNewest(): Version? {
+        return versions.sortedBy { it.createdAt }.reversed().firstOrNull()
+    }
+
     enum class Type {
         SIMPLE
     }

@@ -4,16 +4,17 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.CheckSummer
-import eu.darken.bb.common.file.JavaFile
+import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.SimpleFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class LegacyFilesBackupSpecTest {
+class FilesBackupSpecTest {
     @Test
     fun testSerialization() {
         val config = FilesBackupSpec(
                 "TestName",
-                JavaFile.build("test/file")
+                SimpleFile.build(SFile.Type.FILE, "test/file")
         )
 
         val moshi = AppModule().moshi()

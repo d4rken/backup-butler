@@ -17,11 +17,20 @@ fun File.copyTo(file: File) {
     }
 }
 
-fun File.asSFile(): SFile {
-    return JavaFile.build(path)
+@Suppress("FunctionName")
+fun File(vararg crumbs: String): File {
+    var compacter = File(crumbs[0])
+    for (i in 1 until crumbs.size) {
+        compacter = File(compacter, crumbs[i])
+    }
+    return compacter
 }
 
-fun File.assertExists(): File {
+fun File.asSFile(): SFile {
+    return JavaFile.build(file = this)
+}
+
+fun File.requireExists(): File {
     if (!exists()) {
         val ex = IllegalStateException("Path doesn't exist, but should: $this")
         Timber.tag(TAG).w(ex)
@@ -30,7 +39,7 @@ fun File.assertExists(): File {
     return this
 }
 
-fun File.assertNotExists(): File {
+fun File.requireNotExists(): File {
     if (exists()) {
         val ex = IllegalStateException("Path exist, but shouldn't: $this")
         Timber.tag(TAG).w(ex)

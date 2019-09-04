@@ -48,9 +48,9 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
                 .subscribe { config ->
                     countStater.update { oldState ->
                         oldState.copy(
-                                sourceStorages = config.storageIds.toList(),
-                                sourceBackupSpecs = config.backupSpecIds.toList(),
-                                sourceBackups = config.backupIds.toList(),
+                                sourceStorages = config.targetStorage.toList(),
+                                sourceBackupSpecs = config.targetBackupSpec.toList(),
+                                sourceBackups = config.targetBackup.toList(),
                                 workIds = oldState.clearWorkId()
                         )
                     }
@@ -60,8 +60,8 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
 
     data class CountState(
             val sourceStorages: List<Storage.Id> = emptyList(),
-            val sourceBackupSpecs: List<BackupSpec.Id> = emptyList(),
-            val sourceBackups: List<Backup.Id> = emptyList(),
+            val sourceBackupSpecs: List<BackupSpec.Target> = emptyList(),
+            val sourceBackups: List<Backup.Target> = emptyList(),
             val restoreConfigs: List<Restore.Config> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State

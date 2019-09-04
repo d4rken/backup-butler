@@ -56,19 +56,21 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     fun addStorageId(storageId: Storage.Id) {
         configPub.update { old ->
-            old.copy(storageIds = old.storageIds.toMutableSet().apply { add(storageId) }.toSet())
+            old.copy(targetStorage = old.targetStorage.toMutableSet().apply { add(storageId) }.toSet())
         }
     }
 
-    fun addBackupSpecId(backupSpecId: BackupSpec.Id) {
+    fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id) {
+        val target = BackupSpec.Target(storageId, backupSpecId)
         configPub.update { old ->
-            old.copy(backupSpecIds = old.backupSpecIds.toMutableSet().apply { add(backupSpecId) }.toSet())
+            old.copy(targetBackupSpec = old.targetBackupSpec.toMutableSet().apply { add(target) }.toSet())
         }
     }
 
-    fun addBackupId(backupId: Backup.Id) {
+    fun addBackupId(storageId: Storage.Id, backupSpecId: BackupSpec.Id, backupId: Backup.Id) {
+        val target = Backup.Target(storageId, backupSpecId, backupId)
         configPub.update { old ->
-            old.copy(backupIds = old.backupIds.toMutableSet().apply { add(backupId) }.toSet())
+            old.copy(targetBackup = old.targetBackup.toMutableSet().apply { add(target) }.toSet())
         }
     }
 

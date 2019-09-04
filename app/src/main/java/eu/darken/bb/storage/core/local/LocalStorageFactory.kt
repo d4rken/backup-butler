@@ -5,7 +5,7 @@ import com.squareup.moshi.Moshi
 import dagger.Reusable
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.processor.core.tmp.TmpDataRepo
+import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
@@ -14,7 +14,7 @@ class LocalStorageFactory @Inject constructor(
         @AppContext private val context: Context,
         private val moshi: Moshi,
         private val localStorageEditorFactory: LocalStorageEditor.Factory,
-        private val tmpDataRepo: TmpDataRepo
+        private val MMDataRepo: MMDataRepo
 ) : Storage.Factory {
 
     override fun isCompatible(storageRef: Storage.Ref): Boolean {
@@ -26,7 +26,7 @@ class LocalStorageFactory @Inject constructor(
                 context,
                 moshi,
                 localStorageEditorFactory,
-                tmpDataRepo,
+                MMDataRepo,
                 storageRef as LocalStorageRef,
                 progressClient
         )

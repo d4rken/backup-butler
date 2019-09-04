@@ -1,9 +1,9 @@
 package eu.darken.bb.backup.core
 
-import eu.darken.bb.processor.core.tmp.TmpRef
+import eu.darken.bb.processor.core.mm.MMRef
 
 open class BaseBackupBuilder<ConfigT : BackupSpec> {
-    val data = mutableMapOf<String, MutableCollection<TmpRef>>()
+    val data = mutableMapOf<String, MutableCollection<MMRef>>()
     var backupConfig: ConfigT
     val backupId: Backup.Id
 
@@ -20,7 +20,6 @@ open class BaseBackupBuilder<ConfigT : BackupSpec> {
     fun toBackup(): Backup.Unit = Backup.Unit(
             spec = backupConfig,
             id = backupId,
-            backupType = Backup.Type.APP,
             data = data.toMap()
     )
 }

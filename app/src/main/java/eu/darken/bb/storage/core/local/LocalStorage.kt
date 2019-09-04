@@ -8,7 +8,6 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
-import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.*
@@ -19,8 +18,8 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
-import eu.darken.bb.processor.core.tmp.TmpDataRepo
-import eu.darken.bb.processor.core.tmp.TmpRef
+import eu.darken.bb.processor.core.mm.MMDataRepo
+import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -36,13 +35,14 @@ class LocalStorage(
         override val context: Context,
         moshi: Moshi,
         private val configEditorFactory: LocalStorageEditor.Factory,
-        private val tmpDataRepo: TmpDataRepo,
+        private val MMDataRepo: MMDataRepo,
         private val repoRef: LocalStorageRef,
         private val progressClient: Progress.Client?
 ) : Storage, HasContext, Progress.Client {
     private val dataDir = File(repoRef.path.asFile(), "data")
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val versioningAdapter = moshi.adapter(Versioning::class.java)
+    private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
     private var storageConfig: LocalStorageConfig
 
     private val dataDirEvents = Observable.fromCallable { dataDir.listFiles() }
@@ -134,8 +134,8 @@ class LocalStorage(
 
     override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Storage.Content.Details> {
         content as LocalStorageContent
-        val backupDir = content.path.asFile().assertExists()
-        val versionDir = File(backupDir, backupId.id.toString()).assertExists()
+        val backupDir = content.path.asFile().requireExists()
+        val versionDir = File(backupDir, backupId.idString).requireExists()
         return Observable.fromCallable { backupDir.listFiles() }
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                 .filterUnchanged()
@@ -157,22 +157,34 @@ class LocalStorage(
 
     override fun load(content: Storage.Content, backupId: Backup.Id): Backup.Unit {
         content as LocalStorageContent
-        val backupDir = content.path.asFile().assertExists()
+        val backupDir = content.path.asFile().requireExists()
 
         val version = content.versioning.getVersion(backupId)
-        if (version == null) {
-            throw IllegalArgumentException("BackupReference $content does not contain $backupId")
-        }
+        requireNotNull(version) { "BackupReference $content does not contain $backupId" }
 
         val backupBuilder = BaseBackupBuilder(content.backupSpec, backupId)
 
-        val revisionPath = File(backupDir, version.backupId.toString()).assertExists()
+        val revisionPath = File(backupDir, version.backupId.idString).requireExists()
 
-        revisionPath.listFiles().forEach { file ->
-            val tmpRef = tmpDataRepo.create(backupId)
-            tmpRef.originalPath = file.asSFile()
-            file.copyTo(tmpRef.file.asFile())
-            backupBuilder.data.getOrPut(file.name.split("-")[0], { mutableListOf() }).add(tmpRef)
+        revisionPath.listFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
+            val prop = propsAdapter.fromFile(propFile)!!
+            val tmpRef = MMDataRepo.create(backupId, prop)
+
+            when (tmpRef.type) {
+                MMRef.Type.FILE -> {
+                    val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
+                    dataFile.copyTo(tmpRef.tmpPath)
+                }
+                MMRef.Type.DIRECTORY -> {
+                    tmpRef.tmpPath.mkdirs()
+                }
+            }
+
+            val keySplit = propFile.name.split("#")
+            backupBuilder.data.getOrPut(
+                    if (keySplit.size == 2) keySplit[0] else "",
+                    { mutableListOf() }
+            ).add(tmpRef)
         }
 
         return backupBuilder.toBackup()
@@ -196,31 +208,25 @@ class LocalStorage(
         }
 
         val newRevision = SimpleVersioning.Version(backupId = Backup.Id(), createdAt = Date())
-        val revisionDir = newRevision.getRevDir(backupDir)
+        val revisionDir = newRevision.getRevDir(backupDir).tryMkDirs()
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
         backup.data.entries.forEach { (baseKey, refs) ->
-            refs.forEach {
-                updateProgressSecondary(it.originalPath?.path ?: it.file.path)
+            refs.forEach { ref ->
+                updateProgressSecondary(ref.originalPath.path)
                 updateProgressCount(Progress.Count.Counter(++current, max))
-
-                val strippedPath = File(it.originalPath!!.path.replace((backup.spec as FilesBackupSpec).path.path, ""))
-
-                File(revisionDir, strippedPath.parentFile.path).apply {
-                    mkdirs()
-                    assertExists()
-                }
-
                 var key = baseKey
-                if (key.isNotBlank()) key += "-"
+                if (key.isNotBlank()) key += "#"
 
-                val target = File(revisionDir, "$key$strippedPath").assertNotExists()
+                val targetProp = File(revisionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
+                propsAdapter.toFile(ref.props, targetProp)
 
-                when (it.type) {
-                    TmpRef.Type.FILE -> it.file.asFile().copyTo(target)
-                    TmpRef.Type.DIRECTORY -> it.file.asFile().mkdir()
+                val target = File(revisionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
+                when (ref.type) {
+                    MMRef.Type.FILE -> ref.tmpPath.copyTo(target)
+                    MMRef.Type.DIRECTORY -> target.mkdir()
                 }
 
             }
@@ -314,6 +320,8 @@ class LocalStorage(
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")
+        const val DATA_EXT = ".data"
+        const val PROP_EXT = ".prop"
         const val SPEC_FILE = "backup.data"
         const val VERSIONING_FILE = "revision.data"
     }

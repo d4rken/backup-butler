@@ -49,7 +49,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
-        configObs.map { it.storageIds }
+        configObs.map { it.targetStorage }
                 .flatMapIterable { it }
                 .flatMap { storageManager.info(it) }
                 .doOnSubscribe { Timber.i("SUB2") }

@@ -9,7 +9,8 @@ import eu.darken.bb.common.ShareBuilder
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.Zipper
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.JavaFile
+import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.SimpleFile
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
@@ -68,7 +69,7 @@ class RecorderActivityVDC @AssistedInject constructor(
     fun share() {
         resultCacheCompressedObs
                 .subscribe {
-                    shareBuilderProvider.get().file(JavaFile.build(it.first)).start()
+                    shareBuilderProvider.get().file(SimpleFile.build(SFile.Type.FILE, it.first)).start()
                 }
     }
 

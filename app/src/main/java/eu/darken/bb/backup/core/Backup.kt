@@ -6,7 +6,9 @@ import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import eu.darken.bb.R
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.processor.core.tmp.TmpRef
+import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.storage.core.Storage
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -21,9 +23,8 @@ interface Backup {
 
     data class Unit(
             val id: Id,
-            val backupType: Type,
             val spec: BackupSpec,
-            val data: Map<String, Collection<TmpRef>>
+            val data: Map<String, Collection<MMRef>>
     )
 
     @Keep
@@ -38,6 +39,16 @@ interface Backup {
 
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
-        override fun toString(): String = "BackupId($id)"
+
+        @IgnoredOnParcel
+        val idString = id.toString()
+
+        override fun toString(): String = "BackupId($idString)"
     }
+
+    data class Target(
+            val storageId: Storage.Id,
+            val backupSpecId: BackupSpec.Id,
+            val backupId: Id
+    )
 }

@@ -17,6 +17,6 @@ data class SimpleVersioning(
             override val createdAt: Date
     ) : Versioning.Version {
 
-        fun getRevDir(base: File): File = File(base, backupId.id.toString())
+        fun getRevDir(base: File): File = File(base, backupId.idString)
     }
 }

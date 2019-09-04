@@ -7,7 +7,7 @@ import eu.darken.bb.storage.core.Storage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class LocalStorageRefTest {
+class LocalStorageTest {
     @Test
     fun testSerialization() {
         val original = LocalStorageRef(

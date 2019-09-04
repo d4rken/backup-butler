@@ -14,8 +14,8 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
-import eu.darken.bb.processor.core.tmp.TmpDataRepo
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageFactory
 import eu.darken.bb.storage.core.StorageRefRepo
@@ -28,7 +28,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Backup.Endpoint.Factory<out Backup.Endpoint>>,
         @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
-        private val tmpDataRepo: TmpDataRepo,
+        private val MMDataRepo: MMDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo
 ) : SimpleBaseProcessor(context, progressParent) {
@@ -71,7 +71,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                     success++
                     Timber.tag(TAG).i("Backup (%s) stored: %s", backup.id, result)
                 }
-                tmpDataRepo.deleteAll(backup.id)
+                MMDataRepo.deleteAll(backup.id)
             }
             progressParent.updateProgressTertiary("")
         }
@@ -85,7 +85,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
     }
 
     override fun onCleanup() {
-        tmpDataRepo.wipe()
+        MMDataRepo.wipe()
         super.onCleanup()
     }
 

@@ -9,13 +9,13 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.processor.core.tmp.TmpDataRepo
+import eu.darken.bb.processor.core.mm.MMDataRepo
 
 class AppRestoreEndpoint @AssistedInject constructor(
         @Assisted val progressClient: Progress.Client?,
         @AppContext override val context: Context,
         private val apkExporter: APKExporter,
-        private val tmpDataRepo: TmpDataRepo
+        private val MMDataRepo: MMDataRepo
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
 
