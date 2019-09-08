@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details.page
+package eu.darken.bb.storage.ui.viewer.content.page
 
 import android.os.Bundle
 import android.view.View
@@ -23,16 +23,16 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 
-class DetailPageFragment : SmartFragment(), AutoInject {
+class ContentPageFragment : SmartFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdc: DetailPageFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as DetailPageFragmentVDC.Factory
+    private val vdc: ContentPageFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as ContentPageFragmentVDC.Factory
         factory.create(handle, requireArguments().getStorageId()!!, requireArguments().getBackupSpecId()!!, requireArguments().getBackupId()!!)
     })
 
-    @Inject lateinit var adapter: BackupItemAdapter
+    @Inject lateinit var adapter: ContentEntryAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.creation_date_value) lateinit var creationDateValue: TextView
@@ -41,7 +41,7 @@ class DetailPageFragment : SmartFragment(), AutoInject {
     private val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
     init {
-        layoutRes = R.layout.storage_viewer_contentdetails_adapter_page
+        layoutRes = R.layout.storage_viewer_item_content_adapter_page
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

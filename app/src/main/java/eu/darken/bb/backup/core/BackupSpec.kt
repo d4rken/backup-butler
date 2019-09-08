@@ -5,6 +5,7 @@ import android.os.Parcelable
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
+import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.storage.core.Storage
 import kotlinx.android.parcel.Parcelize
 
@@ -14,6 +15,8 @@ interface BackupSpec {
     val revisionLimit: Int
 
     fun getLabel(context: Context): String
+
+    fun getContentEntryLabel(props: MMRef.Props): String
 
     @Parcelize
     data class Id(val value: String) : Parcelable {

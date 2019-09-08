@@ -1,10 +1,10 @@
-package eu.darken.bb.storage.ui.viewer.content.actions
+package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import eu.darken.bb.R
 
-enum class ContentAction constructor(
+enum class ItemAction constructor(
         @DrawableRes val iconRes: Int,
         @StringRes val labelRes: Int
 ) {

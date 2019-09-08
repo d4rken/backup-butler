@@ -31,7 +31,7 @@ class AppBackupEndpoint @AssistedInject constructor(
     override fun backup(spec: BackupSpec): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupBuilder(spec, Backup.Id())
-        updateProgressPrimary(R.string.creating_backup)
+        updateProgressPrimary(R.string.progress_creating_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 

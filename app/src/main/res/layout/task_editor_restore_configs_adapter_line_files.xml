@@ -35,9 +35,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:pvDescription="@string/config_skip_existing_files_desc"
+                app:pvDescription="@string/config_replace_existing_files_desc"
                 app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/config_skip_existing_files_label"/>
+                app:pvTitle="@string/config_replace_existing_files_label" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

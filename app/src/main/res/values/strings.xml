@@ -105,8 +105,8 @@
     <string name="theme_system_label">System</string>
     <string name="record_debuglog_label">Record debug log</string>
     <string name="record_debuglog_desc">Start recording everything the app does into a log file that you can share.</string>
-    <string name="creating_backup">Creating backup</string>
-    <string name="saving_to_storage">Saving to storage</string>
+    <string name="progress_creating_backup">Creating backup</string>
+    <string name="progress_saving_to_storage">Saving to storage</string>
     <string name="progress_working_label">Working</string>
     <string name="progress_label_processing_x">Processing: %s</string>
     <string name="progress_label_saving">Saving</string>
@@ -126,8 +126,8 @@
     <string name="config_restore_apk_desc">Restore the app itself.</string>
     <string name="config_restore_data_label">Restore data</string>
     <string name="config_restore_data_desc">Restore the app\'s data.</string>
-    <string name="config_skip_existing_files_label">Skip existing files</string>
-    <string name="config_skip_existing_files_desc">Don\'t replace a file if it already exists.</string>
+    <string name="config_replace_existing_files_label">Replace existing files</string>
+    <string name="config_replace_existing_files_desc">Replace a file if it already exists.</string>
     <string name="file_options_label">File options</string>
     <string name="task_restore_simple_description">Storages: %d, Backups: %d, Revisions: %d</string>
     <string name="action_detach">Detach</string>
@@ -145,6 +145,8 @@
     <string name="generator_type_file_saf_desc">Files accessible through the Storage Access Framework (SAF). Recommended in most cases.</string>
     <string name="generator_type_file_root_label">Files (root)</string>
     <string name="generator_type_file_root_desc">Files accessed through root permission (requires root, obviously).</string>
+    <string name="progress_restoring_backup">Restoring backup</string>
+    <string name="label_original_path">Original path</string>
     <plurals name="restore_task_x_backup_storages_desc">
         <item quantity="one">The content of %d backup storage.</item>
         <item quantity="other">The content of %d backup storages.</item>

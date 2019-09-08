@@ -30,7 +30,7 @@ class FilesBackupEndpoint @AssistedInject constructor(
     }
 
     override fun backup(spec: BackupSpec): Backup.Unit {
-        updateProgressPrimary(R.string.creating_backup)
+        updateProgressPrimary(R.string.progress_creating_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
@@ -50,12 +50,13 @@ class FilesBackupEndpoint @AssistedInject constructor(
 
         for (item in items) {
             updateProgressSecondary(item.path)
+
             val ref: MMRef = MMDataRepo.create(
                     backupId = builder.backupId,
                     orig = item.asSFile()
             )
             item.copyTo(ref.tmpPath)
-            builder.addBackupItem(ref)
+            builder.files.add(ref)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))
         }
@@ -64,7 +65,7 @@ class FilesBackupEndpoint @AssistedInject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Backup", "Files", "Legacy", "BackupEndpoint")
+        val TAG = App.logTag("Backup", "Files", "BackupEndpoint")
     }
 
 

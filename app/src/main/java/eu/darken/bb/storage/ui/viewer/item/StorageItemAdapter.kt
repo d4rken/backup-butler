@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content
+package eu.darken.bb.storage.ui.viewer.item
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
@@ -12,20 +12,20 @@ import eu.darken.bb.storage.core.Storage
 import java.text.DateFormat
 import javax.inject.Inject
 
-class ContentAdapter @Inject constructor()
-    : ModularAdapter<ContentAdapter.VH>(), DataAdapter<Storage.Content> {
+class StorageItemAdapter @Inject constructor()
+    : ModularAdapter<StorageItemAdapter.VH>(), DataAdapter<Storage.Item> {
 
-    override val data = mutableListOf<Storage.Content>()
+    override val data = mutableListOf<Storage.Item>()
 
     init {
-        modules.add(DataBinderModule<Storage.Content, VH>(data))
+        modules.add(DataBinderModule<Storage.Item, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<Storage.Content> {
+        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<Storage.Item> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -38,7 +38,7 @@ class ContentAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: Storage.Content) {
+        override fun bind(item: Storage.Item) {
             typeLabel.setText(item.backupSpec.backupType.labelRes)
             typeIcon.setImageResource(item.backupSpec.backupType.iconRes)
 

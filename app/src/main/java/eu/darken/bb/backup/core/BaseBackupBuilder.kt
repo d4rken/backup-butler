@@ -10,6 +10,9 @@ open class BaseBackupBuilder<ConfigT : BackupSpec> {
     constructor(backup: Backup.Unit) {
         this.backupConfig = backup.spec as ConfigT
         this.backupId = backup.id
+        backup.data.forEach {
+            data[it.key] = it.value.toMutableList()
+        }
     }
 
     constructor(config: ConfigT, backupId: Backup.Id) {

@@ -11,8 +11,6 @@ class FilesBackupBuilder : BaseBackupBuilder<FilesBackupSpec> {
     constructor(config: FilesBackupSpec, backupId: Backup.Id)
             : super(config, backupId)
 
-    fun addBackupItem(item: MMRef) {
-        data.getOrPut("", { mutableListOf() }).add(item)
-    }
+    val files: MutableCollection<MMRef> = data.getOrElse("", { mutableSetOf() })
 
 }

@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details
+package eu.darken.bb.storage.ui.viewer.content
 
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -25,15 +25,15 @@ import eu.darken.bb.storage.core.getStorageId
 import javax.inject.Inject
 
 
-class ContentDetailsFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
+class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
 
-    private val vdc: ContentDetailsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as ContentDetailsFragmentVDC.Factory
+    private val vdc: ItemContentsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as ItemContentsFragmentVDC.Factory
         factory.create(handle, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!)
     })
 
@@ -44,7 +44,7 @@ class ContentDetailsFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
     @BindView(R.id.tablayout) lateinit var tabLayout: TabLayout
 
     init {
-        layoutRes = R.layout.storage_viewer_contentdetails_fragment
+        layoutRes = R.layout.storage_viewer_itemcontent_fragment
         setHasOptionsMenu(true)
     }
 

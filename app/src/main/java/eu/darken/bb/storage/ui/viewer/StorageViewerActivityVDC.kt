@@ -12,8 +12,8 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.viewer.content.StorageContentFragment
-import eu.darken.bb.storage.ui.viewer.details.ContentDetailsFragment
+import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragment
+import eu.darken.bb.storage.ui.viewer.item.StorageItemFragment
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
 
@@ -68,8 +68,8 @@ class StorageViewerActivityVDC @AssistedInject constructor(
 
     data class PageData(val page: Page, val storageId: Storage.Id, val backupSpecId: BackupSpec.Id? = null) {
         enum class Page(val fragmentClass: KClass<out Fragment>) {
-            CONTENT(StorageContentFragment::class),
-            DETAILS(ContentDetailsFragment::class)
+            CONTENT(StorageItemFragment::class),
+            DETAILS(ItemContentsFragment::class)
         }
     }
 

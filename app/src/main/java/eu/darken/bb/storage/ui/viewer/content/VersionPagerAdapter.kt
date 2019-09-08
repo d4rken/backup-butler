@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details
+package eu.darken.bb.storage.ui.viewer.content
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,11 +10,11 @@ import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.storage.core.putStorageId
-import eu.darken.bb.storage.ui.viewer.details.page.DetailPageFragment
+import eu.darken.bb.storage.ui.viewer.content.page.ContentPageFragment
 
 
 class VersionPagerAdapter constructor(
-        private val fragment: ContentDetailsFragment,
+        private val fragment: ItemContentsFragment,
         private val storageId: Storage.Id,
         private val backupSpecId: BackupSpec.Id
 ) : FragmentStateAdapter(fragment), DataAdapter<Versioning.Version> {
@@ -25,7 +25,7 @@ class VersionPagerAdapter constructor(
 
     override fun createFragment(position: Int): Fragment {
         val fragmentFactory = fragment.childFragmentManager.fragmentFactory
-        val fragment = fragmentFactory.instantiate(this.javaClass.classLoader!!, DetailPageFragment::class.qualifiedName!!)
+        val fragment = fragmentFactory.instantiate(this.javaClass.classLoader!!, ContentPageFragment::class.qualifiedName!!)
         val version = data[position]
         fragment.arguments = Bundle().apply {
             putStorageId(storageId)

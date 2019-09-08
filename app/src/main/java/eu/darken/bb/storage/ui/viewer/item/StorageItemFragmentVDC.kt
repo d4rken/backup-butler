@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content
+package eu.darken.bb.storage.ui.viewer.item
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
@@ -19,7 +19,7 @@ import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class StorageContentFragmentVDC @AssistedInject constructor(
+class StorageItemFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @AppContext private val context: Context,
@@ -47,11 +47,11 @@ class StorageContentFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
-        storageObs.flatMap { it.content() }
+        storageObs.flatMap { it.items() }
                 .subscribe({ storageContents ->
                     stater.update {
                         it.copy(
-                                contents = storageContents.toList(),
+                                items = storageContents.toList(),
                                 workIds = it.clearWorkId()
                         )
                     }
@@ -66,7 +66,7 @@ class StorageContentFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun viewContent(item: Storage.Content) {
+    fun viewContent(item: Storage.Item) {
         contentActionEvent.postValue(ContentActionEvent(
                 storageId = item.storageId,
                 backupSpecId = item.backupSpec.specId,
@@ -82,7 +82,7 @@ class StorageContentFragmentVDC @AssistedInject constructor(
         val workId = WorkId()
         activeDeletion = storageObs
                 .switchMap { storage ->
-                    storage.content()
+                    storage.items()
                             .take(1)
                             .flatMapIterable { it }
                             .concatMapSingle { content ->
@@ -110,7 +110,7 @@ class StorageContentFragmentVDC @AssistedInject constructor(
     )
 
     data class State(
-            val contents: List<Storage.Content> = emptyList(),
+            val items: List<Storage.Item> = emptyList(),
             val error: Throwable? = null,
             val allowDeleteAll: Boolean = false,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
@@ -124,7 +124,7 @@ class StorageContentFragmentVDC @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<StorageContentFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageContentFragmentVDC
+    interface Factory : VDCFactory<StorageItemFragmentVDC> {
+        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageItemFragmentVDC
     }
 }

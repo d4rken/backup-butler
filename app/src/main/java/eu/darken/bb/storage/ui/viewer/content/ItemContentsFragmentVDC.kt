@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details
+package eu.darken.bb.storage.ui.viewer.content
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -14,7 +14,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.Versioning
 import io.reactivex.schedulers.Schedulers
 
-class ContentDetailsFragmentVDC @AssistedInject constructor(
+class ItemContentsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @Assisted private val backupSpecId: BackupSpec.Id,
@@ -28,7 +28,7 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.content() }
+        storageObs.flatMap { it.items() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ item ->
                     stater.update { state ->
@@ -58,7 +58,7 @@ class ContentDetailsFragmentVDC @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<ContentDetailsFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ContentDetailsFragmentVDC
+    interface Factory : VDCFactory<ItemContentsFragmentVDC> {
+        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ItemContentsFragmentVDC
     }
 }

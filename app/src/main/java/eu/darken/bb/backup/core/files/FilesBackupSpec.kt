@@ -5,6 +5,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.CheckSummer
 import eu.darken.bb.common.file.SFile
+import eu.darken.bb.processor.core.mm.MMRef
 
 data class FilesBackupSpec(
         val label: String,
@@ -20,4 +21,7 @@ data class FilesBackupSpec(
 
     override val backupType: Backup.Type = Backup.Type.FILES
 
+    override fun getContentEntryLabel(props: MMRef.Props): String {
+        return props.originalPath.path.replace(path.path, "")
+    }
 }

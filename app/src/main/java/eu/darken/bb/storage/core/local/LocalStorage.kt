@@ -64,10 +64,10 @@ class LocalStorage(
         progressClient?.updateProgress(update)
     }
 
-    override fun content(): Observable<Collection<Storage.Content>> = contentObs
-    private val contentObs: Observable<Collection<Storage.Content>> = dataDirEvents
+    override fun items(): Observable<Collection<Storage.Item>> = itemObs
+    private val itemObs: Observable<Collection<Storage.Item>> = dataDirEvents
             .map { files ->
-                val content = mutableListOf<Storage.Content>()
+                val content = mutableListOf<Storage.Item>()
                 if (!dataDir.exists()) throw MissingFileException(dataDir.asSFile())
 
                 for (backupDir in dataDir.listFiles()) {
@@ -92,7 +92,7 @@ class LocalStorage(
                         Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
                         continue
                     }
-                    val ref = LocalStorageContent(
+                    val ref = LocalStorageItem(
                             storageId = storageConfig.storageId,
                             path = backupDir.asSFile(),
                             backupSpec = backupConfig,
@@ -100,16 +100,16 @@ class LocalStorage(
                     )
                     content.add(ref)
                 }
-                val coll: Collection<Storage.Content> = content.toList()
+                val coll: Collection<Storage.Item> = content.toList()
                 return@map coll
             }
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
-            .doFinally { Timber.tag(TAG).d("content().doFinally()") }
+            .doFinally { Timber.tag(TAG).d("items().doFinally()") }
             .replayingShare()
 
     override fun info(): Observable<StorageInfo> = infoObs
-    private val infoObs: Observable<StorageInfo> = content()
+    private val infoObs: Observable<StorageInfo> = items()
             .map { contents ->
                 var status: StorageInfo.Status? = null
                 try {
@@ -132,37 +132,44 @@ class LocalStorage(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun details(content: Storage.Content, backupId: Backup.Id): Observable<Storage.Content.Details> {
-        content as LocalStorageContent
-        val backupDir = content.path.asFile().requireExists()
+    override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
+        item as LocalStorageItem
+        val backupDir = item.path.asFile().requireExists()
         val versionDir = File(backupDir, backupId.idString).requireExists()
+
+        val backupSpec = specAdapter.fromFile(File(backupDir, SPEC_FILE))
+        checkNotNull(backupSpec) { "Can't read $backupDir" }
+
         return Observable.fromCallable { backupDir.listFiles() }
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                 .filterUnchanged()
                 .map {
-                    val items = versionDir.walkBottomUp()
-                            .filterNot { it == versionDir }
+                    val items = versionDir.listFiles()
+                            .filter { it.path.endsWith(PROP_EXT) }
                             .map { file ->
-                                object : Storage.Content.Item {
-                                    override val label: String = file.path.substring(versionDir.path.length)
+                                val props = propsAdapter.fromFile(file)
+                                checkNotNull(props) { "Can't read props from $file" }
+                                object : Storage.Item.Content.Entry {
+                                    override val label: String = backupSpec.getContentEntryLabel(props)
                                 }
                             }
                             .toList()
-                    return@map Storage.Content.Details(items)
+                    return@map Storage.Item.Content(items)
                 }
-                .doOnSubscribe { Timber.tag(TAG).d("details(%s).doOnSubscribe()", backupId) }
-                .doFinally { Timber.tag(TAG).d("details(%s).doFinally()", backupId) }
+                .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
+                .doOnError { Timber.tag(TAG).w(it, "Failed to get content: item=$item, backupId=$backupId") }
+                .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
                 .replayingShare()
     }
 
-    override fun load(content: Storage.Content, backupId: Backup.Id): Backup.Unit {
-        content as LocalStorageContent
-        val backupDir = content.path.asFile().requireExists()
+    override fun load(item: Storage.Item, backupId: Backup.Id): Backup.Unit {
+        item as LocalStorageItem
+        val backupDir = item.path.asFile().requireExists()
 
-        val version = content.versioning.getVersion(backupId)
-        requireNotNull(version) { "BackupReference $content does not contain $backupId" }
+        val version = item.versioning.getVersion(backupId)
+        requireNotNull(version) { "BackupReference $item does not contain $backupId" }
 
-        val backupBuilder = BaseBackupBuilder(content.backupSpec, backupId)
+        val backupBuilder = BaseBackupBuilder(item.backupSpec, backupId)
 
         val revisionPath = File(backupDir, version.backupId.idString).requireExists()
 
@@ -190,7 +197,7 @@ class LocalStorage(
         return backupBuilder.toBackup()
     }
 
-    override fun save(backup: Backup.Unit): Pair<Storage.Content, Versioning.Version> {
+    override fun save(backup: Backup.Unit): Pair<Storage.Item, Versioning.Version> {
         updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
@@ -247,7 +254,7 @@ class LocalStorage(
             versioning = newContent.versioning
         }
 
-        val tempRef = LocalStorageContent(
+        val tempRef = LocalStorageItem(
                 path = backupDir.asSFile(),
                 storageId = storageConfig.storageId,
                 backupSpec = backup.spec,
@@ -257,12 +264,12 @@ class LocalStorage(
         return Pair(tempRef, newRevision)
     }
 
-    override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<Storage.Content> = content()
+    override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<Storage.Item> = items()
             .firstOrError()
             .map { contents ->
                 contents.first { it.backupSpec.specId == specId }
             }
-            .map { it as LocalStorageContent }
+            .map { it as LocalStorageItem }
             .map { contentItem ->
                 return@map if (backupId != null) {
                     val version = contentItem.versioning.getVersion(backupId) as SimpleVersioning.Version

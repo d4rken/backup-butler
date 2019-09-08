@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details.page
+package eu.darken.bb.storage.ui.viewer.content.page
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module
-abstract class DetailPageFragmentModule {
+abstract class ContentPageFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(DetailPageFragmentVDC::class)
-    abstract fun detailsPageVDC(model: DetailPageFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(ContentPageFragmentVDC::class)
+    abstract fun detailsPageVDC(model: ContentPageFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

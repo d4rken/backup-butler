@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details.page
+package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
@@ -18,7 +18,7 @@ import eu.darken.bb.storage.core.Versioning
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class DetailPageFragmentVDC @AssistedInject constructor(
+class ContentPageFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @Assisted private val backupSpecId: BackupSpec.Id,
@@ -29,7 +29,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
     private val storageObs = storageManager.getStorage(storageId)
             .subscribeOn(Schedulers.io())
             .replayingShare()
-    private val contentObs = storageObs.switchMap { it.content() }
+    private val contentObs = storageObs.switchMap { it.items() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .replayingShare()
 
@@ -45,7 +45,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
                     val version = content.versioning.versions.find { it.backupId == backupId }!!
                     stater.update {
                         it.copy(
-                                content = content,
+                                item = content,
                                 version = version,
                                 isLoadingInfos = false
                         )
@@ -56,7 +56,7 @@ class DetailPageFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         contentObs
-                .flatMap { content -> storageObs.switchMap { it.details(content, backupId) } }
+                .flatMap { content -> storageObs.switchMap { it.content(content, backupId) } }
                 .subscribe({ details ->
                     stater.update { state ->
                         state.copy(
@@ -72,17 +72,17 @@ class DetailPageFragmentVDC @AssistedInject constructor(
 
 
     data class State(
-            val content: Storage.Content? = null,
+            val item: Storage.Item? = null,
             val version: Versioning.Version? = null,
-            val items: List<Storage.Content.Item> = emptyList(),
+            val items: List<Storage.Item.Content.Entry> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
             val error: Throwable? = null
     )
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<DetailPageFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id, backupId: Backup.Id): DetailPageFragmentVDC
+    interface Factory : VDCFactory<ContentPageFragmentVDC> {
+        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id, backupId: Backup.Id): ContentPageFragmentVDC
     }
 
     companion object {

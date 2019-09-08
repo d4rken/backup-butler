@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content.actions
+package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -14,7 +14,7 @@ import eu.darken.bb.storage.ui.viewer.StorageViewerActivityVDC
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.schedulers.Schedulers
 
-class ContentActionDialogVDC @AssistedInject constructor(
+class ItemActionDialogVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @Assisted private val backupSpecId: BackupSpec.Id,
@@ -31,11 +31,11 @@ class ContentActionDialogVDC @AssistedInject constructor(
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.content() }
+        storageObs.flatMap { it.items() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ content ->
                     stater.update {
-                        it.copy(content = content, workIds = it.clearWorkId(WorkId.ID1))
+                        it.copy(item = content, workIds = it.clearWorkId(WorkId.ID1))
                     }
                 }, {
                     finishedEvent.postValue(Any())
@@ -44,8 +44,8 @@ class ContentActionDialogVDC @AssistedInject constructor(
 
         storageObs.flatMap { it.info() }
                 .subscribe({ info ->
-                    val actions = ContentAction.values().toMutableList().apply {
-                        if (info.status?.isReadOnly == true) remove(ContentAction.DELETE)
+                    val actions = ItemAction.values().toMutableList().apply {
+                        if (info.status?.isReadOnly == true) remove(ItemAction.DELETE)
                     }.toList()
                     stater.update {
                         it.copy(allowedActions = actions, workIds = it.clearWorkId(WorkId.ID2))
@@ -56,12 +56,12 @@ class ContentActionDialogVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun storageAction(action: ContentAction) {
+    fun storageAction(action: ItemAction) {
         when (action) {
-            ContentAction.VIEW -> {
+            ItemAction.VIEW -> {
                 pageEvent.postValue(StorageViewerActivityVDC.PageData(StorageViewerActivityVDC.PageData.Page.DETAILS, storageId, backupSpecId))
             }
-            ContentAction.DELETE -> {
+            ItemAction.DELETE -> {
                 storageObs
                         .flatMapSingle { it.remove(backupSpecId) }
                         .subscribeOn(Schedulers.io())
@@ -69,18 +69,18 @@ class ContentActionDialogVDC @AssistedInject constructor(
                         .doFinally { finishedEvent.postValue(Any()) }
                         .subscribe()
             }
-            ContentAction.RESTORE -> TODO()
+            ItemAction.RESTORE -> TODO()
         }
     }
 
     data class State(
-            val content: Storage.Content? = null,
-            val allowedActions: List<ContentAction> = listOf(),
+            val item: Storage.Item? = null,
+            val allowedActions: List<ItemAction> = listOf(),
             override val workIds: Set<WorkId> = setOf(WorkId.ID1, WorkId.ID2)
     ) : WorkId.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ContentActionDialogVDC
+        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ItemActionDialogVDC
     }
 }

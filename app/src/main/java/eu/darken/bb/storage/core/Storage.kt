@@ -28,31 +28,31 @@ interface Storage {
 
     fun info(): Observable<StorageInfo>
 
-    fun content(): Observable<Collection<Content>>
+    fun items(): Observable<Collection<Item>>
 
-    fun details(content: Content, backupId: Backup.Id): Observable<Content.Details>
+    fun content(item: Item, backupId: Backup.Id): Observable<Item.Content>
 
-    fun load(content: Content, backupId: Backup.Id): Backup.Unit
+    fun load(item: Item, backupId: Backup.Id): Backup.Unit
 
-    fun save(backup: Backup.Unit): Pair<Content, Versioning.Version>
+    fun save(backup: Backup.Unit): Pair<Item, Versioning.Version>
 
-    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<Content>
+    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<Item>
 
     fun wipe(): Completable
 
     fun detach(): Completable
 
-    interface Content {
+    interface Item {
         val storageId: Id
         val backupSpec: BackupSpec
         val versioning: Versioning
 
-        data class Details(
-                val items: Collection<Item>
-        )
-
-        interface Item {
-            val label: String
+        data class Content(
+                val items: Collection<Entry>
+        ) {
+            interface Entry {
+                val label: String
+            }
         }
     }
 

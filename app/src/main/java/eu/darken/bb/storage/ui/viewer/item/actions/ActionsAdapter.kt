@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content.actions
+package eu.darken.bb.storage.ui.viewer.item.actions
 
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -12,19 +12,19 @@ import javax.inject.Inject
 
 @PerChildFragment
 class ActionsAdapter @Inject constructor()
-    : ModularAdapter<ActionsAdapter.VH>(), DataAdapter<ContentAction> {
+    : ModularAdapter<ActionsAdapter.VH>(), DataAdapter<ItemAction> {
 
-    override val data = mutableListOf<ContentAction>()
+    override val data = mutableListOf<ItemAction>()
 
     init {
-        modules.add(DataBinderModule<ContentAction, VH>(data))
+        modules.add(DataBinderModule<ItemAction, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.task_list_action_adapter_line, parent), BindableVH<ContentAction> {
+        : ModularAdapter.VH(R.layout.storage_itemlist_action_adapter_line, parent), BindableVH<ItemAction> {
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.name) lateinit var label: TextView
 
@@ -32,7 +32,7 @@ class ActionsAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: ContentAction) {
+        override fun bind(item: ItemAction) {
             icon.setImageResource(item.iconRes)
             label.setText(item.labelRes)
         }

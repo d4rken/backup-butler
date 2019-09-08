@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.details.page
+package eu.darken.bb.storage.ui.viewer.content.page
 
 import android.view.ViewGroup
 import android.widget.TextView
@@ -10,20 +10,20 @@ import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 
-class BackupItemAdapter @Inject constructor()
-    : ModularAdapter<BackupItemAdapter.VH>(), DataAdapter<Storage.Content.Item> {
+class ContentEntryAdapter @Inject constructor()
+    : ModularAdapter<ContentEntryAdapter.VH>(), DataAdapter<Storage.Item.Content.Entry> {
 
-    override val data = mutableListOf<Storage.Content.Item>()
+    override val data = mutableListOf<Storage.Item.Content.Entry>()
 
     init {
-        modules.add(DataBinderModule<Storage.Content.Item, VH>(data))
+        modules.add(DataBinderModule<Storage.Item.Content.Entry, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_viewer_detailpage_adapter_line, parent), BindableVH<Storage.Content.Item> {
+        : ModularAdapter.VH(R.layout.storage_viewer_item_content_entry_adapter_line, parent), BindableVH<Storage.Item.Content.Entry> {
         //        @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.label) lateinit var label: TextView
 
@@ -31,7 +31,7 @@ class BackupItemAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: Storage.Content.Item) {
+        override fun bind(item: Storage.Item.Content.Entry) {
             label.text = item.label
         }
 

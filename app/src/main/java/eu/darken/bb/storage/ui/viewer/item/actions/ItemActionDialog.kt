@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content.actions
+package eu.darken.bb.storage.ui.viewer.item.actions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -30,15 +30,15 @@ import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
-class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
+class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
     private var unbinder: Unbinder? = null
 
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: ContentActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as ContentActionDialogVDC.Factory
+    private val vdc: ItemActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as ItemActionDialogVDC.Factory
         factory.create(handle, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!)
     })
 
@@ -63,9 +63,9 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            if (state.content != null) {
-                storageLabel.text = state.content.backupSpec.getLabel(requireContext())
-                typeLabel.text = getString(state.content.backupSpec.backupType.labelRes)
+            if (state.item != null) {
+                storageLabel.text = state.item.backupSpec.getLabel(requireContext())
+                typeLabel.text = getString(state.item.backupSpec.backupType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)
@@ -85,7 +85,7 @@ class ContentActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     companion object {
-        fun newInstance(storageId: Storage.Id, backupSpecId: BackupSpec.Id): BottomSheetDialogFragment = ContentActionDialog().apply {
+        fun newInstance(storageId: Storage.Id, backupSpecId: BackupSpec.Id): BottomSheetDialogFragment = ItemActionDialog().apply {
             arguments = Bundle().apply {
                 putStorageId(storageId)
                 putBackupSpecId(backupSpecId)

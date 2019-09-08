@@ -52,7 +52,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
         task.targetStorage.forEach { storageId ->
             val storage = storageManager.getStorage(storageId).blockingFirst()
-            storage.content().take(1).flatMapIterable { it }.forEach { content ->
+            storage.items().take(1).flatMapIterable { it }.forEach { content ->
                 val newest = content.versioning.getNewest()
                 if (newest == null) {
                     Timber.tag(TAG).d("Empty BackupSpec: %s", content.backupSpec)
@@ -66,6 +66,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
                     val config: Restore.Config = task.restoreConfigs.find { it.restoreType == backupType }!!
                     endpoint.restore(config, backupUnit)
+                    // TODO success? true/false?
                 }
             }
         }

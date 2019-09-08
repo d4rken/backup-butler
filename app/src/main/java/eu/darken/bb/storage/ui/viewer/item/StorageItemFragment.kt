@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.content
+package eu.darken.bb.storage.ui.viewer.item
 
 import android.os.Bundle
 import android.view.Menu
@@ -28,22 +28,22 @@ import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
-import eu.darken.bb.storage.ui.viewer.content.actions.ContentActionDialog
+import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialog
 import javax.inject.Inject
 
 
-class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
+class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StorageContentFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageContentFragmentVDC.Factory
+    private val vdc: StorageItemFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as StorageItemFragmentVDC.Factory
         factory.create(handle, arguments!!.getStorageId()!!)
     })
 
-    @Inject lateinit var adapter: ContentAdapter
+    @Inject lateinit var adapter: StorageItemAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
@@ -51,7 +51,7 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
     private var showOptionDeleteAll = false
 
     init {
-        layoutRes = R.layout.storage_viewer_contentlist_fragment
+        layoutRes = R.layout.storage_viewer_itemlist_fragment
         setHasOptionsMenu(true)
     }
 
@@ -64,7 +64,7 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
-            adapter.update(state.contents)
+            adapter.update(state.items)
 
             recyclerView.setInvisible(state.isWorking)
             loadingOverlay.setInvisible(!state.isWorking)
@@ -84,7 +84,7 @@ class StorageContentFragment : SmartFragment(), AutoInject, HasSupportFragmentIn
 
         }
         vdc.contentActionEvent.observe2(this) {
-            val bs = ContentActionDialog.newInstance(it.storageId, it.backupSpecId)
+            val bs = ItemActionDialog.newInstance(it.storageId, it.backupSpecId)
             bs.show(childFragmentManager, "${it.storageId}-${it.backupSpecId}")
         }
 
