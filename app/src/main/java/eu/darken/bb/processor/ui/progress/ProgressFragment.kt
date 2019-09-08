@@ -47,7 +47,10 @@ class ProgressFragment : SmartFragment(), AutoInject {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe(this, Observer { state ->
-            taskName.text = state.taskProgress.primary
+            taskName.text = when {
+                state.taskProgress.primary.isNotEmpty() -> state.taskProgress.primary
+                else -> getString(R.string.progress_loading_label)
+            }
             generatorLabel.tryTextElseHide(state.taskProgress.secondary)
             backupSpecLabel.tryTextElseHide(state.taskProgress.tertiary, View.GONE)
             processProgressCounter.tryTextElseHide(state.taskProgress.count.displayValue(requireContext()))

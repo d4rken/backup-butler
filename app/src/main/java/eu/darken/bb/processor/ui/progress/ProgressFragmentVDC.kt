@@ -6,11 +6,13 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.rx.onErrorComplete
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class ProgressFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -20,6 +22,8 @@ class ProgressFragmentVDC @AssistedInject constructor(
             .subscribeOn(Schedulers.io())
             .filter { it.isNotNull }
             .map { it.value }
+            .timeout(3, TimeUnit.SECONDS)
+            .onErrorComplete()
 
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
@@ -28,8 +32,8 @@ class ProgressFragmentVDC @AssistedInject constructor(
 
     init {
         progressHostObs
-                .firstOrError()
-                .flatMapObservable { it.progress }
+                .take(1)
+                .flatMap { it.progress }
                 .doOnTerminate { finishEvent.postValue(Any()) }
                 .subscribe { progress ->
                     stater.update { state ->

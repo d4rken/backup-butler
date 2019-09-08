@@ -54,7 +54,7 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
             adapter.update(state.tasks)
 
             if (state.hasRunningTask && snackbar == null) {
-                Snackbar.make(view, R.string.label_progress_processing_task, Snackbar.LENGTH_INDEFINITE)
+                snackbar = Snackbar.make(view, R.string.label_progress_processing_task, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.action_show) {
                             startActivity(Intent(requireContext(), ProcessorActivity::class.java))
                         }
@@ -67,7 +67,7 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
                                 snackbar = null
                             }
                         })
-                        .show()
+                snackbar?.show()
             } else {
                 snackbar?.dismiss()
             }
