@@ -16,7 +16,7 @@ import javax.inject.Inject
 class StorageManager @Inject constructor(
         @AppContext private val context: Context,
         private val refRepo: StorageRefRepo,
-        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>
+        private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>
 ) {
 
     private val repoCache = mutableMapOf<Storage.Id, Storage>()
@@ -67,9 +67,8 @@ class StorageManager @Inject constructor(
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
 
-            val factory = storageFactories.find { it.isCompatible(ref) }
-            if (factory == null) throw IllegalArgumentException("No factory compatible with $ref")
-            repo = factory.create(ref, null)
+            val factory = storageFactories.getValue(ref.storageType)
+            repo = factory.create(ref)
             repoCache[ref.storageId] = repo
             return@fromCallable repo
         }

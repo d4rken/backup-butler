@@ -18,12 +18,14 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Provider
 
 class SimpleRestoreProcessor @AssistedInject constructor(
         @Assisted progressParent: Progress.Client,
         @AppContext context: Context,
-        private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Restore.Endpoint.Factory<out Restore.Endpoint>>,
+        private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
         private val MMDataRepo: MMDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageRefRepo: StorageRefRepo,
@@ -57,16 +59,28 @@ class SimpleRestoreProcessor @AssistedInject constructor(
                 if (newest == null) {
                     Timber.tag(TAG).d("Empty BackupSpec: %s", content.backupSpec)
                 } else {
+                    val storageProgressSub = storage.progress
+                            .subscribeOn(Schedulers.io())
+                            .subscribe { pro -> progressChild.updateProgress { pro } }
+
+                    val backupUnit = storage.load(content, newest.backupId)
+                    storageProgressSub.dispose()
+
                     val endpointFactory = restoreEndpointFactories[content.backupSpec.backupType]
                     val backupType = content.backupSpec.backupType
                     checkNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${content.backupSpec}" }
-                    val endpoint = endpointFactory.create(progressChild)
+                    val endpoint = endpointFactory.get()
 
-                    val backupUnit = storage.load(content, newest.backupId)
+                    val endpointProgressSub = endpoint.progress
+                            .subscribeOn(Schedulers.io())
+                            .subscribe { pro -> progressChild.updateProgress { pro } }
 
                     val config: Restore.Config = task.restoreConfigs.find { it.restoreType == backupType }!!
                     endpoint.restore(config, backupUnit)
                     // TODO success? true/false?
+
+                    endpointProgressSub.dispose()
+
                 }
             }
         }

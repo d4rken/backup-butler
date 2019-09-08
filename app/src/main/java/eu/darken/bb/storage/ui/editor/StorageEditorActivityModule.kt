@@ -13,6 +13,8 @@ import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragmentModule
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentModule
+import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragment
+import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentModule
 
 @Module
 abstract class StorageEditorActivityModule {
@@ -30,5 +32,10 @@ abstract class StorageEditorActivityModule {
     @PerFragment
     @ContributesAndroidInjector(modules = [LocalEditorFragmentModule::class])
     abstract fun localStorageEditor(): LocalEditorFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [SAFEditorFragmentModule::class])
+    abstract fun safStorageEditor(): SAFEditorFragment
+
 
 }

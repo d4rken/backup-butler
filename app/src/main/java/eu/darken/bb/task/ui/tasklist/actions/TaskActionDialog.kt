@@ -57,7 +57,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            taskTypeLabel.setText(state.taskType?.labelRes ?: 0)
+            taskTypeLabel.setText(state.taskType?.labelRes ?: R.string.label_unknown)
             taskName.text = state.taskName
 
             actionsAdapter.update(state.allowedActions)

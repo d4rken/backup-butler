@@ -16,21 +16,20 @@ import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
-import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.StorageFactory
-import eu.darken.bb.storage.core.StorageRefRepo
+import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Provider
 
 class SimpleBackupProcessor @AssistedInject constructor(
         @Assisted progressParent: Progress.Client,
         @AppContext context: Context,
-        private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Backup.Endpoint.Factory<out Backup.Endpoint>>,
-        @StorageFactory private val storageFactories: Set<@JvmSuppressWildcards Storage.Factory>,
+        private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Backup.Endpoint>>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
         private val MMDataRepo: MMDataRepo,
         private val generatorRepo: GeneratorRepo,
-        private val storageRefRepo: StorageRefRepo
+        private val storageManager: StorageManager
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun doProcess(task: Task) {
@@ -52,24 +51,32 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 progressParent.updateProgressTertiary(config.getLabel(context))
                 progressParent.updateProgressCount(Progress.Count.Counter(backupConfigs.indexOf(config) + 1, backupConfigs.size))
 
-                val endpoint = backupEndpointFactories.getValue(config.backupType).create(progressChild)
+                val endpoint = backupEndpointFactories.getValue(config.backupType).get()
                 Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
+
+                val endpointProgressSub = endpoint.progress
+                        .subscribeOn(Schedulers.io())
+                        .subscribe { pro -> progressChild.updateProgress { pro } }
 
                 val backup = endpoint.backup(config)
                 Timber.tag(TAG).i("Backup created: %s", backup)
 
-                task.destinations.forEach { storageId ->
-                    val storageRef = storageRefRepo.get(storageId)
-                            .blockingGet()
-                            .notNullValue(errorMessage = "Can't find storage for $storageId")
-                    // TODO what if the storage has been deleted?
+                endpointProgressSub.dispose()
 
-                    val repo = storageFactories.find { it.isCompatible(storageRef) }!!.create(storageRef, progressChild)
+                task.destinations.forEach { storageId ->
+                    // TODO what if the storage has been deleted?
+                    val repo = storageManager.getStorage(storageId).blockingFirst()
                     Timber.tag(TAG).i("Storing %s using %s", backup.id, repo)
+
+                    val storageProgressSub = repo.progress
+                            .subscribeOn(Schedulers.io())
+                            .subscribe { pro -> progressChild.updateProgress { pro } }
 
                     val result = repo.save(backup)
                     success++
                     Timber.tag(TAG).i("Backup (%s) stored: %s", backup.id, result)
+
+                    storageProgressSub.dispose()
                 }
                 MMDataRepo.deleteAll(backup.id)
             }

@@ -4,31 +4,34 @@ import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import dagger.multibindings.IntoSet
+import eu.darken.bb.storage.core.local.LocalStorage
 import eu.darken.bb.storage.core.local.LocalStorageEditor
-import eu.darken.bb.storage.core.local.LocalStorageFactory
-import javax.inject.Qualifier
+import eu.darken.bb.storage.core.saf.SAFStorage
+import eu.darken.bb.storage.core.saf.SAFStorageEditor
 
 @Module
 abstract class StorageTypeModule {
 
     @Binds
-    @IntoSet
-    @StorageFactory
-    abstract fun localRepo(repo: LocalStorageFactory): Storage.Factory
+    @IntoMap
+    @StorageTypeKey(Storage.Type.LOCAL)
+    abstract fun localRepo(repo: LocalStorage.Factory): Storage.Factory<out Storage>
 
     @Binds
     @IntoMap
     @StorageTypeKey(Storage.Type.LOCAL)
     abstract fun localStorageEditor(repo: LocalStorageEditor.Factory): StorageEditor.Factory<out StorageEditor>
+
+    @Binds
+    @IntoMap
+    @StorageTypeKey(Storage.Type.SAF)
+    abstract fun safRepo(repo: SAFStorage.Factory): Storage.Factory<out Storage>
+
+    @Binds
+    @IntoMap
+    @StorageTypeKey(Storage.Type.SAF)
+    abstract fun safStorageEditor(repo: SAFStorageEditor.Factory): StorageEditor.Factory<out StorageEditor>
 }
-
-
-@Qualifier
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class StorageFactory
-
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

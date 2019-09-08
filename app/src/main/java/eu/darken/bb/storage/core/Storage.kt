@@ -10,13 +10,15 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
+import eu.darken.bb.storage.core.saf.SAFStorageConfig
+import eu.darken.bb.storage.core.saf.SAFStorageRef
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
-interface Storage {
+interface Storage : Progress.Host {
     enum class Type(
             @Transient @DrawableRes val iconRes: Int,
             @Transient @StringRes val labelRes: Int,
@@ -61,16 +63,15 @@ interface Storage {
         override fun toString(): String = "StorageId($id)"
     }
 
-    interface Factory {
-        fun isCompatible(storageRef: Ref): Boolean
-
-        fun create(storageRef: Ref, progressClient: Progress.Client?): Storage
+    interface Factory<T : Storage> {
+        fun create(storageRef: Ref): T
     }
 
     interface Ref {
         companion object {
             val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Ref> = PolymorphicJsonAdapterFactory.of(Ref::class.java, "storageType")
                     .withSubtype(LocalStorageRef::class.java, Type.LOCAL.name)
+                    .withSubtype(SAFStorageRef::class.java, Type.SAF.name)
         }
 
         val storageId: Id
@@ -81,6 +82,7 @@ interface Storage {
         companion object {
             val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Config> = PolymorphicJsonAdapterFactory.of(Config::class.java, "storageType")
                     .withSubtype(LocalStorageConfig::class.java, Type.LOCAL.name)
+                    .withSubtype(SAFStorageConfig::class.java, Type.SAF.name)
         }
 
         val label: String

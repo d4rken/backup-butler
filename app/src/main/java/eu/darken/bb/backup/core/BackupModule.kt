@@ -14,22 +14,22 @@ abstract class BackupModule {
     @Binds
     @IntoMap
     @EndpointFactory(Backup.Type.APP)
-    abstract fun appBackupEndpoint(endpoint: AppBackupEndpoint.Factory): Backup.Endpoint.Factory<out Backup.Endpoint>
+    abstract fun appBackupEndpoint(endpoint: AppBackupEndpoint): Backup.Endpoint
 
     @Binds
     @IntoMap
     @EndpointFactory(Backup.Type.APP)
-    abstract fun appRestoreEndpoint(endpoint: AppRestoreEndpoint.Factory): Restore.Endpoint.Factory<out Restore.Endpoint>
+    abstract fun appRestoreEndpoint(endpoint: AppRestoreEndpoint): Restore.Endpoint
 
     @Binds
     @IntoMap
     @EndpointFactory(Backup.Type.FILES)
-    abstract fun fileBackup(endpoint: FilesBackupEndpoint.Factory): Backup.Endpoint.Factory<out Backup.Endpoint>
+    abstract fun fileBackup(endpoint: FilesBackupEndpoint): Backup.Endpoint
 
     @Binds
     @IntoMap
     @EndpointFactory(Backup.Type.FILES)
-    abstract fun fileRestore(endpoint: FilesRestoreEndpoint.Factory): Restore.Endpoint.Factory<out Restore.Endpoint>
+    abstract fun fileRestore(endpoint: FilesRestoreEndpoint): Restore.Endpoint
 }
 
 @Target(AnnotationTarget.FUNCTION)

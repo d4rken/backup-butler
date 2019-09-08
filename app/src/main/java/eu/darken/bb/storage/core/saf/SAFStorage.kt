@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.core.local
+package eu.darken.bb.storage.core.saf
 
 import android.content.Context
 import com.jakewharton.rx.replayingShare
@@ -35,24 +35,23 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class LocalStorage @AssistedInject constructor(
+class SAFStorage @AssistedInject constructor(
         @Assisted storageRef: Storage.Ref,
         @AppContext override val context: Context,
         moshi: Moshi,
-        configEditorFactory: LocalStorageEditor.Factory,
+        configEditorFactory: SAFStorageEditor.Factory,
         private val mmDataRepo: MMDataRepo
 ) : Storage, HasContext, Progress.Client {
 
-    private val storageRef: LocalStorageRef = storageRef as LocalStorageRef
+    private val storageRef: SAFStorageRef = storageRef as SAFStorageRef
     private val dataDir = File(this.storageRef.path.asFile(), "data")
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val versioningAdapter = moshi.adapter(Versioning::class.java)
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
-    private var storageConfig: LocalStorageConfig
+    private var storageConfig: SAFStorageConfig
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
-
     private val dataDirEvents = Observable.fromCallable { dataDir.listFiles() }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
@@ -62,7 +61,7 @@ class LocalStorage @AssistedInject constructor(
 
     init {
         val configEditor = configEditorFactory.create(this.storageRef.storageId)
-        val config = configEditor.load(this.storageRef).map { it as Opt<LocalStorageConfig> }.blockingGet()
+        val config = configEditor.load(this.storageRef).map { it as Opt<SAFStorageConfig> }.blockingGet()
         if (config.isNull) throw MissingFileException(this.storageRef.path)
         storageConfig = config.notNullValue()
         dataDir.tryMkDirs()
@@ -98,7 +97,7 @@ class LocalStorage @AssistedInject constructor(
                         Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
                         continue
                     }
-                    val ref = LocalStorageItem(
+                    val ref = SAFStorageItem(
                             storageId = storageConfig.storageId,
                             path = backupDir.asSFile(),
                             backupSpec = backupConfig,
@@ -139,7 +138,7 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
-        item as LocalStorageItem
+        item as SAFStorageItem
         val backupDir = item.path.asFile().requireExists()
         val versionDir = File(backupDir, backupId.idString).requireExists()
 
@@ -169,7 +168,7 @@ class LocalStorage @AssistedInject constructor(
     }
 
     override fun load(item: Storage.Item, backupId: Backup.Id): Backup.Unit {
-        item as LocalStorageItem
+        item as SAFStorageItem
         val backupDir = item.path.asFile().requireExists()
 
         val version = item.versioning.getVersion(backupId)
@@ -260,7 +259,7 @@ class LocalStorage @AssistedInject constructor(
             versioning = newContent.versioning
         }
 
-        val tempRef = LocalStorageItem(
+        val tempRef = SAFStorageItem(
                 path = backupDir.asSFile(),
                 storageId = storageConfig.storageId,
                 backupSpec = backup.spec,
@@ -275,7 +274,7 @@ class LocalStorage @AssistedInject constructor(
             .map { contents ->
                 contents.first { it.backupSpec.specId == specId }
             }
-            .map { it as LocalStorageItem }
+            .map { it as SAFStorageItem }
             .map { contentItem ->
                 return@map if (backupId != null) {
                     val version = contentItem.versioning.getVersion(backupId) as SimpleVersioning.Version
@@ -329,10 +328,10 @@ class LocalStorage @AssistedInject constructor(
         return newVersioning
     }
 
-    override fun toString(): String = "LocalStorage(storageConfig=$storageConfig)"
+    override fun toString(): String = "SAFStorage(storageConfig=$storageConfig)"
 
     @AssistedInject.Factory
-    interface Factory : Storage.Factory<LocalStorage>
+    interface Factory : Storage.Factory<SAFStorage>
 
     companion object {
         val TAG = App.logTag("StorageRepo", "Local")

@@ -13,6 +13,7 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment
+import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragment
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import kotlin.reflect.KClass
@@ -95,7 +96,8 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
         enum class Page(val backupType: Storage.Type?, val fragmentClass: KClass<out Fragment>) {
             SELECTION(null, TypeSelectionFragment::class),
-            LOCAL(Storage.Type.LOCAL, LocalEditorFragment::class)
+            LOCAL(Storage.Type.LOCAL, LocalEditorFragment::class),
+            SAF(Storage.Type.SAF, SAFEditorFragment::class)
         }
 
     }

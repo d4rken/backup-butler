@@ -6,12 +6,8 @@ import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.progress.Progress
 
 interface Restore {
-    interface Endpoint {
+    interface Endpoint : Progress.Host {
         fun restore(config: Config, backup: Backup.Unit): Boolean
-
-        interface Factory<T : Endpoint> {
-            fun create(progressClient: Progress.Client?): T
-        }
     }
 
     interface Config {

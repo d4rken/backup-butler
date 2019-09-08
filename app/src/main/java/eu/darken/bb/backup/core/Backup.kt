@@ -13,12 +13,8 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 interface Backup {
-    interface Endpoint {
+    interface Endpoint : Progress.Host {
         fun backup(spec: BackupSpec): Unit
-
-        interface Factory<T : Endpoint> {
-            fun create(progressClient: Progress.Client?): T
-        }
     }
 
     data class Unit(
