@@ -147,6 +147,8 @@
     <string name="generator_type_file_root_desc">Files accessed through root permission (requires root, obviously).</string>
     <string name="progress_restoring_backup">Restoring backup</string>
     <string name="label_original_path">Original path</string>
+    <string name="label_select_path">Select path</string>
+    <string name="msg_please_try_again">Please try again</string>
     <plurals name="restore_task_x_backup_storages_desc">
         <item quantity="one">The content of %d backup storage.</item>
         <item quantity="other">The content of %d backup storages.</item>

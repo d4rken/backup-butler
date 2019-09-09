@@ -1,6 +1,7 @@
 package eu.darken.bb
 
 import android.app.NotificationManager
+import android.content.ContentResolver
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -28,6 +29,10 @@ class AndroidModule {
     @Provides
     @PerApp
     fun packageManager(@AppContext context: Context): PackageManager = context.packageManager
+
+    @Provides
+    @PerApp
+    fun contentResolver(@AppContext context: Context): ContentResolver = context.contentResolver
 
     @Provides
     @PerApp

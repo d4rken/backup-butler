@@ -58,24 +58,26 @@
                                 tools:text="My local backup" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/path_input_layout"
-                            style="@style/TextInputLayoutOutlinedDense"
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Caption"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint="@string/label_path"
-                            app:endIconMode="clear_text">
+                            android:text="@string/label_path" />
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/path_input"
-                                style="@style/Widget.AppCompat.EditText"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textNoSuggestions"
-                                android:singleLine="true"
-                                tools:text="/storage/emulated/0/BackupButler" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                        <TextView
+                            android:id="@+id/path_display"
+                            style="@style/TextAppearance.MaterialComponents.Body2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            tools:text="/storage/emulated/0/DCIM" />
+
+                        <Button
+                            android:id="@+id/path_button"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_select_path" />
                     </LinearLayout>
 
                     <eu.darken.bb.common.ui.LoadingOverlayView

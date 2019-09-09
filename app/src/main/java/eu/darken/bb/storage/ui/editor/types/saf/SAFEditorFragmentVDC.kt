@@ -1,6 +1,8 @@
 package eu.darken.bb.storage.ui.editor.types.saf
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -15,6 +17,7 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
+import eu.darken.bb.storage.core.saf.SAFTool
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -22,7 +25,8 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @AppContext private val context: Context,
-        private val builder: StorageBuilder
+        private val builder: StorageBuilder,
+        private val safTool: SAFTool
 ) : SmartVDC(), BaseEditorFragment.VDC {
 
     private val stater = Stater(State(isPermissionGranted = true))
@@ -38,12 +42,13 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
 
 
     private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
-    val requestPermissionEvent = SingleLiveEvent<Any>()
+    val openPickerEvent = SingleLiveEvent<Intent>()
+    val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
         editorObs.take(1)
                 .subscribe { editor ->
-                    stater.update { it.copy(path = editor.refPath.path) }
+                    stater.update { it.copy(path = editor.refPath?.path ?: "") }
                 }
 
         editor.isValid()
@@ -55,11 +60,9 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
                     stater.update { state ->
                         state.copy(
                                 label = config.label,
-                                path = editor.rawPath,
-                                validPath = editor.isRawPathValid(),
+                                path = editor.refPath?.path ?: "",
                                 isWorking = false,
-                                isExisting = editor.isExistingStorage,
-                                isPermissionGranted = editor.isPermissionGranted()
+                                isExisting = editor.isExistingStorage
                         )
                     }
                 }
@@ -71,9 +74,8 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePath(path: String) {
-        Timber.tag(TAG).v("Updating path: %s", path)
-        editor.updatePath(path)
+    fun selectPath() {
+        openPickerEvent.postValue(safTool.createPickerIntent())
     }
 
     override fun onNavigateBack(): Boolean = if (editor.isExistingStorage) {
@@ -92,12 +94,12 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         true
     }
 
-    fun onGrantPermission() {
-        requestPermissionEvent.postValue(Any())
-    }
-
-    fun onPermissionResult() {
-        stater.update { it.copy(isPermissionGranted = editor.isPermissionGranted()) }
+    fun onPermissionResult(uri: Uri) {
+        try {
+            editor.updatePath(uri)
+        } catch (e: Exception) {
+            errorEvent.postValue(e)
+        }
     }
 
     data class State(
@@ -116,6 +118,6 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Storage", "Local", "Editor", "VDC")
+        val TAG = App.logTag("Storage", "SAF", "Editor", "VDC")
     }
 }

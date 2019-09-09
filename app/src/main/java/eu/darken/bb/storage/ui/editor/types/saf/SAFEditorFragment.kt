@@ -1,22 +1,28 @@
 package eu.darken.bb.storage.ui.editor.types.saf
 
-import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.observe2
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
@@ -35,9 +41,14 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
 
     @Inject lateinit var adapter: StorageAdapter
 
-    @BindView(R.id.path_input) lateinit var pathInput: EditText
-    @BindView(R.id.path_input_layout) lateinit var pathInputLayout: ViewGroup
+
     @BindView(R.id.name_input) lateinit var labelInput: EditText
+
+
+    @BindView(R.id.path_display) lateinit var pathDisplay: TextView
+    @BindView(R.id.path_button) lateinit var pathSelect: TextView
+
+
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
 
@@ -49,45 +60,42 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.repo_type_local_storage_label)
+        requireActivityActionBar().subtitle = getString(R.string.repo_type_saf_storage_label)
 
         vdc.state.observe(this, Observer { state ->
-            pathInput.setTextIfDifferent(state.path)
-            pathInput.setSelection(pathInput.text.length)
+            pathDisplay.text = state.path
 
             labelInput.setTextIfDifferent(state.label)
             labelInput.setSelection(labelInput.text.length)
-
-            if (state.path.isNotEmpty()) {
-                pathInputLayout.isEnabled = !state.isExisting
-                pathInput.setTextColor(getColorForAttr(if (state.validPath || state.isExisting) R.attr.colorOnBackground else R.attr.colorError))
-            }
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
             permissionCard.setGone(state.isPermissionGranted)
         })
 
-        pathInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updatePath(it.text.toString()) }
-        pathInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { pathInput.clearFocus() }
+        pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
+
         labelInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updateName(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
 
-        permissionGrant.clicksDebounced().subscribe { vdc.onGrantPermission() }
-
-        vdc.requestPermissionEvent.observe2(this) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        vdc.openPickerEvent.observe2(this) {
+            startActivityForResult(it, 13)
         }
 
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 1) {
-            vdc.onPermissionResult()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+        if (requestCode == 13) {
+            if (resultCode == Activity.RESULT_OK && result?.data != null) {
+                vdc.onPermissionResult(result.data!!)
+            } else {
+                Toast.makeText(context, R.string.msg_please_try_again, Toast.LENGTH_SHORT).show()
+            }
         } else {
-            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
+            throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$result")
         }
+        super.onActivityResult(requestCode, resultCode, result)
     }
 
 }

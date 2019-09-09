@@ -15,9 +15,6 @@ data class JavaFile(
     override val name: String
         get() = file.name
 
-    override val parent: SFile
-        get() = file.parentFile.asSFile()
-
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {

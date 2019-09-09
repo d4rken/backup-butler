@@ -11,9 +11,6 @@ data class SimpleFile(
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 
-    override val parent: SFile
-        get() = File(path).parentFile.asSFile()
-
     companion object {
         fun build(type: SFile.Type, base: File, vararg crumbs: String): SimpleFile =
                 build(type, base.canonicalPath, *crumbs)

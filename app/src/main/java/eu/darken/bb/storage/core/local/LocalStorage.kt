@@ -335,7 +335,7 @@ class LocalStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<LocalStorage>
 
     companion object {
-        val TAG = App.logTag("StorageRepo", "Local")
+        val TAG = App.logTag("Storage", "Local")
         const val DATA_EXT = ".data"
         const val PROP_EXT = ".prop"
         const val SPEC_FILE = "backup.data"

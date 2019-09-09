@@ -9,20 +9,19 @@ interface SFile {
     val type: Type
     val pathType: SFileType
 
-    val parent: SFile
-
     enum class Type {
         FILE, DIRECTORY;
     }
 
     enum class SFileType {
-        SIMPLE, JAVA
+        SIMPLE, JAVA, URI
     }
 
     companion object {
         val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<SFile> = PolymorphicJsonAdapterFactory.of(SFile::class.java, "pathType")
                 .withSubtype(JavaFile::class.java, SFileType.JAVA.name)
                 .withSubtype(SimpleFile::class.java, SFileType.SIMPLE.name)
+                .withSubtype(UriFile::class.java, SFileType.URI.name)
     }
 }
 
