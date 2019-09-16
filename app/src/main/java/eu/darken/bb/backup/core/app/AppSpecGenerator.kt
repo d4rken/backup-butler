@@ -6,7 +6,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import javax.inject.Inject
 
 @Reusable
@@ -42,7 +42,7 @@ class AppSpecGenerator @Inject constructor(
             val packagesExcluded: Collection<String> = listOf(),
             val backupApk: Boolean = false,
             val backupData: Boolean = false,
-            val extraPaths: Map<String, Collection<SFile>> = emptyMap()
+            val extraPaths: Map<String, Collection<AFile>> = emptyMap()
     ) : Generator.Config {
 
 

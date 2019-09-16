@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test
 class SimpleFileTest {
     @Test
     fun `serialize file`() {
-        val original = SimpleFile.build(SFile.Type.FILE, "test", "file")
+        val original = SimpleFile.build(AFile.Type.FILE, "test", "file")
 
         val moshi = AppModule().moshi()
-        val adapter = moshi.adapter(SFile::class.java)
+        val adapter = moshi.adapter(AFile::class.java)
 
         val json = adapter.toJson(original)
         assertThat(json)
@@ -25,10 +25,10 @@ class SimpleFileTest {
 
     @Test
     fun `serialize directory`() {
-        val original = SimpleFile.build(SFile.Type.DIRECTORY, "test", "dir")
+        val original = SimpleFile.build(AFile.Type.DIRECTORY, "test", "dir")
 
         val moshi = AppModule().moshi()
-        val adapter = moshi.adapter(SFile::class.java)
+        val adapter = moshi.adapter(AFile::class.java)
 
         val json = adapter.toJson(original)
         assertThat(json)

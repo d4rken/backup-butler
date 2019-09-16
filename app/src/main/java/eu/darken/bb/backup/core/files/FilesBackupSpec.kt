@@ -4,12 +4,12 @@ import android.content.Context
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.CheckSummer
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import eu.darken.bb.processor.core.mm.MMRef
 
 data class FilesBackupSpec(
         val label: String,
-        val path: SFile,
+        val path: AFile,
         override val revisionLimit: Int = 3
 ) : BackupSpec {
 

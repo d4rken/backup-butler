@@ -8,7 +8,7 @@ import androidx.core.content.FileProvider
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import eu.darken.bb.common.file.asFile
 import timber.log.Timber
 import java.util.*
@@ -19,7 +19,7 @@ class ShareBuilder @Inject constructor(
 ) {
     private var useChooser: Boolean = false
     private var chooserTitle: String? = null
-    private val files = ArrayList<SFile>()
+    private val files = ArrayList<AFile>()
     private var extraSubject: String? = null
     private var extraText: String? = null
     private val emails = ArrayList<String>()
@@ -87,11 +87,11 @@ class ShareBuilder @Inject constructor(
         return text(formatted.toString())
     }
 
-    fun file(file: SFile): ShareBuilder {
+    fun file(file: AFile): ShareBuilder {
         return files(setOf(file))
     }
 
-    fun files(files: Collection<SFile>): ShareBuilder {
+    fun files(files: Collection<AFile>): ShareBuilder {
         if (files.isEmpty()) throw IllegalArgumentException("Trying to share empty list of files")
         this.files.addAll(files)
         return this
@@ -107,7 +107,7 @@ class ShareBuilder @Inject constructor(
         return this
     }
 
-    private fun addAccessibleFiles(context: Context, intent: Intent, files: Collection<SFile>): ArrayList<Uri> {
+    private fun addAccessibleFiles(context: Context, intent: Intent, files: Collection<AFile>): ArrayList<Uri> {
         val uris = ArrayList<Uri>()
         for (f in files) {
             if (ApiHelper.hasAndroidN()) {

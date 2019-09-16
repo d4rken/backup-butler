@@ -343,3 +343,7 @@ class LocalStorage @AssistedInject constructor(
     }
 
 }
+
+internal fun Versioning.Version.getRevDir(base: File): File {
+    return File(base, backupId.idString)
+}

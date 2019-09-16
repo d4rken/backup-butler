@@ -2,7 +2,7 @@ package eu.darken.bb.common
 
 import android.webkit.MimeTypeMap
 import eu.darken.bb.App
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import timber.log.Timber
 import java.util.*
 
@@ -62,7 +62,7 @@ object MimeHelper {
         MIMES["mkv"] = "video/x-matroska"
     }
 
-    fun getMime(file: SFile): String {
+    fun getMime(file: AFile): String {
         val fileName = file.name
         var extension = MimeTypeMap.getFileExtensionFromUrl(fileName)
 
@@ -73,7 +73,7 @@ object MimeHelper {
         extension = extension.toLowerCase(Locale.ROOT)
 
         var mimeType: String? = null
-        if (file.type == SFile.Type.DIRECTORY) mimeType = "vnd.android.document/directory"
+        if (file.type == AFile.Type.DIRECTORY) mimeType = "vnd.android.document/directory"
         if (mimeType == null) mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
         if (mimeType == null) mimeType = MIMES[extension]
         if (mimeType == null) mimeType = TYPE_UNSPECIFIC
@@ -81,7 +81,7 @@ object MimeHelper {
         return mimeType
     }
 
-    fun getMime(files: Collection<SFile>): String? {
+    fun getMime(files: Collection<AFile>): String? {
         var allType: String? = null
         for (file in files) {
             val fType = getMime(file)

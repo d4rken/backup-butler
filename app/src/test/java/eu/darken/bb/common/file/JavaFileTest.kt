@@ -20,7 +20,7 @@ class JavaFileTest {
         val original = JavaFile.build(file = testFile)
 
         val moshi = AppModule().moshi()
-        val adapter = moshi.adapter(SFile::class.java)
+        val adapter = moshi.adapter(AFile::class.java)
 
         val json = adapter.toJson(original)
         assertThat(json)

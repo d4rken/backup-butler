@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.core
 
 import eu.darken.bb.backup.core.Backup
-import java.io.File
 import java.util.*
 
 data class SimpleVersioning(
@@ -15,8 +14,5 @@ data class SimpleVersioning(
     data class Version(
             override val backupId: Backup.Id,
             override val createdAt: Date
-    ) : Versioning.Version {
-
-        fun getRevDir(base: File): File = File(base, backupId.idString)
-    }
+    ) : Versioning.Version
 }

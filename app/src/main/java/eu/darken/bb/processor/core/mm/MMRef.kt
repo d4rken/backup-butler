@@ -1,7 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import java.io.File
 import java.util.*
 
@@ -10,7 +10,7 @@ data class MMRef(
         val backupId: Backup.Id,
         val type: Type,
         val tmpPath: File,
-        val originalPath: SFile
+        val originalPath: AFile
 ) {
 
     val props: Props
@@ -22,7 +22,7 @@ data class MMRef(
         }
 
     data class Props(
-            val originalPath: SFile,
+            val originalPath: AFile,
             val refType: Type
     )
 
@@ -38,9 +38,9 @@ data class MMRef(
     }
 }
 
-fun SFile.Type.toMMRefType(): MMRef.Type {
+fun AFile.Type.toMMRefType(): MMRef.Type {
     return when (this) {
-        SFile.Type.FILE -> MMRef.Type.FILE
-        SFile.Type.DIRECTORY -> MMRef.Type.DIRECTORY
+        AFile.Type.FILE -> MMRef.Type.FILE
+        AFile.Type.DIRECTORY -> MMRef.Type.DIRECTORY
     }
 }

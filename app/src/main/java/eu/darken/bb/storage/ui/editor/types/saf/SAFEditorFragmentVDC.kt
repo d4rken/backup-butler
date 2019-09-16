@@ -16,8 +16,8 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
+import eu.darken.bb.storage.core.saf.SAFGateway
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
-import eu.darken.bb.storage.core.saf.SAFTool
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -26,7 +26,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         @AppContext private val context: Context,
         private val builder: StorageBuilder,
-        private val safTool: SAFTool
+        private val safGateway: SAFGateway
 ) : SmartVDC(), BaseEditorFragment.VDC {
 
     private val stater = Stater(State(isPermissionGranted = true))
@@ -75,7 +75,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun selectPath() {
-        openPickerEvent.postValue(safTool.createPickerIntent())
+        openPickerEvent.postValue(safGateway.createPickerIntent())
     }
 
     override fun onNavigateBack(): Boolean = if (editor.isExistingStorage) {

@@ -3,19 +3,19 @@ package eu.darken.bb.common.file
 import java.io.File
 
 data class SimpleFile(
-        override val type: SFile.Type,
+        override val type: AFile.Type,
         override val path: String
-) : SFile {
+) : AFile {
 
-    override val pathType: SFile.SFileType = SFile.SFileType.SIMPLE
+    override val pathType: AFile.SFileType = AFile.SFileType.SIMPLE
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 
     companion object {
-        fun build(type: SFile.Type, base: File, vararg crumbs: String): SimpleFile =
+        fun build(type: AFile.Type, base: File, vararg crumbs: String): SimpleFile =
                 build(type, base.canonicalPath, *crumbs)
 
-        fun build(type: SFile.Type, vararg crumbs: String): SimpleFile {
+        fun build(type: AFile.Type, vararg crumbs: String): SimpleFile {
             var compacter = File(crumbs[0])
             for (i in 1 until crumbs.size) {
                 compacter = File(compacter, crumbs[i])

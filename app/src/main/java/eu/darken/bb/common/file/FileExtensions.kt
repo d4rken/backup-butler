@@ -1,9 +1,13 @@
 package eu.darken.bb.common.file
 
 import eu.darken.bb.App
+import okio.Okio
 import timber.log.Timber
 import java.io.File
+import java.io.FileDescriptor
+import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 
 
 val TAG: String = App.logTag("FileExtensions")
@@ -26,7 +30,7 @@ fun File(vararg crumbs: String): File {
     return compacter
 }
 
-fun File.asSFile(): SFile {
+fun File.asSFile(): AFile {
     return JavaFile.build(file = this)
 }
 
@@ -96,9 +100,8 @@ fun File.tryMkFile(): File {
 
 fun File.deleteAll() {
     if (isDirectory) {
-        for (c in listFiles()) {
-            c.deleteAll()
-        }
+        val dirContent: Array<File>? = listFiles()
+        dirContent?.forEach { it.deleteAll() }
     }
     if (delete()) {
         Timber.tag(TAG).v("File.deleteAll(): Deleted %s", this)
@@ -106,5 +109,13 @@ fun File.deleteAll() {
         Timber.tag(TAG).w("File.deleteAll(): File didn't exist: %s", this)
     } else {
         throw FileNotFoundException("Failed to delete file: $this")
+    }
+}
+
+fun File.copyTo(fd: FileDescriptor) {
+    Okio.source(FileInputStream(this)).use { source ->
+        Okio.buffer(Okio.sink(FileOutputStream(fd))).use { buffer ->
+            buffer.writeAll(source)
+        }
     }
 }

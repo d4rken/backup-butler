@@ -2,7 +2,7 @@ package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.SFile
+import eu.darken.bb.common.file.AFile
 import eu.darken.bb.common.file.SimpleFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ class MMRefTest {
                 backupId = Backup.Id(),
                 type = MMRef.Type.DIRECTORY,
                 tmpPath = File("simplefile"),
-                originalPath = SimpleFile.build(SFile.Type.FILE, "originalpath")
+                originalPath = SimpleFile.build(AFile.Type.FILE, "originalpath")
         )
 
         val orig = ref.props
