@@ -1,9 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
-import android.content.Context
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.AFile
 import eu.darken.bb.common.file.deleteAll
@@ -13,9 +11,10 @@ import javax.inject.Inject
 
 @PerApp
 class MMDataRepo @Inject constructor(
-        @AppContext private val context: Context
+        @CachePath private val cachePath: File
 ) {
-    private val tmpDir: File = File(context.externalCacheDir, "tmprepo")
+
+    private val tmpDir: File = File(cachePath, CACHEDIR)
     private val refMap = mutableMapOf<Backup.Id, MutableList<MMRef>>()
 
     init {
@@ -32,7 +31,6 @@ class MMDataRepo @Inject constructor(
                 backupId = backupId,
                 refId = refId,
                 tmpPath = File(tmpDir, refId.idString),
-                type = props.refType,
                 originalPath = props.originalPath
         )
 
@@ -48,7 +46,6 @@ class MMDataRepo @Inject constructor(
         val ref = MMRef(
                 refId = refId,
                 backupId = backupId,
-                type = orig.type.toMMRefType(),
                 tmpPath = File(tmpDir, refId.idString),
                 originalPath = orig
         )
@@ -65,25 +62,28 @@ class MMDataRepo @Inject constructor(
             when (it.type) {
                 MMRef.Type.FILE -> {
                     val deleted = it.tmpPath.delete()
-                    Timber.tag(TAG).v("Delete tmp file (success=%b): %s", deleted, it.tmpPath)
+                    Timber.tag(TAG).v("Deleted tmp file (success=%b): %s", deleted, it.tmpPath)
                 }
                 MMRef.Type.DIRECTORY -> {
                     val deleted = it.tmpPath.deleteAll()
-                    Timber.tag(TAG).v("Delete tmp dir (success=%b): %s", deleted, it.tmpPath)
+                    Timber.tag(TAG).v("Deleted tmp dir (success=%b): %s", deleted, it.tmpPath)
                 }
+                MMRef.Type.NONE -> Timber.tag(TAG).e("Unused ref: %s", it)
             }
         }
+        refMap.remove(backupId)
     }
 
     @Synchronized
     fun wipe() {
         Timber.tag(TAG).d("Wiping remaining ref cache.")
-        refMap.keys.forEach {
+        refMap.keys.toList().forEach {
             deleteAll(it)
         }
     }
 
     companion object {
         val TAG = App.logTag("TmpDataRepo")
+        const val CACHEDIR = "mmdatarepo"
     }
 }

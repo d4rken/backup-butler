@@ -25,6 +25,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -195,12 +196,15 @@ class SAFStorage @AssistedInject constructor(
             val tmpRef = mmDataRepo.create(backupId, prop)
 
             when (tmpRef.type) {
-                MMRef.Type.FILE -> {
+                FILE -> {
                     val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
                     dataFile.copyTo(tmpRef.tmpPath)
                 }
-                MMRef.Type.DIRECTORY -> {
+                DIRECTORY -> {
                     tmpRef.tmpPath.mkdirs()
+                }
+                NONE -> {
+                    Timber.tag(TAG).e("Ref is unused: %s", tmpRef.tmpPath)
                 }
             }
 
@@ -248,14 +252,17 @@ class SAFStorage @AssistedInject constructor(
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)
 
                 when (ref.type) {
-                    MMRef.Type.FILE -> {
+                    FILE -> {
                         val target = revisionDir.childFile("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         safGateway.create(target)
                         safGateway.openFile(target, SAFGateway.FileMode.WRITE) { ref.tmpPath.copyTo(it) }
                     }
-                    MMRef.Type.DIRECTORY -> {
+                    DIRECTORY -> {
                         val target = revisionDir.childDir("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         safGateway.create(target)
+                    }
+                    NONE -> {
+                        Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
                     }
                 }
             }

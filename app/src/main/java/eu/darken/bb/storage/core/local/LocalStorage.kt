@@ -24,6 +24,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -184,12 +185,15 @@ class LocalStorage @AssistedInject constructor(
             val tmpRef = mmDataRepo.create(backupId, prop)
 
             when (tmpRef.type) {
-                MMRef.Type.FILE -> {
+                FILE -> {
                     val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
                     dataFile.copyTo(tmpRef.tmpPath)
                 }
-                MMRef.Type.DIRECTORY -> {
+                DIRECTORY -> {
                     tmpRef.tmpPath.mkdirs()
+                }
+                NONE -> {
+                    Timber.tag(TAG).e("Ref is unused: %s", tmpRef.tmpPath)
                 }
             }
 
@@ -238,8 +242,9 @@ class LocalStorage @AssistedInject constructor(
 
                 val target = File(revisionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 when (ref.type) {
-                    MMRef.Type.FILE -> ref.tmpPath.copyTo(target)
-                    MMRef.Type.DIRECTORY -> target.mkdir()
+                    FILE -> ref.tmpPath.copyTo(target)
+                    DIRECTORY -> target.mkdir()
+                    NONE -> Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
                 }
 
             }

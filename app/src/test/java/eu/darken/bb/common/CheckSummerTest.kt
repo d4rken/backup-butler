@@ -2,9 +2,7 @@ package eu.darken.bb.common
 
 import org.hamcrest.core.Is.`is`
 import org.hamcrest.core.IsNull.nullValue
-import org.junit.After
 import org.junit.Assert.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.junit.MockitoJUnit
@@ -15,16 +13,6 @@ import java.io.File
 class CheckSummerTest : BaseTest() {
 
     @get:Rule var rule: MockitoRule = MockitoJUnit.rule()
-
-    @Before
-    override fun setup() {
-        super.setup()
-    }
-
-    @After
-    override fun tearDown() {
-        super.tearDown()
-    }
 
     @Test
     fun `test String to MD5`() {

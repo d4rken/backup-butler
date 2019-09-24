@@ -8,10 +8,17 @@ import java.util.*
 data class MMRef(
         val refId: Id,
         val backupId: Backup.Id,
-        val type: Type,
         val tmpPath: File,
         val originalPath: AFile
 ) {
+
+    val type: Type
+        get() = when {
+            tmpPath.isDirectory -> Type.DIRECTORY
+            tmpPath.isFile -> Type.FILE
+            !tmpPath.exists() -> Type.NONE
+            else -> throw IllegalStateException("$tmpPath is an unknown type")
+        }
 
     val props: Props
         get() {
@@ -27,7 +34,7 @@ data class MMRef(
     )
 
     enum class Type {
-        FILE, DIRECTORY
+        FILE, DIRECTORY, NONE
     }
 
     data class Id(val id: UUID = UUID.randomUUID()) {
@@ -35,12 +42,5 @@ data class MMRef(
         val idString = id.toString()
 
         override fun toString(): String = "MMRef.Id($idString)"
-    }
-}
-
-fun AFile.Type.toMMRefType(): MMRef.Type {
-    return when (this) {
-        AFile.Type.FILE -> MMRef.Type.FILE
-        AFile.Type.DIRECTORY -> MMRef.Type.DIRECTORY
     }
 }

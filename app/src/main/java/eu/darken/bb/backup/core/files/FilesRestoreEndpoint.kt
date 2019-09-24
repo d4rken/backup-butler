@@ -13,7 +13,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import io.reactivex.Observable
 import timber.log.Timber
 import java.io.File
@@ -50,12 +50,15 @@ class FilesRestoreEndpoint @Inject constructor(
                 continue
             }
             when (ref.type) {
-                MMRef.Type.FILE -> {
+                FILE -> {
                     itemFile.parentFile.mkdirs()
                     ref.tmpPath.copyTo(itemFile)
                 }
-                MMRef.Type.DIRECTORY -> {
+                DIRECTORY -> {
                     itemFile.mkdirs()
+                }
+                NONE -> {
+                    Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
                 }
             }
 
