@@ -2,12 +2,12 @@ package eu.darken.bb.common.file
 
 import java.io.File
 
-data class JavaFile(
-        override val type: AFile.Type,
+data class JavaPath(
+        override val type: APath.Type,
         val file: File
-) : AFile {
+) : APath {
 
-    override val pathType: AFile.SFileType = AFile.SFileType.JAVA
+    override val pathType: APath.SFileType = APath.SFileType.JAVA
 
     override val path: String
         get() = file.path
@@ -18,11 +18,11 @@ data class JavaFile(
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {
-        fun build(type: AFile.Type? = null, base: File, vararg crumbs: String): JavaFile {
+        fun build(type: APath.Type? = null, base: File, vararg crumbs: String): JavaPath {
             return build(type, base.path, *crumbs)
         }
 
-        fun build(type: AFile.Type? = null, vararg crumbs: String): JavaFile {
+        fun build(type: APath.Type? = null, vararg crumbs: String): JavaPath {
             var compacter = File(crumbs[0])
             for (i in 1 until crumbs.size) {
                 compacter = File(compacter, crumbs[i])
@@ -30,16 +30,16 @@ data class JavaFile(
             return build(type, compacter)
         }
 
-        fun build(type: AFile.Type? = null, file: File): JavaFile {
+        fun build(type: APath.Type? = null, file: File): JavaPath {
             var fileType = type
             if (fileType == null) {
                 fileType = when {
-                    file.isDirectory -> AFile.Type.DIRECTORY
-                    file.isFile -> AFile.Type.FILE
+                    file.isDirectory -> APath.Type.DIRECTORY
+                    file.isFile -> APath.Type.FILE
                     else -> throw NotImplementedError("Unknown type: $file")
                 }
             }
-            return JavaFile(fileType, file.canonicalFile)
+            return JavaPath(fileType, file.canonicalFile)
         }
     }
 }

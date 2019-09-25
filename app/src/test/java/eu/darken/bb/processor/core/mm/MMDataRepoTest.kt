@@ -1,8 +1,8 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.AFile
-import eu.darken.bb.common.file.SimpleFile
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.SimplePath
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -30,8 +30,8 @@ class MMDataRepoTest : BaseTest() {
         val repo = MMDataRepo(testDir)
         File(testDir, CACHEDIR).exists() shouldBe true
 
-        val ref1 = repo.create(Backup.Id(), SimpleFile.build(AFile.Type.FILE, "originalpath"))
-        val ref2 = repo.create(Backup.Id(), SimpleFile.build(AFile.Type.FILE, "originalpath"))
+        val ref1 = repo.create(Backup.Id(), SimplePath.build(APath.Type.FILE, "originalpath"))
+        val ref2 = repo.create(Backup.Id(), SimplePath.build(APath.Type.FILE, "originalpath"))
         ref1.tmpPath.mkdir()
         ref1.type shouldBe MMRef.Type.DIRECTORY
 
@@ -39,7 +39,7 @@ class MMDataRepoTest : BaseTest() {
         ref2.type shouldBe MMRef.Type.FILE
 
         repo.wipe()
-        ref1.type shouldBe MMRef.Type.NONE
-        ref2.type shouldBe MMRef.Type.NONE
+        ref1.type shouldBe MMRef.Type.UNUSED
+        ref2.type shouldBe MMRef.Type.UNUSED
     }
 }

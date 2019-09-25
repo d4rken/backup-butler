@@ -8,7 +8,7 @@ import androidx.core.content.FileProvider
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.AFile
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.asFile
 import timber.log.Timber
 import java.util.*
@@ -19,7 +19,7 @@ class ShareBuilder @Inject constructor(
 ) {
     private var useChooser: Boolean = false
     private var chooserTitle: String? = null
-    private val files = ArrayList<AFile>()
+    private val files = ArrayList<APath>()
     private var extraSubject: String? = null
     private var extraText: String? = null
     private val emails = ArrayList<String>()
@@ -87,13 +87,13 @@ class ShareBuilder @Inject constructor(
         return text(formatted.toString())
     }
 
-    fun file(file: AFile): ShareBuilder {
-        return files(setOf(file))
+    fun file(path: APath): ShareBuilder {
+        return files(setOf(path))
     }
 
-    fun files(files: Collection<AFile>): ShareBuilder {
-        if (files.isEmpty()) throw IllegalArgumentException("Trying to share empty list of files")
-        this.files.addAll(files)
+    fun files(paths: Collection<APath>): ShareBuilder {
+        if (paths.isEmpty()) throw IllegalArgumentException("Trying to share empty list of files")
+        this.files.addAll(paths)
         return this
     }
 
@@ -107,9 +107,9 @@ class ShareBuilder @Inject constructor(
         return this
     }
 
-    private fun addAccessibleFiles(context: Context, intent: Intent, files: Collection<AFile>): ArrayList<Uri> {
+    private fun addAccessibleFiles(context: Context, intent: Intent, paths: Collection<APath>): ArrayList<Uri> {
         val uris = ArrayList<Uri>()
-        for (f in files) {
+        for (f in paths) {
             if (ApiHelper.hasAndroidN()) {
                 uris.add(FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f.asFile()))
             } else {

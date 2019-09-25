@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import eu.darken.bb.App
-import eu.darken.bb.common.file.SAFFile
+import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.file.tryMkFile
 import eu.darken.bb.storage.core.saf.SAFGateway
 import okio.Okio
@@ -86,7 +86,7 @@ fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
     return value
 }
 
-fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFFile) {
+fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) {
     if (!safGateway.exists(file)) {
         safGateway.create(file)
     }
@@ -95,7 +95,7 @@ fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFFile
     }
 }
 
-fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFFile): T? {
+fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T? {
     return safGateway.openFile(file, SAFGateway.FileMode.READ) {
         this.fromFileDescriptor(it)
     }

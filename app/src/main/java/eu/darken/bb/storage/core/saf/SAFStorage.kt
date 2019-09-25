@@ -46,8 +46,8 @@ class SAFStorage @AssistedInject constructor(
 ) : Storage, HasContext, Progress.Client {
 
     private val storageRef: SAFStorageRef = storageRef as SAFStorageRef
-    private val storageRoot: SAFFile = this.storageRef.path as SAFFile
-    private lateinit var dataDir: SAFFile
+    private val storageRoot: SAFPath = this.storageRef.path as SAFPath
+    private lateinit var dataDir: SAFPath
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val versioningAdapter = moshi.adapter(Versioning::class.java)
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
@@ -321,7 +321,7 @@ class SAFStorage @AssistedInject constructor(
             .doOnSubscribe { Timber.w("wipe().doOnSubscribe %s", storageRef) }
             .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
 
-    private fun getBackupDir(specId: BackupSpec.Id): SAFFile {
+    private fun getBackupDir(specId: BackupSpec.Id): SAFPath {
         return dataDir.childDir(specId.value)
     }
 
@@ -360,6 +360,6 @@ class SAFStorage @AssistedInject constructor(
 
 }
 
-internal fun Versioning.Version.getRevDir(base: SAFFile): SAFFile {
+internal fun Versioning.Version.getRevDir(base: SAFPath): SAFPath {
     return base.childDir(backupId.idString)
 }

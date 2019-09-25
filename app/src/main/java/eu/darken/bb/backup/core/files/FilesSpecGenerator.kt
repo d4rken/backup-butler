@@ -7,7 +7,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.AFile
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.asSFile
 import java.io.File
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class FilesSpecGenerator @Inject constructor(
     data class Config(
             override val generatorId: Generator.Id,
             override val label: String = "",
-            val path: AFile = File(Environment.getExternalStorageDirectory(), "Download").asSFile()
+            val path: APath = File(Environment.getExternalStorageDirectory(), "Download").asSFile()
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {

@@ -8,8 +8,8 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.AFile
-import eu.darken.bb.common.file.SAFFile
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.file.childDir
 import eu.darken.bb.common.file.childFile
 import timber.log.Timber
@@ -20,7 +20,7 @@ class SAFGateway @Inject constructor(
         @AppContext private val context: Context,
         private val contentResolver: ContentResolver
 ) {
-    private fun getDocumentFile(file: SAFFile): DocumentFile? {
+    private fun getDocumentFile(file: SAFPath): DocumentFile? {
         val treeRoot = DocumentFile.fromTreeUri(context, file.treeRoot)
         checkNotNull(treeRoot) { "Couldn't create DocumentFile for: $treeRoot" }
 
@@ -34,9 +34,9 @@ class SAFGateway @Inject constructor(
         return current
     }
 
-    fun create(file: SAFFile): SAFFile {
+    fun create(file: SAFPath): SAFPath {
         val documentFile = createDocumentFile(file.mimeType, file.treeRoot, file.segments)
-        return SAFFile.build(documentFile)
+        return SAFPath.build(documentFile)
     }
 
     private fun createDocumentFile(mimeType: String, treeUri: Uri, segments: List<String>): DocumentFile {
@@ -70,7 +70,7 @@ class SAFGateway @Inject constructor(
         return currentRoot
     }
 
-    fun listFiles(file: SAFFile): List<SAFFile>? {
+    fun listFiles(file: SAFPath): List<SAFPath>? {
         return getDocumentFile(file)?.listFiles()?.map {
             val name = it.name ?: it.uri.pathSegments.last().split('/').last()
             when {
@@ -81,19 +81,19 @@ class SAFGateway @Inject constructor(
         }
     }
 
-    fun exists(file: SAFFile): Boolean {
+    fun exists(file: SAFPath): Boolean {
         return getDocumentFile(file)?.exists() == true
     }
 
-    fun delete(file: SAFFile): Boolean {
+    fun delete(file: SAFPath): Boolean {
         return getDocumentFile(file)?.delete() == true
     }
 
-    fun canWrite(file: SAFFile): Boolean {
+    fun canWrite(file: SAFPath): Boolean {
         return getDocumentFile(file)?.canWrite() == true
     }
 
-    fun isDirectory(file: SAFFile): Boolean {
+    fun isDirectory(file: SAFPath): Boolean {
         return getDocumentFile(file)?.isDirectory == true
     }
 
@@ -101,7 +101,7 @@ class SAFGateway @Inject constructor(
         WRITE("w"), READ("r")
     }
 
-    fun <T> openFile(file: SAFFile, mode: FileMode, action: (FileDescriptor) -> T): T {
+    fun <T> openFile(file: SAFPath, mode: FileMode, action: (FileDescriptor) -> T): T {
         val docFile = getDocumentFile(file)
         checkNotNull(docFile) { "Can't find $file" }
 
@@ -112,7 +112,7 @@ class SAFGateway @Inject constructor(
         }
     }
 
-    fun takePermission(file: SAFFile): Boolean {
+    fun takePermission(file: SAFPath): Boolean {
         var permissionTaken = false
         try {
             contentResolver.takePersistableUriPermission(file.treeRoot, RW_FLAGSINT)
@@ -127,16 +127,16 @@ class SAFGateway @Inject constructor(
         return permissionTaken
     }
 
-    fun releasePermission(file: SAFFile): Boolean {
+    fun releasePermission(file: SAFPath): Boolean {
         contentResolver.releasePersistableUriPermission(file.treeRoot, RW_FLAGSINT)
         return true
     }
 
-    fun getPermissions(): Collection<SAFFile> {
-        return contentResolver.persistedUriPermissions.map { SAFFile.build(AFile.Type.DIRECTORY, it.uri) }
+    fun getPermissions(): Collection<SAFPath> {
+        return contentResolver.persistedUriPermissions.map { SAFPath.build(APath.Type.DIRECTORY, it.uri) }
     }
 
-    fun hasPermission(path: SAFFile): Boolean {
+    fun hasPermission(path: SAFPath): Boolean {
         return getPermissions().contains(path)
     }
 

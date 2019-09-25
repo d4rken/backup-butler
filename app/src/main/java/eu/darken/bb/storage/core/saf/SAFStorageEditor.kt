@@ -9,8 +9,8 @@ import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.AFile
-import eu.darken.bb.common.file.SAFFile
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.file.childFile
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
@@ -31,13 +31,13 @@ class SAFStorageEditor @AssistedInject constructor(
     private val configPub = HotData(SAFStorageConfig(storageId = storageId))
     override val config = configPub.data
 
-    internal var refPath: SAFFile? = null
+    internal var refPath: SAFPath? = null
     override var isExistingStorage: Boolean = false
 
     fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
 
     fun updatePath(uri: Uri) {
-        val path = SAFFile.build(AFile.Type.DIRECTORY, uri)
+        val path = SAFPath.build(APath.Type.DIRECTORY, uri)
         try {
             safGateway.takePermission(path)
         } catch (e: Throwable) {
@@ -65,7 +65,7 @@ class SAFStorageEditor @AssistedInject constructor(
 
     override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
         ref as SAFStorageRef
-        ref.path as SAFFile
+        ref.path as SAFPath
 
         val config = configAdapter.fromSAFFile(safGateway, ref.path.childFile(STORAGE_CONFIG))
 

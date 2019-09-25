@@ -11,7 +11,7 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.AFile
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.moshi.*
 import eu.darken.bb.processor.core.mm.CachePath
 import eu.darken.bb.storage.core.Storage
@@ -30,7 +30,7 @@ class AppModule {
             .add(BackupSpec.MOSHI_FACTORY)
             .add(Restore.Config.MOSHI_FACTORY)
             .add(Generator.Config.MOSHI_FACTORY)
-            .add(AFile.MOSHI_FACTORY)
+            .add(APath.MOSHI_FACTORY)
             .add(Storage.Ref.MOSHI_FACTORY)
             .add(Storage.Config.MOSHI_FACTORY)
             .add(Versioning.MOSHI_FACTORY)

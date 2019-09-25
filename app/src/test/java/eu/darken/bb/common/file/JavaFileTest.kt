@@ -17,10 +17,10 @@ class JavaFileTest {
     @Test
     fun testSerialization() {
         testFile.tryMkFile()
-        val original = JavaFile.build(file = testFile)
+        val original = JavaPath.build(file = testFile)
 
         val moshi = AppModule().moshi()
-        val adapter = moshi.adapter(AFile::class.java)
+        val adapter = moshi.adapter(APath::class.java)
 
         val json = adapter.toJson(original)
         assertThat(json)
@@ -29,7 +29,7 @@ class JavaFileTest {
                 .contains("\"file\":\"${testFile.canonicalPath}\"")
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(JavaFile::class.java)
+        assertThat(restored).isInstanceOf(JavaPath::class.java)
         assertThat(restored).isEqualTo(original)
     }
 }

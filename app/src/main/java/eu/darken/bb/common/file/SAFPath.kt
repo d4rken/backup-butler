@@ -7,11 +7,11 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 
-data class SAFFile(
+data class SAFPath(
         internal val mimeType: String,
         internal val treeRoot: Uri,
         internal val segments: List<String>
-) : AFile {
+) : APath {
 
     init {
         check(SAFGateway.isTreeUri(treeRoot)) {
@@ -19,13 +19,13 @@ data class SAFFile(
         }
     }
 
-    override val type: AFile.Type
+    override val type: APath.Type
         get() = when (mimeType) {
-            DIR_TYPE -> AFile.Type.DIRECTORY
-            else -> AFile.Type.FILE
+            DIR_TYPE -> APath.Type.DIRECTORY
+            else -> APath.Type.FILE
         }
 
-    override val pathType: AFile.SFileType = AFile.SFileType.SAF
+    override val pathType: APath.SFileType = APath.SFileType.SAF
 
     override val path: String
         get() = segments.joinToString(File.pathSeparator)
@@ -33,11 +33,11 @@ data class SAFFile(
     override val name: String
         get() = segments.last()
 
-    fun listFiles(gateway: SAFGateway): List<SAFFile>? = gateway.listFiles(this)
+    fun listFiles(gateway: SAFGateway): List<SAFPath>? = gateway.listFiles(this)
 
     fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
 
-    fun child(type: AFile.Type, vararg segments: String): SAFFile {
+    fun child(type: APath.Type, vararg segments: String): SAFPath {
         return build(type, this.treeRoot, *this.segments.toTypedArray(), *segments)
     }
 
@@ -48,29 +48,29 @@ data class SAFFile(
     override fun toString(): String = "SAFFile(treeRoot=$treeRoot, segments=$segments)"
 
     companion object {
-        fun build(documentFile: DocumentFile): SAFFile {
-            val type: AFile.Type = when {
-                documentFile.isFile -> AFile.Type.FILE
-                documentFile.isDirectory -> AFile.Type.DIRECTORY
+        fun build(documentFile: DocumentFile): SAFPath {
+            val type: APath.Type = when {
+                documentFile.isFile -> APath.Type.FILE
+                documentFile.isDirectory -> APath.Type.DIRECTORY
                 else -> throw IllegalArgumentException("Neither file nor folder: $documentFile")
             }
             val mimeType = when (type) {
-                AFile.Type.FILE -> documentFile.type ?: FILE_TYPE_DEFAULT
-                AFile.Type.DIRECTORY -> DIR_TYPE
+                APath.Type.FILE -> documentFile.type ?: FILE_TYPE_DEFAULT
+                APath.Type.DIRECTORY -> DIR_TYPE
             }
             return build(mimeType, documentFile.uri)
         }
 
-        fun build(type: AFile.Type, base: Uri, vararg segs: String): SAFFile {
+        fun build(type: APath.Type, base: Uri, vararg segs: String): SAFPath {
             val mimeType = when (type) {
-                AFile.Type.FILE -> FILE_TYPE_DEFAULT
-                AFile.Type.DIRECTORY -> DIR_TYPE
+                APath.Type.FILE -> FILE_TYPE_DEFAULT
+                APath.Type.DIRECTORY -> DIR_TYPE
             }
             return build(mimeType, base, *segs)
         }
 
-        fun build(mimeType: String, base: Uri, vararg segs: String): SAFFile {
-            return SAFFile(mimeType, base, segs.toList())
+        fun build(mimeType: String, base: Uri, vararg segs: String): SAFPath {
+            return SAFPath(mimeType, base, segs.toList())
         }
 
         private const val DIR_TYPE: String = DocumentsContract.Document.MIME_TYPE_DIR
@@ -79,11 +79,11 @@ data class SAFFile(
 }
 
 
-fun SAFFile.childFile(vararg segments: String) = child(AFile.Type.FILE, *segments)
+fun SAFPath.childFile(vararg segments: String) = child(APath.Type.FILE, *segments)
 
-fun SAFFile.childDir(vararg segments: String) = child(AFile.Type.DIRECTORY, *segments)
+fun SAFPath.childDir(vararg segments: String) = child(APath.Type.DIRECTORY, *segments)
 
-fun SAFFile.requireExists(gateway: SAFGateway): SAFFile {
+fun SAFPath.requireExists(gateway: SAFGateway): SAFPath {
     if (!this.exists(gateway)) {
         val ex = IllegalStateException("Path doesn't exist, but should: $this")
         Timber.w(ex)
@@ -92,7 +92,7 @@ fun SAFFile.requireExists(gateway: SAFGateway): SAFFile {
     return this
 }
 
-fun SAFFile.requireNotExists(gateway: SAFGateway): SAFFile {
+fun SAFPath.requireNotExists(gateway: SAFGateway): SAFPath {
     if (this.exists(gateway)) {
         val ex = IllegalStateException("Path exist, but shouldn't: $this")
         Timber.w(ex)
@@ -101,7 +101,7 @@ fun SAFFile.requireNotExists(gateway: SAFGateway): SAFFile {
     return this
 }
 
-fun SAFFile.tryMkDirs(gateway: SAFGateway): SAFFile {
+fun SAFPath.tryMkDirs(gateway: SAFGateway): SAFPath {
     if (exists(gateway)) {
         if (gateway.isDirectory(this)) {
             Timber.v("Directory already exists, not creating: %s", this)
@@ -123,7 +123,7 @@ fun SAFFile.tryMkDirs(gateway: SAFGateway): SAFFile {
     }
 }
 
-fun SAFFile.deleteAll(gateway: SAFGateway) {
+fun SAFPath.deleteAll(gateway: SAFGateway) {
     if (gateway.isDirectory(this)) {
         listFiles(gateway)?.forEach { it.deleteAll(gateway) }
     }

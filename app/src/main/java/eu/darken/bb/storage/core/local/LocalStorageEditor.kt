@@ -8,8 +8,8 @@ import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.RuntimePermissionTool
-import eu.darken.bb.common.file.AFile
-import eu.darken.bb.common.file.JavaFile
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.JavaPath
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
@@ -86,7 +86,7 @@ class LocalStorageEditor @AssistedInject constructor(
         val config = configPub.snapshot
         val ref = LocalStorageRef(
                 storageId = config.storageId,
-                path = JavaFile.build(AFile.Type.DIRECTORY, refPath)
+                path = JavaPath.build(APath.Type.DIRECTORY, refPath)
         )
         configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
         return@fromCallable Pair(ref, config)

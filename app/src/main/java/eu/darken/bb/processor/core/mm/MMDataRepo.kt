@@ -3,7 +3,7 @@ package eu.darken.bb.processor.core.mm
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.AFile
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.deleteAll
 import timber.log.Timber
 import java.io.File
@@ -40,7 +40,7 @@ class MMDataRepo @Inject constructor(
     }
 
     @Synchronized
-    fun create(backupId: Backup.Id, orig: AFile): MMRef {
+    fun create(backupId: Backup.Id, orig: APath): MMRef {
         val refId = MMRef.Id()
 
         val ref = MMRef(

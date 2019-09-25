@@ -26,8 +26,8 @@ fun File(vararg crumbs: String): File {
     return compacter
 }
 
-fun File.asSFile(): AFile {
-    return JavaFile.build(file = this)
+fun File.asSFile(): APath {
+    return JavaPath.build(file = this)
 }
 
 fun File.requireExists(): File {
