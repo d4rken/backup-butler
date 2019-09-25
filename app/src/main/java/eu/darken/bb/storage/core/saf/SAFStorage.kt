@@ -67,12 +67,7 @@ class SAFStorage @AssistedInject constructor(
         val config = configEditor.load(this.storageRef).map { it as Opt<SAFStorageConfig> }.blockingGet()
         if (config.isNull) throw MissingFileException(this.storageRef.path)
         storageConfig = config.notNullValue()
-        dataDir = storageRoot.childDir("data")
-        if (!safGateway.exists(dataDir)) {
-            checkNotNull(safGateway.create(dataDir)) {
-                "Failed to create datadir: $dataDir"
-            }
-        }
+        dataDir = storageRoot.child("data").tryMkDirs(safGateway)
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
@@ -88,13 +83,13 @@ class SAFStorage @AssistedInject constructor(
 //                }
 
                 for (backupDir in files) {
-                    if (backupDir.isFile) {
+                    if (backupDir.isFile(safGateway)) {
                         Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
                         continue
                     }
 
                     val backupConfig = try {
-                        specAdapter.fromSAFFile(safGateway, backupDir.childFile(SPEC_FILE))
+                        specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
                     } catch (e: Exception) {
                         Timber.tag(TAG).w(e, "Failed to read specfile")
                         null
@@ -154,7 +149,7 @@ class SAFStorage @AssistedInject constructor(
         val backupDir = getBackupDir(item.backupSpec.specId).requireExists(safGateway)
         val versionDir = getVersioning(item.backupSpec.specId)!!.getVersion(backupId)!!.getRevDir(backupDir).requireExists(safGateway)
 
-        val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.childFile(SPEC_FILE))
+        val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
         checkNotNull(backupSpec) { "Can't read $backupDir" }
 
         return Observable.fromCallable { backupDir.listFiles(safGateway) }
@@ -196,12 +191,13 @@ class SAFStorage @AssistedInject constructor(
 
                     when (prop.refType) {
                         FILE -> {
-                            val dataFile = revisionPath.childFile(propFile.name.replace(PROP_EXT, DATA_EXT))
+                            val dataFile = revisionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
                             safGateway.openFile(dataFile, SAFGateway.FileMode.READ) { it.copyTo(tmpRef.tmpPath) }
                         }
                         DIRECTORY -> {
                             tmpRef.tmpPath.mkdirs()
                         }
+                        MMRef.Type.UNUSED -> throw IllegalStateException("$prop is unused")
                     }
 
                     val keySplit = propFile.name.split("#")
@@ -221,9 +217,8 @@ class SAFStorage @AssistedInject constructor(
 
         val backupDir = getBackupDir(backup.spec.specId).tryMkDirs(safGateway)
 
-        val specFile = backupDir.childFile(SPEC_FILE)
+        val specFile = backupDir.child(SPEC_FILE)
         if (!specFile.exists(safGateway)) {
-
             specAdapter.toSAFFile(backup.spec, safGateway, specFile)
         } else {
             val existingSpec = specAdapter.fromSAFFile(safGateway, specFile)
@@ -244,19 +239,20 @@ class SAFStorage @AssistedInject constructor(
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
-                val targetProp = revisionDir.childFile("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
+                val targetProp = revisionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)
 
                 when (ref.type) {
                     FILE -> {
-                        val target = revisionDir.childFile("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
-                        safGateway.create(target)
+                        val target = revisionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
+                        target.tryCreateFile(safGateway)
                         safGateway.openFile(target, SAFGateway.FileMode.WRITE) { ref.tmpPath.copyTo(it) }
                     }
                     DIRECTORY -> {
-                        val target = revisionDir.childDir("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
-                        safGateway.create(target)
+                        val target = revisionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
+                        target.tryMkDirs(safGateway)
                     }
+                    MMRef.Type.UNUSED -> throw IllegalStateException("$ref is unused")
                 }
             }
         }
@@ -322,11 +318,11 @@ class SAFStorage @AssistedInject constructor(
             .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
 
     private fun getBackupDir(specId: BackupSpec.Id): SAFPath {
-        return dataDir.childDir(specId.value)
+        return dataDir.child(specId.value)
     }
 
     private fun getVersioning(specId: BackupSpec.Id): Versioning? {
-        val revisionConfigFile = getBackupDir(specId).childFile(VERSIONING_FILE)
+        val revisionConfigFile = getBackupDir(specId).child(VERSIONING_FILE)
         return try {
             versioningAdapter.fromSAFFile(safGateway, revisionConfigFile)
         } catch (e: Exception) {
@@ -339,7 +335,7 @@ class SAFStorage @AssistedInject constructor(
         val existing = getVersioning(specId)
         val newVersioning = update.invoke(existing ?: SimpleVersioning())
         if (newVersioning != existing) {
-            val revisionConfigFile = getBackupDir(specId).childFile(VERSIONING_FILE)
+            val revisionConfigFile = getBackupDir(specId).child(VERSIONING_FILE)
             versioningAdapter.toSAFFile(newVersioning, safGateway, revisionConfigFile)
         }
         return newVersioning
@@ -361,5 +357,5 @@ class SAFStorage @AssistedInject constructor(
 }
 
 internal fun Versioning.Version.getRevDir(base: SAFPath): SAFPath {
-    return base.childDir(backupId.idString)
+    return base.child(backupId.idString)
 }

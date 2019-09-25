@@ -8,10 +8,7 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SAFPath
-import eu.darken.bb.common.file.childDir
-import eu.darken.bb.common.file.childFile
 import timber.log.Timber
 import java.io.FileDescriptor
 import javax.inject.Inject
@@ -34,9 +31,12 @@ class SAFGateway @Inject constructor(
         return current
     }
 
-    fun create(file: SAFPath): SAFPath {
-        val documentFile = createDocumentFile(file.mimeType, file.treeRoot, file.segments)
-        return SAFPath.build(documentFile)
+    fun createFile(path: SAFPath): SAFPath {
+        return SAFPath.build(createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.segments))
+    }
+
+    fun createDir(path: SAFPath): SAFPath {
+        return SAFPath.build(createDocumentFile(DIR_TYPE, path.treeRoot, path.segments))
     }
 
     private fun createDocumentFile(mimeType: String, treeUri: Uri, segments: List<String>): DocumentFile {
@@ -73,67 +73,67 @@ class SAFGateway @Inject constructor(
     fun listFiles(file: SAFPath): List<SAFPath>? {
         return getDocumentFile(file)?.listFiles()?.map {
             val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-            when {
-                it.isDirectory -> file.childDir(name)
-                it.isFile -> file.childFile(name)
-                else -> throw IllegalArgumentException("$it is unknown type")
-            }
+            file.child(name)
         }
     }
 
-    fun exists(file: SAFPath): Boolean {
-        return getDocumentFile(file)?.exists() == true
+    fun exists(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.exists() == true
     }
 
-    fun delete(file: SAFPath): Boolean {
-        return getDocumentFile(file)?.delete() == true
+    fun delete(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.delete() == true
     }
 
-    fun canWrite(file: SAFPath): Boolean {
-        return getDocumentFile(file)?.canWrite() == true
+    fun canWrite(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.canWrite() == true
     }
 
-    fun isDirectory(file: SAFPath): Boolean {
-        return getDocumentFile(file)?.isDirectory == true
+    fun isFile(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.isFile == true
+    }
+
+    fun isDirectory(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.isDirectory == true
     }
 
     enum class FileMode constructor(val value: String) {
         WRITE("w"), READ("r")
     }
 
-    fun <T> openFile(file: SAFPath, mode: FileMode, action: (FileDescriptor) -> T): T {
-        val docFile = getDocumentFile(file)
-        checkNotNull(docFile) { "Can't find $file" }
+    fun <T> openFile(path: SAFPath, mode: FileMode, action: (FileDescriptor) -> T): T {
+        val docFile = getDocumentFile(path)
+        checkNotNull(docFile) { "Can't find $path" }
 
         contentResolver.openFileDescriptor(docFile.uri, mode.value).use { pfd ->
-            checkNotNull(pfd) { "Couldn't open $file" }
+            checkNotNull(pfd) { "Couldn't open $path" }
             val fileDescriptor = pfd.fileDescriptor
             return action.invoke(fileDescriptor)
         }
     }
 
-    fun takePermission(file: SAFPath): Boolean {
+    fun takePermission(path: SAFPath): Boolean {
         var permissionTaken = false
         try {
-            contentResolver.takePersistableUriPermission(file.treeRoot, RW_FLAGSINT)
+            contentResolver.takePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
             permissionTaken = true
         } catch (e: SecurityException) {
             Timber.tag(TAG).e(e, "Failed to take permission")
             try {
-                contentResolver.releasePersistableUriPermission(file.treeRoot, RW_FLAGSINT)
+                contentResolver.releasePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
             } catch (ignore: SecurityException) {
             }
         }
         return permissionTaken
     }
 
-    fun releasePermission(file: SAFPath): Boolean {
-        contentResolver.releasePersistableUriPermission(file.treeRoot, RW_FLAGSINT)
+    fun releasePermission(path: SAFPath): Boolean {
+        contentResolver.releasePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
         return true
     }
 
     fun getPermissions(): Collection<SAFPath> {
-        return contentResolver.persistedUriPermissions.map { SAFPath.build(APath.Type.DIRECTORY, it.uri) }
+        return contentResolver.persistedUriPermissions.map { SAFPath.build(it.uri) }
     }
 
     fun hasPermission(path: SAFPath): Boolean {
@@ -150,6 +150,8 @@ class SAFGateway @Inject constructor(
         val TAG = App.logTag("SAF", "Gateway")
 
         const val RW_FLAGSINT = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        private const val DIR_TYPE: String = DocumentsContract.Document.MIME_TYPE_DIR
+        private const val FILE_TYPE_DEFAULT: String = "application/octet-stream"
 
         fun isTreeUri(uri: Uri): Boolean {
             val paths = uri.pathSegments

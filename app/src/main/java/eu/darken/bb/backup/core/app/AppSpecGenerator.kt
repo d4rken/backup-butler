@@ -18,7 +18,7 @@ class AppSpecGenerator @Inject constructor(
         config as AppSpecGenerator.Config
         val specs = mutableListOf<BackupSpec>()
         context.packageManager.getInstalledPackages(0)
-        context.packageManager.getInstalledPackages(0).map { it.packageName }.forEach { pkg ->
+        context.packageManager.getInstalledPackages(0).subList(0, 10).map { it.packageName }.forEach { pkg ->
             val app = AppBackupSpec(
                     packageName = pkg
             )

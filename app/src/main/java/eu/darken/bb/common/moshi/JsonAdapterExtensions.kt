@@ -88,7 +88,7 @@ fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
 
 fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) {
     if (!safGateway.exists(file)) {
-        safGateway.create(file)
+        safGateway.createFile(file)
     }
     return safGateway.openFile(file, SAFGateway.FileMode.WRITE) {
         this.toFileDescriptor(value, it)

@@ -3,6 +3,7 @@ package eu.darken.bb.common
 import android.webkit.MimeTypeMap
 import eu.darken.bb.App
 import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.asFile
 import timber.log.Timber
 import java.util.*
 
@@ -73,7 +74,7 @@ object MimeHelper {
         extension = extension.toLowerCase(Locale.ROOT)
 
         var mimeType: String? = null
-        if (path.type == APath.Type.DIRECTORY) mimeType = "vnd.android.document/directory"
+        if (path.asFile().isDirectory) mimeType = "vnd.android.document/directory"
         if (mimeType == null) mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
         if (mimeType == null) mimeType = MIMES[extension]
         if (mimeType == null) mimeType = TYPE_UNSPECIFIC

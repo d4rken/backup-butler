@@ -9,9 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SAFPath
-import eu.darken.bb.common.file.childFile
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
 import eu.darken.bb.storage.core.Storage
@@ -37,7 +35,7 @@ class SAFStorageEditor @AssistedInject constructor(
     fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
 
     fun updatePath(uri: Uri) {
-        val path = SAFPath.build(APath.Type.DIRECTORY, uri)
+        val path = SAFPath.build(uri)
         try {
             safGateway.takePermission(path)
         } catch (e: Throwable) {
@@ -67,7 +65,7 @@ class SAFStorageEditor @AssistedInject constructor(
         ref as SAFStorageRef
         ref.path as SAFPath
 
-        val config = configAdapter.fromSAFFile(safGateway, ref.path.childFile(STORAGE_CONFIG))
+        val config = configAdapter.fromSAFFile(safGateway, ref.path.child(STORAGE_CONFIG))
 
         if (config != null) {
             configPub.update { config }
@@ -85,7 +83,7 @@ class SAFStorageEditor @AssistedInject constructor(
                 path = refPath!!
         )
 
-        val configFile = refPath!!.childFile(STORAGE_CONFIG)
+        val configFile = refPath!!.child(STORAGE_CONFIG)
         configAdapter.toSAFFile(config, safGateway, configFile)
 
         return@fromCallable Pair(ref, config)
