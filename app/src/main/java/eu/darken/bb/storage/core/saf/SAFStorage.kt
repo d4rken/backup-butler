@@ -15,7 +15,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.*
-import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
 import eu.darken.bb.common.progress.Progress
@@ -25,14 +24,14 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
+import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
 import eu.darken.bb.storage.core.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -152,26 +151,25 @@ class SAFStorage @AssistedInject constructor(
 
     override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
         item as SAFStorageItem
-        val backupDir = item.path.asFile().requireExists()
-        val versionDir = File(backupDir, backupId.idString).requireExists()
+        val backupDir = getBackupDir(item.backupSpec.specId).requireExists(safGateway)
+        val versionDir = getVersioning(item.backupSpec.specId)!!.getVersion(backupId)!!.getRevDir(backupDir).requireExists(safGateway)
 
-        val backupSpec = specAdapter.fromFile(File(backupDir, SPEC_FILE))
+        val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.childFile(SPEC_FILE))
         checkNotNull(backupSpec) { "Can't read $backupDir" }
 
-        return Observable.fromCallable { backupDir.listFiles() }
+        return Observable.fromCallable { backupDir.listFiles(safGateway) }
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-                .filterUnchanged()
                 .map {
-                    val items = versionDir.listFiles()
-                            .filter { it.path.endsWith(PROP_EXT) }
-                            .map { file ->
-                                val props = propsAdapter.fromFile(file)
+                    val items = versionDir.listFiles(safGateway)
+                            ?.filter { it.name.endsWith(PROP_EXT) }
+                            ?.map { file ->
+                                val props = propsAdapter.fromSAFFile(safGateway, file)
                                 checkNotNull(props) { "Can't read props from $file" }
                                 object : Storage.Item.Content.Entry {
                                     override val label: String = backupSpec.getContentEntryLabel(props)
                                 }
                             }
-                            .toList()
+                            ?.toList() ?: emptyList()
                     return@map Storage.Item.Content(items)
                 }
                 .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
@@ -182,38 +180,36 @@ class SAFStorage @AssistedInject constructor(
 
     override fun load(item: Storage.Item, backupId: Backup.Id): Backup.Unit {
         item as SAFStorageItem
-        val backupDir = item.path.asFile().requireExists()
-
+        val backupDir = getBackupDir(item.backupSpec.specId)
         val version = item.versioning.getVersion(backupId)
         requireNotNull(version) { "BackupReference $item does not contain $backupId" }
 
         val backupBuilder = BaseBackupBuilder(item.backupSpec, backupId)
 
-        val revisionPath = File(backupDir, version.backupId.idString).requireExists()
+        val revisionPath = version.getRevDir(backupDir).requireExists(safGateway)
 
-        revisionPath.listFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
-            val prop = propsAdapter.fromFile(propFile)!!
-            val tmpRef = mmDataRepo.create(backupId, prop)
+        revisionPath.listFiles(safGateway)!!
+                .filter { it.name.endsWith(PROP_EXT) }
+                .forEach { propFile ->
+                    val prop = propsAdapter.fromSAFFile(safGateway, propFile)!!
+                    val tmpRef = mmDataRepo.create(backupId, prop)
 
-            when (tmpRef.type) {
-                FILE -> {
-                    val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
-                    dataFile.copyTo(tmpRef.tmpPath)
-                }
-                DIRECTORY -> {
-                    tmpRef.tmpPath.mkdirs()
-                }
-                NONE -> {
-                    Timber.tag(TAG).e("Ref is unused: %s", tmpRef.tmpPath)
-                }
-            }
+                    when (prop.refType) {
+                        FILE -> {
+                            val dataFile = revisionPath.childFile(propFile.name.replace(PROP_EXT, DATA_EXT))
+                            safGateway.openFile(dataFile, SAFGateway.FileMode.READ) { it.copyTo(tmpRef.tmpPath) }
+                        }
+                        DIRECTORY -> {
+                            tmpRef.tmpPath.mkdirs()
+                        }
+                    }
 
-            val keySplit = propFile.name.split("#")
-            backupBuilder.data.getOrPut(
-                    if (keySplit.size == 2) keySplit[0] else "",
-                    { mutableListOf() }
-            ).add(tmpRef)
-        }
+                    val keySplit = propFile.name.split("#")
+                    backupBuilder.data.getOrPut(
+                            if (keySplit.size == 2) keySplit[0] else "",
+                            { mutableListOf() }
+                    ).add(tmpRef)
+                }
 
         return backupBuilder.toBackup()
     }
@@ -260,9 +256,6 @@ class SAFStorage @AssistedInject constructor(
                     DIRECTORY -> {
                         val target = revisionDir.childDir("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         safGateway.create(target)
-                    }
-                    NONE -> {
-                        Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
                     }
                 }
             }
@@ -358,7 +351,7 @@ class SAFStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<SAFStorage>
 
     companion object {
-        val TAG = App.logTag("StorageRepo", "Local")
+        val TAG = App.logTag("StorageRepo", "SAF")
         const val DATA_EXT = ".data"
         const val PROP_EXT = ".prop"
         const val SPEC_FILE = "backup.data"

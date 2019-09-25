@@ -192,9 +192,7 @@ class LocalStorage @AssistedInject constructor(
                 DIRECTORY -> {
                     tmpRef.tmpPath.mkdirs()
                 }
-                NONE -> {
-                    Timber.tag(TAG).e("Ref is unused: %s", tmpRef.tmpPath)
-                }
+                UNUSED -> throw IllegalStateException("Ref is unused: ${tmpRef.tmpPath}")
             }
 
             val keySplit = propFile.name.split("#")
@@ -244,7 +242,7 @@ class LocalStorage @AssistedInject constructor(
                 when (ref.type) {
                     FILE -> ref.tmpPath.copyTo(target)
                     DIRECTORY -> target.mkdir()
-                    NONE -> Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
+                    UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
                 }
 
             }

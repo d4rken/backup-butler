@@ -10,6 +10,8 @@ import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.AFile
 import eu.darken.bb.common.file.SAFFile
+import eu.darken.bb.common.file.childDir
+import eu.darken.bb.common.file.childFile
 import timber.log.Timber
 import java.io.FileDescriptor
 import javax.inject.Inject
@@ -69,7 +71,14 @@ class SAFGateway @Inject constructor(
     }
 
     fun listFiles(file: SAFFile): List<SAFFile>? {
-        return getDocumentFile(file)?.listFiles()?.map { SAFFile.build(it) }
+        return getDocumentFile(file)?.listFiles()?.map {
+            val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+            when {
+                it.isDirectory -> file.childDir(name)
+                it.isFile -> file.childFile(name)
+                else -> throw IllegalArgumentException("$it is unknown type")
+            }
+        }
     }
 
     fun exists(file: SAFFile): Boolean {

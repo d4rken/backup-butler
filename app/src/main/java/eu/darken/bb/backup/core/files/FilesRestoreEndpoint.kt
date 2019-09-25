@@ -57,9 +57,7 @@ class FilesRestoreEndpoint @Inject constructor(
                 DIRECTORY -> {
                     itemFile.mkdirs()
                 }
-                NONE -> {
-                    Timber.tag(TAG).e("Ref is unused: %s", ref.tmpPath)
-                }
+                UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
             }
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))

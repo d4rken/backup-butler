@@ -16,8 +16,8 @@ data class MMRef(
         get() = when {
             tmpPath.isDirectory -> Type.DIRECTORY
             tmpPath.isFile -> Type.FILE
-            !tmpPath.exists() -> Type.NONE
-            else -> throw IllegalStateException("$tmpPath is an unknown type")
+            !tmpPath.exists() -> Type.UNUSED
+            else -> throw IllegalStateException("$tmpPath is neither file nor dir (exists=${tmpPath.exists()})")
         }
 
     val props: Props
@@ -34,7 +34,7 @@ data class MMRef(
     )
 
     enum class Type {
-        FILE, DIRECTORY, NONE
+        FILE, DIRECTORY, UNUSED
     }
 
     data class Id(val id: UUID = UUID.randomUUID()) {

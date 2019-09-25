@@ -1,5 +1,4 @@
 package eu.darken.bb.common.file
-
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
@@ -9,9 +8,9 @@ import java.io.File
 import java.io.FileNotFoundException
 
 data class SAFFile(
-        val mimeType: String,
-        val treeRoot: Uri,
-        val segments: List<String>
+        internal val mimeType: String,
+        internal val treeRoot: Uri,
+        internal val segments: List<String>
 ) : AFile {
 
     init {
@@ -79,6 +78,7 @@ data class SAFFile(
     }
 }
 
+
 fun SAFFile.childFile(vararg segments: String) = child(AFile.Type.FILE, *segments)
 
 fun SAFFile.childDir(vararg segments: String) = child(AFile.Type.DIRECTORY, *segments)
@@ -86,7 +86,7 @@ fun SAFFile.childDir(vararg segments: String) = child(AFile.Type.DIRECTORY, *seg
 fun SAFFile.requireExists(gateway: SAFGateway): SAFFile {
     if (!this.exists(gateway)) {
         val ex = IllegalStateException("Path doesn't exist, but should: $this")
-        Timber.tag(TAG).w(ex)
+        Timber.w(ex)
         throw ex
     }
     return this
@@ -95,7 +95,7 @@ fun SAFFile.requireExists(gateway: SAFGateway): SAFFile {
 fun SAFFile.requireNotExists(gateway: SAFGateway): SAFFile {
     if (this.exists(gateway)) {
         val ex = IllegalStateException("Path exist, but shouldn't: $this")
-        Timber.tag(TAG).w(ex)
+        Timber.w(ex)
         throw ex
     }
     return this
@@ -104,21 +104,21 @@ fun SAFFile.requireNotExists(gateway: SAFGateway): SAFFile {
 fun SAFFile.tryMkDirs(gateway: SAFGateway): SAFFile {
     if (exists(gateway)) {
         if (gateway.isDirectory(this)) {
-            Timber.tag(TAG).v("Directory already exists, not creating: %s", this)
+            Timber.v("Directory already exists, not creating: %s", this)
             return this
         } else {
             val ex = IllegalStateException("Directory exists, but is not a directory: $this")
-            Timber.tag(TAG).w(ex)
+            Timber.w(ex)
             throw ex
         }
     }
     try {
         gateway.create(this)
-        Timber.tag(TAG).v("Directory created: %s", this)
+        Timber.v("Directory created: %s", this)
         return this
     } catch (e: Exception) {
         val ex = IllegalStateException("Couldn't create Directory: $this", e)
-        Timber.tag(TAG).w(ex)
+        Timber.w(ex)
         throw ex
     }
 }
@@ -128,9 +128,9 @@ fun SAFFile.deleteAll(gateway: SAFGateway) {
         listFiles(gateway)?.forEach { it.deleteAll(gateway) }
     }
     if (delete(gateway)) {
-        Timber.tag(TAG).v("File.deleteAll(): Deleted %s", this)
+        Timber.v("File.deleteAll(): Deleted %s", this)
     } else if (!exists(gateway)) {
-        Timber.tag(TAG).w("File.deleteAll(): File didn't exist: %s", this)
+        Timber.w("File.deleteAll(): File didn't exist: %s", this)
     } else {
         throw FileNotFoundException("Failed to delete file: $this")
     }

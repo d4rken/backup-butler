@@ -68,7 +68,7 @@ class MMDataRepo @Inject constructor(
                     val deleted = it.tmpPath.deleteAll()
                     Timber.tag(TAG).v("Deleted tmp dir (success=%b): %s", deleted, it.tmpPath)
                 }
-                MMRef.Type.NONE -> Timber.tag(TAG).e("Unused ref: %s", it)
+                MMRef.Type.UNUSED -> Timber.tag(TAG).e("Unused ref: %s", it)
             }
         }
         refMap.remove(backupId)
