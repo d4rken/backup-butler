@@ -16,6 +16,7 @@ import io.reactivex.Observable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
+import java.io.InterruptedIOException
 import javax.inject.Inject
 
 @PerApp
@@ -57,21 +58,27 @@ class BBDebug @Inject constructor(
         }
 
         RxJavaPlugins.setErrorHandler { error ->
-            Timber.tag(TAG).e(error, "Uncaught error")
-            if (BuildConfig.DEBUG) {
+            if (error is UndeliverableException) {
+                when (error.cause) {
+                    is InterruptedException, is InterruptedIOException -> {
+                        // Swallowed errors
+                        Timber.tag(TAG).d(error.cause, "Swallowed interrupt exception")
+                    }
+                    else -> {
+                        Timber.tag(TAG).w(error, "Undesired UndeliverableException")
+                        if (BuildConfig.DEBUG) {
+                            // On debug builds we want to crash to be aware of this error
+                            val currentThread = Thread.currentThread()
+                            currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
+                        } else {
+                            BugTrack.notify(error)
+                        }
+                    }
+                }
+            } else {
+                Timber.tag(TAG).e(error, "Unexpected uncaught error")
                 val currentThread = Thread.currentThread()
                 currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
-                return@setErrorHandler
-            }
-
-            when (error) {
-                is UndeliverableException -> {
-                    BugTrack.notify(error)
-                }
-                else -> {
-                    val currentThread = Thread.currentThread()
-                    currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
-                }
             }
         }
 
