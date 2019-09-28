@@ -46,7 +46,6 @@ class AppSpecGenerator @Inject constructor(
             val extraPaths: Map<String, Collection<APath>> = emptyMap()
     ) : Generator.Config {
 
-
         override fun getDescription(context: Context): String {
             return generatorId.toString()
         }

@@ -21,11 +21,31 @@ fun <T> Observable<T>.filterUnchanged(check: (T, T) -> Boolean = { it1, it2 -> i
     }
 }
 
-fun <T> Observable<T>.onErrorComplete(action: ((Throwable) -> Unit)? = null): Observable<T> {
+fun <T> Observable<T>.onErrorComplete(
+        action: ((Throwable) -> Unit)? = null,
+        condition: ((Throwable) -> Boolean)? = null
+): Observable<T> {
     val call: (Throwable) -> ObservableSource<out T> = {
-        Timber.d(it, "Swalled error (onErrorComplete)")
+        if (condition?.invoke(it) == false) {
+            throw it
+        }
+        Timber.d(it, "Swallowed error (onErrorComplete)")
         action?.invoke(it)
         Observable.empty()
     }
     return onErrorResumeNext(call)
 }
+
+object Observables2 {
+    fun <T> fromCallableSafe(producer: () -> T): Observable<T> {
+        return Observable.create<T> {
+            try {
+                it.onNext(producer.invoke())
+                it.onComplete()
+            } catch (e: Throwable) {
+                it.tryOnError(e)
+            }
+        }
+    }
+}
+

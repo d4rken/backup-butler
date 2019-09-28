@@ -21,11 +21,10 @@ fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
             toJson(it, value)
         }
     } catch (e: Exception) {
-        if (e is InterruptedIOException) {
-            Timber.w("Interrupted! toFile(value=%s, file=%s)", value, file)
-        } else {
-            throw e
+        if (e !is InterruptedIOException) {
+            Timber.w("toFile(value=%s, file=%s)", value, file)
         }
+        throw e
     } finally {
         Timber.tag(TAG).v("toFile(value=%s, file=%s)", value, file)
     }
@@ -40,11 +39,10 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T? {
             }
         }
     } catch (e: Exception) {
-        if (e is InterruptedIOException) {
-            Timber.w("Interrupted! fromFile(value=%s, file=%s)", value, file)
-        } else {
-            throw e
+        if (e !is InterruptedIOException) {
+            Timber.w("fromFile(value=%s, file=%s)", value, file)
         }
+        throw e
     } finally {
         Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
     }
@@ -57,14 +55,12 @@ fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor
             it.indent = "    "
             toJson(it, value)
         }
-    } catch (e: Exception) {
-        if (e is InterruptedIOException) {
-            Timber.w("Interrupted! toFile(value=%s, fileDescriptor=%s)", value, fileDescriptor)
-        } else {
-            throw e
-        }
-    } finally {
         Timber.tag(TAG).v("toFile(value=%s, fileDescriptor=%s)", value, fileDescriptor)
+    } catch (e: Exception) {
+        if (e !is InterruptedIOException) {
+            Timber.w(e, "toFileDescriptor(value=%s, fileDescriptor=%s)", value, fileDescriptor)
+        }
+        throw e
     }
 }
 
@@ -74,14 +70,12 @@ fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
         value = JsonReader.of(Okio.buffer(Okio.source(FileInputStream(fileDescriptor)))).use {
             return@use fromJson(it)
         }
+        Timber.tag(TAG).v("fromFileDescriptor(fileDescriptor=%s): %s", fileDescriptor, value)
     } catch (e: Exception) {
-        if (e is InterruptedIOException) {
-            Timber.w("Interrupted! fromFile(value=%s, fileDescriptor=%s)", value, fileDescriptor)
-        } else {
-            throw e
+        if (e !is InterruptedIOException) {
+            Timber.w(e, "fromFileDescriptor(value=%s, fileDescriptor=%s)", value, fileDescriptor)
         }
-    } finally {
-        Timber.tag(TAG).v("fromFile(fileDescriptor=%s): %s", fileDescriptor, value)
+        throw e
     }
     return value
 }

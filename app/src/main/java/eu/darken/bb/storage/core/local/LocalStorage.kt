@@ -182,17 +182,14 @@ class LocalStorage @AssistedInject constructor(
 
         revisionPath.listFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
             val prop = propsAdapter.fromFile(propFile)!!
+            val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
+
             val tmpRef = mmDataRepo.create(backupId, prop)
 
-            when (tmpRef.type) {
-                FILE -> {
-                    val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
-                    dataFile.copyTo(tmpRef.tmpPath)
-                }
-                DIRECTORY -> {
-                    tmpRef.tmpPath.mkdirs()
-                }
-                UNUSED -> throw IllegalStateException("Ref is unused: ${tmpRef.tmpPath}")
+            if (dataFile.isDirectory) {
+                tmpRef.tmpPath.mkdirs()
+            } else {
+                dataFile.copyTo(tmpRef.tmpPath)
             }
 
             val keySplit = propFile.name.split("#")

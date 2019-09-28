@@ -1,15 +1,12 @@
 package eu.darken.bb.backup.core.files
 
 import android.content.Context
-import android.os.Environment
 import dagger.Reusable
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.asSFile
-import java.io.File
 import javax.inject.Inject
 
 @Reusable
@@ -31,8 +28,8 @@ class FilesSpecGenerator @Inject constructor(
 
     data class Config(
             override val generatorId: Generator.Id,
-            override val label: String = "",
-            val path: APath = File(Environment.getExternalStorageDirectory(), "Download").asSFile()
+            override val label: String,
+            val path: APath
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {

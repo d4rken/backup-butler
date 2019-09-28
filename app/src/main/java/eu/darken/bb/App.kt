@@ -48,7 +48,9 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
             Timber.plant(Timber.DebugTree())
             RxDogTag.builder().install()
         }
+
         AppInjector.init(this)
+
         WorkManager.initialize(this, Configuration.Builder().setWorkerFactory(workerFactory).build())
 
         // Sets theme mode

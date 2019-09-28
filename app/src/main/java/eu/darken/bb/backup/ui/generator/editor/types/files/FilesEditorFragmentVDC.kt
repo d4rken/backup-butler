@@ -1,5 +1,7 @@
 package eu.darken.bb.backup.ui.generator.editor.types.files
 
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -7,20 +9,22 @@ import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
-import eu.darken.bb.common.Stater
-import eu.darken.bb.common.WorkId
-import eu.darken.bb.common.addWorkId
-import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.*
+import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.SimplePath
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.storage.core.saf.SAFGateway
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class FilesEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
-        private val builder: GeneratorBuilder
+        private val builder: GeneratorBuilder,
+        private val safGateway: SAFGateway
 ) : SmartVDC(), BaseEditorFragment.VDC {
 
     private val dataObs = builder.config(generatorId)
@@ -36,6 +40,8 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
 
     private val stater = Stater(State())
     override val state = stater.liveData
+
+    val openSAFPickerEvent = SingleLiveEvent<Intent>()
 
     init {
         editorObs.take(1)
@@ -64,8 +70,16 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePath(path: String) {
+    fun updatePathSAF(uri: Uri) {
+        Timber.tag(TAG).d("updatePathSAF(uri=%s)", uri)
+        val path = SAFPath.build(uri)
         editor.updatePath(path)
+    }
+
+    fun updatePathRoot(path: String) {
+        val rootPath = SimplePath.build(path)
+        editor.updatePath(rootPath)
+        TODO("Need to test root here")
     }
 
     override fun onNavigateBack(): Boolean {
@@ -86,10 +100,14 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         return true
     }
 
+    fun showPicker() {
+        openSAFPickerEvent.postValue(safGateway.createPickerIntent())
+    }
+
     data class State(
             val label: String = "",
             val path: String = "",
-            val allowCreate: Boolean = false,
+            val pathError: Exception? = null,
             override val isExisting: Boolean = true,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : BaseEditorFragment.VDC.State, WorkId.State

@@ -22,7 +22,7 @@ class SAFGateway @Inject constructor(
         checkNotNull(treeRoot) { "Couldn't create DocumentFile for: $treeRoot" }
 
         var current: DocumentFile? = treeRoot
-        for (seg in file.segments) {
+        for (seg in file.crumbs) {
             current = current?.findFile(seg)
             if (current == null) break
         }
@@ -32,11 +32,11 @@ class SAFGateway @Inject constructor(
     }
 
     fun createFile(path: SAFPath): SAFPath {
-        return SAFPath.build(createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.segments))
+        return SAFPath.build(createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.crumbs))
     }
 
     fun createDir(path: SAFPath): SAFPath {
-        return SAFPath.build(createDocumentFile(DIR_TYPE, path.treeRoot, path.segments))
+        return SAFPath.build(createDocumentFile(DIR_TYPE, path.treeRoot, path.crumbs))
     }
 
     private fun createDocumentFile(mimeType: String, treeUri: Uri, segments: List<String>): DocumentFile {
@@ -66,15 +66,15 @@ class SAFGateway @Inject constructor(
 
             }
         }
-        Timber.tag(TAG).v("createDocumentFile(mimeType=$mimeType, treeUri=$treeUri, segments=${segments.toList()}): ${currentRoot.uri}")
+        Timber.tag(TAG).v("createDocumentFile(mimeType=$mimeType, treeUri=$treeUri, crumbs=${segments.toList()}): ${currentRoot.uri}")
         return currentRoot
     }
 
-    fun listFiles(file: SAFPath): List<SAFPath>? {
+    fun listFiles(file: SAFPath): Array<SAFPath>? {
         return getDocumentFile(file)?.listFiles()?.map {
             val name = it.name ?: it.uri.pathSegments.last().split('/').last()
             file.child(name)
-        }
+        }?.toTypedArray()
     }
 
     fun exists(path: SAFPath): Boolean {

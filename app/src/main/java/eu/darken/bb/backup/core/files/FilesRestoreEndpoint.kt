@@ -8,19 +8,23 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.asFile
+import eu.darken.bb.common.file.*
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.storage.core.saf.SAFGateway
 import io.reactivex.Observable
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import kotlin.io.copyTo
 
 class FilesRestoreEndpoint @Inject constructor(
-        @AppContext override val context: Context
+        @AppContext override val context: Context,
+        private val safGateway: SAFGateway
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -35,7 +39,6 @@ class FilesRestoreEndpoint @Inject constructor(
 
         config as FilesRestoreConfig
         val spec = backup.spec as FilesBackupSpec
-        val restoreDir = File(spec.path.asFile().parent, spec.path.name + "-1")
         val handler = FilesBackupBuilder(backup)
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
@@ -43,27 +46,60 @@ class FilesRestoreEndpoint @Inject constructor(
         for (ref in handler.files) {
             updateProgressSecondary(ref.originalPath.path)
 
-            val itemPath = ref.originalPath.path.replace(spec.path.path, restoreDir.path)
-            val itemFile = File(itemPath)
-            if (itemFile.exists() && !config.replaceFiles) {
-                Timber.tag(TAG).d("Skipping existing: %s", itemFile)
-                continue
-            }
-            when (ref.type) {
-                FILE -> {
-                    itemFile.parentFile.mkdirs()
-                    ref.tmpPath.copyTo(itemFile)
-                }
-                DIRECTORY -> {
-                    itemFile.mkdirs()
-                }
-                UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
+            if (ref.originalPath is SAFPath) {
+                restoreSAF(config, spec, ref)
+            } else {
+                restoreFile(config, spec, ref)
             }
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
         }
 
         return true
+    }
+
+    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef) {
+        val restoreDir = spec.path.asFile()
+        val itemPath = ref.originalPath.path.replace(spec.path.path, restoreDir.path)
+        val itemFile = File(itemPath)
+        if (itemFile.exists() && !config.replaceFiles) {
+            Timber.tag(TAG).d("Skipping existing: %s", itemFile)
+            return
+        }
+        when (ref.type) {
+            FILE -> {
+                itemFile.parentFile.mkdirs()
+                ref.tmpPath.copyTo(itemFile)
+            }
+            DIRECTORY -> {
+                itemFile.mkdirs()
+            }
+            UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
+        }
+    }
+
+    private fun restoreSAF(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef) {
+        val restoreDir = spec.path as SAFPath
+        ref.originalPath as SAFPath
+        val itemFile = restoreDir.child(*ref.originalPath.crumbs.toTypedArray())
+
+        if (itemFile.exists(safGateway) && !config.replaceFiles) {
+            Timber.tag(TAG).d("Skipping existing: %s", itemFile)
+            return
+        }
+
+        when (ref.type) {
+            FILE -> {
+                itemFile.tryCreateFile(safGateway)
+                safGateway.openFile(itemFile, SAFGateway.FileMode.WRITE) {
+                    ref.tmpPath.copyTo(it)
+                }
+            }
+            DIRECTORY -> {
+                itemFile.tryMkDirs(safGateway)
+            }
+            UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
+        }
     }
 
     companion object {

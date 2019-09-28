@@ -38,8 +38,6 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->
-            supportActionBar?.subtitle = state.label
-
             if (state.error != null) {
                 Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
             }
@@ -65,8 +63,11 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
             if (pageData.backupSpecId != null) putBackupSpecId(pageData.backupSpecId)
         }
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.content_frame, newFragment, pageData.toString())
-        if (current != null) transaction.addToBackStack(null)
+        if (current != null) {
+            transaction.addToBackStack(null)
+            transaction.remove(current)
+        }
+        transaction.add(R.id.content_frame, newFragment, pageData.toString())
         transaction.commitAllowingStateLoss()
     }
 

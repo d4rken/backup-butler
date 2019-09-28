@@ -21,6 +21,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.rx.Observables2
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -32,6 +33,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.io.InterruptedIOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -57,7 +59,7 @@ class SAFStorage @AssistedInject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     private val dataDirEvents = Observable.fromCallable { safGateway.listFiles(dataDir) }
             .subscribeOn(Schedulers.io())
-            .onErrorReturnItem(emptyList())
+            .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
             .filterUnchanged { old, new -> old != new }
             .replayingShare()
@@ -144,34 +146,38 @@ class SAFStorage @AssistedInject constructor(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
-        item as SAFStorageItem
-        val backupDir = getBackupDir(item.backupSpec.specId).requireExists(safGateway)
-        val versionDir = getVersioning(item.backupSpec.specId)!!.getVersion(backupId)!!.getRevDir(backupDir).requireExists(safGateway)
+    override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> = Observables2
+            .fromCallableSafe {
+                item as SAFStorageItem
+                val backupDir = getBackupDir(item.backupSpec.specId).requireExists(safGateway)
+                val versionDir = getVersioning(item.backupSpec.specId)!!.getVersion(backupId)!!.getRevDir(backupDir).requireExists(safGateway)
 
-        val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
-        checkNotNull(backupSpec) { "Can't read $backupDir" }
+                val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
+                checkNotNull(backupSpec) { "Can't read $backupDir" }
 
-        return Observable.fromCallable { backupDir.listFiles(safGateway) }
-                .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-                .map {
-                    val items = versionDir.listFiles(safGateway)
-                            ?.filter { it.name.endsWith(PROP_EXT) }
-                            ?.map { file ->
-                                val props = propsAdapter.fromSAFFile(safGateway, file)
-                                checkNotNull(props) { "Can't read props from $file" }
-                                object : Storage.Item.Content.Entry {
-                                    override val label: String = backupSpec.getContentEntryLabel(props)
-                                }
-                            }
-                            ?.toList() ?: emptyList()
-                    return@map Storage.Item.Content(items)
-                }
-                .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
-                .doOnError { Timber.tag(TAG).w(it, "Failed to get content: item=$item, backupId=$backupId") }
-                .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
-                .replayingShare()
-    }
+                return@fromCallableSafe Triple(backupDir, versionDir, backupSpec)
+            }
+            .flatMap { (backupDir, versionDir, backupSpec) ->
+                return@flatMap Observables2.fromCallableSafe { backupDir.listFiles(safGateway) }
+                        .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+                        .map {
+                            val items = versionDir.listFiles(safGateway)
+                                    ?.filter { it.name.endsWith(PROP_EXT) }
+                                    ?.map { file ->
+                                        val props = propsAdapter.fromSAFFile(safGateway, file)
+                                        checkNotNull(props) { "Can't read props from $file" }
+                                        object : Storage.Item.Content.Entry {
+                                            override val label: String = backupSpec.getContentEntryLabel(props)
+                                        }
+                                    }
+                                    ?.toList() ?: emptyList()
+                            return@map Storage.Item.Content(items)
+                        }
+            }
+            .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
+            .doOnError { Timber.tag(TAG).w(it, "Failed to get content: item=$item, backupId=$backupId") }
+            .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
+            .replayingShare()
 
     override fun load(item: Storage.Item, backupId: Backup.Id): Backup.Unit {
         item as SAFStorageItem
@@ -326,8 +332,13 @@ class SAFStorage @AssistedInject constructor(
         return try {
             versioningAdapter.fromSAFFile(safGateway, revisionConfigFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get versioning for %s (%s)", revisionConfigFile, specId)
-            null
+            if (e is InterruptedIOException) {
+                throw e
+            } else {
+                Timber.tag(TAG).w(e, "Failed to get versioning for %s (%s)", revisionConfigFile, specId)
+                null
+            }
+
         }
     }
 

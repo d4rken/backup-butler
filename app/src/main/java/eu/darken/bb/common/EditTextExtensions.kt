@@ -9,6 +9,12 @@ fun EditText.setTextIfDifferent(text: String) {
     if (this.text.toString() != text) this.setText(text)
 }
 
+fun EditText.setTextIfDifferentAndNotFocused(newText: String) {
+    if (this.text.toString() == newText) return
+    if (hasFocus()) return
+    setText(newText)
+}
+
 fun EditText.userTextChangeEvents(): Observable<TextViewTextChangeEvent> {
     return textChangeEvents().skipInitialValue().filter { it.view.hasFocus() }
 }

@@ -37,7 +37,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             .map { (state, config) ->
                 state.copy(
                         label = config.label,
-                        allowCreate = config.label.isNotEmpty(),
                         includedPackages = config.packagesIncluded.toList()
                 )
             }
@@ -79,7 +78,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
 
     data class State(
             val label: String = "",
-            val allowCreate: Boolean = false,
             val includedPackages: List<String> = emptyList(),
             val isWorking: Boolean = true,
             override val isExisting: Boolean = false
