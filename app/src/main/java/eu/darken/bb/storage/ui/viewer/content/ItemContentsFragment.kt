@@ -62,13 +62,14 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
         vdc.state.observe(this, Observer { state ->
             if (state.backupSpec != null) {
                 requireActivityActionBar().title = state.backupSpec.getLabel(requireContext())
+                requireActivityActionBar().setSubtitle(state.backupSpec.backupType.labelRes)
             }
             pagerAdapter.update(state.versions)
 
         })
 
         vdc.finishEvent.observe(this, Observer {
-            requireFragmentManager().popBackStack()
+            requireFragmentManager().popBackStackImmediate()
         })
 
         super.onViewCreated(view, savedInstanceState)
@@ -76,7 +77,7 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         android.R.id.home -> {
-            requireFragmentManager().popBackStack()
+            requireFragmentManager().popBackStackImmediate()
             true
         }
 

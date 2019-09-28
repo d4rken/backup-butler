@@ -27,7 +27,8 @@ class StorageItemFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId)
-            .subscribeOn(Schedulers.io()).replayingShare()
+            .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+            .replayingShare()
 
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
@@ -63,6 +64,14 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                     }
                     finishEvent.postValue(true)
                 })
+                .withScopeVDC(this)
+        storageObs.flatMap { it.info() }
+                .filter { it.config != null }
+                .map { it.config!! }
+                .take(1)
+                .subscribe { config ->
+                    stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
+                }
                 .withScopeVDC(this)
     }
 
@@ -110,6 +119,8 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     )
 
     data class State(
+            val storageLabel: String? = null,
+            val storageType: Storage.Type? = null,
             val items: List<Storage.Item> = emptyList(),
             val error: Throwable? = null,
             val allowDeleteAll: Boolean = false,

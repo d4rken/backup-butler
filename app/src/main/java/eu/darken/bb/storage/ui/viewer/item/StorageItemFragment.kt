@@ -64,6 +64,11 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
+            requireActivityActionBar().title = state.storageLabel
+            if (state.storageType != null) {
+                requireActivityActionBar().setSubtitle(state.storageType.labelRes)
+            }
+
             adapter.update(state.items)
 
             recyclerView.setInvisible(state.isWorking)
