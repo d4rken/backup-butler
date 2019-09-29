@@ -11,6 +11,7 @@ import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,6 +30,8 @@ class StorageRefRepo @Inject constructor(
         }
         internalRefs
     }
+    private val affectedIdPub = PublishSubject.create<Storage.Id>()
+    internal val modifiedIds = affectedIdPub.hide()
 
     val references = internalData.data
 
@@ -57,6 +60,7 @@ class StorageRefRepo @Inject constructor(
                 }
                 .map { oldValue.opt() }
                 .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
+                .doOnSuccess { affectedIdPub.onNext(ref.storageId) }
     }
 
     fun remove(refId: Storage.Id): Single<Opt<Storage.Ref>> {
@@ -72,6 +76,7 @@ class StorageRefRepo @Inject constructor(
                     Timber.d("remove(refId=%s) -> old=%s", refId, it.value)
                     if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
                 }
+                .doOnSuccess { affectedIdPub.onNext(refId) }
     }
 
     companion object {

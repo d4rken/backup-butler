@@ -143,6 +143,7 @@ class LocalStorage @AssistedInject constructor(
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
+            .replayingShare()
 
     override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
         item as LocalStorageItem

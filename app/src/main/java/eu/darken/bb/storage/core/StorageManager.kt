@@ -26,7 +26,12 @@ class StorageManager @Inject constructor(
     private val repoCache = mutableMapOf<Storage.Id, Storage>()
 
     init {
-        // TODO remove removed refs from cache
+        refRepo.modifiedIds.subscribeOn(Schedulers.io())
+                .subscribe {
+                    synchronized(repoCache) {
+                        repoCache.remove(it)
+                    }
+                }
     }
 
     fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
@@ -94,7 +99,6 @@ class StorageManager @Inject constructor(
 
     private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
-            Thread.sleep(2000)
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
 
@@ -105,7 +109,7 @@ class StorageManager @Inject constructor(
 
             repo = storageFactory.create(ref, config.notNullValue())
 
-//            repoCache[ref.storageId] = repo
+            repoCache[ref.storageId] = repo
             return@fromCallable repo
         }
     }
