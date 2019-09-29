@@ -6,6 +6,7 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.MissingFileException
+import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -31,17 +32,37 @@ class StorageManager @Inject constructor(
     fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
             .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 
-    fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
-            .map { it.values }
-            .switchMap { refs ->
-                return@switchMap if (refs.isEmpty()) {
-                    Observable.just(emptyList())
-                } else {
-                    val statusObs = refs.map {
-                        // Parallel loading
-                        info(it).subscribeOn(Schedulers.io())
+    fun infos(): Observable<Collection<StorageInfo>> = infos(wantedIds = null)
+            .map { infos -> infos.map { info -> info.info!! } }
+
+    fun infos(wantedIds: Collection<Storage.Id>? = null): Observable<Collection<StorageInfoOpt>> = Observable
+            .fromCallable {
+                if (wantedIds == null) return@fromCallable refRepo.references
+
+                return@fromCallable Observable.just(wantedIds)
+                        .flatMapIterable { x -> x }
+                        .flatMapSingle { id ->
+                            refRepo.get(id).map { optRef -> Pair(id, optRef.value) }
+                        }
+                        .toList()
+                        .map { it.toMap() }
+                        .toObservable()
+            }
+            .switchMap { it }
+            .switchMap { refMap ->
+                if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<StorageInfoOpt>())
+
+                val statusObs = refMap.map { (id, ref) ->
+                    if (ref != null) {
+                        info(ref)
+                                .subscribeOn(Schedulers.io())
+                                .map { StorageInfoOpt(id, it) }
+                    } else {
+                        Observable.just(StorageInfoOpt(id))
                     }
-                    Observable.combineLatest<StorageInfo, List<StorageInfo>>(statusObs) { it.asList() as List<StorageInfo> }
+                }
+                return@switchMap Observable.combineLatest<StorageInfoOpt, List<StorageInfoOpt>>(statusObs) {
+                    it.asList() as List<StorageInfoOpt>
                 }
             }
 
@@ -73,6 +94,7 @@ class StorageManager @Inject constructor(
 
     private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
+            Thread.sleep(2000)
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
 
