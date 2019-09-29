@@ -24,7 +24,10 @@ import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
-import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.SimpleVersioning
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -55,7 +58,10 @@ class LocalStorage @AssistedInject constructor(
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
 
-    private val dataDirEvents = Observable.fromCallable { dataDir.listFiles() }
+    private val dataDirEvents = Observable
+            .fromCallable {
+                dataDir.listFiles()
+            }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
@@ -64,6 +70,9 @@ class LocalStorage @AssistedInject constructor(
 
     init {
         Timber.tag(SAFStorage.TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
+        if (!dataDir.exists()) {
+            Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
+        }
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
@@ -72,9 +81,8 @@ class LocalStorage @AssistedInject constructor(
     private val itemObs: Observable<Collection<Storage.Item>> = dataDirEvents
             .map { files ->
                 val content = mutableListOf<Storage.Item>()
-                if (!dataDir.exists()) throw MissingFileException(dataDir.asSFile())
 
-                for (backupDir in dataDir.listFiles()) {
+                for (backupDir in files) {
                     if (backupDir.isFile) {
                         Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
                         continue
@@ -105,8 +113,7 @@ class LocalStorage @AssistedInject constructor(
                     )
                     content.add(ref)
                 }
-                val coll: Collection<Storage.Item> = content.toList()
-                return@map coll
+                return@map content.toList() as Collection<Storage.Item>
             }
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
@@ -121,7 +128,7 @@ class LocalStorage @AssistedInject constructor(
                     status = StorageInfo.Status(
                             itemCount = contents.size,
                             totalSize = 0,
-                            isReadOnly = !dataDir.canWrite()
+                            isReadOnly = dataDir.exists() && !dataDir.canWrite()
                     )
                 } catch (e: Exception) {
                     Timber.tag(TAG).w(e)

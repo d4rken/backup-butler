@@ -60,7 +60,10 @@ class SAFStorage @AssistedInject constructor(
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
 
-    private val dataDirEvents = Observable.fromCallable { safGateway.listFiles(dataDir) }
+    private val dataDirEvents = Observable
+            .fromCallable {
+                safGateway.listFiles(dataDir)
+            }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
@@ -69,6 +72,9 @@ class SAFStorage @AssistedInject constructor(
 
     init {
         Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
+        if (!dataDir.exists(safGateway)) {
+            Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
+        }
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
@@ -77,11 +83,6 @@ class SAFStorage @AssistedInject constructor(
     private val itemObs: Observable<Collection<Storage.Item>> = dataDirEvents
             .map { files ->
                 val content = mutableListOf<Storage.Item>()
-
-//                val listedFiles = safGateway.listFiles(dataDir)
-//                checkNotNull(listedFiles) {
-//                    throw MissingFileException(dataDir)
-//                }
 
                 for (backupDir in files) {
                     if (backupDir.isFile(safGateway)) {
@@ -113,8 +114,7 @@ class SAFStorage @AssistedInject constructor(
                     )
                     content.add(ref)
                 }
-                val coll: Collection<Storage.Item> = content.toList()
-                return@map coll
+                return@map content.toList() as Collection<Storage.Item>
             }
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
@@ -128,7 +128,7 @@ class SAFStorage @AssistedInject constructor(
                     status = StorageInfo.Status(
                             itemCount = contents.size,
                             totalSize = 0,
-                            isReadOnly = !dataDir.canWrite(safGateway)
+                            isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway)
                     )
                 } catch (e: Exception) {
                     Timber.tag(TAG).w(e)
