@@ -7,6 +7,7 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
@@ -25,8 +26,10 @@ interface Storage : Progress.Host {
             @Transient @StringRes val descriptionRes: Int
     ) {
         LOCAL(R.drawable.ic_sd_storage, R.string.repo_type_local_storage_label, R.string.repo_type_local_storage_desc),
-        SAF(R.drawable.ic_sd_storage, R.string.repo_type_saf_storage_label, R.string.repo_type_saf_storage_desc);
+        SAF(R.drawable.ic_storage, R.string.repo_type_saf_storage_label, R.string.repo_type_saf_storage_desc);
     }
+
+    val storageConfig: Config
 
     fun info(): Observable<StorageInfo>
 
@@ -64,7 +67,7 @@ interface Storage : Progress.Host {
     }
 
     interface Factory<T : Storage> {
-        fun create(storageRef: Ref): T
+        fun create(storageRef: Ref, storageConfig: Config): T
     }
 
     interface Ref {
@@ -74,6 +77,7 @@ interface Storage : Progress.Host {
                     .withSubtype(SAFStorageRef::class.java, Type.SAF.name)
         }
 
+        val path: APath
         val storageId: Id
         val storageType: Type
     }

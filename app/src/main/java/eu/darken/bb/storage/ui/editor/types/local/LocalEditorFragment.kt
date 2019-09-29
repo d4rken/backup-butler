@@ -52,11 +52,8 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
         requireActivityActionBar().subtitle = getString(R.string.repo_type_local_storage_label)
 
         vdc.state.observe(this, Observer { state ->
-            pathInput.setTextIfDifferent(state.path)
-            pathInput.setSelection(pathInput.text.length)
-
-            labelInput.setTextIfDifferent(state.label)
-            labelInput.setSelection(labelInput.text.length)
+            pathInput.setTextIfDifferentAndNotFocused(state.path)
+            labelInput.setTextIfDifferentAndNotFocused(state.label)
 
             if (state.path.isNotEmpty()) {
                 pathInputLayout.isEnabled = !state.isExisting
@@ -68,9 +65,9 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
             permissionCard.setGone(state.isPermissionGranted)
         })
 
-        pathInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updatePath(it.text.toString()) }
+        pathInput.userTextChangeEvents().debounce(1, TimeUnit.SECONDS).subscribe { vdc.updatePath(it.text.toString()) }
         pathInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { pathInput.clearFocus() }
-        labelInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updateName(it.text.toString()) }
+        labelInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
 
         permissionGrant.clicksDebounced().subscribe { vdc.onGrantPermission() }

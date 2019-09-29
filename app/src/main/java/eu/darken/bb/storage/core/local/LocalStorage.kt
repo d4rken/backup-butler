@@ -12,7 +12,6 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromFile
@@ -26,6 +25,7 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -38,18 +38,19 @@ import java.util.concurrent.TimeUnit
 
 class LocalStorage @AssistedInject constructor(
         @Assisted storageRef: Storage.Ref,
+        @Assisted storageConfig: Storage.Config,
         @AppContext override val context: Context,
         moshi: Moshi,
-        configEditorFactory: LocalStorageEditor.Factory,
         private val mmDataRepo: MMDataRepo
 ) : Storage, HasContext, Progress.Client {
 
     private val storageRef: LocalStorageRef = storageRef as LocalStorageRef
+    override val storageConfig: LocalStorageConfig = storageConfig as LocalStorageConfig
     private val dataDir = File(this.storageRef.path.asFile(), "data")
+
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val versioningAdapter = moshi.adapter(Versioning::class.java)
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
-    private var storageConfig: LocalStorageConfig
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
@@ -62,11 +63,7 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     init {
-        val configEditor = configEditorFactory.create(this.storageRef.storageId)
-        val config = configEditor.load(this.storageRef).map { it as Opt<LocalStorageConfig> }.blockingGet()
-        if (config.isNull) throw MissingFileException(this.storageRef.path)
-        storageConfig = config.notNullValue()
-        dataDir.tryMkDirs()
+        Timber.tag(SAFStorage.TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
@@ -99,6 +96,7 @@ class LocalStorage @AssistedInject constructor(
                         Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
                         continue
                     }
+
                     val ref = LocalStorageItem(
                             storageId = storageConfig.storageId,
                             path = backupDir.asSFile(),
@@ -128,6 +126,7 @@ class LocalStorage @AssistedInject constructor(
                 } catch (e: Exception) {
                     Timber.tag(TAG).w(e)
                 }
+
                 StorageInfo(
                         ref = this.storageRef,
                         config = storageConfig,
@@ -137,7 +136,6 @@ class LocalStorage @AssistedInject constructor(
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
-            .replayingShare()
 
     override fun content(item: Storage.Item, backupId: Backup.Id): Observable<Storage.Item.Content> {
         item as LocalStorageItem
@@ -329,7 +327,7 @@ class LocalStorage @AssistedInject constructor(
         return newVersioning
     }
 
-    override fun toString(): String = "LocalStorage(storageConfig=$storageConfig)"
+    override fun toString(): String = "LocalStorage(storageRef=$storageRef)"
 
     @AssistedInject.Factory
     interface Factory : Storage.Factory<LocalStorage>

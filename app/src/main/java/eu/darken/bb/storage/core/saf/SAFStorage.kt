@@ -12,7 +12,6 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.*
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -27,7 +26,10 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
-import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.SimpleVersioning
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.core.Versioning
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -40,23 +42,24 @@ import java.util.concurrent.TimeUnit
 
 class SAFStorage @AssistedInject constructor(
         @Assisted storageRef: Storage.Ref,
+        @Assisted storageConfig: Storage.Config,
         @AppContext override val context: Context,
         moshi: Moshi,
-        configEditorFactory: SAFStorageEditor.Factory,
         private val safGateway: SAFGateway,
         private val mmDataRepo: MMDataRepo
 ) : Storage, HasContext, Progress.Client {
 
     private val storageRef: SAFStorageRef = storageRef as SAFStorageRef
-    private val storageRoot: SAFPath = this.storageRef.path as SAFPath
-    private lateinit var dataDir: SAFPath
+    override val storageConfig: SAFStorageConfig = storageConfig as SAFStorageConfig
+    private val dataDir: SAFPath = this.storageRef.path.child("data")
+
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val versioningAdapter = moshi.adapter(Versioning::class.java)
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
-    private var storageConfig: SAFStorageConfig
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
+
     private val dataDirEvents = Observable.fromCallable { safGateway.listFiles(dataDir) }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
@@ -65,11 +68,7 @@ class SAFStorage @AssistedInject constructor(
             .replayingShare()
 
     init {
-        val configEditor = configEditorFactory.create(this.storageRef.storageId)
-        val config = configEditor.load(this.storageRef).map { it as Opt<SAFStorageConfig> }.blockingGet()
-        if (config.isNull) throw MissingFileException(this.storageRef.path)
-        storageConfig = config.notNullValue()
-        dataDir = storageRoot.child("data").tryMkDirs(safGateway)
+        Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
@@ -120,7 +119,6 @@ class SAFStorage @AssistedInject constructor(
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
             .doFinally { Timber.tag(TAG).d("items().doFinally()") }
-            .replayingShare()
 
     override fun info(): Observable<StorageInfo> = infoObs
     private val infoObs: Observable<StorageInfo> = items()

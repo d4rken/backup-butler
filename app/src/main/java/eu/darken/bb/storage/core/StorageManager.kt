@@ -9,6 +9,7 @@ import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -16,7 +17,8 @@ import javax.inject.Inject
 class StorageManager @Inject constructor(
         @AppContext private val context: Context,
         private val refRepo: StorageRefRepo,
-        private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>
+        private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>,
+        private val storageEditors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
 ) {
 
     private val repoCache = mutableMapOf<Storage.Id, Storage>()
@@ -28,21 +30,27 @@ class StorageManager @Inject constructor(
     fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
             .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 
-    fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
-            .flatMap { it.info() }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
-
     fun infos(): Observable<Collection<StorageInfo>> = refRepo.references
             .map { it.values }
             .switchMap { refs ->
                 return@switchMap if (refs.isEmpty()) {
                     Observable.just(emptyList())
                 } else {
-                    val statusObs = refs.map { info(it) }
+                    val statusObs = refs.map {
+                        // Parallel loading
+                        info(it).subscribeOn(Schedulers.io())
+                    }
                     Observable.combineLatest<StorageInfo, List<StorageInfo>>(statusObs) { it.asList() as List<StorageInfo> }
                 }
             }
+
+    fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
+            .switchMap {
+                it.info().startWith(StorageInfo(ref = storageRef, config = it.storageConfig))
+            }
+            .doOnError { Timber.tag(TAG).e(it) }
+            .startWith(StorageInfo(ref = storageRef))
+            .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
 
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
             .flatMapObservable { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
@@ -67,9 +75,14 @@ class StorageManager @Inject constructor(
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
 
-            val factory = storageFactories.getValue(ref.storageType)
-            repo = factory.create(ref)
-            repoCache[ref.storageId] = repo
+            val storageFactory = storageFactories.getValue(ref.storageType)
+            val storageEditor = storageEditors.getValue(ref.storageType).create(ref.storageId)
+            val config = storageEditor.load(ref).blockingGet()
+            if (config.isNull) throw MissingFileException(ref.path)
+
+            repo = storageFactory.create(ref, config.notNullValue())
+
+//            repoCache[ref.storageId] = repo
             return@fromCallable repo
         }
     }

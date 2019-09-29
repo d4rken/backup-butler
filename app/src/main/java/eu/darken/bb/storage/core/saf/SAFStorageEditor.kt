@@ -63,7 +63,6 @@ class SAFStorageEditor @AssistedInject constructor(
 
     override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
         ref as SAFStorageRef
-        ref.path as SAFPath
 
         val config = configAdapter.fromSAFFile(safGateway, ref.path.child(STORAGE_CONFIG))
 

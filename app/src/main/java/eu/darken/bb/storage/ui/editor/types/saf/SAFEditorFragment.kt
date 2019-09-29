@@ -18,7 +18,7 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setTextIfDifferent
+import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
@@ -27,7 +27,6 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.list.StorageAdapter
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -63,10 +62,9 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
         requireActivityActionBar().subtitle = getString(R.string.repo_type_saf_storage_label)
 
         vdc.state.observe(this, Observer { state ->
-            pathDisplay.text = state.path
+            labelInput.setTextIfDifferentAndNotFocused(state.label)
 
-            labelInput.setTextIfDifferent(state.label)
-            labelInput.setSelection(labelInput.text.length)
+            pathDisplay.text = state.path
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
@@ -75,7 +73,7 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
 
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
 
-        labelInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updateName(it.text.toString()) }
+        labelInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
 
         vdc.openPickerEvent.observe2(this) {

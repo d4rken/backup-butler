@@ -13,6 +13,7 @@ fun EditText.setTextIfDifferentAndNotFocused(newText: String) {
     if (this.text.toString() == newText) return
     if (hasFocus()) return
     setText(newText)
+    setSelection(text.length)
 }
 
 fun EditText.userTextChangeEvents(): Observable<TextViewTextChangeEvent> {
