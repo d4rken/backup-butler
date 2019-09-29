@@ -9,13 +9,13 @@ import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.*
+import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
-import eu.darken.bb.storage.core.saf.SAFGateway
 import io.reactivex.Observable
 import timber.log.Timber
 import java.io.File

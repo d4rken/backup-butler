@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.core.saf
+package eu.darken.bb.common.file
 
 import android.content.ContentResolver
 import android.content.Context
@@ -8,7 +8,6 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.SAFPath
 import timber.log.Timber
 import java.io.FileDescriptor
 import javax.inject.Inject

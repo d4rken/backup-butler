@@ -5,6 +5,7 @@ import android.content.Intent
 import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.MissingFileException
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable

@@ -10,13 +10,13 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
-import eu.darken.bb.storage.core.saf.SAFGateway
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber

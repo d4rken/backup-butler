@@ -1,7 +1,5 @@
-package eu.darken.bb.storage.core.saf
+package eu.darken.bb.common.file
 
-import eu.darken.bb.common.file.AccessDeniedException
-import eu.darken.bb.common.file.SAFPath
 import java.io.IOException
 import java.util.*
 

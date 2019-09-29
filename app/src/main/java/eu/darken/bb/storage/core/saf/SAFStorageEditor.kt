@@ -9,6 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile

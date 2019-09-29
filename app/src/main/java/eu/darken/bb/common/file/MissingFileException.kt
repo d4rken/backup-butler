@@ -1,9 +1,8 @@
-package eu.darken.bb.storage.core
+package eu.darken.bb.common.file
 
 import android.content.Context
 import eu.darken.bb.R
 import eu.darken.bb.common.LocalizedError
-import eu.darken.bb.common.file.APath
 
 class MissingFileException(private val path: APath) : IllegalArgumentException(), LocalizedError {
 
