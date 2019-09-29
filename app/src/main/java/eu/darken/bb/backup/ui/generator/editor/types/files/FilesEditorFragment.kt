@@ -24,7 +24,6 @@ import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -58,8 +57,7 @@ class FilesEditorFragment : BaseEditorFragment(), AutoInject {
             coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
         })
 
-        labelInput.userTextChangeEvents().debounce(2, TimeUnit.SECONDS).subscribe { vdc.updateLabel(it.text.toString()) }
-
+        labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         pathButton.clicksDebounced().subscribe { vdc.showPicker() }
 
         vdc.openSAFPickerEvent.observe2(this) {
