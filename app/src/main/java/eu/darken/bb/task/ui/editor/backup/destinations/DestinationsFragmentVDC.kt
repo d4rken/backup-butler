@@ -15,7 +15,6 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 
 class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -39,18 +38,10 @@ class DestinationsFragmentVDC @AssistedInject constructor(
 
     init {
         editorObs
-                .flatMap { it.config }
-                .subscribe { ed ->
-                    val storageStatuses = ed.destinations.map { id ->
-                        try {
-                            val status = storageManager.info(id).blockingFirst()
-                            StorageInfoOpt(id, status)
-                        } catch (e: Exception) {
-                            Timber.tag(TAG).w(e, "Failed to get StatusInfo for $id")
-                            StorageInfoOpt(id, null)
-                        }
-                    }
-                    stater.update { it.copy(destinations = storageStatuses) }
+                .switchMap { it.config }
+                .switchMap { storageManager.infos(it.destinations) }
+                .subscribe { storageStatuses ->
+                    stater.update { it.copy(destinations = storageStatuses.toList()) }
                 }
                 .withScopeVDC(this)
     }
@@ -67,7 +58,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                         return@map allStorages.filter { !alreadyAddedStorages.contains(it.ref.storageId) }.map { StorageInfoOpt(it) }
                     }
                 }
-                .firstOrError()
+                .take(1)
                 .subscribe { infos ->
                     storagePickerEvent.postValue(infos.toList())
                 }
