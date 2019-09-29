@@ -19,6 +19,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
@@ -42,7 +43,8 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
+    @BindView(R.id.loading_indicator) lateinit var loadingIndicator: View
+    @BindView(R.id.working_overlay) lateinit var workingOverlay: LoadingOverlayView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storage_list_action_dialog, container, false)
@@ -59,15 +61,16 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
 
         vdc.state.observe(this, Observer { state ->
             if (state.storageInfo != null) {
-                storageLabel.text = state.storageInfo.config?.label
-                        ?: getString(R.string.label_unknown)
+                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.label_unknown)
                 typeLabel.text = getString(state.storageInfo.ref.storageType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)
 
-            recyclerView.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            loadingOverlay.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            loadingIndicator.setGone(!state.isLoadingData)
+
+            recyclerView.setGone(state.isWorking)
+            workingOverlay.setGone(!state.isWorking)
         })
 
         vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }

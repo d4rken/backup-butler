@@ -5,9 +5,13 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.storage.core.*
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.StorageBuilder
+import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -22,47 +26,45 @@ class StorageActionDialogVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         private val storageManager: StorageManager,
         private val storageBuilder: StorageBuilder,
-        private val storageRefRepo: StorageRefRepo,
         private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
 
-    private val stateUpdater = Stater(State(isWorking = true))
+    private val stateUpdater = Stater(State(isLoadingData = true))
     val state = stateUpdater.liveData
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
         storageManager.info(storageId)
                 .subscribeOn(Schedulers.io())
-                .firstOrError()
                 .subscribe(
                         { storageInfo ->
-                            val allowedActions = mutableSetOf<StorageAction>()
-                            if (storageInfo != null) {
-                                if (storageInfo.config != null) {
-                                    allowedActions.add(VIEW)
-                                    allowedActions.add(RESTORE)
-                                    allowedActions.add(EDIT)
-                                }
-                                allowedActions.add(DETACH)
-                                if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
+                            if (storageInfo == null) {
+                                finishedEvent.postValue(Any())
+                                return@subscribe
                             }
+
+                            val allowedActions = mutableSetOf<StorageAction>()
+                            if (storageInfo.config != null) {
+                                allowedActions.add(VIEW)
+                                allowedActions.add(RESTORE)
+                                allowedActions.add(EDIT)
+                            }
+                            allowedActions.add(DETACH)
+                            if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
+
                             stateUpdater.update {
-                                if (storageInfo == null) {
-                                    finishedEvent.postValue(Any())
-                                    it.copy(isWorking = true)
-                                } else {
-                                    it.copy(
-                                            storageInfo = storageInfo,
-                                            isWorking = false,
-                                            allowedActions = allowedActions.toList()
-                                    )
-                                }
+                                it.copy(
+                                        storageInfo = storageInfo,
+                                        allowedActions = allowedActions.toList(),
+                                        isLoadingData = storageInfo.status == null
+                                )
                             }
                         },
                         {
                             finishedEvent.postValue(Any())
                         }
                 )
+                .withScopeVDC(this)
     }
 
     fun storageAction(action: StorageAction) {
@@ -125,7 +127,8 @@ class StorageActionDialogVDC @AssistedInject constructor(
     data class State(
             val storageInfo: StorageInfo? = null,
             val allowedActions: List<StorageAction> = listOf(),
-            val isWorking: Boolean = false
+            val isWorking: Boolean = false,
+            val isLoadingData: Boolean = false
     )
 
     @AssistedInject.Factory
