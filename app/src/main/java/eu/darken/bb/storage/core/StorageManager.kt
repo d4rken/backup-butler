@@ -34,6 +34,7 @@ class StorageManager @Inject constructor(
                 }
     }
 
+    // TODO shouldn't this return StorageInfoOpt due to checking via Storage.Id
     fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
             .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 

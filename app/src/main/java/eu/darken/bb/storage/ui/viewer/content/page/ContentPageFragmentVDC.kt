@@ -15,6 +15,9 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.Versioning
+import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
@@ -23,7 +26,8 @@ class ContentPageFragmentVDC @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
         @Assisted private val backupSpecId: BackupSpec.Id,
         @Assisted private val backupId: Backup.Id,
-        private val storageManager: StorageManager
+        private val storageManager: StorageManager,
+        private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId)
@@ -47,7 +51,8 @@ class ContentPageFragmentVDC @AssistedInject constructor(
                         it.copy(
                                 item = content,
                                 version = version,
-                                isLoadingInfos = false
+                                isLoadingInfos = false,
+                                showRestoreAction = true
                         )
                     }
                 }, {
@@ -71,12 +76,29 @@ class ContentPageFragmentVDC @AssistedInject constructor(
     }
 
 
+    fun restore() {
+        taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe { stater.update { it.copy(showRestoreAction = false) } }
+                .flatMap { data ->
+                    (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId)
+                    taskBuilder.update(data.taskId) { data }.map { data }
+                }
+                .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
+                .doFinally {
+                    finishEvent.postValue(Any())
+                }
+                .subscribe()
+                .withScopeVDC(this)
+    }
+
     data class State(
             val item: Storage.Item? = null,
             val version: Versioning.Version? = null,
             val items: List<Storage.Item.Content.Entry> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
+            val showRestoreAction: Boolean = false,
             val error: Throwable? = null
     )
 

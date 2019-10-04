@@ -99,7 +99,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_storage_list_fragment, menu)
+        inflater.inflate(R.menu.menu_storage_viewer_item_fragment, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 

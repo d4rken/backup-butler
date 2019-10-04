@@ -1,6 +1,9 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.Observer
@@ -40,8 +43,11 @@ class ContentPageFragment : SmartFragment(), AutoInject {
     @BindView(R.id.loading_overlay_files) lateinit var loadingOverlayFiles: LoadingOverlayView
     private val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
+    private var showRestoreAction = false
+
     init {
         layoutRes = R.layout.storage_viewer_item_content_adapter_page
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,6 +67,9 @@ class ContentPageFragment : SmartFragment(), AutoInject {
             loadingOverlayFiles.setInvisible(!state.isLoadingItems)
 
             loadingOverlayFiles.setError(state.error)
+
+            showRestoreAction = state.showRestoreAction
+            invalidateOptionsMenu()
         })
 
         vdc.finishEvent.observe(this, Observer {
@@ -68,5 +77,27 @@ class ContentPageFragment : SmartFragment(), AutoInject {
         })
 
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_storage_viewer_content_fragment, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.action_restore).isVisible = showRestoreAction
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        android.R.id.home -> {
+            requireActivity().finish()
+            true
+        }
+        R.id.action_restore -> {
+            vdc.restore()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }

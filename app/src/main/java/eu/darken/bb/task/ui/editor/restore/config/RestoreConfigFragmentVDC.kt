@@ -50,16 +50,12 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         configObs.map { it.targetStorage }
-                .flatMapIterable { it }
-                .flatMap { storageManager.info(it) }
+                .flatMap { storageManager.infos(it) }
                 .doOnSubscribe { Timber.i("SUB2") }
                 .doFinally { Timber.i("DISP2") }
                 .subscribe { info ->
                     stater.update { oldState ->
-                        val newStorageInfos = oldState.sourceStorages.filterNot {
-                            it.ref.storageId == info.ref.storageId
-                        }.toMutableList()
-                        newStorageInfos.add(info)
+                        val newStorageInfos = info.filter { it.info != null }.map { it.info!! }
                         oldState.copy(sourceStorages = newStorageInfos.toList())
                     }
                 }

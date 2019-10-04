@@ -2,7 +2,6 @@ package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SimplePath
 import io.kotlintest.shouldBe
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +15,7 @@ class MMRefTest {
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
                 tmpPath = File("simplefile"),
-                originalPath = SimplePath.build(APath.Type.FILE, "originalpath")
+                originalPath = SimplePath.build("originalpath")
         )
 
         val orig = ref.props
@@ -37,7 +36,7 @@ class MMRefTest {
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
                 tmpPath = File("simplefile"),
-                originalPath = SimplePath.build(APath.Type.FILE, "originalpath")
+                originalPath = SimplePath.build("originalpath")
         )
         ref.tmpPath.mkdir()
         ref.type shouldBe MMRef.Type.DIRECTORY

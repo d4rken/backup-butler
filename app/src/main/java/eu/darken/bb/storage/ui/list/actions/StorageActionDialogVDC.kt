@@ -83,7 +83,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .subscribe()
             }
             RESTORE -> {
-                taskBuilder.createBuilder(type = Task.Type.RESTORE_SIMPLE)
+                taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
                         .map {
@@ -93,7 +93,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .flatMap { data -> taskBuilder.update(data.taskId) { data }.map { it.notNullValue() } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { finishedEvent.postValue(Any()) }
-                        .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
+                        .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
                         .subscribe()
             }
             DETACH -> {

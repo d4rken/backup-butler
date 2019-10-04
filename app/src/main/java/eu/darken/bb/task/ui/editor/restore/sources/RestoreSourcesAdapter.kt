@@ -9,7 +9,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.ui.SwitchPreferenceView
-import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import javax.inject.Inject
 
 
@@ -20,7 +20,7 @@ class RestoreSourcesAdapter @Inject constructor()
 
     init {
         modules.add(DataBinderModule<Any, BaseVH>(data))
-        modules.add(TypedVHCreator(0, { data[it] is StorageInfo }) { StorageVH(it) })
+        modules.add(TypedVHCreator(0, { data[it] is StorageInfoOpt }) { StorageVH(it) })
         modules.add(TypedVHCreator(1, { data[it] is BackupSpec.Id }) { SpecVH(it) })
         modules.add(TypedVHCreator(2, { data[it] is Backup.Id }) { BackupVH(it) })
     }
@@ -32,18 +32,15 @@ class RestoreSourcesAdapter @Inject constructor()
         : ModularAdapter.VH(layoutRes, parent), BindableVH<Any>
 
     class StorageVH(parent: ViewGroup)
-        : BaseVH(R.layout.task_editor_restore_configs_adapter_line_app, parent) {
-        @BindView(R.id.option_skip_existing_apps)
-        lateinit var optionSkipExisting: SwitchPreferenceView
-        @BindView(R.id.option_restore_apk) lateinit var optionRestoreApk: SwitchPreferenceView
-        @BindView(R.id.option_restore_data) lateinit var optionRestoreData: SwitchPreferenceView
+        : BaseVH(R.layout.task_editor_restore_sources_adapter_line_storage, parent) {
+
 
         init {
             ButterKnife.bind(this, itemView)
         }
 
         override fun bind(item: Any) {
-
+            item as StorageInfoOpt
         }
 
     }

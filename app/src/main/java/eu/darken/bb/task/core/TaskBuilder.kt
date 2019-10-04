@@ -69,11 +69,11 @@ class TaskBuilder @Inject constructor(
     fun save(id: Task.Id): Single<Task> = remove(id)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
-                if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
+                checkNotNull(it.value) { "Can't find ID to save: $id" }
                 it.value
             }
             .flatMap {
-                if (it.editor == null) throw IllegalStateException("Can't save builder data NULL editor: $it")
+                checkNotNull(it.editor) { "Can't save builder data NULL editor: $it" }
                 it.editor.save()
             }
             .flatMap { task ->
@@ -120,14 +120,13 @@ class TaskBuilder @Inject constructor(
             }
             .ignoreElement()
 
-
-    fun createBuilder(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = Single.fromCallable {
-        Data(
-                taskId = newId,
-                taskType = type,
-                editor = editors.getValue(type).create(newId)
-        )
-    }
+    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.data
+            .firstOrError()
+            .map { existingData ->
+                require(!existingData.containsKey(newId)) { "Builder with this ID already exists: $newId" }
+                Data(taskId = newId, taskType = type, editor = editors.getValue(type).create(newId))
+            }
+            .flatMap { data -> update(data.taskId) { data }.map { data } }
 
     data class Data(
             val taskId: Task.Id,

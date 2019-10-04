@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout style="@style/ThreeLineListItemContainer"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/type_label"
+        style="@style/TextAppearance.MaterialComponents.Overline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toStartOf="@+id/type_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Local storage" />
+
+    <ImageView
+        android:id="@+id/type_icon"
+        style="@style/ListItemIconSecondary"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"
+        tools:src="@drawable/ic_sd_storage" />
+
+    <TextView
+        android:id="@+id/label"
+        style="@style/ListItemTextTitle"
+        android:layout_width="0dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:singleLine="true"
+        app:layout_constraintBottom_toTopOf="@+id/repo_status"
+        app:layout_constraintEnd_toEndOf="@+id/type_label"
+        app:layout_constraintStart_toStartOf="@+id/type_label"
+        app:layout_constraintTop_toBottomOf="@+id/type_label"
+        tools:text="/storage/emulated/0/BackupButler/backups/mybackup" />
+
+    <TextView
+        android:id="@+id/repo_status"
+        style="@style/ListItemTextPrimary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/loading_animation"
+        app:layout_constraintStart_toStartOf="@+id/label"
+        app:layout_constraintTop_toBottomOf="@+id/label"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="27 backups - 5 GB (60% full)" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/loading_animation"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_colorFilter="?colorOnBackground"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/anim_loading_circle" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

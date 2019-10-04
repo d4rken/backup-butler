@@ -1,7 +1,6 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SimplePath
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
@@ -30,8 +29,8 @@ class MMDataRepoTest : BaseTest() {
         val repo = MMDataRepo(testDir)
         File(testDir, CACHEDIR).exists() shouldBe true
 
-        val ref1 = repo.create(Backup.Id(), SimplePath.build(APath.Type.FILE, "originalpath"))
-        val ref2 = repo.create(Backup.Id(), SimplePath.build(APath.Type.FILE, "originalpath"))
+        val ref1 = repo.create(Backup.Id(), SimplePath.build("originalpath"))
+        val ref2 = repo.create(Backup.Id(), SimplePath.build("originalpath"))
         ref1.tmpPath.mkdir()
         ref1.type shouldBe MMRef.Type.DIRECTORY
 

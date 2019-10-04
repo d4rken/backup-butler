@@ -65,7 +65,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     fun newTask() {
         GlobalScope.launch {
-            taskBuilder.startEditor().await()
+            taskBuilder.startEditor(taskType = Task.Type.BACKUP_SIMPLE).await()
         }
     }
 

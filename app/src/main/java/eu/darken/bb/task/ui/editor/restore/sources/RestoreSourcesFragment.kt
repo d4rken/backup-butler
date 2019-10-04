@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setupDefaults
@@ -58,9 +59,12 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         }
 
         vdc.backupsState.observe2(this) { state ->
+            val data = mutableListOf<Any>()
+            data.addAll(state.storages)
+            adapter.update(data)
+
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)
-            loadingOverlayBackupList.setPrimaryText(R.string.todo)
         }
 
         super.onViewCreated(view, savedInstanceState)

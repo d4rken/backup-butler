@@ -11,6 +11,9 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivityVDC
+import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.schedulers.Schedulers
 
@@ -18,6 +21,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         @Assisted private val backupSpecId: BackupSpec.Id,
+        private val taskBuilder: TaskBuilder,
         storageManager: StorageManager
 ) : SmartVDC() {
 
@@ -69,7 +73,20 @@ class ItemActionDialogVDC @AssistedInject constructor(
                         .doFinally { finishedEvent.postValue(Any()) }
                         .subscribe()
             }
-            ItemAction.RESTORE -> TODO()
+            ItemAction.RESTORE -> taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
+                    .subscribeOn(Schedulers.io())
+                    .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
+                    .flatMap { data ->
+                        (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
+                        taskBuilder.update(data.taskId) { data }.map { data }
+                    }
+                    .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
+                    .doFinally {
+                        stater.update { it.copy(workIds = it.clearWorkId()) }
+                        finishedEvent.postValue(Any())
+                    }
+                    .subscribe()
+                    .withScopeVDC(this)
         }
     }
 

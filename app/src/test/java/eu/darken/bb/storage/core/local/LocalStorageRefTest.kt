@@ -1,8 +1,7 @@
 package eu.darken.bb.storage.core.local
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.SimplePath
+import eu.darken.bb.common.file.JavaPath
 import eu.darken.bb.storage.core.Storage
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -11,7 +10,7 @@ class LocalStorageRefTest {
     @Test
     fun testSerialization() {
         val original = LocalStorageRef(
-                SimplePath.build(APath.Type.DIRECTORY, "test", "path")
+                JavaPath.build("test", "path")
         )
 
         val moshi = AppModule().moshi()

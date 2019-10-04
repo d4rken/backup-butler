@@ -6,7 +6,6 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
@@ -15,6 +14,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -56,18 +56,45 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
                     }
                 }
                 .withScopeVDC(this)
+
+        configObs.map { it.targetStorage }
+                .flatMap { storageManager.infos(it) }
+                .subscribe { storageInfos ->
+                    backupsStater.update { oldState ->
+                        oldState.copy(
+                                storages = storageInfos.toList(),
+                                workIds = oldState.clearWorkId()
+                        )
+                    }
+                }
+                .withScopeVDC(this)
+
+//        configObs
+//                .subscribe { config ->
+//                    backupsStater.update { oldState ->
+//                        oldState.copy(
+//                                storages = config.targetStorage.toList(),
+//                                specs = config.targetBackupSpec.toList(),
+//                                backups = config.targetBackup.toList(),
+//                                workIds = oldState.clearWorkId()
+//                        )
+//                    }
+//                }
+//                .withScopeVDC(this)
     }
 
     data class CountState(
             val sourceStorages: List<Storage.Id> = emptyList(),
             val sourceBackupSpecs: List<BackupSpec.Target> = emptyList(),
             val sourceBackups: List<Backup.Target> = emptyList(),
-            val restoreConfigs: List<Restore.Config> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
 
     data class BackupsState(
+            val storages: List<StorageInfoOpt> = emptyList(),
+            val specs: List<BackupSpec.Target> = emptyList(),
+            val backups: List<Backup.Target> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
