@@ -52,7 +52,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                 .subscribe({ storageContents ->
                     stater.update {
                         it.copy(
-                                items = storageContents.toList(),
+                                specInfos = storageContents.toList(),
                                 workIds = it.clearWorkId()
                         )
                     }
@@ -75,10 +75,10 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun viewContent(item: Storage.Item) {
+    fun viewContent(info: BackupSpec.Info) {
         contentActionEvent.postValue(ContentActionEvent(
-                storageId = item.storageId,
-                backupSpecId = item.backupSpec.specId,
+                storageId = info.storageId,
+                backupSpecId = info.backupSpec.specId,
                 allowView = true,
                 allowDelete = true
         ))
@@ -121,7 +121,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     data class State(
             val storageLabel: String? = null,
             val storageType: Storage.Type? = null,
-            val items: List<Storage.Item> = emptyList(),
+            val specInfos: List<BackupSpec.Info> = emptyList(),
             val error: Throwable? = null,
             val allowDeleteAll: Boolean = false,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)

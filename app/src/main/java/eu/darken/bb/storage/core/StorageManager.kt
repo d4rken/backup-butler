@@ -6,7 +6,6 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.MissingFileException
-import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -35,13 +34,13 @@ class StorageManager @Inject constructor(
     }
 
     // TODO shouldn't this return StorageInfoOpt due to checking via Storage.Id
-    fun info(id: Storage.Id): Observable<StorageInfo> = refRepo.get(id)
+    fun info(id: Storage.Id): Observable<Storage.Info> = refRepo.get(id)
             .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
 
-    fun infos(): Observable<Collection<StorageInfo>> = infos(wantedIds = null)
+    fun infos(): Observable<Collection<Storage.Info>> = infos(wantedIds = null)
             .map { infos -> infos.map { info -> info.info!! } }
 
-    fun infos(wantedIds: Collection<Storage.Id>? = null): Observable<Collection<StorageInfoOpt>> = Observable
+    fun infos(wantedIds: Collection<Storage.Id>? = null): Observable<Collection<Storage.InfoOpt>> = Observable
             .fromCallable {
                 if (wantedIds == null) return@fromCallable refRepo.references
 
@@ -56,29 +55,29 @@ class StorageManager @Inject constructor(
             }
             .switchMap { it }
             .switchMap { refMap ->
-                if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<StorageInfoOpt>())
+                if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<Storage.InfoOpt>())
 
                 val statusObs = refMap.map { (id, ref) ->
                     if (ref != null) {
                         info(ref)
                                 .subscribeOn(Schedulers.io())
-                                .map { StorageInfoOpt(id, it) }
+                                .map { Storage.InfoOpt(id, it) }
                     } else {
-                        Observable.just(StorageInfoOpt(id))
+                        Observable.just(Storage.InfoOpt(id))
                     }
                 }
-                return@switchMap Observable.combineLatest<StorageInfoOpt, List<StorageInfoOpt>>(statusObs) {
-                    it.asList() as List<StorageInfoOpt>
+                return@switchMap Observable.combineLatest<Storage.InfoOpt, List<Storage.InfoOpt>>(statusObs) {
+                    it.asList() as List<Storage.InfoOpt>
                 }
             }
 
-    fun info(storageRef: Storage.Ref): Observable<StorageInfo> = getStorage(storageRef)
+    private fun info(ref: Storage.Ref): Observable<Storage.Info> = getStorage(ref)
             .switchMap {
-                it.info().startWith(StorageInfo(ref = storageRef, config = it.storageConfig))
+                it.info().startWith(Storage.Info(storageId = ref.storageId, storageType = ref.storageType, config = it.storageConfig))
             }
             .doOnError { Timber.tag(TAG).e(it) }
-            .startWith(StorageInfo(ref = storageRef))
-            .onErrorReturn { StorageInfo(ref = storageRef, error = it) }
+            .startWith(Storage.Info(storageId = ref.storageId, storageType = ref.storageType))
+            .onErrorReturn { Storage.Info(storageId = ref.storageId, storageType = ref.storageType, error = it) }
 
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
             .flatMapObservable { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }

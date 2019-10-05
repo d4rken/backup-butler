@@ -61,6 +61,8 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         vdc.backupsState.observe2(this) { state ->
             val data = mutableListOf<Any>()
             data.addAll(state.storages)
+            data.addAll(state.specs)
+            data.addAll(state.backups)
             adapter.update(data)
 
             recyclerView.setInvisible(state.isWorking)

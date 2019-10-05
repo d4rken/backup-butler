@@ -10,7 +10,6 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
-import eu.darken.bb.storage.core.StorageInfo
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.task.core.Task
@@ -125,7 +124,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
     }
 
     data class State(
-            val storageInfo: StorageInfo? = null,
+            val storageInfo: Storage.Info? = null,
             val allowedActions: List<StorageAction> = listOf(),
             val isWorking: Boolean = false,
             val isLoadingData: Boolean = false

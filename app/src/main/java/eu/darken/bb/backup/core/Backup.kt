@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import eu.darken.bb.R
+import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.storage.core.Storage
@@ -47,4 +48,26 @@ interface Backup {
             val backupSpecId: BackupSpec.Id,
             val backupId: Id
     )
+
+    data class Content(
+            val items: Collection<Entry>
+    ) {
+        interface Entry {
+            val label: String
+        }
+    }
+
+    data class Info(
+            val storageId: Storage.Id,
+            val specId: BackupSpec.Id,
+            val backupId: Id
+    )
+
+    data class InfoOpt(
+            val storageId: Storage.Id,
+            val specId: BackupSpec.Id,
+            val backupId: Id,
+            override val info: Info?,
+            override val error: Throwable?
+    ) : OptInfo<Info>
 }

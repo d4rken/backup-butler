@@ -8,7 +8,7 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.storage.core.StorageInfo
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -49,7 +49,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
-        configObs.map { it.targetStorage }
+        configObs.map { it.targetStorages }
                 .flatMap { storageManager.infos(it) }
                 .doOnSubscribe { Timber.i("SUB2") }
                 .doFinally { Timber.i("DISP2") }
@@ -70,9 +70,9 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val sourceStorages: List<StorageInfo> = emptyList(),
-            val sourceBackupSpecs: List<StorageInfo> = emptyList(),
-            val sourceBackups: List<StorageInfo> = emptyList(),
+            val sourceStorages: List<Storage.Info> = emptyList(),
+            val sourceBackupSpecs: List<Storage.Info> = emptyList(),
+            val sourceBackups: List<Storage.Info> = emptyList(),
             val restoreConfigs: List<Restore.Config> = emptyList(),
             val isLoading: Boolean = true
     )

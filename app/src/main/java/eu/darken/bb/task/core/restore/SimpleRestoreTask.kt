@@ -12,7 +12,7 @@ data class SimpleRestoreTask(
         override val taskName: String,
         override val taskId: Task.Id,
         val restoreConfigs: Collection<Restore.Config> = emptySet(),
-        val targetStorage: Collection<Storage.Id> = emptySet(),
+        val targetStorages: Collection<Storage.Id> = emptySet(),
         val targetBackupSpec: Collection<BackupSpec.Target> = emptySet(),
         val targetBackup: Collection<Backup.Target> = emptySet()
 ) : Task.Restore {
@@ -20,7 +20,7 @@ data class SimpleRestoreTask(
     override val taskType: Task.Type = Task.Type.RESTORE_SIMPLE
 
     override fun getDescription(context: Context): String {
-        return context.getString(R.string.task_restore_simple_description, targetStorage.size, targetBackupSpec.size, targetBackup.size)
+        return context.getString(R.string.task_restore_simple_description, targetStorages.size, targetBackupSpec.size, targetBackup.size)
     }
 
 }

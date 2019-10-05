@@ -56,7 +56,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     fun addStorageId(storageId: Storage.Id) {
         configPub.update { old ->
-            old.copy(targetStorage = old.targetStorage.toMutableSet().apply { add(storageId) }.toSet())
+            old.copy(targetStorages = old.targetStorages.toMutableSet().apply { add(storageId) }.toSet())
         }
     }
 

@@ -52,23 +52,23 @@ class SimpleRestoreProcessor @AssistedInject constructor(
             TODO("Spec restores")
         }
 
-        task.targetStorage.forEach { storageId ->
+        task.targetStorages.forEach { storageId ->
             val storage = storageManager.getStorage(storageId).blockingFirst()
-            storage.items().take(1).flatMapIterable { it }.forEach { content ->
-                val newest = content.versioning.getNewest()
+            storage.items().take(1).flatMapIterable { it }.forEach { specItem ->
+                val newest = specItem.versioning.getNewest()
                 if (newest == null) {
-                    Timber.tag(TAG).d("Empty BackupSpec: %s", content.backupSpec)
+                    Timber.tag(TAG).d("Empty BackupSpec: %s", specItem.backupSpec)
                 } else {
                     val storageProgressSub = storage.progress
                             .subscribeOn(Schedulers.io())
                             .subscribe { pro -> progressChild.updateProgress { pro } }
 
-                    val backupUnit = storage.load(content, newest.backupId)
+                    val backupUnit = storage.load(specItem.backupSpec.specId, newest.backupId)
                     storageProgressSub.dispose()
 
-                    val endpointFactory = restoreEndpointFactories[content.backupSpec.backupType]
-                    val backupType = content.backupSpec.backupType
-                    checkNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${content.backupSpec}" }
+                    val endpointFactory = restoreEndpointFactories[specItem.backupSpec.backupType]
+                    val backupType = specItem.backupSpec.backupType
+                    checkNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${specItem.backupSpec}" }
                     val endpoint = endpointFactory.get()
 
                     val endpointProgressSub = endpoint.progress

@@ -7,6 +7,7 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.storage.core.local.LocalStorageConfig
@@ -29,37 +30,28 @@ interface Storage : Progress.Host {
         SAF(R.drawable.ic_storage, R.string.repo_type_saf_storage_label, R.string.repo_type_saf_storage_desc);
     }
 
+    val storageId: Id
+        get() = storageConfig.storageId
+
     val storageConfig: Config
 
-    fun info(): Observable<StorageInfo>
+    fun info(): Observable<Info>
 
-    fun items(): Observable<Collection<Item>>
+    fun items(): Observable<Collection<BackupSpec.Info>>
 
-    fun content(item: Item, backupId: Backup.Id): Observable<Item.Content>
+    fun items(vararg specIds: BackupSpec.Id): Observable<Collection<BackupSpec.Info>>
 
-    fun load(item: Item, backupId: Backup.Id): Backup.Unit
+    fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Content>
 
-    fun save(backup: Backup.Unit): Pair<Item, Versioning.Version>
+    fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit
 
-    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<Item>
+    fun save(backup: Backup.Unit): Pair<BackupSpec.Info, Versioning.Version>
+
+    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<BackupSpec.Info>
 
     fun wipe(): Completable
 
     fun detach(): Completable
-
-    interface Item {
-        val storageId: Id
-        val backupSpec: BackupSpec
-        val versioning: Versioning
-
-        data class Content(
-                val items: Collection<Entry>
-        ) {
-            interface Entry {
-                val label: String
-            }
-        }
-    }
 
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
@@ -92,6 +84,31 @@ interface Storage : Progress.Host {
         val label: String
         val storageId: Id
         val storageType: Type
+    }
+
+    data class Info(
+            val storageId: Id,
+            val storageType: Type,
+            val config: Config? = null,
+            val status: Status? = null,
+            val error: Throwable? = null
+    ) {
+
+        data class Status(
+                val isReadOnly: Boolean,
+                val itemCount: Int,
+                val totalSize: Long
+        )
+
+    }
+
+    data class InfoOpt(
+            val storageId: Id,
+            override val info: Info?,
+            override val error: Throwable? = null
+    ) : OptInfo<Info> {
+        constructor(storageId: Id) : this(storageId, null)
+        constructor(config: Info) : this(config.storageId, config)
     }
 }
 

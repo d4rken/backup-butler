@@ -32,7 +32,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
                 .subscribe { infos ->
                     stater.update { state ->
                         state.copy(
-                                storages = infos.map { StorageInfoOpt(it) },
+                                storages = infos.map { Storage.InfoOpt(it) },
                                 isLoading = false
                         )
                     }
@@ -46,13 +46,13 @@ class StorageListFragmentVDC @AssistedInject constructor(
                 .subscribe()
     }
 
-    fun editStorage(item: StorageInfoOpt) {
+    fun editStorage(item: Storage.InfoOpt) {
         Timber.tag(TAG).d("editStorage(%s)", item)
         editTaskEvent.postValue(item.storageId)
     }
 
     data class State(
-            val storages: List<StorageInfoOpt> = emptyList(),
+            val storages: List<Storage.InfoOpt> = emptyList(),
             val isLoading: Boolean = true
     )
 

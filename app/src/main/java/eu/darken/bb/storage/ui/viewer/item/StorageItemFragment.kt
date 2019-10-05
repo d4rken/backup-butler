@@ -69,7 +69,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
                 requireActivityActionBar().setSubtitle(state.storageType.labelRes)
             }
 
-            adapter.update(state.items)
+            adapter.update(state.specInfos)
 
             recyclerView.setInvisible(state.isWorking)
             loadingOverlay.setInvisible(!state.isWorking)

@@ -13,15 +13,16 @@ import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 class StorageAdapter @Inject constructor()
-    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<StorageInfoOpt> {
+    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<Storage.InfoOpt> {
 
-    override val data = mutableListOf<StorageInfoOpt>()
+    override val data = mutableListOf<Storage.InfoOpt>()
 
     init {
-        modules.add(DataBinderModule<StorageInfoOpt, VH>(data))
+        modules.add(DataBinderModule<Storage.InfoOpt, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
@@ -29,7 +30,7 @@ class StorageAdapter @Inject constructor()
 
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<StorageInfoOpt> {
+        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<Storage.InfoOpt> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -41,7 +42,7 @@ class StorageAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: StorageInfoOpt) {
+        override fun bind(item: Storage.InfoOpt) {
             if (item.info == null) {
                 typeLabel.setText(R.string.label_unknown)
                 typeIcon.setColorFilter(getColor(R.color.colorError))
@@ -54,8 +55,8 @@ class StorageAdapter @Inject constructor()
             }
 
             val info = item.info
-            typeLabel.setText(info.ref.storageType.labelRes)
-            typeIcon.setImageResource(info.ref.storageType.iconRes)
+            typeLabel.setText(info.storageType.labelRes)
+            typeIcon.setImageResource(info.storageType.iconRes)
             typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
 
             if (info.config != null) {

@@ -9,8 +9,8 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.list.StorageInfoOpt
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
@@ -34,7 +34,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
 
-    val storagePickerEvent = SingleLiveEvent<List<StorageInfoOpt>>()
+    val storagePickerEvent = SingleLiveEvent<List<Storage.InfoOpt>>()
 
     init {
         editorObs
@@ -47,7 +47,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val destinations: List<StorageInfoOpt> = emptyList()
+            val destinations: List<Storage.InfoOpt> = emptyList()
     )
 
     fun showDestinationPicker() {
@@ -55,7 +55,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .flatMap { allStorages ->
                     editor.config.map { it.destinations }.map { alreadyAddedStorages ->
-                        return@map allStorages.filter { !alreadyAddedStorages.contains(it.ref.storageId) }.map { StorageInfoOpt(it) }
+                        return@map allStorages.filter { !alreadyAddedStorages.contains(it.storageId) }.map { Storage.InfoOpt(it) }
                     }
                 }
                 .take(1)
@@ -64,11 +64,11 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                 }
     }
 
-    fun addDestination(storage: StorageInfoOpt) {
+    fun addDestination(storage: Storage.InfoOpt) {
         editor.addDesination(storage.storageId)
     }
 
-    fun removeDestination(storage: StorageInfoOpt) {
+    fun removeDestination(storage: Storage.InfoOpt) {
         editor.removeDesination(storage.storageId)
     }
 

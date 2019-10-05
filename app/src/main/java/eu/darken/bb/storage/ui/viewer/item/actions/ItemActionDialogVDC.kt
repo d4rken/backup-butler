@@ -39,7 +39,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ content ->
                     stater.update {
-                        it.copy(item = content, workIds = it.clearWorkId(WorkId.ID1))
+                        it.copy(info = content, workIds = it.clearWorkId(WorkId.ID1))
                     }
                 }, {
                     finishedEvent.postValue(Any())
@@ -91,7 +91,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
     }
 
     data class State(
-            val item: Storage.Item? = null,
+            val info: BackupSpec.Info? = null,
             val allowedActions: List<ItemAction> = listOf(),
             override val workIds: Set<WorkId> = setOf(WorkId.ID1, WorkId.ID2)
     ) : WorkId.State

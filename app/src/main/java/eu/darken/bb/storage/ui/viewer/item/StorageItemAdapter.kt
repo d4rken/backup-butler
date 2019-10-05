@@ -7,25 +7,25 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
+import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.lists.*
-import eu.darken.bb.storage.core.Storage
 import java.text.DateFormat
 import javax.inject.Inject
 
 class StorageItemAdapter @Inject constructor()
-    : ModularAdapter<StorageItemAdapter.VH>(), DataAdapter<Storage.Item> {
+    : ModularAdapter<StorageItemAdapter.VH>(), DataAdapter<BackupSpec.Info> {
 
-    override val data = mutableListOf<Storage.Item>()
+    override val data = mutableListOf<BackupSpec.Info>()
 
     init {
-        modules.add(DataBinderModule<Storage.Item, VH>(data))
+        modules.add(DataBinderModule<BackupSpec.Info, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<Storage.Item> {
+        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<BackupSpec.Info> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -38,16 +38,16 @@ class StorageItemAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: Storage.Item) {
-            typeLabel.setText(item.backupSpec.backupType.labelRes)
-            typeIcon.setImageResource(item.backupSpec.backupType.iconRes)
+        override fun bind(info: BackupSpec.Info) {
+            typeLabel.setText(info.backupSpec.backupType.labelRes)
+            typeIcon.setImageResource(info.backupSpec.backupType.iconRes)
 
-            labelText.text = item.backupSpec.getLabel(context)
+            labelText.text = info.backupSpec.getLabel(context)
 
-            val versionCount = getQuantityString(R.plurals.x_versions, item.versioning.versions.size)
+            val versionCount = getQuantityString(R.plurals.x_versions, info.versioning.versions.size)
             val lastBackup = getString(
                     R.string.versions_last_backup_time_x,
-                    formatter.format(item.versioning.versions.first().createdAt)
+                    formatter.format(info.versioning.versions.first().createdAt)
             )
             @SuppressLint("SetTextI18n")
             statusText.text = "$versionCount; $lastBackup"

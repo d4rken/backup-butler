@@ -63,9 +63,9 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            if (state.item != null) {
-                storageLabel.text = state.item.backupSpec.getLabel(requireContext())
-                typeLabel.text = getString(state.item.backupSpec.backupType.labelRes)
+            if (state.info != null) {
+                storageLabel.text = state.info.backupSpec.getLabel(requireContext())
+                typeLabel.text = getString(state.info.backupSpec.backupType.labelRes)
             }
 
             actionsAdapter.update(state.allowedActions)

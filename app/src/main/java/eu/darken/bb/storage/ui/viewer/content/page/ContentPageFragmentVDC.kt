@@ -49,7 +49,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
                     val version = content.versioning.versions.find { it.backupId == backupId }!!
                     stater.update {
                         it.copy(
-                                item = content,
+                                specInfo = content,
                                 version = version,
                                 isLoadingInfos = false,
                                 showRestoreAction = true
@@ -61,7 +61,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         contentObs
-                .flatMap { content -> storageObs.switchMap { it.content(content, backupId) } }
+                .flatMap { content -> storageObs.switchMap { it.content(content.specId, backupId) } }
                 .subscribe({ details ->
                     stater.update { state ->
                         state.copy(
@@ -93,9 +93,9 @@ class ContentPageFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val item: Storage.Item? = null,
+            val specInfo: BackupSpec.Info? = null,
             val version: Versioning.Version? = null,
-            val items: List<Storage.Item.Content.Entry> = emptyList(),
+            val items: List<Backup.Content.Entry> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
             val showRestoreAction: Boolean = false,
