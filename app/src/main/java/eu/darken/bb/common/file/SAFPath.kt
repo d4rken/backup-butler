@@ -12,12 +12,14 @@ data class SAFPath(
 ) : APath {
 
     init {
-        check(SAFGateway.isTreeUri(treeRoot)) {
-            "SAFFile URI's must be a tree uri: $treeRoot"
+        if (!SAFGateway.isTreeUri(treeRoot)) {
+            throw            IllegalArgumentException("SAFFile URI's must be a tree uri: $treeRoot")
         }
     }
 
-    override val pathType: APath.SFileType = APath.SFileType.SAF
+    override var pathType: APath.SFileType
+        get() = APath.SFileType.SAF
+        set(value) {}
 
     override val path: String
         get() = if (crumbs.isNotEmpty()) {

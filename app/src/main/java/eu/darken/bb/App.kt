@@ -5,7 +5,6 @@ import android.app.Application
 import android.app.Service
 import android.content.BroadcastReceiver
 import androidx.work.Configuration
-import androidx.work.WorkManager
 import com.uber.rxdogtag.RxDogTag
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
@@ -16,7 +15,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroadcastReceiverInjector {
+open class App
+    : Application(), Configuration.Provider, HasActivityInjector, HasServiceInjector, HasBroadcastReceiverInjector {
 
     companion object {
         internal val TAG = logTag("App")
@@ -51,13 +51,15 @@ open class App : Application(), HasActivityInjector, HasServiceInjector, HasBroa
 
         AppInjector.init(this)
 
-        WorkManager.initialize(this, Configuration.Builder().setWorkerFactory(workerFactory).build())
-
         // Sets theme mode
         uiSettings.theme = uiSettings.theme
 
         Timber.tag(TAG).d("onCreate() done!")
     }
+
+    override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
+            .setMinimumLoggingLevel(android.util.Log.INFO)
+            .build()
 
     override fun activityInjector(): AndroidInjector<Activity> = activityInjector
 

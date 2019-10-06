@@ -24,7 +24,7 @@ android {
         buildConfigField "String", "GITSHA", "\"${gitSha}\""
         buildConfigField "String", "BUILDTIME", "\"${buildTime}\""
 
-        testInstrumentationRunner "${packageName}.ExampleTestRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -96,8 +96,8 @@ android {
         }
     }
     testOptions {
-        unitTests.all {
-            useJUnitPlatform()
+        unitTests {
+            includeAndroidResources = true
         }
     }
 }
@@ -123,15 +123,16 @@ dependencies {
 
     implementation 'com.airbnb.android:lottie:3.0.7'
 
-    implementation 'android.arch.work:work-runtime-ktx:1.0.1'
-    implementation "android.arch.work:work-rxjava2:1.0.1"
+    implementation 'androidx.work:work-runtime:2.2.0'
+    implementation 'androidx.work:work-rxjava2:2.2.0'
+    testImplementation 'androidx.work:work-testing:2.2.0'
 
     // Crash tracking
     implementation 'com.bugsnag:bugsnag-android:4.10.0'
 
-    implementation "com.squareup.moshi:moshi:1.8.0"
-    implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
-    implementation "com.squareup.moshi:moshi-adapters:1.8.0"
+    implementation "com.squareup.moshi:moshi:1.9.0-SNAPSHOT"
+    implementation "com.squareup.moshi:moshi-kotlin:1.9.0-SNAPSHOT"
+    implementation "com.squareup.moshi:moshi-adapters:1.9.0-SNAPSHOT"
 
     def room_version = "2.2.0-beta01"
     implementation "androidx.room:room-runtime:$room_version"
@@ -189,14 +190,20 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.2"
     testImplementation "org.junit.jupiter:junit-jupiter-params:5.3.2"
 
+    // Robolectric doesn't work with jUnit 5
+    testImplementation 'junit:junit:4.12'
+
     testImplementation "org.assertj:assertj-core:3.11.1"
 
     testImplementation "org.mockito:mockito-core:2.24.5"
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0'
     testImplementation 'com.github.tmurakami:dexopener:1.0.2'
 
+
     testImplementation "io.mockk:mockk:1.9.3.kotlin12"
     testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
+
+    testImplementation 'org.robolectric:robolectric:4.3'
 
     androidTestImplementation "org.mockito:mockito-core:2.24.5"
     androidTestImplementation 'org.mockito:mockito-android:2.23.0'

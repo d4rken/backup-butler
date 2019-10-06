@@ -6,7 +6,9 @@ data class SimplePath(
         override val path: String
 ) : APath {
 
-    override val pathType: APath.SFileType = APath.SFileType.SIMPLE
+    override var pathType: APath.SFileType
+        get() = APath.SFileType.SIMPLE
+        set(value) {}
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 

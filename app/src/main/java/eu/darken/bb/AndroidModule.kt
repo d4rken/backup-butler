@@ -44,5 +44,5 @@ class AndroidModule {
 
     @Provides
     @PerApp
-    fun workManager() = WorkManager.getInstance()
+    fun workManager(@AppContext context: Context) = WorkManager.getInstance(context)
 }

@@ -1,12 +1,16 @@
 package eu.darken.bb.common.file
 
+import com.squareup.moshi.JsonClass
 import java.io.File
 
+@JsonClass(generateAdapter = true)
 data class JavaPath(
         val file: File
 ) : APath {
 
-    override val pathType: APath.SFileType = APath.SFileType.JAVA
+    override var pathType: APath.SFileType
+        get() = APath.SFileType.JAVA
+        set(value) {}
 
     override val path: String
         get() = file.path

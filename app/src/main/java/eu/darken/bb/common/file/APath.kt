@@ -1,6 +1,6 @@
 package eu.darken.bb.common.file
 
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
+import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import java.io.File
 
 interface APath {
@@ -14,10 +14,11 @@ interface APath {
     }
 
     companion object {
-        val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<APath> = PolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> = MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
                 .withSubtype(JavaPath::class.java, SFileType.JAVA.name)
                 .withSubtype(SimplePath::class.java, SFileType.SIMPLE.name)
                 .withSubtype(SAFPath::class.java, SFileType.SAF.name)
+                .skipLabelSerialization()
     }
 }
 

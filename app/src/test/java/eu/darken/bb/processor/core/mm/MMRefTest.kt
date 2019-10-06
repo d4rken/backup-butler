@@ -23,9 +23,7 @@ class MMRefTest {
         val adapter = AppModule().moshi().adapter(MMRef.Props::class.java)
 
         val json = adapter.toJson(orig)
-        assertThat(json)
-                .contains("\"originalPath\":{\"pathType\":\"SIMPLE\",\"type\":\"FILE\",\"path\":\"originalpath\"")
-                .contains("\"refType\":\"UNUSED\"")
+        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"SIMPLE\"},\"refType\":\"UNUSED\"}"
 
         assertThat(adapter.fromJson(json)).isEqualTo(orig)
     }
