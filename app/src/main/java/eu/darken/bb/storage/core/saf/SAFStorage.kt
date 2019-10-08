@@ -9,7 +9,6 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -25,16 +24,13 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
-import eu.darken.bb.storage.core.SimpleVersioning
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.Versioning
+import eu.darken.bb.storage.core.local.LocalStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.io.InterruptedIOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -52,20 +48,18 @@ class SAFStorage @AssistedInject constructor(
     private val dataDir: SAFPath = this.storageRef.path.child("data")
 
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
-    private val versioningAdapter = moshi.adapter(Versioning::class.java)
+    private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
-            .fromCallable {
-                safGateway.listFiles(dataDir)
-            }
+            .fromCallable { dataDir.listFiles(safGateway) }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-            .filterUnchanged { old, new -> old != new }
+            .filterUnchanged { old, new -> old != null && old.contentEquals(new) }
             .replayingShare()
 
     init {
@@ -107,16 +101,17 @@ class SAFStorage @AssistedInject constructor(
                         continue
                     }
 
-                    val versioning = getVersioning(backupConfig.specId)
-                    if (versioning == null) {
-                        Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
+                    val metaDatas = getMetaDatas(backupConfig.specId)
+                    if (metaDatas.isEmpty()) {
+                        Timber.tag(LocalStorage.TAG).w("Dir without backups? %s", backupDir)
                         continue
                     }
+
                     val ref = SAFStorageSpecInfo(
                             storageId = storageConfig.storageId,
                             path = backupDir,
                             backupSpec = backupConfig,
-                            versioning = versioning
+                            backups = metaDatas
                     )
                     content.add(ref)
                 }
@@ -151,12 +146,15 @@ class SAFStorage @AssistedInject constructor(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Content> = items(specId)
+    override fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = items(specId)
             .map { it.first() }
             .flatMap { item ->
                 item as SAFStorageSpecInfo
-                val backupDir = getBackupDir(item.backupSpec.specId).requireExists(safGateway)
-                val versionDir = getVersioning(item.backupSpec.specId)!!.getVersion(backupId)!!.getRevDir(backupDir).requireExists(safGateway)
+                val backupDir = getSpecDir(item.specId).requireExists(safGateway)
+                val versionDir = backupDir.child(backupId.idString).requireExists(safGateway)
+
+                val metaData = readBackupMeta(item.specId, backupId)
+                checkNotNull(metaData) { "Can't read metadata file in $versionDir" }
 
                 val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
                 checkNotNull(backupSpec) { "Can't read $backupDir" }
@@ -164,17 +162,24 @@ class SAFStorage @AssistedInject constructor(
                 return@flatMap Observable.fromCallable { backupDir.listFiles(safGateway) }
                         .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                         .map {
-                            val items = versionDir.listFiles(safGateway)
-                                    ?.filter { it.name.endsWith(PROP_EXT) }
-                                    ?.map { file ->
+                            return@map versionDir.listFiles(safGateway)
+                                    .filter { it.name.endsWith(PROP_EXT) }
+                                    .map { file ->
                                         val props = propsAdapter.fromSAFFile(safGateway, file)
                                         checkNotNull(props) { "Can't read props from $file" }
-                                        object : Backup.Content.Entry {
-                                            override val label: String = backupSpec.getContentEntryLabel(props)
-                                        }
+                                        Backup.Info.PropsEntry(backupSpec, metaData, props)
                                     }
-                                    ?.toList() ?: emptyList()
-                            return@map Backup.Content(items)
+                                    .toList()
+                        }
+                        .onErrorReturnItem(emptyList())
+                        .map {
+                            return@map Backup.Info(
+                                    storageId = storageId,
+                                    backupId = backupId,
+                                    spec = backupSpec,
+                                    metaData = metaData,
+                                    items = it
+                            )
                         }
             }
             .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
@@ -185,15 +190,14 @@ class SAFStorage @AssistedInject constructor(
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
         val item = items(specId).map { it.first() }.blockingFirst()
         item as SAFStorageSpecInfo
-        val backupDir = getBackupDir(item.backupSpec.specId)
-        val version = item.versioning.getVersion(backupId)
-        requireNotNull(version) { "BackupReference $item does not contain $backupId" }
 
-        val backupBuilder = BaseBackupBuilder(item.backupSpec, backupId)
+        val metaData = readBackupMeta(specId, backupId)
+        requireNotNull(metaData) { "BackupReference $item does not have a metadata file" }
 
-        val revisionPath = version.getRevDir(backupDir).requireExists(safGateway)
+        val dataMap = mutableMapOf<String, MutableList<MMRef>>()
 
-        revisionPath.listFiles(safGateway)!!
+        val versionPath = getVersionDir(specId, backupId).requireExists(safGateway)
+        versionPath.listFiles(safGateway)
                 .filter { it.name.endsWith(PROP_EXT) }
                 .forEach { propFile ->
                     val prop = propsAdapter.fromSAFFile(safGateway, propFile)!!
@@ -201,7 +205,7 @@ class SAFStorage @AssistedInject constructor(
 
                     when (prop.refType) {
                         FILE -> {
-                            val dataFile = revisionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
+                            val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
                             safGateway.openFile(dataFile, SAFGateway.FileMode.READ) { it.copyTo(tmpRef.tmpPath) }
                         }
                         DIRECTORY -> {
@@ -211,21 +215,26 @@ class SAFStorage @AssistedInject constructor(
                     }
 
                     val keySplit = propFile.name.split("#")
-                    backupBuilder.data.getOrPut(
+                    dataMap.getOrPut(
                             if (keySplit.size == 2) keySplit[0] else "",
                             { mutableListOf() }
                     ).add(tmpRef)
                 }
 
-        return backupBuilder.toBackup()
+        return Backup.Unit(
+                id = backupId,
+                spec = item.backupSpec,
+                metaData = metaData,
+                data = dataMap
+        )
     }
 
-    override fun save(backup: Backup.Unit): Pair<BackupSpec.Info, Versioning.Version> {
+    override fun save(backup: Backup.Unit): Backup.Info {
         updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val backupDir = getBackupDir(backup.spec.specId).tryMkDirs(safGateway)
+        val backupDir = getSpecDir(backup.specId).tryMkDirs(safGateway)
 
         val specFile = backupDir.child(SPEC_FILE)
         if (!specFile.exists(safGateway)) {
@@ -235,12 +244,13 @@ class SAFStorage @AssistedInject constructor(
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         }
 
-        val newRevision = SimpleVersioning.Version(backupId = Backup.Id(), createdAt = Date())
-        val revisionDir = newRevision.getRevDir(backupDir).tryMkDirs(safGateway)
+        val versionDir = getVersionDir(backup.specId, backup.id).tryMkDirs(safGateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
+        // TODO check that backup dir doesn't exist, ie version dir?
+        val itemEntries = mutableListOf<Backup.Info.Entry>()
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
                 updateProgressSecondary(ref.originalPath.path)
@@ -249,68 +259,52 @@ class SAFStorage @AssistedInject constructor(
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
-                val targetProp = revisionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
+                val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)
 
                 when (ref.type) {
                     FILE -> {
-                        val target = revisionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
+                        val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         target.tryCreateFile(safGateway)
                         safGateway.openFile(target, SAFGateway.FileMode.WRITE) { ref.tmpPath.copyTo(it) }
                     }
                     DIRECTORY -> {
-                        val target = revisionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
+                        val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         target.tryMkDirs(safGateway)
                     }
                     MMRef.Type.UNUSED -> throw IllegalStateException("$ref is unused")
                 }
+                itemEntries.add(Backup.Info.PropsEntry(backup.spec, backup.metaData, ref.props))
             }
         }
 
-        var versioning = updateVersioning(backup.spec.specId) { old ->
-            old as SimpleVersioning
-            old.copy(versions = old.versions.toMutableList().apply { add(newRevision) }.toList())
-        }
-        Timber.tag(TAG).d("Revision limits: Current=%d, Allowed=%d", versioning.versions.size, backup.spec.revisionLimit)
+        writeBackupMeta(backup.specId, backup.id, backup.metaData)
 
-        while (versioning.versions.size > backup.spec.revisionLimit) {
-            val oldest = versioning.versions.minBy { it.createdAt }!!
-
-            Timber.tag(TAG).d("Revision limit execeeded, deleting oldest: %s", oldest)
-
-            val newContent = remove(backup.spec.specId, oldest.backupId).blockingGet()
-            versioning = newContent.versioning
-        }
-
-        val tempRef = SAFStorageSpecInfo(
-                path = backupDir,
-                storageId = storageConfig.storageId,
-                backupSpec = backup.spec,
-                versioning = versioning
+        val info = Backup.Info(
+                storageId = storageId,
+                backupId = backup.id,
+                spec = backup.spec,
+                metaData = backup.metaData,
+                items = itemEntries
         )
-        Timber.tag(TAG).d("New backup created: %s", tempRef)
-        return Pair(tempRef, newRevision)
+        Timber.tag(TAG).d("New backup created: %s", info)
+        return info
     }
 
     override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = items(specId)
             .firstOrError()
             .map { it.first() as SAFStorageSpecInfo }
-            .map { contentItem ->
-                return@map if (backupId != null) {
-                    val version = contentItem.versioning.getVersion(backupId) as SimpleVersioning.Version
-                    val versionDir = version.getRevDir(getBackupDir(specId))
+            .map { specInfo ->
+                if (backupId != null) {
+                    val versionDir = getVersionDir(specId, backupId)
                     versionDir.deleteAll(safGateway)
-
-                    val newVersioning = updateVersioning(specId) { old ->
-                        old as SimpleVersioning
-                        old.copy(versions = old.versions.filterNot { it.backupId == version.backupId })
-                    }
-                    contentItem.copy(versioning = newVersioning)
                 } else {
-                    val backupDir = getBackupDir(specId)
+                    val backupDir = getSpecDir(specId)
                     backupDir.deleteAll(safGateway)
-                    contentItem.copy(versioning = SimpleVersioning())
                 }
+
+                val newMetaData = getMetaDatas(specId)
+                return@map specInfo.copy(backups = newMetaData)
             }
 
     override fun detach(): Completable = Completable
@@ -324,33 +318,36 @@ class SAFStorage @AssistedInject constructor(
             .doOnSubscribe { Timber.w("wipe().doOnSubscribe %s", storageRef) }
             .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
 
-    private fun getBackupDir(specId: BackupSpec.Id): SAFPath {
-        return dataDir.child(specId.value)
-    }
+    private fun getSpecDir(specId: BackupSpec.Id): SAFPath = dataDir.child(specId.value)
 
-    private fun getVersioning(specId: BackupSpec.Id): Versioning? {
-        val revisionConfigFile = getBackupDir(specId).child(VERSIONING_FILE)
-        return try {
-            versioningAdapter.fromSAFFile(safGateway, revisionConfigFile)
-        } catch (e: Exception) {
-            if (e is InterruptedIOException) {
-                throw e
+    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath = getSpecDir(specId).child(backupId.idString)
+
+    private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
+        val metaDatas = mutableListOf<Backup.MetaData>()
+        getSpecDir(specId).listFiles(safGateway).filter { it.isDirectory(safGateway) }.forEach { dir ->
+            val metaData = readBackupMeta(specId, Backup.Id(dir.name))
+            if (metaData != null) {
+                metaDatas.add(metaData)
             } else {
-                Timber.tag(TAG).w(e, "Failed to get versioning for %s (%s)", revisionConfigFile, specId)
-                null
+                Timber.tag(LocalStorage.TAG).w("Version dir without metadata: %s", dir)
             }
+        }
+        return metaDatas
+    }
 
+    private fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData? {
+        val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
+        return try {
+            metaDataAdapter.fromSAFFile(safGateway, versionFile)
+        } catch (e: Exception) {
+            Timber.tag(LocalStorage.TAG).w(e, "Failed to get metadata from ", versionFile)
+            null
         }
     }
 
-    private fun updateVersioning(specId: BackupSpec.Id, update: (Versioning) -> Versioning): Versioning {
-        val existing = getVersioning(specId)
-        val newVersioning = update.invoke(existing ?: SimpleVersioning())
-        if (newVersioning != existing) {
-            val revisionConfigFile = getBackupDir(specId).child(VERSIONING_FILE)
-            versioningAdapter.toSAFFile(newVersioning, safGateway, revisionConfigFile)
-        }
-        return newVersioning
+    private fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
+        val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
+        metaDataAdapter.toSAFFile(metaData, safGateway, versionFile)
     }
 
     override fun toString(): String = "SAFStorage(storageConfig=$storageConfig)"
@@ -360,14 +357,10 @@ class SAFStorage @AssistedInject constructor(
 
     companion object {
         val TAG = App.logTag("StorageRepo", "SAF")
-        const val DATA_EXT = ".data"
-        const val PROP_EXT = ".prop"
-        const val SPEC_FILE = "backup.data"
-        const val VERSIONING_FILE = "revision.data"
+        private const val DATA_EXT = ".data"
+        private const val PROP_EXT = ".json"
+        private const val SPEC_FILE = "spec.json"
+        private const val BACKUP_META_FILE = "backup.json"
     }
 
-}
-
-internal fun Versioning.Version.getRevDir(base: SAFPath): SAFPath {
-    return base.child(backupId.idString)
 }

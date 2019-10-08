@@ -36,6 +36,8 @@ class FilesSpecGenerator @Inject constructor(
             return path.path
         }
 
-        override val generatorType: Backup.Type = Backup.Type.FILES
+        override var generatorType: Backup.Type
+            get() = Backup.Type.FILES
+            set(value) {}
     }
 }

@@ -17,6 +17,7 @@ import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.storage.core.Storage
+import java.text.DateFormat
 import javax.inject.Inject
 
 
@@ -99,12 +100,38 @@ class RestoreSourcesAdapter @Inject constructor()
     class SpecVH(parent: ViewGroup)
         : BaseVH(R.layout.task_editor_restore_sources_adapter_line_backupspec, parent) {
 
+        @BindView(R.id.type_label) lateinit var typeLabel: TextView
+        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
+        @BindView(R.id.label) lateinit var labelText: TextView
+        @BindView(R.id.repo_status) lateinit var statusText: TextView
+
+        private val formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+
         init {
             ButterKnife.bind(this, itemView)
         }
 
         override fun bind(item: Any) {
             item as BackupSpec.InfoOpt
+
+            if (item.info != null) {
+                val info = item.info
+                typeLabel.setText(info.backupSpec.backupType.labelRes)
+                typeIcon.setImageResource(info.backupSpec.backupType.iconRes)
+
+                labelText.text = info.backupSpec.getLabel(context)
+
+                val versionCount = getQuantityString(R.plurals.x_versions, info.backups.size)
+                val lastBackup = getString(
+                        R.string.versions_last_backup_time_x,
+                        formatter.format(info.backups.first().createdAt)
+                )
+                @SuppressLint("SetTextI18n")
+                statusText.text = "$versionCount; $lastBackup"
+            } else {
+
+            }
+
         }
 
     }
@@ -112,12 +139,35 @@ class RestoreSourcesAdapter @Inject constructor()
     class BackupVH(parent: ViewGroup)
         : BaseVH(R.layout.task_editor_restore_sources_adapter_line_backupversion, parent) {
 
+        @BindView(R.id.type_label) lateinit var typeLabel: TextView
+        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
+        @BindView(R.id.label) lateinit var labelText: TextView
+        @BindView(R.id.repo_status) lateinit var statusText: TextView
+
+        private val formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+
         init {
             ButterKnife.bind(this, itemView)
         }
 
         override fun bind(item: Any) {
             item as Backup.InfoOpt
+
+            if (item.info != null) {
+                val info = item.info
+                typeLabel.setText(info.spec.backupType.labelRes)
+                typeIcon.setImageResource(info.spec.backupType.iconRes)
+
+                labelText.text = info.spec.getLabel(context)
+
+                val itemCount = getQuantityString(R.plurals.x_items, -1)
+                val backupDate = formatter.format(info.metaData.createdAt)
+
+                @SuppressLint("SetTextI18n")
+                statusText.text = "$itemCount; $backupDate"
+            } else {
+
+            }
         }
 
     }

@@ -9,7 +9,6 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.BaseBackupBuilder
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -24,9 +23,7 @@ import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
-import eu.darken.bb.storage.core.SimpleVersioning
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -34,7 +31,6 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -51,16 +47,15 @@ class LocalStorage @AssistedInject constructor(
     private val dataDir = File(this.storageRef.path.asFile(), "data")
 
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
-    private val versioningAdapter = moshi.adapter(Versioning::class.java)
+    private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
+
     private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
-            .fromCallable {
-                dataDir.listFiles()
-            }
+            .fromCallable { dataDir.safeListFiles() }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
@@ -95,20 +90,15 @@ class LocalStorage @AssistedInject constructor(
                         continue
                     }
 
-                    val backupConfig = try {
-                        specAdapter.fromFile(File(backupDir, SPEC_FILE))
-                    } catch (e: Exception) {
-                        Timber.tag(TAG).w(e, "Failed to read specfile")
-                        null
-                    }
+                    val backupConfig = readSpec(BackupSpec.Id(backupDir.name))
                     if (backupConfig == null) {
                         Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
                         continue
                     }
 
-                    val versioning = getVersioning(backupConfig.specId)
-                    if (versioning == null) {
-                        Timber.tag(TAG).w("Dir without revision file: %s", backupDir)
+                    val metaDatas = getMetaDataForSpec(backupConfig.specId)
+                    if (metaDatas.isEmpty()) {
+                        Timber.tag(TAG).w("Dir without backups? %s", backupDir)
                         continue
                     }
 
@@ -116,7 +106,7 @@ class LocalStorage @AssistedInject constructor(
                             storageId = storageConfig.storageId,
                             path = backupDir.asSFile(),
                             backupSpec = backupConfig,
-                            versioning = versioning
+                            backups = metaDatas
                     )
                     content.add(ref)
                 }
@@ -153,51 +143,59 @@ class LocalStorage @AssistedInject constructor(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Content> = items(specId)
+    override fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = items(specId)
             .map { it.first() }
             .flatMap { item ->
                 item as LocalStorageSpecInfo
                 val backupDir = item.path.asFile().requireExists()
                 val versionDir = File(backupDir, backupId.idString).requireExists()
 
-                val backupSpec = specAdapter.fromFile(File(backupDir, SPEC_FILE))
-                checkNotNull(backupSpec) { "Can't read $backupDir" }
+                val backupSpec = readSpec(specId)
+                checkNotNull(backupSpec) { "Can't read specfile in $backupDir" }
 
-                return@flatMap Observable.fromCallable { backupDir.listFiles() }
+                val metaData = readBackupMeta(item.specId, backupId)
+                checkNotNull(metaData) { "Can't read metadata file in $versionDir" }
+
+                return@flatMap Observable.fromCallable { backupDir.safeListFiles() }
                         .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                         .filterUnchanged()
                         .map {
-                            val items = versionDir.listFiles()
+                            return@map versionDir.safeListFiles()
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
                                         val props = propsAdapter.fromFile(file)
                                         checkNotNull(props) { "Can't read props from $file" }
-                                        object : Backup.Content.Entry {
-                                            override val label: String = backupSpec.getContentEntryLabel(props)
-                                        }
+                                        Backup.Info.PropsEntry(backupSpec, metaData, props)
                                     }
                                     .toList()
-                            return@map Backup.Content(items)
                         }
-                        .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
-                        .doOnError { Timber.tag(TAG).w(it, "Failed to get content: item=$item, backupId=$backupId") }
-                        .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
-                        .replayingShare()
+                        .onErrorReturnItem(emptyList())
+                        .map {
+                            return@map Backup.Info(
+                                    storageId = storageId,
+                                    backupId = backupId,
+                                    spec = backupSpec,
+                                    metaData = metaData,
+                                    items = it
+                            )
+                        }
             }
+            .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
+            .doOnError { Timber.tag(SAFStorage.TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
+            .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
+            .replayingShare()
 
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
         val item = items(specId).map { it.first() }.blockingFirst()
         item as LocalStorageSpecInfo
-        val backupDir = item.path.asFile().requireExists()
 
-        val version = item.versioning.getVersion(backupId)
-        requireNotNull(version) { "BackupReference $item does not contain $backupId" }
+        val metaData = readBackupMeta(specId, backupId)
+        requireNotNull(metaData) { "BackupReference $item does not have a metadata file" }
 
-        val backupBuilder = BaseBackupBuilder(item.backupSpec, backupId)
+        val dataMap = mutableMapOf<String, MutableList<MMRef>>()
 
-        val revisionPath = File(backupDir, version.backupId.idString).requireExists()
-
-        revisionPath.listFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
+        val versionPath = getVersionDir(specId, backupId).requireExists()
+        versionPath.safeListFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
             val prop = propsAdapter.fromFile(propFile)!!
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
 
@@ -210,38 +208,40 @@ class LocalStorage @AssistedInject constructor(
             }
 
             val keySplit = propFile.name.split("#")
-            backupBuilder.data.getOrPut(
+            dataMap.getOrPut(
                     if (keySplit.size == 2) keySplit[0] else "",
                     { mutableListOf() }
             ).add(tmpRef)
         }
 
-        return backupBuilder.toBackup()
+        return Backup.Unit(
+                id = backupId,
+                spec = item.backupSpec,
+                metaData = metaData,
+                data = dataMap
+        )
     }
 
-    override fun save(backup: Backup.Unit): Pair<BackupSpec.Info, Versioning.Version> {
+    override fun save(backup: Backup.Unit): Backup.Info {
         updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val backupDir = getBackupDir(backup.spec.specId).tryMkDirs()
-
-        val specFile = File(backupDir, SPEC_FILE)
-        if (!specFile.exists()) {
-            specAdapter.toFile(backup.spec, specFile)
+        val existingSpec = readSpec(backup.specId)
+        if (existingSpec == null) {
+            getSpecDir(backup.specId).tryMkDirs()
+            writeSpec(backup.specId, backup.spec)
         } else {
-            val existingSpec = specAdapter.fromFile(specFile)
-            if (existingSpec != backup.spec) {
-                throw IllegalStateException("BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}")
-            }
+            check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         }
 
-        val newRevision = SimpleVersioning.Version(backupId = Backup.Id(), createdAt = Date())
-        val revisionDir = newRevision.getRevDir(backupDir).tryMkDirs()
+        val versionDir = getVersionDir(specId = backup.specId, backupId = backup.id).tryMkDirs()
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
+        // TODO check that backup dir doesn't exist, ie version dir?
+        val itemEntries = mutableListOf<Backup.Info.Entry>()
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
                 updateProgressSecondary(ref.originalPath.path)
@@ -249,63 +249,45 @@ class LocalStorage @AssistedInject constructor(
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
-                val targetProp = File(revisionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
+                val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
                 propsAdapter.toFile(ref.props, targetProp)
 
-                val target = File(revisionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
+                val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 when (ref.type) {
                     FILE -> ref.tmpPath.copyTo(target)
                     DIRECTORY -> target.mkdir()
                     UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
                 }
-
+                itemEntries.add(Backup.Info.PropsEntry(backup.spec, backup.metaData, ref.props))
             }
         }
 
-        var versioning = updateVersioning(backup.spec.specId) { old ->
-            old as SimpleVersioning
-            old.copy(versions = old.versions.toMutableList().apply { add(newRevision) }.toList())
-        }
-        Timber.tag(TAG).d("Revision limits: Current=%d, Allowed=%d", versioning.versions.size, backup.spec.revisionLimit)
+        writeBackupMeta(backup.specId, backup.id, backup.metaData)
 
-        while (versioning.versions.size > backup.spec.revisionLimit) {
-            val oldest = versioning.versions.minBy { it.createdAt }!!
-
-            Timber.tag(TAG).d("Revision limit execeeded, deleting oldest: %s", oldest)
-
-            val newContent = remove(backup.spec.specId, oldest.backupId).blockingGet()
-            versioning = newContent.versioning
-        }
-
-        val tempRef = LocalStorageSpecInfo(
-                path = backupDir.asSFile(),
-                storageId = storageConfig.storageId,
-                backupSpec = backup.spec,
-                versioning = versioning
+        val info = Backup.Info(
+                storageId = storageId,
+                backupId = backup.id,
+                spec = backup.spec,
+                metaData = backup.metaData,
+                items = itemEntries
         )
-        Timber.tag(TAG).d("New backup created: %s", tempRef)
-        return Pair(tempRef, newRevision)
+        Timber.tag(SAFStorage.TAG).d("New backup created: %s", info)
+        return info
     }
 
     override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = items(specId)
             .firstOrError()
             .map { it.first() as LocalStorageSpecInfo }
-            .map { contentItem ->
-                return@map if (backupId != null) {
-                    val version = contentItem.versioning.getVersion(backupId) as SimpleVersioning.Version
-                    val versionDir = version.getRevDir(getBackupDir(specId))
+            .map { specInfo ->
+                if (backupId != null) {
+                    val versionDir = getVersionDir(specId, backupId)
                     versionDir.deleteAll()
-
-                    val newVersioning = updateVersioning(specId) { old ->
-                        old as SimpleVersioning
-                        old.copy(versions = old.versions.filterNot { it.backupId == version.backupId })
-                    }
-                    contentItem.copy(versioning = newVersioning)
                 } else {
-                    val backupDir = getBackupDir(specId)
+                    val backupDir = getSpecDir(specId)
                     backupDir.deleteAll()
-                    contentItem.copy(versioning = SimpleVersioning())
                 }
+                val newMetaData = getMetaDataForSpec(specId)
+                return@map specInfo.copy(backups = newMetaData)
             }
 
     override fun detach(): Completable = Completable
@@ -319,28 +301,51 @@ class LocalStorage @AssistedInject constructor(
             .doOnSubscribe { Timber.w("wipe().doOnSubscribe %s", storageRef) }
             .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
 
-    private fun getBackupDir(specId: BackupSpec.Id): File {
-        return File(dataDir, specId.value)
+    private fun getSpecDir(specId: BackupSpec.Id): File = File(dataDir, specId.value)
+
+    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): File = File(getSpecDir(specId), backupId.idString)
+
+    private fun getMetaDataForSpec(specId: BackupSpec.Id): Collection<Backup.MetaData> {
+        val metaDatas = mutableListOf<Backup.MetaData>()
+        getSpecDir(specId).safeListFiles().filter { it.isDirectory }.forEach { dir ->
+            val metaData = readBackupMeta(specId, Backup.Id(dir.name))
+            if (metaData != null) {
+                metaDatas.add(metaData)
+            } else {
+                Timber.tag(TAG).w("Version dir without metadata: %s", dir)
+            }
+        }
+        return metaDatas
     }
 
-    private fun getVersioning(specId: BackupSpec.Id): Versioning? {
-        val revisionConfigFile = File(getBackupDir(specId), VERSIONING_FILE)
+    private fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData? {
+        val versionFile = File(getVersionDir(specId, backupId), BACKUP_META_FILE)
         return try {
-            versioningAdapter.fromFile(revisionConfigFile)
+            metaDataAdapter.fromFile(versionFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get versioning for %s (%s)", revisionConfigFile, specId)
+            Timber.tag(TAG).w(e, "Failed to get metadata from ", versionFile)
             null
         }
     }
 
-    private fun updateVersioning(specId: BackupSpec.Id, update: (Versioning) -> Versioning): Versioning {
-        val existing = getVersioning(specId)
-        val newVersioning = update.invoke(existing ?: SimpleVersioning())
-        if (newVersioning != existing) {
-            val revisionConfigFile = File(getBackupDir(specId), VERSIONING_FILE)
-            versioningAdapter.toFile(newVersioning, revisionConfigFile)
+    private fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
+        val versionFile = File(getVersionDir(specId, backupId), BACKUP_META_FILE)
+        metaDataAdapter.toFile(metaData, versionFile)
+    }
+
+    private fun readSpec(specId: BackupSpec.Id): BackupSpec? {
+        val specFile = File(getSpecDir(specId), SPEC_FILE)
+        return try {
+            specAdapter.fromFile(specFile)
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Failed to get backup spec from ", specFile)
+            null
         }
-        return newVersioning
+    }
+
+    private fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
+        val specFile = File(getSpecDir(specId), SPEC_FILE)
+        specAdapter.toFile(spec, specFile)
     }
 
     override fun toString(): String = "LocalStorage(storageRef=$storageRef)"
@@ -349,15 +354,10 @@ class LocalStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<LocalStorage>
 
     companion object {
-        val TAG = App.logTag("Storage", "Local")
-        const val DATA_EXT = ".data"
-        const val PROP_EXT = ".prop"
-        const val SPEC_FILE = "backup.data"
-        const val VERSIONING_FILE = "revision.data"
+        internal val TAG = App.logTag("Storage", "Local")
+        private const val DATA_EXT = ".data"
+        private const val PROP_EXT = ".json"
+        private const val SPEC_FILE = "spec.json"
+        private const val BACKUP_META_FILE = "backup.json"
     }
-
-}
-
-internal fun Versioning.Version.getRevDir(base: File): File {
-    return File(base, backupId.idString)
 }

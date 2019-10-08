@@ -17,10 +17,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 ) : TaskEditor {
 
     private val configPub = HotData(SimpleBackupTask(
-            taskId = taskId,
-            taskName = "",
-            sources = emptySet(),
-            destinations = emptySet()
+            taskId = taskId
     ))
     override val config = configPub.data
 

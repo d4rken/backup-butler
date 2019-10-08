@@ -6,6 +6,7 @@ import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.Restore
@@ -15,7 +16,6 @@ import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.moshi.*
 import eu.darken.bb.processor.core.mm.CachePath
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.task.core.Task
 import java.util.*
 
@@ -33,7 +33,8 @@ class AppModule {
             .add(APath.MOSHI_FACTORY)
             .add(Storage.Ref.MOSHI_FACTORY)
             .add(Storage.Config.MOSHI_FACTORY)
-            .add(Versioning.MOSHI_FACTORY)
+            .add(Storage.Strategy.MOSHI_FACTORY)
+            .add(Backup.MetaData.MOSHI_FACTORY)
             .add(Task.MOSHI_FACTORY)
             .add(FileAdapter())
             .add(BackupIdAdapter())

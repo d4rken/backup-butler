@@ -10,8 +10,8 @@ import javax.inject.Inject
 class RestoreConfigRepo @Inject constructor(
 
 ) {
-    fun getDefaultConfigs(): Single<Collection<Restore.Config>> = Single.fromCallable {
-        listOf(
+    fun getDefaultConfigs(): Single<Set<Restore.Config>> = Single.fromCallable {
+        setOf(
                 AppRestoreConfig(),
                 FilesRestoreConfig()
         )

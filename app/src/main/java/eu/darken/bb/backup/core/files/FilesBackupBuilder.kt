@@ -9,7 +9,7 @@ class FilesBackupBuilder : BaseBackupBuilder<FilesBackupSpec> {
     constructor(backup: Backup.Unit) : super(backup)
 
     constructor(config: FilesBackupSpec, backupId: Backup.Id)
-            : super(config, backupId)
+            : super(backupId, config)
 
     val files: MutableCollection<MMRef> = data.getOrPut("", { mutableSetOf() })
 

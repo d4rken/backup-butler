@@ -76,7 +76,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     fun updateConfig(config: Restore.Config) {
         configPub.update { old ->
-            old.copy(restoreConfigs = old.restoreConfigs.replace(config, { it.restoreType == config.restoreType }))
+            old.copy(restoreConfigs = old.restoreConfigs.replace(config, { it.restoreType == config.restoreType }).toSet())
         }
     }
 

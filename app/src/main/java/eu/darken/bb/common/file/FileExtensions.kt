@@ -2,11 +2,8 @@ package eu.darken.bb.common.file
 
 import okio.Okio
 import timber.log.Timber
+import java.io.*
 import java.io.File
-import java.io.FileDescriptor
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
 
 fun File.copyTo(file: File) {
     file.tryMkFile()
@@ -114,4 +111,12 @@ fun File.copyTo(fd: FileDescriptor) {
             buffer.writeAll(source)
         }
     }
+}
+
+fun File.safeListFiles(): Array<File> {
+    return this.listFiles() ?: throw IOException("listFiles() returned NULL")
+}
+
+fun File.safeListFiles(filter: (File) -> Boolean): Array<File> {
+    return this.listFiles(filter) ?: throw IOException("listFiles(filter=$filter) returned NULL")
 }

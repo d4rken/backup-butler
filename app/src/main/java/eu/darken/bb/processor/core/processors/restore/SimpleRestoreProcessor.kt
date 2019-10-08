@@ -4,10 +4,7 @@ import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.GeneratorRepo
-import eu.darken.bb.backup.core.Restore
+import eu.darken.bb.backup.core.*
 import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
@@ -55,7 +52,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         task.targetStorages.forEach { storageId ->
             val storage = storageManager.getStorage(storageId).blockingFirst()
             storage.items().take(1).flatMapIterable { it }.forEach { specItem ->
-                val newest = specItem.versioning.getNewest()
+                val newest = specItem.backups.getNewest()
                 if (newest == null) {
                     Timber.tag(TAG).d("Empty BackupSpec: %s", specItem.backupSpec)
                 } else {

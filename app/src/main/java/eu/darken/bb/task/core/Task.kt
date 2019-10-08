@@ -5,12 +5,13 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.backup.SimpleBackupTask
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -78,14 +79,17 @@ interface Task {
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
 
+        @IgnoredOnParcel @Transient val idString = id.toString()
+
         constructor(id: String) : this(UUID.fromString(id))
 
         override fun toString(): String = "TaskId($id)"
     }
 
     companion object {
-        val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Task> = PolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Task> = MyPolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
                 .withSubtype(SimpleBackupTask::class.java, Type.BACKUP_SIMPLE.name)
                 .withSubtype(SimpleRestoreTask::class.java, Type.RESTORE_SIMPLE.name)
+                .skipLabelSerialization()
     }
 }

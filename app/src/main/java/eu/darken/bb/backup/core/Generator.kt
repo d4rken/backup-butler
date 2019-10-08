@@ -2,12 +2,13 @@ package eu.darken.bb.backup.core
 
 import android.content.Context
 import android.os.Parcelable
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
+import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -40,14 +41,18 @@ interface Generator {
         fun getDescription(context: Context): String
 
         companion object {
-            val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<Config> = PolymorphicJsonAdapterFactory.of(Config::class.java, "generatorType")
+            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> = MyPolymorphicJsonAdapterFactory.of(Config::class.java, "generatorType")
                     .withSubtype(AppSpecGenerator.Config::class.java, Backup.Type.APP.name)
                     .withSubtype(FilesSpecGenerator.Config::class.java, Backup.Type.FILES.name)
+                    .skipLabelSerialization()
         }
     }
 
     @Parcelize
     data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+
+        @IgnoredOnParcel @Transient val idString = id.toString()
+
         override fun toString(): String = "GeneratorId($id)"
     }
 }

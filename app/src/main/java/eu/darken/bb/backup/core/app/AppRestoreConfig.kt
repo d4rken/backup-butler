@@ -8,5 +8,9 @@ data class AppRestoreConfig(
         val restoreApk: Boolean = true,
         val restoreData: Boolean = true
 ) : Restore.Config {
-    override val restoreType: Backup.Type = Backup.Type.APP
+
+    override var restoreType: Backup.Type
+        get() = Backup.Type.APP
+        set(value) {}
+
 }

@@ -14,7 +14,6 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.core.Versioning
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -46,11 +45,11 @@ class ContentPageFragmentVDC @AssistedInject constructor(
         Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
         contentObs
                 .subscribe({ content ->
-                    val version = content.versioning.versions.find { it.backupId == backupId }!!
+                    val version = content.backups.find { it.backupId == backupId }!!
                     stater.update {
                         it.copy(
                                 specInfo = content,
-                                version = version,
+                                metaData = version,
                                 isLoadingInfos = false,
                                 showRestoreAction = true
                         )
@@ -94,8 +93,8 @@ class ContentPageFragmentVDC @AssistedInject constructor(
 
     data class State(
             val specInfo: BackupSpec.Info? = null,
-            val version: Versioning.Version? = null,
-            val items: List<Backup.Content.Entry> = emptyList(),
+            val metaData: Backup.MetaData? = null,
+            val items: List<Backup.Info.Entry> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
             val showRestoreAction: Boolean = false,

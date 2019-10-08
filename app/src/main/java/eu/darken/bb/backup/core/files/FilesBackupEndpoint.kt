@@ -44,6 +44,8 @@ class FilesBackupEndpoint @Inject constructor(
             backupFile(spec)
         }
 
+        // TODO set metadata?
+
         return builder.toBackup()
     }
 

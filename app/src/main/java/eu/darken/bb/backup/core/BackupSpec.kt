@@ -2,13 +2,12 @@ package eu.darken.bb.backup.core
 
 import android.content.Context
 import android.os.Parcelable
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.OptInfo
-import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.Versioning
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
 interface BackupSpec {
@@ -18,11 +17,12 @@ interface BackupSpec {
 
     fun getLabel(context: Context): String
 
-    fun getContentEntryLabel(props: MMRef.Props): String
-
     @Parcelize
     data class Id(val value: String) : Parcelable {
-        override fun toString(): String = "Identifier($value)"
+
+        @IgnoredOnParcel @Transient val idString = value
+
+        override fun toString(): String = "Identifier($idString)"
     }
 
     data class Target(
@@ -31,15 +31,16 @@ interface BackupSpec {
     )
 
     companion object {
-        val MOSHI_FACTORY: PolymorphicJsonAdapterFactory<BackupSpec> = PolymorphicJsonAdapterFactory.of(BackupSpec::class.java, "backupType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<BackupSpec> = MyPolymorphicJsonAdapterFactory.of(BackupSpec::class.java, "backupType")
                 .withSubtype(AppBackupSpec::class.java, Backup.Type.APP.name)
                 .withSubtype(FilesBackupSpec::class.java, Backup.Type.FILES.name)
+                .skipLabelSerialization()
     }
 
     interface Info {
         val storageId: Storage.Id
         val backupSpec: BackupSpec
-        val versioning: Versioning
+        val backups: Collection<Backup.MetaData>
 
         val specId: Id
             get() = backupSpec.specId

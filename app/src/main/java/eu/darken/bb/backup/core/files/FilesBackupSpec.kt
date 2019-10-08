@@ -5,11 +5,10 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.CheckSummer
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.processor.core.mm.MMRef
 
 data class FilesBackupSpec(
-        val label: String,
         val path: APath,
+        val label: String,
         override val revisionLimit: Int = 3
 ) : BackupSpec {
 
@@ -19,9 +18,7 @@ data class FilesBackupSpec(
 
     override fun getLabel(context: Context): String = label
 
-    override val backupType: Backup.Type = Backup.Type.FILES
-
-    override fun getContentEntryLabel(props: MMRef.Props): String {
-        return props.originalPath.path.replace(path.path, "")
-    }
+    override var backupType: Backup.Type
+        get() = Backup.Type.FILES
+        set(value) {}
 }

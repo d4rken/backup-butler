@@ -8,7 +8,7 @@ class AppBackupBuilder : BaseBackupBuilder<AppBackupSpec> {
     constructor(backup: Backup.Unit) : super(backup)
 
     constructor(config: AppBackupSpec, backupId: Backup.Id)
-            : super(config, backupId)
+            : super(backupId, config)
 
     val packageName: String
         get() = backupConfig.packageName

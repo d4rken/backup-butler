@@ -36,7 +36,7 @@ class AppSpecGenerator @Inject constructor(
 
     data class Config(
             override val generatorId: Generator.Id,
-            override val label: String,
+            override val label: String = "",
             val autoIncludeApps: Boolean = false,
             val includeSystemApps: Boolean = false,
             val packagesIncluded: Collection<String> = listOf(),
@@ -50,6 +50,8 @@ class AppSpecGenerator @Inject constructor(
             return generatorId.toString()
         }
 
-        override val generatorType: Backup.Type = Backup.Type.APP
+        override var generatorType: Backup.Type
+            get() = Backup.Type.APP
+            set(value) {}
     }
 }

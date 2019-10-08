@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.viewer.content
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -11,7 +12,6 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.core.Versioning
 import io.reactivex.schedulers.Schedulers
 
 class ItemContentsFragmentVDC @AssistedInject constructor(
@@ -34,7 +34,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
                     stater.update { state ->
                         state.copy(
                                 backupSpec = item.backupSpec,
-                                versions = item.versioning.versions.sortedBy { it.createdAt }.reversed(),
+                                versions = item.backups.sortedBy { it.createdAt }.reversed(),
                                 loading = false
                         )
                     }
@@ -52,7 +52,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
 
     data class State(
             val backupSpec: BackupSpec? = null,
-            val versions: List<Versioning.Version> = listOf(),
+            val versions: List<Backup.MetaData> = listOf(),
             val loading: Boolean = true,
             val error: Throwable? = null
     )

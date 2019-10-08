@@ -7,13 +7,15 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 
 data class SimpleBackupTask(
-        override val taskName: String,
         override val taskId: Task.Id,
-        override val sources: Set<Generator.Id>,
-        override val destinations: Set<Storage.Id>
+        override val taskName: String = "",
+        override val sources: Set<Generator.Id> = emptySet(),
+        override val destinations: Set<Storage.Id> = emptySet()
 ) : Task.Backup {
 
-    override val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
+    override var taskType: Task.Type
+        get() = Task.Type.BACKUP_SIMPLE
+        set(value) {}
 
     override fun getDescription(context: Context): String {
         return context.getString(R.string.task_backup_simple_description, sources.size, destinations.size)

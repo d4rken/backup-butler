@@ -10,6 +10,7 @@ import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import timber.log.Timber
 import java.io.FileDescriptor
+import java.io.IOException
 import javax.inject.Inject
 
 class SAFGateway @Inject constructor(
@@ -69,11 +70,11 @@ class SAFGateway @Inject constructor(
         return currentRoot
     }
 
-    fun listFiles(file: SAFPath): Array<SAFPath>? {
-        return getDocumentFile(file)?.listFiles()?.map {
+    fun listFiles(path: SAFPath): Array<SAFPath> {
+        return getDocumentFile(path)?.listFiles()?.map {
             val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-            file.child(name)
-        }?.toTypedArray()
+            path.child(name)
+        }?.toTypedArray() ?: throw IOException("listFiles(path=$path) returned NULL")
     }
 
     fun exists(path: SAFPath): Boolean {

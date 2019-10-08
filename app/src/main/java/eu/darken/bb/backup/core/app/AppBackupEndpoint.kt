@@ -55,6 +55,8 @@ class AppBackupEndpoint @Inject constructor(
         }
         builder.splitApks = splitApkRefs
 
+        // TODO set metadata?
+
         return builder.toBackup()
     }
 

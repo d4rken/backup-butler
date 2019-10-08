@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Local storage"/>
+        tools:text="File backup" />
 
     <ImageView
         android:id="@+id/type_icon"
@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
-        tools:src="@drawable/ic_sd_storage"/>
+        tools:src="@drawable/ic_folder" />
 
     <TextView
         android:id="@+id/label"
@@ -44,7 +44,7 @@
         app:layout_constraintStart_toStartOf="@+id/type_label"
         app:layout_constraintTop_toBottomOf="@+id/type_label"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="/storage/emulated/0/BackupButler/backups/mybackup"/>
+        tools:text="tree:primary:someapks" />
 
     <TextView
         android:id="@+id/repo_status"
@@ -58,6 +58,6 @@
         app:layout_constraintStart_toStartOf="@+id/label"
         app:layout_constraintTop_toBottomOf="@+id/label"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="27 backups - 5 GB (60% full)"/>
+        tools:text="3 versions; Last backup: 29.09.19 20:13" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

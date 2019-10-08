@@ -8,6 +8,8 @@ data class LocalStorageRef(
         override val storageId: Storage.Id = Storage.Id()
 ) : Storage.Ref {
 
-    override val storageType: Storage.Type = Storage.Type.LOCAL
+    override var storageType: Storage.Type
+        get() = Storage.Type.LOCAL
+        set(value) {}
 
 }

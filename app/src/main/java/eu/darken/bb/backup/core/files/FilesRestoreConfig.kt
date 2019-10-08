@@ -7,6 +7,8 @@ data class FilesRestoreConfig(
         val replaceFiles: Boolean = false
 ) : Restore.Config {
 
-    override val restoreType: Backup.Type = Backup.Type.FILES
+    override var restoreType: Backup.Type
+        get() = Backup.Type.FILES
+        set(value) {}
 
 }

@@ -2,32 +2,36 @@ package eu.darken.bb.backup.app
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.app.AppBackupSpec
+import eu.darken.bb.backup.core.app.AppBackupMetaData
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
+import java.util.*
 
-class AppBackupSpecTest {
+class AppBackupMetaDataTest {
 
     @Test
     fun `test serialization`() {
-        val original = AppBackupSpec("test.package")
+        val original = AppBackupMetaData(
+                backupId = Backup.Id()
+        )
 
         val moshi = AppModule().moshi()
+        val dateAdapter = moshi.adapter(Date::class.java)
+
+        val dateJson = dateAdapter.toJson(original.createdAt)
 
         val expectedJson = "{" +
-                "\"packageName\":\"test.package\"," +
-                "\"specId\":\"pkg-test.package\"," +
-                "\"revisionLimit\":3," +
+                "\"backupId\":\"${original.backupId.idString}\"," +
+                "\"createdAt\":$dateJson," +
                 "\"backupType\":\"APP\"" +
                 "}"
 
-        val adapterPoly = moshi.adapter(BackupSpec::class.java)
+        val adapterPoly = moshi.adapter(Backup.MetaData::class.java)
         val jsonPoly = adapterPoly.toJson(original)
         jsonPoly shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
-        val adapterDirect = moshi.adapter(AppBackupSpec::class.java)
+        val adapterDirect = moshi.adapter(AppBackupMetaData::class.java)
         val jsonDirect = adapterDirect.toJson(original)
         jsonDirect shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
@@ -35,7 +39,7 @@ class AppBackupSpecTest {
 
     @Test
     fun `test fixed type`() {
-        val original = AppBackupSpec("test.package")
+        val original = AppBackupMetaData(backupId = Backup.Id())
         original.backupType shouldBe Backup.Type.APP
         original.backupType = Backup.Type.FILES
         original.backupType shouldBe Backup.Type.APP

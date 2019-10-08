@@ -57,8 +57,8 @@ class ContentPageFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter)
 
         vdc.state.observe(this, Observer { state ->
-            if (state.version != null) {
-                creationDateValue.text = dateFormatter.format(state.version.createdAt)
+            if (state.metaData != null) {
+                creationDateValue.text = dateFormatter.format(state.metaData.createdAt)
             }
             loadingOverlayInfos.setInvisible(!state.isLoadingInfos)
 

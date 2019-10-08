@@ -5,6 +5,7 @@ import androidx.documentfile.provider.DocumentFile
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 
 data class SAFPath(
         internal val treeRoot: Uri,
@@ -35,7 +36,8 @@ data class SAFPath(
             treeRoot.pathSegments.last().split('/').last()
         }
 
-    fun listFiles(gateway: SAFGateway): Array<SAFPath>? = gateway.listFiles(this)
+    @Throws(IOException::class)
+    fun listFiles(gateway: SAFGateway): Array<SAFPath> = gateway.listFiles(this)
 
     fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
 
@@ -128,7 +130,7 @@ fun SAFPath.tryMkDirs(gateway: SAFGateway): SAFPath {
 
 fun SAFPath.deleteAll(gateway: SAFGateway) {
     if (gateway.isDirectory(this)) {
-        listFiles(gateway)?.forEach { it.deleteAll(gateway) }
+        listFiles(gateway).forEach { it.deleteAll(gateway) }
     }
     if (delete(gateway)) {
         Timber.v("File.deleteAll(): Deleted %s", this)

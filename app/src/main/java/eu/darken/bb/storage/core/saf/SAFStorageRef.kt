@@ -8,6 +8,8 @@ data class SAFStorageRef(
         override val storageId: Storage.Id = Storage.Id()
 ) : Storage.Ref {
 
-    override val storageType: Storage.Type = Storage.Type.SAF
+    override var storageType: Storage.Type
+        get() = Storage.Type.SAF
+        set(value) {}
 
 }
