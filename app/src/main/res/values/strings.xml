@@ -17,7 +17,6 @@
     <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
-    <string name="error_message_cant_find_x">Can\'t find %s</string>
     <plurals name="x_versions">
         <item quantity="one">%d version</item>
         <item quantity="other">%d versions</item>
@@ -157,6 +156,7 @@
     <string name="error_msg_no_data_was_returned">No data was returned.</string>
     <string name="action_use">Use</string>
     <string name="error_msg_type_missmatch">Type missmatch: Wanted %1$s, but got %2$s.</string>
+    <string name="error_msg_cant_read">Can\'t read %s.</string>
     <plurals name="restore_task_x_backup_storages_desc">
         <item quantity="one">The content of %d backup storage.</item>
         <item quantity="other">The content of %d backup storages.</item>

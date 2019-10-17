@@ -1,7 +1,7 @@
 package eu.darken.bb.storage.core
 
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.file.APath
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 
@@ -15,12 +15,11 @@ interface StorageEditor {
 
     fun isValid(): Observable<Boolean>
 
-    fun load(ref: Storage.Ref): Single<Opt<Storage.Config>>
+    fun load(ref: Storage.Ref): Single<out Storage.Config>
 
     fun save(): Single<Pair<Storage.Ref, Storage.Config>>
 
-    // TODO some sort of cleanup if we abort creating a new storage?
-    //    fun clear()
+    fun release(): Completable
 
     interface Factory<EditorT : StorageEditor> {
         fun create(storageId: Storage.Id): EditorT

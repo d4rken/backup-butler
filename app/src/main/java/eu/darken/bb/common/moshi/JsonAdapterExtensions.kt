@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import eu.darken.bb.App
+import eu.darken.bb.common.ReadException
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.file.tryMkFile
@@ -30,23 +31,22 @@ fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
     }
 }
 
-fun <T> JsonAdapter<T>.fromFile(file: File): T? {
-    var value: T? = null
+fun <T> JsonAdapter<T>.fromFile(file: File): T {
     try {
-        if (file.exists()) {
-            value = JsonReader.of(Okio.buffer(Okio.source(file))).use {
-                return@use fromJson(it)
-            }
+        if (!file.exists()) {
+            throw ReadException(file)
         }
+        val value = JsonReader.of(Okio.buffer(Okio.source(file))).use {
+            return@use fromJson(it)
+        }
+        Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
+        return value ?: throw ReadException(file)
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
-            Timber.w("fromFile(value=%s, file=%s)", value, file)
+            Timber.w("fromFile(file=%s)", file)
         }
         throw e
-    } finally {
-        Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
     }
-    return value
 }
 
 fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor) {
@@ -65,19 +65,18 @@ fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor
 }
 
 fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
-    var value: T? = null
     try {
-        value = JsonReader.of(Okio.buffer(Okio.source(FileInputStream(fileDescriptor)))).use {
+        val value = JsonReader.of(Okio.buffer(Okio.source(FileInputStream(fileDescriptor)))).use {
             return@use fromJson(it)
         }
         Timber.tag(TAG).v("fromFileDescriptor(fileDescriptor=%s): %s", fileDescriptor, value)
+        return value
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
-            Timber.w(e, "fromFileDescriptor(value=%s, fileDescriptor=%s)", value, fileDescriptor)
+            Timber.w(e, "fromFileDescriptor(fileDescriptor=%s)", fileDescriptor)
         }
         throw e
     }
-    return value
 }
 
 fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) {
@@ -89,8 +88,17 @@ fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath
     }
 }
 
-fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T? {
-    return safGateway.openFile(file, SAFGateway.FileMode.READ) {
-        this.fromFileDescriptor(it)
+fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T {
+    try {
+        val value = safGateway.openFile(file, SAFGateway.FileMode.READ) {
+            this.fromFileDescriptor(it)
+        }
+        Timber.tag(TAG).v("fromSAFFile(file=%s): %s", file, value)
+        return value ?: throw ReadException(file)
+    } catch (e: Exception) {
+        if (e !is InterruptedIOException) {
+            Timber.w("fromSAFFile(file=%s)", file)
+        }
+        throw e
     }
 }

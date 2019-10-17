@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
+import eu.darken.bb.common.ReadException
 import eu.darken.bb.common.dagger.AppContext
 import timber.log.Timber
 import java.io.FileDescriptor
@@ -103,7 +104,7 @@ class SAFGateway @Inject constructor(
 
     fun <T> openFile(path: SAFPath, mode: FileMode, action: (FileDescriptor) -> T): T {
         val docFile = getDocumentFile(path)
-        checkNotNull(docFile) { "Can't find $path" }
+        if (docFile == null) throw ReadException(path)
 
         contentResolver.openFileDescriptor(docFile.uri, mode.value).use { pfd ->
             checkNotNull(pfd) { "Couldn't open $path" }
@@ -113,6 +114,7 @@ class SAFGateway @Inject constructor(
     }
 
     fun takePermission(path: SAFPath): Boolean {
+        Timber.tag(TAG).d("Taking uri permission for %s", path)
         var permissionTaken = false
         try {
             contentResolver.takePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
@@ -128,6 +130,7 @@ class SAFGateway @Inject constructor(
     }
 
     fun releasePermission(path: SAFPath): Boolean {
+        Timber.tag(TAG).d("Releasing uri permission for %s", path)
         contentResolver.releasePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
         return true
     }

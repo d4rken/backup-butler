@@ -65,7 +65,9 @@ class StorageBuilder @Inject constructor(
             .map { Opt(it.newValue[id]) }
             .doOnSuccess { Timber.tag(TAG).v("Storage updated: %s (%s): %s", id, action, it) }
 
-    fun remove(id: Storage.Id): Single<Opt<Data>> = Single.just(id)
+    fun remove(id: Storage.Id): Single<Opt<Data>> = remove(id, true)
+
+    private fun remove(id: Storage.Id, releaseResources: Boolean): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap { storageId ->
                 hotData.data
@@ -75,8 +77,14 @@ class StorageBuilder @Inject constructor(
                         }
             }
             .doOnSuccess { Timber.tag(TAG).v("Removed storage: %s", id) }
+            .map { optData ->
+                if (releaseResources && optData.isNotNull) {
+                    optData.value?.editor?.release()?.blockingAwait()
+                }
+                return@map optData
+            }
 
-    fun save(id: Storage.Id): Single<Storage.Ref> = remove(id)
+    fun save(id: Storage.Id): Single<Storage.Ref> = remove(id, false)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
                 if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")

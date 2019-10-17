@@ -5,7 +5,7 @@ import android.content.Intent
 import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.MissingFileException
+import eu.darken.bb.common.rx.blockingGetUnWrapped
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -104,10 +104,9 @@ class StorageManager @Inject constructor(
 
             val storageFactory = storageFactories.getValue(ref.storageType)
             val storageEditor = storageEditors.getValue(ref.storageType).create(ref.storageId)
-            val config = storageEditor.load(ref).blockingGet()
-            if (config.isNull) throw MissingFileException(ref.path)
 
-            repo = storageFactory.create(ref, config.notNullValue())
+            val config = storageEditor.load(ref).blockingGetUnWrapped()
+            repo = storageFactory.create(ref, config)
 
             repoCache[ref.storageId] = repo
             return@fromCallable repo

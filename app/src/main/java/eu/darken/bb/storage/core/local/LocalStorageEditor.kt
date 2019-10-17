@@ -6,16 +6,15 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.file.JavaPath
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
-import eu.darken.bb.common.opt
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.io.File
@@ -47,8 +46,7 @@ class LocalStorageEditor @AssistedInject constructor(
         if (configFile.exists()) {
             if (!importExisting) throw ExistingStorageException(path)
 
-            val optConfig = load(path).blockingGet()
-            requireNotNull(optConfig.value) { "Failed to load config from existing storage." }
+            load(path).blockingGet()
         } else {
             editorDataPub.update {
                 it.copy(refPath = path)
@@ -68,26 +66,22 @@ class LocalStorageEditor @AssistedInject constructor(
                 && isPermissionGranted()
     }
 
-    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.just(ref)
+    override fun load(ref: Storage.Ref): Single<LocalStorageConfig> = Single.just(ref)
             .map { (it as LocalStorageRef).path }
             .flatMap { load(it) }
 
-    private fun load(path: JavaPath): Single<Opt<Storage.Config>> = Single.just(path)
-            .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)).opt() }
-            .doOnSuccess { optConfig ->
-                if (optConfig.isNull) return@doOnSuccess
-                val config = optConfig.notNullValue()
-                require(config.storageType == Storage.Type.LOCAL) { "Can only import storage of same type." }
+    private fun load(path: JavaPath): Single<LocalStorageConfig> = Single.just(path)
+            .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
+            .doOnSuccess { config ->
                 editorDataPub.update {
                     it.copy(
                             refPath = path,
-                            existingStorage = optConfig.isNotNull,
+                            existingStorage = true,
                             storageId = config.storageId,
                             label = config.label
                     )
                 }
             }
-            .map { it as Opt<Storage.Config> }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
         val data = editorDataPub.snapshot
@@ -104,6 +98,8 @@ class LocalStorageEditor @AssistedInject constructor(
 
         return@fromCallable Pair(ref, config)
     }
+
+    override fun release(): Completable = Completable.complete()
 
     @AssistedInject.Factory
     interface Factory : StorageEditor.Factory<LocalStorageEditor>

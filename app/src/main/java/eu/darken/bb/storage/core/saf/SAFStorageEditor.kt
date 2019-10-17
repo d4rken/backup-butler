@@ -7,16 +7,15 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
-import eu.darken.bb.common.opt
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
@@ -30,6 +29,7 @@ class SAFStorageEditor @AssistedInject constructor(
 
     private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)
     private val editorDataPub = HotData(Data(storageId = storageId))
+    private var newlyAcquiredPerm: SAFPath? = null
     override val editorData = editorDataPub.data
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
@@ -40,16 +40,22 @@ class SAFStorageEditor @AssistedInject constructor(
     fun updatePath(path: SAFPath, importExisting: Boolean): Single<SAFPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-        try {
-            safGateway.takePermission(path)
-        } catch (e: Throwable) {
-            Timber.tag(TAG).e(e, "Error while persisting permission")
+        if (safGateway.hasPermission(path)) {
+            Timber.tag(TAG).d("Already have permission for %s", path)
+        } else {
             try {
-                safGateway.releasePermission(path)
-            } catch (e2: Throwable) {
-                Timber.tag(TAG).e(e2, "Error while releasing during error...")
+                safGateway.takePermission(path)
+                newlyAcquiredPerm?.let { safGateway.releasePermission(it) }
+                newlyAcquiredPerm = path
+            } catch (e: Throwable) {
+                Timber.tag(TAG).e(e, "Error while persisting permission")
+                try {
+                    safGateway.releasePermission(path)
+                } catch (e2: Throwable) {
+                    Timber.tag(TAG).e(e2, "Error while releasing during error...")
+                }
+                throw e
             }
-            throw e
         }
 
         check(safGateway.hasPermission(path)) { "We persisted the permission but it's still unavailable?!" }
@@ -60,9 +66,7 @@ class SAFStorageEditor @AssistedInject constructor(
         if (path.child(STORAGE_CONFIG).exists(safGateway)) {
             if (!importExisting) throw ExistingStorageException(path)
 
-            val optConfig = load(path).blockingGet()
-            requireNotNull(optConfig.value) { "Failed to load config from existing storage." }
-
+            load(path).blockingGet()
         } else {
             editorDataPub.update {
                 it.copy(refPath = path)
@@ -76,26 +80,22 @@ class SAFStorageEditor @AssistedInject constructor(
         it.refPath != null && it.label.isNotEmpty()
     }
 
-    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.just(ref)
+    override fun load(ref: Storage.Ref): Single<SAFStorageConfig> = Single.just(ref)
             .map { (it as SAFStorageRef).path }
             .flatMap { load(it) }
 
-    private fun load(path: SAFPath): Single<Opt<Storage.Config>> = Single.just(path)
-            .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)).opt() }
-            .doOnSuccess { optConfig ->
-                if (optConfig.isNull) return@doOnSuccess
-                val config = optConfig.notNullValue()
-                require(config.storageType == Storage.Type.SAF) { "Can only import storage of same type." }
+    private fun load(path: SAFPath): Single<SAFStorageConfig> = Single.just(path)
+            .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)) }
+            .doOnSuccess { config ->
                 editorDataPub.update {
                     it.copy(
                             refPath = path,
-                            existingStorage = optConfig.isNotNull,
+                            existingStorage = true,
                             storageId = config.storageId,
                             label = config.label
                     )
                 }
             }
-            .map { it as Opt<Storage.Config> }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
         val data = editorDataPub.snapshot
@@ -112,6 +112,11 @@ class SAFStorageEditor @AssistedInject constructor(
         configAdapter.toSAFFile(config, safGateway, configFile)
 
         return@fromCallable Pair(ref, config)
+    }
+
+    override fun release(): Completable = Completable.fromCallable {
+        Timber.tag(TAG).v("release()")
+        newlyAcquiredPerm?.let { safGateway.releasePermission(it) }
     }
 
     @AssistedInject.Factory
