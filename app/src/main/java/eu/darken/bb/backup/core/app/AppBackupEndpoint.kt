@@ -30,7 +30,7 @@ class AppBackupEndpoint @Inject constructor(
 
     override fun backup(spec: BackupSpec): Backup.Unit {
         spec as AppBackupSpec
-        val builder = AppBackupBuilder(spec, Backup.Id())
+        val builder = AppBackupWrapper(spec, Backup.Id())
         updateProgressPrimary(R.string.progress_creating_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
@@ -49,15 +49,13 @@ class AppBackupEndpoint @Inject constructor(
             updateProgressSecondary(splitApk.path)
             updateProgressCount(Progress.Count.Counter(apkData.splitSources.indexOf(splitApk) + 2, (apkData.splitSources.size + 2)))
 
-            val splitSourceRef = MMDataRepo.create(builder.backupId, splitApk.asSFile())
+            val splitSourceRef = MMDataRepo.create(backupId = builder.backupId, orig = splitApk.asSFile())
             splitApk.copyTo(splitSourceRef.tmpPath)
             splitApkRefs.add(splitSourceRef)
         }
         builder.splitApks = splitApkRefs
 
-        // TODO set metadata?
-
-        return builder.toBackup()
+        return builder.createUnit()
     }
 
 

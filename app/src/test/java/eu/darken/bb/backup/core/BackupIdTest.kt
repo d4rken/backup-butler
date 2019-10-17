@@ -1,19 +1,18 @@
-package eu.darken.bb.backup
+package eu.darken.bb.backup.core
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.backup.core.Generator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
 
-class GeneratorIdTest {
+class BackupIdTest {
     @Test
     fun testSerialization() {
         val uuid = UUID.randomUUID()
-        val orig = Generator.Id(uuid)
-        assertThat(orig.toString()).isEqualTo("GeneratorId($uuid)")
+        val orig = Backup.Id(uuid)
+        assertThat(orig.toString()).isEqualTo("BackupId($uuid)")
 
-        val adapter = AppModule().moshi().adapter(Generator.Id::class.java)
+        val adapter = AppModule().moshi().adapter(Backup.Id::class.java)
 
         val json = adapter.toJson(orig)
         assertThat(json).contains(uuid.toString())

@@ -17,8 +17,6 @@ data class AppBackupMetaData(
 //        return props.originalPath.path.replace(path.path, "")
     }
 
-    // TODO test serialization
-
     override var backupType: Backup.Type
         get() = Backup.Type.APP
         set(value) {

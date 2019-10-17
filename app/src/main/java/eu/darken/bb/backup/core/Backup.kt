@@ -23,15 +23,14 @@ interface Backup {
     }
 
     data class Unit(
-            val id: Id,
             val spec: BackupSpec,
             val metaData: MetaData,
             val data: Map<String, Collection<MMRef>>
     ) {
         @Transient val specId = spec.specId
+        @Transient val backupId = metaData.backupId
     }
 
-    // TODO test serialization
     interface MetaData {
         val backupId: Id
         val backupType: Type
@@ -75,11 +74,11 @@ interface Backup {
 
     data class Info(
             val storageId: Storage.Id,
-            val backupId: Id,
             val spec: BackupSpec,
             val metaData: MetaData,
             val items: Collection<Entry>
     ) {
+        val backupId: Id = metaData.backupId
         val specId: BackupSpec.Id = spec.specId
 
         interface Entry {

@@ -1,9 +1,8 @@
-package eu.darken.bb.backup.files
+package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
-import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 

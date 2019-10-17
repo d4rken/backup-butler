@@ -164,7 +164,6 @@ class LocalStorage @AssistedInject constructor(
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
                                         val props = propsAdapter.fromFile(file)
-                                        checkNotNull(props) { "Can't read props from $file" }
                                         Backup.Info.PropsEntry(backupSpec, metaData, props)
                                     }
                                     .toList()
@@ -173,7 +172,6 @@ class LocalStorage @AssistedInject constructor(
                         .map {
                             return@map Backup.Info(
                                     storageId = storageId,
-                                    backupId = backupId,
                                     spec = backupSpec,
                                     metaData = metaData,
                                     items = it
@@ -215,7 +213,6 @@ class LocalStorage @AssistedInject constructor(
         }
 
         return Backup.Unit(
-                id = backupId,
                 spec = item.backupSpec,
                 metaData = metaData,
                 data = dataMap
@@ -235,7 +232,7 @@ class LocalStorage @AssistedInject constructor(
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         }
 
-        val versionDir = getVersionDir(specId = backup.specId, backupId = backup.id).tryMkDirs()
+        val versionDir = getVersionDir(specId = backup.specId, backupId = backup.backupId).tryMkDirs()
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
@@ -262,11 +259,10 @@ class LocalStorage @AssistedInject constructor(
             }
         }
 
-        writeBackupMeta(backup.specId, backup.id, backup.metaData)
+        writeBackupMeta(backup.specId, backup.backupId, backup.metaData)
 
         val info = Backup.Info(
                 storageId = storageId,
-                backupId = backup.id,
                 spec = backup.spec,
                 metaData = backup.metaData,
                 items = itemEntries
@@ -358,7 +354,7 @@ class LocalStorage @AssistedInject constructor(
     companion object {
         internal val TAG = App.logTag("Storage", "Local")
         private const val DATA_EXT = ".data"
-        private const val PROP_EXT = ".json"
+        private const val PROP_EXT = ".prop.json"
         private const val SPEC_FILE = "spec.json"
         private const val BACKUP_META_FILE = "backup.json"
     }

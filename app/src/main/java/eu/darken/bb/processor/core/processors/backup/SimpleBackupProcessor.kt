@@ -66,7 +66,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 task.destinations.forEach { storageId ->
                     // TODO what if the storage has been deleted?
                     val repo = storageManager.getStorage(storageId).blockingFirst()
-                    Timber.tag(TAG).i("Storing %s using %s", backup.id, repo)
+                    Timber.tag(TAG).i("Storing %s using %s", backup.backupId, repo)
 
                     val storageProgressSub = repo.progress
                             .subscribeOn(Schedulers.io())
@@ -74,11 +74,11 @@ class SimpleBackupProcessor @AssistedInject constructor(
 
                     val result = repo.save(backup)
                     success++
-                    Timber.tag(TAG).i("Backup (%s) stored: %s", backup.id, result)
+                    Timber.tag(TAG).i("Backup (%s) stored: %s", backup.backupId, result)
 
                     storageProgressSub.dispose()
                 }
-                MMDataRepo.deleteAll(backup.id)
+                MMDataRepo.deleteAll(backup.backupId)
             }
             progressParent.updateProgressTertiary("")
         }

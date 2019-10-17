@@ -175,7 +175,6 @@ class SAFStorage @AssistedInject constructor(
                         .map {
                             return@map Backup.Info(
                                     storageId = storageId,
-                                    backupId = backupId,
                                     spec = backupSpec,
                                     metaData = metaData,
                                     items = it
@@ -222,7 +221,6 @@ class SAFStorage @AssistedInject constructor(
                 }
 
         return Backup.Unit(
-                id = backupId,
                 spec = item.backupSpec,
                 metaData = metaData,
                 data = dataMap
@@ -244,7 +242,7 @@ class SAFStorage @AssistedInject constructor(
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         }
 
-        val versionDir = getVersionDir(backup.specId, backup.id).tryMkDirs(safGateway)
+        val versionDir = getVersionDir(backup.specId, backup.backupId).tryMkDirs(safGateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
@@ -278,11 +276,10 @@ class SAFStorage @AssistedInject constructor(
             }
         }
 
-        writeBackupMeta(backup.specId, backup.id, backup.metaData)
+        writeBackupMeta(backup.specId, backup.backupId, backup.metaData)
 
         val info = Backup.Info(
                 storageId = storageId,
-                backupId = backup.id,
                 spec = backup.spec,
                 metaData = backup.metaData,
                 items = itemEntries
@@ -303,7 +300,12 @@ class SAFStorage @AssistedInject constructor(
                     backupDir.deleteAll(safGateway)
                 }
 
-                val newMetaData = getMetaDatas(specId)
+                val newMetaData = if (backupId != null) {
+                    // Not a complete deletion
+                    getMetaDatas(specId)
+                } else {
+                    emptySet()
+                }
                 return@map specInfo.copy(backups = newMetaData)
             }
 
@@ -360,7 +362,7 @@ class SAFStorage @AssistedInject constructor(
     companion object {
         val TAG = App.logTag("StorageRepo", "SAF")
         private const val DATA_EXT = ".data"
-        private const val PROP_EXT = ".json"
+        private const val PROP_EXT = ".prop.json"
         private const val SPEC_FILE = "spec.json"
         private const val BACKUP_META_FILE = "backup.json"
     }

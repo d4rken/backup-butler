@@ -44,13 +44,11 @@ class FilesBackupEndpoint @Inject constructor(
             backupFile(spec)
         }
 
-        // TODO set metadata?
-
-        return builder.toBackup()
+        return builder.createUnit()
     }
 
-    private fun backupFile(spec: FilesBackupSpec): FilesBackupBuilder {
-        val builder = FilesBackupBuilder(spec, Backup.Id())
+    private fun backupFile(spec: FilesBackupSpec): FilesBackupWrapper {
+        val builder = FilesBackupWrapper(spec, Backup.Id())
         val pathToBackup = spec.path.asFile()
 
         val items = pathToBackup.walkTopDown()
@@ -81,8 +79,8 @@ class FilesBackupEndpoint @Inject constructor(
         return builder
     }
 
-    private fun backupSAF(spec: FilesBackupSpec): FilesBackupBuilder {
-        val builder = FilesBackupBuilder(spec, Backup.Id())
+    private fun backupSAF(spec: FilesBackupSpec): FilesBackupWrapper {
+        val builder = FilesBackupWrapper(spec, Backup.Id())
         val pathToBackup = spec.path as SAFPath
 
         val items: List<SAFPath> = pathToBackup.walkTopDown(safGateway)

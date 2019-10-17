@@ -1,4 +1,4 @@
-package eu.darken.bb.backup
+package eu.darken.bb.backup.core
 
 import org.junit.jupiter.api.Test
 

@@ -1,7 +1,6 @@
-package eu.darken.bb.backup
+package eu.darken.bb.backup.core
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.backup.core.BackupSpec
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

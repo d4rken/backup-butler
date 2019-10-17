@@ -1,9 +1,8 @@
-package eu.darken.bb.backup.files
+package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SimplePath
 import io.kotlintest.shouldBe

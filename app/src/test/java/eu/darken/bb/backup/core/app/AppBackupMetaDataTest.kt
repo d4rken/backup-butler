@@ -1,8 +1,7 @@
-package eu.darken.bb.backup.files
+package eu.darken.bb.backup.core.app
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -10,11 +9,11 @@ import org.junit.jupiter.api.Test
 import java.lang.reflect.InvocationTargetException
 import java.util.*
 
-class FilesBackupMetaDataTest {
+class AppBackupMetaDataTest {
 
     @Test
     fun `test serialization`() {
-        val original = FilesBackupMetaData(
+        val original = AppBackupMetaData(
                 backupId = Backup.Id()
         )
 
@@ -26,7 +25,7 @@ class FilesBackupMetaDataTest {
         val expectedJson = "{" +
                 "\"backupId\":\"${original.backupId.idString}\"," +
                 "\"createdAt\":$dateJson," +
-                "\"backupType\":\"FILES\"" +
+                "\"backupType\":\"APP\"" +
                 "}"
 
         val adapterPoly = moshi.adapter(Backup.MetaData::class.java)
@@ -34,7 +33,7 @@ class FilesBackupMetaDataTest {
         jsonPoly shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
-        val adapterDirect = moshi.adapter(FilesBackupMetaData::class.java)
+        val adapterDirect = moshi.adapter(AppBackupMetaData::class.java)
         val jsonDirect = adapterDirect.toJson(original)
         jsonDirect shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
@@ -42,26 +41,26 @@ class FilesBackupMetaDataTest {
 
     @Test
     fun `test fixed type`() {
-        val original = FilesBackupMetaData(backupId = Backup.Id())
-        original.backupType shouldBe Backup.Type.FILES
+        val original = AppBackupMetaData(backupId = Backup.Id())
+        original.backupType shouldBe Backup.Type.APP
         shouldThrow<IllegalArgumentException> {
-            original.backupType = Backup.Type.APP
+            original.backupType = Backup.Type.FILES
             Any()
         }
-        original.backupType shouldBe Backup.Type.FILES
+        original.backupType shouldBe Backup.Type.APP
     }
 
     @Test
     fun `force typing`() {
-        val original = AppBackupMetaData(
+        val original = FilesBackupMetaData(
                 backupId = Backup.Id()
         )
 
         val moshi = AppModule().moshi()
 
         shouldThrow<InvocationTargetException> {
-            val json = moshi.adapter(AppBackupMetaData::class.java).toJson(original)
-            moshi.adapter(FilesBackupMetaData::class.java).fromJson(json)
+            val json = moshi.adapter(FilesBackupMetaData::class.java).toJson(original)
+            moshi.adapter(AppBackupMetaData::class.java).fromJson(json)
         }
     }
 

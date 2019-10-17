@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.files
+package eu.darken.bb.backup.core.files
 
 class FilesBackupSpecTest {
 

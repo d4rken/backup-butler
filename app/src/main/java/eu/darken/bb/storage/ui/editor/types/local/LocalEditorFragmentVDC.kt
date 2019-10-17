@@ -110,6 +110,10 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         pickerEvent.postValue(FilePicker.Options())
     }
 
+    fun selectRoot() {
+        // TODO
+    }
+
     fun onGrantPermission() {
         requestPermissionEvent.postValue(Any())
     }

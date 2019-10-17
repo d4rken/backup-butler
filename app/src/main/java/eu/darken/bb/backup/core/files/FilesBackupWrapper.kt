@@ -1,15 +1,19 @@
 package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BaseBackupBuilder
+import eu.darken.bb.backup.core.BaseBackupWrapper
 import eu.darken.bb.processor.core.mm.MMRef
 
-class FilesBackupBuilder : BaseBackupBuilder<FilesBackupSpec> {
+class FilesBackupWrapper : BaseBackupWrapper<FilesBackupSpec> {
 
     constructor(backup: Backup.Unit) : super(backup)
 
     constructor(config: FilesBackupSpec, backupId: Backup.Id)
             : super(backupId, config)
+
+    override fun buildMeta(backupId: Backup.Id): Backup.MetaData {
+        return FilesBackupMetaData(backupId)
+    }
 
     val files: MutableCollection<MMRef> = data.getOrPut("", { mutableSetOf() })
 

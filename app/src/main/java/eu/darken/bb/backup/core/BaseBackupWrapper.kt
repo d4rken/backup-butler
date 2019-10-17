@@ -2,30 +2,29 @@ package eu.darken.bb.backup.core
 
 import eu.darken.bb.processor.core.mm.MMRef
 
-abstract class BaseBackupBuilder<ConfigT : BackupSpec> {
-    val data = mutableMapOf<String, MutableCollection<MMRef>>()
-    val backupConfig: ConfigT
-    lateinit var metaData: Backup.MetaData
+abstract class BaseBackupWrapper<ConfigT : BackupSpec> {
     val backupId: Backup.Id
+    val backupConfig: ConfigT
+    val data = mutableMapOf<String, MutableCollection<MMRef>>()
 
     constructor(backup: Backup.Unit) {
+        this.backupId = backup.backupId
         this.backupConfig = backup.spec as ConfigT
-        this.backupId = backup.id
-        this.metaData = backup.metaData
         backup.data.forEach {
             data[it.key] = it.value.toMutableList()
         }
     }
 
     constructor(backupId: Backup.Id, config: ConfigT) {
-        this.backupConfig = config
         this.backupId = backupId
+        this.backupConfig = config
     }
 
-    fun toBackup(): Backup.Unit = Backup.Unit(
+    abstract fun buildMeta(backupId: Backup.Id): Backup.MetaData
+
+    fun createUnit(): Backup.Unit = Backup.Unit(
             spec = backupConfig,
-            id = backupId,
-            metaData = metaData,
+            metaData = buildMeta(backupId),
             data = data.toMap()
     )
 }

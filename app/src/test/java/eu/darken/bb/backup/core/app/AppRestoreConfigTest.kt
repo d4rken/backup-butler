@@ -1,37 +1,36 @@
-package eu.darken.bb.backup.app
+package eu.darken.bb.backup.core.app
 
 import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.app.AppBackupSpec
+import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.file.SimplePath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
 
-class AppBackupSpecTest {
+class AppRestoreConfigTest {
 
     @Test
     fun `test serialization`() {
-        val original = AppBackupSpec("test.package")
+        val original = AppRestoreConfig()
 
         val moshi = AppModule().moshi()
 
         val expectedJson = "{" +
-                "\"packageName\":\"test.package\"," +
-                "\"specId\":\"pkg-test.package\"," +
-                "\"revisionLimit\":3," +
-                "\"backupType\":\"APP\"" +
+                "\"skipExistingApps\":false," +
+                "\"restoreApk\":true," +
+                "\"restoreData\":true," +
+                "\"restoreType\":\"APP\"" +
                 "}"
 
-        val adapterPoly = moshi.adapter(BackupSpec::class.java)
+        val adapterPoly = moshi.adapter(Restore.Config::class.java)
         val jsonPoly = adapterPoly.toJson(original)
         jsonPoly shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
-        val adapterDirect = moshi.adapter(AppBackupSpec::class.java)
+        val adapterDirect = moshi.adapter(AppRestoreConfig::class.java)
         val jsonDirect = adapterDirect.toJson(original)
         jsonDirect shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
@@ -39,10 +38,10 @@ class AppBackupSpecTest {
 
     @Test
     fun `test fixed type`() {
-        val original = AppBackupSpec("test.package")
-        original.backupType shouldBe Backup.Type.APP
-        original.backupType = Backup.Type.FILES
-        original.backupType shouldBe Backup.Type.APP
+        val original = AppRestoreConfig()
+        original.restoreType shouldBe Backup.Type.APP
+        original.restoreType = Backup.Type.FILES
+        original.restoreType shouldBe Backup.Type.APP
     }
 
     @Test

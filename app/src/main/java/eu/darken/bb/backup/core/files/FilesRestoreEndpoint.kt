@@ -39,7 +39,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
         config as FilesRestoreConfig
         val spec = backup.spec as FilesBackupSpec
-        val handler = FilesBackupBuilder(backup)
+        val handler = FilesBackupWrapper(backup)
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
 
