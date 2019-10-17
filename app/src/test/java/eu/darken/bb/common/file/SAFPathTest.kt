@@ -1,6 +1,7 @@
 package eu.darken.bb.common.file
 
 import android.net.Uri
+import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -42,7 +43,10 @@ class SAFPathTest {
     fun `test fixed type`() {
         val file = SAFPath.build(testUri, "seg1", "seg2")
         file.pathType shouldBe APath.SFileType.SAF
-        file.pathType = APath.SFileType.JAVA
+        shouldThrow<java.lang.IllegalArgumentException> {
+            file.pathType = APath.SFileType.JAVA
+            Any()
+        }
         file.pathType shouldBe APath.SFileType.SAF
     }
 
@@ -50,6 +54,18 @@ class SAFPathTest {
     fun `test must be tree uri`() {
         shouldThrow<IllegalArgumentException> {
             SAFPath.build(Uri.parse("abc"))
+        }
+    }
+
+    @Test
+    fun `force typing`() {
+        val original = SimplePath.build("test", "file")
+
+        val moshi = AppModule().moshi()
+
+        shouldThrow<JsonDataException> {
+            val json = moshi.adapter(SimplePath::class.java).toJson(original)
+            moshi.adapter(SAFPath::class.java).fromJson(json)
         }
     }
 }

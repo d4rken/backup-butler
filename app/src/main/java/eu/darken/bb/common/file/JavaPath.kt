@@ -1,6 +1,7 @@
 package eu.darken.bb.common.file
 
 import com.squareup.moshi.JsonClass
+import eu.darken.bb.common.TypeMissMatchException
 import java.io.File
 
 @JsonClass(generateAdapter = true)
@@ -10,7 +11,9 @@ data class JavaPath(
 
     override var pathType: APath.SFileType
         get() = APath.SFileType.JAVA
-        set(value) {}
+        set(value) {
+            TypeMissMatchException.check(value, pathType)
+        }
 
     override val path: String
         get() = file.path

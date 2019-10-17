@@ -13,6 +13,8 @@ import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
+import eu.darken.bb.common.opt
+import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
 import io.reactivex.Observable
@@ -27,16 +29,17 @@ class SAFStorageEditor @AssistedInject constructor(
 ) : StorageEditor {
 
     private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)
-    private val configPub = HotData(SAFStorageConfig(storageId = storageId))
-    override val config = configPub.data
+    private val editorDataPub = HotData(Data(storageId = storageId))
+    override val editorData = editorDataPub.data
 
-    internal var refPath: SAFPath? = null
-    override var isExistingStorage: Boolean = false
+    fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
-    fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
+    fun updatePath(uri: Uri, importExisting: Boolean): Single<SAFPath> =
+            Single.just(SAFPath.build(uri)).flatMap { updatePath(it, importExisting) }
 
-    fun updatePath(uri: Uri) {
-        val path = SAFPath.build(uri)
+    fun updatePath(path: SAFPath, importExisting: Boolean): Single<SAFPath> = Single.fromCallable {
+        check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
+
         try {
             safGateway.takePermission(path)
         } catch (e: Throwable) {
@@ -46,44 +49,66 @@ class SAFStorageEditor @AssistedInject constructor(
             } catch (e2: Throwable) {
                 Timber.tag(TAG).e(e2, "Error while releasing during error...")
             }
-        }
-        refPath = path
-        configPub.update { it }
-    }
-
-    fun isPathValid(): Boolean {
-        if (refPath == null) return false
-        if (!safGateway.hasPermission(refPath!!)) return false
-        // TODO exists?
-        return true
-    }
-
-    override fun isValid(): Observable<Boolean> = config.map {
-        (isPathValid() || isExistingStorage) && it.label.isNotEmpty()
-    }
-
-    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
-        ref as SAFStorageRef
-
-        val config = configAdapter.fromSAFFile(safGateway, ref.path.child(STORAGE_CONFIG))
-
-        if (config != null) {
-            configPub.update { config }
-            isExistingStorage = true
+            throw e
         }
 
-        refPath = ref.path
-        return@fromCallable Opt(config)
+        check(safGateway.hasPermission(path)) { "We persisted the permission but it's still unavailable?!" }
+
+        check(path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
+        check(path.isDirectory(safGateway)) { "Target is not a directory!" }
+
+        if (path.child(STORAGE_CONFIG).exists(safGateway)) {
+            if (!importExisting) throw ExistingStorageException(path)
+
+            val optConfig = load(path).blockingGet()
+            requireNotNull(optConfig.value) { "Failed to load config from existing storage." }
+
+        } else {
+            editorDataPub.update {
+                it.copy(refPath = path)
+            }
+        }
+
+        return@fromCallable path
     }
+
+    override fun isValid(): Observable<Boolean> = editorData.map {
+        it.refPath != null && it.label.isNotEmpty()
+    }
+
+    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.just(ref)
+            .map { (it as SAFStorageRef).path }
+            .flatMap { load(it) }
+
+    private fun load(path: SAFPath): Single<Opt<Storage.Config>> = Single.just(path)
+            .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)).opt() }
+            .doOnSuccess { optConfig ->
+                if (optConfig.isNull) return@doOnSuccess
+                val config = optConfig.notNullValue()
+                require(config.storageType == Storage.Type.SAF) { "Can only import storage of same type." }
+                editorDataPub.update {
+                    it.copy(
+                            refPath = path,
+                            existingStorage = optConfig.isNotNull,
+                            storageId = config.storageId,
+                            label = config.label
+                    )
+                }
+            }
+            .map { it as Opt<Storage.Config> }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
-        val config = configPub.snapshot
+        val data = editorDataPub.snapshot
         val ref = SAFStorageRef(
-                storageId = config.storageId,
-                path = refPath!!
+                storageId = data.storageId,
+                path = data.refPath!!
+        )
+        val config = SAFStorageConfig(
+                storageId = data.storageId,
+                label = data.label
         )
 
-        val configFile = refPath!!.child(STORAGE_CONFIG)
+        val configFile = ref.path.child(STORAGE_CONFIG)
         configAdapter.toSAFFile(config, safGateway, configFile)
 
         return@fromCallable Pair(ref, config)
@@ -96,4 +121,11 @@ class SAFStorageEditor @AssistedInject constructor(
         const val STORAGE_CONFIG = "storage.data"
         val TAG = App.logTag("Storage", "SAF", "Editor")
     }
+
+    data class Data(
+            override val storageId: Storage.Id,
+            override val label: String = "",
+            override val existingStorage: Boolean = false,
+            override val refPath: SAFPath? = null
+    ) : StorageEditor.Data
 }

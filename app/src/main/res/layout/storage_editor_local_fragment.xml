@@ -58,24 +58,38 @@
                                 tools:text="My local backup" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/path_input_layout"
-                            style="@style/TextInputLayoutOutlinedDense"
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="@string/label_path"
-                            app:endIconMode="clear_text">
+                            android:layout_marginTop="16dp"
+                            android:layout_height="wrap_content">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/path_input"
-                                style="@style/Widget.AppCompat.EditText"
+                            <TextView
+                                android:id="@+id/textView"
+                                style="@style/TextAppearance.MaterialComponents.Caption"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="textNoSuggestions"
-                                android:singleLine="true"
-                                tools:text="/storage/emulated/0/BackupButler" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:text="@string/label_path"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/path_display"
+                                style="@style/TextAppearance.MaterialComponents.Body2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/textView"
+                                tools:text="/storage/emulated/0/DCIM" />
+
+                            <Button
+                                android:id="@+id/path_button"
+                                style="@style/Widget.MaterialComponents.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_select_path"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/path_display" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
 
                     <eu.darken.bb.common.ui.LoadingOverlayView

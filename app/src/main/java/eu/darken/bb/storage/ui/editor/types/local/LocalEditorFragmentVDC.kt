@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
 import android.content.Context
+import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -8,6 +9,10 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.JavaPath
+import eu.darken.bb.common.filepicker.FilePicker
+import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -16,6 +21,7 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
@@ -33,32 +39,22 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor as LocalStorageEditor }
 
-    private val configObs = editorObs
-            .flatMap { it.config }
-
+    private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor: LocalStorageEditor by lazy { editorObs.blockingFirst() }
     val requestPermissionEvent = SingleLiveEvent<Any>()
+    val errorEvent = SingleLiveEvent<Throwable>()
+    val pickerEvent = SingleLiveEvent<FilePicker.Options>()
 
     init {
-        editorObs.take(1)
-                .subscribe { editor ->
-                    stater.update { it.copy(path = editor.refPath.path) }
-                }
-
-        editor.isValid()
-                .subscribe { valid -> stater.update { it.copy(allowCreate = valid) } }
-                .withScopeVDC(this)
-
-        configObs
-                .subscribe { config ->
+        editorDataObs
+                .subscribe { editorData ->
                     stater.update { state ->
                         state.copy(
-                                label = config.label,
-                                path = editor.rawPath,
-                                validPath = editor.isRawPathValid(),
+                                label = editorData.label,
+                                path = editorData.refPath?.path ?: "",
                                 isWorking = false,
-                                isExisting = editor.isExistingStorage,
+                                isExisting = editorData.existingStorage,
                                 isPermissionGranted = editor.isPermissionGranted()
                         )
                     }
@@ -71,12 +67,30 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePath(path: String) {
+    fun updatePath(path: APath) {
+        path as JavaPath
         Timber.tag(TAG).v("Updating path: %s", path)
-        editor.updatePath(path)
+        editor.updatePath(path, false)
+                .subscribeOn(Schedulers.io())
+                .subscribe { path, error ->
+                    if (error != null) {
+                        errorEvent.postValue(error)
+                    }
+                }
     }
 
-    override fun onNavigateBack(): Boolean = if (editor.isExistingStorage) {
+    fun importStorage(path: APath) {
+        path as JavaPath
+        editor.updatePath(path, true)
+                .subscribeOn(Schedulers.io())
+                .subscribe { path, error ->
+                    if (error != null) {
+                        errorEvent.postValue(error.getRootCause())
+                    }
+                }
+    }
+
+    override fun onNavigateBack(): Boolean = if (editorDataObs.map { it.existingStorage }.blockingFirst()) {
         builder.remove(storageId)
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
                 .subscribeOn(Schedulers.io())
@@ -92,6 +106,10 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         true
     }
 
+    fun selectPath() {
+        pickerEvent.postValue(FilePicker.Options())
+    }
+
     fun onGrantPermission() {
         requestPermissionEvent.postValue(Any())
     }
@@ -103,8 +121,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     data class State(
             val label: String = "",
             val path: String = "",
-            val validPath: Boolean = false,
-            val allowCreate: Boolean = false,
             val isWorking: Boolean = false,
             val isPermissionGranted: Boolean = true,
             override val isExisting: Boolean = false
@@ -114,6 +130,11 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): LocalEditorFragmentVDC
     }
+
+    @Parcelize
+    data class PermissionRequest(
+            val followUpWithDefaults: Boolean = true
+    ) : Parcelable
 
     companion object {
         val TAG = App.logTag("Storage", "Local", "Editor", "VDC")

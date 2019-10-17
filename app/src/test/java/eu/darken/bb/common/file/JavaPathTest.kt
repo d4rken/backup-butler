@@ -1,7 +1,9 @@
 package eu.darken.bb.common.file
 
+import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -45,7 +47,22 @@ class JavaPathTest {
     fun `test fixed type`() {
         val file = JavaPath(testFile)
         file.pathType shouldBe APath.SFileType.JAVA
-        file.pathType = APath.SFileType.SIMPLE
+        shouldThrow<IllegalArgumentException> {
+            file.pathType = APath.SFileType.SIMPLE
+            Any()
+        }
         file.pathType shouldBe APath.SFileType.JAVA
+    }
+
+    @Test
+    fun `force typing`() {
+        val original = SimplePath.build("test", "file")
+
+        val moshi = AppModule().moshi()
+
+        shouldThrow<JsonDataException> {
+            val json = moshi.adapter(SimplePath::class.java).toJson(original)
+            moshi.adapter(JavaPath::class.java).fromJson(json)
+        }
     }
 }

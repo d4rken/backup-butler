@@ -12,6 +12,8 @@ import eu.darken.bb.common.file.JavaPath
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import eu.darken.bb.common.opt
+import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
 import io.reactivex.Observable
@@ -25,69 +27,81 @@ class LocalStorageEditor @AssistedInject constructor(
 ) : StorageEditor {
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
-    private val configPub = HotData(LocalStorageConfig(storageId = storageId))
-    override val config = configPub.data
+    private val editorDataPub = HotData(Data(storageId = storageId))
+    override val editorData = editorDataPub.data
 
-    internal var refPath = File(Environment.getExternalStorageDirectory(), "BackupButler")
+    fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
-    override var isExistingStorage: Boolean = false
+    fun updatePath(path: String, importExisting: Boolean): Single<JavaPath> =
+            Single.just(JavaPath.build(path)).flatMap { updatePath(it, importExisting) }
 
-    var rawPath: String = refPath.path
+    fun updatePath(path: JavaPath, importExisting: Boolean): Single<JavaPath> = Single.fromCallable {
+        check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-    fun updateLabel(label: String) = configPub.update { it.copy(label = label) }
+        check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
 
-    fun updatePath(newPath: String) {
-        if (isExistingStorage && newPath != rawPath) {
-            throw IllegalArgumentException("Can't update path on existing storage")
-        }
-        rawPath = newPath
-        if (isRawPathValid()) {
-            refPath = File(newPath)
-        }
-        configPub.update { it }
-    }
+        check(path.asFile().canWrite()) { "Can't write to path." }
+        check(path.asFile().isDirectory) { "Target is not a directory!" }
 
-    fun isRawPathValid(): Boolean {
-        var file = File(rawPath)
-        if (file.exists()) return false
-        return try {
-            while (!file.exists() && file.parent != null) {
-                file = file.parentFile
+        val configFile = File(path.asFile(), STORAGE_CONFIG)
+        if (configFile.exists()) {
+            if (!importExisting) throw ExistingStorageException(path)
+
+            val optConfig = load(path).blockingGet()
+            requireNotNull(optConfig.value) { "Failed to load config from existing storage." }
+        } else {
+            editorDataPub.update {
+                it.copy(refPath = path)
             }
-            file.isDirectory && file.canRead() && file.canWrite() && file.canExecute()
-        } catch (e: Exception) {
-            false
         }
+
+        return@fromCallable path
     }
 
     fun isPermissionGranted(): Boolean {
         return runtimePermissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    override fun isValid(): Observable<Boolean> = config.map {
-        (isRawPathValid() || isExistingStorage)
-                && it.label.isNotEmpty()
+    override fun isValid(): Observable<Boolean> = editorData.map { data ->
+        data.refPath != null
+                && data.label.isNotEmpty()
                 && isPermissionGranted()
     }
 
-    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.fromCallable {
-        ref as LocalStorageRef
-        val config = Opt(configAdapter.fromFile(File(ref.path.asFile(), STORAGE_CONFIG)))
-        if (config.isNotNull) {
-            configPub.update { config.notNullValue() }
-            isExistingStorage = true
-        }
-        refPath = ref.path.asFile()
-        return@fromCallable config
-    }
+    override fun load(ref: Storage.Ref): Single<Opt<Storage.Config>> = Single.just(ref)
+            .map { (it as LocalStorageRef).path }
+            .flatMap { load(it) }
+
+    private fun load(path: JavaPath): Single<Opt<Storage.Config>> = Single.just(path)
+            .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)).opt() }
+            .doOnSuccess { optConfig ->
+                if (optConfig.isNull) return@doOnSuccess
+                val config = optConfig.notNullValue()
+                require(config.storageType == Storage.Type.LOCAL) { "Can only import storage of same type." }
+                editorDataPub.update {
+                    it.copy(
+                            refPath = path,
+                            existingStorage = optConfig.isNotNull,
+                            storageId = config.storageId,
+                            label = config.label
+                    )
+                }
+            }
+            .map { it as Opt<Storage.Config> }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
-        val config = configPub.snapshot
+        val data = editorDataPub.snapshot
         val ref = LocalStorageRef(
-                storageId = config.storageId,
-                path = JavaPath.build(refPath)
+                storageId = data.storageId,
+                path = data.refPath!!
         )
+        val config = LocalStorageConfig(
+                storageId = data.storageId,
+                label = data.label
+        )
+
         configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
+
         return@fromCallable Pair(ref, config)
     }
 
@@ -97,4 +111,11 @@ class LocalStorageEditor @AssistedInject constructor(
     companion object {
         const val STORAGE_CONFIG = "storage.data"
     }
+
+    data class Data(
+            override val storageId: Storage.Id,
+            override val label: String = "",
+            override val existingStorage: Boolean = false,
+            override val refPath: JavaPath? = JavaPath.build(File(Environment.getExternalStorageDirectory(), "BackupButler"))
+    ) : StorageEditor.Data
 }

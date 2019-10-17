@@ -307,10 +307,12 @@ class SAFStorage @AssistedInject constructor(
                 return@map specInfo.copy(backups = newMetaData)
             }
 
+    // TODO remove URI Permission
     override fun detach(): Completable = Completable
             .complete()
             .doOnSubscribe { Timber.i("Detaching %s", storageRef) }
 
+    // TODO call detach after wipe?
     override fun wipe(): Completable = Completable
             .fromCallable {
                 storageRef.path.asFile().deleteAll()

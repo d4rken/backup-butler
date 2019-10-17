@@ -49,7 +49,11 @@ class StorageEditorActivityVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         dataObs
-                .map { if (it.editor != null) it.editor.isExistingStorage else false }
+                .filter { it.editor != null }
+                .switchMap {
+                    it.editor!!.editorData
+                }
+                .map { it.existingStorage }
                 .subscribe { isExisting: Boolean ->
                     stater.update { it.copy(existing = isExisting) }
                 }

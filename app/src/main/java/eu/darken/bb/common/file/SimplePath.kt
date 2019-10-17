@@ -1,5 +1,6 @@
 package eu.darken.bb.common.file
 
+import eu.darken.bb.common.TypeMissMatchException
 import java.io.File
 
 data class SimplePath(
@@ -8,7 +9,9 @@ data class SimplePath(
 
     override var pathType: APath.SFileType
         get() = APath.SFileType.SIMPLE
-        set(value) {}
+        set(value) {
+            TypeMissMatchException.check(value, pathType)
+        }
 
     override val name: String = path.substringAfterLast(File.separatorChar)
 

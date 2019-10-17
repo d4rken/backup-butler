@@ -1,6 +1,9 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="RIGHT_MARGIN" value="120" />
+    <AndroidXmlCodeStyleSettings>
+      <option name="ARRANGEMENT_SETTINGS_MIGRATED_TO_191" value="true" />
+    </AndroidXmlCodeStyleSettings>
     <JSON>
       <option name="OBJECT_WRAPPING" value="1" />
       <option name="ARRAY_WRAPPING" value="1" />

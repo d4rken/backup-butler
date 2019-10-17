@@ -1,5 +1,6 @@
 package eu.darken.bb.common.file
 
+import android.content.Context
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import java.io.File
 
@@ -8,6 +9,7 @@ interface APath {
     val name: String
     val pathType: SFileType
 
+    fun userReadablePath(context: Context) = path
 
     enum class SFileType {
         SIMPLE, JAVA, SAF
@@ -20,6 +22,7 @@ interface APath {
                 .withSubtype(SAFPath::class.java, SFileType.SAF.name)
                 .skipLabelSerialization()
     }
+
 }
 
 fun APath.asFile(): File = when (this) {

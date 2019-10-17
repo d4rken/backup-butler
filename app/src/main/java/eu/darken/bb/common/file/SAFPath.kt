@@ -2,6 +2,7 @@ package eu.darken.bb.common.file
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import eu.darken.bb.common.TypeMissMatchException
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -13,14 +14,14 @@ data class SAFPath(
 ) : APath {
 
     init {
-        if (!SAFGateway.isTreeUri(treeRoot)) {
-            throw            IllegalArgumentException("SAFFile URI's must be a tree uri: $treeRoot")
-        }
+        require(SAFGateway.isTreeUri(treeRoot)) { "SAFFile URI's must be a tree uri: $treeRoot" }
     }
 
     override var pathType: APath.SFileType
         get() = APath.SFileType.SAF
-        set(value) {}
+        set(value) {
+            TypeMissMatchException.check(value, pathType)
+        }
 
     override val path: String
         get() = if (crumbs.isNotEmpty()) {

@@ -2,7 +2,9 @@ package eu.darken.bb.storage.core.local
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.saf.SAFStorageConfig
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -64,7 +66,25 @@ class LocalStorageConfigTest {
     fun `test fixed type`() {
         val original = LocalStorageConfig(storageId = Storage.Id())
         original.storageType shouldBe Storage.Type.LOCAL
-        original.storageType = Storage.Type.SAF
+        shouldThrow<IllegalArgumentException> {
+            original.storageType = Storage.Type.SAF
+            Any()
+        }
         original.storageType shouldBe Storage.Type.LOCAL
+    }
+
+    @Test
+    fun `force typing`() {
+        val original = LocalStorageConfig(
+                label = "testlabel",
+                storageId = Storage.Id()
+        )
+
+        val moshi = AppModule().moshi()
+
+        shouldThrow<Exception> {
+            val json = moshi.adapter(LocalStorageConfig::class.java).toJson(original)
+            moshi.adapter(SAFStorageConfig::class.java).fromJson(json)
+        }
     }
 }

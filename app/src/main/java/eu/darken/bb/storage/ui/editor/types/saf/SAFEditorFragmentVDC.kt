@@ -10,7 +10,10 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SAFGateway
+import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -29,7 +32,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         private val safGateway: SAFGateway
 ) : SmartVDC(), BaseEditorFragment.VDC {
 
-    private val stater = Stater(State(isPermissionGranted = true))
+    private val stater = Stater(State())
     override val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
@@ -37,32 +40,27 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor as SAFStorageEditor }
 
-    private val configObs = editorObs
-            .flatMap { it.config }
-
+    private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
     val openPickerEvent = SingleLiveEvent<Intent>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
-        editorObs.take(1)
+        editorDataObs.take(1)
                 .subscribe { editor ->
                     stater.update { it.copy(path = editor.refPath?.path ?: "") }
                 }
-
-        editor.isValid()
-                .subscribe { valid -> stater.update { it.copy(allowCreate = valid) } }
                 .withScopeVDC(this)
 
-        configObs
-                .subscribe { config ->
+        editorDataObs
+                .subscribe { data ->
                     stater.update { state ->
                         state.copy(
-                                label = config.label,
-                                path = editor.refPath?.path ?: "",
+                                label = data.label,
+                                path = data.refPath?.path ?: "",
                                 isWorking = false,
-                                isExisting = editor.isExistingStorage
+                                isExisting = data.existingStorage
                         )
                     }
                 }
@@ -78,7 +76,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         openPickerEvent.postValue(safGateway.createPickerIntent())
     }
 
-    override fun onNavigateBack(): Boolean = if (editor.isExistingStorage) {
+    override fun onNavigateBack(): Boolean = if (editorDataObs.map { it.existingStorage }.blockingFirst()) {
         builder.remove(storageId)
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
                 .subscribeOn(Schedulers.io())
@@ -95,20 +93,31 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun onPermissionResult(uri: Uri) {
-        try {
-            editor.updatePath(uri)
-        } catch (e: Exception) {
-            errorEvent.postValue(e)
-        }
+        editor.updatePath(uri, false)
+                .subscribeOn(Schedulers.io())
+                .subscribe { path, error ->
+                    if (error != null) {
+                        errorEvent.postValue(error)
+                    }
+                }
+    }
+
+    fun importStorage(path: APath) {
+        path as SAFPath
+        editor.updatePath(path, true)
+                .subscribeOn(Schedulers.io())
+                .subscribe { path, error ->
+                    if (error != null) {
+                        errorEvent.postValue(error.getRootCause())
+                    }
+                }
     }
 
     data class State(
             val label: String = "",
             val path: String = "",
             val validPath: Boolean = false,
-            val allowCreate: Boolean = false,
             val isWorking: Boolean = false,
-            val isPermissionGranted: Boolean = true,
             override val isExisting: Boolean = false
     ) : BaseEditorFragment.VDC.State
 
