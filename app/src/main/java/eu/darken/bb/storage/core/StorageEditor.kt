@@ -15,7 +15,6 @@ interface StorageEditor {
 
     fun isValid(): Observable<Boolean>
 
-    // TODO how do we do import of detached storages.
     fun load(ref: Storage.Ref): Single<Opt<Storage.Config>>
 
     fun save(): Single<Pair<Storage.Ref, Storage.Config>>
