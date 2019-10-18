@@ -13,8 +13,9 @@ data class FilesBackupMetaData(
 ) : Backup.MetaData {
 
     override fun getItemLabel(context: Context, spec: BackupSpec, props: MMRef.Props): String {
-        TODO("not implemented")
-        //        return props.originalPath.path.replace(path.path, "")
+        spec as FilesBackupSpec
+//        TODO("not implemented")
+        return props.originalPath.path.replace(spec.path.path, "")
     }
 
     override var backupType: Backup.Type

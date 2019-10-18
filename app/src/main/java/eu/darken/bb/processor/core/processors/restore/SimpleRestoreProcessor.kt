@@ -11,6 +11,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
@@ -38,46 +39,40 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         var error = 0
 
         val alreadyRestored = mutableSetOf<Backup.Id>()
-        val dontOverlap = mutableSetOf<BackupSpec.Id>()
 
         // Most specific first
-        task.targetBackup.forEach {
-            TODO("Specific backup restores")
+        task.targetBackup.forEach { backupTarget ->
+            val storage = storageManager.getStorage(backupTarget.storageId).blockingFirst()
+            val specInfo = storage.items(backupTarget.backupSpecId).blockingFirst().single()
+            val backupMeta = specInfo.backups.find { it.backupId == backupTarget.backupId }!!
+            if (restoreBackup(storage, task.restoreConfigs, specInfo.specId, backupMeta)) {
+                alreadyRestored.add(backupMeta.backupId)
+            }
         }
 
-        task.targetBackupSpec.forEach {
-            TODO("Spec restores")
+        task.targetBackupSpec.forEach { specTarget ->
+            val storage = storageManager.getStorage(specTarget.storageId).blockingFirst()
+            val specInfo = storage.items(specTarget.backupSpecId).blockingFirst().single()
+            val newestBackup = specInfo.backups.getNewest()
+            if (newestBackup != null) {
+                if (restoreBackup(storage, task.restoreConfigs, specInfo.specId, newestBackup)) {
+                    alreadyRestored.add(newestBackup.backupId)
+                }
+            } else {
+                Timber.tag(TAG).d("Empty BackupSpec: %s", specInfo)
+            }
         }
 
         task.targetStorages.forEach { storageId ->
             val storage = storageManager.getStorage(storageId).blockingFirst()
             storage.items().take(1).flatMapIterable { it }.forEach { specItem ->
                 val newest = specItem.backups.getNewest()
-                if (newest == null) {
-                    Timber.tag(TAG).d("Empty BackupSpec: %s", specItem.backupSpec)
+                if (newest != null) {
+                    if (restoreBackup(storage, task.restoreConfigs, specItem.specId, newest)) {
+                        alreadyRestored.add(newest.backupId)
+                    }
                 } else {
-                    val storageProgressSub = storage.progress
-                            .subscribeOn(Schedulers.io())
-                            .subscribe { pro -> progressChild.updateProgress { pro } }
-
-                    val backupUnit = storage.load(specItem.backupSpec.specId, newest.backupId)
-                    storageProgressSub.dispose()
-
-                    val endpointFactory = restoreEndpointFactories[specItem.backupSpec.backupType]
-                    val backupType = specItem.backupSpec.backupType
-                    checkNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${specItem.backupSpec}" }
-                    val endpoint = endpointFactory.get()
-
-                    val endpointProgressSub = endpoint.progress
-                            .subscribeOn(Schedulers.io())
-                            .subscribe { pro -> progressChild.updateProgress { pro } }
-
-                    val config: Restore.Config = task.restoreConfigs.find { it.restoreType == backupType }!!
-                    endpoint.restore(config, backupUnit)
-                    // TODO success? true/false?
-
-                    endpointProgressSub.dispose()
-
+                    Timber.tag(TAG).d("Empty BackupSpec: %s", specItem.backupSpec)
                 }
             }
         }
@@ -91,8 +86,37 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         )
     }
 
-    private fun restoreBackup() {
+    private fun restoreBackup(
+            source: Storage,
+            configs: Collection<Restore.Config>,
+            specId: BackupSpec.Id,
+            backupMetadata: Backup.MetaData
+    ): Boolean {
+        val backupType = backupMetadata.backupType
+        val backupId = backupMetadata.backupId
 
+        val storageProgressSub = source.progress
+                .subscribeOn(Schedulers.io())
+                .subscribe { pro -> progressChild.updateProgress { pro } }
+
+        val backupUnit = source.load(specId, backupId)
+        storageProgressSub.dispose()
+
+        val endpointFactory = restoreEndpointFactories[backupType]
+        requireNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${specId}" }
+        val endpoint = endpointFactory.get()
+
+        val endpointProgressSub = endpoint.progress
+                .subscribeOn(Schedulers.io())
+                .subscribe { pro -> progressChild.updateProgress { pro } }
+
+        val config: Restore.Config = configs.find { it.restoreType == backupType }!!
+        endpoint.restore(config, backupUnit)
+
+        endpointProgressSub.dispose()
+
+        // TODO success? true/false?
+        return true
     }
 
     @AssistedInject.Factory
