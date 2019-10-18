@@ -32,7 +32,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
     private val storageObs = storageManager.getStorage(storageId)
             .subscribeOn(Schedulers.io())
             .replayingShare()
-    private val contentObs = storageObs.switchMap { it.items() }
+    private val contentObs = storageObs.switchMap { it.specInfos() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .replayingShare()
 
@@ -60,7 +60,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         contentObs
-                .flatMap { content -> storageObs.switchMap { it.content(content.specId, backupId) } }
+                .flatMap { content -> storageObs.switchMap { it.backupContent(content.specId, backupId) } }
                 .subscribe({ details ->
                     stater.update { state ->
                         state.copy(
@@ -94,7 +94,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
     data class State(
             val specInfo: BackupSpec.Info? = null,
             val metaData: Backup.MetaData? = null,
-            val items: List<Backup.Info.Entry> = emptyList(),
+            val items: List<Backup.ContentInfo.Entry> = emptyList(),
             val isLoadingInfos: Boolean = true,
             val isLoadingItems: Boolean = true,
             val showRestoreAction: Boolean = false,

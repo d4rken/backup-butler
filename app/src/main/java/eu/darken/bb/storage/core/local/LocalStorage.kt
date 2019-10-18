@@ -71,15 +71,13 @@ class LocalStorage @AssistedInject constructor(
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    override fun items(vararg specIds: BackupSpec.Id): Observable<Collection<BackupSpec.Info>> = items()
+    override fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info> = specInfos()
             .map { specInfos ->
-                specIds.map { specId ->
-                    val item = specInfos.find { it.backupSpec.specId == specId }
-                    requireNotNull(item) { "Can't find backup item for specId $specId" }
-                }
+                val item = specInfos.find { it.backupSpec.specId == specId }
+                requireNotNull(item) { "Can't find backup item for specId $specId" }
             }
 
-    override fun items(): Observable<Collection<BackupSpec.Info>> = itemObs
+    override fun specInfos(): Observable<Collection<BackupSpec.Info>> = itemObs
     private val itemObs: Observable<Collection<BackupSpec.Info>> = dataDirEvents
             .map { files ->
                 val content = mutableListOf<BackupSpec.Info>()
@@ -114,11 +112,11 @@ class LocalStorage @AssistedInject constructor(
             }
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
-            .doFinally { Timber.tag(TAG).d("items().doFinally()") }
+            .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
             .replayingShare()
 
     override fun info(): Observable<Storage.Info> = infoObs
-    private val infoObs: Observable<Storage.Info> = items()
+    private val infoObs: Observable<Storage.Info> = specInfos()
             .map { contents ->
                 var status: Storage.Info.Status? = null
                 try {
@@ -143,8 +141,11 @@ class LocalStorage @AssistedInject constructor(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = items(specId)
-            .map { it.first() }
+    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> {
+        TODO("not implemented")
+    }
+
+    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> = specInfo(specId)
             .flatMap { item ->
                 item as LocalStorageSpecInfo
                 val backupDir = item.path.asFile().requireExists()
@@ -164,13 +165,13 @@ class LocalStorage @AssistedInject constructor(
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
                                         val props = propsAdapter.fromFile(file)
-                                        Backup.Info.PropsEntry(backupSpec, metaData, props)
+                                        Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
                                     }
                                     .toList()
                         }
                         .onErrorReturnItem(emptyList())
                         .map {
-                            return@map Backup.Info(
+                            return@map Backup.ContentInfo(
                                     storageId = storageId,
                                     spec = backupSpec,
                                     metaData = metaData,
@@ -184,7 +185,7 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
-        val item = items(specId).map { it.first() }.blockingFirst()
+        val item = specInfo(specId).blockingFirst()
         item as LocalStorageSpecInfo
 
         val metaData = readBackupMeta(specId, backupId)
@@ -238,7 +239,6 @@ class LocalStorage @AssistedInject constructor(
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
         // TODO check that backup dir doesn't exist, ie version dir?
-        val itemEntries = mutableListOf<Backup.Info.Entry>()
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
                 updateProgressSecondary(ref.originalPath.path)
@@ -255,7 +255,6 @@ class LocalStorage @AssistedInject constructor(
                     DIRECTORY -> target.mkdir()
                     UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
                 }
-                itemEntries.add(Backup.Info.PropsEntry(backup.spec, backup.metaData, ref.props))
             }
         }
 
@@ -264,17 +263,16 @@ class LocalStorage @AssistedInject constructor(
         val info = Backup.Info(
                 storageId = storageId,
                 spec = backup.spec,
-                metaData = backup.metaData,
-                items = itemEntries
+                metaData = backup.metaData
         )
         Timber.tag(SAFStorage.TAG).d("New backup created: %s", info)
         return info
     }
 
-    override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = items(specId)
+    override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = specInfo(specId)
             .firstOrError()
-            .map { it.first() as LocalStorageSpecInfo }
             .map { specInfo ->
+                specInfo as LocalStorageSpecInfo
                 if (backupId != null) {
                     val versionDir = getVersionDir(specId, backupId)
                     versionDir.deleteAll()

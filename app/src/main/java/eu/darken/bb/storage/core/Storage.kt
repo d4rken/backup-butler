@@ -38,11 +38,13 @@ interface Storage : Progress.Host {
 
     fun info(): Observable<Info>
 
-    fun items(): Observable<Collection<BackupSpec.Info>>
+    fun specInfos(): Observable<Collection<BackupSpec.Info>>
 
-    fun items(vararg specIds: BackupSpec.Id): Observable<Collection<BackupSpec.Info>>
+    fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info>
 
-    fun content(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info>
+    fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info>
+
+    fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo>
 
     fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit
 

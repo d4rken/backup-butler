@@ -48,7 +48,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
-        storageObs.flatMap { it.items() }
+        storageObs.flatMap { it.specInfos() }
                 .subscribe({ storageContents ->
                     stater.update {
                         it.copy(
@@ -91,7 +91,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
         val workId = WorkId()
         activeDeletion = storageObs
                 .switchMap { storage ->
-                    storage.items()
+                    storage.specInfos()
                             .take(1)
                             .flatMapIterable { it }
                             .concatMapSingle { content ->

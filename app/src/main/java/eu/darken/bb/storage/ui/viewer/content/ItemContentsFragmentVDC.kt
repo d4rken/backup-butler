@@ -28,7 +28,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.items() }
+        storageObs.flatMap { it.specInfos() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ item ->
                     stater.update { state ->

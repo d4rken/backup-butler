@@ -43,7 +43,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         // Most specific first
         task.targetBackup.forEach { backupTarget ->
             val storage = storageManager.getStorage(backupTarget.storageId).blockingFirst()
-            val specInfo = storage.items(backupTarget.backupSpecId).blockingFirst().single()
+            val specInfo = storage.specInfo(backupTarget.backupSpecId).blockingFirst()
             val backupMeta = specInfo.backups.find { it.backupId == backupTarget.backupId }!!
             if (restoreBackup(storage, task.restoreConfigs, specInfo.specId, backupMeta)) {
                 alreadyRestored.add(backupMeta.backupId)
@@ -52,7 +52,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
         task.targetBackupSpec.forEach { specTarget ->
             val storage = storageManager.getStorage(specTarget.storageId).blockingFirst()
-            val specInfo = storage.items(specTarget.backupSpecId).blockingFirst().single()
+            val specInfo = storage.specInfo(specTarget.backupSpecId).blockingFirst()
             val newestBackup = specInfo.backups.getNewest()
             if (newestBackup != null) {
                 if (restoreBackup(storage, task.restoreConfigs, specInfo.specId, newestBackup)) {
@@ -65,7 +65,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
         task.targetStorages.forEach { storageId ->
             val storage = storageManager.getStorage(storageId).blockingFirst()
-            storage.items().take(1).flatMapIterable { it }.forEach { specItem ->
+            storage.specInfos().take(1).flatMapIterable { it }.forEach { specItem ->
                 val newest = specItem.backups.getNewest()
                 if (newest != null) {
                     if (restoreBackup(storage, task.restoreConfigs, specItem.specId, newest)) {

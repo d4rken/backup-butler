@@ -75,6 +75,27 @@ interface Backup {
     data class Info(
             val storageId: Storage.Id,
             val spec: BackupSpec,
+            val metaData: MetaData
+    ) {
+        val backupId: Id = metaData.backupId
+        val specId: BackupSpec.Id = spec.specId
+
+    }
+
+    data class InfoOpt(
+            val storageId: Storage.Id,
+            val specId: BackupSpec.Id,
+            val backupId: Id,
+            override val info: Info? = null,
+            override val error: Throwable? = null
+    ) : OptInfo<Info> {
+        constructor(info: Info)
+                : this(info.storageId, info.specId, info.backupId, info)
+    }
+
+    data class ContentInfo(
+            val storageId: Storage.Id,
+            val spec: BackupSpec,
             val metaData: MetaData,
             val items: Collection<Entry>
     ) {
@@ -95,11 +116,11 @@ interface Backup {
 
     }
 
-    data class InfoOpt(
+    data class ContentOpt(
             val storageId: Storage.Id,
             val specId: BackupSpec.Id,
             val backupId: Id,
-            override val info: Info?,
+            override val info: ContentInfo?,
             override val error: Throwable?
-    ) : OptInfo<Info>
+    ) : OptInfo<ContentInfo>
 }

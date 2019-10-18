@@ -51,6 +51,9 @@ interface BackupSpec {
             val specId: Id,
             override val info: Info? = null,
             override val error: Throwable? = null
-    ) : OptInfo<Info>
+    ) : OptInfo<Info> {
+        constructor(info: Info)
+                : this(info.storageId, info.specId, info)
+    }
 
 }

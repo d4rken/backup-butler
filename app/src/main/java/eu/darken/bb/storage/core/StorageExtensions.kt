@@ -2,8 +2,10 @@ package eu.darken.bb.storage.core
 
 import android.content.Intent
 import android.os.Bundle
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 
 object StorageExtensions {
     internal const val STORAGEID_KEY = "storage.id"
@@ -20,12 +22,39 @@ fun Bundle.getStorageId(): Storage.Id? = getParcelable(StorageExtensions.STORAGE
 fun Bundle.putStorageIds(ids: Collection<Storage.Id>) = apply { putParcelableArrayList(StorageExtensions.STORAGEID_KEY, ArrayList(ids)) }
 fun Bundle.getStorageIds(): Collection<Storage.Id>? = getParcelableArrayList(StorageExtensions.STORAGEID_KEY)
 
-fun Storage.itemsOpt(vararg specIds: BackupSpec.Id): Observable<Collection<BackupSpec.InfoOpt>> = this.items(*specIds)
-        .map { items ->
-            specIds.map { id ->
-                val item = items.find { it.specId == id }
-                BackupSpec.InfoOpt(storageId = this.storageId, specId = id, info = item)
+fun Storage.specInfosOpt(vararg specIds: BackupSpec.Id): Observable<Collection<BackupSpec.InfoOpt>> = Observable.just(specIds)
+        .flatMap { items ->
+            if (items.isEmpty()) return@flatMap Observable.just(emptyList<Backup.InfoOpt>())
+
+            val statusObs = items.map { specId ->
+                specInfo(specId)
+                        .subscribeOn(Schedulers.io())
+                        .map { BackupSpec.InfoOpt(it) }
+                        .onErrorReturn { BackupSpec.InfoOpt(storageId, specId, error = it) }
+
+            }
+            return@flatMap Observable.combineLatest<BackupSpec.InfoOpt, Collection<BackupSpec.InfoOpt>>(statusObs) {
+                it.asList() as Collection<BackupSpec.InfoOpt>
             }
         }
         .startWith(specIds.map { BackupSpec.InfoOpt(storageId = this.storageId, specId = it) })
         .map { it as Collection<BackupSpec.InfoOpt> }
+
+
+fun Storage.backupInfosOpt(vararg backupIds: Pair<BackupSpec.Id, Backup.Id>): Observable<Collection<Backup.InfoOpt>> = Observable.just(backupIds)
+        .flatMap { items ->
+            if (items.isEmpty()) return@flatMap Observable.just(emptyList<Backup.InfoOpt>())
+
+            val statusObs = items.map { (specId, backupId) ->
+                backupInfo(specId, backupId)
+                        .subscribeOn(Schedulers.io())
+                        .map { Backup.InfoOpt(it) }
+                        .onErrorReturn { Backup.InfoOpt(storageId, specId, backupId, error = it) }
+
+            }
+            return@flatMap Observable.combineLatest<Backup.InfoOpt, List<Backup.InfoOpt>>(statusObs) {
+                it.asList() as List<Backup.InfoOpt>
+            }
+        }
+        .startWith(backupIds.map { Backup.InfoOpt(storageId = this.storageId, specId = it.first, backupId = it.second) })
+        .map { it as Collection<Backup.InfoOpt> }

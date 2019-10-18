@@ -14,7 +14,8 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.core.itemsOpt
+import eu.darken.bb.storage.core.backupInfosOpt
+import eu.darken.bb.storage.core.specInfosOpt
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -75,7 +76,7 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
                     val obs = targets.map { target ->
                         storageManager.getStorage(target.storageId)
                                 .subscribeOn(Schedulers.io())
-                                .switchMap { it.itemsOpt(target.backupSpecId) }
+                                .switchMap { it.specInfosOpt(target.backupSpecId) }
                                 .map { it.first() }
                     }
                     return@switchMap Observable.combineLatest(obs) { it.asList() as List<BackupSpec.InfoOpt> }
@@ -84,6 +85,26 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
                     backupsStater.update { oldState ->
                         oldState.copy(
                                 specs = specInfos.toList(),
+                                workIds = oldState.clearWorkId()
+                        )
+                    }
+                }
+                .withScopeVDC(this)
+
+        configObs.map { it.targetBackup }
+                .switchMap { targets ->
+                    val obs = targets.map { target ->
+                        storageManager.getStorage(target.storageId)
+                                .subscribeOn(Schedulers.io())
+                                .switchMap { it.backupInfosOpt(Pair(target.backupSpecId, target.backupId)) }
+                                .map { it.first() }
+                    }
+                    return@switchMap Observable.combineLatest(obs) { it.asList() as List<Backup.InfoOpt> }
+                }
+                .subscribe { backupInfos ->
+                    backupsStater.update { oldState ->
+                        oldState.copy(
+                                backups = backupInfos.toList(),
                                 workIds = oldState.clearWorkId()
                         )
                     }

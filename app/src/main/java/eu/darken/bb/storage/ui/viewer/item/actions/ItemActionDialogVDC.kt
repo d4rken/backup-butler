@@ -35,7 +35,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.items() }
+        storageObs.flatMap { it.specInfos() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ content ->
                     stater.update {
