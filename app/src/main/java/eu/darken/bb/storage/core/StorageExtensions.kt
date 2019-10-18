@@ -52,9 +52,9 @@ fun Storage.backupInfosOpt(vararg backupIds: Pair<BackupSpec.Id, Backup.Id>): Ob
                         .onErrorReturn { Backup.InfoOpt(storageId, specId, backupId, error = it) }
 
             }
-            return@flatMap Observable.combineLatest<Backup.InfoOpt, List<Backup.InfoOpt>>(statusObs) {
-                it.asList() as List<Backup.InfoOpt>
+            return@flatMap Observable.combineLatest<Backup.InfoOpt, Collection<Backup.InfoOpt>>(statusObs) {
+                it.asList() as Collection<Backup.InfoOpt>
             }
         }
         .startWith(backupIds.map { Backup.InfoOpt(storageId = this.storageId, specId = it.first, backupId = it.second) })
-        .map { it as Collection<Backup.InfoOpt> }
+        .map { it }
