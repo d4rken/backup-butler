@@ -13,14 +13,14 @@ class SimpleBackupTaskTest {
     fun `test serialization`() {
         val original = SimpleBackupTask(
                 taskId = Task.Id(),
-                taskName = "BackupTaskName",
+                label = "BackupTaskName",
                 sources = setOf(Generator.Id()),
                 destinations = setOf(Storage.Id())
         )
 
         val expectedOutput = "{" +
                 "\"taskId\":\"${original.taskId.idString}\"," +
-                "\"taskName\":\"BackupTaskName\"," +
+                "\"label\":\"BackupTaskName\"," +
                 "\"sources\":[\"${original.sources.first().idString}\"]," +
                 "\"destinations\":[\"${original.destinations.first().idString}\"]," +
                 "\"taskType\":\"BACKUP_SIMPLE\"" +

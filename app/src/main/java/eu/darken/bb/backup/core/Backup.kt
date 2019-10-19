@@ -77,8 +77,9 @@ interface Backup {
             val spec: BackupSpec,
             val metaData: MetaData
     ) {
-        val backupId: Id = metaData.backupId
-        val specId: BackupSpec.Id = spec.specId
+        @Transient val backupId: Id = metaData.backupId
+        @Transient val specId: BackupSpec.Id = spec.specId
+        @Transient val backupType: Type = metaData.backupType
 
     }
 
@@ -99,8 +100,9 @@ interface Backup {
             val metaData: MetaData,
             val items: Collection<Entry>
     ) {
-        val backupId: Id = metaData.backupId
-        val specId: BackupSpec.Id = spec.specId
+        @Transient val backupId: Id = metaData.backupId
+        @Transient val specId: BackupSpec.Id = spec.specId
+        @Transient val backupType: Type = metaData.backupType
 
         interface Entry {
             fun getLabel(context: Context): String

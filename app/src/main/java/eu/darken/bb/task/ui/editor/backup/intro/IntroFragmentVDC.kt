@@ -18,7 +18,7 @@ class IntroFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor!! }
 
-    val state = editorObs.flatMap { it.config }
+    val state = editorObs.flatMap { it.editorData }
             .toLiveData()
 
     fun updateTaskName(name: CharSequence) {

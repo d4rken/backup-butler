@@ -31,14 +31,15 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         editorObs.blockingFirst()
     }
 
+    private val editorData = editorObs.flatMap { it.editorData }
+
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
 
     val storagePickerEvent = SingleLiveEvent<List<Storage.InfoOpt>>()
 
     init {
-        editorObs
-                .switchMap { it.config }
+        editorData
                 .switchMap { storageManager.infos(it.destinations) }
                 .subscribe { storageStatuses ->
                     stater.update { it.copy(destinations = storageStatuses.toList()) }
@@ -54,7 +55,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         storageManager.infos()
                 .subscribeOn(Schedulers.io())
                 .flatMap { allStorages ->
-                    editor.config.map { it.destinations }.map { alreadyAddedStorages ->
+                    editorData.map { it.destinations }.map { alreadyAddedStorages ->
                         return@map allStorages.filter { !alreadyAddedStorages.contains(it.storageId) }.map { Storage.InfoOpt(it) }
                     }
                 }

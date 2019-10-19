@@ -28,8 +28,8 @@ open class HotData<T>(
 
     private val scheduler = scheduler ?: Schedulers.from(Executors.newSingleThreadExecutor())
 
-    private val updatePub = PublishSubject.create<(T) -> T>()
-    private val statePub = BehaviorSubject.create<T>()
+    private val updatePub = PublishSubject.create<(T) -> T>().toSerialized()
+    private val statePub = BehaviorSubject.create<T>().toSerialized()
 
     init {
         Single
@@ -43,6 +43,7 @@ open class HotData<T>(
 
         updatePub
                 .observeOn(this.scheduler)
+                .serialize()
                 .concatMap { action ->
                     statePub.take(1).map { oldValue ->
                         val newValue = action.invoke(oldValue)

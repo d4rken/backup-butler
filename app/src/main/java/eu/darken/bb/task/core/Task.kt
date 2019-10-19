@@ -17,8 +17,8 @@ import java.util.*
 
 interface Task {
     val taskId: Id
-    val taskName: String
     val taskType: Type
+    val label: String
 
     interface Backup : Task {
         val sources: Set<Generator.Id>
@@ -57,8 +57,8 @@ interface Task {
 
         val resultId: Id
         val taskId: Task.Id
-        val taskName: String
         val taskType: Type
+        val label: String
         val startedAt: Date
         val duration: Long
         val state: State

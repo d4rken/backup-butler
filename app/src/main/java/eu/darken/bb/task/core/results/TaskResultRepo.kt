@@ -45,7 +45,7 @@ class TaskResultRepo @Inject constructor(
                 StoredResult(
                         resultId = it.resultId,
                         taskId = it.taskId,
-                        taskName = it.taskName,
+                        label = it.label,
                         taskType = it.taskType,
                         startedAt = it.startedAt,
                         duration = it.duration,

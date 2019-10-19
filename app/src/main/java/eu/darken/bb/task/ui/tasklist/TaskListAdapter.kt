@@ -44,7 +44,7 @@ class TaskListAdapter @Inject constructor()
             typeLabel.setText(task.taskType.labelRes)
             typeIcon.setImageResource(task.taskType.iconRes)
 
-            taskLabel.text = task.taskName
+            taskLabel.text = task.label
             primary.text = task.getDescription(context)
 
             if (lastResult != null) {

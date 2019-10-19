@@ -8,6 +8,7 @@ import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
@@ -34,7 +35,7 @@ class IntroFragment : SmartFragment(), AutoInject {
         requireActivityActionBar().setSubtitle(R.string.label_introduction)
 
         vdc.state.observe(this, Observer {
-            if (nameInput.text.toString() != it.taskName) nameInput.setText(it.taskName)
+            nameInput.setTextIfDifferent(it.label)
         })
         nameInput.userTextChangeEvents().subscribe { vdc.updateTaskName(it.text.toString()) }
 

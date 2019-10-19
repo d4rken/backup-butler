@@ -9,7 +9,7 @@ data class SimpleResult constructor(
         override val resultId: Task.Result.Id,
         override val taskId: Task.Id,
         override val taskType: Task.Type,
-        override val taskName: String,
+        override val label: String,
         override val state: Task.Result.State,
         override val startedAt: Date,
         override val duration: Long,
@@ -36,7 +36,7 @@ data class SimpleResult constructor(
         fun forTask(task: Task) = apply {
             this.taskId = task.taskId
             this.taskType = task.taskType
-            this.taskName = task.taskName
+            this.taskName = task.label
         }
 
         fun startNow() = apply {
@@ -75,7 +75,7 @@ data class SimpleResult constructor(
                 resultId = Task.Result.Id(),
                 taskId = taskId!!,
                 taskType = taskType!!,
-                taskName = taskName!!,
+                label = taskName!!,
                 state = state!!,
                 startedAt = startedAt,
                 duration = duration,

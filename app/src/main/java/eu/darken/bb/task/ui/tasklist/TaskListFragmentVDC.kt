@@ -65,7 +65,9 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     fun newTask() {
         GlobalScope.launch {
-            taskBuilder.startEditor(taskType = Task.Type.BACKUP_SIMPLE).await()
+            taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
+                    .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
+                    .await()
         }
     }
 

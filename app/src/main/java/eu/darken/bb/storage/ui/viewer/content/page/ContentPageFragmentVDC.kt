@@ -80,13 +80,10 @@ class ContentPageFragmentVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(showRestoreAction = false) } }
                 .flatMap { data ->
-                    (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId)
-                    taskBuilder.update(data.taskId) { data }.map { data }
+                    (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId).map { data.taskId }
                 }
-                .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
-                .doFinally {
-                    finishEvent.postValue(Any())
-                }
+                .flatMapCompletable { taskBuilder.startEditor(it) }
+                .doFinally { finishEvent.postValue(Any()) }
                 .subscribe()
                 .withScopeVDC(this)
     }

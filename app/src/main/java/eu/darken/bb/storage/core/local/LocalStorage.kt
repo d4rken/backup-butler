@@ -31,6 +31,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
+import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 
 
@@ -88,8 +89,10 @@ class LocalStorage @AssistedInject constructor(
                         continue
                     }
 
-                    val backupConfig = readSpec(BackupSpec.Id(backupDir.name))
-                    if (backupConfig == null) {
+                    val backupConfig = try {
+                        readSpec(BackupSpec.Id(backupDir.name))
+                    } catch (e: Throwable) {
+                        if (e is InterruptedIOException) throw e
                         Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
                         continue
                     }
@@ -141,21 +144,16 @@ class LocalStorage @AssistedInject constructor(
             .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
-    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> {
-        TODO("not implemented")
-    }
+    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = backupContent(specId, backupId)
+            .map { Backup.Info(it.storageId, it.spec, it.metaData) }
 
     override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> = specInfo(specId)
             .flatMap { item ->
                 item as LocalStorageSpecInfo
                 val backupDir = item.path.asFile().requireExists()
                 val versionDir = File(backupDir, backupId.idString).requireExists()
-
                 val backupSpec = readSpec(specId)
-                checkNotNull(backupSpec) { "Can't read specfile in $backupDir" }
-
                 val metaData = readBackupMeta(item.specId, backupId)
-                checkNotNull(metaData) { "Can't read metadata file in $versionDir" }
 
                 return@flatMap Observable.fromCallable { backupDir.safeListFiles() }
                         .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
@@ -225,12 +223,13 @@ class LocalStorage @AssistedInject constructor(
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val existingSpec = readSpec(backup.specId)
-        if (existingSpec == null) {
+        try {
+            val existingSpec = readSpec(backup.specId)
+            check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
+        } catch (e: Throwable) {
+            Timber.tag(TAG).d("Reading existing spec failed (${e.message}, creating new one.")
             getSpecDir(backup.specId).tryMkDirs()
             writeSpec(backup.specId, backup.spec)
-        } else {
-            check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         }
 
         val versionDir = getVersionDir(specId = backup.specId, backupId = backup.backupId).tryMkDirs()
@@ -305,22 +304,18 @@ class LocalStorage @AssistedInject constructor(
         val metaDatas = mutableListOf<Backup.MetaData>()
         getSpecDir(specId).safeListFiles().filter { it.isDirectory }.forEach { dir ->
             val metaData = readBackupMeta(specId, Backup.Id(dir.name))
-            if (metaData != null) {
-                metaDatas.add(metaData)
-            } else {
-                Timber.tag(TAG).w("Version dir without metadata: %s", dir)
-            }
+            metaDatas.add(metaData)
         }
         return metaDatas
     }
 
-    private fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData? {
+    private fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = File(getVersionDir(specId, backupId), BACKUP_META_FILE)
         return try {
             metaDataAdapter.fromFile(versionFile)
         } catch (e: Exception) {
             Timber.tag(TAG).w(e, "Failed to get metadata from ", versionFile)
-            null
+            throw e
         }
     }
 
@@ -329,13 +324,13 @@ class LocalStorage @AssistedInject constructor(
         metaDataAdapter.toFile(metaData, versionFile)
     }
 
-    private fun readSpec(specId: BackupSpec.Id): BackupSpec? {
+    private fun readSpec(specId: BackupSpec.Id): BackupSpec {
         val specFile = File(getSpecDir(specId), SPEC_FILE)
         return try {
             specAdapter.fromFile(specFile)
         } catch (e: Exception) {
             Timber.tag(TAG).w(e, "Failed to get backup spec from ", specFile)
-            null
+            throw e
         }
     }
 

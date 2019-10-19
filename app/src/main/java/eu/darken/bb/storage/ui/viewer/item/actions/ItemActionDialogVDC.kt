@@ -77,10 +77,9 @@ class ItemActionDialogVDC @AssistedInject constructor(
                     .subscribeOn(Schedulers.io())
                     .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
                     .flatMap { data ->
-                        (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
-                        taskBuilder.update(data.taskId) { data }.map { data }
+                        (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId).map { data.taskId }
                     }
-                    .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
+                    .flatMapCompletable { taskBuilder.startEditor(it) }
                     .doFinally {
                         stater.update { it.copy(workIds = it.clearWorkId()) }
                         finishedEvent.postValue(Any())

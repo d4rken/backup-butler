@@ -58,10 +58,11 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         editorObs
-                .subscribe { editor ->
+                .flatMap { it.editorData }
+                .subscribe { data ->
                     stater.update {
                         it.copy(
-                                existingTask = editor.isExistingTask(),
+                                existingTask = data.existingTask,
                                 isLoading = false
                         )
                     }

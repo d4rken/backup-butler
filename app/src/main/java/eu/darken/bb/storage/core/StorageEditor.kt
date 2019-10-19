@@ -9,10 +9,6 @@ interface StorageEditor {
 
     val editorData: Observable<out Data>
 
-//    val config: Observable<out Storage.Config>
-//
-//    val isExistingStorage: Boolean
-
     fun isValid(): Observable<Boolean>
 
     fun load(ref: Storage.Ref): Single<out Storage.Config>

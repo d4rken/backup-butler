@@ -25,12 +25,12 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.local.LocalStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 
 
@@ -89,19 +89,16 @@ class SAFStorage @AssistedInject constructor(
                     }
 
                     val backupConfig = try {
-                        specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
-                    } catch (e: Exception) {
-                        Timber.tag(TAG).w(e, "Failed to read specfile")
-                        null
-                    }
-                    if (backupConfig == null) {
+                        readSpec(BackupSpec.Id(backupDir.name))
+                    } catch (e: Throwable) {
+                        if (e is InterruptedIOException) throw e
                         Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
                         continue
                     }
 
                     val metaDatas = getMetaDatas(backupConfig.specId)
                     if (metaDatas.isEmpty()) {
-                        Timber.tag(LocalStorage.TAG).w("Dir without backups? %s", backupDir)
+                        Timber.tag(TAG).w("Dir without backups? %s", backupDir)
                         continue
                     }
 
@@ -115,8 +112,8 @@ class SAFStorage @AssistedInject constructor(
                 }
                 return@map content.toList() as Collection<BackupSpec.Info>
             }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
+            .doOnError { Timber.tag(TAG).e(it, "specInfos().doOnError()") }
+            .doOnSubscribe { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
             .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
 
     override fun info(): Observable<Storage.Info> = infoObs
@@ -153,7 +150,7 @@ class SAFStorage @AssistedInject constructor(
                 val backupDir = getSpecDir(item.specId).requireExists(safGateway)
                 val versionDir = backupDir.child(backupId.idString).requireExists(safGateway)
                 val metaData = readBackupMeta(item.specId, backupId)
-                val backupSpec = specAdapter.fromSAFFile(safGateway, backupDir.child(SPEC_FILE))
+                val backupSpec = readSpec(item.specId)
 
                 return@flatMap Observable.fromCallable { backupDir.listFiles(safGateway) }
                         .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
@@ -227,14 +224,13 @@ class SAFStorage @AssistedInject constructor(
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val backupDir = getSpecDir(backup.specId).tryMkDirs(safGateway)
-
-        val specFile = backupDir.child(SPEC_FILE)
-        if (!specFile.exists(safGateway)) {
-            specAdapter.toSAFFile(backup.spec, safGateway, specFile)
-        } else {
-            val existingSpec = specAdapter.fromSAFFile(safGateway, specFile)
+        try {
+            val existingSpec = readSpec(backup.specId)
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
+        } catch (e: Throwable) {
+            Timber.tag(TAG).d("Reading existing spec failed (${e.message}, creating new one.")
+            getSpecDir(backup.specId).tryMkDirs(safGateway)
+            writeSpec(backup.specId, backup.spec)
         }
 
         val versionDir = getVersionDir(backup.specId, backup.backupId).tryMkDirs(safGateway)
@@ -315,6 +311,21 @@ class SAFStorage @AssistedInject constructor(
             .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
 
     private fun getSpecDir(specId: BackupSpec.Id): SAFPath = dataDir.child(specId.value)
+
+    private fun readSpec(specId: BackupSpec.Id): BackupSpec {
+        val specFile = getSpecDir(specId).child(SPEC_FILE)
+        return try {
+            specAdapter.fromSAFFile(safGateway, specFile)
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Failed to get backup spec from ", specFile)
+            throw e
+        }
+    }
+
+    private fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
+        val specFile = getSpecDir(specId).child(SPEC_FILE)
+        specAdapter.toSAFFile(spec, safGateway, specFile)
+    }
 
     private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath = getSpecDir(specId).child(backupId.idString)
 

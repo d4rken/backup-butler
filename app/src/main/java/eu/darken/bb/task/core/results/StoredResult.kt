@@ -10,7 +10,7 @@ data class StoredResult(
         @PrimaryKey
         override val resultId: Task.Result.Id,
         override val taskId: Task.Id,
-        override val taskName: String,
+        override val label: String,
         override val taskType: Task.Type,
         override val state: Task.Result.State,
         override val startedAt: Date,

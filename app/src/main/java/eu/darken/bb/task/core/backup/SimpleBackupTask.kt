@@ -8,7 +8,7 @@ import eu.darken.bb.task.core.Task
 
 data class SimpleBackupTask(
         override val taskId: Task.Id,
-        override val taskName: String = "",
+        override val label: String = "",
         override val sources: Set<Generator.Id> = emptySet(),
         override val destinations: Set<Storage.Id> = emptySet()
 ) : Task.Backup {

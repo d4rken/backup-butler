@@ -26,16 +26,17 @@ class SourcesFragmentVDC @AssistedInject constructor(
             .map { it.editor as SimpleBackupTaskEditor }
     private val editor: SimpleBackupTaskEditor by lazy { editorObs.blockingFirst() }
 
+    private val editorData = editorObs.flatMap { it.editorData }
+
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
 
     val sourcePickerEvent = SingleLiveEvent<List<GeneratorConfigOpt>>()
 
     init {
-        editorObs
-                .flatMap { it.config }
-                .subscribe { task ->
-                    val configs = task.sources.map { id ->
+        editorData
+                .subscribe { data ->
+                    val configs = data.sources.map { id ->
                         val config = generatorRepo.get(id).blockingGet().value
                         GeneratorConfigOpt(id, config)
                     }
@@ -61,7 +62,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .map { it.values }
                 .flatMap { all ->
-                    editor.config.map { it.sources }.map { alreadyAdded ->
+                    editorData.map { it.sources }.map { alreadyAdded ->
                         return@map all.filter { !alreadyAdded.contains(it.generatorId) }
                     }
                 }

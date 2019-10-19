@@ -79,7 +79,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         }
 
         Timber.tag(TAG).i("Processing task: %s", task)
-        updateProgressPrimary(task.taskName)
+        updateProgressPrimary(task.label)
 
         val processor = processorFactories.getValue(task.taskType).create(this)
         val taskResult = processor.process(task)

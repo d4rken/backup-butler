@@ -14,6 +14,7 @@ import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
 import eu.darken.bb.common.vdc.VDCSource
@@ -30,12 +31,10 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         factory.create(handle, arguments!!.getTaskId()!!)
     })
 
-    @Inject lateinit var adapter: RestoreSourcesAdapter
+    @Inject lateinit var adapter: BackupAdapter
 
     @BindView(R.id.loading_overlay_counts) lateinit var loadingOverlayCounts: LoadingOverlayView
     @BindView(R.id.count_container) lateinit var countContainer: ViewGroup
-    @BindView(R.id.count_storages) lateinit var countStorages: TextView
-    @BindView(R.id.count_specs) lateinit var countSpecs: TextView
     @BindView(R.id.count_backups) lateinit var countBackups: TextView
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
@@ -49,21 +48,16 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter, dividers = false)
         requireActivityActionBar().setSubtitle(R.string.label_sources)
 
-        vdc.countState.observe2(this) { state ->
-            countStorages.setTextQuantity(R.plurals.restore_task_x_backup_storages_desc, state.sourceStorages.size)
-            countSpecs.setTextQuantity(R.plurals.restore_task_x_backup_backupspecs_desc, state.sourceBackupSpecs.size)
-            countBackups.setTextQuantity(R.plurals.restore_task_x_backup_specific_desc, state.sourceBackups.size)
+        vdc.summaryState.observe2(this) { state ->
+            countBackups.setTextQuantity(R.plurals.restore_task_x_backups_selected_desc, state.sourceBackups.size)
+            countBackups.setGone(state.sourceBackups.isEmpty())
 
             countContainer.setInvisible(state.isWorking)
             loadingOverlayCounts.setInvisible(!state.isWorking)
         }
 
         vdc.backupsState.observe2(this) { state ->
-            val data = mutableListOf<Any>()
-            data.addAll(state.storages)
-            data.addAll(state.specs)
-            data.addAll(state.backups)
-            adapter.update(data)
+            adapter.update(state.backups)
 
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)

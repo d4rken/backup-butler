@@ -1,7 +1,6 @@
 package eu.darken.bb.task.core.restore
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -12,20 +11,18 @@ class SimpleRestoreTaskTest {
     fun `test serialization`() {
         val original = SimpleRestoreTask(
                 taskId = Task.Id(),
-                taskName = "BackupTaskName",
-                restoreConfigs = emptySet(),
-                targetStorages = setOf(Storage.Id()),
-                targetBackupSpec = emptySet(),
-                targetBackup = emptySet()
+                label = "BackupTaskName",
+                customConfigs = emptyMap(),
+                defaultConfigs = emptyMap(),
+                backupTargets = emptySet()
         )
 
         val expectedOutput = "{" +
                 "\"taskId\":\"${original.taskId.idString}\"," +
-                "\"taskName\":\"BackupTaskName\"," +
-                "\"restoreConfigs\":[]," +
-                "\"targetStorages\":[\"${original.targetStorages.first().idString}\"]," +
-                "\"targetBackupSpec\":[]," +
-                "\"targetBackup\":[]," +
+                "\"label\":\"BackupTaskName\"," +
+                "\"defaultConfigs\":{}," +
+                "\"customConfigs\":{}," +
+                "\"backupTargets\":[]," +
                 "\"taskType\":\"RESTORE_SIMPLE\"" +
                 "}"
 

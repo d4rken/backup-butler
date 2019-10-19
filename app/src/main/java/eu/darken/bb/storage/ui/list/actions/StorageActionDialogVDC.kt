@@ -85,14 +85,12 @@ class StorageActionDialogVDC @AssistedInject constructor(
                 taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(isWorking = true) } }
-                        .map {
-                            (it.editor as SimpleRestoreTaskEditor).addStorageId(storageId)
-                            it
+                        .flatMap { data ->
+                            (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
                         }
-                        .flatMap { data -> taskBuilder.update(data.taskId) { data }.map { it.notNullValue() } }
                         .delay(200, TimeUnit.MILLISECONDS)
+                        .flatMapCompletable { taskBuilder.startEditor(it) }
                         .doFinally { finishedEvent.postValue(Any()) }
-                        .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.RESTORE_SIMPLE) }
                         .subscribe()
             }
             DETACH -> {

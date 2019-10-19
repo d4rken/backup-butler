@@ -128,14 +128,13 @@
     <string name="config_replace_existing_files_label">Replace existing files</string>
     <string name="config_replace_existing_files_desc">Replace a file if it already exists.</string>
     <string name="file_options_label">File options</string>
-    <string name="task_restore_simple_description">Storages: %d, Backups: %d, Revisions: %d</string>
+    <string name="task_restore_simple_description">Simple restore task for %d backups.</string>
     <string name="action_detach">Detach</string>
     <string name="action_delete_all">Delete all</string>
     <string name="read_only_label">Read only</string>
     <string name="progress_deleting_x">Deleting %s</string>
     <string name="action_grant">Grant</string>
     <string name="storage_additional_permission_required_msg">An additional permission is required to use this storage location.</string>
-    <string name="sources_selected_label">Selected sources</string>
     <string name="generator_type_app_label">Device apps</string>
     <string name="generator_type_app_desc">Apps installed on this device.</string>
     <string name="generator_type_file_legacy_label">Local files (legacy)</string>
@@ -157,20 +156,13 @@
     <string name="action_use">Use</string>
     <string name="error_msg_type_missmatch">Type missmatch: Wanted %1$s, but got %2$s.</string>
     <string name="error_msg_cant_read">Can\'t read %s.</string>
-    <plurals name="restore_task_x_backup_storages_desc">
-        <item quantity="one">The content of %d backup storage.</item>
-        <item quantity="other">The content of %d backup storages.</item>
-    </plurals>
-    <plurals name="restore_task_x_backup_backupspecs_desc">
-        <item quantity="one">The latest version of %d backup.</item>
-        <item quantity="other">The latest version of %d backups.</item>
-    </plurals>
-    <plurals name="restore_task_x_backup_specific_desc">
-        <item quantity="one">A specific version of %d backup.</item>
-        <item quantity="other">A specific version of %d backups.</item>
-    </plurals>
+    <string name="label_summary">Summary</string>
     <plurals name="restore_task_x_backups_selected_desc">
         <item quantity="one">%d backup is selected for restoration.</item>
         <item quantity="other">%d backups are selected for restoration.</item>
+    </plurals>
+    <plurals name="restore_task_x_backups_types_desc">
+        <item quantity="one">%d type of backup is selected for restoration.</item>
+        <item quantity="other">%d types of backup is selected for restoration.</item>
     </plurals>
 </resources>

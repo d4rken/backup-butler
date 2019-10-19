@@ -37,7 +37,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                             it.copy(loading = true, finished = true)
                         } else {
                             it.copy(
-                                    taskName = task.taskName,
+                                    taskName = task.label,
                                     taskType = task.taskType,
                                     loading = false,
                                     allowedActions = values().toList()
@@ -66,7 +66,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .flatMapCompletable { taskBuilder.startEditor(it.taskId, Task.Type.BACKUP_SIMPLE) }
+                        .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
                         .subscribe()
             }
             DELETE -> {

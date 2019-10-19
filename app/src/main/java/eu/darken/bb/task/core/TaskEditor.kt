@@ -5,7 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 interface TaskEditor {
-    val config: Observable<out Task>
+    val editorData: Observable<out Data>
 
     fun load(task: Task): Completable
 
@@ -13,12 +13,16 @@ interface TaskEditor {
 
     fun isValidTask(): Observable<Boolean>
 
-    fun isExistingTask(): Boolean
-
     fun updateLabel(label: String)
 
     interface Factory<EditorT : TaskEditor> {
         fun create(taskId: Task.Id): EditorT
+    }
+
+    interface Data {
+        val taskId: Task.Id
+        val label: String
+        val existingTask: Boolean
     }
 
 }
