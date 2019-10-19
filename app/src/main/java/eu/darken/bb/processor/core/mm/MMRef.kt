@@ -1,6 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.IdType
 import eu.darken.bb.common.file.APath
 import java.io.File
 import java.util.*
@@ -37,9 +38,13 @@ data class MMRef(
         FILE, DIRECTORY, UNUSED
     }
 
-    data class Id(val id: UUID = UUID.randomUUID()) {
+    data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id> {
 
-        val idString = id.toString()
+        override val idString = value.toString()
+
+        // TODO test this
+        // TODO Test serialization with this as map key
+        override fun compareTo(other: Id): Int = value.compareTo(other.value)
 
         override fun toString(): String = "MMRef.Id($idString)"
     }

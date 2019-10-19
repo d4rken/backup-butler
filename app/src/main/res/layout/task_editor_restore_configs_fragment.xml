@@ -51,6 +51,13 @@
                     android:layout_height="wrap_content"
                     tools:text="@plurals/restore_task_x_backups_types_desc" />
 
+                <TextView
+                    android:id="@+id/count_custom_configs"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="@plurals/restore_task_x_backups_types_desc" />
+
             </LinearLayout>
 
             <eu.darken.bb.common.ui.LoadingOverlayView

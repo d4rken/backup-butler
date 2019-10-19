@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Parcelable
 import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
+import eu.darken.bb.common.IdType
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -49,10 +50,14 @@ interface Generator {
     }
 
     @Parcelize
-    data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+    data class Id(override val value: UUID = UUID.randomUUID()) : Parcelable, IdType<Id> {
 
-        @IgnoredOnParcel @Transient val idString = id.toString()
+        @IgnoredOnParcel @Transient override val idString = value.toString()
 
-        override fun toString(): String = "GeneratorId($id)"
+        // TODO test this
+        // TODO Test serialization with this as map key
+        override fun compareTo(other: Id): Int = value.compareTo(other.value)
+
+        override fun toString(): String = "GeneratorId($idString)"
     }
 }

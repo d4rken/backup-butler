@@ -15,6 +15,9 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.awaitFirst
 
 class RestoreConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -27,6 +30,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
             .map { it.editor as SimpleRestoreTaskEditor }
 
     private val dataObs = editorObs.flatMap { it.editorData }
+    private val customConfigs = editorObs.flatMap { it.customConfigs }
 
     private val summaryStater = Stater(SummaryState())
     val summaryState = summaryStater.liveData
@@ -36,17 +40,32 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
     init {
         dataObs
-                .map { it.defaultConfigs }
-                .subscribe { configs ->
+                .subscribe { data ->
+                    val customCount = data.customConfigs
+                            .filterNot { data.defaultConfigs.values.contains(it.value) }
+                            .size
                     summaryStater.update { state ->
                         state.copy(
-                                backupTypes = configs.values.map { it.restoreType },
+                                backupTypes = data.defaultConfigs.values.map { it.restoreType },
+                                customConfigCount = customCount,
                                 workIds = state.clearWorkId()
                         )
                     }
                     configStater.update { state ->
                         state.copy(
-                                restoreConfigs = configs.values.toList(),
+                                defaultConfigs = data.defaultConfigs.values.sortedBy { it.restoreType }.toList()
+                        )
+                    }
+                }
+                .withScopeVDC(this)
+
+        customConfigs
+                .subscribe { customConfigs ->
+                    configStater.update { state ->
+                        state.copy(
+                                customConfigs = customConfigs.sortedBy {
+                                    it.backupInfo.backupId.idString
+                                }.toList(),
                                 workIds = state.clearWorkId()
                         )
                     }
@@ -54,20 +73,29 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun updateConfig(config: Restore.Config) {
-//        GlobalScope.launch {
-//            stater.updateBlocking { it.copy(isLoading = true) }
-//            editorObs.awaitFirst().updateConfig(config)
-//        }
+    fun updateConfig(config: Restore.Config, target: Backup.Id? = null) {
+        GlobalScope.launch {
+            //            configStater.updateBlocking {
+//                it.copy(workIds = it.addWorkId(WorkId.DEFAULT))
+//            }
+            val editor = editorObs.awaitFirst()
+            if (target == null) {
+                editor.updateDefaultConfig(config).blockingGet()
+            } else {
+                editor.updateCustomConfig(target, config).blockingGet()
+            }
+        }
     }
 
     data class SummaryState(
             val backupTypes: List<Backup.Type> = emptyList(),
+            val customConfigCount: Int = 0,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
     data class ConfigState(
-            val restoreConfigs: List<Restore.Config> = emptyList(),
+            val defaultConfigs: List<Restore.Config> = emptyList(),
+            val customConfigs: List<SimpleRestoreTaskEditor.CustomConfigWrap> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 

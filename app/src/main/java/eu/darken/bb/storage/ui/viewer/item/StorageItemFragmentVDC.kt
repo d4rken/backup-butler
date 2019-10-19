@@ -48,6 +48,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
+        // TODO use storage extension?
         storageObs.flatMap { it.specInfos() }
                 .subscribe({ storageContents ->
                     stater.update {

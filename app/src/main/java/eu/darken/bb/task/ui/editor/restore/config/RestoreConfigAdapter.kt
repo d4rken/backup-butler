@@ -1,59 +1,102 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.ui.SwitchPreferenceView
+import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.common.ui.toggleGone
+import eu.darken.bb.common.ui.updateExpander
 import javax.inject.Inject
 
 
 class RestoreConfigAdapter @Inject constructor()
-    : ModularAdapter<RestoreConfigAdapter.BaseVH>(), DataAdapter<Pair<Restore.Config, (Restore.Config) -> Unit>> {
+    : ModularAdapter<RestoreConfigAdapter.BaseVH>(), AsyncAutoDataAdapter<ConfigWrapper> {
 
-    override val data = mutableListOf<Pair<Restore.Config, (Restore.Config) -> Unit>>()
+    override val asyncDiffer: AsyncDiffer<ConfigWrapper> = AsyncDiffer(
+            this,
+            compareItem = { i1, i2 -> i1.stableId == i2.stableId },
+            compareContent = { i1, i2 -> i1.config == i2.config }
+    )
 
-    init {
-        modules.add(DataBinderModule<Pair<Restore.Config, (Restore.Config) -> Unit>, BaseVH>(data))
-        modules.add(TypedVHCreator(0, { data[it].first is AppRestoreConfig }) { AppConfigVH(it) })
-        modules.add(TypedVHCreator(1, { data[it].first is FilesRestoreConfig }) { FileConfigVH(it) })
-    }
+    override fun getItemId(position: Int): Long = data[position].stableId
 
     override fun getItemCount(): Int = data.size
 
+    init {
+        setHasStableIds(true)
+        modules.add(DataBinderModule<ConfigWrapper, BaseVH>(data))
+        modules.add(TypedVHCreator(0, { data[it].config is AppRestoreConfig }) { AppConfigVH(it) })
+        modules.add(TypedVHCreator(1, { data[it].config is FilesRestoreConfig }) { FileConfigVH(it) })
+    }
 
     abstract class BaseVH(@LayoutRes layoutRes: Int, parent: ViewGroup)
-        : ModularAdapter.VH(layoutRes, parent), BindableVH<Pair<Restore.Config, (Restore.Config) -> Unit>>
+        : ModularAdapter.VH(layoutRes, parent), BindableVH<ConfigWrapper> {
+
+        private val defaultTag = getString(R.string.label_default)
+        abstract val title: String
+
+        @BindView(R.id.card_title) lateinit var cardTitle: TextView
+        @BindView(R.id.card_subtitle) lateinit var cardSubTitle: TextView
+        @BindView(R.id.header_container) lateinit var headerContainer: ViewGroup
+        @BindView(R.id.header_toggle) lateinit var headerToggle: ImageView
+        @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
+
+        @CallSuper
+        override fun bind(item: ConfigWrapper) {
+            cardTitle.text = title
+            cardSubTitle.text = when {
+                item.isDefaultItem -> defaultTag
+                item.backupInfo?.info != null -> item.backupInfo.info.spec.getLabel(context)
+                else -> getString(R.string.progress_loading_label)
+            }
+            if (item.isCustomConfig && !item.isDefaultItem) cardTitle.append("*")
+
+            optionsContainer.setGone(!item.isDefaultItem && !item.isCustomConfig)
+            headerToggle.updateExpander(optionsContainer)
+            headerContainer.setOnClickListener {
+                optionsContainer.toggleGone()
+                headerToggle.updateExpander(optionsContainer)
+            }
+        }
+    }
 
     class AppConfigVH(parent: ViewGroup)
         : BaseVH(R.layout.task_editor_restore_configs_adapter_line_app, parent) {
+
         @BindView(R.id.option_skip_existing_apps) lateinit var optionSkipExisting: SwitchPreferenceView
         @BindView(R.id.option_restore_apk) lateinit var optionRestoreApk: SwitchPreferenceView
         @BindView(R.id.option_restore_data) lateinit var optionRestoreData: SwitchPreferenceView
+
+        override val title = getString(R.string.app_options_label)
 
         init {
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: Pair<Restore.Config, (Restore.Config) -> Unit>) {
-            val config = item.first as AppRestoreConfig
-            val callback = item.second
+        override fun bind(item: ConfigWrapper) {
+            super.bind(item)
+            val config = item.config as AppRestoreConfig
+
             optionSkipExisting.isChecked = config.skipExistingApps
             optionSkipExisting.setOnCheckedChangedListener { _, checked ->
-                callback.invoke(config.copy(skipExistingApps = checked))
+                item.updateConfig(config.copy(skipExistingApps = checked))
             }
             optionRestoreApk.isChecked = config.restoreApk
             optionRestoreApk.setOnCheckedChangedListener { _, checked ->
-                callback.invoke(config.copy(restoreApk = checked))
+                item.updateConfig(config.copy(restoreApk = checked))
             }
             optionRestoreData.isChecked = config.restoreData
             optionRestoreData.setOnCheckedChangedListener { _, checked ->
-                callback.invoke(config.copy(restoreData = checked))
+                item.updateConfig(config.copy(restoreData = checked))
             }
         }
 
@@ -64,16 +107,19 @@ class RestoreConfigAdapter @Inject constructor()
 
         @BindView(R.id.option_replace_existing_files) lateinit var optionReplaceExisting: SwitchPreferenceView
 
+        override val title = getString(R.string.file_options_label)
+
         init {
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: Pair<Restore.Config, (Restore.Config) -> Unit>) {
-            val config = item.first as FilesRestoreConfig
-            val callback = item.second
+        override fun bind(item: ConfigWrapper) {
+            super.bind(item)
+            val config = item.config as FilesRestoreConfig
+
             optionReplaceExisting.isChecked = config.replaceFiles
             optionReplaceExisting.setOnCheckedChangedListener { _, checked ->
-                callback.invoke(config.copy(replaceFiles = checked))
+                item.updateConfig(config.copy(replaceFiles = checked))
             }
         }
 

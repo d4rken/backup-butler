@@ -1,4 +1,4 @@
-package eu.darken.bb.common
+package eu.darken.bb.common.lists
 
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration

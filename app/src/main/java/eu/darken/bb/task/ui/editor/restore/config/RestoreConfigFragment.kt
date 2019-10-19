@@ -7,15 +7,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
-import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
 import eu.darken.bb.common.vdc.VDCSource
@@ -37,27 +35,38 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
     @BindView(R.id.loading_overlay_counts) lateinit var loadingOverlayCounts: LoadingOverlayView
     @BindView(R.id.count_container) lateinit var countContainer: ViewGroup
     @BindView(R.id.count_backups) lateinit var countTypes: TextView
+    @BindView(R.id.count_custom_configs) lateinit var countCustomConfigs: TextView
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay_backuplist) lateinit var loadingOverlayBackupList: LoadingOverlayView
+
     init {
         layoutRes = R.layout.task_editor_restore_configs_fragment
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter, dividers = false)
-        requireActivityActionBar().setSubtitle(R.string.restore_options_label)
+        requireActivityActionBar().setSubtitle(R.string.label_configuration)
 
         vdc.summaryState.observe2(this) { state ->
-            countTypes.setTextQuantity(R.plurals.restore_task_x_backups_selected_desc, state.backupTypes.size)
-            countTypes.setGone(state.backupTypes.isEmpty())
+            countTypes.setTextQuantity(R.plurals.restore_task_x_backups_types_desc, state.backupTypes.size)
+            countCustomConfigs.setTextQuantity(R.plurals.x_items_custom_config_desc, state.customConfigCount)
 
             countContainer.setInvisible(state.isWorking)
             loadingOverlayCounts.setInvisible(!state.isWorking)
         }
 
         vdc.configState.observe2(this) { state ->
-            adapter.update(state.restoreConfigs.map { Pair(it, { config: Restore.Config -> vdc.updateConfig(config) }) })
+            val defaultItems = state.defaultConfigs
+                    .map {
+                        ConfigWrapper(it) { config, id -> vdc.updateConfig(config, id) }
+                    }
+            val customItems = state.customConfigs
+                    .map {
+                        ConfigWrapper(it.config, it.backupInfo, it.isCustomConfig) { config, id -> vdc.updateConfig(config, id) }
+                    }
+            val adapterData = defaultItems.plus(customItems)
+            adapter.update(adapterData)
 
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)

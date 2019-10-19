@@ -1,11 +1,14 @@
 package eu.darken.bb.common.ui
 
 import android.view.View
+import android.widget.ImageView
+import eu.darken.bb.R
 
-fun View.setGone(gone: Boolean) {
-    visibility = if (gone) View.GONE else View.VISIBLE
-}
-
-fun View.setInvisible(invisible: Boolean) {
-    visibility = if (invisible) View.INVISIBLE else View.VISIBLE
+fun ImageView.updateExpander(dependency: View) {
+    val toggleRes = if (dependency.visibility == View.VISIBLE) {
+        R.drawable.ic_expand_less
+    } else {
+        R.drawable.ic_expand_more
+    }
+    setImageResource(toggleRes)
 }

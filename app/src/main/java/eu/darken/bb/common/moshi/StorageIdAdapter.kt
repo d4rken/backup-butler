@@ -7,7 +7,7 @@ import java.util.*
 
 class StorageIdAdapter {
     @ToJson
-    fun toJson(item: Storage.Id): String = item.id.toString()
+    fun toJson(item: Storage.Id): String = item.value.toString()
 
     @FromJson
     fun fromJson(item: String): Storage.Id = Storage.Id(UUID.fromString(item))

@@ -11,10 +11,10 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setupDefaults
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted

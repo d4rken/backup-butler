@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.IdType
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.backup.SimpleBackupTask
@@ -68,22 +69,32 @@ interface Task {
         val taskLog: List<String>?
 
         @Parcelize
-        data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+        data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
             constructor(id: String) : this(UUID.fromString(id))
 
-            override fun toString(): String = "ResultId($id)"
+            @IgnoredOnParcel @Transient override val idString: String = value.toString()
+
+            // TODO test this
+            // TODO Test serialization with this as map key
+            override fun compareTo(other: Id): Int = value.compareTo(other.value)
+
+            override fun toString(): String = "ResultId($idString)"
         }
     }
 
     @Parcelize
-    data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
-
-        @IgnoredOnParcel @Transient val idString = id.toString()
+    data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
         constructor(id: String) : this(UUID.fromString(id))
 
-        override fun toString(): String = "TaskId($id)"
+        @IgnoredOnParcel @Transient override val idString = value.toString()
+
+        // TODO test this
+        // TODO Test serialization with this as map key
+        override fun compareTo(other: Id): Int = value.compareTo(other.value)
+
+        override fun toString(): String = "TaskId($idString)"
     }
 
     companion object {

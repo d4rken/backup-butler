@@ -8,5 +8,5 @@ class TaskIdConverter {
     fun fromString(id: String?): Task.Id? = id?.let { Task.Id(id) }
 
     @TypeConverter
-    fun toStringValue(id: Task.Id?): String? = id?.id?.toString()
+    fun toStringValue(id: Task.Id?): String? = id?.value?.toString()
 }

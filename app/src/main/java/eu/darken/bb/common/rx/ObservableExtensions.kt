@@ -15,7 +15,7 @@ fun <T> Observable<T>.filterUnchanged(check: (T, T) -> Boolean = { it1, it2 -> i
     var lastEmission: T? = null
     return filter { newEmission ->
         val last = lastEmission
-        val distinct = if (last != null) check.invoke(last, newEmission) else true
+        val distinct = if (last != null) check(last, newEmission) else true
         lastEmission = newEmission
         return@filter distinct
     }

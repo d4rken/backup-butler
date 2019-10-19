@@ -8,6 +8,7 @@ import androidx.annotation.StringRes
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
+import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
@@ -57,11 +58,15 @@ interface Backup {
     }
 
     @Parcelize
-    data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+    data class Id(override val value: UUID = UUID.randomUUID()) : Parcelable, IdType<Id> {
 
         constructor(id: String) : this(UUID.fromString(id))
 
-        @IgnoredOnParcel @Transient val idString = id.toString()
+        @IgnoredOnParcel @Transient override val idString = value.toString()
+
+        // TODO test this
+        // TODO Test serialization with this as map key
+        override fun compareTo(other: Id): Int = value.compareTo(other.value)
 
         override fun toString(): String = "BackupId($idString)"
     }
@@ -69,7 +74,8 @@ interface Backup {
     data class Target(
             val storageId: Storage.Id,
             val backupSpecId: BackupSpec.Id,
-            val backupId: Id
+            val backupId: Id,
+            val backupType: Type
     )
 
     data class Info(

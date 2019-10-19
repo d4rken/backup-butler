@@ -7,7 +7,7 @@ import java.util.*
 
 class GeneratorIdAdapter {
     @ToJson
-    fun toJson(item: Generator.Id): String = item.id.toString()
+    fun toJson(item: Generator.Id): String = item.value.toString()
 
     @FromJson
     fun fromJson(item: String): Generator.Id = Generator.Id(UUID.fromString(item))

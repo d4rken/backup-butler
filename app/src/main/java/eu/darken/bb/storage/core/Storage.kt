@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
@@ -57,11 +58,15 @@ interface Storage : Progress.Host {
     fun detach(): Completable
 
     @Parcelize
-    data class Id(val id: UUID = UUID.randomUUID()) : Parcelable {
+    data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
-        @IgnoredOnParcel @Transient val idString = id.toString()
+        @IgnoredOnParcel @Transient override val idString = value.toString()
 
-        override fun toString(): String = "StorageId($id)"
+        // TODO test this
+        // TODO Test serialization with this as map key
+        override fun compareTo(other: Id): Int = value.compareTo(other.value)
+
+        override fun toString(): String = "StorageId($idString)"
     }
 
     interface Factory<T : Storage> {

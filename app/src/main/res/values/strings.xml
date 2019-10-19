@@ -117,7 +117,6 @@
     <string name="label_new_restore_task">New restore task</string>
     <string name="backup_task_label">Backup task</string>
     <string name="restore_task_label">Restore task</string>
-    <string name="restore_options_label">Restore options</string>
     <string name="config_skip_existing_apps_label">Skip existing apps</string>
     <string name="config_skip_existing_apps_desc">Don\'t restore apps that already exist.</string>
     <string name="app_options_label">App options</string>
@@ -163,6 +162,12 @@
     </plurals>
     <plurals name="restore_task_x_backups_types_desc">
         <item quantity="one">%d type of backup is selected for restoration.</item>
-        <item quantity="other">%d types of backup is selected for restoration.</item>
+        <item quantity="other">%d types of backup are selected for restoration.</item>
     </plurals>
+    <plurals name="x_items_custom_config_desc">
+        <item quantity="one">%d item has a custom configuration.</item>
+        <item quantity="other">%d items have a custom configuration.</item>
+    </plurals>
+    <string name="label_default">Default</string>
+    <string name="label_configuration">Configuration</string>
 </resources>
