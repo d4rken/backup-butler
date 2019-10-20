@@ -5,3 +5,7 @@ fun <T> Collection<T>.replace(newValue: T, block: (T) -> Boolean): Collection<T>
         if (block(it)) newValue else it
     }
 }
+
+fun <T> MutableCollection<T>.addNotNull(value: T?): Boolean {
+    return value?.let { add(it) } ?: false
+}

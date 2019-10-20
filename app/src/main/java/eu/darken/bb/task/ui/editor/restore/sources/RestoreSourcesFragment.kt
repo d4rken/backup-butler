@@ -1,13 +1,17 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -62,6 +66,19 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)
         }
+
+
+        val swipeTool = ItemSwipeTool(
+                ItemSwipeTool.SwipeAction(
+                        direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
+                        icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
+                        background = ColorDrawable(Color.RED),
+                        callback = { viewHolder, _ ->
+                            vdc.exclude(adapter.data[viewHolder.adapterPosition])
+                        }
+                )
+        )
+        swipeTool.attach(recyclerView)
 
         super.onViewCreated(view, savedInstanceState)
     }

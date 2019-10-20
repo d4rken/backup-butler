@@ -24,6 +24,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
+
     private val editorObs = taskBuilder.task(taskId)
             .subscribeOn(Schedulers.io())
             .filter { it.editor != null }

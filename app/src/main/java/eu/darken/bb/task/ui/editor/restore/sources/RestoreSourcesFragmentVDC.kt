@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.Stater
@@ -17,6 +18,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 class RestoreSourcesFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -64,6 +66,10 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
+    fun exclude(infoOpt: Backup.InfoOpt) {
+        Timber.tag(TAG).i("Excluding %s", infoOpt)
+    }
+
     data class CountState(
             val sourceStorages: List<Storage.Id> = emptyList(),
             val sourceBackupSpecs: List<BackupSpec.Target> = emptyList(),
@@ -76,6 +82,10 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
             val backups: List<Backup.InfoOpt> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
+
+    companion object {
+        val TAG = App.logTag("Task", "Restore", "Simple", "Sources", "VDC")
+    }
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<RestoreSourcesFragmentVDC> {
