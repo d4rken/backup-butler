@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -62,6 +63,15 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)
         }
+
+
+        val swipeTool = ItemSwipeTool(
+                directions = *arrayOf(ItemSwipeTool.Direction.LEFT, ItemSwipeTool.Direction.RIGHT)
+        )
+        swipeTool.swipeCallback = { viewHolder, _ ->
+            vdc.exclude(adapter.data[viewHolder.adapterPosition])
+        }
+        swipeTool.attach(recyclerView)
 
         super.onViewCreated(view, savedInstanceState)
     }
