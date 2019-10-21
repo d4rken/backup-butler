@@ -68,6 +68,7 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
 
     fun exclude(infoOpt: Backup.InfoOpt) {
         Timber.tag(TAG).i("Excluding %s", infoOpt)
+        editor.excludeBackup(infoOpt.backupId)
     }
 
     data class CountState(

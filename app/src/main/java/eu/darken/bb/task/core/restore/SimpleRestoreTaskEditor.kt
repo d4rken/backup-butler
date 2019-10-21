@@ -32,6 +32,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     val backupInfos: Observable<List<Backup.InfoOpt>> = editorData.map { it.backupTargets }
             .filterUnchanged()
             .switchMap { targets ->
+                if (targets.isEmpty()) return@switchMap Observable.just(emptyList<Backup.InfoOpt>())
                 // TODO make lookup more efficient, e.g. group by storage id.
                 val obs = targets.map { target ->
                     storageManager.getStorage(target.storageId)
@@ -46,7 +47,8 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     val customConfigs: Observable<List<CustomConfigWrap>> = Observables
             .combineLatest(backupInfos, editorData)
             .map { (infos, data) ->
-                infos.map { infoOpt ->
+                if (data.backupTargets.isEmpty()) return@map emptyList<CustomConfigWrap>()
+                return@map infos.map { infoOpt ->
                     val type = data.backupTargets.single { it.backupId == infoOpt.backupId }.backupType
                     var config = data.customConfigs[infoOpt.backupId]
                     val isCustom = config != null
@@ -97,6 +99,14 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     override fun updateLabel(label: String) {
         editorDataPub.update {
             it.copy(label = label)
+        }
+    }
+
+    fun excludeBackup(excludedId: Backup.Id) {
+        editorDataPub.update { data ->
+            data.copy(
+                    backupTargets = data.backupTargets.filter { it.backupId != excludedId }.toSet()
+            )
         }
     }
 
