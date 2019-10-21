@@ -170,4 +170,5 @@
     </plurals>
     <string name="label_default">Default</string>
     <string name="label_configuration">Configuration</string>
+    <string name="action_exclude">Exclude</string>
 </resources>

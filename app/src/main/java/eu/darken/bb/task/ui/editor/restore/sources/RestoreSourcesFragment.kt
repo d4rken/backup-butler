@@ -67,11 +67,11 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
             loadingOverlayBackupList.setInvisible(!state.isWorking)
         }
 
-
         val swipeTool = ItemSwipeTool(
                 ItemSwipeTool.SwipeAction(
                         direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
                         icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
+                        label = getString(R.string.action_exclude),
                         background = ColorDrawable(Color.RED),
                         callback = { viewHolder, _ ->
                             vdc.exclude(adapter.data[viewHolder.adapterPosition])

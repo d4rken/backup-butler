@@ -1,14 +1,19 @@
 package eu.darken.bb.common.lists
 
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import eu.darken.bb.App
+import eu.darken.bb.R
 import eu.darken.bb.common.UnitConverter
+import eu.darken.bb.common.getColorForAttr
 import timber.log.Timber
 import kotlin.math.absoluteValue
+
 
 @Suppress("UnnecessaryVariable")
 class ItemSwipeTool(vararg actions: SwipeAction) {
@@ -40,15 +45,16 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
             super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
 
             val iv = viewHolder.itemView
+            val context = recyclerView.context
 
-            val direction: SwipeAction.Direction? = when {
+            val curDir: SwipeAction.Direction? = when {
                 dX > 0 -> SwipeAction.Direction.RIGHT
                 dX < 0 -> SwipeAction.Direction.LEFT
                 else -> null
             }
 
-            val background = actions.find { it.direction == direction }?.background
-            when (direction) {
+            val background = actions.find { it.direction == curDir }?.background
+            when (curDir) {
                 SwipeAction.Direction.RIGHT -> {
                     background?.setBounds(iv.left, iv.top, iv.left + dX.toInt(), iv.bottom)
 
@@ -61,39 +67,68 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
             background?.draw(canvas)
 
             val defaultPadding = UnitConverter.dpToPx(recyclerView.context, 16f)
+            val textPaint = Paint()
+            textPaint.color = context.getColorForAttr(R.attr.colorOnError)
+            textPaint.textSize = UnitConverter.spToPx(context, 18f)
 
-            when (direction) {
+            val actionItem = actions.find { it.direction == curDir }
+
+            when (curDir) {
                 SwipeAction.Direction.RIGHT -> {
-                    val iconSwipeRight = actions.find { it.direction == direction }?.icon
-                    if (iconSwipeRight != null) {
-                        val iconTop = iv.top + iv.height / 2 - iconSwipeRight.intrinsicHeight / 2
+
+                    val icon = actionItem?.icon
+                    if (icon != null) {
+                        val iconTop = iv.top + iv.height / 2 - icon.intrinsicHeight / 2
                         val iconStart = defaultPadding
-                        val iconEnd = iconStart + iconSwipeRight.intrinsicWidth
-                        val iconBottom = iconTop + iconSwipeRight.intrinsicHeight
+                        val iconEnd = iconStart + icon.intrinsicWidth
+                        val iconBottom = iconTop + icon.intrinsicHeight
                         if (dX > iconEnd + defaultPadding) {
-                            iconSwipeRight.bounds = Rect(iconStart, iconTop, iconEnd, iconBottom)
+                            icon.bounds = Rect(iconStart, iconTop, iconEnd, iconBottom)
                         } else {
-                            iconSwipeRight.bounds = Rect(0, 0, 0, 0)
+                            icon.bounds = Rect(0, 0, 0, 0)
                         }
                     }
-                    actions.filter { it.icon != iconSwipeRight }.forEach {
+
+                    val label = actionItem?.label
+                    if (label != null) {
+                        val clipBounds = Rect()
+                        canvas.getClipBounds(clipBounds)
+                        textPaint.getTextBounds(label, 0, label.length, clipBounds)
+
+                        val textTop = iv.top + iv.height / 2 + (clipBounds.height() / 2)
+                        var textStart = defaultPadding
+                        if (icon != null) textStart += icon.intrinsicWidth + defaultPadding
+                        canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                    }
+                    actions.filter { it.icon != icon }.forEach {
                         it.icon?.setBounds(0, 0, 0, 0)
                     }
                 }
                 SwipeAction.Direction.LEFT -> {
-                    val iconSwipeLeft = actions.find { it.direction == direction }?.icon
-                    if (iconSwipeLeft != null) {
-                        val iconTop = iv.top + iv.height / 2 - iconSwipeLeft.intrinsicHeight / 2
-                        val iconStart = iv.width - defaultPadding - iconSwipeLeft.intrinsicWidth
-                        val iconEnd = iconStart + iconSwipeLeft.intrinsicWidth
-                        val iconBottom = iconTop + iconSwipeLeft.intrinsicHeight
+                    val icon = actions.find { it.direction == curDir }?.icon
+                    if (icon != null) {
+                        val iconTop = iv.top + iv.height / 2 - icon.intrinsicHeight / 2
+                        val iconStart = iv.width - defaultPadding - icon.intrinsicWidth
+                        val iconEnd = iconStart + icon.intrinsicWidth
+                        val iconBottom = iconTop + icon.intrinsicHeight
                         if (iv.width - dX.absoluteValue < iconStart - defaultPadding) {
-                            iconSwipeLeft.bounds = Rect(iconStart, iconTop, iconEnd, iconBottom)
+                            icon.bounds = Rect(iconStart, iconTop, iconEnd, iconBottom)
                         } else {
-                            iconSwipeLeft.bounds = Rect(0, 0, 0, 0)
+                            icon.bounds = Rect(0, 0, 0, 0)
                         }
                     }
-                    actions.filter { it.icon != iconSwipeLeft }.forEach {
+                    val label = actionItem?.label
+                    if (label != null) {
+                        val clipBounds = Rect()
+                        canvas.getClipBounds(clipBounds)
+                        textPaint.getTextBounds(label, 0, label.length, clipBounds)
+
+                        val textTop = iv.top + iv.height / 2 + (clipBounds.height() / 2)
+                        var textStart = iv.width - defaultPadding - clipBounds.width()
+                        if (icon != null) textStart = textStart - icon.intrinsicWidth - defaultPadding
+                        canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                    }
+                    actions.filter { it.icon != icon }.forEach {
                         it.icon?.setBounds(0, 0, 0, 0)
                     }
                 }
@@ -104,6 +139,7 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
                 }
             }
             actions.forEach {
+                it.icon?.setColorFilter(context.getColorForAttr(R.attr.colorOnError), PorterDuff.Mode.SRC_IN)
                 it.icon?.draw(canvas)
             }
         }
@@ -118,6 +154,7 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
             val direction: Direction,
             val callback: (RecyclerView.ViewHolder, Direction) -> Unit,
             val icon: Drawable?,
+            val label: String?,
             val background: Drawable?
     ) {
         enum class Direction(val value: Int) {
