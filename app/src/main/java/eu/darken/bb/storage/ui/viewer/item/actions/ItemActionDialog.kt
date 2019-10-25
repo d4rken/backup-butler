@@ -21,6 +21,8 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
@@ -80,6 +82,8 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.finishedEvent.observe(this, Observer { dismissAllowingStateLoss() })
+
+        vdc.errorEvents.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

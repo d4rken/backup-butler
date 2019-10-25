@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +21,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -71,13 +70,10 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
             adapter.update(state.specInfos)
 
-            recyclerView.setInvisible(state.isWorking)
-            loadingOverlay.setInvisible(!state.isWorking)
-            if (state.error != null) {
-                Toast.makeText(requireContext(), state.error.tryLocalizedErrorMessage(requireContext()), Toast.LENGTH_LONG).show()
-            }
+            recyclerView.setInvisible(state.isLoading)
+            loadingOverlay.setInvisible(!state.isLoading)
 
-            showOptionDeleteAll = state.allowDeleteAll && !state.isWorking
+            showOptionDeleteAll = state.allowDeleteAll && !state.isLoading
             invalidateOptionsMenu()
         }
         vdc.deletionState.observe2(this) { deletionState ->
@@ -94,6 +90,8 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         }
 
         vdc.finishEvent.observe(this, Observer { activity?.finish() })
+
+        vdc.errorEvents.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

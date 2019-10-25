@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.viewer.item.actions
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
 import eu.darken.bb.common.rx.withScopeVDC
@@ -32,6 +33,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
     val state = stater.liveData
 
     val pageEvent = SingleLiveEvent<StorageViewerActivityVDC.PageData>()
+    val errorEvents = SingleLiveEvent<Throwable>()
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
@@ -41,7 +43,8 @@ class ItemActionDialogVDC @AssistedInject constructor(
                     stater.update {
                         it.copy(info = content, workIds = it.clearWorkId(WorkId.ID1))
                     }
-                }, {
+                }, { error ->
+                    errorEvents.postValue(error)
                     finishedEvent.postValue(Any())
                 })
                 .withScopeVDC(this)
@@ -54,7 +57,8 @@ class ItemActionDialogVDC @AssistedInject constructor(
                     stater.update {
                         it.copy(allowedActions = actions, workIds = it.clearWorkId(WorkId.ID2))
                     }
-                }, {
+                }, { error ->
+                    errorEvents.postValue(error)
                     finishedEvent.postValue(Any())
                 })
                 .withScopeVDC(this)
@@ -69,22 +73,27 @@ class ItemActionDialogVDC @AssistedInject constructor(
                 storageObs
                         .flatMapSingle { it.remove(backupSpecId) }
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId("deletion")) } }
-                        .doFinally { finishedEvent.postValue(Any()) }
-                        .subscribe()
+                        .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
+                        .doFinally { stater.update { it.copy(workIds = it.clearWorkId()) } }
+                        .doOnError { Bugs.track(it) }
+                        .subscribe(
+                                { finishedEvent.postValue(Any()) },
+                                { error -> errorEvents.postValue(error) }
+                        )
             }
             ItemAction.RESTORE -> taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
                     .subscribeOn(Schedulers.io())
-                    .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
                     .flatMap { data ->
                         (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId).map { data.taskId }
                     }
                     .flatMapCompletable { taskBuilder.startEditor(it) }
-                    .doFinally {
-                        stater.update { it.copy(workIds = it.clearWorkId()) }
-                        finishedEvent.postValue(Any())
-                    }
-                    .subscribe()
+                    .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
+                    .doFinally { stater.update { it.copy(workIds = it.clearWorkId()) } }
+                    .doOnError { Bugs.track(it) }
+                    .subscribe(
+                            { finishedEvent.postValue(Any()) },
+                            { error -> errorEvents.postValue(error) }
+                    )
                     .withScopeVDC(this)
         }
     }

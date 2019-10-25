@@ -1,13 +1,12 @@
 package eu.darken.bb.storage.ui.viewer.item
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.*
-import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.onErrorComplete
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -22,8 +21,7 @@ import java.util.concurrent.TimeUnit
 class StorageItemFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
-        @AppContext private val context: Context,
-        private val storageManager: StorageManager
+        storageManager: StorageManager
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId)
@@ -37,6 +35,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     val deletionState = deletionStater.liveData
 
     val finishEvent = SingleLiveEvent<Boolean>()
+    val errorEvents = SingleLiveEvent<Throwable>()
     val contentActionEvent = SingleLiveEvent<ContentActionEvent>()
 
     init {
@@ -54,18 +53,15 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                     stater.update {
                         it.copy(
                                 specInfos = storageContents.toList(),
-                                workIds = it.clearWorkId()
+                                isLoading = false
                         )
                     }
                 }, { error ->
-                    stater.update {
-                        it.copy(
-                                error = error
-                        )
-                    }
+                    errorEvents.postValue(error)
                     finishEvent.postValue(true)
                 })
                 .withScopeVDC(this)
+
         storageObs.flatMap { it.info() }
                 .filter { it.config != null }
                 .map { it.config!! }
@@ -89,7 +85,6 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     fun deleteAll() {
         activeDeletion.dispose()
 
-        val workId = WorkId()
         activeDeletion = storageObs
                 .switchMap { storage ->
                     storage.specInfos()
@@ -101,12 +96,8 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                             }
                 }
                 .subscribeOn(Schedulers.io())
-                .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId(workId)) } }
-                .doFinally {
-                    stater.update {
-                        it.copy(workIds = it.clearWorkId(workId))
-                    }
-                }
+                .doOnSubscribe { stater.update { it.copy(isLoading = true) } }
+                .doFinally { stater.update { it.copy(isLoading = false) } }
                 .subscribe()
     }
 
@@ -123,10 +114,9 @@ class StorageItemFragmentVDC @AssistedInject constructor(
             val storageLabel: String? = null,
             val storageType: Storage.Type? = null,
             val specInfos: List<BackupSpec.Info> = emptyList(),
-            val error: Throwable? = null,
             val allowDeleteAll: Boolean = false,
-            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
-    ) : WorkId.State
+            val isLoading: Boolean = true
+    )
 
     data class ContentActionEvent(
             val storageId: Storage.Id,

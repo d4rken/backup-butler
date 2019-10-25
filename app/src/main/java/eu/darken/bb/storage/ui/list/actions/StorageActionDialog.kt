@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -19,7 +18,7 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
@@ -80,9 +79,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }
-        vdc.errorEvent.observe2(this) {
-            Toast.makeText(requireContext(), it.tryLocalizedErrorMessage(requireContext()), Toast.LENGTH_LONG).show()
-        }
+        vdc.errorEvent.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

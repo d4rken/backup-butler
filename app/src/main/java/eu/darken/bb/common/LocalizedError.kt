@@ -8,5 +8,6 @@ interface LocalizedError {
 
 fun Throwable.tryLocalizedErrorMessage(context: Context): String = when {
     this is LocalizedError -> this.getLocalizedErrorMessage(context)
-    else -> localizedMessage ?: this.toString()
+    localizedMessage != null -> localizedMessage
+    else -> this.toString()
 }

@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.list.actions
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
@@ -79,6 +80,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             stater.update { it.copy(isWorking = true) }
                         }
                         .doFinally { stater.update { it.copy(isWorking = false) } }
+                        .doOnError { Bugs.track(it) }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
@@ -98,6 +100,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             stater.update { it.copy(isWorking = true) }
                         }
                         .doFinally { stater.update { it.copy(isWorking = false) } }
+                        .doOnError { Bugs.track(it) }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
@@ -116,6 +119,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             stater.update { it.copy(isWorking = true) }
                         }
                         .doFinally { stater.update { it.copy(isWorking = false) } }
+                        .doOnError { Bugs.track(it) }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
@@ -134,6 +138,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             stater.update { it.copy(isWorking = true) }
                         }
                         .doFinally { stater.update { it.copy(isWorking = false) } }
+                        .doOnError { Bugs.track(it) }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
@@ -152,6 +157,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                             stater.update { it.copy(isWorking = true) }
                         }
                         .doFinally { stater.update { it.copy(isWorking = false) } }
+                        .doOnError { Bugs.track(it) }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
