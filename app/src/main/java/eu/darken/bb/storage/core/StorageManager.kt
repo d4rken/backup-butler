@@ -67,6 +67,7 @@ class StorageManager @Inject constructor(
                     }
                 }
                 return@switchMap Observable.combineLatest<Storage.InfoOpt, List<Storage.InfoOpt>>(statusObs) {
+                    @Suppress("UNCHECKED_CAST")
                     it.asList() as List<Storage.InfoOpt>
                 }
             }
@@ -113,7 +114,7 @@ class StorageManager @Inject constructor(
         }
     }
 
-    fun startViewer(storageId: Storage.Id) {
+    fun startViewer(storageId: Storage.Id): Completable = Completable.fromCallable {
         val intent = Intent(context, StorageViewerActivity::class.java)
         intent.putStorageId(storageId)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

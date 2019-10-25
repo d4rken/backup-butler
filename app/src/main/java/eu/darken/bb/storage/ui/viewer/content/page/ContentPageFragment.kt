@@ -66,7 +66,7 @@ class ContentPageFragment : SmartFragment(), AutoInject {
             recyclerView.setInvisible(state.isLoadingItems)
             loadingOverlayFiles.setInvisible(!state.isLoadingItems)
 
-            loadingOverlayFiles.setError(state.error)
+            loadingOverlayFiles.updateWith(state.error)
 
             showRestoreAction = state.showRestoreAction
             invalidateOptionsMenu()

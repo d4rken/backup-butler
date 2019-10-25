@@ -27,18 +27,6 @@ class LoadingOverlayView @JvmOverloads constructor(
         @AttrRes defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    var mode: Mode = Mode.LOADING
-        set(value) {
-            animation.setAnimation(value.animationRes)
-            animation.addValueCallback(KeyPath("**"), LottieProperty.COLOR_FILTER) {
-                PorterDuffColorFilter(context.getColorForAttr(R.attr.colorOnBackground), PorterDuff.Mode.SRC_ATOP)
-            }
-            animation.repeatCount = LottieDrawable.INFINITE
-            animation.playAnimation()
-            primaryText.setText(mode.defaultPrimary)
-            field = value
-        }
-
     @BindView(R.id.animation) lateinit var animation: LottieAnimationView
     @BindView(R.id.primary_text) lateinit var primaryText: TextView
     @BindView(R.id.cancel_button) lateinit var cancelButton: Button
@@ -47,7 +35,17 @@ class LoadingOverlayView @JvmOverloads constructor(
         View.inflate(context, R.layout.loading_overlay_view, this)
         ButterKnife.bind(this)
 
-        mode = Mode.LOADING
+        setMode(Mode.LOADING)
+    }
+
+    fun setMode(mode: Mode) {
+        animation.setAnimation(mode.animationRes)
+        animation.addValueCallback(KeyPath("**"), LottieProperty.COLOR_FILTER) {
+            PorterDuffColorFilter(context.getColorForAttr(R.attr.colorOnBackground), PorterDuff.Mode.SRC_ATOP)
+        }
+        animation.repeatCount = LottieDrawable.INFINITE
+        animation.playAnimation()
+        primaryText.setText(mode.defaultPrimary)
     }
 
     fun setPrimaryText(@StringRes stringRes: Int) {
@@ -62,30 +60,28 @@ class LoadingOverlayView @JvmOverloads constructor(
         primaryText.text = primary
     }
 
-    fun setError(error: Throwable?) {
+    fun updateWith(error: Throwable?) {
         if (error == null) {
-            mode = Mode.LOADING
+            setMode(Mode.LOADING)
             return
         }
-        mode = Mode.ERROR
+        setMode(Mode.ERROR)
         primaryText.text = error.tryLocalizedErrorMessage(context)
     }
 
-    var isCancelable: Boolean = false
-        set(value) {
-            field = value
-            cancelButton.setGone(!isCancelable)
-        }
-
-    fun setOnCancelListener(function: (View) -> Unit) {
+    fun setOnCancelListener(function: ((View) -> Unit)?) {
+        cancelButton.setGone(function == null)
         cancelButton.setOnClickListener(function)
     }
 
-    enum class Mode(
+    data class Mode(
             @RawRes val animationRes: Int,
             @StringRes val defaultPrimary: Int
     ) {
-        LOADING(R.raw.anim_loading_box, R.string.progress_loading_label),
-        ERROR(R.raw.anim_alert_octagon, R.string.error_generic_label)
+        companion object {
+            val LOADING = Mode(R.raw.anim_loading_box, R.string.progress_loading_label)
+            val ERROR = Mode(R.raw.anim_loading_box, R.string.progress_loading_label)
+        }
     }
+
 }
