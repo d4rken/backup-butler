@@ -97,7 +97,7 @@ class LocalStorage @AssistedInject constructor(
                         continue
                     }
 
-                    val metaDatas = getMetaDataForSpec(backupConfig.specId)
+                    val metaDatas = getMetaDatas(backupConfig.specId)
                     if (metaDatas.isEmpty()) {
                         Timber.tag(TAG).w("Dir without backups? %s", backupDir)
                         continue
@@ -279,7 +279,12 @@ class LocalStorage @AssistedInject constructor(
                     val backupDir = getSpecDir(specId)
                     backupDir.deleteAll()
                 }
-                val newMetaData = getMetaDataForSpec(specId)
+                val newMetaData = if (backupId != null) {
+                    // Not a complete deletion
+                    getMetaDatas(specId)
+                } else {
+                    emptySet()
+                }
                 return@map specInfo.copy(backups = newMetaData)
             }
 
@@ -300,7 +305,7 @@ class LocalStorage @AssistedInject constructor(
 
     private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): File = File(getSpecDir(specId), backupId.idString)
 
-    private fun getMetaDataForSpec(specId: BackupSpec.Id): Collection<Backup.MetaData> {
+    private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
         getSpecDir(specId).safeListFiles().filter { it.isDirectory }.forEach { dir ->
             val metaData = readBackupMeta(specId, Backup.Id(dir.name))
