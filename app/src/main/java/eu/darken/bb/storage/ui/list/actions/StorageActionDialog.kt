@@ -76,6 +76,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
 
             recyclerView.setGone(state.isWorking)
             workingOverlay.setGone(!state.isWorking)
+            workingOverlay.isCancelable = state.isCancelable
         })
 
         vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }

@@ -5,7 +5,8 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.*
+import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -16,6 +17,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class ItemActionDialogVDC @AssistedInject constructor(
@@ -37,26 +39,22 @@ class ItemActionDialogVDC @AssistedInject constructor(
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.specInfos() }
+        storageObs.flatMapSingle { it.specInfos().firstOrError() }
                 .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
                 .subscribe({ content ->
-                    stater.update {
-                        it.copy(info = content, workIds = it.clearWorkId(WorkId.ID1))
-                    }
+                    stater.update { it.copy(info = content) }
                 }, { error ->
                     errorEvents.postValue(error)
                     finishedEvent.postValue(Any())
                 })
                 .withScopeVDC(this)
 
-        storageObs.flatMap { it.info() }
+        storageObs.flatMapSingle { it.info().firstOrError() }
                 .subscribe({ info ->
                     val actions = ItemAction.values().toMutableList().apply {
                         if (info.status?.isReadOnly == true) remove(ItemAction.DELETE)
                     }.toList()
-                    stater.update {
-                        it.copy(allowedActions = actions, workIds = it.clearWorkId(WorkId.ID2))
-                    }
+                    stater.update { it.copy(allowedActions = actions) }
                 }, { error ->
                     errorEvents.postValue(error)
                     finishedEvent.postValue(Any())
@@ -65,6 +63,8 @@ class ItemActionDialogVDC @AssistedInject constructor(
     }
 
     fun storageAction(action: ItemAction) {
+        require(stater.snapshot.currentOperation == null)
+
         when (action) {
             ItemAction.VIEW -> {
                 pageEvent.postValue(StorageViewerActivityVDC.PageData(StorageViewerActivityVDC.PageData.Page.DETAILS, storageId, backupSpecId))
@@ -73,9 +73,9 @@ class ItemActionDialogVDC @AssistedInject constructor(
                 storageObs
                         .flatMapSingle { it.remove(backupSpecId) }
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
-                        .doFinally { stater.update { it.copy(workIds = it.clearWorkId()) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { finishedEvent.postValue(Any()) },
                                 { error -> errorEvents.postValue(error) }
@@ -87,9 +87,9 @@ class ItemActionDialogVDC @AssistedInject constructor(
                         (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId).map { data.taskId }
                     }
                     .flatMapCompletable { taskBuilder.startEditor(it) }
-                    .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId()) } }
-                    .doFinally { stater.update { it.copy(workIds = it.clearWorkId()) } }
                     .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe(
                             { finishedEvent.postValue(Any()) },
                             { error -> errorEvents.postValue(error) }
@@ -100,9 +100,12 @@ class ItemActionDialogVDC @AssistedInject constructor(
 
     data class State(
             val info: BackupSpec.Info? = null,
-            val allowedActions: List<ItemAction> = listOf(),
-            override val workIds: Set<WorkId> = setOf(WorkId.ID1, WorkId.ID2)
-    ) : WorkId.State
+            val allowedActions: List<ItemAction>? = null,
+            val currentOperation: Disposable? = null
+    ) {
+        val isWorking: Boolean
+            get() = currentOperation != null
+    }
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {

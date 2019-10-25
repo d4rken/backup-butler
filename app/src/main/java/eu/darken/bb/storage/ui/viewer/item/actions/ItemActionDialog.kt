@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +22,7 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
+import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
@@ -48,8 +48,12 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
+
+    @BindView(R.id.info_container) lateinit var infoContainer: ViewGroup
+    @BindView(R.id.info_container_loading) lateinit var infoContainerLoading: View
+
+    @BindView(R.id.actionlist) lateinit var actionList: RecyclerView
+    @BindView(R.id.actionlist_loading) lateinit var actionListLoading: View
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storage_viewer_contentlist_action_dialog, container, false)
@@ -58,7 +62,7 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.setupDefaults(actionsAdapter)
+        actionList.setupDefaults(actionsAdapter)
 
         actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
             vdc.storageAction(actionsAdapter.data[i])
@@ -66,14 +70,18 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
 
         vdc.state.observe(this, Observer { state ->
             if (state.info != null) {
-                storageLabel.text = state.info.backupSpec.getLabel(requireContext())
                 typeLabel.text = getString(state.info.backupSpec.backupType.labelRes)
+                storageLabel.text = state.info.backupSpec.getLabel(requireContext())
+            } else {
+                typeLabel.setText(R.string.label_unknown)
+                storageLabel.setText(R.string.progress_loading_label)
             }
+            infoContainerLoading.setInvisible(state.info != null)
 
             actionsAdapter.update(state.allowedActions)
 
-            recyclerView.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            progressBar.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            actionList.setInvisible(state.isWorking || state.allowedActions == null)
+            actionListLoading.setInvisible(!state.isWorking && state.allowedActions != null)
         })
 
         vdc.pageEvent.observe(this, Observer { pageData ->

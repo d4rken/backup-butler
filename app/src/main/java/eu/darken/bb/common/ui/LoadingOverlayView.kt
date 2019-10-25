@@ -69,8 +69,13 @@ class LoadingOverlayView @JvmOverloads constructor(
         primaryText.text = error.tryLocalizedErrorMessage(context)
     }
 
+    var isCancelable: Boolean = false
+        set(value) {
+            field = value
+            cancelButton.setGone(!value)
+        }
+
     fun setOnCancelListener(function: ((View) -> Unit)?) {
-        cancelButton.setGone(function == null)
         cancelButton.setOnClickListener(function)
     }
 

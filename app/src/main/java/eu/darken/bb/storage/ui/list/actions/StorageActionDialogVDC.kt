@@ -18,7 +18,6 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -34,8 +33,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
     val state = stater.liveData
     val closeDialogEvent = SingleLiveEvent<Any>()
     val errorEvent = SingleLiveEvent<Throwable>()
-
-    private var currentOperation: Disposable? = null
 
     init {
         storageManager.info(storageId)
@@ -72,39 +69,37 @@ class StorageActionDialogVDC @AssistedInject constructor(
     }
 
     fun storageAction(action: StorageAction) {
+        require(stater.snapshot.currentOperation == null)
+
         when (action) {
             VIEW -> {
                 storageManager.startViewer(storageId)
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
                         .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
+                            stater.update { it.copy(currentOperation = disp) }
                         }
-                        .doFinally { stater.update { it.copy(isWorking = false) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
                         )
+                        .withScopeVDC(this)
             }
             EDIT -> {
                 storageBuilder.load(storageId)
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe {
-                            currentOperation = it
-                            stater.update { state -> state.copy(isWorking = true) }
-                        }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
-                        .doFinally { stater.update { it.copy(isWorking = false) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
                         )
+                        .withScopeVDC(this)
             }
             RESTORE -> {
                 taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
@@ -114,50 +109,34 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         }
                         .delay(200, TimeUnit.MILLISECONDS)
                         .flatMapCompletable { taskBuilder.startEditor(it) }
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
-                        .doFinally { stater.update { it.copy(isWorking = false) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
                         )
+                        .withScopeVDC(this)
             }
             DETACH -> {
-                detachSub = storageManager.detach(storageId)
+                storageManager.detach(storageId)
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
                         .delay(200, TimeUnit.MILLISECONDS)
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
-                        .doFinally { stater.update { it.copy(isWorking = false) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
                         )
             }
             DELETE -> {
-                deletionSub = storageManager.wipe(storageId)
+                storageManager.wipe(storageId)
                         .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
                         .delay(200, TimeUnit.MILLISECONDS)
-                        .doOnSubscribe { disp ->
-                            currentOperation = disp
-                            stater.update { it.copy(isWorking = true) }
-                        }
-                        .doFinally { stater.update { it.copy(isWorking = false) } }
                         .doOnError { Bugs.track(it) }
+                        .doFinally { stater.update { it.copy(currentOperation = null) } }
+                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                         .subscribe(
                                 { closeDialogEvent.postValue(Any()) },
                                 { errorEvent.postValue(it) }
@@ -166,25 +145,20 @@ class StorageActionDialogVDC @AssistedInject constructor(
         }
     }
 
-    private var deletionSub = Disposables.disposed()
-    private var detachSub = Disposables.disposed()
-
-    override fun onCleared() {
-        detachSub.dispose()
-        deletionSub.dispose()
-        super.onCleared()
-    }
-
     fun cancelCurrentOperation() {
-        currentOperation?.dispose()
+        stater.snapshot.currentOperation?.dispose()
     }
 
     data class State(
             val storageInfo: Storage.Info? = null,
             val allowedActions: List<StorageAction> = listOf(),
-            val isWorking: Boolean = false,
-            val isLoadingData: Boolean = false
-    )
+            val isCancelable: Boolean = false,
+            val isLoadingData: Boolean = false,
+            val currentOperation: Disposable? = null
+    ) {
+        val isWorking: Boolean
+            get() = currentOperation != null
+    }
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<IntroFragmentVDC> {

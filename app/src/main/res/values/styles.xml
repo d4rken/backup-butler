@@ -61,6 +61,11 @@
         <item name="android:indeterminateTint">@color/colorSecondary</item>
     </style>
 
+    <style name="ProgressStyleSpinnerSmall" parent="ProgressStyleSpinner">
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_width">24dp</item>
+    </style>
+
     <style name="Widget.MaterialComponents.Button.Highlight" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">?colorSecondary</item>
     </style>
