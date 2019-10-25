@@ -101,7 +101,7 @@ class TaskBuilder @Inject constructor(
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
             .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
-    fun startEditor(taskId: Task.Id = Task.Id()): Completable = hotData.data.firstOrError()
+    fun startEditor(taskId: Task.Id): Completable = hotData.data.firstOrError()
             .map { builderData ->
                 if (builderData.containsKey(taskId)) builderData.getValue(taskId)
                 else throw IllegalArgumentException("Task data not in builder: $taskId")
