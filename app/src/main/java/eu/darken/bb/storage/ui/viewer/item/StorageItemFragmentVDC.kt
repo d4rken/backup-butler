@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -14,7 +15,7 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Single
-import io.reactivex.disposables.Disposables
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
@@ -81,11 +82,9 @@ class StorageItemFragmentVDC @AssistedInject constructor(
         ))
     }
 
-    private var activeDeletion = Disposables.disposed()
     fun deleteAll() {
-        activeDeletion.dispose()
-
-        activeDeletion = storageObs
+        storageObs
+                .subscribeOn(Schedulers.io())
                 .switchMap { storage ->
                     storage.specInfos()
                             .take(1)
@@ -95,14 +94,17 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                                 Single.timer(100, TimeUnit.MILLISECONDS).flatMap { storage.remove(content.backupSpec.specId) }
                             }
                 }
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe { stater.update { it.copy(isLoading = true) } }
-                .doFinally { stater.update { it.copy(isLoading = false) } }
-                .subscribe()
+                .doOnError { Bugs.track(it) }
+                .doFinally { stater.update { it.copy(currentOperation = null) } }
+                .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                .subscribe(
+                        { },
+                        { error -> errorEvents.postValue(error) }
+                )
     }
 
     override fun onCleared() {
-        activeDeletion.dispose()
+        stater.snapshot.currentOperation?.dispose()
         super.onCleared()
     }
 
@@ -115,8 +117,12 @@ class StorageItemFragmentVDC @AssistedInject constructor(
             val storageType: Storage.Type? = null,
             val specInfos: List<BackupSpec.Info> = emptyList(),
             val allowDeleteAll: Boolean = false,
-            val isLoading: Boolean = true
-    )
+            val isLoading: Boolean = true,
+            val currentOperation: Disposable? = null
+    ) {
+        val isWorking: Boolean
+            get() = isLoading || currentOperation != null
+    }
 
     data class ContentActionEvent(
             val storageId: Storage.Id,

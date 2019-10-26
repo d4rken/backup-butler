@@ -70,10 +70,10 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
             adapter.update(state.specInfos)
 
-            recyclerView.setInvisible(state.isLoading)
-            loadingOverlay.setInvisible(!state.isLoading)
+            recyclerView.setInvisible(state.isWorking)
+            loadingOverlay.setInvisible(!state.isWorking)
 
-            showOptionDeleteAll = state.allowDeleteAll && !state.isLoading
+            showOptionDeleteAll = state.allowDeleteAll && !state.isWorking
             invalidateOptionsMenu()
         }
         vdc.deletionState.observe2(this) { deletionState ->
