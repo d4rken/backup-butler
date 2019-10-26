@@ -4,15 +4,13 @@ import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.common.progress.updateProgressCount
-import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.common.progress.updateProgressTertiary
+import eu.darken.bb.common.progress.*
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
@@ -33,7 +31,11 @@ class SimpleBackupProcessor @AssistedInject constructor(
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun doProcess(task: Task) {
+        progressParent.updateProgressPrimary(R.string.progress_label_processing_x, task.label)
+        progressParent.updateProgressSecondary { task.getDescription(it) }
+
         task as Task.Backup
+
         var success = 0
         var skipped = 0
         var error = 0

@@ -18,7 +18,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ProcessorNotifications @Inject constructor(
-        @AppContext context: Context,
+        @AppContext private val context: Context,
         private val notificationManager: NotificationManager
 ) {
 
@@ -44,8 +44,8 @@ class ProcessorNotifications @Inject constructor(
                 .setChannelId(NOTIFICATION_CHANNEL_ID)
                 .setContentIntent(openPi)
                 .setSmallIcon(R.drawable.ic_notification_backup_icon)
-                .setContentText(context.getString(R.string.label_progress_preparing))
                 .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(context.getString(R.string.label_progress_preparing))
     }
 
     fun start(service: Service) {
@@ -56,7 +56,8 @@ class ProcessorNotifications @Inject constructor(
             progressSub = service.progress
                     .distinct { it.primary }
                     .subscribe {
-                        builder.setContentText(it.primary)
+                        builder.setContentTitle(it.primary.get(context))
+                        builder.setContentText(it.secondary.get(context))
                         Timber.tag(TAG).v("updatingNotification(): %s", it)
                         notificationManager.notify(NOTIFICATION_ID, builder.build())
                     }

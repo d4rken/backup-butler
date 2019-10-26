@@ -3,15 +3,16 @@ package eu.darken.bb.common.progress
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.format.Formatter
+import eu.darken.bb.common.AString
 import io.reactivex.Observable
 import kotlin.math.ceil
 
 interface Progress {
     data class Data(
             val icon: Drawable? = null,
-            val primary: String = "",
-            val secondary: String = "",
-            val tertiary: String = "",
+            val primary: AString = AString.EMPTY,
+            val secondary: AString = AString.EMPTY,
+            val tertiary: AString = AString.EMPTY,
             val count: Count = Count.None(),
             val child: Data? = null
     )
@@ -58,6 +59,5 @@ interface Progress {
         class None : Count(-1, -1) {
             override fun displayValue(context: Context): String? = null
         }
-
     }
 }

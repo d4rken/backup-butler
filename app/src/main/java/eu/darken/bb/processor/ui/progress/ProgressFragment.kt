@@ -48,11 +48,11 @@ class ProgressFragment : SmartFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe(this, Observer { state ->
             taskName.text = when {
-                state.taskProgress.primary.isNotEmpty() -> state.taskProgress.primary
+                state.taskProgress.primary.get(requireContext()).isNotEmpty() -> state.taskProgress.primary.get(requireContext())
                 else -> getString(R.string.progress_loading_label)
             }
-            generatorLabel.tryTextElseHide(state.taskProgress.secondary)
-            backupSpecLabel.tryTextElseHide(state.taskProgress.tertiary, View.GONE)
+            generatorLabel.tryTextElseHide(state.taskProgress.secondary.get(requireContext()))
+            backupSpecLabel.tryTextElseHide(state.taskProgress.tertiary.get(requireContext()), View.GONE)
             processProgressCounter.tryTextElseHide(state.taskProgress.count.displayValue(requireContext()))
 
             progressContainer.setGone(state.actionProgress == null)
@@ -62,8 +62,8 @@ class ProgressFragment : SmartFragment(), AutoInject {
             progressBar.setGone(state.actionProgress == null)
             progressCounter.setGone(state.actionProgress == null)
             if (state.actionProgress != null) {
-                progressPrimary.tryTextElseHide(state.actionProgress.primary)
-                progressSecondary.tryTextElseHide(state.actionProgress.secondary)
+                progressPrimary.tryTextElseHide(state.actionProgress.primary.get(requireContext()))
+                progressSecondary.tryTextElseHide(state.actionProgress.secondary.get(requireContext()))
                 progressCounter.tryTextElseHide(state.actionProgress.count.displayValue(requireContext()))
                 when (state.actionProgress.count) {
                     is Progress.Count.Indeterminate -> {

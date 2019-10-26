@@ -13,7 +13,7 @@ import eu.darken.bb.task.core.results.SimpleResult
 import timber.log.Timber
 
 abstract class SimpleBaseProcessor constructor(
-        override val context: Context,
+        final override val context: Context,
         val progressParent: Progress.Client
 ) : Processor, HasContext {
 
@@ -41,7 +41,7 @@ abstract class SimpleBaseProcessor constructor(
             resultBuilder.error(exception)
         } finally {
             onCleanup()
-            progressParent.updateProgressSecondary(context, R.string.progress_working_label)
+            progressParent.updateProgressSecondary(R.string.progress_working_label)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
         }
