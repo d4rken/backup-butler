@@ -45,6 +45,14 @@ fun <T : Progress.Client> T.updateProgressTertiary(@StringRes tertiary: Int, var
     updateProgress { state -> state.copy(tertiary = CAString(tertiary, *args)) }
 }
 
+fun <T : Progress.Client> T.updateProgressTertiary(resolv: (Context) -> String) {
+    updateProgress { it.copy(tertiary = CAString(resolv)) }
+}
+
+fun <T : Progress.Client> T.updateProgressTertiary(tertiary: AString) {
+    updateProgress { it.copy(tertiary = tertiary) }
+}
+
 fun <T : Progress.Client> T.updateProgressCount(count: Progress.Count) {
     updateProgress { it.copy(count = count) }
 }

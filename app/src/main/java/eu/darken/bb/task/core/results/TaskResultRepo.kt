@@ -3,9 +3,9 @@ package eu.darken.bb.task.core.results
 import android.content.Context
 import androidx.room.Room
 import eu.darken.bb.App
+import eu.darken.bb.Bugs
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.debug.BugTrack
 import eu.darken.bb.task.core.Task
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -34,7 +34,7 @@ class TaskResultRepo @Inject constructor(
 
                         },
                         { cause ->
-                            BugTrack.notify(TAG, ResultRepoException("Failed to submit results: $results", cause))
+                            Bugs.track(TAG, ResultRepoException("Failed to submit results: $results", cause))
                         }
                 )
     }

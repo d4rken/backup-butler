@@ -20,7 +20,7 @@ data class SimpleResult constructor(
         val error: Throwable? = null
 ) : Task.Result {
 
-    class Builder constructor(private val context: Context) {
+    class Builder constructor(private val context: Context) : Task.Result.Builder<SimpleResult> {
         private var taskId: Task.Id? = null
         private var taskType: Task.Type? = null
         private var taskName: String? = null
@@ -71,7 +71,7 @@ data class SimpleResult constructor(
             this.extra = extra
         }
 
-        fun createResult() = SimpleResult(
+        override fun build(context: Context) = SimpleResult(
                 resultId = Task.Result.Id(),
                 taskId = taskId!!,
                 taskType = taskType!!,

@@ -80,6 +80,10 @@ interface Task {
 
             override fun toString(): String = "ResultId($idString)"
         }
+
+        interface Builder<T : Task.Result> {
+            fun build(context: Context): T
+        }
     }
 
     @Parcelize

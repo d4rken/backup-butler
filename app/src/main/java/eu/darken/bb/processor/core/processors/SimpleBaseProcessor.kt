@@ -3,7 +3,6 @@ package eu.darken.bb.processor.core.processors
 import android.content.Context
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
@@ -13,9 +12,9 @@ import eu.darken.bb.task.core.results.SimpleResult
 import timber.log.Timber
 
 abstract class SimpleBaseProcessor constructor(
-        final override val context: Context,
+        val context: Context,
         val progressParent: Progress.Client
-) : Processor, HasContext {
+) : Processor {
 
     val progressChild = object : Progress.Client {
         override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
@@ -45,7 +44,7 @@ abstract class SimpleBaseProcessor constructor(
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
         }
-        return resultBuilder.createResult()
+        return resultBuilder.build(context)
     }
 
     abstract fun doProcess(task: Task)

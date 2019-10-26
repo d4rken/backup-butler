@@ -50,7 +50,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
             val backupConfigs = generators.getValue(generatorConfig.generatorType).generate(generatorConfig)
 
             backupConfigs.forEach { config ->
-                progressParent.updateProgressTertiary(config.getLabel(context))
+                progressParent.updateProgressTertiary { config.getLabel(it) }
                 progressParent.updateProgressCount(Progress.Count.Counter(backupConfigs.indexOf(config) + 1, backupConfigs.size))
 
                 val endpoint = backupEndpointFactories.getValue(config.backupType).get()
@@ -84,13 +84,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
             }
             progressParent.updateProgressTertiary("")
         }
-        resultBuilder.primary(
-                OpStatus(context).apply {
-                    this.success = success
-                    this.skipped = skipped
-                    this.failed = error
-                }.toDisplayString()
-        )
+        resultBuilder.primary(OpStatus(success, skipped, error).toDisplayString(context))
     }
 
     override fun onCleanup() {

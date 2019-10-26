@@ -49,13 +49,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
             }
         }
 
-        resultBuilder.primary(
-                OpStatus(context).apply {
-                    this.success = success
-                    this.skipped = skipped
-                    this.failed = error
-                }.toDisplayString()
-        )
+        resultBuilder.primary(OpStatus(success, skipped, error).toDisplayString(context))
     }
 
 
