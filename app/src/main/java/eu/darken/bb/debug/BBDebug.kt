@@ -6,12 +6,12 @@ import android.content.SharedPreferences
 import android.os.StrictMode
 import android.util.Log
 import eu.darken.bb.App
+import eu.darken.bb.Bugs
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.debug.BugTrack
 import io.reactivex.Observable
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
@@ -43,7 +43,7 @@ class BBDebug @Inject constructor(
                     .penaltyLog()
 
             if (ApiHelper.hasMarshmallow()) builder.penaltyDeathOnCleartextNetwork()
-            if (ApiHelper.hasAndroidN_MR1()) builder.penaltyDeathOnFileUriExposure()
+            if (ApiHelper.hasAndroidNMR1()) builder.penaltyDeathOnFileUriExposure()
 
             StrictMode.setVmPolicy(builder.build())
 
@@ -71,7 +71,7 @@ class BBDebug @Inject constructor(
                             val currentThread = Thread.currentThread()
                             currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
                         } else {
-                            BugTrack.notify(error)
+                            Bugs.track(error)
                         }
                     }
                 }

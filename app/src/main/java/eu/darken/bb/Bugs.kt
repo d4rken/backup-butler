@@ -7,4 +7,6 @@ object Bugs {
         Timber.e(throwable)
         // TODO Bugsnag
     }
+
+    fun track(throwable: Throwable) = this.track(null, throwable)
 }
