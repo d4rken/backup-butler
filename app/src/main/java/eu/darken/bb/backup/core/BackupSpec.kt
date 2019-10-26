@@ -22,8 +22,6 @@ interface BackupSpec {
 
         @IgnoredOnParcel @Transient val idString = value
 
-        // TODO test this
-        // TODO Test serialization with this as map key
         override fun compareTo(other: Id): Int = value.compareTo(other.value)
 
         override fun toString(): String = "Identifier($idString)"

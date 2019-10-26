@@ -1,5 +1,6 @@
 package eu.darken.bb.processor.core.mm
 
+import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.file.SimplePath
@@ -43,5 +44,21 @@ class MMRefTest {
         ref.tmpPath.createNewFile()
         ref.type shouldBe MMRef.Type.FILE
         ref.tmpPath.delete()
+    }
+
+    @Test
+    fun `test serialization within map`() {
+        val moshi = AppModule().moshi()
+
+        val type = Types.newParameterizedType(Map::class.java, MMRef.Id::class.java, MMRef.Id::class.java)
+        val adapter = moshi.adapter<Map<MMRef.Id, MMRef.Id>>(type)
+
+        val idKey = MMRef.Id()
+        val idValue = MMRef.Id()
+        val testMap = mapOf(idKey to idValue)
+        val json = adapter.toJson(testMap)
+
+        json shouldBe "{\"${idKey.idString}\":\"${idValue.idString}\"}"
+        testMap shouldBe adapter.fromJson(json)
     }
 }

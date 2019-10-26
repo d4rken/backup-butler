@@ -62,8 +62,6 @@ interface Storage : Progress.Host {
 
         @IgnoredOnParcel @Transient override val idString = value.toString()
 
-        // TODO test this
-        // TODO Test serialization with this as map key
         override fun compareTo(other: Id): Int = value.compareTo(other.value)
 
         override fun toString(): String = "StorageId($idString)"
