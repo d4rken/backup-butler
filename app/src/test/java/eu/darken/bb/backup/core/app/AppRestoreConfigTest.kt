@@ -7,6 +7,7 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.file.SimplePath
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
 
@@ -56,4 +57,16 @@ class AppRestoreConfigTest {
         }
     }
 
+    @Test
+    fun `test equals and hash`() {
+        val one = AppRestoreConfig(skipExistingApps = false)
+        val two = AppRestoreConfig()
+        val three = AppRestoreConfig(skipExistingApps = true)
+
+        one shouldBe two
+        one.hashCode() shouldBe two.hashCode()
+
+        one shouldNotBe three
+        one.hashCode() shouldNotBe three.hashCode()
+    }
 }

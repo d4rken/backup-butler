@@ -4,6 +4,7 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.jupiter.api.Test
 
 class FilesRestoreConfigTest {
@@ -36,6 +37,19 @@ class FilesRestoreConfigTest {
         original.restoreType shouldBe Backup.Type.FILES
         original.restoreType = Backup.Type.APP
         original.restoreType shouldBe Backup.Type.FILES
+    }
+
+    @Test
+    fun `test equals and hash`() {
+        val one = FilesRestoreConfig(replaceFiles = false)
+        val two = FilesRestoreConfig()
+        val three = FilesRestoreConfig(replaceFiles = true)
+
+        one shouldBe two
+        one.hashCode() shouldBe two.hashCode()
+
+        one shouldNotBe three
+        one.hashCode() shouldNotBe three.hashCode()
     }
 
 }

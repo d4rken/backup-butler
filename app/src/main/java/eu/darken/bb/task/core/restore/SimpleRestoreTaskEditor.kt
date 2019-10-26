@@ -133,7 +133,6 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             .updateRx { data ->
                 val newConfigs = data.customConfigs.toMutableMap()
                 Timber.tag(TAG).d("Replacing custom config %s with %s", newConfigs[backupId], config)
-                // TODO test Restore.Config equals/hash
                 newConfigs[backupId] = config
                 data.copy(customConfigs = newConfigs)
 
