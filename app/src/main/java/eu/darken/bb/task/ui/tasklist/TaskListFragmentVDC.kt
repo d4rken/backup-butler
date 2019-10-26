@@ -28,6 +28,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
     private val tasksObs = taskRepo.tasks.map { it.values }
             .map { it.toList() }
+            .map { tasks -> tasks.filter { !it.isOneTimeTask } }
 
     private val stater = Stater(ViewState())
     val state = stater.liveData

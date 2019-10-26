@@ -22,7 +22,8 @@ interface TaskEditor {
     interface Data {
         val taskId: Task.Id
         val label: String
-        val existingTask: Boolean
+        val isExistingTask: Boolean
+        val isOneTimeTask: Boolean
     }
 
 }

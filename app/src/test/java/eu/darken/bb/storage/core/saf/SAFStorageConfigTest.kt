@@ -23,7 +23,7 @@ class SAFStorageConfigTest {
         val json = adapter.toJson(original)
         json shouldBe "{" +
                 "\"label\":\"testlabel\"," +
-                "\"storageId\":\"${testID.id}\"," +
+                "\"storageId\":\"${testID.idString}\"," +
                 "\"strategy\":{\"type\":\"SIMPLE\"}," +
                 "\"storageType\":\"${Storage.Type.SAF}\"" +
                 "}"
@@ -49,7 +49,7 @@ class SAFStorageConfigTest {
         val json = adapter.toJson(original)
         json shouldBe "{" +
                 "\"label\":\"testlabel\"," +
-                "\"storageId\":\"${testID.id}\"," +
+                "\"storageId\":\"${testID.idString}\"," +
                 "\"strategy\":{\"type\":\"SIMPLE\"}," +
                 "\"storageType\":\"${Storage.Type.SAF}\"" +
                 "}"

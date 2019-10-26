@@ -32,6 +32,7 @@ class TaskRepo @Inject constructor(
     val tasks = internalData.data
 
     init {
+        // TODO use database instead of preferences
         internalData.data
                 .subscribeOn(Schedulers.io())
                 .subscribe { data ->

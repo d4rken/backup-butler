@@ -24,7 +24,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
                 editorDataPub.updateRx {
                     it.copy(
                             label = simpleTask.label,
-                            existingTask = true,
+                            isExistingTask = true,
                             sources = simpleTask.sources,
                             destinations = simpleTask.destinations
                     )
@@ -79,7 +79,8 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
     data class Data(
             override val taskId: Task.Id,
             override val label: String = "",
-            override val existingTask: Boolean = false,
+            override val isExistingTask: Boolean = false,
+            override val isOneTimeTask: Boolean = false,
             val sources: Set<Generator.Id> = emptySet(),
             val destinations: Set<Storage.Id> = emptySet()
     ) : TaskEditor.Data

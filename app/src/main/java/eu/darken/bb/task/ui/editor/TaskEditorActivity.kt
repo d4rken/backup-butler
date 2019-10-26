@@ -51,11 +51,11 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
             supportActionBar!!.title = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
-                    if (state.existingTask) getString(R.string.label_edit_backup_task)
+                    if (state.isExistingTask) getString(R.string.label_edit_backup_task)
                     else getString(R.string.label_new_backup_task)
                 }
                 Task.Type.RESTORE_SIMPLE -> {
-                    if (state.existingTask) getString(R.string.label_edit_restore_task)
+                    if (state.isExistingTask) getString(R.string.label_edit_restore_task)
                     else getString(R.string.label_new_restore_task)
                 }
             }
@@ -63,7 +63,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
             buttonPrevious.setGone(state.stepPos == 0)
             buttonNext.setGone(state.stepPos == state.steps.size - 1)
 
-            buttonSave.setGone(state.stepPos != state.steps.size - 1)
+            buttonSave.setGone(state.stepPos != state.steps.size - 1 || state.isOneTimeTask)
             buttonSave.isEnabled = state.isComplete
 
             buttonExecute.setGone(state.stepPos != state.steps.size - 1)

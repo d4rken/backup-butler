@@ -85,6 +85,11 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         val taskResult = processor.process(task)
         resultRepo.submitResult(taskResult)
 
+        if (task.isOneTimeTask) {
+            Timber.tag(TAG).i("Removing one-time-task: %s", task)
+            taskRepo.remove(task.taskId).blockingGet()
+        }
+
         Timber.tag(TAG).i("Finished processing %s: %s", task, taskResult)
 
     }

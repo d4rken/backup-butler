@@ -20,6 +20,7 @@ interface Task {
     val taskId: Id
     val taskType: Type
     val label: String
+    val isOneTimeTask: Boolean
 
     interface Backup : Task {
         val sources: Set<Generator.Id>

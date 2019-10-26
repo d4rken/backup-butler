@@ -12,7 +12,8 @@ class BackupTargetTest {
         val orig = Backup.Target(
                 storageId = Storage.Id(),
                 backupSpecId = BackupSpec.Id("strawberry"),
-                backupId = Backup.Id()
+                backupId = Backup.Id(),
+                backupType = Backup.Type.FILES
         )
 
         val adapter = AppModule().moshi().adapter(Backup.Target::class.java)
@@ -21,7 +22,8 @@ class BackupTargetTest {
         json shouldBe "{" +
                 "\"storageId\":\"${orig.storageId.idString}\"," +
                 "\"backupSpecId\":\"strawberry\"," +
-                "\"backupId\":\"${orig.backupId.idString}\"" +
+                "\"backupId\":\"${orig.backupId.idString}\"," +
+                "\"backupType\":\"${orig.backupType.name}\"" +
                 "}"
 
         assertThat(adapter.fromJson(json)).isEqualTo(orig)
@@ -33,7 +35,8 @@ class BackupTargetTest {
         val orig = Backup.Target(
                 storageId = Storage.Id(),
                 backupSpecId = BackupSpec.Id("strawberry"),
-                backupId = Backup.Id()
+                backupId = Backup.Id(),
+                backupType = Backup.Type.FILES
         )
         set.add(orig)
         set.add(orig)

@@ -24,7 +24,7 @@ class LocalStorageRefTest {
         val json = adapter.toJson(original)
         json shouldBe "{" +
                 "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.id}\"," +
+                "\"storageId\":\"${original.storageId.idString}\"," +
                 "\"storageType\":\"${Storage.Type.LOCAL.name}\"" +
                 "}"
 
@@ -46,7 +46,7 @@ class LocalStorageRefTest {
         val json = adapter.toJson(original)
         json shouldBe "{" +
                 "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.id}\"," +
+                "\"storageId\":\"${original.storageId.idString}\"," +
                 "\"storageType\":\"${Storage.Type.LOCAL.name}\"" +
                 "}"
 

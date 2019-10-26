@@ -24,7 +24,7 @@ class LocalStorageConfigTest {
         val strategyJson = strategyAdapter.toJson(original.strategy)
         val json = adapter.toJson(original)
         json shouldBe "{" +
-                "\"storageId\":\"${testID.id}\"," +
+                "\"storageId\":\"${testID.idString}\"," +
                 "\"label\":\"testlabel\"," +
                 "\"strategy\":$strategyJson," +
                 "\"storageType\":\"${Storage.Type.LOCAL}\"" +
@@ -51,7 +51,7 @@ class LocalStorageConfigTest {
         val json = adapter.toJson(original)
 
         json shouldBe "{" +
-                "\"storageId\":\"${testID.id}\"," +
+                "\"storageId\":\"${testID.idString}\"," +
                 "\"label\":\"testlabel\"," +
                 "\"strategy\":$strategyJson," +
                 "\"storageType\":\"${Storage.Type.LOCAL}\"" +

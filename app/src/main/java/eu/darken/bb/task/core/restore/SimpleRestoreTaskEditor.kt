@@ -18,6 +18,8 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class SimpleRestoreTaskEditor @AssistedInject constructor(
@@ -26,7 +28,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         private val storageManager: StorageManager
 ) : TaskEditor {
 
-    private val editorDataPub = HotData(Data(taskId = taskId, label = "RestoreTask"))
+    private val editorDataPub = HotData(Data(taskId = taskId))
     override val editorData = editorDataPub.data
 
     val backupInfos: Observable<List<Backup.InfoOpt>> = editorData.map { it.backupTargets }
@@ -67,7 +69,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                 editorDataPub.updateRx {
                     it.copy(
                             label = task.label,
-                            existingTask = true,
+                            isExistingTask = true,
                             backupTargets = simpleTask.backupTargets,
                             defaultConfigs = simpleTask.defaultConfigs,
                             customConfigs = simpleTask.customConfigs
@@ -83,17 +85,24 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         val nonDefaultConfigs = data.customConfigs
                 .filterNot { data.defaultConfigs.values.contains(it.value) }
 
+        var label = data.label
+        if (label.isEmpty()) {
+            val sdf = SimpleDateFormat("yyyy.MM.dd hh:mm", Locale.getDefault())
+            label = sdf.format(Date())
+        }
+
         SimpleRestoreTask(
                 taskId = data.taskId,
-                label = data.label,
+                label = label,
                 defaultConfigs = data.defaultConfigs,
                 customConfigs = nonDefaultConfigs,
-                backupTargets = data.backupTargets
+                backupTargets = data.backupTargets,
+                isOneTimeTask = data.isOneTimeTask
         )
     }
 
     override fun isValidTask(): Observable<Boolean> = editorData.map { task ->
-        task.label.isNotBlank()
+        true
     }
 
     override fun updateLabel(label: String) {
@@ -186,7 +195,8 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     data class Data(
             override val taskId: Task.Id,
             override val label: String = "",
-            override val existingTask: Boolean = false,
+            override val isExistingTask: Boolean = false,
+            override val isOneTimeTask: Boolean = false,
             val customConfigs: Map<Backup.Id, Restore.Config> = emptyMap(),
             val defaultConfigs: Map<Backup.Type, Restore.Config> = emptyMap(),
             val backupTargets: Set<Backup.Target> = emptySet()

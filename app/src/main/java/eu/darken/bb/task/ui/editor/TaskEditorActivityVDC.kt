@@ -12,7 +12,6 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
-import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
@@ -27,8 +26,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
-        private val processorControl: ProcessorControl,
-        private val taskRepo: TaskRepo
+        private val processorControl: ProcessorControl
 ) : SmartVDC() {
     private val taskObs = taskBuilder.task(taskId)
             .subscribeOn(Schedulers.io())
@@ -62,8 +60,9 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                 .subscribe { data ->
                     stater.update {
                         it.copy(
-                                existingTask = data.existingTask,
-                                isLoading = false
+                                isExistingTask = data.isExistingTask,
+                                isLoading = false,
+                                isOneTimeTask = data.isOneTimeTask
                         )
                     }
                 }
@@ -144,8 +143,9 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             val steps: List<Step>,
             val stepPos: Int = 0,
             val isComplete: Boolean = false,
-            val existingTask: Boolean = false,
-            val isLoading: Boolean = true
+            val isExistingTask: Boolean = false,
+            val isLoading: Boolean = true,
+            val isOneTimeTask: Boolean = true
     ) {
         enum class Step(
                 val fragmentClass: KClass<out Fragment>

@@ -14,6 +14,7 @@ class SimpleBackupTaskTest {
         val original = SimpleBackupTask(
                 taskId = Task.Id(),
                 label = "BackupTaskName",
+                isOneTimeTask = false,
                 sources = setOf(Generator.Id()),
                 destinations = setOf(Storage.Id())
         )
@@ -23,6 +24,7 @@ class SimpleBackupTaskTest {
                 "\"label\":\"BackupTaskName\"," +
                 "\"sources\":[\"${original.sources.first().idString}\"]," +
                 "\"destinations\":[\"${original.destinations.first().idString}\"]," +
+                "\"isOneTimeTask\":false," +
                 "\"taskType\":\"BACKUP_SIMPLE\"" +
                 "}"
 
