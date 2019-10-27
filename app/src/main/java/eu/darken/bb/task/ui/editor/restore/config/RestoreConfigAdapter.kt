@@ -1,6 +1,7 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.CallSuper
@@ -19,9 +20,9 @@ import javax.inject.Inject
 
 
 class RestoreConfigAdapter @Inject constructor()
-    : ModularAdapter<RestoreConfigAdapter.BaseVH>(), AsyncAutoDataAdapter<ConfigWrapper> {
+    : ModularAdapter<RestoreConfigAdapter.BaseVH>(), AsyncAutoDataAdapter<ConfigUIWrap> {
 
-    override val asyncDiffer: AsyncDiffer<ConfigWrapper> = AsyncDiffer(
+    override val asyncDiffer: AsyncDiffer<ConfigUIWrap> = AsyncDiffer(
             this,
             compareItem = { i1, i2 -> i1.stableId == i2.stableId },
             compareContent = { i1, i2 -> i1.config == i2.config }
@@ -33,13 +34,13 @@ class RestoreConfigAdapter @Inject constructor()
 
     init {
         setHasStableIds(true)
-        modules.add(DataBinderModule<ConfigWrapper, BaseVH>(data))
+        modules.add(DataBinderModule<ConfigUIWrap, BaseVH>(data))
         modules.add(TypedVHCreator(0, { data[it].config is AppRestoreConfig }) { AppConfigVH(it) })
         modules.add(TypedVHCreator(1, { data[it].config is FilesRestoreConfig }) { FileConfigVH(it) })
     }
 
     abstract class BaseVH(@LayoutRes layoutRes: Int, parent: ViewGroup)
-        : ModularAdapter.VH(layoutRes, parent), BindableVH<ConfigWrapper> {
+        : ModularAdapter.VH(layoutRes, parent), BindableVH<ConfigUIWrap> {
 
         private val defaultTag = getString(R.string.label_default)
         abstract val title: String
@@ -51,11 +52,11 @@ class RestoreConfigAdapter @Inject constructor()
         @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
 
         @CallSuper
-        override fun bind(item: ConfigWrapper) {
+        override fun bind(item: ConfigUIWrap) {
             cardTitle.text = title
             cardSubTitle.text = when {
                 item.isDefaultItem -> defaultTag
-                item.backupInfo?.info != null -> item.backupInfo.info.spec.getLabel(context)
+                item.backupInfo != null -> item.backupInfo.spec.getLabel(context)
                 else -> getString(R.string.progress_loading_label)
             }
             if (item.isCustomConfig && !item.isDefaultItem) cardTitle.append("*")
@@ -82,7 +83,7 @@ class RestoreConfigAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: ConfigWrapper) {
+        override fun bind(item: ConfigUIWrap) {
             super.bind(item)
             val config = item.config as AppRestoreConfig
 
@@ -106,6 +107,10 @@ class RestoreConfigAdapter @Inject constructor()
         : BaseVH(R.layout.task_editor_restore_configs_adapter_line_files, parent) {
 
         @BindView(R.id.option_replace_existing_files) lateinit var optionReplaceExisting: SwitchPreferenceView
+        @BindView(R.id.option_path) lateinit var optionPathContainer: ViewGroup
+        @BindView(R.id.option_path_display) lateinit var optionPathDisplay: TextView
+        @BindView(R.id.option_path_info) lateinit var optionPathInfo: TextView
+        @BindView(R.id.option_path_action) lateinit var optionPathAction: Button
 
         override val title = getString(R.string.file_options_label)
 
@@ -113,9 +118,31 @@ class RestoreConfigAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: ConfigWrapper) {
+        override fun bind(item: ConfigUIWrap) {
             super.bind(item)
+            item as FilesConfigUIWrap
+
             val config = item.config as FilesRestoreConfig
+
+            if (!item.isDefaultItem) {
+                optionPathAction.setOnClickListener { item.runPathAction() }
+                optionPathInfo.setGone(item.configWrap.isPermissionGranted)
+
+                if (!item.configWrap.isPermissionGranted) {
+                    optionPathInfo.setText(R.string.storage_additional_permission_required_msg)
+                    optionPathAction.setText(R.string.action_grant)
+                } else {
+                    optionPathInfo.text = ""
+                    optionPathAction.setText(R.string.action_change)
+                }
+
+                if (config.restorePath != null) {
+                    optionPathDisplay.text = config.restorePath.userReadablePath(context)
+                } else {
+                    optionPathDisplay.text = item.configWrap.defaultPath?.userReadablePath(context)
+                }
+            }
+            optionPathContainer.setGone(item.isDefaultItem)
 
             optionReplaceExisting.isChecked = config.replaceFiles
             optionReplaceExisting.setOnCheckedChangedListener { _, checked ->

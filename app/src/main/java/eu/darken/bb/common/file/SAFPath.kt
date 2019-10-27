@@ -3,11 +3,13 @@ package eu.darken.bb.common.file
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.common.TypeMissMatchException
+import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
+@Parcelize
 data class SAFPath(
         internal val treeRoot: Uri,
         internal val crumbs: List<String>
@@ -17,8 +19,8 @@ data class SAFPath(
         require(SAFGateway.isTreeUri(treeRoot)) { "SAFFile URI's must be a tree uri: $treeRoot" }
     }
 
-    override var pathType: APath.SFileType
-        get() = APath.SFileType.SAF
+    override var pathType: APath.Type
+        get() = APath.Type.SAF
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }

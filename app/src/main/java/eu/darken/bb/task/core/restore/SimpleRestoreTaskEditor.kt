@@ -5,7 +5,12 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.*
+import eu.darken.bb.backup.core.app.AppRestoreConfig
+import eu.darken.bb.backup.core.files.FilesBackupSpec
+import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.APathTool
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -25,7 +30,8 @@ import java.util.*
 class SimpleRestoreTaskEditor @AssistedInject constructor(
         @Assisted private val taskId: Task.Id,
         private val restoreConfigRepo: RestoreConfigRepo,
-        private val storageManager: StorageManager
+        private val storageManager: StorageManager,
+        private val pathTool: APathTool
 ) : TaskEditor {
 
     private val editorDataPub = HotData(Data(taskId = taskId))
@@ -46,20 +52,38 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             }
             .replayingShare()
 
-    val customConfigs: Observable<List<CustomConfigWrap>> = Observables
+    val customConfigs: Observable<List<ConfigWrap>> = Observables
             .combineLatest(backupInfos, editorData)
+            .serialize()
             .map { (infos, data) ->
-                if (data.backupTargets.isEmpty()) return@map emptyList<CustomConfigWrap>()
+                if (data.backupTargets.isEmpty()) return@map emptyList<ConfigWrap>()
                 return@map infos.map { infoOpt ->
                     val type = data.backupTargets.single { it.backupId == infoOpt.backupId }.backupType
                     var config = data.customConfigs[infoOpt.backupId]
                     val isCustom = config != null
                     if (config == null) config = data.defaultConfigs.getValue(type)
-                    CustomConfigWrap(
-                            backupInfo = infoOpt,
-                            config = config,
-                            isCustomConfig = isCustom
-                    )
+                    when (type) {
+                        Backup.Type.APP -> {
+                            config as AppRestoreConfig
+                            AppsConfigWrap(
+                                    backupInfoOpt = infoOpt,
+                                    config = config,
+                                    isCustomConfig = isCustom
+                            )
+                        }
+                        Backup.Type.FILES -> {
+                            config as FilesRestoreConfig
+                            val defaultPath = (infoOpt.info?.spec as? FilesBackupSpec)?.path
+                            val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) } ?: false
+                            FilesConfigWrap(
+                                    backupInfoOpt = infoOpt,
+                                    config = config,
+                                    isCustomConfig = isCustom,
+                                    defaultPath = defaultPath,
+                                    isPermissionGranted = granted
+                            )
+                        }
+                    }
                 }
             }
             .replayingShare()
@@ -101,15 +125,25 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         )
     }
 
-    override fun isValidTask(): Observable<Boolean> = editorData.map { task ->
-        true
-    }
+    override fun isValidTask(): Observable<Boolean> = Observables.combineLatest(customConfigs, editorData)
+            .map { (configWrappers, editorData) ->
+                val noMissingPermission = configWrappers.find {
+                    it is FilesConfigWrap && !it.isPermissionGranted
+                } == null
+                return@map noMissingPermission
+            }
 
     override fun updateLabel(label: String) {
         editorDataPub.update {
             it.copy(label = label)
         }
     }
+
+    fun updatePath(backupId: Backup.Id, newPath: APath) =
+            updateCustomConfig(backupId) {
+                it as FilesRestoreConfig
+                it.copy(restorePath = newPath)
+            }
 
     fun excludeBackup(excludedId: Backup.Id) {
         editorDataPub.update { data ->
@@ -129,12 +163,15 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             }
             .map { it.newValue.defaultConfigs }
 
-    fun updateCustomConfig(backupId: Backup.Id, config: Restore.Config): Single<Map<Backup.Id, Restore.Config>> = editorDataPub
+    fun updateCustomConfig(backupId: Backup.Id, updateAction: (Restore.Config?) -> Restore.Config): Single<Map<Backup.Id, Restore.Config>> = editorDataPub
             .updateRx { data ->
-                val newConfigs = data.customConfigs.toMutableMap()
-                Timber.tag(TAG).d("Replacing custom config %s with %s", newConfigs[backupId], config)
-                newConfigs[backupId] = config
-                data.copy(customConfigs = newConfigs)
+                val configs = data.customConfigs.toMutableMap()
+                val type = data.backupTargets.single { it.backupId == backupId }.backupType
+                val oldConfig = configs[backupId] ?: data.defaultConfigs[type]!!
+                val newConfig = updateAction(oldConfig)
+                Timber.tag(TAG).d("Replacing custom config %s with %s", oldConfig, newConfig)
+                configs[backupId] = newConfig
+                data.copy(customConfigs = configs)
 
             }
             .map { it.newValue.customConfigs }
@@ -201,11 +238,29 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             val backupTargets: Set<Backup.Target> = emptySet()
     ) : TaskEditor.Data
 
-    data class CustomConfigWrap(
-            val backupInfo: Backup.InfoOpt,
-            val config: Restore.Config,
-            val isCustomConfig: Boolean
-    )
+    interface ConfigWrap {
+        val config: Restore.Config
+        val backupInfoOpt: Backup.InfoOpt?
+        val isCustomConfig: Boolean
+    }
+
+    data class FilesConfigWrap(
+            override val config: FilesRestoreConfig,
+            override val backupInfoOpt: Backup.InfoOpt? = null,
+            override val isCustomConfig: Boolean = false,
+            val isPermissionGranted: Boolean = false,
+            val defaultPath: APath? = null
+    ) : ConfigWrap {
+
+        val currentPath: APath?
+            get() = config.restorePath ?: defaultPath
+    }
+
+    data class AppsConfigWrap(
+            override val config: AppRestoreConfig,
+            override val backupInfoOpt: Backup.InfoOpt? = null,
+            override val isCustomConfig: Boolean = false
+    ) : ConfigWrap
 
     companion object {
         internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")

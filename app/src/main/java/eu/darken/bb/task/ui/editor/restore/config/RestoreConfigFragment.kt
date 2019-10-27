@@ -1,5 +1,6 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -8,17 +9,20 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.getTaskId
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import javax.inject.Inject
 
 
@@ -59,11 +63,31 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
         vdc.configState.observe2(this) { state ->
             val defaultItems = state.defaultConfigs
                     .map {
-                        ConfigWrapper(it) { config, id -> vdc.updateConfig(config, id) }
+                        when (it) {
+                            is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                                vdc.updateConfig(config, id)
+                            }
+                            is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,
+                                    configCallback = { config, id -> vdc.updateConfig(config, id) },
+                                    pathAction = null
+                            )
+                            else -> throw IllegalStateException("Unknown config type: $it")
+                        }
+
                     }
             val customItems = state.customConfigs
                     .map {
-                        ConfigWrapper(it.config, it.backupInfo, it.isCustomConfig) { config, id -> vdc.updateConfig(config, id) }
+                        when (it) {
+                            is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                                vdc.updateConfig(config, id)
+                            }
+                            is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,
+                                    configCallback = { config, id -> vdc.updateConfig(config, id) },
+                                    pathAction = { config, id -> vdc.pathAction(config, id!!) }
+                            )
+                            else -> throw IllegalStateException("Unknown config type: $it")
+                        }
+
                     }
             val adapterData = defaultItems.plus(customItems)
             adapter.update(adapterData)
@@ -72,7 +96,27 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
             loadingOverlayBackupList.setInvisible(!state.isWorking)
         }
 
+        vdc.openPickerEvent.observe2(this) {
+            val intent = APathPicker.createIntent(requireContext(), it)
+            startActivityForResult(intent, 13)
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
 
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            13 -> {
+                val pickerResult = APathPicker.fromActivityResult(resultCode, data)
+                if (pickerResult.path != null) {
+                    vdc.updatePath(pickerResult)
+                } else if (pickerResult.error != null) {
+                    toastError(pickerResult.error)
+                }
+            }
+            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 }

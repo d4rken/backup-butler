@@ -2,15 +2,17 @@ package eu.darken.bb.common.file
 
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
+import kotlinx.android.parcel.Parcelize
 import java.io.File
 
 @JsonClass(generateAdapter = true)
+@Parcelize
 data class JavaPath(
         val file: File
 ) : APath {
 
-    override var pathType: APath.SFileType
-        get() = APath.SFileType.JAVA
+    override var pathType: APath.Type
+        get() = APath.Type.JAVA
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }

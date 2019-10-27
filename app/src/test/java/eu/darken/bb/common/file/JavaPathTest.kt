@@ -46,12 +46,12 @@ class JavaPathTest {
     @Test
     fun `test fixed type`() {
         val file = JavaPath(testFile)
-        file.pathType shouldBe APath.SFileType.JAVA
+        file.pathType shouldBe APath.Type.JAVA
         shouldThrow<IllegalArgumentException> {
-            file.pathType = APath.SFileType.SIMPLE
+            file.pathType = APath.Type.SIMPLE
             Any()
         }
-        file.pathType shouldBe APath.SFileType.JAVA
+        file.pathType shouldBe APath.Type.JAVA
     }
 
     @Test

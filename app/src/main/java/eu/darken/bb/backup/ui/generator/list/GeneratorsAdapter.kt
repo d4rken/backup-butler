@@ -47,7 +47,7 @@ class GeneratorsAdapter @Inject constructor()
             } else {
                 typeLabel.setText(R.string.label_unknown)
                 label.text = "?"
-                description.text = getString(R.string.error_msg_cant_read, item.generatorId)
+                description.text = getString(R.string.error_msg_cant_access, item.generatorId)
 
                 typeIcon.setColorFilter(getColor(R.color.colorError))
                 typeIcon.setImageResource(R.drawable.ic_error_outline)

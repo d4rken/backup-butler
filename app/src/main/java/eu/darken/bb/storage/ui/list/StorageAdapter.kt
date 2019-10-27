@@ -50,7 +50,7 @@ class StorageAdapter @Inject constructor()
 
                 labelText.text = "?"
 
-                statusText.text = getString(R.string.error_msg_cant_read, item.storageId)
+                statusText.text = getString(R.string.error_msg_cant_access, item.storageId)
                 return
             }
 

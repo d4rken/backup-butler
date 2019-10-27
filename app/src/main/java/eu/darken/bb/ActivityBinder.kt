@@ -5,6 +5,8 @@ import dagger.android.ContributesAndroidInjector
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
+import eu.darken.bb.common.file.picker.APathPickerActivity
+import eu.darken.bb.common.file.picker.APathPickerActivityModule
 import eu.darken.bb.debug.recording.ui.RecorderActivity
 import eu.darken.bb.debug.recording.ui.RecorderActivityModule
 import eu.darken.bb.main.ui.settings.SettingsActivity
@@ -61,4 +63,8 @@ abstract class ActivityBinder {
     @PerActivity
     @ContributesAndroidInjector(modules = [ProcessorActivityModule::class])
     abstract fun processorActivity(): ProcessorActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [APathPickerActivityModule::class])
+    abstract fun pathPickerActivity(): APathPickerActivity
 }

@@ -154,7 +154,7 @@
     <string name="error_msg_no_data_was_returned">No data was returned.</string>
     <string name="action_use">Use</string>
     <string name="error_msg_type_missmatch">Type missmatch: Wanted %1$s, but got %2$s.</string>
-    <string name="error_msg_cant_read">Can\'t read %s.</string>
+    <string name="error_msg_cant_access">Can\'t access %s.</string>
     <string name="label_summary">Summary</string>
     <plurals name="restore_task_x_backups_selected_desc">
         <item quantity="one">%d backup is selected for restoration.</item>
@@ -171,4 +171,8 @@
     <string name="label_default">Default</string>
     <string name="label_configuration">Configuration</string>
     <string name="action_exclude">Exclude</string>
+    <string name="action_change">Change</string>
+    <string name="error_contact_developer">An unexpected error occurred. Contact the developer and help him fix this issue, please.</string>
+    <string name="error">Error</string>
+    <string name="error_empty_result">The result was empty.</string>
 </resources>

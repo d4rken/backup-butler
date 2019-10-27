@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="eu.darken.bb"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="eu.darken.bb">
 
     <uses-feature
         android:name="android.software.leanback"
-        android:required="false"/>
+        android:required="false" />
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false"/>
+        android:required="false" />
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="eu.darken.bb.App"
@@ -27,41 +27,43 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.LauncherToMainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".onboarding.OnboardingActivity"/>
+        <activity android:name=".onboarding.OnboardingActivity" />
         <activity
             android:name=".task.ui.editor.TaskEditorActivity"
-            android:theme="@style/AppTheme.Base"/>
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".storage.ui.editor.StorageEditorActivity"
-            android:theme="@style/AppTheme.Base"/>
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
-            android:theme="@style/AppTheme.Base"/>
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".main.ui.settings.SettingsActivity"
-            android:theme="@style/AppTheme.Base"/>
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".storage.ui.viewer.StorageViewerActivity"
-            android:theme="@style/AppTheme.Base"/>
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".debug.recording.ui.RecorderActivity"
-            android:theme="@style/AppTheme.Floating"/>
+            android:theme="@style/AppTheme.Floating" />
         <activity
             android:name=".processor.ui.ProcessorActivity"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.Floating"/>
+            android:theme="@style/AppTheme.Floating" />
 
-        <service
-            android:name="eu.darken.bb.processor.core.service.ProcessorService"/>
+        <activity
+            android:name="eu.darken.bb.common.file.picker.APathPickerActivity"
+            android:theme="@style/AppTheme.Floating" />
 
-        <service android:name=".debug.recording.core.RecorderService"/>
+        <service android:name="eu.darken.bb.processor.core.service.ProcessorService" />
+
+        <service android:name=".debug.recording.core.RecorderService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -70,7 +72,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_provider_paths"/>
+                android:resource="@xml/file_provider_paths" />
         </provider>
     </application>
 
