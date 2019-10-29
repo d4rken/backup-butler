@@ -11,6 +11,7 @@ import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
+import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.common.ui.setGone
@@ -129,9 +130,11 @@ class RestoreConfigAdapter @Inject constructor()
                 optionPathInfo.setGone(item.configWrap.isPermissionGranted)
 
                 if (!item.configWrap.isPermissionGranted) {
+                    optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorError))
                     optionPathInfo.setText(R.string.storage_additional_permission_required_msg)
                     optionPathAction.setText(R.string.action_grant)
                 } else {
+                    optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
                     optionPathInfo.text = ""
                     optionPathAction.setText(R.string.action_change)
                 }
@@ -143,6 +146,12 @@ class RestoreConfigAdapter @Inject constructor()
                 }
             }
             optionPathContainer.setGone(item.isDefaultItem)
+
+            if (item.configWrap.isPermissionGranted) {
+                cardSubTitle.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
+            } else {
+                cardSubTitle.setTextColor(context.getColorForAttr(R.attr.colorError))
+            }
 
             optionReplaceExisting.isChecked = config.replaceFiles
             optionReplaceExisting.setOnCheckedChangedListener { _, checked ->

@@ -16,7 +16,7 @@ import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.filepicker.FilePicker
+import eu.darken.bb.common.file.picker.native.FilePicker
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.setGone

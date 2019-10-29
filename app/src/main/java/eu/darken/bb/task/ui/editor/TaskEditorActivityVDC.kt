@@ -1,5 +1,6 @@
 package eu.darken.bb.task.ui.editor
 
+import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -19,6 +20,7 @@ import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment
 import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.parcel.Parcelize
 import kotlin.reflect.KClass
 
 
@@ -35,19 +37,31 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor!! }
 
+    val stepEvent = SingleLiveEvent<Pair<State.Step, Task.Id>>()
+
+    val finishEvent = SingleLiveEvent<Boolean>()
+
     private val stater: Stater<State> = Stater {
-        val data = taskObs.blockingFirst()
-        val steps = when (data.taskType) {
-            Task.Type.BACKUP_SIMPLE -> listOf(State.Step.BACKUP_INTRO, State.Step.BACKUP_SOURCES, State.Step.BACKUP_DESTINATIONS)
-            Task.Type.RESTORE_SIMPLE -> listOf(State.Step.RESTORE_SOURCES, State.Step.RESTORE_OPTIONS)
+        val state = handle.get<State>("state")
+        return@Stater if (state?.taskId == taskId) {
+            state
+        } else {
+            val data = taskObs.blockingFirst()
+            val steps = when (data.taskType) {
+                Task.Type.BACKUP_SIMPLE -> listOf(State.Step.BACKUP_INTRO, State.Step.BACKUP_SOURCES, State.Step.BACKUP_DESTINATIONS)
+                Task.Type.RESTORE_SIMPLE -> listOf(State.Step.RESTORE_SOURCES, State.Step.RESTORE_OPTIONS)
+            }
+            stepEvent.postValue(Pair(steps[0], taskId))
+            State(steps = steps, taskId = taskId, taskType = data.taskType)
         }
-        State(steps = steps, taskId = taskId, taskType = data.taskType)
     }
     val state = stater.liveData
 
-    val finishActivity = SingleLiveEvent<Boolean>()
-
     init {
+        stater.data.subscribe {
+            handle.set("state", it)
+        }
+
         editorObs
                 .flatMap { it.isValidTask() }
                 .subscribe { isValid ->
@@ -77,6 +91,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             } else if (newPos >= old.steps.size) {
                 newPos = old.steps.size - 1
             }
+            stepEvent.postValue(Pair(old.steps[newPos], taskId))
             return@update old.copy(
                     stepPos = newPos
             )
@@ -91,7 +106,6 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                     }
                 }
                 .subscribeOn(Schedulers.computation())
-
     }
 
     private fun dismiss() {
@@ -103,7 +117,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                     }
                 }
                 .subscribe { _ ->
-                    finishActivity.postValue(true)
+                    finishEvent.postValue(true)
                 }
     }
 
@@ -125,7 +139,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     fun save() {
         saveTask().subscribe { savedTask ->
-            finishActivity.postValue(true)
+            finishEvent.postValue(true)
         }
     }
 
@@ -133,10 +147,11 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         saveTask()
                 .subscribe { savedTask ->
                     processorControl.submit(savedTask)
-                    finishActivity.postValue(true)
+                    finishEvent.postValue(true)
                 }
     }
 
+    @Parcelize
     data class State(
             val taskId: Task.Id,
             val taskType: Task.Type,
@@ -146,7 +161,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             val isExistingTask: Boolean = false,
             val isLoading: Boolean = true,
             val isOneTimeTask: Boolean = true
-    ) {
+    ) : Parcelable {
         enum class Step(
                 val fragmentClass: KClass<out Fragment>
         ) {

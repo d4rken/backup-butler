@@ -1,4 +1,4 @@
-package eu.darken.bb.common.filepicker
+package eu.darken.bb.common.file.picker.native
 
 import android.content.Intent
 import android.os.Environment

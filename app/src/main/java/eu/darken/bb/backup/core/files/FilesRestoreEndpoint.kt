@@ -18,7 +18,6 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import io.reactivex.Observable
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 import kotlin.io.copyTo
 
@@ -46,10 +45,12 @@ class FilesRestoreEndpoint @Inject constructor(
         for (ref in handler.files) {
             updateProgressSecondary(ref.originalPath.path)
 
-            if (ref.originalPath is SAFPath) {
-                restoreSAF(config, spec, ref)
+            val restorePath = config.restorePath ?: spec.path
+
+            if (restorePath is SAFPath) {
+                restoreSAF(config, spec, ref, restorePath)
             } else {
-                restoreFile(config, spec, ref)
+                restoreFile(config, spec, ref, restorePath as JavaPath)
             }
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
@@ -58,10 +59,9 @@ class FilesRestoreEndpoint @Inject constructor(
         return true
     }
 
-    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef) {
-        val restoreDir = spec.path.asFile()
-        val itemPath = ref.originalPath.path.replace(spec.path.path, restoreDir.path)
-        val itemFile = File(itemPath)
+    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: JavaPath) {
+        val chunks = spec.path.crumbsTo(ref.originalPath)
+        val itemFile = restorePath.child(*chunks).file
         if (itemFile.exists() && !config.replaceFiles) {
             Timber.tag(TAG).d("Skipping existing: %s", itemFile)
             return
@@ -78,10 +78,9 @@ class FilesRestoreEndpoint @Inject constructor(
         }
     }
 
-    private fun restoreSAF(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef) {
-        val restoreDir = spec.path as SAFPath
-        ref.originalPath as SAFPath
-        val itemFile = restoreDir.child(*ref.originalPath.crumbs.toTypedArray())
+    private fun restoreSAF(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: SAFPath) {
+        val chunks = spec.path.crumbsTo(ref.originalPath)
+        val itemFile = restorePath.child(*chunks)
 
         if (itemFile.exists(safGateway) && !config.replaceFiles) {
             Timber.tag(TAG).d("Skipping existing: %s", itemFile)

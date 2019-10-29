@@ -3,7 +3,6 @@ package eu.darken.bb.task.ui.editor
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
@@ -12,7 +11,9 @@ import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -21,13 +22,13 @@ import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
-class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdcEditor: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    private val vdc: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as TaskEditorActivityVDC.Factory
         factory.create(handle, intent.getTaskId()!!)
     })
@@ -47,7 +48,7 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        vdcEditor.state.observe(this, Observer { state ->
+        vdc.state.observe(this, Observer { state ->
 
             supportActionBar!!.title = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
@@ -69,21 +70,24 @@ class TaskEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
             buttonExecute.setGone(state.stepPos != state.steps.size - 1)
             buttonExecute.isEnabled = state.isComplete
 
-            showStep(state.steps[state.stepPos], state.taskId)
+//            showStep(state.steps[state.stepPos], state.taskId)
         })
 
-        buttonCancel.clicksDebounced().subscribe { vdcEditor.cancel() }
-        buttonPrevious.clicksDebounced().subscribe { vdcEditor.previous() }
-        buttonNext.clicksDebounced().subscribe { vdcEditor.next() }
-        buttonSave.clicksDebounced().subscribe { vdcEditor.save() }
-        buttonExecute.clicksDebounced().subscribe { vdcEditor.execute() }
+        buttonCancel.clicksDebounced().subscribe { vdc.cancel() }
+        buttonPrevious.clicksDebounced().subscribe { vdc.previous() }
+        buttonNext.clicksDebounced().subscribe { vdc.next() }
+        buttonSave.clicksDebounced().subscribe { vdc.save() }
+        buttonExecute.clicksDebounced().subscribe { vdc.execute() }
 
-        vdcEditor.finishActivity.observe(this, Observer { finish() })
+        vdc.stepEvent.observe2(this) { (step, taskId) ->
+            showStep(step, taskId)
+        }
 
+        vdc.finishEvent.observe2(this) { finish() }
     }
 
     override fun onBackPressed() {
-        vdcEditor.previous()
+        vdc.previous()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

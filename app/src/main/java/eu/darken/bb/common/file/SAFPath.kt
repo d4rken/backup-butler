@@ -1,5 +1,6 @@
 package eu.darken.bb.common.file
 
+import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.common.TypeMissMatchException
@@ -17,6 +18,11 @@ data class SAFPath(
 
     init {
         require(SAFGateway.isTreeUri(treeRoot)) { "SAFFile URI's must be a tree uri: $treeRoot" }
+    }
+
+    override fun userReadablePath(context: Context): String {
+        // TODO
+        return super.userReadablePath(context)
     }
 
     override var pathType: APath.Type

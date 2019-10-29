@@ -59,7 +59,7 @@
 
         <activity
             android:name="eu.darken.bb.common.file.picker.APathPickerActivity"
-            android:theme="@style/AppTheme.Floating" />
+            android:theme="@style/AppTheme.Dialog" />
 
         <service android:name="eu.darken.bb.processor.core.service.ProcessorService" />
 

@@ -1,10 +1,12 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -106,17 +108,22 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            13 -> {
-                val pickerResult = APathPicker.fromActivityResult(resultCode, data)
-                if (pickerResult.path != null) {
-                    vdc.updatePath(pickerResult)
-                } else if (pickerResult.error != null) {
-                    toastError(pickerResult.error)
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            when (requestCode) {
+                13 -> {
+                    val pickerResult = APathPicker.fromActivityResult(data)
+                    if (pickerResult.path != null) {
+                        vdc.updatePath(pickerResult)
+                    } else if (pickerResult.error != null) {
+                        toastError(pickerResult.error)
+                    }
                 }
+                else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
             }
-            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
+        } else if (requestCode == Activity.RESULT_OK) {
+            Toast.makeText(context, R.string.error_empty_result, Toast.LENGTH_SHORT).show()
         }
+
         super.onActivityResult(requestCode, resultCode, data)
     }
 }

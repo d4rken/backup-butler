@@ -1,5 +1,6 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
+import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -107,13 +108,17 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
         Timber.tag(TAG).d("updatePath(config=%s, target=%s)", configWrapper, target)
-        openPickerEvent.postValue(APathPicker.Options())
+        openPickerEvent.postValue(APathPicker.Options(
+                startPath = configWrapper.currentPath,
+                payload = Bundle().apply { putParcelable("backupId", target) }
+        ))
     }
 
     fun updatePath(result: APathPicker.Result) {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         requireNotNull(result.path)
-        val backupId: Backup.Id = result.payload.getParcelable("backupId")!!
+        result.options.payload.classLoader = this.javaClass.classLoader
+        val backupId: Backup.Id = result.options.payload.getParcelable("backupId")!!
         editorObs.firstOrError()
                 .flatMap { it.updatePath(backupId, result.path) }
                 .subscribe()

@@ -1,16 +1,12 @@
 package eu.darken.bb.common.file.picker
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
-import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.SimplePath
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
-import java.util.*
 
 object APathPicker {
 
@@ -18,6 +14,7 @@ object APathPicker {
     data class Options(
             val startPath: APath? = null,
             val selectionLimit: Int = 1,
+            val allowTypeChange: Boolean = true,
             val payload: Bundle = Bundle()
     ) : Parcelable {
         @IgnoredOnParcel @Transient val type: APath.Type? = startPath?.pathType
@@ -33,26 +30,16 @@ object APathPicker {
         return intoIntent(intent, options)
     }
 
+    @Parcelize
     data class Result(
-            val aborted: Boolean = true,
+            val options: Options,
             val error: Throwable? = null,
             val path: APath? = null,
             val payload: Bundle = Bundle()
-    ) {
+    ) : Parcelable
 
-        companion object {
-            // TODO remove test values
-            val ABORT = Result(
-                    aborted = true,
-                    path = SimplePath.build(UUID.randomUUID().toString()),
-                    payload = Bundle().apply { putParcelable("backupId", Backup.Id("f504c6ae-1f18-498f-bad2-ef738f0bdb84")) }
-            )
-        }
-    }
-
-    fun fromActivityResult(resultCode: Int, data: Intent?): Result {
-        if (resultCode != Activity.RESULT_OK) return Result.ABORT
-        TODO("not implemented")
+    fun fromActivityResult(data: Intent): Result {
+        return data.getParcelableExtra(ARG_PICKER_RESULT)
     }
 
     fun fromIntent(intent: Intent): Options {
@@ -63,5 +50,12 @@ object APathPicker {
         return intent.putExtra(ARG_PICKER_OPTIONS, options)
     }
 
+    fun toActivityResult(result: Result): Intent {
+        return Intent().apply {
+            putExtra(ARG_PICKER_RESULT, result)
+        }
+    }
+
     private const val ARG_PICKER_OPTIONS = "eu.darken.bb.common.file.picker.APathPicker.Options"
+    private const val ARG_PICKER_RESULT = "eu.darken.bb.common.file.picker.APathPicker.Result"
 }

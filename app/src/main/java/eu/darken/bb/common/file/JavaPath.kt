@@ -23,6 +23,10 @@ data class JavaPath(
     override val name: String
         get() = file.name
 
+    fun child(vararg segments: String): JavaPath {
+        return build(this.file, *segments)
+    }
+
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {

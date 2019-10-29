@@ -11,7 +11,7 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.JavaPath
-import eu.darken.bb.common.filepicker.FilePicker
+import eu.darken.bb.common.file.picker.native.FilePicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
