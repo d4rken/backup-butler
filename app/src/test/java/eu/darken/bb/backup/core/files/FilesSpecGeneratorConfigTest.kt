@@ -4,7 +4,7 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.SimplePath
+import eu.darken.bb.common.file.RawPath
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -15,7 +15,7 @@ class FilesSpecGeneratorConfigTest {
         val original = FilesSpecGenerator.Config(
                 generatorId = Generator.Id(),
                 label = "FilesSpecLabel",
-                path = SimplePath.build("testcrumb")
+                path = RawPath.build("testcrumb")
         )
 
         val moshi = AppModule().moshi()
@@ -45,7 +45,7 @@ class FilesSpecGeneratorConfigTest {
         val original = FilesSpecGenerator.Config(
                 generatorId = Generator.Id(),
                 label = "TestLabel",
-                path = SimplePath.build("testcrumb")
+                path = RawPath.build("testcrumb")
         )
         original.generatorType shouldBe Backup.Type.FILES
         original.generatorType = Backup.Type.APP

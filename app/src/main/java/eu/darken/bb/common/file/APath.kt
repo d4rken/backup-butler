@@ -13,13 +13,13 @@ interface APath : Parcelable {
     fun userReadablePath(context: Context) = path
 
     enum class Type {
-        SIMPLE, JAVA, SAF
+        RAW, LOCAL, SAF
     }
 
     companion object {
         val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> = MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
-                .withSubtype(JavaPath::class.java, Type.JAVA.name)
-                .withSubtype(SimplePath::class.java, Type.SIMPLE.name)
+                .withSubtype(RawPath::class.java, Type.RAW.name)
+                .withSubtype(JavaPath::class.java, Type.LOCAL.name)
                 .withSubtype(SAFPath::class.java, Type.SAF.name)
                 .skipLabelSerialization()
     }

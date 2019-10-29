@@ -10,9 +10,9 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
 import eu.darken.bb.common.*
+import eu.darken.bb.common.file.RawPath
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
-import eu.darken.bb.common.file.SimplePath
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -77,7 +77,7 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun updatePathRoot(path: String) {
-        val rootPath = SimplePath.build(path)
+        val rootPath = RawPath.build(path)
         editor.updatePath(rootPath)
         TODO("Need to test root here")
     }

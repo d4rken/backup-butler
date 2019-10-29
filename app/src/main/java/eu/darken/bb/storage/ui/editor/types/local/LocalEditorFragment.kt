@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import butterknife.BindView
@@ -16,7 +18,7 @@ import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.file.picker.native.FilePicker
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.setGone
@@ -38,7 +40,6 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     })
 
     @Inject lateinit var adapter: StorageAdapter
-    @Inject lateinit var filePicker: FilePicker
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
 
@@ -72,7 +73,8 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
 
         vdc.pickerEvent.observe2(this) {
-            filePicker.launchPicker(this, it)
+            val intent = APathPicker.createIntent(requireContext(), it)
+            startActivityForResult(intent, 47)
         }
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
@@ -104,8 +106,14 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val path = filePicker.getResult(requestCode, resultCode, data).first()
-        vdc.updatePath(path)
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            when (requestCode) {
+                47 -> vdc.updatePath(APathPicker.fromActivityResult(data))
+                else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
+            }
+        } else if (requestCode == Activity.RESULT_OK) {
+            Toast.makeText(context, R.string.error_empty_result, Toast.LENGTH_SHORT).show()
+        }
         super.onActivityResult(requestCode, resultCode, data)
     }
 

@@ -4,8 +4,8 @@ fun APath.crumbsTo(child: APath): Array<String> {
     require(this.pathType == child.pathType)
 
     return when (pathType) {
-        APath.Type.SIMPLE -> (this as SimplePath).crumbsTo(child as SimplePath)
-        APath.Type.JAVA -> (this as JavaPath).crumbsTo(child as JavaPath)
+        APath.Type.RAW -> (this as RawPath).crumbsTo(child as RawPath)
+        APath.Type.LOCAL -> (this as JavaPath).crumbsTo(child as JavaPath)
         APath.Type.SAF -> (this as SAFPath).crumbsTo(child as SAFPath)
     }
 }

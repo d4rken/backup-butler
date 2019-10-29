@@ -5,12 +5,12 @@ import kotlinx.android.parcel.Parcelize
 import java.io.File
 
 @Parcelize
-data class SimplePath(
+data class RawPath(
         override val path: String
 ) : APath {
 
     override var pathType: APath.Type
-        get() = APath.Type.SIMPLE
+        get() = APath.Type.RAW
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }
@@ -19,15 +19,15 @@ data class SimplePath(
         get() = path.substringAfterLast(File.separatorChar)
 
     companion object {
-        fun build(base: File, vararg crumbs: String): SimplePath =
+        fun build(base: File, vararg crumbs: String): RawPath =
                 build(base.canonicalPath, *crumbs)
 
-        fun build(vararg crumbs: String): SimplePath {
+        fun build(vararg crumbs: String): RawPath {
             var compacter = File(crumbs[0])
             for (i in 1 until crumbs.size) {
                 compacter = File(compacter, crumbs[i])
             }
-            return SimplePath(compacter.path)
+            return RawPath(compacter.path)
         }
     }
 }

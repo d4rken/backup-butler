@@ -12,7 +12,7 @@ data class JavaPath(
 ) : APath {
 
     override var pathType: APath.Type
-        get() = APath.Type.JAVA
+        get() = APath.Type.LOCAL
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }

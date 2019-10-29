@@ -44,7 +44,7 @@ class SAFPathTest {
         val file = SAFPath.build(testUri, "seg1", "seg2")
         file.pathType shouldBe APath.Type.SAF
         shouldThrow<java.lang.IllegalArgumentException> {
-            file.pathType = APath.Type.JAVA
+            file.pathType = APath.Type.LOCAL
             Any()
         }
         file.pathType shouldBe APath.Type.SAF
@@ -59,12 +59,12 @@ class SAFPathTest {
 
     @Test
     fun `force typing`() {
-        val original = SimplePath.build("test", "file")
+        val original = RawPath.build("test", "file")
 
         val moshi = AppModule().moshi()
 
         shouldThrow<JsonDataException> {
-            val json = moshi.adapter(SimplePath::class.java).toJson(original)
+            val json = moshi.adapter(RawPath::class.java).toJson(original)
             moshi.adapter(SAFPath::class.java).fromJson(json)
         }
     }

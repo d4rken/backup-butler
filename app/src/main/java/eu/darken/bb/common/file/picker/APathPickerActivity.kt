@@ -50,7 +50,7 @@ class APathPickerActivity : SmartActivity() {
 
         vdc.finishEvent.observe2(this) { result ->
             val resultCode = when {
-                result.path != null -> Activity.RESULT_OK
+                result.isSuccess -> Activity.RESULT_OK
                 else -> Activity.RESULT_CANCELED
             }
             val data: Intent = APathPicker.toActivityResult(result)

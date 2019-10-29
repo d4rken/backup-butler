@@ -3,7 +3,7 @@ package eu.darken.bb.processor.core.mm
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.SimplePath
+import eu.darken.bb.common.file.RawPath
 import io.kotlintest.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ class MMRefTest {
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
                 tmpPath = File("simplefile"),
-                originalPath = SimplePath.build("originalpath")
+                originalPath = RawPath.build("originalpath")
         )
 
         val orig = ref.props
@@ -24,7 +24,7 @@ class MMRefTest {
         val adapter = AppModule().moshi().adapter(MMRef.Props::class.java)
 
         val json = adapter.toJson(orig)
-        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"SIMPLE\"},\"refType\":\"UNUSED\"}"
+        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"},\"refType\":\"UNUSED\"}"
 
         assertThat(adapter.fromJson(json)).isEqualTo(orig)
     }
@@ -35,7 +35,7 @@ class MMRefTest {
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
                 tmpPath = File("simplefile"),
-                originalPath = SimplePath.build("originalpath")
+                originalPath = RawPath.build("originalpath")
         )
         ref.tmpPath.mkdir()
         ref.type shouldBe MMRef.Type.DIRECTORY

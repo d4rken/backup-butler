@@ -34,9 +34,18 @@ object APathPicker {
     data class Result(
             val options: Options,
             val error: Throwable? = null,
-            val path: APath? = null,
+            val selection: List<APath>? = null,
             val payload: Bundle = Bundle()
-    ) : Parcelable
+    ) : Parcelable {
+
+        init {
+            require(error == null && selection != null || error != null && selection == null)
+        }
+
+        @IgnoredOnParcel val isCanceled: Boolean = error == null && selection == null
+        @IgnoredOnParcel val isSuccess: Boolean = error == null && selection != null
+        @IgnoredOnParcel val isFailed: Boolean = error != null && selection == null
+    }
 
     fun fromActivityResult(data: Intent): Result {
         return data.getParcelableExtra(ARG_PICKER_RESULT)

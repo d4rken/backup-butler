@@ -1,6 +1,5 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
-import android.content.Context
 import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -8,10 +7,9 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.JavaPath
-import eu.darken.bb.common.file.picker.native.FilePicker
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -27,7 +25,6 @@ import timber.log.Timber
 class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
-        @AppContext private val context: Context,
         private val builder: StorageBuilder
 ) : SmartVDC(), BaseEditorFragment.VDC {
 
@@ -44,7 +41,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     private val editor: LocalStorageEditor by lazy { editorObs.blockingFirst() }
     val requestPermissionEvent = SingleLiveEvent<Any>()
     val errorEvent = SingleLiveEvent<Throwable>()
-    val pickerEvent = SingleLiveEvent<FilePicker.Options>()
+    val pickerEvent = SingleLiveEvent<APathPicker.Options>()
 
     init {
         editorDataObs
@@ -67,8 +64,14 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePath(path: APath) {
-        path as JavaPath
+    fun updatePath(result: APathPicker.Result) {
+        if (result.isCanceled) return
+        if (result.isFailed) {
+            errorEvent.postValue(result.error)
+            return
+        }
+
+        val path: JavaPath = result.selection!!.first() as JavaPath
         Timber.tag(TAG).v("Updating path: %s", path)
         editor.updatePath(path, false)
                 .subscribeOn(Schedulers.io())
@@ -107,7 +110,8 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun selectPath() {
-        pickerEvent.postValue(FilePicker.Options())
+        pickerEvent.postValue(APathPicker.Options(
+        ))
     }
 
     fun selectRoot() {

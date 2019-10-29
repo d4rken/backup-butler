@@ -7,40 +7,40 @@ import io.kotlintest.shouldThrow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class SimplePathTest {
+class RawPathTest {
     @Test
     fun `test polymorph serialization`() {
-        val original = SimplePath.build("test", "file")
+        val original = RawPath.build("test", "file")
 
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"SIMPLE\"}")
+        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"RAW\"}")
 
         assertThat(adapter.fromJson(json)).isEqualTo(original)
     }
 
     @Test
     fun `test direct serialization`() {
-        val original = SimplePath.build("test", "file")
+        val original = RawPath.build("test", "file")
 
-        val adapter = AppModule().moshi().adapter(SimplePath::class.java)
+        val adapter = AppModule().moshi().adapter(RawPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"SIMPLE\"}")
+        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"RAW\"}")
 
         assertThat(adapter.fromJson(json)).isEqualTo(original)
     }
 
     @Test
     fun `test fixed type`() {
-        val file = SimplePath.build("test", "file")
-        file.pathType shouldBe APath.Type.SIMPLE
+        val file = RawPath.build("test", "file")
+        file.pathType shouldBe APath.Type.RAW
         shouldThrow<IllegalArgumentException> {
-            file.pathType = APath.Type.JAVA
+            file.pathType = APath.Type.LOCAL
             Any()
         }
-        file.pathType shouldBe APath.Type.SIMPLE
+        file.pathType shouldBe APath.Type.RAW
     }
 
     @Test
@@ -51,7 +51,7 @@ class SimplePathTest {
 
         shouldThrow<JsonDataException> {
             val json = moshi.adapter(JavaPath::class.java).toJson(original)
-            moshi.adapter(SimplePath::class.java).fromJson(json)
+            moshi.adapter(RawPath::class.java).fromJson(json)
         }
     }
 }

@@ -1,7 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.SimplePath
+import eu.darken.bb.common.file.RawPath
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -29,8 +29,8 @@ class MMDataRepoTest : BaseTest() {
         val repo = MMDataRepo(testDir)
         File(testDir, CACHEDIR).exists() shouldBe true
 
-        val ref1 = repo.create(Backup.Id(), SimplePath.build("originalpath"))
-        val ref2 = repo.create(Backup.Id(), SimplePath.build("originalpath"))
+        val ref1 = repo.create(Backup.Id(), RawPath.build("originalpath"))
+        val ref2 = repo.create(Backup.Id(), RawPath.build("originalpath"))
         ref1.tmpPath.mkdir()
         ref1.type shouldBe MMRef.Type.DIRECTORY
 

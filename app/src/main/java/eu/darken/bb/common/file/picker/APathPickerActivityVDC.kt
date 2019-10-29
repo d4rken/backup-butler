@@ -68,7 +68,7 @@ class APathPickerActivityVDC @AssistedInject constructor(
         val path = SAFPath.build(data)
         val result = APathPicker.Result(
                 options,
-                path = path
+                selection = listOf(path)
         )
         finishEvent.postValue(result)
     }
@@ -86,7 +86,7 @@ class APathPickerActivityVDC @AssistedInject constructor(
 
     fun onTypeSelected(storageType: Storage.Type) {
         val fileType = when (storageType) {
-            Storage.Type.LOCAL -> APath.Type.JAVA
+            Storage.Type.LOCAL -> APath.Type.LOCAL
             Storage.Type.SAF -> APath.Type.SAF
         }
         launchSubPicker(fileType)

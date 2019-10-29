@@ -25,7 +25,7 @@ class JavaPathTest {
         val adapter = AppModule().moshi().adapter(JavaPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"JAVA\"}")
+        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"LOCAL\"}")
 
         adapter.fromJson(json) shouldBe original
     }
@@ -38,7 +38,7 @@ class JavaPathTest {
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"JAVA\"}")
+        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"LOCAL\"}")
 
         adapter.fromJson(json) shouldBe original
     }
@@ -46,22 +46,22 @@ class JavaPathTest {
     @Test
     fun `test fixed type`() {
         val file = JavaPath(testFile)
-        file.pathType shouldBe APath.Type.JAVA
+        file.pathType shouldBe APath.Type.LOCAL
         shouldThrow<IllegalArgumentException> {
-            file.pathType = APath.Type.SIMPLE
+            file.pathType = APath.Type.RAW
             Any()
         }
-        file.pathType shouldBe APath.Type.JAVA
+        file.pathType shouldBe APath.Type.LOCAL
     }
 
     @Test
     fun `force typing`() {
-        val original = SimplePath.build("test", "file")
+        val original = RawPath.build("test", "file")
 
         val moshi = AppModule().moshi()
 
         shouldThrow<JsonDataException> {
-            val json = moshi.adapter(SimplePath::class.java).toJson(original)
+            val json = moshi.adapter(RawPath::class.java).toJson(original)
             moshi.adapter(JavaPath::class.java).fromJson(json)
         }
     }

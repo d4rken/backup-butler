@@ -7,9 +7,9 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentVDC
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.RawPath
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
-import eu.darken.bb.common.file.SimplePath
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -24,7 +24,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     private val configPub = HotData(FilesSpecGenerator.Config(
             generatorId = generatorId,
             label = "",
-            path = SimplePath.build("")
+            path = RawPath.build("")
     ))
     override val config: Observable<FilesSpecGenerator.Config> = configPub.data
 

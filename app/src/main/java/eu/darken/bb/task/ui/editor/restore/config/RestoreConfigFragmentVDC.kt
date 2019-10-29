@@ -50,6 +50,8 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
     val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
 
+    val errorEvent = SingleLiveEvent<Throwable>()
+
     init {
         dataObs
                 .subscribe { data ->
@@ -116,11 +118,15 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
     fun updatePath(result: APathPicker.Result) {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
-        requireNotNull(result.path)
+        if (result.isCanceled) return
+        if (result.isFailed) {
+            errorEvent.postValue(result.error)
+            return
+        }
         result.options.payload.classLoader = this.javaClass.classLoader
         val backupId: Backup.Id = result.options.payload.getParcelable("backupId")!!
         editorObs.firstOrError()
-                .flatMap { it.updatePath(backupId, result.path) }
+                .flatMap { it.updatePath(backupId, result.selection!!.first()) }
                 .subscribe()
     }
 

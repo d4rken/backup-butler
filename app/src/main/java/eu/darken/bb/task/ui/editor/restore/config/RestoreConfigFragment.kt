@@ -103,6 +103,8 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
             startActivityForResult(intent, 13)
         }
 
+        vdc.errorEvent.observe2(this) { toastError(it) }
+
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -110,14 +112,7 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && data != null) {
             when (requestCode) {
-                13 -> {
-                    val pickerResult = APathPicker.fromActivityResult(data)
-                    if (pickerResult.path != null) {
-                        vdc.updatePath(pickerResult)
-                    } else if (pickerResult.error != null) {
-                        toastError(pickerResult.error)
-                    }
-                }
+                13 -> vdc.updatePath(APathPicker.fromActivityResult(data))
                 else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
             }
         } else if (requestCode == Activity.RESULT_OK) {
