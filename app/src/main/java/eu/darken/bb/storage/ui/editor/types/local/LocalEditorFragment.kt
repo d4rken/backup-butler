@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -10,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import butterknife.BindView
@@ -106,13 +104,9 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            when (requestCode) {
-                47 -> vdc.updatePath(APathPicker.fromActivityResult(data))
-                else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
-            }
-        } else if (requestCode == Activity.RESULT_OK) {
-            Toast.makeText(context, R.string.error_empty_result, Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            47 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
+            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

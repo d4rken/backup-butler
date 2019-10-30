@@ -9,11 +9,11 @@ interface StorageEditor {
 
     val editorData: Observable<out Data>
 
-    fun isValid(): Observable<Boolean>
-
     fun load(ref: Storage.Ref): Single<out Storage.Config>
 
     fun save(): Single<Pair<Storage.Ref, Storage.Config>>
+
+    fun isValid(): Observable<Boolean>
 
     fun release(): Completable
 

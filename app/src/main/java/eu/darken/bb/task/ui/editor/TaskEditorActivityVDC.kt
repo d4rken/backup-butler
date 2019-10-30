@@ -55,7 +55,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         }
 
         editorObs
-                .flatMap { it.isValidTask() }
+                .flatMap { it.isValid() }
                 .subscribe { isValid ->
                     stater.update { it.copy(isComplete = isValid) }
                 }

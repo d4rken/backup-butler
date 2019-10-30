@@ -73,6 +73,7 @@ class LocalStorageEditor @AssistedInject constructor(
     private fun load(path: JavaPath): Single<LocalStorageConfig> = Single.just(path)
             .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
             .doOnSuccess { config ->
+                require(storageId == config.storageId) { "IDs don't match" }
                 editorDataPub.update {
                     it.copy(
                             refPath = path,

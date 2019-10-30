@@ -15,7 +15,7 @@ abstract class BackupTypeModule {
     @Binds
     @IntoMap
     @GeneratorTypeKey(Backup.Type.APP)
-    abstract fun appGeneratorEditor(repo: AppSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
+    abstract fun appGeneratorEditor(repo: AppSpecGeneratorEditor.Factory): GeneratorEditor.Factory<out GeneratorEditor>
 
     @Binds
     @IntoMap
@@ -25,7 +25,7 @@ abstract class BackupTypeModule {
     @Binds
     @IntoMap
     @GeneratorTypeKey(Backup.Type.FILES)
-    abstract fun fileGeneratorEditor(repo: FilesSpecGeneratorEditor.Factory): Generator.Editor.Factory<out Generator.Editor>
+    abstract fun fileGeneratorEditor(repo: FilesSpecGeneratorEditor.Factory): GeneratorEditor.Factory<out GeneratorEditor>
 
     @Binds
     @IntoMap

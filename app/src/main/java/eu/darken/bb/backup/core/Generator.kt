@@ -6,9 +6,6 @@ import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -16,23 +13,6 @@ import java.util.*
 interface Generator {
 
     fun generate(config: Config): Collection<BackupSpec>
-
-    interface Editor {
-
-        val config: Observable<out Config>
-
-        val existingConfig: Boolean
-
-        fun isValid(): Observable<Boolean>
-
-        fun save(): Single<out Config>
-
-        fun load(config: Config): Completable
-
-        interface Factory<T : Editor> {
-            fun create(generatorId: Id): T
-        }
-    }
 
     interface Config {
         val generatorId: Id

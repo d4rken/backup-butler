@@ -4,7 +4,9 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.file.APath
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -12,35 +14,60 @@ import io.reactivex.Single
 class AppSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         moshi: Moshi
-) : Generator.Editor {
+) : GeneratorEditor {
 
-    private val configPub = HotData(AppSpecGenerator.Config(generatorId = generatorId, label = ""))
-    override val config: Observable<AppSpecGenerator.Config> = configPub.data
+    private val editorDataPub = HotData(Data(generatorId = generatorId))
+    override val editorData = editorDataPub.data
 
-    override var existingConfig: Boolean = false
+    override fun load(config: Generator.Config): Completable = Single.just(config as AppSpecGenerator.Config)
+            .flatMap { genSpec ->
+                require(generatorId == genSpec.generatorId) { "IDs don't match" }
+                editorDataPub.updateRx {
+                    it.copy(
+                            label = genSpec.label,
+                            isExistingGenerator = true
+                            // TODO args
+                    )
+                }
+            }
+            .ignoreElement()
 
-    override fun isValid(): Observable<Boolean> = configPub.data.map { true }
+    override fun save(): Single<out Generator.Config> = Single.fromCallable {
+        val data = editorDataPub.snapshot
 
-    override fun load(config: Generator.Config): Completable = Completable.fromCallable {
-        config as AppSpecGenerator.Config
-        existingConfig = true
-        configPub.update { config }
-        Any()
+        AppSpecGenerator.Config(
+                generatorId = data.generatorId,
+                label = data.label
+                // TODO more args
+        )
     }
 
-    override fun save(): Single<out Generator.Config> {
-        return configPub.data.firstOrError()
-    }
+    override fun release(): Completable = Completable.complete()
+
+    override fun isValid(): Observable<Boolean> = editorData.map { true }
 
     fun updateLabel(label: String) {
-        configPub.update { it.copy(label = label) }
+        editorDataPub.update { it.copy(label = label) }
     }
 
     fun updateIncludedPackages(pkgs: List<String>) {
-        configPub.update { it.copy(packagesIncluded = pkgs) }
+        editorDataPub.update { it.copy(packagesIncluded = pkgs) }
     }
 
+    data class Data(
+            override val generatorId: Generator.Id,
+            override val label: String = "",
+            override val isExistingGenerator: Boolean = false,
+            val autoIncludeApps: Boolean = false,
+            val includeSystemApps: Boolean = false,
+            val packagesIncluded: Collection<String> = listOf(),
+            val packagesExcluded: Collection<String> = listOf(),
+            val backupApk: Boolean = false,
+            val backupData: Boolean = false,
+            val extraPaths: Map<String, Collection<APath>> = emptyMap()
+    ) : GeneratorEditor.Data
+
     @AssistedInject.Factory
-    interface Factory : Generator.Editor.Factory<AppSpecGeneratorEditor>
+    interface Factory : GeneratorEditor.Factory<AppSpecGeneratorEditor>
 
 }

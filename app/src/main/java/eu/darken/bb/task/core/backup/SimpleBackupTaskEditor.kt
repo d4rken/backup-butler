@@ -21,6 +21,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 
     override fun load(task: Task): Completable = Single.just(task as SimpleBackupTask)
             .flatMap { simpleTask ->
+                require(taskId == simpleTask.taskId) { "IDs don't match" }
                 editorDataPub.updateRx {
                     it.copy(
                             label = simpleTask.label,
@@ -42,7 +43,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         )
     }
 
-    override fun isValidTask(): Observable<Boolean> = editorData.map { data ->
+    override fun isValid(): Observable<Boolean> = editorData.map { data ->
         data.label.isNotBlank()
     }
 

@@ -1,13 +1,11 @@
 package eu.darken.bb.storage.core.saf
 
-import android.content.Context
 import android.net.Uri
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -22,15 +20,15 @@ import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(
         @Assisted private val storageId: Storage.Id,
-        @AppContext private val context: Context,
         moshi: Moshi,
         private val safGateway: SAFGateway
 ) : StorageEditor {
 
-    private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)
     private val editorDataPub = HotData(Data(storageId = storageId))
-    private var newlyAcquiredPerm: SAFPath? = null
     override val editorData = editorDataPub.data
+
+    private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)
+    private var newlyAcquiredPerm: SAFPath? = null
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
@@ -87,6 +85,7 @@ class SAFStorageEditor @AssistedInject constructor(
     private fun load(path: SAFPath): Single<SAFStorageConfig> = Single.just(path)
             .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)) }
             .doOnSuccess { config ->
+                require(storageId == config.storageId) { "IDs don't match" }
                 editorDataPub.update {
                     it.copy(
                             refPath = path,
@@ -119,6 +118,13 @@ class SAFStorageEditor @AssistedInject constructor(
         newlyAcquiredPerm?.let { safGateway.releasePermission(it) }
     }
 
+    data class Data(
+            override val storageId: Storage.Id,
+            override val label: String = "",
+            override val existingStorage: Boolean = false,
+            override val refPath: SAFPath? = null
+    ) : StorageEditor.Data
+
     @AssistedInject.Factory
     interface Factory : StorageEditor.Factory<SAFStorageEditor>
 
@@ -126,11 +132,4 @@ class SAFStorageEditor @AssistedInject constructor(
         const val STORAGE_CONFIG = "storage.data"
         val TAG = App.logTag("Storage", "SAF", "Editor")
     }
-
-    data class Data(
-            override val storageId: Storage.Id,
-            override val label: String = "",
-            override val existingStorage: Boolean = false,
-            override val refPath: SAFPath? = null
-    ) : StorageEditor.Data
 }

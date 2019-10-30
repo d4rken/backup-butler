@@ -49,9 +49,9 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
                 .withScopeVDC(this)
 
         dataObs
-                .map { data ->
-                    if (data.editor != null) data.editor.existingConfig else false
-                }
+                .filter { it.editor != null }
+                .switchMap { it.editor!!.editorData }
+                .map { it.isExistingGenerator }
                 .subscribe { isExisting: Boolean ->
                     stater.update { it.copy(existing = isExisting) }
                 }

@@ -19,7 +19,7 @@ import javax.inject.Inject
 class GeneratorBuilder @Inject constructor(
         @AppContext private val context: Context,
         private val generatorRepo: GeneratorRepo,
-        private val editors: @JvmSuppressWildcards Map<Backup.Type, Generator.Editor.Factory<out Generator.Editor>>
+        private val editors: @JvmSuppressWildcards Map<Backup.Type, GeneratorEditor.Factory<out GeneratorEditor>>
 ) {
 
     private val hotData = HotData<Map<Generator.Id, Data>>(mutableMapOf())
@@ -133,7 +133,7 @@ class GeneratorBuilder @Inject constructor(
     data class Data(
             val generatorId: Generator.Id,
             val generatorType: Backup.Type? = null,
-            val editor: Generator.Editor? = null
+            val editor: GeneratorEditor? = null
     )
 
     companion object {

@@ -11,7 +11,7 @@ interface TaskEditor {
 
     fun save(): Single<out Task>
 
-    fun isValidTask(): Observable<Boolean>
+    fun isValid(): Observable<Boolean>
 
     fun updateLabel(label: String)
 

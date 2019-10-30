@@ -92,17 +92,17 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == 13) {
-            if (resultCode == Activity.RESULT_OK && result?.data != null) {
-                vdc.onPermissionResult(result.data!!)
+            if (resultCode == Activity.RESULT_OK && data?.data != null) {
+                vdc.onPermissionResult(data.data!!)
             } else {
                 Toast.makeText(context, R.string.msg_please_try_again, Toast.LENGTH_SHORT).show()
             }
         } else {
-            throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$result")
+            throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$data")
         }
-        super.onActivityResult(requestCode, resultCode, result)
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }

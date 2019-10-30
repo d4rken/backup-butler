@@ -1,9 +1,13 @@
 package eu.darken.bb.common.file.picker
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import eu.darken.bb.R
 import eu.darken.bb.common.file.APath
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
@@ -61,6 +65,16 @@ object APathPicker {
         }
     }
 
+    fun checkForNonNeutralResult(fragment: Fragment, resultCode: Int, data: Intent?, callback: (Result) -> Unit) {
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            val result = fromActivityResult(data)
+            if (!result.isCanceled) callback(result)
+        } else if (resultCode == Activity.RESULT_OK) {
+            Toast.makeText(fragment.requireContext(), R.string.error_empty_result, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private const val ARG_PICKER_OPTIONS = "eu.darken.bb.common.file.picker.APathPicker.Options"
     private const val ARG_PICKER_RESULT = "eu.darken.bb.common.file.picker.APathPicker.Result"
 }
+

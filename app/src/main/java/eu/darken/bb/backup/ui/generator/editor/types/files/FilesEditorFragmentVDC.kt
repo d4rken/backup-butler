@@ -1,7 +1,6 @@
 package eu.darken.bb.backup.ui.generator.editor.types.files
 
-import android.content.Intent
-import android.net.Uri
+import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -10,9 +9,8 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
 import eu.darken.bb.common.*
-import eu.darken.bb.common.file.RawPath
-import eu.darken.bb.common.file.SAFGateway
-import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -23,9 +21,11 @@ import timber.log.Timber
 class FilesEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
-        private val builder: GeneratorBuilder,
-        private val safGateway: SAFGateway
+        private val builder: GeneratorBuilder
 ) : SmartVDC(), BaseEditorFragment.VDC {
+
+    private val stater = Stater(State())
+    override val state = stater.liveData
 
     private val dataObs = builder.config(generatorId)
             .subscribeOn(Schedulers.io())
@@ -34,32 +34,22 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor as FilesSpecGeneratorEditor }
 
-    private val configObs = editorObs.flatMap { it.config }
+    private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor by lazy { editorObs.blockingFirst() }
 
-    private val stater = Stater(State())
-    override val state = stater.liveData
-
-    val openSAFPickerEvent = SingleLiveEvent<Intent>()
+    val pickerEvent = SingleLiveEvent<APathPicker.Options>()
+    val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
-        editorObs.take(1)
-                .subscribe { editor ->
-                    stater.update {
-                        it.copy(
-                                workIds = it.clearWorkId(),
-                                isExisting = editor.existingConfig
-                        )
-                    }
-                }
-
-        configObs
-                .subscribe { config ->
-                    stater.update {
-                        it.copy(
-                                label = config.label,
-                                path = config.path.path
+        editorDataObs
+                .subscribe { editorData ->
+                    stater.update { state ->
+                        state.copy(
+                                label = editorData.label,
+                                path = editorData.path,
+                                workIds = state.clearWorkId(),
+                                isExisting = editorData.isExistingGenerator
                         )
                     }
                 }
@@ -70,16 +60,13 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePathSAF(uri: Uri) {
-        Timber.tag(TAG).d("updatePathSAF(uri=%s)", uri)
-        val path = SAFPath.build(uri)
-        editor.updatePath(path)
-    }
-
-    fun updatePathRoot(path: String) {
-        val rootPath = RawPath.build(path)
-        editor.updatePath(rootPath)
-        TODO("Need to test root here")
+    fun updatePath(result: APathPicker.Result) {
+        Timber.tag(TAG).d("updatePath(result=%s)", result)
+        if (result.isFailed) {
+            errorEvent.postValue(result.error)
+            return
+        }
+        editor.updatePath(result.selection!!.first())
     }
 
     override fun onNavigateBack(): Boolean {
@@ -101,13 +88,15 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun showPicker() {
-        openSAFPickerEvent.postValue(safGateway.createPickerIntent())
+        pickerEvent.postValue(APathPicker.Options(
+//                startPath = configObs.blockingFirst().path, // TODO
+                payload = Bundle().apply { putParcelable("generatorId", generatorId) }
+        ))
     }
 
     data class State(
             val label: String = "",
-            val path: String = "",
-            val pathError: Exception? = null,
+            val path: APath? = null,
             override val isExisting: Boolean = true,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : BaseEditorFragment.VDC.State, WorkId.State

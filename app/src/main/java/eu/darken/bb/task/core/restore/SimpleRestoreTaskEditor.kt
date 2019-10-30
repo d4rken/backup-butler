@@ -90,6 +90,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     override fun load(task: Task): Completable = Single.just(task as SimpleRestoreTask)
             .flatMap { simpleTask ->
+                require(taskId == simpleTask.taskId) { "IDs don't match" }
                 editorDataPub.updateRx {
                     it.copy(
                             label = task.label,
@@ -125,7 +126,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         )
     }
 
-    override fun isValidTask(): Observable<Boolean> = Observables.combineLatest(customConfigs, editorData)
+    override fun isValid(): Observable<Boolean> = Observables.combineLatest(customConfigs, editorData)
             .map { (configWrappers, editorData) ->
                 val noMissingPermission = configWrappers.find {
                     it is FilesConfigWrap && !it.isPermissionGranted

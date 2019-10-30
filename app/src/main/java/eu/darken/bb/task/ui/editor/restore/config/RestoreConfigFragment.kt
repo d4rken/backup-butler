@@ -1,12 +1,10 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -25,6 +23,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
+import eu.darken.bb.task.ui.editor.restore.config.app.AppConfigUIWrap
+import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
 import javax.inject.Inject
 
 
@@ -110,15 +110,10 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            when (requestCode) {
-                13 -> vdc.updatePath(APathPicker.fromActivityResult(data))
-                else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
-            }
-        } else if (requestCode == Activity.RESULT_OK) {
-            Toast.makeText(context, R.string.error_empty_result, Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            13 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
+            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 }

@@ -1,6 +1,5 @@
 package eu.darken.bb.backup.ui.generator.editor.types.files
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -8,20 +7,17 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
@@ -51,7 +47,9 @@ class FilesEditorFragment : BaseEditorFragment(), AutoInject {
 
         vdc.state.observe(this, Observer { state ->
             labelInput.setTextIfDifferentAndNotFocused(state.label)
-            pathDisplay.text = state.path
+            pathDisplay.text = state.path?.userReadablePath(requireContext())
+
+            pathButton.setText(if (state.path == null) R.string.action_select else R.string.action_change)
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
@@ -60,24 +58,22 @@ class FilesEditorFragment : BaseEditorFragment(), AutoInject {
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         pathButton.clicksDebounced().subscribe { vdc.showPicker() }
 
-        vdc.openSAFPickerEvent.observe2(this) {
-            startActivityForResult(it, 13)
+        vdc.pickerEvent.observe2(this) {
+            val intent = APathPicker.createIntent(requireContext(), it)
+            startActivityForResult(intent, 13)
         }
+
+        vdc.errorEvent.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
-        if (requestCode == 13) {
-            if (resultCode == Activity.RESULT_OK && result?.data != null) {
-                vdc.updatePathSAF(result.data!!)
-            } else {
-                Toast.makeText(context, R.string.msg_please_try_again, Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$result")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            13 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
+            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
-        super.onActivityResult(requestCode, resultCode, result)
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }
