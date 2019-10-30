@@ -38,10 +38,6 @@ object APathPicker {
             val payload: Bundle = Bundle()
     ) : Parcelable {
 
-        init {
-            require(error == null && selection != null || error != null && selection == null)
-        }
-
         @IgnoredOnParcel val isCanceled: Boolean = error == null && selection == null
         @IgnoredOnParcel val isSuccess: Boolean = error == null && selection != null
         @IgnoredOnParcel val isFailed: Boolean = error != null && selection == null

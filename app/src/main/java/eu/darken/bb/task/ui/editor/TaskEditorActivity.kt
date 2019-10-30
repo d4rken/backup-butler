@@ -3,14 +3,20 @@ package eu.darken.bb.task.ui.editor
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
+import eu.darken.bb.common.navigation.hasAction
+import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
@@ -33,11 +39,12 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         factory.create(handle, intent.getTaskId()!!)
     })
     @BindView(R.id.button_cancel) lateinit var buttonCancel: Button
-    @BindView(R.id.button_previous) lateinit var buttonPrevious: Button
     @BindView(R.id.button_next) lateinit var buttonNext: Button
     @BindView(R.id.button_save) lateinit var buttonSave: Button
 
     @BindView(R.id.button_execute) lateinit var buttonExecute: Button
+
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -46,10 +53,11 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.task_editor_backup_activity)
         ButterKnife.bind(this)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            vdc.updateCurrent(destination.id)
+        }
 
         vdc.state.observe(this, Observer { state ->
-
             supportActionBar!!.title = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
                     if (state.isExistingTask) getString(R.string.label_edit_backup_task)
@@ -61,52 +69,48 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
                 }
             }
 
-            buttonPrevious.setGone(state.stepPos == 0)
-            buttonNext.setGone(state.stepPos == state.steps.size - 1)
+            if (!navController.isGraphSet()) {
+                val graph = navController.navInflater.inflate(R.navigation.task_editor)
+                graph.startDestination = state.stepFlow.start
+                navController.setGraph(graph, Bundle().apply { putTaskId(state.taskId) })
+                setupActionBarWithNavController(navController)
+            }
 
-            buttonSave.setGone(state.stepPos != state.steps.size - 1 || state.isOneTimeTask)
+            buttonNext.setGone(!navController.currentDestination.hasAction(R.id.next))
+            buttonNext.clicksDebounced().subscribe {
+                navController.navigate(R.id.next, Bundle().apply { putTaskId(state.taskId) })
+            }
+
+            buttonSave.setGone(navController.currentDestination.hasAction(R.id.next) || state.isOneTimeTask)
             buttonSave.isEnabled = state.isComplete
 
-            buttonExecute.setGone(state.stepPos != state.steps.size - 1)
+            buttonExecute.setGone(navController.currentDestination.hasAction(R.id.next))
             buttonExecute.isEnabled = state.isComplete
-
-//            showStep(state.steps[state.stepPos], state.taskId)
         })
 
-        buttonCancel.clicksDebounced().subscribe { vdc.cancel() }
-        buttonPrevious.clicksDebounced().subscribe { vdc.previous() }
-        buttonNext.clicksDebounced().subscribe { vdc.next() }
-        buttonSave.clicksDebounced().subscribe { vdc.save() }
-        buttonExecute.clicksDebounced().subscribe { vdc.execute() }
+        buttonCancel.clicksDebounced().subscribe { finish() }
 
-        vdc.stepEvent.observe2(this) { (step, taskId) ->
-            showStep(step, taskId)
-        }
+        buttonSave.clicksDebounced().subscribe { vdc.save() }
+        buttonExecute.clicksDebounced().subscribe { vdc.save(execute = true) }
 
         vdc.finishEvent.observe2(this) { finish() }
+
+        onBackPressedDispatcher.addCallback {
+            if (!navController.popBackStack()) finish()
+        }
     }
 
-    override fun onBackPressed() {
-        vdc.previous()
+    override fun onDestroy() {
+        if (isFinishing) vdc.dismiss()
+        super.onDestroy()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+        else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
     }
 
-    private fun showStep(step: TaskEditorActivityVDC.State.Step, taskId: Task.Id) {
-        var fragment = supportFragmentManager.findFragmentById(R.id.content_frame)
-        if (step.fragmentClass.isInstance(fragment)) return
-
-        fragment = supportFragmentManager.findFragmentByTag(step.name)
-        if (fragment == null) {
-            fragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, step.fragmentClass.qualifiedName!!)
-        }
-        fragment.arguments = Bundle().apply { putTaskId(taskId) }
-        supportFragmentManager.beginTransaction().replace(R.id.content_frame, fragment, step.name).commitAllowingStateLoss()
-    }
 }

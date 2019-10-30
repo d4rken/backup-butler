@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/task_editor"
+    tools:ignore="InvalidNavigation">
+
+    <fragment
+        android:id="@+id/restoreSourcesFragment"
+        android:name="eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment"
+        android:label="RestoreSourcesFragment">
+        <action
+            android:id="@+id/next"
+            app:destination="@id/restoreConfigFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/restoreConfigFragment"
+        android:name="eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment"
+        android:label="RestoreConfigFragment" />
+
+
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="eu.darken.bb.task.ui.editor.backup.intro.IntroFragment"
+        android:label="IntroFragment">
+        <action
+            android:id="@+id/next"
+            app:destination="@id/sourcesFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/sourcesFragment"
+        android:name="eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment"
+        android:label="SourcesFragment">
+        <action
+            android:id="@+id/next"
+            app:destination="@id/destinationsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/destinationsFragment"
+        android:name="eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment"
+        android:label="DestinationsFragment" />
+</navigation>

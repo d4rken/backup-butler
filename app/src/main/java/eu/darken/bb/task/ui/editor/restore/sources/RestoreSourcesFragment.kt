@@ -32,7 +32,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
     @Inject lateinit var vdcSource: VDCSource.Factory
     val vdc: RestoreSourcesFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as RestoreSourcesFragmentVDC.Factory
-        factory.create(handle, arguments!!.getTaskId()!!)
+        factory.create(handle, requireArguments().getTaskId()!!)
     })
 
     @Inject lateinit var adapter: BackupAdapter
