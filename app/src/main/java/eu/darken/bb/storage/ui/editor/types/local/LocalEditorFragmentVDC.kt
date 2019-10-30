@@ -8,7 +8,7 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.JavaPath
+import eu.darken.bb.common.file.LocalPath
 import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
@@ -71,7 +71,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
             return
         }
 
-        val path: JavaPath = result.selection!!.first() as JavaPath
+        val path: LocalPath = result.selection!!.first() as LocalPath
         Timber.tag(TAG).v("Updating path: %s", path)
         editor.updatePath(path, false)
                 .subscribeOn(Schedulers.io())
@@ -83,7 +83,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun importStorage(path: APath) {
-        path as JavaPath
+        path as LocalPath
         editor.updatePath(path, true)
                 .subscribeOn(Schedulers.io())
                 .subscribe { path, error ->

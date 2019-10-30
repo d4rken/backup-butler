@@ -7,7 +7,7 @@ import java.io.File
 
 @JsonClass(generateAdapter = true)
 @Parcelize
-data class JavaPath(
+data class LocalPath(
         val file: File
 ) : APath {
 
@@ -23,18 +23,18 @@ data class JavaPath(
     override val name: String
         get() = file.name
 
-    fun child(vararg segments: String): JavaPath {
+    fun child(vararg segments: String): LocalPath {
         return build(this.file, *segments)
     }
 
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {
-        fun build(base: File, vararg crumbs: String): JavaPath {
+        fun build(base: File, vararg crumbs: String): LocalPath {
             return build(base.path, *crumbs)
         }
 
-        fun build(vararg crumbs: String): JavaPath {
+        fun build(vararg crumbs: String): LocalPath {
             var compacter = File(crumbs[0])
             for (i in 1 until crumbs.size) {
                 compacter = File(compacter, crumbs[i])
@@ -42,8 +42,8 @@ data class JavaPath(
             return build(compacter)
         }
 
-        fun build(file: File): JavaPath {
-            return JavaPath(file.canonicalFile)
+        fun build(file: File): LocalPath {
+            return LocalPath(file.canonicalFile)
         }
     }
 }

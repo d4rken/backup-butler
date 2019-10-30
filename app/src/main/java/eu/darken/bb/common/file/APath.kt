@@ -19,7 +19,7 @@ interface APath : Parcelable {
     companion object {
         val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> = MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
                 .withSubtype(RawPath::class.java, Type.RAW.name)
-                .withSubtype(JavaPath::class.java, Type.LOCAL.name)
+                .withSubtype(LocalPath::class.java, Type.LOCAL.name)
                 .withSubtype(SAFPath::class.java, Type.SAF.name)
                 .skipLabelSerialization()
     }
@@ -27,6 +27,6 @@ interface APath : Parcelable {
 }
 
 fun APath.asFile(): File = when (this) {
-    is JavaPath -> this.file
+    is LocalPath -> this.file
     else -> File(this.path)
 }

@@ -24,7 +24,7 @@ fun File(vararg crumbs: String): File {
 }
 
 fun File.asSFile(): APath {
-    return JavaPath.build(file = this)
+    return LocalPath.build(file = this)
 }
 
 fun File.requireExists(): File {

@@ -45,12 +45,12 @@ class RawPathTest {
 
     @Test
     fun `force typing`() {
-        val original = JavaPath.build(file = File("./testfile"))
+        val original = LocalPath.build(file = File("./testfile"))
 
         val moshi = AppModule().moshi()
 
         shouldThrow<JsonDataException> {
-            val json = moshi.adapter(JavaPath::class.java).toJson(original)
+            val json = moshi.adapter(LocalPath::class.java).toJson(original)
             moshi.adapter(RawPath::class.java).fromJson(json)
         }
     }

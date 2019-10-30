@@ -31,14 +31,6 @@ class APathPickerActivityVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<APathPicker.Result>()
 
     init {
-//        if (handle.get<Boolean>("used") != true) {
-//            handle.set("used", true)
-//            if (options.type == null) {
-//                showOptions()
-//            } else {
-//                launchSubPicker(options.type)
-//            }
-//        }
         if (options.type == null) {
             showOptions()
         } else {
@@ -58,7 +50,8 @@ class APathPickerActivityVDC @AssistedInject constructor(
         }
         val intent = when (type) {
             APath.Type.SAF -> safGateway.createPickerIntent()
-            else -> TODO()
+            APath.Type.LOCAL -> TODO()
+            else -> throw UnsupportedOperationException()
         }
         launchPickerEvent.postValue(Pair(intent, type))
     }

@@ -50,7 +50,7 @@ class FilesRestoreEndpoint @Inject constructor(
             if (restorePath is SAFPath) {
                 restoreSAF(config, spec, ref, restorePath)
             } else {
-                restoreFile(config, spec, ref, restorePath as JavaPath)
+                restoreFile(config, spec, ref, restorePath as LocalPath)
             }
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
@@ -59,7 +59,7 @@ class FilesRestoreEndpoint @Inject constructor(
         return true
     }
 
-    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: JavaPath) {
+    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: LocalPath) {
         val chunks = spec.path.crumbsTo(ref.originalPath)
         val itemFile = restorePath.child(*chunks).file
         if (itemFile.exists() && !config.replaceFiles) {

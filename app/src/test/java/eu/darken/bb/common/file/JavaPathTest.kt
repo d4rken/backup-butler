@@ -20,9 +20,9 @@ class JavaPathTest {
     @Test
     fun `test direct serialization`() {
         testFile.tryMkFile()
-        val original = JavaPath.build(file = testFile)
+        val original = LocalPath.build(file = testFile)
 
-        val adapter = AppModule().moshi().adapter(JavaPath::class.java)
+        val adapter = AppModule().moshi().adapter(LocalPath::class.java)
 
         val json = adapter.toJson(original)
         assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"LOCAL\"}")
@@ -33,7 +33,7 @@ class JavaPathTest {
     @Test
     fun `test polymorph serialization`() {
         testFile.tryMkFile()
-        val original = JavaPath.build(file = testFile)
+        val original = LocalPath.build(file = testFile)
 
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
@@ -45,7 +45,7 @@ class JavaPathTest {
 
     @Test
     fun `test fixed type`() {
-        val file = JavaPath(testFile)
+        val file = LocalPath(testFile)
         file.pathType shouldBe APath.Type.LOCAL
         shouldThrow<IllegalArgumentException> {
             file.pathType = APath.Type.RAW
@@ -62,7 +62,7 @@ class JavaPathTest {
 
         shouldThrow<JsonDataException> {
             val json = moshi.adapter(RawPath::class.java).toJson(original)
-            moshi.adapter(JavaPath::class.java).fromJson(json)
+            moshi.adapter(LocalPath::class.java).fromJson(json)
         }
     }
 }

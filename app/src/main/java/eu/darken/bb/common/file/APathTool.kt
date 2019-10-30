@@ -12,6 +12,7 @@ class APathTool @Inject constructor(
         // TODO detect whether we can write to this path
         return when (path) {
             is SAFPath -> path.canWrite(safGateway)
+            is LocalPath -> path.file.canWrite()
             else -> throw NotImplementedError()
         }
     }

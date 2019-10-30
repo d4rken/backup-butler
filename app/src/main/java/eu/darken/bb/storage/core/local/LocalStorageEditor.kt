@@ -7,7 +7,7 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
-import eu.darken.bb.common.file.JavaPath
+import eu.darken.bb.common.file.LocalPath
 import eu.darken.bb.common.file.asFile
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
@@ -31,10 +31,10 @@ class LocalStorageEditor @AssistedInject constructor(
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
-    fun updatePath(path: String, importExisting: Boolean): Single<JavaPath> =
-            Single.just(JavaPath.build(path)).flatMap { updatePath(it, importExisting) }
+    fun updatePath(path: String, importExisting: Boolean): Single<LocalPath> =
+            Single.just(LocalPath.build(path)).flatMap { updatePath(it, importExisting) }
 
-    fun updatePath(path: JavaPath, importExisting: Boolean): Single<JavaPath> = Single.fromCallable {
+    fun updatePath(path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
         check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
@@ -70,7 +70,7 @@ class LocalStorageEditor @AssistedInject constructor(
             .map { (it as LocalStorageRef).path }
             .flatMap { load(it) }
 
-    private fun load(path: JavaPath): Single<LocalStorageConfig> = Single.just(path)
+    private fun load(path: LocalPath): Single<LocalStorageConfig> = Single.just(path)
             .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
             .doOnSuccess { config ->
                 require(storageId == config.storageId) { "IDs don't match" }
@@ -113,6 +113,6 @@ class LocalStorageEditor @AssistedInject constructor(
             override val storageId: Storage.Id,
             override val label: String = "",
             override val existingStorage: Boolean = false,
-            override val refPath: JavaPath? = JavaPath.build(File(Environment.getExternalStorageDirectory(), "BackupButler"))
+            override val refPath: LocalPath? = LocalPath.build(File(Environment.getExternalStorageDirectory(), "BackupButler"))
     ) : StorageEditor.Data
 }

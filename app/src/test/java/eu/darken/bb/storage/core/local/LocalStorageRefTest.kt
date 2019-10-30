@@ -2,7 +2,7 @@ package eu.darken.bb.storage.core.local
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.JavaPath
+import eu.darken.bb.common.file.LocalPath
 import eu.darken.bb.storage.core.Storage
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
@@ -14,7 +14,7 @@ class LocalStorageRefTest {
         val moshi = AppModule().moshi()
 
         val original = LocalStorageRef(
-                JavaPath.build("test", "path")
+                LocalPath.build("test", "path")
         )
 
         val pathAdapter = moshi.adapter(APath::class.java)
@@ -36,7 +36,7 @@ class LocalStorageRefTest {
         val moshi = AppModule().moshi()
 
         val original = LocalStorageRef(
-                JavaPath.build("test", "path")
+                LocalPath.build("test", "path")
         )
 
         val pathAdapter = moshi.adapter(APath::class.java)
@@ -55,7 +55,7 @@ class LocalStorageRefTest {
 
     @Test
     fun `test fixed type`() {
-        val original = LocalStorageRef(JavaPath.build("test", "path"))
+        val original = LocalStorageRef(LocalPath.build("test", "path"))
         original.storageType shouldBe Storage.Type.LOCAL
         original.storageType = Storage.Type.SAF
         original.storageType shouldBe Storage.Type.LOCAL

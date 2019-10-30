@@ -1,7 +1,7 @@
 package eu.darken.bb.common.file
 
 
-fun JavaPath.crumbsTo(child: JavaPath): Array<String> {
+fun LocalPath.crumbsTo(child: LocalPath): Array<String> {
     val childPath = child.path
     val parentPath = this.path
     val pure = childPath.replaceFirst(parentPath, "")

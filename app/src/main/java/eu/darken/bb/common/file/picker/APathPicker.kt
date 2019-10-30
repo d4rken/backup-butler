@@ -18,7 +18,7 @@ object APathPicker {
     data class Options(
             val startPath: APath? = null,
             val selectionLimit: Int = 1,
-            val allowTypeChange: Boolean = true,
+            val allowTypeChange: Boolean = startPath == null,
             val payload: Bundle = Bundle()
     ) : Parcelable {
         @IgnoredOnParcel @Transient val type: APath.Type? = startPath?.pathType

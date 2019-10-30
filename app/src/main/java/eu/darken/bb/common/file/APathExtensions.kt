@@ -5,7 +5,7 @@ fun APath.crumbsTo(child: APath): Array<String> {
 
     return when (pathType) {
         APath.Type.RAW -> (this as RawPath).crumbsTo(child as RawPath)
-        APath.Type.LOCAL -> (this as JavaPath).crumbsTo(child as JavaPath)
+        APath.Type.LOCAL -> (this as LocalPath).crumbsTo(child as LocalPath)
         APath.Type.SAF -> (this as SAFPath).crumbsTo(child as SAFPath)
     }
 }

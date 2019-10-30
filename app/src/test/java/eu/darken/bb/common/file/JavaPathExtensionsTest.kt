@@ -8,8 +8,8 @@ class JavaPathExtensionsTest {
 
     @Test
     fun `test chunking`() {
-        val parent = JavaPath.build("/the/parent")
-        val child = JavaPath.build("/the/parent/has/a/child")
+        val parent = LocalPath.build("/the/parent")
+        val child = LocalPath.build("/the/parent/has/a/child")
 
         val crumbs = parent.crumbsTo(child)
 
