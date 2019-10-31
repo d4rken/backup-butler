@@ -15,7 +15,7 @@ import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -23,12 +23,12 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 
-class FilesEditorFragment : BaseEditorFragment(), AutoInject {
+class FilesEditorFragment : SmartFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as FilesEditorFragmentVDC.Factory
-        factory.create(handle, arguments!!.getGeneratorId()!!)
+        factory.create(handle, requireArguments().getGeneratorId()!!)
     })
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText

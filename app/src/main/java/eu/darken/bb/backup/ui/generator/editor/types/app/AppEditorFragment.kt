@@ -13,7 +13,7 @@ import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.setTextIfDifferentAndNotFocused
-import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
@@ -23,12 +23,12 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 
-class AppEditorFragment : BaseEditorFragment(), AutoInject {
+class AppEditorFragment : SmartFragment(), AutoInject {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: AppEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: AppEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as AppEditorFragmentVDC.Factory
-        factory.create(handle, arguments!!.getGeneratorId()!!)
+        factory.create(handle, requireArguments().getGeneratorId()!!)
     })
 
 

@@ -9,10 +9,10 @@ import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module
-abstract class TypeSelectionFragmentModule {
+abstract class GeneratorTypeFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(TypeSelectionFragmentVDC::class)
-    abstract fun typeSelection(model: TypeSelectionFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(GeneratorTypeFragmentVDC::class)
+    abstract fun typeSelection(model: GeneratorTypeFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

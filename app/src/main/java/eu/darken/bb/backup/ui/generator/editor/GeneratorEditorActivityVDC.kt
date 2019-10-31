@@ -1,24 +1,19 @@
 package eu.darken.bb.backup.ui.generator.editor
 
-import androidx.fragment.app.Fragment
+import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
-import com.jakewharton.rx.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
-import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
-import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import kotlin.reflect.KClass
 
 
 class GeneratorEditorActivityVDC @AssistedInject constructor(
@@ -27,49 +22,43 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
         private val generatorBuilder: GeneratorBuilder
 ) : SmartVDC() {
 
-    private val dataObs = generatorBuilder.config(generatorId)
+    private val generatorObs = generatorBuilder.generator(generatorId)
             .subscribeOn(Schedulers.io())
-            .replayingShare()
 
-    private val stater = Stater(State(generatorId = generatorId))
+    private val editorObs = generatorObs
+            .filter { it.editor != null }
+            .map { it.editor!! }
+
+    private val stater = Stater {
+        val data = generatorObs.blockingFirst()
+        val steps = when (data.generatorType) {
+            Backup.Type.FILES -> StepFlow.FILES
+            Backup.Type.APP -> StepFlow.APP
+            else -> StepFlow.SELECTION
+        }
+        State(stepFlow = steps, generatorId = generatorId, generatorType = data.generatorType)
+    }
     val state = stater.liveData
 
-    val pageEvent = SingleLiveEvent<PageData>()
     val finishActivityEvent = SingleLiveEvent<Any>()
 
     init {
-        dataObs
-                .switchMap { data ->
-                    if (data.editor != null) data.editor.isValid()
-                    else Observable.just(false)
-                }
-                .subscribe { isValid: Boolean ->
-                    stater.update { it.copy(allowSave = isValid) }
+        editorObs
+                .flatMap { it.isValid() }
+                .subscribe { isValid ->
+                    stater.update { it.copy(isValid = isValid) }
                 }
                 .withScopeVDC(this)
 
-        dataObs
-                .filter { it.editor != null }
-                .switchMap { it.editor!!.editorData }
-                .map { it.isExistingGenerator }
-                .subscribe { isExisting: Boolean ->
-                    stater.update { it.copy(existing = isExisting) }
-                }
-                .withScopeVDC(this)
-        dataObs
-                .subscribe { data: GeneratorBuilder.Data ->
-                    val p = PageData(data.generatorId, data.generatorType)
-                    if (stater.snapshot.currentPage != p.getPage()) {
-                        pageEvent.postValue(p)
-                        stater.update { it.copy(currentPage = p.getPage()) }
+        editorObs
+                .flatMap { it.editorData }
+                .subscribe { data ->
+                    stater.update {
+                        it.copy(
+                                isExisting = data.isExistingGenerator,
+                                isWorking = false
+                        )
                     }
-                }
-                .withScopeVDC(this)
-
-        generatorBuilder.builders
-                .filter { !it.containsKey(generatorId) }
-                .subscribe {
-                    finishActivityEvent.postValue(Any())
                 }
                 .withScopeVDC(this)
     }
@@ -78,29 +67,39 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
         generatorBuilder.save(generatorId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .doOnSubscribe { stater.update { it.copy(working = true) } }
+                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
                 .doFinally { finishActivityEvent.postValue(Any()) }
                 .subscribe()
     }
 
+    fun dismiss() {
+//        TODO("not implemented")
+        //         taskBuilder.remove(taskId)
+        //                .subscribeOn(Schedulers.io())
+        //                .doOnSubscribe {
+        //                    stater.update {
+        //                        it.copy(isLoading = true)
+        //                    }
+        //                }
+        //                .subscribe { _ ->
+        //                    finishEvent.postValue(true)
+        //                }
+    }
+
     data class State(
             val generatorId: Generator.Id,
-            val currentPage: PageData.Page? = null,
-            val existing: Boolean = false,
-            val allowSave: Boolean = false,
-            val working: Boolean = false
+            val generatorType: Backup.Type?,
+            val stepFlow: StepFlow,
+            @IdRes val currentStep: Int = 0,
+            val isExisting: Boolean = false,
+            val isValid: Boolean = false,
+            val isWorking: Boolean = false
     )
 
-    data class PageData(val generatorId: Generator.Id, private val type: Backup.Type?) {
-
-        fun getPage(): Page = Page.values().first { it.backupType == type }
-
-        enum class Page(val backupType: Backup.Type?, val fragmentClass: KClass<out Fragment>) {
-            SELECTION(null, TypeSelectionFragment::class),
-            APP(Backup.Type.APP, AppEditorFragment::class),
-            FILES(Backup.Type.FILES, FilesEditorFragment::class)
-        }
-
+    enum class StepFlow(@IdRes val start: Int) {
+        SELECTION(R.id.generatorTypeFragment),
+        FILES(R.id.filesEditorFragment),
+        APP(R.id.appEditorFragment);
     }
 
     @AssistedInject.Factory

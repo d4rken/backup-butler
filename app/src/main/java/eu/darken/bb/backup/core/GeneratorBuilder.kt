@@ -40,7 +40,7 @@ class GeneratorBuilder @Inject constructor(
 
     fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
 
-    fun config(id: Generator.Id): Observable<Data> {
+    fun generator(id: Generator.Id): Observable<Data> {
         return hotData.data
                 .filter { it.containsKey(id) }
                 .map { it[id] }
@@ -115,7 +115,7 @@ class GeneratorBuilder @Inject constructor(
             }
             .onErrorResumeNext { load(configId) }
             .onErrorResumeNext {
-                Timber.tag(TAG).d("No existing generator config for id %s, creating new dataset.", configId)
+                Timber.tag(TAG).d("No existing generator generator for id %s, creating new dataset.", configId)
                 update(configId) { Data(generatorId = configId, generatorType = type) }.map { it.value!! }
             }
             .doOnSuccess { data ->

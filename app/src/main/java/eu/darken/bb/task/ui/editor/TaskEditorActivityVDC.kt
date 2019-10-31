@@ -35,29 +35,24 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<Boolean>()
 
     private val stater: Stater<State> = Stater {
-        val state = handle.get<State>("state")
-        return@Stater if (state?.taskId == taskId) {
-            state
-        } else {
-            val data = taskObs.blockingFirst()
-            val steps = when (data.taskType) {
-                Task.Type.BACKUP_SIMPLE -> TaskFlow.BACKUP_SIMPLE
-                Task.Type.RESTORE_SIMPLE -> TaskFlow.RESTORE_SIMPLE
-            }
-            State(stepFlow = steps, taskId = taskId, taskType = data.taskType)
+        val data = taskObs.blockingFirst()
+        val steps = when (data.taskType) {
+            Task.Type.BACKUP_SIMPLE -> StepFlow.BACKUP_SIMPLE
+            Task.Type.RESTORE_SIMPLE -> StepFlow.RESTORE_SIMPLE
         }
+        State(stepFlow = steps, taskId = taskId, taskType = data.taskType)
     }
     val state = stater.liveData
 
     init {
-        stater.data.subscribe {
-            handle.set("state", it)
-        }
+        stater.data
+                .subscribe { handle.set("state", it) }
+                .withScopeVDC(this)
 
         editorObs
                 .flatMap { it.isValid() }
                 .subscribe { isValid ->
-                    stater.update { it.copy(isComplete = isValid) }
+                    stater.update { it.copy(isValid = isValid) }
                 }
                 .withScopeVDC(this)
 
@@ -114,15 +109,15 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     data class State(
             val taskId: Task.Id,
             val taskType: Task.Type,
-            val stepFlow: TaskFlow,
+            val stepFlow: StepFlow,
             @IdRes val currentStep: Int = 0,
-            val isComplete: Boolean = false,
+            val isValid: Boolean = false,
             val isExistingTask: Boolean = false,
             val isLoading: Boolean = true,
             val isOneTimeTask: Boolean = true
     ) : Parcelable
 
-    enum class TaskFlow(@IdRes val start: Int) {
+    enum class StepFlow(@IdRes val start: Int) {
         BACKUP_SIMPLE(R.id.introFragment),
         RESTORE_SIMPLE(R.id.restoreSourcesFragment);
     }

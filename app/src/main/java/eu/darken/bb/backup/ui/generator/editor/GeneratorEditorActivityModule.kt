@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragment
-import eu.darken.bb.backup.ui.generator.editor.types.TypeSelectionFragmentModule
+import eu.darken.bb.backup.ui.generator.editor.types.GeneratorTypeFragment
+import eu.darken.bb.backup.ui.generator.editor.types.GeneratorTypeFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
@@ -26,8 +26,8 @@ abstract class GeneratorEditorActivityModule {
     abstract fun generatorEditor(factory: GeneratorEditorActivityVDC.Factory): VDCFactory<out VDC>
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [TypeSelectionFragmentModule::class])
-    abstract fun typeSelection(): TypeSelectionFragment
+    @ContributesAndroidInjector(modules = [GeneratorTypeFragmentModule::class])
+    abstract fun typeSelection(): GeneratorTypeFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [AppEditorFragmentModule::class])

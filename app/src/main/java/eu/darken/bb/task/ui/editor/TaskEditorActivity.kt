@@ -82,10 +82,10 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
             }
 
             buttonSave.setGone(navController.currentDestination.hasAction(R.id.next) || state.isOneTimeTask)
-            buttonSave.isEnabled = state.isComplete
+            buttonSave.isEnabled = state.isValid
 
             buttonExecute.setGone(navController.currentDestination.hasAction(R.id.next))
-            buttonExecute.isEnabled = state.isComplete
+            buttonExecute.isEnabled = state.isValid
         })
 
         buttonCancel.clicksDebounced().subscribe { finish() }

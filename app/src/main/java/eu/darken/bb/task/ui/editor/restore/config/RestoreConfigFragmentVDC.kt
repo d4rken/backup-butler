@@ -109,7 +109,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     }
 
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
-        Timber.tag(TAG).d("updatePath(config=%s, target=%s)", configWrapper, target)
+        Timber.tag(TAG).d("updatePath(generator=%s, target=%s)", configWrapper, target)
         openPickerEvent.postValue(APathPicker.Options(
                 startPath = configWrapper.currentPath,
                 payload = Bundle().apply { putParcelable("backupId", target) }

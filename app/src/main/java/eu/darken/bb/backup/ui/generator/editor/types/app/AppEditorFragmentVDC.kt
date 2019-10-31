@@ -10,21 +10,19 @@ import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import io.reactivex.schedulers.Schedulers
 
 class AppEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
-) : SmartVDC(), BaseEditorFragment.VDC {
+) : SmartVDC() {
 
     private val stater = Stater(State())
-    override val state = stater.liveData
+    val state = stater.liveData
 
-    private val editorObs = builder.config(generatorId)
+    private val editorObs = builder.generator(generatorId)
             .filter { it.editor != null }
             .map { it.editor as AppSpecGeneratorEditor }
 
@@ -38,7 +36,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                     stater.update { state ->
                         state.copy(
                                 label = editorData.label,
-                                isExisting = editorData.isExistingGenerator,
                                 isWorking = false,
                                 autoInclude = editorData.autoInclude,
                                 includeUserApps = editorData.includeUserApps,
@@ -53,24 +50,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                     }
                 }
                 .withScopeVDC(this)
-    }
-
-    override fun onNavigateBack(): Boolean {
-        if (stater.snapshot.isExisting) {
-            builder.remove(generatorId)
-                    .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe()
-
-        } else {
-            builder
-                    .update(generatorId) { data ->
-                        data!!.copy(generatorType = null, editor = null)
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe()
-        }
-        return true
     }
 
     fun updateLabel(label: String) {
@@ -109,7 +88,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             val label: String = "",
             val includedPackages: List<String> = emptyList(),
             val isWorking: Boolean = false,
-            override val isExisting: Boolean = false,
             val autoInclude: Boolean = false,
             val includeUserApps: Boolean = false,
             val includeSystemApps: Boolean = false,
@@ -119,7 +97,7 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             val backupData: Boolean = false,
             val backupCache: Boolean = false,
             val extraPaths: Map<String, Collection<APath>> = emptyMap()
-    ) : BaseEditorFragment.VDC.State
+    )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<AppEditorFragmentVDC> {

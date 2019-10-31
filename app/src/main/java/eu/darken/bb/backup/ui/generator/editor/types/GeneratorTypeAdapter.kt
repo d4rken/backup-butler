@@ -11,8 +11,8 @@ import eu.darken.bb.common.lists.*
 import javax.inject.Inject
 
 
-class TypeSelectionAdapter @Inject constructor()
-    : ModularAdapter<TypeSelectionAdapter.VH>(), DataAdapter<Backup.Type> {
+class GeneratorTypeAdapter @Inject constructor()
+    : ModularAdapter<GeneratorTypeAdapter.VH>(), DataAdapter<Backup.Type> {
 
     override val data = mutableListOf<Backup.Type>()
 

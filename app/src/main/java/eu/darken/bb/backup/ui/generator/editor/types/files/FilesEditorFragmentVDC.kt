@@ -8,11 +8,13 @@ import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
-import eu.darken.bb.common.*
+import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.Stater
+import eu.darken.bb.common.WorkId
+import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.schedulers.Schedulers
@@ -22,12 +24,12 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
-) : SmartVDC(), BaseEditorFragment.VDC {
+) : SmartVDC() {
 
     private val stater = Stater(State())
-    override val state = stater.liveData
+    val state = stater.liveData
 
-    private val dataObs = builder.config(generatorId)
+    private val dataObs = builder.generator(generatorId)
             .subscribeOn(Schedulers.io())
 
     private val editorObs = dataObs
@@ -48,8 +50,7 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
                         state.copy(
                                 label = editorData.label,
                                 path = editorData.path,
-                                workIds = state.clearWorkId(),
-                                isExisting = editorData.isExistingGenerator
+                                workIds = state.clearWorkId()
                         )
                     }
                 }
@@ -69,24 +70,6 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         editor.updatePath(result.selection!!.first())
     }
 
-    override fun onNavigateBack(): Boolean {
-        if (stater.snapshot.isExisting) {
-            builder.remove(generatorId)
-                    .doOnSubscribe { stater.update { it.copy(workIds = it.addWorkId(WorkId.FOREVER)) } }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe()
-
-        } else {
-            builder
-                    .update(generatorId) { data ->
-                        data!!.copy(generatorType = null, editor = null)
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .subscribe()
-        }
-        return true
-    }
-
     fun showPicker() {
         pickerEvent.postValue(APathPicker.Options(
 //                startPath = configObs.blockingFirst().path, // TODO
@@ -97,9 +80,8 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
     data class State(
             val label: String = "",
             val path: APath? = null,
-            override val isExisting: Boolean = true,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
-    ) : BaseEditorFragment.VDC.State, WorkId.State
+    ) : WorkId.State
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<FilesEditorFragmentVDC> {

@@ -157,7 +157,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     fun updateDefaultConfig(config: Restore.Config): Single<Map<Backup.Type, Restore.Config>> = editorDataPub
             .updateRx { data ->
                 val newConfigs = data.defaultConfigs.toMutableMap()
-                Timber.tag(TAG).d("Replacing default config %s with %s", newConfigs[config.restoreType], config)
+                Timber.tag(TAG).d("Replacing default generator %s with %s", newConfigs[config.restoreType], config)
                 newConfigs[config.restoreType] = config
                 data.copy(defaultConfigs = newConfigs)
 
@@ -170,7 +170,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                 val type = data.backupTargets.single { it.backupId == backupId }.backupType
                 val oldConfig = configs[backupId] ?: data.defaultConfigs[type]!!
                 val newConfig = updateAction(oldConfig)
-                Timber.tag(TAG).d("Replacing custom config %s with %s", oldConfig, newConfig)
+                Timber.tag(TAG).d("Replacing custom generator %s with %s", oldConfig, newConfig)
                 configs[backupId] = newConfig
                 data.copy(customConfigs = configs)
 

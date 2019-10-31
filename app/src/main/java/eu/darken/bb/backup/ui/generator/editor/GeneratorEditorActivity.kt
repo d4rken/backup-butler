@@ -3,8 +3,11 @@ package eu.darken.bb.backup.ui.generator.editor
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
@@ -13,19 +16,21 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.backup.core.putGeneratorId
+import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.showFragment
+import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class GeneratorEditorActivity : SmartActivity(), HasSupportFragmentInjector {
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var vdcSource: VDCSource.Factory
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
+    @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: GeneratorEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as GeneratorEditorActivityVDC.Factory
         factory.create(handle, intent.getGeneratorId()!!)
@@ -36,7 +41,7 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -46,35 +51,30 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
         ButterKnife.bind(this)
 
         vdc.state.observe2(this) { state ->
-            if (state.existing) {
+            if (state.isExisting) {
                 supportActionBar!!.title = getString(R.string.label_edit_source_config)
             } else {
                 supportActionBar!!.title = getString(R.string.label_create_source_config)
             }
 
-            allowCreate = state.allowSave
-            existing = state.existing
+            if (!navController.isGraphSet()) {
+                val graph = navController.navInflater.inflate(R.navigation.source_editor)
+                graph.startDestination = state.stepFlow.start
+                navController.setGraph(graph, Bundle().apply { putGeneratorId(state.generatorId) })
+                setupActionBarWithNavController(navController)
+            }
+
+            allowCreate = state.isValid
+            existing = state.isExisting
             invalidateOptionsMenu()
 
-            loadingOverlay.setGone(!state.working)
-        }
-
-        vdc.pageEvent.observe2(this) { pageEvent ->
-            showFragment(
-                    fragmentClass = pageEvent.getPage().fragmentClass,
-                    arguments = Bundle().apply { putGeneratorId(pageEvent.generatorId) }
-            )
+            loadingOverlay.setGone(!state.isWorking)
         }
 
         vdc.finishActivityEvent.observe2(this) { finish() }
-    }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return if (supportFragmentManager.popBackStackImmediate()) {
-            true
-        } else {
-            finish()
-            super.onSupportNavigateUp()
+        onBackPressedDispatcher.addCallback {
+            if (!navController.popBackStack()) finish()
         }
     }
 
@@ -94,6 +94,15 @@ class GeneratorEditorActivity : AppCompatActivity(), HasSupportFragmentInjector 
             vdc.saveConfig()
             true
         }
-        else -> super.onOptionsItemSelected(item)
+        else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        if (isFinishing) vdc.dismiss()
+        super.onDestroy()
     }
 }
