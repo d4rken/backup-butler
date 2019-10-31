@@ -8,6 +8,7 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
@@ -38,8 +39,16 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                         state.copy(
                                 label = editorData.label,
                                 isExisting = editorData.isExistingGenerator,
-                                isWorking = false
-                                // TODO more args
+                                isWorking = false,
+                                autoInclude = editorData.autoInclude,
+                                includeUserApps = editorData.includeUserApps,
+                                includeSystemApps = editorData.includeSystemApps,
+                                packagesIncluded = editorData.packagesIncluded,
+                                packagesExcluded = editorData.packagesExcluded,
+                                backupApk = editorData.backupApk,
+                                backupData = editorData.backupData,
+                                backupCache = editorData.backupCache,
+                                extraPaths = editorData.extraPaths
                         )
                     }
                 }
@@ -76,7 +85,16 @@ class AppEditorFragmentVDC @AssistedInject constructor(
             val label: String = "",
             val includedPackages: List<String> = emptyList(),
             val isWorking: Boolean = true,
-            override val isExisting: Boolean = false
+            override val isExisting: Boolean = false,
+            val autoInclude: Boolean = false,
+            val includeUserApps: Boolean = false,
+            val includeSystemApps: Boolean = false,
+            val packagesIncluded: Collection<String> = listOf(),
+            val packagesExcluded: Collection<String> = listOf(),
+            val backupApk: Boolean = false,
+            val backupData: Boolean = false,
+            val backupCache: Boolean = false,
+            val extraPaths: Map<String, Collection<APath>> = emptyMap()
     ) : BaseEditorFragment.VDC.State
 
     @AssistedInject.Factory

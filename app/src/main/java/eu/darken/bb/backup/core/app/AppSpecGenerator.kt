@@ -36,17 +36,20 @@ class AppSpecGenerator @Inject constructor(
 
     data class Config(
             override val generatorId: Generator.Id,
-            override val label: String = "",
-            val autoIncludeApps: Boolean = false,
-            val includeSystemApps: Boolean = false,
-            val packagesIncluded: Collection<String> = listOf(),
-            val packagesExcluded: Collection<String> = listOf(),
-            val backupApk: Boolean = false,
-            val backupData: Boolean = false,
-            val extraPaths: Map<String, Collection<APath>> = emptyMap()
+            override val label: String,
+            val autoInclude: Boolean,
+            val includeUserApps: Boolean,
+            val includeSystemApps: Boolean,
+            val packagesIncluded: Collection<String>,
+            val packagesExcluded: Collection<String>,
+            val backupApk: Boolean,
+            val backupData: Boolean,
+            val backupCache: Boolean,
+            val extraPaths: Map<String, Collection<APath>>
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {
+            // TODO useful generator description
             return generatorId.toString()
         }
 

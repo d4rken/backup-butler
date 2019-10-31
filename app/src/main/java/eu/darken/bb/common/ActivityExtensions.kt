@@ -3,6 +3,7 @@ package eu.darken.bb.common
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -39,4 +40,8 @@ fun AppCompatActivity.showFragment(
     if (backStackPrevious) trans.addToBackStack(null)
     trans.replace(targetLayout, fragment, tag)
     trans.commit()
+}
+
+fun Activity.todoToast() {
+    Toast.makeText(this, R.string.todo, Toast.LENGTH_LONG).show()
 }

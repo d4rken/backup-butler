@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -16,6 +15,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.todoToast
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.debug.BBDebug
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
                 true
             }
             R.id.action_help -> {
-                Toast.makeText(this, R.string.todo, Toast.LENGTH_SHORT).show()
+                todoToast()
                 true
             }
             else -> super.onOptionsItemSelected(item)

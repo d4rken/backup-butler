@@ -9,7 +9,7 @@ class APathTool @Inject constructor(
 ) {
 
     fun canWrite(path: APath): Boolean {
-        // TODO detect whether we can write to this path
+        // TODO support root
         return when (path) {
             is SAFPath -> path.canWrite(safGateway)
             is LocalPath -> path.file.canWrite()
@@ -18,6 +18,7 @@ class APathTool @Inject constructor(
     }
 
     fun canRead(path: APath): Boolean {
+        // TODO support root
         return when (path) {
             is SAFPath -> path.canRead(safGateway)
             is LocalPath -> path.file.canRead()

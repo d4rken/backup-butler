@@ -24,9 +24,18 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
                 require(generatorId == genSpec.generatorId) { "IDs don't match" }
                 editorDataPub.updateRx {
                     it.copy(
+                            generatorId = genSpec.generatorId,
                             label = genSpec.label,
-                            isExistingGenerator = true
-                            // TODO args
+                            isExistingGenerator = true,
+                            autoInclude = genSpec.autoInclude,
+                            includeUserApps = genSpec.includeUserApps,
+                            includeSystemApps = genSpec.includeSystemApps,
+                            packagesIncluded = genSpec.packagesIncluded,
+                            packagesExcluded = genSpec.packagesExcluded,
+                            backupApk = genSpec.backupApk,
+                            backupData = genSpec.backupData,
+                            backupCache = genSpec.backupCache,
+                            extraPaths = genSpec.extraPaths
                     )
                 }
             }
@@ -37,8 +46,16 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
 
         AppSpecGenerator.Config(
                 generatorId = data.generatorId,
-                label = data.label
-                // TODO more args
+                label = data.label,
+                autoInclude = data.autoInclude,
+                includeUserApps = data.includeUserApps,
+                includeSystemApps = data.includeSystemApps,
+                packagesIncluded = data.packagesIncluded,
+                packagesExcluded = data.packagesExcluded,
+                backupApk = data.backupApk,
+                backupData = data.backupData,
+                backupCache = data.backupCache,
+                extraPaths = data.extraPaths
         )
     }
 
@@ -58,12 +75,14 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
             override val generatorId: Generator.Id,
             override val label: String = "",
             override val isExistingGenerator: Boolean = false,
-            val autoIncludeApps: Boolean = false,
+            val autoInclude: Boolean = false,
+            val includeUserApps: Boolean = false,
             val includeSystemApps: Boolean = false,
             val packagesIncluded: Collection<String> = listOf(),
             val packagesExcluded: Collection<String> = listOf(),
             val backupApk: Boolean = false,
             val backupData: Boolean = false,
+            val backupCache: Boolean = false,
             val extraPaths: Map<String, Collection<APath>> = emptyMap()
     ) : GeneratorEditor.Data
 
