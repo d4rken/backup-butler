@@ -71,7 +71,7 @@ class GeneratorEditorActivity : SmartActivity(), HasSupportFragmentInjector {
             loadingOverlay.setGone(!state.isWorking)
         }
 
-        vdc.finishActivityEvent.observe2(this) { finish() }
+        vdc.finishEvent.observe2(this) { finish() }
 
         onBackPressedDispatcher.addCallback {
             if (!navController.popBackStack()) finish()

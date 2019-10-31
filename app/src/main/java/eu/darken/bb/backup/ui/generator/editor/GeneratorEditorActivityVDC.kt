@@ -40,7 +40,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
     }
     val state = stater.liveData
 
-    val finishActivityEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         editorObs
@@ -68,22 +68,21 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .doFinally { finishActivityEvent.postValue(Any()) }
+                .doFinally { finishEvent.postValue(Any()) }
                 .subscribe()
     }
 
     fun dismiss() {
-//        TODO("not implemented")
-        //         taskBuilder.remove(taskId)
-        //                .subscribeOn(Schedulers.io())
-        //                .doOnSubscribe {
-        //                    stater.update {
-        //                        it.copy(isLoading = true)
-        //                    }
-        //                }
-        //                .subscribe { _ ->
-        //                    finishEvent.postValue(true)
-        //                }
+        generatorBuilder.remove(generatorId)
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe {
+                    stater.update {
+                        it.copy(isWorking = true)
+                    }
+                }
+                .subscribe { _ ->
+                    finishEvent.postValue(true)
+                }
     }
 
     data class State(
