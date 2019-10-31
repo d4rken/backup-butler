@@ -8,10 +8,7 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.LocalPath
-import eu.darken.bb.common.file.SAFGateway
-import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -20,17 +17,21 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         @AppContext private val context: Context,
         moshi: Moshi,
+        private val pathTool: APathTool,
         private val safGateway: SAFGateway
 ) : GeneratorEditor {
 
     private val editorDataPub = HotData(Data(generatorId = generatorId))
     override val editorData = editorDataPub.data
 
-    private var newlyAcquiredPerm: SAFPath? = null
+    private var originalPath: APath? = null
 
     override fun load(config: Generator.Config): Completable = Single.just(config as FilesSpecGenerator.Config)
             .flatMap { genSpec ->
                 require(generatorId == genSpec.generatorId) { "IDs don't match" }
+
+                originalPath = genSpec.path
+
                 editorDataPub.updateRx {
                     it.copy(
                             label = genSpec.label,
@@ -42,9 +43,15 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
             .ignoreElement()
 
     override fun save(): Single<out Generator.Config> = Single.fromCallable {
-        // TODO take permission?
         val data = editorDataPub.snapshot
 
+        if (data.path != originalPath && originalPath is SAFPath) {
+            originalPath?.let { safGateway.releasePermission(it as SAFPath) }
+        }
+
+        if (data.path is SAFPath) {
+            require(safGateway.takePermission(data.path)) { "We persisted the permission but it's still unavailable?!" }
+        }
 
         FilesSpecGenerator.Config(
                 generatorId = data.generatorId,
@@ -64,6 +71,8 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     }
 
     fun updatePath(path: APath) {
+        require(pathTool.canRead(path)) { "Can't read $path" }
+
         editorDataPub.update {
             it.copy(
                     path = path,

@@ -119,7 +119,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .withScopeVDC(this)
             }
             DETACH -> {
-                storageManager.detach(storageId)
+                storageManager.detach(storageId, wipe = false)
                         .subscribeOn(Schedulers.io())
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doOnError { Bugs.track(it) }
@@ -131,7 +131,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         )
             }
             DELETE -> {
-                storageManager.wipe(storageId)
+                storageManager.detach(storageId, wipe = true)
                         .subscribeOn(Schedulers.io())
                         .delay(200, TimeUnit.MILLISECONDS)
                         .doOnError { Bugs.track(it) }

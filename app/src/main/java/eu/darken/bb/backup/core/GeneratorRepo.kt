@@ -8,7 +8,6 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
-import eu.darken.bb.storage.core.StorageRefRepo
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
@@ -48,10 +47,11 @@ class GeneratorRepo @Inject constructor(
     }
 
     @Synchronized fun remove(configId: Generator.Id): Single<Opt<Generator.Config>> = Single.fromCallable {
+        // TODO release resources, e.g. uri permissions?
         val old = internalConfigs.remove(configId)
         Timber.tag(TAG).d("remove(id=%s) -> old=%s", configId, old)
         update()
-        if (old == null) Timber.tag(StorageRefRepo.TAG).w("Tried to delete non-existant GeneratorConfig: %s", configId)
+        if (old == null) Timber.tag(TAG).w("Tried to delete non-existant GeneratorConfig: %s", configId)
         return@fromCallable old.opt()
     }
 

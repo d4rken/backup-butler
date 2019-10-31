@@ -90,6 +90,10 @@ class SAFGateway @Inject constructor(
         return getDocumentFile(path)?.canWrite() == true
     }
 
+    fun canRead(path: SAFPath): Boolean {
+        return getDocumentFile(path)?.canRead() == true
+    }
+
     fun isFile(path: SAFPath): Boolean {
         return getDocumentFile(path)?.isFile == true
     }
@@ -114,6 +118,10 @@ class SAFGateway @Inject constructor(
     }
 
     fun takePermission(path: SAFPath): Boolean {
+        if (hasPermission(path)) {
+            Timber.tag(TAG).d("Already have permission for %s", path)
+            return true
+        }
         Timber.tag(TAG).d("Taking uri permission for %s", path)
         var permissionTaken = false
         try {
@@ -123,16 +131,27 @@ class SAFGateway @Inject constructor(
             Timber.tag(TAG).e(e, "Failed to take permission")
             try {
                 contentResolver.releasePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
-            } catch (ignore: SecurityException) {
+            } catch (e2: SecurityException) {
+                Timber.tag(TAG).e(e2, "Error while releasing during error...")
             }
         }
+        printCurrentPermissions()
         return permissionTaken
     }
 
     fun releasePermission(path: SAFPath): Boolean {
         Timber.tag(TAG).d("Releasing uri permission for %s", path)
         contentResolver.releasePersistableUriPermission(path.treeRoot, RW_FLAGSINT)
+        printCurrentPermissions()
         return true
+    }
+
+    private fun printCurrentPermissions() {
+        val current = getPermissions()
+        Timber.tag(TAG).d("Now holding %d permissions.", current.size)
+        for (p in current) {
+            Timber.tag(TAG).d("#%d: %s", current.indexOf(p), p)
+        }
     }
 
     fun getPermissions(): Collection<SAFPath> {

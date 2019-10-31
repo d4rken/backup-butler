@@ -297,18 +297,15 @@ class SAFStorage @AssistedInject constructor(
                 return@map specInfo.copy(backups = newMetaData)
             }
 
-    // TODO remove URI Permission
-    override fun detach(): Completable = Completable
-            .complete()
-            .doOnSubscribe { Timber.i("Detaching %s", storageRef) }
-
-    // TODO call detach after wipe?
-    override fun wipe(): Completable = Completable
+    override fun detach(wipe: Boolean): Completable = Completable
             .fromCallable {
-                storageRef.path.asFile().deleteAll()
+                if (wipe) {
+                    storageRef.path.asFile().deleteAll()
+                }
+                safGateway.releasePermission(storageRef.path)
             }
-            .doOnSubscribe { Timber.w("wipe().doOnSubscribe %s", storageRef) }
-            .doFinally { Timber.w("wipe().dofinally%s", storageRef) }
+            .doOnSubscribe { Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
+            .doFinally { Timber.w("detach(wipe=%b).dofinally%s", wipe, storageRef) }
 
     private fun getSpecDir(specId: BackupSpec.Id): SAFPath = dataDir.child(specId.value)
 

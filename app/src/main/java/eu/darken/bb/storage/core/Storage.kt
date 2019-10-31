@@ -53,9 +53,7 @@ interface Storage : Progress.Host {
 
     fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<BackupSpec.Info>
 
-    fun wipe(): Completable
-
-    fun detach(): Completable
+    fun detach(wipe: Boolean = false): Completable
 
     @Parcelize
     data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {

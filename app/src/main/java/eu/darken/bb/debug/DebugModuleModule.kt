@@ -6,6 +6,7 @@ import dagger.multibindings.IntoSet
 import eu.darken.bb.debug.modules.EnvPrinter
 import eu.darken.bb.debug.modules.RXSDebugModule
 import eu.darken.bb.debug.modules.SysInfoModule
+import eu.darken.bb.debug.modules.UriPermissions
 import eu.darken.bb.debug.recording.core.RecorderModule
 
 
@@ -36,5 +37,7 @@ abstract class DebugModuleModule {
     @Binds @IntoSet
     abstract fun sysInfo(recorderModule: SysInfoModule.Factory): DebugModule.Factory<out DebugModule>
 
+    @Binds @IntoSet
+    abstract fun uriPermissions(uriPermissions: UriPermissions.Factory): DebugModule.Factory<out DebugModule>
 
 }

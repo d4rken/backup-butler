@@ -50,6 +50,8 @@ data class SAFPath(
 
     fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
 
+    fun canRead(gateway: SAFGateway) = gateway.canRead(this)
+
     fun child(vararg segments: String): SAFPath {
         return build(this.treeRoot, *this.crumbs.toTypedArray(), *segments)
     }

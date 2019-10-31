@@ -19,16 +19,17 @@ import io.reactivex.Single
 import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(
-        @Assisted private val storageId: Storage.Id,
+        @Assisted initialStorageId: Storage.Id,
         moshi: Moshi,
         private val safGateway: SAFGateway
 ) : StorageEditor {
 
-    private val editorDataPub = HotData(Data(storageId = storageId))
+    private val editorDataPub = HotData(Data(storageId = initialStorageId))
     override val editorData = editorDataPub.data
 
     private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)
-    private var newlyAcquiredPerm: SAFPath? = null
+
+    private var originalRefPath: SAFPath? = null
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
@@ -37,26 +38,6 @@ class SAFStorageEditor @AssistedInject constructor(
 
     fun updatePath(path: SAFPath, importExisting: Boolean): Single<SAFPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
-
-        if (safGateway.hasPermission(path)) {
-            Timber.tag(TAG).d("Already have permission for %s", path)
-        } else {
-            try {
-                safGateway.takePermission(path)
-                newlyAcquiredPerm?.let { safGateway.releasePermission(it) }
-                newlyAcquiredPerm = path
-            } catch (e: Throwable) {
-                Timber.tag(TAG).e(e, "Error while persisting permission")
-                try {
-                    safGateway.releasePermission(path)
-                } catch (e2: Throwable) {
-                    Timber.tag(TAG).e(e2, "Error while releasing during error...")
-                }
-                throw e
-            }
-        }
-
-        check(safGateway.hasPermission(path)) { "We persisted the permission but it's still unavailable?!" }
 
         check(path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
         check(path.isDirectory(safGateway)) { "Target is not a directory!" }
@@ -85,7 +66,8 @@ class SAFStorageEditor @AssistedInject constructor(
     private fun load(path: SAFPath): Single<SAFStorageConfig> = Single.just(path)
             .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)) }
             .doOnSuccess { config ->
-                require(storageId == config.storageId) { "IDs don't match" }
+                originalRefPath = path
+
                 editorDataPub.update {
                     it.copy(
                             refPath = path,
@@ -98,9 +80,17 @@ class SAFStorageEditor @AssistedInject constructor(
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
         val data = editorDataPub.snapshot
+        data.refPath as SAFPath
+
+        if (data.refPath != originalRefPath) {
+            originalRefPath?.let { safGateway.releasePermission(it) }
+        }
+
+        require(safGateway.takePermission(data.refPath)) { "We persisted the permission but it's still unavailable?!" }
+
         val ref = SAFStorageRef(
                 storageId = data.storageId,
-                path = data.refPath!!
+                path = data.refPath
         )
         val config = SAFStorageConfig(
                 storageId = data.storageId,
@@ -115,7 +105,6 @@ class SAFStorageEditor @AssistedInject constructor(
 
     override fun release(): Completable = Completable.fromCallable {
         Timber.tag(TAG).v("release()")
-        newlyAcquiredPerm?.let { safGateway.releasePermission(it) }
     }
 
     data class Data(

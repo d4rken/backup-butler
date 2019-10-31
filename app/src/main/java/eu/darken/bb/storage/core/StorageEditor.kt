@@ -18,7 +18,7 @@ interface StorageEditor {
     fun release(): Completable
 
     interface Factory<EditorT : StorageEditor> {
-        fun create(storageId: Storage.Id): EditorT
+        fun create(initialStorageId: Storage.Id): EditorT
     }
 
     interface Data {

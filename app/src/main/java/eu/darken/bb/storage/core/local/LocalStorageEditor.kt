@@ -20,14 +20,15 @@ import io.reactivex.Single
 import java.io.File
 
 class LocalStorageEditor @AssistedInject constructor(
-        @Assisted private val storageId: Storage.Id,
+        @Assisted initialStorageId: Storage.Id,
         moshi: Moshi,
         private val runtimePermissionTool: RuntimePermissionTool
 ) : StorageEditor {
 
-    private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
-    private val editorDataPub = HotData(Data(storageId = storageId))
+    private val editorDataPub = HotData(Data(storageId = initialStorageId))
     override val editorData = editorDataPub.data
+
+    private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
@@ -73,7 +74,7 @@ class LocalStorageEditor @AssistedInject constructor(
     private fun load(path: LocalPath): Single<LocalStorageConfig> = Single.just(path)
             .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
             .doOnSuccess { config ->
-                require(storageId == config.storageId) { "IDs don't match" }
+
                 editorDataPub.update {
                     it.copy(
                             refPath = path,

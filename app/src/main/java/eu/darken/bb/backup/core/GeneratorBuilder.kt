@@ -59,7 +59,7 @@ class GeneratorBuilder @Inject constructor(
             .map { Opt(it.newValue[id]) }
             .doOnSuccess { Timber.tag(TAG).v("Generator  updated: %s (%s): %s", id, action, it) }
 
-    fun remove(id: Generator.Id): Single<Opt<Data>> = Single.just(id)
+    fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap { id ->
                 hotData.data
@@ -69,15 +69,20 @@ class GeneratorBuilder @Inject constructor(
                         }
             }
             .doOnSuccess { Timber.tag(TAG).v("Removed generator: %s", id) }
+            .map { optData ->
+                if (releaseResources && optData.isNotNull) {
+                    optData.value?.editor?.release()?.blockingAwait()
+                }
+                return@map optData
+            }
 
-    fun save(id: Generator.Id): Single<Generator.Config> = remove(id)
+    fun save(id: Generator.Id): Single<Generator.Config> = remove(id, false)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
-                if (it.isNull) throw IllegalArgumentException("Can't find ID to save: $id")
-                it.value
+                checkNotNull(it.value) { "Can't find ID to save: $id" }
             }
             .flatMap {
-                if (it.editor == null) throw IllegalStateException("Can't save builder data, NULL editor: $it")
+                checkNotNull(it.editor) { "Can't save builder data, NULL editor: $it" }
                 it.editor.save()
             }
             .flatMap { config ->

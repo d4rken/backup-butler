@@ -16,4 +16,12 @@ class APathTool @Inject constructor(
             else -> throw NotImplementedError()
         }
     }
+
+    fun canRead(path: APath): Boolean {
+        return when (path) {
+            is SAFPath -> path.canRead(safGateway)
+            is LocalPath -> path.file.canRead()
+            else -> throw NotImplementedError()
+        }
+    }
 }

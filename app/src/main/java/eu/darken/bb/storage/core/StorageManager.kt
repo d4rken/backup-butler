@@ -83,20 +83,16 @@ class StorageManager @Inject constructor(
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
             .flatMapObservable { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
 
-    fun detach(id: Storage.Id): Single<Storage.Ref> = Completable
-            .fromCallable {
+    fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = getStorage(id).firstOrError()
+            .flatMap { storage ->
                 synchronized(repoCache) {
                     val removed = repoCache.remove(id)
                     Timber.tag(TAG).d("Evicted from cache: %s", removed)
                 }
+                val ref = refRepo.remove(id).blockingGet()
+                storage.detach(wipe).toSingleDefault(ref.notNullValue())
             }
-            .andThen(refRepo.remove(id))
-            .map { it.notNullValue() }
             .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
-
-    fun wipe(id: Storage.Id): Single<Storage.Ref> = getStorage(id)
-            .switchMapCompletable { it.wipe() }
-            .andThen(detach(id))
 
     private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
