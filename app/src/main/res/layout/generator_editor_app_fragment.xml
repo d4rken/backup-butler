@@ -11,24 +11,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/TextInputLayoutOutlinedDense"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:hint="@string/label_name"
-            app:endIconMode="clear_text">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/name_input"
-                style="@style/Widget.AppCompat.EditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textNoSuggestions"
-                android:singleLine="true"
-                tools:text="My local backup" />
-        </com.google.android.material.textfield.TextInputLayout>
-
         <com.google.android.material.card.MaterialCardView
             style="@style/MyCardView"
             android:layout_width="match_parent"
@@ -40,7 +22,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    style="@style/TextAppearance.MaterialComponents.Overline"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginStart="16dp"
@@ -62,6 +44,25 @@
                         android:layout_height="wrap_content"
                         android:focusableInTouchMode="true"
                         android:orientation="vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/TextInputLayoutOutlinedDense"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:hint="@string/label_name"
+                            app:endIconMode="clear_text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/name_input"
+                                style="@style/Widget.AppCompat.EditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:singleLine="true"
+                                tools:text="My local backup" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <eu.darken.bb.common.ui.SwitchPreferenceView
                             android:id="@+id/core_settings_autoinclude"
@@ -103,7 +104,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    style="@style/TextAppearance.MaterialComponents.Overline"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginStart="16dp"
