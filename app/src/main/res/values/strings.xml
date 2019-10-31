@@ -176,4 +176,11 @@
     <string name="error">Error</string>
     <string name="error_empty_result">The result was empty.</string>
     <string name="action_select">Select</string>
+    <string name="backupoption_app_autoinclude_label">Include new apps</string>
+    <string name="backupoption_app_autoinclude_desc">Automatically include new apps that have been installed after this source was created.</string>
+    <string name="backupoption_app_includeuser_label">Include user apps</string>
+    <string name="backupoption_app_includesystem_label">Include system apps</string>
+    <string name="backupoption_app_backupcache_label">Backup app cache</string>
+    <string name="backupoption_app_backupdata_label">Backup app data</string>
+    <string name="backupoption_app_backupapk_label">Backup app installer</string>
 </resources>

@@ -25,4 +25,10 @@ class APathTool @Inject constructor(
             else -> throw NotImplementedError()
         }
     }
+
+    fun tryReleaseResources(path: APath) {
+        if (path is SAFPath) {
+            safGateway.releasePermission(path)
+        }
+    }
 }

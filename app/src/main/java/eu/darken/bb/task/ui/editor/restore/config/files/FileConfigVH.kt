@@ -63,7 +63,7 @@ class FileConfigVH(parent: ViewGroup)
         }
 
         optionReplaceExisting.isChecked = config.replaceFiles
-        optionReplaceExisting.setOnCheckedChangedListener { _, checked ->
+        optionReplaceExisting.setSwitchListener { _, checked ->
             item.updateConfig(config.copy(replaceFiles = checked))
         }
     }

@@ -2,7 +2,7 @@ package eu.darken.bb.backup.core.app
 
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import com.squareup.moshi.Moshi
+import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
@@ -10,10 +10,11 @@ import eu.darken.bb.common.file.APath
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 
 class AppSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
-        moshi: Moshi
+        private val appSpecGenerator: AppSpecGenerator
 ) : GeneratorEditor {
 
     private val editorDataPub = HotData(Data(generatorId = generatorId))
@@ -44,7 +45,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
     override fun save(): Single<out Generator.Config> = Single.fromCallable {
         val data = editorDataPub.snapshot
 
-        AppSpecGenerator.Config(
+        val config = AppSpecGenerator.Config(
                 generatorId = data.generatorId,
                 label = data.label,
                 autoInclude = data.autoInclude,
@@ -57,6 +58,9 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
                 backupCache = data.backupCache,
                 extraPaths = data.extraPaths
         )
+        val gens = appSpecGenerator.generate(config)
+        Timber.tag(App.logTag("###")).i("AppBackupSpecs: %s", gens)
+        return@fromCallable config
     }
 
     override fun release(): Completable = Completable.complete()
@@ -67,23 +71,27 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         editorDataPub.update { it.copy(label = label) }
     }
 
-    fun updateIncludedPackages(pkgs: List<String>) {
+    fun updateIncludedPackages(pkgs: Set<String>) {
         editorDataPub.update { it.copy(packagesIncluded = pkgs) }
+    }
+
+    fun update(update: (Data) -> Data) {
+        editorDataPub.update(update)
     }
 
     data class Data(
             override val generatorId: Generator.Id,
             override val label: String = "",
             override val isExistingGenerator: Boolean = false,
-            val autoInclude: Boolean = false,
-            val includeUserApps: Boolean = false,
+            val autoInclude: Boolean = true,
+            val includeUserApps: Boolean = true,
             val includeSystemApps: Boolean = false,
-            val packagesIncluded: Collection<String> = listOf(),
-            val packagesExcluded: Collection<String> = listOf(),
-            val backupApk: Boolean = false,
-            val backupData: Boolean = false,
+            val packagesIncluded: Set<String> = setOf(),
+            val packagesExcluded: Set<String> = setOf(),
+            val backupApk: Boolean = true,
+            val backupData: Boolean = true,
             val backupCache: Boolean = false,
-            val extraPaths: Map<String, Collection<APath>> = emptyMap()
+            val extraPaths: Map<String, Set<APath>> = emptyMap()
     ) : GeneratorEditor.Data
 
     @AssistedInject.Factory

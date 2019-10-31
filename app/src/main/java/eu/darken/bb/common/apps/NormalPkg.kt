@@ -4,9 +4,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PermissionInfo
 
-interface PkgInfo {
-
-    val packageName: String
+interface NormalPkg : Pkg {
 
     val applicationInfo: ApplicationInfo?
 
@@ -20,11 +18,7 @@ interface PkgInfo {
 
     val lastUpdateTime: Long
 
-    val versionCode: Long
-
     val versionName: String?
-
-    val isInstantApp: Boolean
 
     val activities: Collection<ActivityInfo>?
 
@@ -34,8 +28,4 @@ interface PkgInfo {
 
     val requestedPermissions: Collection<String>?
 
-    fun getLabel(ipcFunnel: IPCFunnel): String?
-
-    @Throws(Exception::class)
-    fun <T> tryField(fieldName: String): T?
 }

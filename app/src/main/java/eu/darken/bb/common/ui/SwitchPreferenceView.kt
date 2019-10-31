@@ -30,7 +30,7 @@ class SwitchPreferenceView @JvmOverloads constructor(
         super.onFinishInflate()
     }
 
-    fun setOnCheckedChangedListener(listener: (SwitchPreferenceView, Boolean) -> Unit) {
+    fun setSwitchListener(listener: (SwitchPreferenceView, Boolean) -> Unit) {
         setOnClickListener {
             toggle.isChecked = !toggle.isChecked
             listener.invoke(this@SwitchPreferenceView, isChecked)

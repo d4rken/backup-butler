@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="textNoSuggestions"
                 android:singleLine="true"
-                tools:text="My local backup"/>
+                tools:text="My local backup" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.card.MaterialCardView
@@ -35,51 +34,60 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp">
+                android:orientation="vertical">
 
                 <TextView
                     style="@style/TextAppearance.MaterialComponents.Overline"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/core_settings"/>
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/core_settings" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="16dp">
+                    android:paddingTop="8dp"
+                    android:layout_height="wrap_content">
 
                     <ProgressBar
                         android:id="@+id/core_settings_progress"
-                        style="@style/ProgressStyleSpinner"
-                        android:visibility="invisible"
-                        tools:visibility="visible"/>
+                        style="@style/ProgressStyleSpinner" />
 
                     <LinearLayout
                         android:id="@+id/core_settings_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:focusableInTouchMode="true"
-                        android:orientation="vertical"
-                        android:visibility="invisible"
-                        tools:visibility="visible">
+                        android:orientation="vertical">
 
-                        <com.google.android.material.checkbox.MaterialCheckBox
-                            android:id="@+id/auto_include_apps"
-                            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/core_settings_autoinclude"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Automatically include apps"/>
+                            app:pvDescription="@string/backupoption_app_autoinclude_desc"
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_autoinclude_label" />
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_include_packages"
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/core_settings_includeuser"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_includeuser_label" />
+
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/core_settings_includesystem"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_includesystem_label" />
+
                     </LinearLayout>
                 </FrameLayout>
-            </FrameLayout>
+            </LinearLayout>
 
 
         </com.google.android.material.card.MaterialCardView>
@@ -89,16 +97,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp">
+                android:orientation="vertical">
 
                 <TextView
                     style="@style/TextAppearance.MaterialComponents.Overline"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/label_options"/>
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/label_options" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -107,9 +117,7 @@
 
                     <ProgressBar
                         android:id="@+id/options_progress"
-                        style="@style/ProgressStyleSpinner"
-                        android:visibility="invisible"
-                        tools:visibility="visible"/>
+                        style="@style/ProgressStyleSpinner" />
 
                     <LinearLayout
                         android:id="@+id/options_container"
@@ -119,35 +127,34 @@
                         android:visibility="invisible"
                         tools:visibility="visible">
 
-                        <com.google.android.material.checkbox.MaterialCheckBox
-                            android:id="@+id/backup_apk"
-                            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/options_backupapk"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Backup app-install file"/>
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_backupapk_label" />
 
-                        <TextView
-                            style="@style/TextAppearance.MaterialComponents.Caption"
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/options_backupdata"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Automatically include future apps, e.g. apps that you install later."/>
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_backupdata_label" />
 
-
-                        <com.google.android.material.checkbox.MaterialCheckBox
-                            android:id="@+id/backup_data"
-                            style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+                        <eu.darken.bb.common.ui.SwitchPreferenceView
+                            android:id="@+id/options_backupcache"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Backup app-data"/>
-
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_backupcache_label" />
 
                     </LinearLayout>
                 </FrameLayout>
 
-            </FrameLayout>
-
+            </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
+
 
 </androidx.core.widget.NestedScrollView>

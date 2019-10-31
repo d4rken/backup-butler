@@ -12,9 +12,16 @@ import org.junit.jupiter.api.Test
 
 class AppBackupSpecTest {
 
+    val original = AppBackupSpec(
+            packageName = "test.package",
+            backupApk = true,
+            backupData = true,
+            backupCache = false,
+            extraPaths = setOf(RawPath.build("testraw", "path"))
+    )
+
     @Test
     fun `test serialization`() {
-        val original = AppBackupSpec("test.package")
 
         val moshi = AppModule().moshi()
 
@@ -22,6 +29,10 @@ class AppBackupSpecTest {
                 "\"packageName\":\"test.package\"," +
                 "\"specId\":\"pkg-test.package\"," +
                 "\"revisionLimit\":3," +
+                "\"backupApk\":true," +
+                "\"backupData\":true," +
+                "\"backupCache\":false," +
+                "\"extraPaths\":[{\"path\":\"testraw/path\",\"pathType\":\"RAW\"}]," +
                 "\"backupType\":\"APP\"" +
                 "}"
 
@@ -38,7 +49,6 @@ class AppBackupSpecTest {
 
     @Test
     fun `test fixed type`() {
-        val original = AppBackupSpec("test.package")
         original.backupType shouldBe Backup.Type.APP
         original.backupType = Backup.Type.FILES
         original.backupType shouldBe Backup.Type.APP

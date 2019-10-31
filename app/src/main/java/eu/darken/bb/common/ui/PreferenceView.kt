@@ -47,13 +47,15 @@ open class PreferenceView @JvmOverloads constructor(
                 title.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvTitle)
             }
 
-            val descId = typedArray.getResourceId(R.styleable.PreferenceView_pvDescription, 0)
-            if (descId != 0) {
-                description.setText(descId)
-            } else {
-                description.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvDescription)
-                if (description.text.isNullOrEmpty()) description.visibility = View.GONE
+            if (typedArray.hasValue(R.styleable.PreferenceView_pvDescription)) {
+                val descId = typedArray.getResourceId(R.styleable.PreferenceView_pvDescription, 0)
+                if (descId != 0) {
+                    description.setText(descId)
+                } else {
+                    description.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvDescription)
+                }
             }
+            if (description.text.isNullOrEmpty()) description.visibility = View.GONE
         } finally {
             typedArray.recycle()
         }

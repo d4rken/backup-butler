@@ -27,15 +27,15 @@ class AppConfigVH(parent: ViewGroup)
         val config = item.config as AppRestoreConfig
 
         optionSkipExisting.isChecked = config.skipExistingApps
-        optionSkipExisting.setOnCheckedChangedListener { _, checked ->
+        optionSkipExisting.setSwitchListener { _, checked ->
             item.updateConfig(config.copy(skipExistingApps = checked))
         }
         optionRestoreApk.isChecked = config.restoreApk
-        optionRestoreApk.setOnCheckedChangedListener { _, checked ->
+        optionRestoreApk.setSwitchListener { _, checked ->
             item.updateConfig(config.copy(restoreApk = checked))
         }
         optionRestoreData.isChecked = config.restoreData
-        optionRestoreData.setOnCheckedChangedListener { _, checked ->
+        optionRestoreData.setSwitchListener { _, checked ->
             item.updateConfig(config.copy(restoreData = checked))
         }
     }

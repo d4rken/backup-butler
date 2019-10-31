@@ -55,14 +55,6 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun updateLabel(label: String) {
-        editor.updateLabel(label)
-    }
-
-    fun updateIncludedPackages(pkgs: List<String>) {
-        editor.updateIncludedPackages(pkgs)
-    }
-
     override fun onNavigateBack(): Boolean {
         if (stater.snapshot.isExisting) {
             builder.remove(generatorId)
@@ -81,10 +73,42 @@ class AppEditorFragmentVDC @AssistedInject constructor(
         return true
     }
 
+    fun updateLabel(label: String) {
+        editor.updateLabel(label)
+    }
+
+    fun updateIncludedPackages(pkgs: Set<String>) {
+        editor.updateIncludedPackages(pkgs)
+    }
+
+    fun onUpdateAutoInclude(enabled: Boolean) {
+        editor.update { it.copy(autoInclude = enabled) }
+    }
+
+    fun onUpdateIncludeUser(enabled: Boolean) {
+        editor.update { it.copy(includeUserApps = enabled) }
+    }
+
+    fun onUpdateIncludeSystem(enabled: Boolean) {
+        editor.update { it.copy(includeSystemApps = enabled) }
+    }
+
+    fun onUpdateBackupApk(enabled: Boolean) {
+        editor.update { it.copy(backupApk = enabled) }
+    }
+
+    fun onUpdateBackupData(enabled: Boolean) {
+        editor.update { it.copy(backupData = enabled) }
+    }
+
+    fun onUpdateBackupCache(enabled: Boolean) {
+        editor.update { it.copy(backupCache = enabled) }
+    }
+
     data class State(
             val label: String = "",
             val includedPackages: List<String> = emptyList(),
-            val isWorking: Boolean = true,
+            val isWorking: Boolean = false,
             override val isExisting: Boolean = false,
             val autoInclude: Boolean = false,
             val includeUserApps: Boolean = false,

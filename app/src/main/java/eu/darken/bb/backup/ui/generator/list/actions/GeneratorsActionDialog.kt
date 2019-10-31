@@ -38,6 +38,7 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
         factory.create(handle, arguments!!.getGeneratorId()!!)
     })
 
+    @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.label) lateinit var generatorName: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
@@ -56,7 +57,8 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
         })
 
         vdc.state.observe(this, Observer { state ->
-            generatorName.text = state.taskName
+            typeLabel.setText(state.config?.generatorType?.labelRes ?: R.string.label_unknown)
+            generatorName.text = state.config?.label ?: getString(R.string.progress_loading_label)
 
             actionsAdapter.update(state.allowedActions)
 

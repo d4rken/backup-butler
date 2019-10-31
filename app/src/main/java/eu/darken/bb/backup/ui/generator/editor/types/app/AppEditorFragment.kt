@@ -12,8 +12,11 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.setTextIfDifferent
+import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.ui.SwitchPreferenceView
+import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -30,13 +33,19 @@ class AppEditorFragment : BaseEditorFragment(), AutoInject {
 
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
-    @BindView(R.id.input_include_packages) lateinit var includedPackagesInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
-    @BindView(R.id.auto_include_apps) lateinit var autoIncludeApps: View
 
     @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
     @BindView(R.id.options_progress) lateinit var optionsProgress: View
+
+    @BindView(R.id.core_settings_autoinclude) lateinit var optionAutoInclude: SwitchPreferenceView
+    @BindView(R.id.core_settings_includeuser) lateinit var optionIncludeUser: SwitchPreferenceView
+    @BindView(R.id.core_settings_includesystem) lateinit var optionIncludeSystem: SwitchPreferenceView
+
+    @BindView(R.id.options_backupapk) lateinit var optionBackupApk: SwitchPreferenceView
+    @BindView(R.id.options_backupdata) lateinit var optionBackupData: SwitchPreferenceView
+    @BindView(R.id.options_backupcache) lateinit var optionBackupCache: SwitchPreferenceView
 
     init {
         layoutRes = R.layout.generator_editor_app_fragment
@@ -46,23 +55,33 @@ class AppEditorFragment : BaseEditorFragment(), AutoInject {
         requireActivityActionBar().subtitle = getString(R.string.backuptype_app_label)
 
         vdc.state.observe(this, Observer { state ->
-            labelInput.setTextIfDifferent(state.label)
+            labelInput.setTextIfDifferentAndNotFocused(state.label)
 
-            coreSettingsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            coreSettingsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
-            optionsContainer.visibility = if (state.isWorking) View.INVISIBLE else View.VISIBLE
-            optionsProgress.visibility = if (state.isWorking) View.VISIBLE else View.INVISIBLE
+            optionAutoInclude.isChecked = state.autoInclude
+            optionIncludeUser.isChecked = state.includeUserApps
+            optionIncludeSystem.isChecked = state.includeSystemApps
 
-            includedPackagesInput.setTextIfDifferent(state.includedPackages.joinToString(","))
+            optionBackupApk.isChecked = state.backupApk
+            optionBackupData.isChecked = state.backupData
+            optionBackupCache.isChecked = state.backupCache
+
+            coreSettingsContainer.setInvisible(state.isWorking)
+            coreSettingsProgress.setGone(!state.isWorking)
+            optionsContainer.setInvisible(state.isWorking)
+            optionsProgress.setGone(!state.isWorking)
         })
+
+        optionAutoInclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
+        optionIncludeUser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
+        optionIncludeSystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
+
+        optionBackupApk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
+        optionBackupData.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
+        optionBackupCache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
 
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
-
-        includedPackagesInput.userTextChangeEvents().subscribe {
-            vdc.updateIncludedPackages(it.text.split(','))
-        }
 
         super.onViewCreated(view, savedInstanceState)
     }

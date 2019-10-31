@@ -5,32 +5,53 @@ import dagger.Reusable
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.apps.AppRepo
+import eu.darken.bb.common.apps.NormalPkg
+import eu.darken.bb.common.apps.Pkg
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.APath
 import javax.inject.Inject
 
 @Reusable
 class AppSpecGenerator @Inject constructor(
-        @AppContext private val context: Context
+        @AppContext private val context: Context,
+        private val appRepo: AppRepo
 ) : Generator {
 
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
-        config as AppSpecGenerator.Config
-        val specs = mutableListOf<BackupSpec>()
-        context.packageManager.getInstalledPackages(0)
-        // FIXME remove limiter
-        context.packageManager.getInstalledPackages(0).subList(0, 10).map { it.packageName }.forEach { pkg ->
-            val app = AppBackupSpec(
-                    packageName = pkg
-            )
-            specs.add(app)
+        config as Config
+        val specs = mutableListOf<AppBackupSpec>()
+
+        val allPkgs = appRepo.getAppMap().values.filter { it.packageType == Pkg.Type.NORMAL }.map { it as NormalPkg }
+
+        val targetPackages = mutableSetOf<String>()
+        if (config.autoInclude) {
+            if (config.includeUserApps) {
+                val userApps = allPkgs.filterNot { it.isSystemApp }.map { it.packageName }
+                targetPackages.addAll(userApps)
+            }
+            if (config.includeSystemApps) {
+                val systemApps = allPkgs.filter { it.isSystemApp }.map { it.packageName }
+                targetPackages.addAll(systemApps)
+            }
         }
-//        config.packagesIncluded.forEach { pkg ->
-//            val app = AppBackupSpec(
-//                    packageName = pkg
-//            )
-//            specs.add(app)
-//        }
+
+        allPkgs.map { it.packageName }.filter { config.packagesIncluded.contains(it) }.forEach { targetPackages.add(it) }
+
+        targetPackages.removeAll { config.packagesExcluded.contains(it) }
+
+        targetPackages
+                .map { pkgName ->
+                    AppBackupSpec(
+                            packageName = pkgName,
+                            backupApk = config.backupApk,
+                            backupData = config.backupData,
+                            backupCache = config.backupCache,
+                            extraPaths = config.extraPaths[pkgName] ?: emptySet()
+                    )
+                }
+                .forEach { specs.add(it) }
+
         return specs
     }
 
@@ -40,12 +61,12 @@ class AppSpecGenerator @Inject constructor(
             val autoInclude: Boolean,
             val includeUserApps: Boolean,
             val includeSystemApps: Boolean,
-            val packagesIncluded: Collection<String>,
-            val packagesExcluded: Collection<String>,
+            val packagesIncluded: Set<String>,
+            val packagesExcluded: Set<String>,
             val backupApk: Boolean,
             val backupData: Boolean,
             val backupCache: Boolean,
-            val extraPaths: Map<String, Collection<APath>>
+            val extraPaths: Map<String, Set<APath>>
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {

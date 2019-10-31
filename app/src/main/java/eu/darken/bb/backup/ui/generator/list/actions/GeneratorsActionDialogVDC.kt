@@ -34,7 +34,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
                             it.copy(loading = true, finished = true)
                         } else {
                             it.copy(
-                                    taskName = config.label,
+                                    config = config,
                                     loading = false,
                                     allowedActions = values().toList()
                             )
@@ -65,9 +65,9 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
     }
 
     data class State(
-            val loading: Boolean = false,
+            val loading: Boolean = true,
             val finished: Boolean = false,
-            val taskName: String = "",
+            val config: Generator.Config? = null,
             val allowedActions: List<GeneratorsAction> = listOf()
     )
 

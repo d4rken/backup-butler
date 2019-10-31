@@ -5,8 +5,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
-import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -21,24 +20,17 @@ class StorageListFragmentVDC @AssistedInject constructor(
         private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
-    private val stater: Stater<State> = Stater(State())
-    val state = stater.liveData
+    val storageData = storageManager.infos()
+            .subscribeOn(Schedulers.io())
+            .map { infos ->
+                StorageState(
+                        storages = infos.map { Storage.InfoOpt(it) },
+                        isLoading = false)
+            }
+            .startWith(StorageState())
+            .toLiveData()
 
     val editTaskEvent = SingleLiveEvent<Storage.Id>()
-
-    init {
-        storageManager.infos()
-                .subscribeOn(Schedulers.io())
-                .subscribe { infos ->
-                    stater.update { state ->
-                        state.copy(
-                                storages = infos.map { Storage.InfoOpt(it) },
-                                isLoading = false
-                        )
-                    }
-                }
-                .withScopeVDC(this)
-    }
 
     fun createStorage() {
         storageBuilder.startEditor()
@@ -51,7 +43,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
         editTaskEvent.postValue(item.storageId)
     }
 
-    data class State(
+    data class StorageState(
             val storages: List<Storage.InfoOpt> = emptyList(),
             val isLoading: Boolean = true
     )

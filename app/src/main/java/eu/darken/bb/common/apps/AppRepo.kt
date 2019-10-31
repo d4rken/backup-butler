@@ -1,9 +1,11 @@
 package eu.darken.bb.common.apps
 
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.dagger.AppContext
@@ -11,6 +13,7 @@ import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.root.RootManager
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import io.reactivex.schedulers.Schedulers
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.xml.sax.InputSource
@@ -18,11 +21,9 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileReader
 import java.util.*
-import java.util.concurrent.locks.ReentrantLock
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.concurrent.withLock
 
 @PerApp
 class AppRepo @Inject constructor(
@@ -30,36 +31,31 @@ class AppRepo @Inject constructor(
         private val rootManager: RootManager,
         private val ipcFunnel: IPCFunnel
 ) {
-
-    companion object {
-        private val TAG = App.logTag("AppRepo")
-    }
-
     private val requestCache = HashMap<AppsRequest, CachedRequest>()
-    private val lock = ReentrantLock()
+    private val cacheLock = Any()
     private val pattern = Pattern.compile("^(?:package:)(.+?)(?:=)([\\w._]+)$")
 
-    internal class CachedRequest(data: Map<String, PkgInfo>) {
+    internal class CachedRequest(data: Map<String, Pkg>) {
         private val timestamp: Long = System.currentTimeMillis()
-        val data: Map<String, PkgInfo> = Collections.unmodifiableMap(data)
+        val data: Map<String, Pkg> = Collections.unmodifiableMap(data)
 
         fun isStale(newRequest: AppsRequest): Boolean {
-            return newRequest.acceptableAge.age != -1L && System.currentTimeMillis() - timestamp > newRequest.acceptableAge.age
+            return newRequest.acceptableAge.value != -1L && System.currentTimeMillis() - timestamp > newRequest.acceptableAge.value
         }
     }
 
-    fun getAppMap(request: AppsRequest): Map<String, PkgInfo> {
+    fun getAppMap(request: AppsRequest = AppsRequest.REFRESH): Map<String, Pkg> {
         var cachedRequest: CachedRequest? = requestCache[request]
         if (cachedRequest == null || cachedRequest.isStale(request)) {
             Timber.tag(TAG).i("Generating new app data for %s", request)
-            lock.withLock {
+            synchronized(cacheLock) {
                 cachedRequest = requestCache[request]
                 if (cachedRequest == null || cachedRequest!!.isStale(request)) {
-                    val appMap = HashMap<String, PkgInfo>()
+                    val appMap = HashMap<String, Pkg>()
 
-                    var appList = ipcFunnel.submit(IPCFunnel.PkgsQuery(request.flags))
+                    var appList: List<PackageInfo>? = ipcFunnel.submit(IPCFunnel.PkgsQuery(request.flags))
                     if (appList == null || appList.isEmpty()) throw IPCBufferException("List of installed apps was empty!")
-                    for (pkg in appList) appMap[pkg.packageName] = NormalApp(pkg)
+                    for (pkg in appList) appMap[pkg.packageName] = AppPkg(pkg)
 
                     @SuppressLint("InlinedApi")
                     val uninstalledFlag = if (ApiHelper.hasAndroidN()) PackageManager.MATCH_UNINSTALLED_PACKAGES else PackageManager.GET_UNINSTALLED_PACKAGES
@@ -68,10 +64,11 @@ class AppRepo @Inject constructor(
                     for (pkg in appList) {
                         // https://developer.android.com/reference/android/content/pm/PackageManager.html#MATCH_UNINSTALLED_PACKAGES
                         // Note: this flag may cause less information about currently installed applications to be returned.
-                        if (!appMap.containsKey(pkg.packageName)) appMap[pkg.packageName] = NormalApp(pkg)
+                        if (!appMap.containsKey(pkg.packageName)) appMap[pkg.packageName] = AppPkg(pkg)
                     }
 
                     checkForHiddenPackages(appMap, request)
+                    checkForLibraryPackages(appMap, request)
 
                     cachedRequest = CachedRequest(appMap)
                     requestCache[request] = cachedRequest!!
@@ -81,9 +78,9 @@ class AppRepo @Inject constructor(
         return cachedRequest!!.data
     }
 
-    private fun checkForHiddenPackages(appMap: MutableMap<String, PkgInfo>, request: AppsRequest) {
-        val rootContext = rootManager.rootContext.blockingFirst()
-        val hiddenPackages = ArrayList<InstantApp>()
+    private fun checkForHiddenPackages(appMap: MutableMap<String, Pkg>, request: AppsRequest) {
+        val rootContext = rootManager.rootContext.subscribeOn(Schedulers.io()).blockingGet()
+        val hiddenPackages = ArrayList<InstantPkg>()
         if (ApiHelper.hasOreo() && rootContext.isRooted) {
             val result = Cmd.builder("pm list packages -f").execute(RxCmdShell.builder().root(true).build())
             Timber.tag(TAG).d("Result: %s", result)
@@ -101,7 +98,7 @@ class AppRepo @Inject constructor(
                         }
                     })
                     if (pkgInfo != null) {
-                        val app = InstantApp(pkgInfo, sourcePath)
+                        val app = InstantPkg(pkgInfo, sourcePath)
                         hiddenPackages.add(app)
                     }
                 }
@@ -109,7 +106,7 @@ class AppRepo @Inject constructor(
 
         }
 
-        if (hiddenPackages.isNotEmpty()) {
+        if (!hiddenPackages.isEmpty()) {
             val dest = File(context.cacheDir, "packages.xml-" + UUID.randomUUID().toString())
             try {
                 val cpResult = Cmd.builder(
@@ -144,7 +141,8 @@ class AppRepo @Inject constructor(
         }
     }
 
-    private fun updateHiddenPackage(pkgInfo: InstantApp, document: Document) {
+
+    private fun updateHiddenPackage(pkgInfo: InstantPkg, document: Document) {
         val root = document.documentElement ?: return
 
         val children = root.childNodes
@@ -162,6 +160,35 @@ class AppRepo @Inject constructor(
                 }
             }
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun checkForLibraryPackages(appMap: MutableMap<String, Pkg>, request: AppsRequest) {
+        if (!ApiHelper.hasOreo()) return
+
+        val pm = context.packageManager
+        val libraryApps = ArrayList<LibraryPkg>()
+
+        val libraryInfos = pm.getSharedLibraries(request.flags)
+        for (libInfo in libraryInfos) {
+            if (libInfo.type == 0) {
+                // Built in types like .jars
+                continue
+            }
+            libraryApps.add(LibraryPkg(libInfo))
+        }
+
+        for (app in libraryApps) {
+            if (appMap.containsKey(app.packageName)) {
+                Timber.tag(TAG).w("Skipping duplicate library package %s and %s", app, appMap[app.packageName])
+                continue
+            }
+            appMap[app.packageName] = app
+        }
+    }
+
+    companion object {
+        private val TAG = App.logTag("AppRepo")
     }
 
 }

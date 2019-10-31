@@ -15,12 +15,12 @@ class AppSpecGeneratorConfigTest {
             autoInclude = true,
             includeUserApps = true,
             includeSystemApps = false,
-            packagesIncluded = listOf("included.pkg"),
-            packagesExcluded = listOf("excluded.pkg"),
+            packagesIncluded = setOf("included.pkg"),
+            packagesExcluded = setOf("excluded.pkg"),
             backupApk = true,
             backupData = true,
             backupCache = false,
-            extraPaths = mapOf("test" to listOf(RawPath.build("rawpath")))
+            extraPaths = mapOf("test" to setOf(RawPath.build("rawpath")))
     )
 
     @Test
