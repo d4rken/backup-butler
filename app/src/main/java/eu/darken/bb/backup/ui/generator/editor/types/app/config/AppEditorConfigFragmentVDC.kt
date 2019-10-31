@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.ui.generator.editor.types.app
+package eu.darken.bb.backup.ui.generator.editor.types.app.config
 
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -7,13 +7,15 @@ import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import io.reactivex.schedulers.Schedulers
 
-class AppEditorFragmentVDC @AssistedInject constructor(
+class AppEditorConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
@@ -30,6 +32,8 @@ class AppEditorFragmentVDC @AssistedInject constructor(
 
     private val editor: AppSpecGeneratorEditor by lazy { editorObs.blockingFirst() }
 
+    val finishEvent = SingleLiveEvent<Any>()
+
     init {
         editorDataObs
                 .subscribe { editorData ->
@@ -37,6 +41,7 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                         state.copy(
                                 label = editorData.label,
                                 isWorking = false,
+                                isExisting = editorData.isExistingGenerator,
                                 autoInclude = editorData.autoInclude,
                                 includeUserApps = editorData.includeUserApps,
                                 includeSystemApps = editorData.includeSystemApps,
@@ -50,14 +55,22 @@ class AppEditorFragmentVDC @AssistedInject constructor(
                     }
                 }
                 .withScopeVDC(this)
+
+        editorObs
+                .flatMap { it.isValid() }
+                .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
+                .withScopeVDC(this)
+
+        editorObs
+                .flatMap { it.editorData }
+                .subscribe { data ->
+                    stater.update { it.copy(isExisting = data.isExistingGenerator) }
+                }
+                .withScopeVDC(this)
     }
 
     fun updateLabel(label: String) {
         editor.updateLabel(label)
-    }
-
-    fun updateIncludedPackages(pkgs: Set<String>) {
-        editor.updateIncludedPackages(pkgs)
     }
 
     fun onUpdateAutoInclude(enabled: Boolean) {
@@ -84,10 +97,20 @@ class AppEditorFragmentVDC @AssistedInject constructor(
         editor.update { it.copy(backupCache = enabled) }
     }
 
+    fun saveConfig() {
+        builder.save(generatorId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doFinally { finishEvent.postValue(Any()) }
+                .subscribe()
+    }
+
     data class State(
             val label: String = "",
             val includedPackages: List<String> = emptyList(),
             val isWorking: Boolean = false,
+            val isValid: Boolean = false,
+            val isExisting: Boolean = false,
             val autoInclude: Boolean = false,
             val includeUserApps: Boolean = false,
             val includeSystemApps: Boolean = false,
@@ -100,11 +123,11 @@ class AppEditorFragmentVDC @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<AppEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): AppEditorFragmentVDC
+    interface Factory : VDCFactory<AppEditorConfigFragmentVDC> {
+        fun create(handle: SavedStateHandle, generatorId: Generator.Id): AppEditorConfigFragmentVDC
     }
 
     companion object {
-        val TAG = App.logTag("Generator", "App", "Editor", "VDC")
+        val TAG = App.logTag("Generator", "App", "Editor", "Config", "VDC")
     }
 }

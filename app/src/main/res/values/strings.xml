@@ -59,7 +59,6 @@
     <string name="label_select_type">Select type</string>
     <string name="backuptype_app_label">App backup</string>
     <string name="label_edit_source_config">Edit source</string>
-    <string name="label_create_source_config">Create source</string>
     <string name="label_backuptype_app">App backup</string>
     <string name="descr_backuptype_app">Backups apps and their files</string>
     <string name="label_backuptype_file">File backup</string>
@@ -67,7 +66,6 @@
     <string name="backuptype_files_label">File backup</string>
     <string name="label_source">Source</string>
     <string name="label_introduction">Introduction</string>
-    <string name="action_create_source">Create source</string>
     <string name="action_create_destination">Create destination</string>
     <string name="label_selected">Selected</string>
     <string name="label_suggestions">Suggestions</string>
@@ -183,4 +181,7 @@
     <string name="backupoption_app_backupcache_label">Backup app cache</string>
     <string name="backupoption_app_backupdata_label">Backup app data</string>
     <string name="backupoption_app_backupapk_label">Backup app installer</string>
+    <string name="backupoption_app_included_apps_label">Include specific apps</string>
+    <string name="backupoption_app_excluded_apps_label">Exclude specific apps</string>
+    <string name="action_preview">Preview</string>
 </resources>

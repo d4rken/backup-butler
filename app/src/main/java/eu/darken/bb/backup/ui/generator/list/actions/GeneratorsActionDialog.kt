@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -14,8 +15,6 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.backup.core.getGeneratorId
-import eu.darken.bb.backup.core.putGeneratorId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -27,21 +26,24 @@ import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
-    private var unbinder: Unbinder? = null
-
-    @Inject lateinit var taskRepo: TaskRepo
-    @Inject lateinit var actionsAdapter: ActionsAdapter
+    val navArgs by navArgs<GeneratorsActionDialogArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: GeneratorsActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as GeneratorsActionDialogVDC.Factory
-        factory.create(handle, arguments!!.getGeneratorId()!!)
+        factory.create(handle, navArgs.generatorId)
     })
+
+    @Inject lateinit var taskRepo: TaskRepo
+
+    @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.label) lateinit var generatorName: TextView
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.progress_circular) lateinit var progressBar: ProgressBar
+
+    private var unbinder: Unbinder? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.generator_list_action_dialog, container, false)
@@ -71,7 +73,7 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
 
     companion object {
         fun newInstance(generatorId: Generator.Id): BottomSheetDialogFragment = GeneratorsActionDialog().apply {
-            arguments = Bundle().putGeneratorId(generatorId)
+            arguments = GeneratorsActionDialogArgs(generatorId = generatorId).toBundle()
         }
     }
 }

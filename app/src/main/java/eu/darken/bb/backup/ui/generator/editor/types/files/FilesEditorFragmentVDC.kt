@@ -42,6 +42,7 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
 
     val pickerEvent = SingleLiveEvent<APathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         editorDataObs
@@ -53,6 +54,18 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
                                 workIds = state.clearWorkId()
                         )
                     }
+                }
+                .withScopeVDC(this)
+
+        editorObs
+                .flatMap { it.isValid() }
+                .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
+                .withScopeVDC(this)
+
+        editorObs
+                .flatMap { it.editorData }
+                .subscribe { data ->
+                    stater.update { it.copy(isExisting = data.isExistingGenerator) }
                 }
                 .withScopeVDC(this)
     }
@@ -77,9 +90,19 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
         ))
     }
 
+    fun saveConfig() {
+        builder.save(generatorId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doFinally { finishEvent.postValue(Any()) }
+                .subscribe()
+    }
+
     data class State(
             val label: String = "",
             val path: APath? = null,
+            val isValid: Boolean = false,
+            val isExisting: Boolean = false,
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 

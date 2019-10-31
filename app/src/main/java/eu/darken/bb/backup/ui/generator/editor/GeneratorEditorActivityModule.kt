@@ -6,8 +6,10 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.ui.generator.editor.types.GeneratorTypeFragment
 import eu.darken.bb.backup.ui.generator.editor.types.GeneratorTypeFragmentModule
-import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.app.AppEditorFragmentModule
+import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragment
+import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragmentModule
+import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragment
+import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentModule
 import eu.darken.bb.common.dagger.PerActivity
@@ -30,8 +32,12 @@ abstract class GeneratorEditorActivityModule {
     abstract fun typeSelection(): GeneratorTypeFragment
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [AppEditorFragmentModule::class])
-    abstract fun appEditor(): AppEditorFragment
+    @ContributesAndroidInjector(modules = [AppEditorConfigFragmentModule::class])
+    abstract fun appEditorConfig(): AppEditorConfigFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [AppEditorPreviewFragmentModule::class])
+    abstract fun appEditorPreview(): AppEditorPreviewFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [FilesEditorFragmentModule::class])

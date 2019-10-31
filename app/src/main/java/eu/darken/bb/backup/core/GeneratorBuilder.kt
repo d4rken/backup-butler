@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import eu.darken.bb.App
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityArgs
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
@@ -122,7 +123,7 @@ class GeneratorBuilder @Inject constructor(
                 Timber.tag(TAG).v("Starting editor for ID %s", configId)
                 val intent = Intent(context, GeneratorEditorActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.putGeneratorId(data.generatorId)
+                intent.putExtras(GeneratorEditorActivityArgs(generatorId = data.generatorId).toBundle())
                 context.startActivity(intent)
             }
             .ignoreElement()

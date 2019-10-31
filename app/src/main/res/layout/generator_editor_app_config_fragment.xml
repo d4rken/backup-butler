@@ -31,8 +31,8 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:paddingTop="8dp"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp">
 
                     <ProgressBar
                         android:id="@+id/core_settings_progress"
@@ -86,6 +86,19 @@
                             app:pvIcon="@drawable/ic_check_circle"
                             app:pvTitle="@string/backupoption_app_includesystem_label" />
 
+                        <eu.darken.bb.common.ui.PreferenceView
+                            android:id="@+id/core_settings_included_packages"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_included_apps_label" />
+
+                        <eu.darken.bb.common.ui.PreferenceView
+                            android:id="@+id/core_settings_excluded_packages"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:pvIcon="@drawable/ic_check_circle"
+                            app:pvTitle="@string/backupoption_app_excluded_apps_label" />
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>

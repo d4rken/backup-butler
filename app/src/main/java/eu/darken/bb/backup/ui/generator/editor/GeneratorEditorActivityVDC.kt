@@ -44,55 +44,30 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
 
     init {
         editorObs
-                .flatMap { it.isValid() }
-                .subscribe { isValid ->
-                    stater.update { it.copy(isValid = isValid) }
-                }
-                .withScopeVDC(this)
-
-        editorObs
                 .flatMap { it.editorData }
                 .subscribe { data ->
                     stater.update {
                         it.copy(
-                                isExisting = data.isExistingGenerator,
-                                isWorking = false
+                                isExisting = data.isExistingGenerator
                         )
                     }
                 }
                 .withScopeVDC(this)
     }
 
-    fun saveConfig() {
-        generatorBuilder.save(generatorId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .doFinally { finishEvent.postValue(Any()) }
-                .subscribe()
-    }
-
     fun dismiss() {
         generatorBuilder.remove(generatorId)
                 .subscribeOn(Schedulers.io())
-                .doOnSubscribe {
-                    stater.update {
-                        it.copy(isWorking = true)
-                    }
-                }
                 .subscribe { _ ->
-                    finishEvent.postValue(true)
+                    finishEvent.postValue(Any())
                 }
     }
 
     data class State(
             val generatorId: Generator.Id,
             val generatorType: Backup.Type?,
-            val stepFlow: StepFlow,
-            @IdRes val currentStep: Int = 0,
             val isExisting: Boolean = false,
-            val isValid: Boolean = false,
-            val isWorking: Boolean = false
+            val stepFlow: StepFlow
     )
 
     enum class StepFlow(@IdRes val start: Int) {

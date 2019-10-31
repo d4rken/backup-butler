@@ -2,15 +2,14 @@ package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.getGeneratorId
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.picker.APathPicker
@@ -25,10 +24,12 @@ import javax.inject.Inject
 
 class FilesEditorFragment : SmartFragment(), AutoInject {
 
+    val navArgs by navArgs<FilesEditorFragmentArgs>()
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as FilesEditorFragmentVDC.Factory
-        factory.create(handle, requireArguments().getGeneratorId()!!)
+        factory.create(handle, navArgs.generatorId)
     })
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
@@ -38,8 +39,12 @@ class FilesEditorFragment : SmartFragment(), AutoInject {
     @BindView(R.id.path_display) lateinit var pathDisplay: TextView
     @BindView(R.id.path_select_button) lateinit var pathButton: Button
 
+    private var allowCreate: Boolean = false
+    private var existing: Boolean = false
+
     init {
         layoutRes = R.layout.generator_editor_file_fragment
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,6 +58,10 @@ class FilesEditorFragment : SmartFragment(), AutoInject {
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
+
+            allowCreate = state.isValid
+            existing = state.isExisting
+            invalidateOptionsMenu()
         })
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
@@ -74,6 +83,25 @@ class FilesEditorFragment : SmartFragment(), AutoInject {
             else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_generator_editor_files_config, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.action_create).isVisible = allowCreate
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.action_save else R.string.action_create)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_create -> {
+            vdc.saveConfig()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
 }

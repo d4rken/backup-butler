@@ -17,10 +17,10 @@ import eu.darken.bb.R
 open class PreferenceView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
-    @BindView(R.id.icon) lateinit var icon: ImageView
-    @BindView(R.id.title) lateinit var title: TextView
-    @BindView(R.id.description) lateinit var description: TextView
-    @BindView(R.id.extra) lateinit var extraContainer: ViewGroup
+    @BindView(R.id.icon) protected lateinit var iconView: ImageView
+    @BindView(R.id.title) protected lateinit var titleView: TextView
+    @BindView(R.id.description) protected lateinit var descriptionView: TextView
+    @BindView(R.id.extra) protected lateinit var extraContainerView: ViewGroup
 
     init {
         View.inflate(getContext(), R.layout.view_preference, this)
@@ -37,33 +37,33 @@ open class PreferenceView @JvmOverloads constructor(
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PreferenceView)
             val iconRes = typedArray.getResourceId(R.styleable.PreferenceView_pvIcon, 0)
-            if (iconRes != 0) icon.setImageResource(iconRes)
-            else icon.visibility = View.GONE
+            if (iconRes != 0) iconView.setImageResource(iconRes)
+            else iconView.visibility = View.GONE
 
             val titleRes = typedArray.getResourceId(R.styleable.PreferenceView_pvTitle, 0)
             if (titleRes != 0) {
-                title.setText(titleRes)
+                titleView.setText(titleRes)
             } else {
-                title.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvTitle)
+                titleView.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvTitle)
             }
 
             if (typedArray.hasValue(R.styleable.PreferenceView_pvDescription)) {
                 val descId = typedArray.getResourceId(R.styleable.PreferenceView_pvDescription, 0)
                 if (descId != 0) {
-                    description.setText(descId)
+                    descriptionView.setText(descId)
                 } else {
-                    description.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvDescription)
+                    descriptionView.text = typedArray.getNonResourceString(R.styleable.PreferenceView_pvDescription)
                 }
             }
-            if (description.text.isNullOrEmpty()) description.visibility = View.GONE
+            descriptionView.setGone(descriptionView.text.isNullOrEmpty())
         } finally {
             typedArray.recycle()
         }
     }
 
     fun addExtra(view: View?) {
-        extraContainer.addView(view)
-        extraContainer.visibility = if (view != null) View.VISIBLE else View.GONE
+        extraContainerView.addView(view)
+        extraContainerView.visibility = if (view != null) View.VISIBLE else View.GONE
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -82,10 +82,13 @@ open class PreferenceView @JvmOverloads constructor(
     }
 
     fun setIcon(@DrawableRes iconRes: Int) {
-        icon.setImageResource(iconRes)
+        iconView.setImageResource(iconRes)
     }
 
-    fun setDescription(desc: String) {
-        description.text = desc
-    }
+    var description: String
+        get() = descriptionView.text.toString()
+        set(value) {
+            descriptionView.text = value
+            descriptionView.setGone(value.isEmpty())
+        }
 }
