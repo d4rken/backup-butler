@@ -5,7 +5,6 @@ import android.app.Application
 import android.app.Service
 import android.content.BroadcastReceiver
 import androidx.work.Configuration
-import com.uber.rxdogtag.RxDogTag
 import dagger.Lazy
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
@@ -46,10 +45,7 @@ open class App
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-            RxDogTag.builder().install()
-        }
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
         AppInjector.init(this)
 

@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.StrictMode
 import android.util.Log
 import com.bugsnag.android.Bugsnag
+import com.uber.rxdogtag.RxDogTag
 import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.Bugs
@@ -39,6 +40,8 @@ class BBDebug @Inject constructor(
     private val modules = mutableSetOf<DebugModule>()
 
     init {
+        RxDogTag.builder().install()
+
         observeOptions().subscribe { Timber.tag(TAG).d("Updated debug options: $it") }
 
         if (BuildConfig.DEBUG) {
