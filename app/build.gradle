@@ -49,7 +49,7 @@ android {
         def proguardRulesRelease = fileTree(dir: "proguard", include: ["*.pro"]).asList().toArray()
         debug {
             lintOptions {
-                disable 'TimberTagLength'
+
             }
             ext.enableBugsnag = false
             minifyEnabled false
@@ -63,7 +63,6 @@ android {
             lintOptions {
                 abortOnError true
                 fatal 'StopShip'
-                disable 'TimberTagLength'
             }
             ext.enableBugsnag = true
             minifyEnabled true
