@@ -1,4 +1,4 @@
-package eu.darken.bb.common.apps
+package eu.darken.bb.common.pkgs
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
@@ -26,12 +26,12 @@ import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilderFactory
 
 @PerApp
-class AppRepo @Inject constructor(
+class PkgRepo @Inject constructor(
         @AppContext private val context: Context,
         private val rootManager: RootManager,
         private val ipcFunnel: IPCFunnel
 ) {
-    private val requestCache = HashMap<AppsRequest, CachedRequest>()
+    private val requestCache = HashMap<PkgRequest, CachedRequest>()
     private val cacheLock = Any()
     private val pattern = Pattern.compile("^(?:package:)(.+?)(?:=)([\\w._]+)$")
 
@@ -39,12 +39,12 @@ class AppRepo @Inject constructor(
         private val timestamp: Long = System.currentTimeMillis()
         val data: Map<String, Pkg> = Collections.unmodifiableMap(data)
 
-        fun isStale(newRequest: AppsRequest): Boolean {
+        fun isStale(newRequest: PkgRequest): Boolean {
             return newRequest.acceptableAge.value != -1L && System.currentTimeMillis() - timestamp > newRequest.acceptableAge.value
         }
     }
 
-    fun getAppMap(request: AppsRequest = AppsRequest.REFRESH): Map<String, Pkg> {
+    fun getMap(request: PkgRequest = PkgRequest.REFRESH): Map<String, Pkg> {
         var cachedRequest: CachedRequest? = requestCache[request]
         if (cachedRequest == null || cachedRequest.isStale(request)) {
             Timber.tag(TAG).i("Generating new app data for %s", request)
@@ -78,7 +78,7 @@ class AppRepo @Inject constructor(
         return cachedRequest!!.data
     }
 
-    private fun checkForHiddenPackages(appMap: MutableMap<String, Pkg>, request: AppsRequest) {
+    private fun checkForHiddenPackages(appMap: MutableMap<String, Pkg>, request: PkgRequest) {
         val rootContext = rootManager.rootContext.subscribeOn(Schedulers.io()).blockingGet()
         val hiddenPackages = ArrayList<InstantPkg>()
         if (ApiHelper.hasOreo() && rootContext.isRooted) {
@@ -163,7 +163,7 @@ class AppRepo @Inject constructor(
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private fun checkForLibraryPackages(appMap: MutableMap<String, Pkg>, request: AppsRequest) {
+    private fun checkForLibraryPackages(appMap: MutableMap<String, Pkg>, request: PkgRequest) {
         if (!ApiHelper.hasOreo()) return
 
         val pm = context.packageManager

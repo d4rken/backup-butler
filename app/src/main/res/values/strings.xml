@@ -175,4 +175,6 @@
     <string name="backupoption_app_included_apps_label">Include specific apps</string>
     <string name="backupoption_app_excluded_apps_label">Exclude specific apps</string>
     <string name="action_preview">Preview</string>
+    <string name="label_included">Included</string>
+    <string name="label_excluded">Excluded</string>
 </resources>

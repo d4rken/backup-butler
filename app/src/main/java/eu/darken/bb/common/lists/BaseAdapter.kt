@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import eu.darken.bb.common.getColorForAttr
 
 abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
 
@@ -29,6 +30,8 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
         val context: Context = parent.context
 
         fun getColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(context, colorRes)
+
+        fun getColorForAttr(@AttrRes attrRes: Int): Int = context.getColorForAttr(attrRes)
 
         fun getString(@StringRes stringRes: Int, vararg args: Any): String = context.getString(stringRes, *args)
 

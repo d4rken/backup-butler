@@ -71,10 +71,6 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         editorDataPub.update { it.copy(label = label) }
     }
 
-    fun updateIncludedPackages(pkgs: Set<String>) {
-        editorDataPub.update { it.copy(packagesIncluded = pkgs) }
-    }
-
     fun update(update: (Data) -> Data) {
         editorDataPub.update(update)
     }

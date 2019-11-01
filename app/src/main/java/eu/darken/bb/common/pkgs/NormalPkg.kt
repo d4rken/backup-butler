@@ -1,4 +1,4 @@
-package eu.darken.bb.common.apps
+package eu.darken.bb.common.pkgs
 
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo

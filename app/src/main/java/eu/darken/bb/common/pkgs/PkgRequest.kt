@@ -1,7 +1,7 @@
-package eu.darken.bb.common.apps
+package eu.darken.bb.common.pkgs
 
 
-data class AppsRequest(val acceptableAge: Age, val flags: Int) {
+data class PkgRequest(val acceptableAge: Age, val flags: Int) {
 
     enum class Age constructor(internal val value: Long) {
         ANY(-1), FRESH(0), RECENTLY(60 * 1000)
@@ -13,7 +13,7 @@ data class AppsRequest(val acceptableAge: Age, val flags: Int) {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as AppsRequest
+        other as PkgRequest
         if (flags != other.flags) return false
         return true
     }
@@ -23,8 +23,8 @@ data class AppsRequest(val acceptableAge: Age, val flags: Int) {
     }
 
     companion object {
-        val REFRESH = AppsRequest(Age.FRESH, 0)
-        val NON_STALE = AppsRequest(Age.RECENTLY, 0)
-        val CACHED = AppsRequest(Age.ANY, 0)
+        val REFRESH = PkgRequest(Age.FRESH, 0)
+        val NON_STALE = PkgRequest(Age.RECENTLY, 0)
+        val CACHED = PkgRequest(Age.ANY, 0)
     }
 }
