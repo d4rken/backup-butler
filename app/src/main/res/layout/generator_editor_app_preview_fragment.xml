@@ -13,16 +13,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="16dp"
             android:orientation="vertical">
+
+            <TextView
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/info_mode"
+                tools:text="Preview mode" />
 
             <TextView
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:id="@+id/selection_info"
-                android:layout_margin="16dp"
-                tools:text="Lorem ipsum some apps 1234 selected out of 9876" />
+                android:layout_marginTop="8dp"
+                android:id="@+id/info_items"
+                tools:text="123 items. 18 selected." />
 
         </LinearLayout>
 

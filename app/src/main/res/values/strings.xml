@@ -25,6 +25,10 @@
         <item quantity="one">%d item</item>
         <item quantity="other">%d items</item>
     </plurals>
+    <plurals name="x_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
     <string name="label_edit_backup_task">Edit backup task</string>
     <string name="label_task_name">Task name</string>
     <string name="action_next">Next</string>
@@ -177,4 +181,8 @@
     <string name="action_preview">Preview</string>
     <string name="label_included">Included</string>
     <string name="label_excluded">Excluded</string>
+    <string name="label_preview">Preview</string>
+    <string name="generator_itempreview_desc">This is a preview of what will be suggested for backup by this source, based on your current configuration.</string>
+    <string name="generator_excludeditems_desc">Excluded items will not be suggested for backup by this source.</string>
+    <string name="generator_includeditems_desc">Included items will be suggested for backup by this source, if they are available.</string>
 </resources>

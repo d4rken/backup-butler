@@ -97,7 +97,8 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
                 .subscribe { pkgs ->
                     stater.update { state ->
                         state.copy(
-                                pkgs = pkgs.sortedBy { it.pkg.getLabel(ipcFunnel) }.toList()
+                                pkgs = pkgs.sortedBy { it.pkg.getLabel(ipcFunnel) }.toList(),
+                                selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet()
                         )
                     }
                 }
