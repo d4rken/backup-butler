@@ -50,7 +50,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter, dividers = false)
-        requireActivityActionBar().setSubtitle(R.string.label_sources)
+        requireActivityActionBar().setSubtitle(R.string.label_backupspec_generators)
 
         vdc.summaryState.observe2(this) { state ->
             countBackups.setTextQuantity(R.plurals.restore_task_x_backups_selected_desc, state.sourceBackups.size)

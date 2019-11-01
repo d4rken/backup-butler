@@ -110,7 +110,7 @@ class AppEditorConfigFragment : SmartFragment(), AutoInject {
                 generatorId = navArgs.generatorId,
                 previewMode = mode
         )
-        findNavController().navigate(R.id.action_appEditorFragment_to_appEditorPreviewFragment, args.toBundle())
+        findNavController().navigate(R.id.action_appEditorConfigFragment_to_appEditorPreviewFragment, args.toBundle())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

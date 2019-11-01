@@ -43,7 +43,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setSubtitle(R.string.label_sources)
+        requireActivityActionBar().setSubtitle(R.string.label_backupspec_generators)
 
         selectedList.setupDefaults(adapter)
         addSource.clicksDebounced().subscribe { vdc.showSourcePicker() }

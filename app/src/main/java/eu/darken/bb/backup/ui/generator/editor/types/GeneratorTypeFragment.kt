@@ -13,7 +13,7 @@ import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragmentArgs
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentArgs
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragmentArgs
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -46,7 +46,7 @@ class GeneratorTypeFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.label_source)
+        requireActivityActionBar().subtitle = getString(R.string.label_backupspec_generator)
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
@@ -62,11 +62,12 @@ class GeneratorTypeFragment : SmartFragment(), AutoInject {
             }
             val args = when (type) {
                 Backup.Type.APP -> AppEditorConfigFragmentArgs(generatorId = navArgs.generatorId).toBundle()
-                Backup.Type.FILES -> FilesEditorFragmentArgs(generatorId = navArgs.generatorId).toBundle()
+                Backup.Type.FILES -> FilesEditorConfigFragmentArgs(generatorId = navArgs.generatorId).toBundle()
             }
-            findNavController().navigate(nextStep, args)
-            val appbarConfig = AppBarConfiguration.Builder(R.id.generator_editor, R.id.appEditorFragment, R.id.filesEditorFragment).build()
+            val appbarConfig = AppBarConfiguration.Builder(R.id.appEditorConfigFragment, R.id.filesEditorFragment).build()
             setupActionBarWithNavController(requireActivity() as AppCompatActivity, findNavController(), appbarConfig)
+            findNavController().navigate(nextStep, args)
+
         }
 
         super.onViewCreated(view, savedInstanceState)

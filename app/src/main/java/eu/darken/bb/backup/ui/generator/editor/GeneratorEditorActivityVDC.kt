@@ -73,7 +73,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
     enum class StepFlow(@IdRes val start: Int) {
         SELECTION(R.id.generatorTypeFragment),
         FILES(R.id.filesEditorFragment),
-        APP(R.id.appEditorFragment);
+        APP(R.id.appEditorConfigFragment);
     }
 
     @AssistedInject.Factory

@@ -48,6 +48,7 @@ class GeneratorEditorActivity : SmartActivity(), HasSupportFragmentInjector {
                 val graph = navController.navInflater.inflate(R.navigation.generator_editor)
                 graph.startDestination = state.stepFlow.start
                 navController.setGraph(graph, bundleOf("generatorId" to state.generatorId))
+
                 setupActionBarWithNavController(navController)
             }
         }

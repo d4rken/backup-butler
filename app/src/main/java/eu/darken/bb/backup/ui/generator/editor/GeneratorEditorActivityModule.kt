@@ -10,8 +10,8 @@ import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigF
 import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragmentModule
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragment
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentModule
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment
-import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragmentModule
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragment
+import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragmentModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.common.dagger.PerFragment
 import eu.darken.bb.common.vdc.VDC
@@ -40,6 +40,6 @@ abstract class GeneratorEditorActivityModule {
     abstract fun appEditorPreview(): AppEditorPreviewFragment
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [FilesEditorFragmentModule::class])
-    abstract fun filesEditor(): FilesEditorFragment
+    @ContributesAndroidInjector(modules = [FilesEditorConfigFragmentModule::class])
+    abstract fun filesEditor(): FilesEditorConfigFragment
 }

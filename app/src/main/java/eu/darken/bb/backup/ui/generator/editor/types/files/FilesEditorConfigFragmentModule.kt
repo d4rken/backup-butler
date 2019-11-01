@@ -9,10 +9,10 @@ import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module
-abstract class FilesEditorFragmentModule {
+abstract class FilesEditorConfigFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(FilesEditorFragmentVDC::class)
-    abstract fun filesEditor(model: FilesEditorFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(FilesEditorConfigFragmentVDC::class)
+    abstract fun filesEditor(model: FilesEditorConfigFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

@@ -20,7 +20,7 @@ import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class FilesEditorFragmentVDC @AssistedInject constructor(
+class FilesEditorConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val generatorId: Generator.Id,
         private val builder: GeneratorBuilder
@@ -107,8 +107,8 @@ class FilesEditorFragmentVDC @AssistedInject constructor(
     ) : WorkId.State
 
     @AssistedInject.Factory
-    interface Factory : VDCFactory<FilesEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): FilesEditorFragmentVDC
+    interface Factory : VDCFactory<FilesEditorConfigFragmentVDC> {
+        fun create(handle: SavedStateHandle, generatorId: Generator.Id): FilesEditorConfigFragmentVDC
     }
 
     companion object {

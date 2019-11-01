@@ -18,6 +18,6 @@ class PagerModule {
             PagerAdapter.Page(StorageListFragment::class, R.string.label_repos),
             PagerAdapter.Page(TaskListFragment::class, R.string.label_tasks),
             PagerAdapter.Page(SchedulesFragment::class, R.string.label_schedules),
-            PagerAdapter.Page(GeneratorsFragment::class, R.string.label_sources)
+            PagerAdapter.Page(GeneratorsFragment::class, R.string.label_backupspec_generators)
     )
 }

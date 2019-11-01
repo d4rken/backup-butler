@@ -22,13 +22,13 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 
-class FilesEditorFragment : SmartFragment(), AutoInject {
+class FilesEditorConfigFragment : SmartFragment(), AutoInject {
 
-    val navArgs by navArgs<FilesEditorFragmentArgs>()
+    val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: FilesEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as FilesEditorFragmentVDC.Factory
+    val vdc: FilesEditorConfigFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as FilesEditorConfigFragmentVDC.Factory
         factory.create(handle, navArgs.generatorId)
     })
 

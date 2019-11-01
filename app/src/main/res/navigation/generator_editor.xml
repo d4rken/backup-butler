@@ -18,7 +18,7 @@
         android:label="@string/label_select_type">
         <action
             android:id="@+id/action_generatorTypeFragment_to_appEditorFragment"
-            app:destination="@id/appEditorFragment"
+            app:destination="@id/appEditorConfigFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -39,11 +39,11 @@
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
     </fragment>
     <fragment
-        android:id="@+id/appEditorFragment"
+        android:id="@+id/appEditorConfigFragment"
         android:name="eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragment"
         android:label="@string/label_configuration">
         <action
-            android:id="@+id/action_appEditorFragment_to_appEditorPreviewFragment"
+            android:id="@+id/action_appEditorConfigFragment_to_appEditorPreviewFragment"
             app:destination="@id/appEditorPreviewFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
@@ -55,7 +55,7 @@
     </fragment>
     <fragment
         android:id="@+id/filesEditorFragment"
-        android:name="eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorFragment"
+        android:name="eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragment"
         android:label="@string/label_configuration">
         <argument
             android:name="generatorId"
