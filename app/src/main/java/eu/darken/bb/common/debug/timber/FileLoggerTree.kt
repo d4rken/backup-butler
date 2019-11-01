@@ -1,4 +1,4 @@
-package eu.darken.bb.common.timber
+package eu.darken.bb.common.debug.timber
 
 import android.annotation.SuppressLint
 import android.util.Log

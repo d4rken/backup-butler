@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.debug.BBDebug
 
 class DebugSettingsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

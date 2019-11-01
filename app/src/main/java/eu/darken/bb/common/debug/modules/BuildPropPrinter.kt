@@ -1,4 +1,4 @@
-package eu.darken.bb.debug
+package eu.darken.bb.common.debug.modules
 
 import android.os.Build
 import android.util.Log
@@ -7,6 +7,10 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugOptions
+import eu.darken.bb.common.debug.compareIgnorePath
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.BufferedReader

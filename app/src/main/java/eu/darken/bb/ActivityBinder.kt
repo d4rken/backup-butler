@@ -5,10 +5,10 @@ import dagger.android.ContributesAndroidInjector
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
+import eu.darken.bb.common.debug.recording.ui.RecorderActivity
+import eu.darken.bb.common.debug.recording.ui.RecorderActivityModule
 import eu.darken.bb.common.file.picker.APathPickerActivity
 import eu.darken.bb.common.file.picker.APathPickerActivityModule
-import eu.darken.bb.debug.recording.ui.RecorderActivity
-import eu.darken.bb.debug.recording.ui.RecorderActivityModule
 import eu.darken.bb.main.ui.settings.SettingsActivity
 import eu.darken.bb.main.ui.settings.SettingsActivityModule
 import eu.darken.bb.main.ui.start.MainActivity

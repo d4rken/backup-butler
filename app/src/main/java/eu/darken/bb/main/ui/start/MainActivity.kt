@@ -15,10 +15,10 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.todoToast
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
-import eu.darken.bb.debug.BBDebug
 import eu.darken.bb.main.ui.settings.SettingsActivity
 import javax.inject.Inject
 

@@ -13,6 +13,7 @@ import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.upgrades.UpgradeControl
 import eu.darken.bb.upgrades.UpgradeData
+import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 
 class OverviewFragmentVDC @AssistedInject constructor(
@@ -23,7 +24,7 @@ class OverviewFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     val appState: LiveData<AppState> = Observables
-            .zip(butler.appInfo.toObservable(), upgradeControl.upgradeData)
+            .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)
             .map { (appInfo, upgradeData) ->
                 return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
             }

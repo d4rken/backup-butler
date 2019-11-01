@@ -1,11 +1,14 @@
-package eu.darken.bb.common.timber
+package eu.darken.bb.common.debug.timber
 
 import android.util.Log
+import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 
-class BugsnagTree : Timber.Tree() {
+@PerApp
+class BugsnagTree @Inject constructor() : Timber.Tree() {
 
     // Adding one to the initial size accounts for the put before removeAll.
     private val buffer = ArrayDeque<String>(BUFFER_SIZE + 1)

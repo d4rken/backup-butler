@@ -50,7 +50,7 @@
             android:name=".storage.ui.viewer.StorageViewerActivity"
             android:theme="@style/AppTheme.Base" />
         <activity
-            android:name=".debug.recording.ui.RecorderActivity"
+            android:name="eu.darken.bb.common.debug.recording.ui.RecorderActivity"
             android:theme="@style/AppTheme.Floating" />
         <activity
             android:name=".processor.ui.ProcessorActivity"
@@ -63,7 +63,7 @@
 
         <service android:name="eu.darken.bb.processor.core.service.ProcessorService" />
 
-        <service android:name=".debug.recording.core.RecorderService" />
+        <service android:name="eu.darken.bb.common.debug.recording.core.RecorderService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -74,6 +74,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+
+        <meta-data
+            android:name="com.bugsnag.android.API_KEY"
+            android:value="af79cd090c6cf741c40133c51d2e2e22" />
+        <meta-data
+            android:name="com.bugsnag.android.DETECT_ANRS"
+            android:value="true" />
     </application>
 
 </manifest>

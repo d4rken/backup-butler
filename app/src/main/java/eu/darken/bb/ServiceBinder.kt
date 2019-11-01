@@ -2,7 +2,7 @@ package eu.darken.bb
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import eu.darken.bb.debug.recording.core.RecorderService
+import eu.darken.bb.common.debug.recording.core.RecorderService
 import eu.darken.bb.processor.core.service.ProcessorService
 import eu.darken.bb.processor.core.service.ProcessorServiceModule
 

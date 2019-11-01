@@ -1,4 +1,4 @@
-package eu.darken.bb.debug.modules
+package eu.darken.bb.common.debug.modules
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,10 +9,10 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.debug.DebugModule
-import eu.darken.bb.debug.DebugModuleHost
-import eu.darken.bb.debug.DebugOptions
-import eu.darken.bb.debug.compareIgnorePath
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugOptions
+import eu.darken.bb.common.debug.compareIgnorePath
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 

@@ -1,7 +1,7 @@
-package eu.darken.bb.debug.recording.core
+package eu.darken.bb.common.debug.recording.core
 
 import eu.darken.bb.App
-import eu.darken.bb.common.timber.FileLoggerTree
+import eu.darken.bb.common.debug.timber.FileLoggerTree
 import timber.log.Timber
 import java.io.File
 

@@ -6,9 +6,10 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import androidx.work.Configuration
 import com.uber.rxdogtag.RxDogTag
+import dagger.Lazy
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
-import eu.darken.bb.debug.BBDebug
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
 import timber.log.Timber
@@ -39,7 +40,8 @@ open class App
     @Inject lateinit var workerFactory: InjectionWorkerFactory
 
     @Inject lateinit var uiSettings: UISettings
-    @Inject lateinit var bbDebug: BBDebug
+    @Inject lateinit var bbDebug: Lazy<BBDebug>
+
 
     override fun onCreate() {
         super.onCreate()
@@ -50,6 +52,8 @@ open class App
         }
 
         AppInjector.init(this)
+
+        bbDebug.get()
 
         // Sets theme mode
         uiSettings.theme = uiSettings.theme

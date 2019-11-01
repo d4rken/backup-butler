@@ -1,4 +1,4 @@
-package eu.darken.bb.debug.recording.core
+package eu.darken.bb.common.debug.recording.core
 
 import android.content.Context
 import android.content.Intent
@@ -9,10 +9,10 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.startServiceCompat
-import eu.darken.bb.debug.DebugModule
-import eu.darken.bb.debug.DebugModuleHost
-import eu.darken.bb.debug.recording.ui.RecorderActivity
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File

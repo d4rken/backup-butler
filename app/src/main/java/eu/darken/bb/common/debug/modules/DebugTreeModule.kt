@@ -1,10 +1,10 @@
-package eu.darken.bb.debug.modules
+package eu.darken.bb.common.debug.modules
 
 import android.util.Log
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
-import eu.darken.bb.debug.DebugModule
-import eu.darken.bb.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 

@@ -1,13 +1,10 @@
-package eu.darken.bb.debug
+package eu.darken.bb.common.debug
 
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
-import eu.darken.bb.debug.modules.EnvPrinter
-import eu.darken.bb.debug.modules.RXSDebugModule
-import eu.darken.bb.debug.modules.SysInfoModule
-import eu.darken.bb.debug.modules.UriPermissions
-import eu.darken.bb.debug.recording.core.RecorderModule
+import eu.darken.bb.common.debug.modules.*
+import eu.darken.bb.common.debug.recording.core.RecorderModule
 
 
 @Module
@@ -23,7 +20,7 @@ abstract class DebugModuleModule {
     abstract fun acsDebug(recorderModule: ACSDebugModule.Factory): DebugModule.Factory<out DebugModule>
 
     @Binds @IntoSet
-    abstract fun apkDebug(recorderModule: ApkInfoModule.Factory): DebugModule.Factory<out DebugModule>
+    abstract fun apkDebug(recorderModule: AppInfoModule.Factory): DebugModule.Factory<out DebugModule>
 
     @Binds @IntoSet
     abstract fun buildPropPrinter(recorderModule: BuildPropPrinter.Factory): DebugModule.Factory<out DebugModule>

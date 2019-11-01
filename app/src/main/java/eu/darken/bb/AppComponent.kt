@@ -6,7 +6,7 @@ import dagger.android.support.AndroidSupportInjectionModule
 import eu.darken.bb.backup.core.BackupTypeModule
 import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.debug.DebugModuleModule
+import eu.darken.bb.common.debug.DebugModuleModule
 import eu.darken.bb.processor.core.ProcessorModule
 import eu.darken.bb.storage.core.StorageTypeModule
 import eu.darken.bb.task.core.TaskTypeModule

@@ -1,4 +1,4 @@
-package eu.darken.bb.debug.recording.core
+package eu.darken.bb.common.debug.recording.core
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import dagger.android.AndroidInjection
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.debug.BBDebug
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.main.ui.start.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable

@@ -1,4 +1,4 @@
-package eu.darken.bb.debug.recording.ui
+package eu.darken.bb.common.debug.recording.ui
 
 
 import android.content.Context

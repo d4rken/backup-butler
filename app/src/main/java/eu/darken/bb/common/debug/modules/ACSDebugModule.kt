@@ -1,4 +1,4 @@
-package eu.darken.bb.debug
+package eu.darken.bb.common.debug.modules
 
 import android.annotation.TargetApi
 import android.os.Build
@@ -7,6 +7,8 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
 import io.reactivex.schedulers.Schedulers
 
 @TargetApi(Build.VERSION_CODES.N)

@@ -1,4 +1,4 @@
-package eu.darken.bb.debug
+package eu.darken.bb.common.debug
 
 import android.util.Log
 

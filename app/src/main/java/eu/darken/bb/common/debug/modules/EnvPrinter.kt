@@ -1,13 +1,13 @@
-package eu.darken.bb.debug.modules
+package eu.darken.bb.common.debug.modules
 
 import android.util.Log
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.debug.DebugModule
-import eu.darken.bb.debug.DebugModuleHost
-import eu.darken.bb.debug.DebugOptions
-import eu.darken.bb.debug.compareIgnorePath
+import eu.darken.bb.common.debug.DebugModule
+import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugOptions
+import eu.darken.bb.common.debug.compareIgnorePath
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import io.reactivex.schedulers.Schedulers
