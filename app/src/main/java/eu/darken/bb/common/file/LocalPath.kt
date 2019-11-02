@@ -1,12 +1,14 @@
 package eu.darken.bb.common.file
 
+import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
+
+@Keep @Parcelize
 @JsonClass(generateAdapter = true)
-@Parcelize
 data class LocalPath(
         val file: File
 ) : APath {

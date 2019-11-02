@@ -1,9 +1,13 @@
 package eu.darken.bb.storage.core.saf
 
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.storage.core.SimpleStrategy
 import eu.darken.bb.storage.core.Storage
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class SAFStorageConfig(
         override val label: String = "",
         override val storageId: Storage.Id,

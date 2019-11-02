@@ -1,5 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.file.APath
@@ -29,15 +31,20 @@ data class MMRef(
             )
         }
 
+    @Keep
+    @JsonClass(generateAdapter = true)
     data class Props(
             val originalPath: APath,
             val refType: Type
     )
 
+    @Keep
     enum class Type {
         FILE, DIRECTORY, UNUSED
     }
 
+    @Keep
+    @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id> {
 
         override val idString = value.toString()

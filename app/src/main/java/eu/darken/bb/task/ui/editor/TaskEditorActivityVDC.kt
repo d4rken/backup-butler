@@ -2,6 +2,7 @@ package eu.darken.bb.task.ui.editor
 
 import android.os.Parcelable
 import androidx.annotation.IdRes
+import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -105,7 +106,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         }
     }
 
-    @Parcelize
+    @Keep @Parcelize
     data class State(
             val taskId: Task.Id,
             val taskType: Task.Type,

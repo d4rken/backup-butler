@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
@@ -73,7 +74,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
             val loading: Boolean = true
     )
 
-    @Parcelize
+    @Keep @Parcelize
     data class PageData(val page: Page, val storageId: Storage.Id, val backupSpecId: BackupSpec.Id? = null) : Parcelable {
         enum class Page(val fragmentClass: KClass<out Fragment>) {
             CONTENT(StorageItemFragment::class),

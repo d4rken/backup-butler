@@ -3,15 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="eu.darken.bb">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name="eu.darken.bb.App"
@@ -81,6 +81,9 @@
         <meta-data
             android:name="com.bugsnag.android.DETECT_ANRS"
             android:value="true" />
+        <meta-data
+            android:name="com.bugsnag.android.DETECT_NDK_CRASHES"
+            android:value="false" />
     </application>
 
 </manifest>

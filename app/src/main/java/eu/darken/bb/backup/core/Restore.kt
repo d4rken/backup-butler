@@ -1,5 +1,6 @@
 package eu.darken.bb.backup.core
 
+import androidx.annotation.Keep
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
@@ -10,6 +11,7 @@ interface Restore {
         fun restore(config: Config, backup: Backup.Unit): Boolean
     }
 
+    @Keep
     interface Config {
         val restoreType: Backup.Type
 

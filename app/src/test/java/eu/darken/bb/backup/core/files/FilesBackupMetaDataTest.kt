@@ -3,10 +3,10 @@ package eu.darken.bb.backup.core.files
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.app.AppBackupMetaData
+import eu.darken.bb.common.TypeMissMatchException
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
-import java.lang.reflect.InvocationTargetException
 import java.util.*
 
 class FilesBackupMetaDataTest {
@@ -58,7 +58,7 @@ class FilesBackupMetaDataTest {
 
         val moshi = AppModule().moshi()
 
-        shouldThrow<InvocationTargetException> {
+        shouldThrow<TypeMissMatchException> {
             val json = moshi.adapter(AppBackupMetaData::class.java).toJson(original)
             moshi.adapter(FilesBackupMetaData::class.java).fromJson(json)
         }

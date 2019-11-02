@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.IdType
@@ -16,17 +17,20 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
+@Keep
 interface Task {
     val taskId: Id
     val taskType: Type
     val label: String
     val isOneTimeTask: Boolean
 
+    @Keep
     interface Backup : Task {
         val sources: Set<Generator.Id>
         val destinations: Set<Storage.Id>
     }
 
+    @Keep
     interface Restore : Task
 
     fun getDescription(context: Context): String
@@ -46,6 +50,7 @@ interface Task {
         }
     }
 
+    @Keep
     interface Result {
         @Keep
         enum class State constructor(val value: String) {
@@ -69,7 +74,8 @@ interface Task {
         val extra: String?
         val taskLog: List<String>?
 
-        @Parcelize
+        @Parcelize @Keep
+        @JsonClass(generateAdapter = true)
         data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
             constructor(id: String) : this(UUID.fromString(id))
@@ -86,7 +92,8 @@ interface Task {
         }
     }
 
-    @Parcelize
+    @Parcelize @Keep
+    @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
         constructor(id: String) : this(UUID.fromString(id))

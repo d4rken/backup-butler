@@ -3,7 +3,6 @@ package eu.darken.bb
 import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import eu.darken.bb.backup.core.Backup
@@ -46,7 +45,6 @@ class AppModule {
             .add(MMRefIdAdapter())
             .add(UriAdapter())
             .add(BackupSpecIdentifierAdapter())
-            .add(KotlinJsonAdapterFactory())
             .build()
 
     @Provides

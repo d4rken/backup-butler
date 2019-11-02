@@ -1,8 +1,12 @@
 package eu.darken.bb.storage.core.local
 
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.file.LocalPath
 import eu.darken.bb.storage.core.Storage
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class LocalStorageRef(
         override val path: LocalPath,
         override val storageId: Storage.Id = Storage.Id()

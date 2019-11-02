@@ -2,6 +2,8 @@ package eu.darken.bb.backup.core
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.OptInfo
@@ -10,6 +12,7 @@ import eu.darken.bb.storage.core.Storage
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
+@Keep
 interface BackupSpec {
     val backupType: Backup.Type
     val specId: Id
@@ -17,7 +20,8 @@ interface BackupSpec {
 
     fun getLabel(context: Context): String
 
-    @Parcelize
+    @Parcelize @Keep
+    @JsonClass(generateAdapter = true)
     data class Id(val value: String) : Parcelable, Comparable<Id> {
 
         @IgnoredOnParcel @Transient val idString = value

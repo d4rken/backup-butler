@@ -2,9 +2,11 @@ package eu.darken.bb.common.file
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.Keep
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import java.io.File
 
+@Keep
 interface APath : Parcelable {
     val path: String
     val name: String
@@ -12,6 +14,7 @@ interface APath : Parcelable {
 
     fun userReadablePath(context: Context) = path
 
+    @Keep
     enum class Type {
         RAW, LOCAL, SAF
     }

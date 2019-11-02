@@ -1,10 +1,13 @@
 package eu.darken.bb.common.file
 
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
-@Parcelize
+@Parcelize @Keep
+@JsonClass(generateAdapter = true)
 data class RawPath(
         override val path: String
 ) : APath {

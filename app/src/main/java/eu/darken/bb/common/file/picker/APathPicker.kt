@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.widget.Toast
+import androidx.annotation.Keep
 import androidx.fragment.app.Fragment
 import eu.darken.bb.R
 import eu.darken.bb.common.file.APath
@@ -14,7 +15,7 @@ import kotlinx.android.parcel.Parcelize
 
 object APathPicker {
 
-    @Parcelize
+    @Keep @Parcelize
     data class Options(
             val startPath: APath? = null,
             val selectionLimit: Int = 1,
@@ -34,7 +35,7 @@ object APathPicker {
         return intoIntent(intent, options)
     }
 
-    @Parcelize
+    @Keep @Parcelize
     data class Result(
             val options: Options,
             val error: Throwable? = null,

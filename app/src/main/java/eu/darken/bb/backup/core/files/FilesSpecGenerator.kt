@@ -1,6 +1,8 @@
 package eu.darken.bb.backup.core.files
 
 import android.content.Context
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import dagger.Reusable
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
@@ -26,6 +28,8 @@ class FilesSpecGenerator @Inject constructor(
         return specs
     }
 
+    @Keep
+    @JsonClass(generateAdapter = true)
     data class Config(
             override val generatorId: Generator.Id,
             override val label: String,

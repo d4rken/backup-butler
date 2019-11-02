@@ -5,6 +5,7 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
@@ -32,6 +33,7 @@ interface Backup {
         @Transient val backupId = metaData.backupId
     }
 
+    @Keep
     interface MetaData {
         val backupId: Id
         val backupType: Type
@@ -57,7 +59,8 @@ interface Backup {
         FILES(R.drawable.ic_folder, R.string.label_backuptype_file, R.string.descr_backuptype_file);
     }
 
-    @Parcelize
+    @Keep @Parcelize
+    @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : Parcelable, IdType<Id> {
 
         constructor(id: String) : this(UUID.fromString(id))
@@ -69,6 +72,8 @@ interface Backup {
         override fun toString(): String = "BackupId($idString)"
     }
 
+    @Keep
+    @JsonClass(generateAdapter = true)
     data class Target(
             val storageId: Storage.Id,
             val backupSpecId: BackupSpec.Id,

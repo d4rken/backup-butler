@@ -2,6 +2,8 @@ package eu.darken.bb.backup.core
 
 import android.content.Context
 import android.os.Parcelable
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.IdType
@@ -14,6 +16,7 @@ interface Generator {
 
     fun generate(config: Config): Collection<BackupSpec>
 
+    @Keep
     interface Config {
         val generatorId: Id
         val generatorType: Backup.Type
@@ -29,7 +32,8 @@ interface Generator {
         }
     }
 
-    @Parcelize
+    @Parcelize @Keep
+    @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : Parcelable, IdType<Id> {
 
         @IgnoredOnParcel @Transient override val idString = value.toString()

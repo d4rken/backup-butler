@@ -1,11 +1,15 @@
 package eu.darken.bb.task.core.backup
 
 import android.content.Context
+import androidx.annotation.Keep
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 
+@Keep
+@JsonClass(generateAdapter = true)
 data class SimpleBackupTask(
         override val taskId: Task.Id,
         override val label: String = "",

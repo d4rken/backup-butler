@@ -2,7 +2,9 @@ package eu.darken.bb.common.file
 
 import android.content.Context
 import android.net.Uri
+import androidx.annotation.Keep
 import androidx.documentfile.provider.DocumentFile
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
@@ -10,7 +12,8 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
-@Parcelize
+@Keep @Parcelize
+@JsonClass(generateAdapter = true)
 data class SAFPath(
         internal val treeRoot: Uri,
         internal val crumbs: List<String>

@@ -2,7 +2,9 @@ package eu.darken.bb.storage.core
 
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
+import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
@@ -23,6 +25,7 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 interface Storage : Progress.Host {
+    @Keep
     enum class Type(
             @Transient @DrawableRes val iconRes: Int,
             @Transient @StringRes val labelRes: Int,
@@ -55,7 +58,8 @@ interface Storage : Progress.Host {
 
     fun detach(wipe: Boolean = false): Completable
 
-    @Parcelize
+    @Parcelize @Keep
+    @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
 
         @IgnoredOnParcel @Transient override val idString = value.toString()
@@ -69,6 +73,7 @@ interface Storage : Progress.Host {
         fun create(storageRef: Ref, storageConfig: Config): T
     }
 
+    @Keep
     interface Ref {
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Ref> = MyPolymorphicJsonAdapterFactory.of(Ref::class.java, "storageType")
@@ -82,6 +87,7 @@ interface Storage : Progress.Host {
         val storageType: Type
     }
 
+    @Keep
     interface Config {
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> = MyPolymorphicJsonAdapterFactory.of(Config::class.java, "storageType")
@@ -121,9 +127,12 @@ interface Storage : Progress.Host {
         constructor(config: Info) : this(config.storageId, config)
     }
 
+    @Keep
     interface Strategy {
+
         val type: Type
 
+        @Keep
         enum class Type(
                 @Transient @StringRes val labelRes: Int,
                 @Transient @StringRes val descriptionRes: Int
