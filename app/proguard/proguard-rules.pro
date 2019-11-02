@@ -21,3 +21,8 @@
 #-renamesourcefileattribute SourceFile
 -keepattributes Exception
 -keep public class * extends java.lang.Exception
+
+-keepclassmembers class * extends androidx.lifecycle.EmptyActivityLifecycleCallbacks { *; }
+-keepclassmembers class androidx.lifecycle.ReportFragment$** { *; }
+
+-printusage ../build/outputs/usage.txt

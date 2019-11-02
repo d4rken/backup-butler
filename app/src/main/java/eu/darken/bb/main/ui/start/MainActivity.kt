@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
         viewPager.adapter = pagerAdapter
 
         tabLayout.tabMode = TabLayout.MODE_SCROLLABLE
-        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.OnConfigureTabCallback { tab, position ->
+        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.TabConfigurationStrategy { tab, position ->
             tab.setText(pagerAdapter.pages[position].titleRes)
         }).attach()
 

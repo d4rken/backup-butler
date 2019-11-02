@@ -54,7 +54,7 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
 
         viewPager.adapter = pagerAdapter
         tabLayout.tabMode = TabLayout.MODE_SCROLLABLE
-        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.OnConfigureTabCallback { tab, position ->
+        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.TabConfigurationStrategy { tab, position ->
             tab.text = DateUtils.getRelativeTimeSpanString(pagerAdapter.data[position].createdAt.time)
         }).attach()
 

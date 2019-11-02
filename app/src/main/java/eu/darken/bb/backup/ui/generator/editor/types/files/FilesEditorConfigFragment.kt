@@ -72,6 +72,8 @@ class FilesEditorConfigFragment : SmartFragment(), AutoInject {
             startActivityForResult(intent, 13)
         }
 
+        vdc.finishEvent.observe2(this) { requireActivity().finish() }
+
         vdc.errorEvent.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
