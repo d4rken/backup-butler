@@ -58,6 +58,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFiles proguardRulesRelease
         }
+        beta {
+            signingConfig signingConfigs.release
+            lintOptions {
+                disable 'MissingTranslation'
+                disable 'ExtraTranslation'
+            }
+            ext.enableBugsnag = true
+            buildConfigField "boolean", "BETA", "true"
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFiles proguardRulesRelease
+            matchingFallbacks = ['release']
+        }
         release {
             signingConfig signingConfigs.release
             lintOptions {
