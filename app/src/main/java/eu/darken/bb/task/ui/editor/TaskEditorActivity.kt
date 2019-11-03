@@ -2,30 +2,25 @@ package eu.darken.bb.task.ui.editor
 
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Button
 import androidx.activity.addCallback
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import butterknife.BindView
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.common.navigation.hasAction
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.getTaskId
-import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
 class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
@@ -38,11 +33,6 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         factory as TaskEditorActivityVDC.Factory
         factory.create(handle, intent.getTaskId()!!)
     })
-    @BindView(R.id.button_cancel) lateinit var buttonCancel: Button
-    @BindView(R.id.button_next) lateinit var buttonNext: Button
-    @BindView(R.id.button_save) lateinit var buttonSave: Button
-
-    @BindView(R.id.button_execute) lateinit var buttonExecute: Button
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
@@ -53,12 +43,8 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.task_editor_backup_activity)
         ButterKnife.bind(this)
 
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            vdc.updateCurrent(destination.id)
-        }
-
         vdc.state.observe(this, Observer { state ->
-            supportActionBar!!.title = when (state.taskType) {
+            supportActionBar!!.subtitle = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
                     if (state.isExistingTask) getString(R.string.label_edit_backup_task)
                     else getString(R.string.label_new_backup_task)
@@ -72,26 +58,18 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
             if (!navController.isGraphSet()) {
                 val graph = navController.navInflater.inflate(R.navigation.task_editor)
                 graph.startDestination = state.stepFlow.start
-                navController.setGraph(graph, Bundle().apply { putTaskId(state.taskId) })
+                navController.setGraph(graph, bundleOf("taskId" to state.taskId))
                 setupActionBarWithNavController(navController)
+
+                navController.addOnDestinationChangedListener { controller, destination, arguments ->
+                    when (destination.id) {
+                        R.id.storagePickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+                        R.id.generatorPickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+                        else -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+                    }
+                }
             }
-
-            buttonNext.setGone(!navController.currentDestination.hasAction(R.id.next))
-            buttonNext.clicksDebounced().subscribe {
-                navController.navigate(R.id.next, Bundle().apply { putTaskId(state.taskId) })
-            }
-
-            buttonSave.setGone(navController.currentDestination.hasAction(R.id.next) || state.isOneTimeTask)
-            buttonSave.isEnabled = state.isValid
-
-            buttonExecute.setGone(navController.currentDestination.hasAction(R.id.next))
-            buttonExecute.isEnabled = state.isValid
         })
-
-        buttonCancel.clicksDebounced().subscribe { finish() }
-
-        buttonSave.clicksDebounced().subscribe { vdc.save() }
-        buttonExecute.clicksDebounced().subscribe { vdc.save(execute = true) }
 
         vdc.finishEvent.observe2(this) { finish() }
 

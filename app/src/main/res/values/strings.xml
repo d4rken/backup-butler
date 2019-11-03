@@ -14,7 +14,6 @@
     <string name="label_progress_processing_task">Processing task</string>
     <string name="label_new_backup_task">New backup task</string>
     <string name="label_overview">Overview</string>
-    <string name="label_repos">Backups</string>
     <string name="label_schedules">Schedules</string>
     <string name="label_tasks">Tasks</string>
     <plurals name="x_versions">
@@ -62,10 +61,8 @@
     <string name="task_backup_simple_description">Sources: %d, Destinations: %d</string>
     <string name="label_select_type">Select type</string>
     <string name="backuptype_app_label">App backup</string>
-    <string name="label_backuptype_app">App backup</string>
-    <string name="descr_backuptype_app">Backups apps and their files</string>
-    <string name="label_backuptype_file">File backup</string>
-    <string name="descr_backuptype_file">Backup of an arbitrary file path.</string>
+    <string name="backuptype_app_desc">Backups apps and their files</string>
+    <string name="backuptype_files_desc">Backup of an arbitrary file path.</string>
     <string name="backuptype_files_label">File backup</string>
     <string name="label_backupspec_generator">Source</string>
     <string name="label_introduction">Introduction</string>
@@ -95,7 +92,7 @@
     <string name="category_label_core">Core</string>
     <string name="backup_settings_label">Backup</string>
     <string name="backup_settings_desc">Settings that affect backup creation and restoration.</string>
-    <string name="storage_settings_label">Storage</string>
+    <string name="label_storage">Storage</string>
     <string name="storage_settings_desc">Settings that affect saving and loading from storage locations.</string>
     <string name="account_settings_label">Account</string>
     <string name="theme_label">Theme</string>
@@ -185,4 +182,7 @@
     <string name="generator_itempreview_desc">This is a preview of what will be suggested for backup by this source, based on your current configuration.</string>
     <string name="generator_excludeditems_desc">Excluded items will not be suggested for backup by this source.</string>
     <string name="generator_includeditems_desc">Included items will be suggested for backup by this source, if they are available.</string>
+    <string name="action_continue">Continue</string>
+    <string name="label_backups">Backups</string>
+    <string name="label_storages">Storages</string>
 </resources>

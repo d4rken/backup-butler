@@ -11,10 +11,14 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentModule
+import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragment
+import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentModule
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentModule
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentModule
+import eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragment
+import eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragmentModule
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragmentModule
 import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment
@@ -38,8 +42,16 @@ abstract class TaskEditorActivityModule {
     abstract fun sourcesFragment(): SourcesFragment
 
     @PerFragment
+    @ContributesAndroidInjector(modules = [GeneratorPickerFragmentModule::class])
+    abstract fun generatorPicker(): GeneratorPickerFragment
+
+    @PerFragment
     @ContributesAndroidInjector(modules = [DestinationsFragmentModule::class])
     abstract fun destinationsFragment(): DestinationsFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [StoragePickerFragmentModule::class])
+    abstract fun storagePicker(): StoragePickerFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [RestoreConfigFragmentModule::class])

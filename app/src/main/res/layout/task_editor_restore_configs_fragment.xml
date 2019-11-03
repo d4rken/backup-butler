@@ -75,7 +75,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_weight="1"
+        android:layout_height="0dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -95,5 +96,14 @@
             android:layout_gravity="center"
             android:visibility="visible" />
     </FrameLayout>
+
+    <eu.darken.bb.common.ui.SetupBarView
+        android:id="@+id/setupbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:sbvPositivePrimaryLabel="@string/action_run" />
 </LinearLayout>
 

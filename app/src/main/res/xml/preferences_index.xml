@@ -19,7 +19,7 @@
         <Preference
             app:summary="@string/storage_settings_desc"
             app:fragment="eu.darken.bb.storage.ui.settings.StorageSettingsFragment"
-            app:title="@string/storage_settings_label"/>
+            app:title="@string/label_storage" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_label_other">

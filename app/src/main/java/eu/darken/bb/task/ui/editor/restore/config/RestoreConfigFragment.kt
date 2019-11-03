@@ -5,23 +5,25 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import com.jakewharton.rxbinding3.view.longClicks
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.SetupBarView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.restore.config.app.AppConfigUIWrap
 import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
@@ -30,10 +32,12 @@ import javax.inject.Inject
 
 class RestoreConfigFragment : SmartFragment(), AutoInject {
 
+    val navArgs by navArgs<RestoreConfigFragmentArgs>()
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     val vdc: RestoreConfigFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as RestoreConfigFragmentVDC.Factory
-        factory.create(handle, arguments!!.getTaskId()!!)
+        factory.create(handle, navArgs.taskId)
     })
 
     @Inject lateinit var adapter: RestoreConfigAdapter
@@ -45,6 +49,7 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay_backuplist) lateinit var loadingOverlayBackupList: LoadingOverlayView
+    @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
 
     init {
         layoutRes = R.layout.task_editor_restore_configs_fragment
@@ -52,14 +57,13 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter, dividers = false)
-        requireActivityActionBar().setSubtitle(R.string.label_configuration)
 
         vdc.summaryState.observe2(this) { state ->
             countTypes.setTextQuantity(R.plurals.restore_task_x_backups_types_desc, state.backupTypes.size)
             countCustomConfigs.setTextQuantity(R.plurals.x_items_custom_config_desc, state.customConfigCount)
 
-            countContainer.setInvisible(state.isWorking)
-            loadingOverlayCounts.setInvisible(!state.isWorking)
+            countContainer.setInvisible(state.isLoading)
+            loadingOverlayCounts.setInvisible(!state.isLoading)
         }
 
         vdc.configState.observe2(this) { state ->
@@ -94,8 +98,10 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
             val adapterData = defaultItems.plus(customItems)
             adapter.update(adapterData)
 
-            recyclerView.setInvisible(state.isWorking)
-            loadingOverlayBackupList.setInvisible(!state.isWorking)
+            recyclerView.setInvisible(state.isWorking || state.isLoading)
+            loadingOverlayBackupList.setInvisible(!state.isWorking && !state.isLoading)
+
+            setupBar.isEnabled = !state.isWorking && !state.isLoading
         }
 
         vdc.openPickerEvent.observe2(this) {
@@ -105,9 +111,14 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
         vdc.errorEvent.observe2(this) { toastError(it) }
 
+        vdc.finishEvent.observe2(this) { finishActivity() }
+
+        setupBar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }
+
+        setupBar.buttonPositivePrimary.longClicks().subscribe { vdc.saveTask() }
+
         super.onViewCreated(view, savedInstanceState)
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {

@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.list
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,6 +17,7 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
@@ -29,7 +29,7 @@ class GeneratorsFragment : SmartFragment(), AutoInject, HasSupportFragmentInject
     @Inject lateinit var vdcSource: VDCSource.Factory
 
     private val vdc: GeneratorsFragmentVDC by vdcs { vdcSource }
-    @Inject lateinit var adapter: GeneratorsAdapter
+    @Inject lateinit var adapter: GeneratorAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
@@ -46,16 +46,16 @@ class GeneratorsFragment : SmartFragment(), AutoInject, HasSupportFragmentInject
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editGenerator(adapter.data[i]) })
 
-        vdc.viewState.observe(this, Observer {
+        vdc.viewState.observe2(this) {
             adapter.update(it.generators)
-        })
+        }
 
         fab.clicks().subscribe { vdc.newGenerator() }
 
-        vdc.editTaskEvent.observe(this, Observer {
+        vdc.editTaskEvent.observe2(this) {
             val bs = GeneratorsActionDialog.newInstance(it.generatorId)
             bs.show(childFragmentManager, it.generatorId.toString())
-        })
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

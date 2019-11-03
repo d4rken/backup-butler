@@ -9,6 +9,7 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
@@ -20,7 +21,8 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
-        private val storageManager: StorageManager
+        private val storageManager: StorageManager,
+        private val processorControl: ProcessorControl
 ) : SmartVDC() {
 
     private val editorObs = taskBuilder.task(taskId)
@@ -36,7 +38,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
 
-    val storagePickerEvent = SingleLiveEvent<List<Storage.InfoOpt>>()
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         editorData
@@ -47,31 +49,40 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    data class State(
-            val destinations: List<Storage.InfoOpt> = emptyList()
-    )
+    fun removeDestination(storage: Storage.InfoOpt) {
+        editor.removeDestination(storage.storageId)
+    }
 
-    fun showDestinationPicker() {
-        storageManager.infos()
-                .subscribeOn(Schedulers.io())
-                .flatMap { allStorages ->
-                    editorData.map { it.destinations }.map { alreadyAddedStorages ->
-                        return@map allStorages.filter { !alreadyAddedStorages.contains(it.storageId) }.map { Storage.InfoOpt(it) }
+    fun executeTask() {
+        save(true)
+    }
+
+    fun saveTask() {
+        save(false)
+    }
+
+    private fun save(execute: Boolean = false) {
+        taskBuilder.save(taskId)
+                .doOnSubscribe {
+                    stater.update {
+                        it.copy(isWorking = true)
                     }
                 }
-                .take(1)
-                .subscribe { infos ->
-                    storagePickerEvent.postValue(infos.toList())
+                .subscribeOn(Schedulers.computation())
+                .subscribe { savedTask ->
+                    if (execute) processorControl.submit(savedTask)
+                    finishEvent.postValue(true)
                 }
     }
 
-    fun addDestination(storage: Storage.InfoOpt) {
-        editor.addDesination(storage.storageId)
+    fun cancel() {
+        finishEvent.postValue(Any())
     }
 
-    fun removeDestination(storage: Storage.InfoOpt) {
-        editor.removeDesination(storage.storageId)
-    }
+    data class State(
+            val destinations: List<Storage.InfoOpt> = emptyList(),
+            val isWorking: Boolean = false
+    )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<DestinationsFragmentVDC> {

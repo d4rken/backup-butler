@@ -11,13 +11,12 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.WorkId
-import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -31,7 +30,8 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
         private val taskBuilder: TaskBuilder,
-        private val safGateway: SAFGateway
+        private val safGateway: SAFGateway,
+        private val processorControl: ProcessorControl
 ) : SmartVDC() {
 
     private val editorObs = taskBuilder.task(taskId)
@@ -51,6 +51,8 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
 
     val errorEvent = SingleLiveEvent<Throwable>()
+
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         dataObs
@@ -72,7 +74,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                         state.copy(
                                 backupTypes = data.defaultConfigs.values.map { it.restoreType },
                                 customConfigCount = customCount,
-                                workIds = state.clearWorkId()
+                                isLoading = false
                         )
                     }
                     configStater.update { state ->
@@ -90,7 +92,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                                 customConfigs = customConfigs.sortedBy {
                                     it.backupInfoOpt!!.backupId.idString
                                 }.toList(),
-                                workIds = state.clearWorkId()
+                                isLoading = false
                         )
                     }
                 }
@@ -130,17 +132,40 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                 .subscribe()
     }
 
+    private fun save(execute: Boolean) {
+        editorObs.firstOrError()
+                .flatMap { it.updateOneTime(execute) }
+                .flatMap { taskBuilder.save(taskId) }
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe {
+                    configStater.update { it.copy(isWorking = true) }
+                }
+                .subscribe { savedTask ->
+                    if (execute) processorControl.submit(savedTask)
+                    finishEvent.postValue(Any())
+                }
+    }
+
+    fun runTask() {
+        save(execute = true)
+    }
+
+    fun saveTask() {
+        save(execute = false)
+    }
+
     data class SummaryState(
             val backupTypes: List<Backup.Type> = emptyList(),
             val customConfigCount: Int = 0,
-            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
-    ) : WorkId.State
+            val isLoading: Boolean = true
+    )
 
     data class ConfigState(
             val defaultConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
             val customConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
-            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
-    ) : WorkId.State
+            val isLoading: Boolean = true,
+            val isWorking: Boolean = false
+    )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<RestoreConfigFragmentVDC> {

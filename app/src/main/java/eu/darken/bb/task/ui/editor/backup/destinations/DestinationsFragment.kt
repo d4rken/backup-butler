@@ -2,77 +2,70 @@ package eu.darken.bb.task.ui.editor.backup.destinations
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
+import androidx.core.view.ViewCompat
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.requireActivityActionBar
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.SetupBarView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.list.StorageAdapter
-import eu.darken.bb.task.core.getTaskId
+import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentArgs
 import javax.inject.Inject
-import javax.inject.Provider
 
 
 class DestinationsFragment : SmartFragment(), AutoInject {
 
+    val navArgs by navArgs<DestinationsFragmentArgs>()
+
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: DestinationsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as DestinationsFragmentVDC.Factory
-        factory.create(handle, arguments!!.getTaskId()!!)
+        factory.create(handle, navArgs.taskId)
     })
 
-    @BindView(R.id.recyclerview_selected) lateinit var selectedList: RecyclerView
-    @BindView(R.id.add_destination) lateinit var addDestination: Button
+    @BindView(R.id.list_destinations) lateinit var destinationsList: RecyclerView
+    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+    @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
 
     @Inject lateinit var adapter: StorageAdapter
-    @Inject lateinit var pickerAdapterProvider: Provider<StorageAdapter>
 
     init {
-        layoutRes = R.layout.task_editor_backup_destinations_fragment
+        layoutRes = R.layout.task_editor_backup_storages_fragment
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setSubtitle(R.string.label_destinations)
 
-        selectedList.setupDefaults(adapter)
+        ViewCompat.setNestedScrollingEnabled(destinationsList, false)
+
+        destinationsList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
 
-        addDestination.clicksDebounced().subscribe { vdc.showDestinationPicker() }
+        setupBar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.executeTask() }
+        setupBar.buttonPositiveSecondary.clicksDebounced().subscribe { vdc.saveTask() }
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             adapter.update(state.destinations)
-        })
+        }
 
-        vdc.storagePickerEvent.observe(this, Observer { availableStorages ->
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setView(R.layout.generic_recyclerview_dialog)
-            val pickerDialog = builder.create()
-            pickerDialog.show()
-
-            val pickerRecycler = pickerDialog.findViewById<RecyclerView>(R.id.recyclerview)!!
-            pickerRecycler.setupDefaults()
-
-            val pickerAdapter = pickerAdapterProvider.get()
-            pickerAdapter.update(availableStorages)
-
-            pickerRecycler.adapter = pickerAdapter
-            pickerAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-                vdc.addDestination(pickerAdapter.data[i])
-                pickerDialog.dismiss()
-            })
-        })
+        fab.clicksDebounced().subscribe {
+            findNavController().navigate(
+                    R.id.nav_action_show_picker,
+                    StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
+            )
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 }

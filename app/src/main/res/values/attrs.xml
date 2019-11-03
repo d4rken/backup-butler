@@ -5,4 +5,11 @@
         <attr name="pvTitle" format="reference|string"/>
         <attr name="pvDescription" format="reference|string"/>
     </declare-styleable>
+
+    <declare-styleable name="SetupBarView">
+        <attr name="sbvPositivePrimaryLabel" format="reference|string" />
+        <attr name="sbvPositiveSecondaryLabel" format="reference|string" />
+        <attr name="sbvNegativePrimaryLabel" format="reference|string" />
+        <attr name="sbvNegativeSecondaryLabel" format="reference|string" />
+    </declare-styleable>
 </resources>

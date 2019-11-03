@@ -12,10 +12,8 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
-import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
 
@@ -23,8 +21,7 @@ import kotlinx.android.parcel.Parcelize
 class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val processorControl: ProcessorControl
+        private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
     private val taskObs = taskBuilder.task(taskId)
             .subscribeOn(Schedulers.io())
@@ -71,20 +68,6 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                 .withScopeVDC(this)
     }
 
-    fun updateCurrent(@IdRes current: Int) {
-        stater.update { it.copy(currentStep = current) }
-    }
-
-    private fun saveTask(): Single<Task> {
-        return taskBuilder.save(taskId)
-                .doOnSubscribe {
-                    stater.update {
-                        it.copy(isLoading = true)
-                    }
-                }
-                .subscribeOn(Schedulers.computation())
-    }
-
     fun dismiss() {
         taskBuilder.remove(taskId)
                 .subscribeOn(Schedulers.io())
@@ -99,19 +82,11 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     }
 
 
-    fun save(execute: Boolean = false) {
-        saveTask().subscribe { savedTask ->
-            if (execute) processorControl.submit(savedTask)
-            finishEvent.postValue(true)
-        }
-    }
-
     @Keep @Parcelize
     data class State(
             val taskId: Task.Id,
             val taskType: Task.Type,
             val stepFlow: StepFlow,
-            @IdRes val currentStep: Int = 0,
             val isValid: Boolean = false,
             val isExistingTask: Boolean = false,
             val isLoading: Boolean = true,

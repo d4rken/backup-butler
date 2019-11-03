@@ -53,13 +53,13 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
     }
 
-    fun addDesination(storageId: Storage.Id) {
+    fun addDestination(storageId: Storage.Id) {
         editorDataPub.update {
             it.copy(destinations = it.destinations.toMutableSet().apply { add(storageId) }.toSet())
         }
     }
 
-    fun removeDesination(storageId: Storage.Id) {
+    fun removeDestination(storageId: Storage.Id) {
         editorDataPub.update { task ->
             task.copy(destinations = task.destinations.toMutableSet().filterNot { it == storageId }.toSet())
         }

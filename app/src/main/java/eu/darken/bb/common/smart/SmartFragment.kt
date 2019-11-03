@@ -90,4 +90,6 @@ abstract class SmartFragment : Fragment() {
     fun invalidateOptionsMenu() {
         requireActivity().invalidateOptionsMenu()
     }
+
+    fun finishActivity() = requireActivity().finish()
 }

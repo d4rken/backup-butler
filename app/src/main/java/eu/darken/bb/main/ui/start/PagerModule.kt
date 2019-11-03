@@ -15,9 +15,9 @@ class PagerModule {
     @Provides
     fun pages(): List<PagerAdapter.Page> = listOf(
             PagerAdapter.Page(OverviewFragment::class, R.string.label_overview),
-            PagerAdapter.Page(StorageListFragment::class, R.string.label_repos),
             PagerAdapter.Page(TaskListFragment::class, R.string.label_tasks),
-            PagerAdapter.Page(SchedulesFragment::class, R.string.label_schedules),
-            PagerAdapter.Page(GeneratorsFragment::class, R.string.label_backupspec_generators)
+            PagerAdapter.Page(StorageListFragment::class, R.string.label_storages),
+            PagerAdapter.Page(GeneratorsFragment::class, R.string.label_backupspec_generators),
+            PagerAdapter.Page(SchedulesFragment::class, R.string.label_schedules)
     )
 }

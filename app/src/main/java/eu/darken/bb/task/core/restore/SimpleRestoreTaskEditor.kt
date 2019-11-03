@@ -160,9 +160,15 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                 Timber.tag(TAG).d("Replacing default generator %s with %s", newConfigs[config.restoreType], config)
                 newConfigs[config.restoreType] = config
                 data.copy(defaultConfigs = newConfigs)
-
             }
             .map { it.newValue.defaultConfigs }
+
+    fun updateOneTime(isOneTimeTask: Boolean): Single<Data> = editorDataPub
+            .updateRx {
+                it.copy(isOneTimeTask = isOneTimeTask)
+            }
+            .map { it.newValue }
+
 
     fun updateCustomConfig(backupId: Backup.Id, updateAction: (Restore.Config?) -> Restore.Config): Single<Map<Backup.Id, Restore.Config>> = editorDataPub
             .updateRx { data ->

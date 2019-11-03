@@ -38,7 +38,7 @@
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/label_backuptype_app"/>
+        tools:text="@string/backuptype_app_label" />
 
     <TextView
         android:id="@+id/description"
