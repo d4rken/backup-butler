@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Add a new destination to your backup task by picking an existing storage from the list below or creating a new one."
+        android:text="@string/taskeditor_backup_sources_picker_expl"
         app:layout_constraintBottom_toTopOf="@+id/storage_list"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

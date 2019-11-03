@@ -36,7 +36,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
         factory.create(handle, navArgs.taskId)
     })
 
-    @BindView(R.id.recyclerview_selected) lateinit var selectedList: RecyclerView
+    @BindView(R.id.list_sources) lateinit var sourcesList: RecyclerView
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
@@ -48,7 +48,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        selectedList.setupDefaults(adapter)
+        sourcesList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeSource(adapter.data[i]) })
 

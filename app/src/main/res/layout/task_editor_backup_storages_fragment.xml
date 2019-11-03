@@ -19,7 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="Where should this task save it's backups? Add multiple destinations if you want to store additional copies." />
+                android:text="@string/taskeditor_backup_destinations_expl" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_destinations"
