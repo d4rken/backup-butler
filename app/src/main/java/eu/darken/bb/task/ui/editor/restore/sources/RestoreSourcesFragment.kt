@@ -1,6 +1,5 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
@@ -13,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
@@ -66,29 +66,29 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
 
             recyclerView.setInvisible(state.isWorking)
             loadingOverlayBackupList.setInvisible(!state.isWorking)
-        }
 
-        val swipeTool = ItemSwipeTool(
-                ItemSwipeTool.SwipeAction(
-                        direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
-                        icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
-                        label = getString(R.string.action_exclude),
-                        background = ColorDrawable(Color.RED),
-                        callback = { viewHolder, _ ->
-                            vdc.exclude(adapter.data[viewHolder.adapterPosition])
-                        }
-                )
-        )
-        swipeTool.attach(recyclerView)
-
-        setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
-            findNavController().navigate(
-                    R.id.nav_action_next,
-                    RestoreConfigFragmentArgs(taskId = navArgs.taskId).toBundle()
+            val swipeTool = ItemSwipeTool(
+                    ItemSwipeTool.SwipeAction(
+                            direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
+                            icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
+                            label = getString(R.string.action_exclude),
+                            background = ColorDrawable(getColorForAttr(R.attr.colorError)),
+                            callback = { viewHolder, _ ->
+                                vdc.exclude(adapter.data[viewHolder.adapterPosition])
+                            }
+                    )
             )
+            swipeTool.attach(recyclerView)
+
+            setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
+                findNavController().navigate(
+                        R.id.nav_action_next,
+                        RestoreConfigFragmentArgs(taskId = navArgs.taskId).toBundle()
+                )
+            }
+
+            super.onViewCreated(view, savedInstanceState)
         }
 
-        super.onViewCreated(view, savedInstanceState)
     }
-
 }

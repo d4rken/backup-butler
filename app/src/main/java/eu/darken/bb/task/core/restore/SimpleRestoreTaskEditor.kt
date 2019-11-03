@@ -56,13 +56,13 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             .combineLatest(backupInfos, editorData)
             .serialize()
             .map { (infos, data) ->
-                if (data.backupTargets.isEmpty()) return@map emptyList<ConfigWrap>()
-                return@map infos.map { infoOpt ->
-                    val type = data.backupTargets.single { it.backupId == infoOpt.backupId }.backupType
-                    var config = data.customConfigs[infoOpt.backupId]
+                data.backupTargets.map { target ->
+                    var config = data.customConfigs[target.backupId]
                     val isCustom = config != null
-                    if (config == null) config = data.defaultConfigs.getValue(type)
-                    when (type) {
+                    if (config == null) config = data.defaultConfigs.getValue(target.backupType)
+
+                    val infoOpt = infos.single { it.backupId == target.backupId }
+                    when (target.backupType) {
                         Backup.Type.APP -> {
                             config as AppRestoreConfig
                             AppsConfigWrap(

@@ -30,6 +30,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.io.IOException
 import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit
 
@@ -55,7 +56,15 @@ class SAFStorage @AssistedInject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
-            .fromCallable { dataDir.listFiles(safGateway) }
+            .create<Array<SAFPath>> {
+                try {
+                    val current = dataDir.listFiles(safGateway)
+                    it.onNext(current)
+                    it.onComplete()
+                } catch (e: IOException) {
+                    it.tryOnError(e)
+                }
+            }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }

@@ -75,7 +75,6 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
 
             when (curDir) {
                 SwipeAction.Direction.RIGHT -> {
-
                     val icon = actionItem?.icon
                     if (icon != null) {
                         val iconTop = iv.top + iv.height / 2 - icon.intrinsicHeight / 2
@@ -98,7 +97,10 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
                         val textTop = iv.top + iv.height / 2 + (clipBounds.height() / 2)
                         var textStart = defaultPadding
                         if (icon != null) textStart += icon.intrinsicWidth + defaultPadding
-                        canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                        val textEnd = textStart + clipBounds.width()
+                        if (dX > textEnd) {
+                            canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                        }
                     }
                     actions.filter { it.icon != icon }.forEach {
                         it.icon?.setBounds(0, 0, 0, 0)
@@ -126,7 +128,10 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
                         val textTop = iv.top + iv.height / 2 + (clipBounds.height() / 2)
                         var textStart = iv.width - defaultPadding - clipBounds.width()
                         if (icon != null) textStart = textStart - icon.intrinsicWidth - defaultPadding
-                        canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                        val textEnd = iv.width - textStart
+                        if (dX.absoluteValue > textEnd) {
+                            canvas.drawText(label, textStart.toFloat(), textTop.toFloat(), textPaint)
+                        }
                     }
                     actions.filter { it.icon != icon }.forEach {
                         it.icon?.setBounds(0, 0, 0, 0)

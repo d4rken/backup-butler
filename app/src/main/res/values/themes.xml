@@ -12,6 +12,8 @@
 
         <item name="colorAccent">@color/colorSecondary</item>
 
+        <item name="colorOnError">@color/colorOnError</item>
+
         <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
     </style>
 
