@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -17,9 +15,10 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.ProcessorActivity
@@ -35,7 +34,7 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
     private val vdc: TaskListFragmentVDC by vdcs { vdcSource }
 
     @Inject lateinit var adapter: TaskListAdapter
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
+    @BindView(R.id.tasks_list) lateinit var tasksList: EmptyRecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     var snackbar: Snackbar? = null
@@ -45,12 +44,11 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        recyclerView.setupDefaults(adapter)
+        tasksList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             adapter.update(state.tasks)
 
             if (state.hasRunningTask && snackbar == null) {
@@ -71,14 +69,14 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
             } else {
                 snackbar?.dismiss()
             }
-        })
+        }
 
         fab.clicks().subscribe { vdc.newTask() }
 
-        vdc.editTaskEvent.observe(this, Observer {
+        vdc.editTaskEvent.observe2(this) {
             val bs = TaskActionDialog.newInstance(it.taskId)
             bs.show(childFragmentManager, it.taskId.toString())
-        })
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 }

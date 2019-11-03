@@ -195,4 +195,13 @@
     <string name="taskeditor_backup_destination_picker_expl">Add a new destination to your backup task by picking an existing storage from the list below or creating a new one.</string>
     <string name="label_edit_source">Edit source</string>
     <string name="label_create_source">Create new source</string>
+    <string name="msg_empty_list">The list is empty.</string>
+    <string name="task_list_empty">You have not created any backup tasks.</string>
+    <string name="storage_list_empty">You must construct additional pylons!</string>
+    <string name="empty_list_msg">The list is empty.</string>
+    <string name="empty_list_msg_easter">You must construct additional pylons!</string>
+    <string name="storage_quick_explanation">A location for your backups. A backup storage can be local (e.g. sdcard) or remote (e.g. Google Drive).</string>
+    <string name="task_quick_explanation">A task is where work gets done. Each task describes a set sources from which data is taken and a set of destinations where it is stored. It can be executed directly or scheduled.</string>
+    <string name="generator_quick_explanation">A source (also called generator) describes a collection of data to be backupped. A single source could describe a single app or all of your apps, or just a folder on your devices.</string>
+    <string name="schedules_quick_explanation">Schedules can be attached to tasks to run them under specific conditions (e.g. when charging) or at specific times (e.g. during the night).</string>
 </resources>

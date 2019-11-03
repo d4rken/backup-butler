@@ -3,6 +3,7 @@ package eu.darken.bb.common.ui
 import android.content.res.TypedArray
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import androidx.annotation.StyleableRes
 import eu.darken.bb.R
 
@@ -25,4 +26,11 @@ fun TypedArray.getStringOrRef(@StyleableRes styleRes: Int): String? {
     } else {
         getNonResourceString(styleRes)
     }
+}
+
+@DrawableRes
+fun TypedArray.getDrawableRes(@StyleableRes styleRes: Int): Int? {
+    if (!hasValue(styleRes)) return null
+
+    return getResourceId(styleRes, 0)
 }
