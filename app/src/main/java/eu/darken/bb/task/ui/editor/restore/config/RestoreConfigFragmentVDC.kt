@@ -70,6 +70,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
                                 }
                             }
                             .toList()
+
                     summaryStater.update { state ->
                         state.copy(
                                 backupTypes = data.defaultConfigs.values.map { it.restoreType },
@@ -87,11 +88,11 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
         customConfigs
                 .subscribe { customConfigs ->
+                    val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
+                    summaryStater.update { it.copy(configsWithIssues = issueCount) }
                     configStater.update { state ->
                         state.copy(
-                                customConfigs = customConfigs.sortedBy {
-                                    it.backupInfoOpt!!.backupId.idString
-                                }.toList(),
+                                customConfigs = customConfigs.sortedBy { it.backupInfoOpt!!.backupId.idString }.toList(),
                                 isLoading = false
                         )
                     }
@@ -157,6 +158,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     data class SummaryState(
             val backupTypes: List<Backup.Type> = emptyList(),
             val customConfigCount: Int = 0,
+            val configsWithIssues: Int = 0,
             val isLoading: Boolean = true
     )
 

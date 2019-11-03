@@ -6,7 +6,7 @@ import eu.darken.bb.common.lists.HasStableId
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 
 abstract class ConfigUIWrap(
-        configWrap: SimpleRestoreTaskEditor.ConfigWrap,
+        private val configWrap: SimpleRestoreTaskEditor.ConfigWrap,
         private val configCallback: (Restore.Config, Backup.Id?) -> Unit
 ) : HasStableId {
 
@@ -41,7 +41,7 @@ abstract class ConfigUIWrap(
         get() = if (isDefaultItem) {
             config.restoreType.hashCode().toLong()
         } else {
-            backupInfo!!.backupId.hashCode().toLong()
+            configWrap.backupInfoOpt!!.backupId.hashCode().toLong()
         }
 
 }

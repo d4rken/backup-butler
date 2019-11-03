@@ -19,7 +19,6 @@ import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 
 class StorageActionDialogVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -90,7 +89,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
             EDIT -> {
                 storageBuilder.load(storageId)
                         .subscribeOn(Schedulers.io())
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
                         .doOnError { Bugs.track(it) }
                         .doFinally { stater.update { it.copy(currentOperation = null) } }
@@ -107,7 +105,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
                         .flatMap { data ->
                             (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
                         }
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .flatMapCompletable { taskBuilder.startEditor(it) }
                         .doOnError { Bugs.track(it) }
                         .doFinally { stater.update { it.copy(currentOperation = null) } }
@@ -121,7 +118,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
             DETACH -> {
                 storageManager.detach(storageId, wipe = false)
                         .subscribeOn(Schedulers.io())
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .doOnError { Bugs.track(it) }
                         .doFinally { stater.update { it.copy(currentOperation = null) } }
                         .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
@@ -133,7 +129,6 @@ class StorageActionDialogVDC @AssistedInject constructor(
             DELETE -> {
                 storageManager.detach(storageId, wipe = true)
                         .subscribeOn(Schedulers.io())
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .doOnError { Bugs.track(it) }
                         .doFinally { stater.update { it.copy(currentOperation = null) } }
                         .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }

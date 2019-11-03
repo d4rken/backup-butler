@@ -18,6 +18,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
+import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.list.StorageAdapter
@@ -58,6 +59,9 @@ class DestinationsFragment : SmartFragment(), AutoInject {
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.destinations)
+
+            setupBar.buttonPositivePrimary.setGone(state.destinations.isEmpty())
+            setupBar.buttonPositiveSecondary.setGone(state.destinations.isEmpty())
         }
 
         fab.clicksDebounced().subscribe {
@@ -66,6 +70,8 @@ class DestinationsFragment : SmartFragment(), AutoInject {
                     StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
             )
         }
+
+        vdc.finishEvent.observe2(this) { finishActivity() }
         super.onViewCreated(view, savedInstanceState)
     }
 }

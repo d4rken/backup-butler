@@ -158,6 +158,10 @@
         <item quantity="one">%d item has a custom configuration.</item>
         <item quantity="other">%d items have a custom configuration.</item>
     </plurals>
+    <plurals name="x_configs_have_issues">
+        <item quantity="one">%d configuration is invalid.</item>
+        <item quantity="other">%d configurations are invalid.</item>
+    </plurals>
     <string name="label_default">Default</string>
     <string name="label_configuration">Configuration</string>
     <string name="action_exclude">Exclude</string>

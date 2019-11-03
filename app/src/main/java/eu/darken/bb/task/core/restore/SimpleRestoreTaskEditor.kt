@@ -204,22 +204,22 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             }
             .ignoreElement()
 
-
     fun addStorageId(storageId: Storage.Id): Single<Collection<Backup.Target>> = storageManager.getStorage(storageId)
-            .take(1)
-            .flatMap { it.specInfos().take(1) }
-            .flatMapIterable { it }
-            .filter {
-                it.backups.isNotEmpty().also { notEmpty ->
-                    if (!notEmpty) Timber.tag(TAG).d("Empty spec: %s", notEmpty)
-                }
+            .firstOrError()
+            .flatMap { it.specInfos().firstOrError() }
+            .map { infos ->
+                infos
+                        .filter {
+                            val isEmpty = it.backups.isEmpty()
+                            if (isEmpty) Timber.tag(TAG).d("Empty spec: %s", it)
+                            !isEmpty
+                        }
+                        .map {
+                            val newest = it.backups.getNewest()!!
+                            Backup.Target(storageId, it.specId, newest.backupId, newest.backupType)
+                        }
             }
-            .map {
-                val newest = it.backups.getNewest()!!
-                Backup.Target(storageId, it.specId, newest.backupId, newest.backupType)
-            }
-            .toList()
-            .flatMap { addTargets(*it.toTypedArray()).toSingleDefault(it) }
+            .flatMap { targets -> addTargets(*targets.toTypedArray()).toSingleDefault(targets) }
 
     fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id): Single<Backup.Target> = storageManager.getStorage(storageId)
             .firstOrError()
@@ -249,6 +249,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         val config: Restore.Config
         val backupInfoOpt: Backup.InfoOpt?
         val isCustomConfig: Boolean
+        val isValid: Boolean
     }
 
     data class FilesConfigWrap(
@@ -259,6 +260,9 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             val defaultPath: APath? = null
     ) : ConfigWrap {
 
+        override val isValid: Boolean
+            get() = isPermissionGranted
+
         val currentPath: APath?
             get() = config.restorePath ?: defaultPath
     }
@@ -267,7 +271,10 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             override val config: AppRestoreConfig,
             override val backupInfoOpt: Backup.InfoOpt? = null,
             override val isCustomConfig: Boolean = false
-    ) : ConfigWrap
+    ) : ConfigWrap {
+        override val isValid: Boolean
+            get() = true
+    }
 
     companion object {
         internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")

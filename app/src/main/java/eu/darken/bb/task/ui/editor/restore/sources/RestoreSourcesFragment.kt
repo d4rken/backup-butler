@@ -55,7 +55,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
 
         vdc.summaryState.observe2(this) { state ->
             countBackups.setTextQuantity(R.plurals.restore_task_x_backups_selected_desc, state.sourceBackups.size)
-            countBackups.setGone(state.sourceBackups.isEmpty())
+            setupBar.buttonPositiveSecondary.setGone(state.sourceBackups.isEmpty())
 
             countContainer.setInvisible(state.isWorking)
             loadingOverlayCounts.setInvisible(!state.isWorking)

@@ -49,7 +49,6 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
                 generatorBuilder.startEditor(generatorId)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe()
             }

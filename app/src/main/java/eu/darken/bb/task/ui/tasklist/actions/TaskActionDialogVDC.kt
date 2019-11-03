@@ -54,7 +54,6 @@ class TaskActionDialogVDC @AssistedInject constructor(
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .subscribeOn(Schedulers.io())
                         .map { it.notNullValue() }
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe { task ->
                             processorControl.submit(task)
@@ -64,7 +63,6 @@ class TaskActionDialogVDC @AssistedInject constructor(
                 taskBuilder.load(taskId)
                         .subscribeOn(Schedulers.io())
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .delay(200, TimeUnit.MILLISECONDS)
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
                         .subscribe()

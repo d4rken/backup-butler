@@ -6,14 +6,12 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -72,8 +70,6 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
     }
 
     data class CountState(
-            val sourceStorages: List<Storage.Id> = emptyList(),
-            val sourceBackupSpecs: List<BackupSpec.Target> = emptyList(),
             val sourceBackups: List<Backup.Target> = emptyList(),
             override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State

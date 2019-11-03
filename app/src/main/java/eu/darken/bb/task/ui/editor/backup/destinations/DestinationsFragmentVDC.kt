@@ -75,10 +75,6 @@ class DestinationsFragmentVDC @AssistedInject constructor(
                 }
     }
 
-    fun cancel() {
-        finishEvent.postValue(Any())
-    }
-
     data class State(
             val destinations: List<Storage.InfoOpt> = emptyList(),
             val isWorking: Boolean = false

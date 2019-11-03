@@ -18,10 +18,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
-import eu.darken.bb.common.ui.LoadingOverlayView
-import eu.darken.bb.common.ui.SetupBarView
-import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.ui.setTextQuantity
+import eu.darken.bb.common.ui.*
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -46,6 +43,7 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
     @BindView(R.id.count_container) lateinit var countContainer: ViewGroup
     @BindView(R.id.count_backups) lateinit var countTypes: TextView
     @BindView(R.id.count_custom_configs) lateinit var countCustomConfigs: TextView
+    @BindView(R.id.count_config_issues) lateinit var countConfigIssues: TextView
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay_backuplist) lateinit var loadingOverlayBackupList: LoadingOverlayView
@@ -60,7 +58,14 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
         vdc.summaryState.observe2(this) { state ->
             countTypes.setTextQuantity(R.plurals.restore_task_x_backups_types_desc, state.backupTypes.size)
+
             countCustomConfigs.setTextQuantity(R.plurals.x_items_custom_config_desc, state.customConfigCount)
+            countCustomConfigs.setGone(state.customConfigCount == 0)
+
+            countConfigIssues.setTextQuantity(R.plurals.x_configs_have_issues, state.configsWithIssues)
+            countConfigIssues.setGone(state.configsWithIssues == 0)
+
+            setupBar.buttonPositivePrimary.setGone(state.configsWithIssues != 0)
 
             countContainer.setInvisible(state.isLoading)
             loadingOverlayCounts.setInvisible(!state.isLoading)
@@ -114,7 +119,6 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
         vdc.finishEvent.observe2(this) { finishActivity() }
 
         setupBar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }
-
         setupBar.buttonPositivePrimary.longClicks().subscribe { vdc.saveTask() }
 
         super.onViewCreated(view, savedInstanceState)
