@@ -19,4 +19,11 @@
         <attr name="ervExplanationIcon" format="reference" />
         <attr name="ervExplanationText" format="reference|string" />
     </declare-styleable>
+
+    <declare-styleable name="RecyclerViewWrapperLayout">
+        <attr name="rvwEmptyIcon" format="reference" />
+        <attr name="rvwEmptyText" format="reference|string" />
+        <attr name="rvwExplanationIcon" format="reference" />
+        <attr name="rvwExplanationText" format="reference|string" />
+    </declare-styleable>
 </resources>

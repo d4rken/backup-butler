@@ -2,21 +2,19 @@ package eu.darken.bb.task.ui.editor.backup.destinations
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.ViewCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.ui.SetupBarView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
@@ -36,7 +34,7 @@ class DestinationsFragment : SmartFragment(), AutoInject {
         factory.create(handle, navArgs.taskId)
     })
 
-    @BindView(R.id.list_destinations) lateinit var destinationsList: RecyclerView
+    @BindView(R.id.list_destinations) lateinit var destinationsList: EmptyRecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
 
@@ -47,9 +45,6 @@ class DestinationsFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        ViewCompat.setNestedScrollingEnabled(destinationsList, false)
-
         destinationsList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })

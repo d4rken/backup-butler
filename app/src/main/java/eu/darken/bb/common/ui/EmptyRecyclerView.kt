@@ -30,18 +30,18 @@ class EmptyRecyclerView @JvmOverloads constructor(
     @BindView(R.id.explanation_icon) protected lateinit var explanationIconView: ImageView
     @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
 
-    internal var isInitialDisplay = true
+    internal var shouldDisplayExplanation = true
 
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
             recyclerView.setInvisible(recyclerView.adapter?.itemCount == 0)
 
-            if (isInitialDisplay && recyclerView.adapter?.itemCount != 0) {
-                isInitialDisplay = false
+            if (shouldDisplayExplanation && recyclerView.adapter?.itemCount != 0) {
+                shouldDisplayExplanation = false
             }
 
-            emptyContainer.setInvisible(isInitialDisplay || recyclerView.adapter?.itemCount != 0)
-            explanationContainer.setGone(!isInitialDisplay || recyclerView.adapter?.itemCount != 0)
+            emptyContainer.setInvisible(shouldDisplayExplanation || recyclerView.adapter?.itemCount != 0)
+            explanationContainer.setGone(!shouldDisplayExplanation || recyclerView.adapter?.itemCount != 0)
         }
     }
 
@@ -52,6 +52,10 @@ class EmptyRecyclerView @JvmOverloads constructor(
         lateinit var typedArray: TypedArray
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.EmptyRecyclerView)
+
+
+            val emptyIcon = typedArray.getDrawableRes(R.styleable.EmptyRecyclerView_ervEmptyIcon)
+            if (emptyIcon != null) emptyIconView.setImageResource(emptyIcon)
 
             val emptyText = typedArray.getStringOrRef(R.styleable.EmptyRecyclerView_ervEmptyText)
             if (emptyText != null) {
@@ -64,17 +68,17 @@ class EmptyRecyclerView @JvmOverloads constructor(
                 }
             }
 
-            val emptyIcon = typedArray.getDrawableRes(R.styleable.EmptyRecyclerView_ervEmptyIcon)
-            if (emptyIcon != null) emptyIconView.setImageResource(emptyIcon)
+
+            val explanationIcon = typedArray.getDrawableRes(R.styleable.EmptyRecyclerView_ervExplanationIcon)
+            if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
 
             val explanationText = typedArray.getStringOrRef(R.styleable.EmptyRecyclerView_ervExplanationText)
             if (explanationText != null) explanationTextView.text = explanationText
             explanationContainer.setGone(explanationText == null)
 
-            val explanationIcon = typedArray.getDrawableRes(R.styleable.EmptyRecyclerView_ervExplanationIcon)
-            if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
 
             emptyContainer.setInvisible(explanationText != null)
+            shouldDisplayExplanation = explanationText != null
 
         } finally {
             typedArray.recycle()
@@ -100,9 +104,9 @@ class EmptyRecyclerView @JvmOverloads constructor(
             recyclerView.adapter = value
         }
 
-    fun setupDefaults(adapter: ModularAdapter<*>) {
+    fun setupDefaults(adapter: ModularAdapter<*>, dividers: Boolean = true) {
         recyclerView.adapter?.unregisterAdapterDataObserver(dataListener)
         adapter.registerAdapterDataObserver(dataListener)
-        recyclerView.setupDefaults(adapter)
+        recyclerView.setupDefaults(adapter, dividers)
     }
 }

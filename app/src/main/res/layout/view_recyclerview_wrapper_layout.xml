@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:parentTag="android.widget.FrameLayout">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
+    <FrameLayout
+        android:id="@+id/recyclerview_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"

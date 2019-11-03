@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import eu.darken.bb.R
@@ -12,11 +11,11 @@ import eu.darken.bb.backup.ui.generator.list.GeneratorAdapter
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -35,7 +34,7 @@ class GeneratorPickerFragment : SmartFragment(), AutoInject {
     })
 
     @Inject lateinit var adapter: GeneratorAdapter
-    @BindView(R.id.storage_list) lateinit var generatorList: RecyclerView
+    @BindView(R.id.storage_list) lateinit var generatorList: EmptyRecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 

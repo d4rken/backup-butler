@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.list
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.android.AndroidInjector
@@ -12,11 +13,11 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -34,7 +35,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     private val vdc: StorageListFragmentVDC by vdcs { vdcSource }
 
     @Inject lateinit var adapter: StorageAdapter
-    @BindView(R.id.storage_list) lateinit var storageList: EmptyRecyclerView
+    @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 

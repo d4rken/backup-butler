@@ -35,7 +35,7 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <eu.darken.bb.common.ui.EmptyRecyclerView
         android:id="@+id/pkg_preview_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
