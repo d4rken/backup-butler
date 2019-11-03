@@ -31,7 +31,7 @@ class UISettings @Inject constructor(
 
     var theme: Theme
         get() {
-            val id = preferences.getString(PKEY_THEME, Theme.SYSTEM.identifier)!!
+            val id = preferences.getString(PKEY_THEME, Theme.DARK.identifier)!!
             return Theme.fromString(id)
         }
         set(value) {
