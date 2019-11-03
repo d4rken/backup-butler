@@ -11,7 +11,7 @@
     <!--A lighter/darker variant of your secondary brand color, used sparingly in theming-->
     <color name="colorSecondaryVariant">#009624</color>
     <!--The color used for elements displayed on top of your secondary colors-->
-    <color name="colorOnSecondary">#000000</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
     <!--The color used for errors (often a shade of red)-->
     <color name="colorError">#F44336</color>
     <!--The color used for elements displayed on top of your error color-->

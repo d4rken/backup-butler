@@ -44,7 +44,7 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { state ->
-            supportActionBar!!.subtitle = when (state.taskType) {
+            supportActionBar?.subtitle = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
                     if (state.isExistingTask) getString(R.string.label_edit_backup_task)
                     else getString(R.string.label_new_backup_task)

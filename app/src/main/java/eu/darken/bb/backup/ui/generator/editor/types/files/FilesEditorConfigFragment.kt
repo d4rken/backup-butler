@@ -6,17 +6,19 @@ import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import eu.darken.bb.R
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.picker.APathPicker
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
@@ -48,9 +50,7 @@ class FilesEditorConfigFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.backuptype_files_label)
-
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferentAndNotFocused(state.label)
             pathDisplay.text = state.path?.userReadablePath(requireContext())
 
@@ -62,7 +62,7 @@ class FilesEditorConfigFragment : SmartFragment(), AutoInject {
             allowCreate = state.isValid
             existing = state.isExisting
             invalidateOptionsMenu()
-        })
+        }
 
         labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         pathButton.clicksDebounced().subscribe { vdc.showPicker() }

@@ -44,6 +44,9 @@ class GeneratorEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         ButterKnife.bind(this)
 
         vdc.state.observe2(this) { state ->
+            supportActionBar?.subtitle = if (state.isExisting) getString(R.string.label_edit_source)
+            else getString(R.string.label_create_source)
+
             if (!navController.isGraphSet()) {
                 val graph = navController.navInflater.inflate(R.navigation.generator_editor)
                 graph.startDestination = state.stepFlow.start

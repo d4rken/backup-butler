@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.config
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
@@ -11,14 +10,17 @@ import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.getCountString
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.PreferenceView
 import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
@@ -60,9 +62,7 @@ class AppEditorConfigFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.backuptype_app_label)
-
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferentAndNotFocused(state.label)
 
             optionAutoInclude.isChecked = state.autoInclude
@@ -84,7 +84,7 @@ class AppEditorConfigFragment : SmartFragment(), AutoInject {
             allowCreate = state.isValid
             existing = state.isExisting
             invalidateOptionsMenu()
-        })
+        }
 
         optionAutoInclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
         optionIncludeUser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }

@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -14,6 +13,7 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
@@ -41,13 +41,11 @@ class AppEditorPreviewFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.backuptype_app_label)
-
         pkgPreviewList.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.onSelect(adapter.data[i]) })
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             adapter.update(state.pkgs)
 
             when (state.previewMode) {
@@ -67,7 +65,7 @@ class AppEditorPreviewFragment : SmartFragment(), AutoInject {
                     infoItems.text = "${resources.getCountString(R.plurals.x_items, state.pkgs.size)} (${resources.getCountString(R.plurals.x_selected, state.selected.size)})"
                 }
             }
-        })
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

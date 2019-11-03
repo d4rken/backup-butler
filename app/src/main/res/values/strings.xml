@@ -189,4 +189,6 @@
     <string name="taskeditor_backup_destinations_expl">Where should this task save it\'s backups? Add multiple destinations if you want to store additional copies.</string>
     <string name="taskeditor_backup_sources_picker_expl">Add a new backup source to task by picking an existing source from the list below or creating a new one.</string>
     <string name="taskeditor_backup_destination_picker_expl">Add a new destination to your backup task by picking an existing storage from the list below or creating a new one.</string>
+    <string name="label_edit_source">Edit source</string>
+    <string name="label_create_source">Create new source</string>
 </resources>

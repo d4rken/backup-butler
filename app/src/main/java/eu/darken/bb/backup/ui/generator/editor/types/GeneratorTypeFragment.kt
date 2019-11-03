@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor.types
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
@@ -20,7 +19,6 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -46,14 +44,13 @@ class GeneratorTypeFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.label_backupspec_generator)
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 
-        vdc.state.observe(this, Observer {
+        vdc.state.observe2(this) {
             adapter.update(it.supportedTypes)
-        })
+        }
 
         vdc.navigationEvent.observe2(this) { (type, id) ->
             val nextStep = when (type) {
