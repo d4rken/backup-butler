@@ -2,12 +2,14 @@ package eu.darken.bb.common.debug.bugsnag
 
 
 import com.bugsnag.android.BeforeNotify
+import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.BBEnv
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.InstallId
 import eu.darken.bb.common.debug.timber.BugsnagTree
+import timber.log.Timber
 import javax.inject.Inject
 
 @PerApp
@@ -19,6 +21,7 @@ class BugsnagErrorHandler @Inject constructor(
 ) : BeforeNotify {
 
     override fun run(error: com.bugsnag.android.Error): Boolean {
+        Timber.tag(TAG).v("Handling error: %s", error)
         // TODO
 //        if (!ReportingPreferencesFragment.isBugReportingDesired(sdmContext)) return false
         bugsnagTree.update(error)
@@ -53,10 +56,11 @@ class BugsnagErrorHandler @Inject constructor(
 //            }
 //        }
 
-        return BuildConfig.DEBUG
+        return !BuildConfig.DEBUG
     }
 
     companion object {
+        private val TAG = App.logTag("Bugsnag", "ErrorHandler")
         private val TAB_APP = "app"
         private val TAB_DEVICE = "device"
         private val TAB_ROOTCONTEXT = "rootcontext"
