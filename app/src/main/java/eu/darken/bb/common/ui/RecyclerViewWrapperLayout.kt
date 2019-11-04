@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
+import timber.log.Timber
 
 @Suppress("ProtectedInFinal")
 class RecyclerViewWrapperLayout @JvmOverloads constructor(
@@ -27,20 +28,19 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     @BindView(R.id.explanation_icon) protected lateinit var explanationIconView: ImageView
     @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
 
-    protected val recyclerView: RecyclerView?
-        get() {
-            for (i in 0 until childCount) {
-                val child = getChildAt(i)
-                if (child is RecyclerView) return child
-            }
-            return null
+    protected val recyclerView: RecyclerView by lazy<RecyclerView> {
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child is RecyclerView) return@lazy child
         }
+        throw IllegalArgumentException("No RecyclerView found")
+    }
 
     protected var shouldDisplayExplanation = true
 
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
-            recyclerView?.setInvisible(currentAdapter?.itemCount == 0)
+            recyclerView.setInvisible(currentAdapter?.itemCount == 0)
 
             if (shouldDisplayExplanation && currentAdapter?.itemCount != 0) {
                 shouldDisplayExplanation = false
@@ -92,20 +92,31 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         }
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        val r = recyclerView
-        if (r != null) {
-            if (currentAdapter != r.adapter) {
-                currentAdapter?.unregisterAdapterDataObserver(dataListener)
-                currentAdapter = r.adapter
-                currentAdapter?.registerAdapterDataObserver(dataListener)
-            }
-        } else {
-            currentAdapter?.unregisterAdapterDataObserver(dataListener)
-            currentAdapter = null
-        }
+//    override fun onFinishInflate() {
+//        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+//            override fun onChildViewDetachedFromWindow(view: View) {}
+//
+//            override fun onChildViewAttachedToWindow(view: View) {
+//                checkAdapter()
+//            }
+//
+//        })
+//        super.onFinishInflate()
+//    }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        checkAdapter()
         super.onLayout(changed, left, top, right, bottom)
+    }
+
+    protected fun checkAdapter() {
+        if (currentAdapter != recyclerView.adapter) {
+            Timber.v("Updating tracked adapter")
+            currentAdapter?.unregisterAdapterDataObserver(dataListener)
+            currentAdapter = recyclerView.adapter
+            currentAdapter?.registerAdapterDataObserver(dataListener)
+            dataListener.onChanged()
+        }
     }
 
     fun setEmptyInfos(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
