@@ -9,7 +9,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import io.reactivex.Completable
+import eu.darken.bb.task.core.Task
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -109,37 +109,36 @@ class GeneratorBuilder @Inject constructor(
                 update(id) { data }.map { data }
             }
 
-    fun startEditor(configId: Generator.Id = Generator.Id(), type: Backup.Type? = null): Completable = hotData.data.firstOrError()
+    fun startEditor(
+            generatorId: Generator.Id = Generator.Id(),
+            type: Backup.Type? = null,
+            targetTask: Task.Id? = null
+    ): Single<Generator.Id> = hotData.data.firstOrError()
             .map { builderData ->
-                if (builderData.containsKey(configId)) builderData.getValue(configId)
-                else throw IllegalArgumentException("Config builder not in data: $configId")
+                if (builderData.containsKey(generatorId)) builderData.getValue(generatorId)
+                else throw IllegalArgumentException("Config builder not in data: $generatorId")
             }
-            .onErrorResumeNext { load(configId) }
+            .onErrorResumeNext { load(generatorId) }
             .onErrorResumeNext {
-                Timber.tag(TAG).d("No existing generator generator for id %s, creating new dataset.", configId)
-                update(configId) { Data(generatorId = configId, generatorType = type) }.map { it.value!! }
+                Timber.tag(TAG).d("No existing generator generator for id %s, creating new dataset.", generatorId)
+                update(generatorId) {
+                    Data(generatorId = generatorId, generatorType = type, targetTask = targetTask)
+                }.map { it.value!! }
             }
             .doOnSuccess { data ->
-                Timber.tag(TAG).v("Starting editor for ID %s", configId)
+                Timber.tag(TAG).v("Starting editor for ID %s", generatorId)
                 val intent = Intent(context, GeneratorEditorActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.putExtras(GeneratorEditorActivityArgs(generatorId = data.generatorId).toBundle())
                 context.startActivity(intent)
             }
-            .ignoreElement()
-
-    fun createBuilder(newId: Generator.Id = Generator.Id(), type: Backup.Type?): Single<Data> = Single.fromCallable {
-        Data(
-                generatorId = newId,
-                generatorType = type,
-                editor = editors[type]?.create(newId)
-        )
-    }
+            .map { generatorId }
 
     data class Data(
             val generatorId: Generator.Id,
             val generatorType: Backup.Type? = null,
-            val editor: GeneratorEditor? = null
+            val editor: GeneratorEditor? = null,
+            val targetTask: Task.Id? = null
     )
 
     companion object {

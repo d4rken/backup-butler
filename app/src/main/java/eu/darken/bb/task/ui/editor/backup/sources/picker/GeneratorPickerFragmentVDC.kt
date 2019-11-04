@@ -23,6 +23,7 @@ class GeneratorPickerFragmentVDC @AssistedInject constructor(
         private val generatorBuilder: GeneratorBuilder,
         generatorRepo: GeneratorRepo
 ) : SmartVDC() {
+
     private val editorObs = taskBuilder.task(taskId)
             .subscribeOn(Schedulers.io())
             .filter { it.editor != null }
@@ -65,22 +66,6 @@ class GeneratorPickerFragmentVDC @AssistedInject constructor(
                 }
         finishEvent.postValue(Any())
     }
-
-//    fun showSourcePicker() {
-//        generatorRepo.configs
-//                .subscribeOn(Schedulers.io())
-//                .map { it.values }
-//                .flatMap { all ->
-//                    editorData.map { it.sources }.map { alreadyAdded ->
-//                        return@map all.filter { !alreadyAdded.contains(it.generatorId) }
-//                    }
-//                }
-//                .firstOrError()
-//                .map { configs -> configs.map { GeneratorConfigOpt(it) } }
-//                .subscribe { infos ->
-//                    sourcePickerEvent.postValue(infos.toList())
-//                }
-//    }
 
     data class State(
             val generatorData: List<GeneratorConfigOpt> = emptyList(),
