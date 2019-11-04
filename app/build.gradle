@@ -55,6 +55,7 @@ android {
 
             }
             ext.enableBugsnag = false
+            buildConfigField "boolean", "BETA", "true"
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
@@ -82,6 +83,7 @@ android {
                 fatal 'StopShip'
             }
             ext.enableBugsnag = true
+            buildConfigField "boolean", "BETA", "false"
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
