@@ -191,8 +191,10 @@
     <string name="label_storages">Storages</string>
     <string name="taskeditor_backup_sources_expl">What should this task backup? Add one or more sources.</string>
     <string name="taskeditor_backup_destinations_expl">Where should this task save it\'s backups? Add multiple destinations if you want to store additional copies.</string>
-    <string name="taskeditor_backup_sources_picker_expl">Add a new backup source to task by picking an existing source from the list below or creating a new one.</string>
-    <string name="taskeditor_backup_destination_picker_expl">Add a new destination to your backup task by picking an existing storage from the list below or creating a new one.</string>
+    <string name="taskeditor_backup_sources_picker_empty_msg">You don\'t have any backup sources yet. Create one so you can add it to this task.</string>
+    <string name="taskeditor_backup_sources_picker_alladded_msg">All existing sources have already been added to this task. Want to backup additional data? Just create another source.</string>
+    <string name="taskeditor_backup_destination_picker_empty_msg">There are no existing storages. Let\'s create one so you can add it to this task.</string>
+    <string name="taskeditor_backup_destination_picker_alladded_msg">All existing storages have already been added to this task. Need to store your backups in additional locations? Just create another storage!</string>
     <string name="label_edit_source">Edit source</string>
     <string name="label_create_source">Create new source</string>
     <string name="msg_empty_list">The list is empty.</string>

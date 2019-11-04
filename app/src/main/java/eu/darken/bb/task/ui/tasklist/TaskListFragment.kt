@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -15,10 +16,10 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.ProcessorActivity
@@ -34,7 +35,7 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
     private val vdc: TaskListFragmentVDC by vdcs { vdcSource }
 
     @Inject lateinit var adapter: TaskListAdapter
-    @BindView(R.id.tasks_list) lateinit var tasksList: EmptyRecyclerView
+    @BindView(R.id.tasks_list) lateinit var tasksList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     var snackbar: Snackbar? = null

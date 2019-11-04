@@ -32,15 +32,17 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
     val storageData = storageManager.infos()
             .subscribeOn(Schedulers.io())
             .flatMap { all ->
-                editorData.map { it.destinations }.map { alreadyAdded ->
-                    return@map all.filter { !alreadyAdded.contains(it.storageId) }
-                }
-            }
-            .map { infos ->
-                StorageState(
-                        storages = infos.map { Storage.InfoOpt(it) },
-                        isLoading = false
-                )
+                editorData
+                        .map { it.destinations }.map { alreadyAdded ->
+                            return@map all.filter { !alreadyAdded.contains(it.storageId) }
+                        }
+                        .map { infos ->
+                            StorageState(
+                                    storages = infos.map { Storage.InfoOpt(it) },
+                                    allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
+                                    isLoading = false
+                            )
+                        }
             }
             .startWith(StorageState())
             .toLiveData()
@@ -65,6 +67,7 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
 
     data class StorageState(
             val storages: List<Storage.InfoOpt> = emptyList(),
+            val allExistingAdded: Boolean = false,
             val isLoading: Boolean = true
     )
 

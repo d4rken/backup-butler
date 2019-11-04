@@ -13,13 +13,6 @@
         <attr name="sbvNegativeSecondaryLabel" format="reference|string" />
     </declare-styleable>
 
-    <declare-styleable name="EmptyRecyclerView">
-        <attr name="ervEmptyIcon" format="reference" />
-        <attr name="ervEmptyText" format="reference|string" />
-        <attr name="ervExplanationIcon" format="reference" />
-        <attr name="ervExplanationText" format="reference|string" />
-    </declare-styleable>
-
     <declare-styleable name="RecyclerViewWrapperLayout">
         <attr name="rvwEmptyIcon" format="reference" />
         <attr name="rvwEmptyText" format="reference|string" />

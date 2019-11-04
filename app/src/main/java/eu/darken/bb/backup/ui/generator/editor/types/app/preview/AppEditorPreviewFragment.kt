@@ -4,17 +4,18 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.getCountString
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.EmptyRecyclerView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
@@ -31,7 +32,7 @@ class AppEditorPreviewFragment : SmartFragment(), AutoInject {
     })
     @Inject lateinit var adapter: PkgsPreviewAdapter
 
-    @BindView(R.id.pkg_preview_list) lateinit var pkgPreviewList: EmptyRecyclerView
+    @BindView(R.id.pkg_preview_list) lateinit var pkgPreviewList: RecyclerView
     @BindView(R.id.info_mode) lateinit var infoMode: TextView
     @BindView(R.id.info_items) lateinit var infoItems: TextView
 

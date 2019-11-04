@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -25,7 +27,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     @BindView(R.id.explanation_icon) protected lateinit var explanationIconView: ImageView
     @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
 
-    internal val recyclerView: RecyclerView?
+    protected val recyclerView: RecyclerView?
         get() {
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
@@ -34,7 +36,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             return null
         }
 
-    internal var shouldDisplayExplanation = true
+    protected var shouldDisplayExplanation = true
 
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
@@ -104,5 +106,10 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         }
 
         super.onLayout(changed, left, top, right, bottom)
+    }
+
+    fun setEmptyInfos(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
+        if (iconRes != null) emptyIconView.setImageResource(iconRes)
+        if (stringRes != null) emptyTextView.setText(stringRes)
     }
 }

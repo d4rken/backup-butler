@@ -33,15 +33,17 @@ class GeneratorPickerFragmentVDC @AssistedInject constructor(
             .subscribeOn(Schedulers.io())
             .map { it.values }
             .flatMap { all ->
-                editorData.map { it.sources }.map { alreadyAdded ->
-                    return@map all.filter { !alreadyAdded.contains(it.generatorId) }
-                }
-            }
-            .map { infos ->
-                State(
-                        generatorData = infos.map { GeneratorConfigOpt(config = it) }.toList(),
-                        isLoading = false
-                )
+                editorData
+                        .map { it.sources }.map { alreadyAdded ->
+                            return@map all.filter { !alreadyAdded.contains(it.generatorId) }
+                        }
+                        .map { infos ->
+                            State(
+                                    generatorData = infos.map { GeneratorConfigOpt(config = it) }.toList(),
+                                    allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
+                                    isLoading = false
+                            )
+                        }
             }
             .startWith(State())
             .toLiveData()
@@ -82,6 +84,7 @@ class GeneratorPickerFragmentVDC @AssistedInject constructor(
 
     data class State(
             val generatorData: List<GeneratorConfigOpt> = emptyList(),
+            val allExistingAdded: Boolean = false,
             val isLoading: Boolean = true
     )
 
