@@ -2,15 +2,20 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ListPreference
+        android:icon="@drawable/ic_theme_onsurface"
         android:key="ui.theme"
         android:title="@string/userinterface_theme_label" />
 
 
     <PreferenceCategory android:title="@string/category_other_label">
 
-        <Preference android:title="@string/language_settings_label" />
+        <Preference
+            android:icon="@drawable/ic_language_onsurface"
+            android:title="@string/language_settings_label" />
 
-        <Preference android:title="@string/language_translation_label" />
+        <Preference
+            android:icon="@drawable/ic_translate_onsurface"
+            android:title="@string/language_translation_label" />
 
 
     </PreferenceCategory>

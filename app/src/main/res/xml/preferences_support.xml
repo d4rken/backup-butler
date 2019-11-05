@@ -1,12 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference android:title="@string/documentation_label" />
-    <Preference android:title="@string/email_developer_label" />
-    <Preference android:title="@string/discord_label" />
-    <Preference android:title="@string/reddit_label" />
-    <Preference android:title="@string/xda_label" />
-    <Preference android:title="@string/twitter_label" />
-    <Preference android:title="@string/issue_tracker_label" />
-    <Preference android:title="@string/support_installid_label" />
+    <Preference
+        android:icon="@drawable/ic_card_text_onsurface"
+        android:summary="@string/documentation_desc"
+        android:title="@string/documentation_label" />
+    <Preference
+        android:icon="@drawable/ic_email_onsurface"
+        android:summary="@string/email_developer_desc"
+        android:title="@string/email_developer_label" />
+    <Preference
+        android:icon="@drawable/ic_github_onsurface"
+        android:summary="@string/issue_tracker_desc"
+        android:title="@string/issue_tracker_label" />
+    <Preference
+        android:icon="@drawable/ic_discord_onsurface"
+        android:summary="@string/discord_desc"
+        android:title="@string/discord_label" />
+    <Preference
+        android:icon="@drawable/ic_reddit_onsurface"
+        android:summary="@string/reddit_desc"
+        android:title="@string/reddit_label" />
+    <Preference
+        android:icon="@drawable/ic_xda_onsurface"
+        android:summary="@string/xda_desc"
+        android:title="@string/xda_label" />
+
+    <PreferenceCategory app:title="@string/category_other_label">
+        <Preference
+            android:icon="@drawable/ic_twitter_onsurface"
+            android:summary="@string/twitter_desc"
+            android:title="@string/twitter_label" />
+        <Preference
+            android:icon="@drawable/ic_id_onsurface"
+            android:summary="@string/support_installid_desc"
+            android:title="@string/support_installid_label" />
+    </PreferenceCategory>
 </PreferenceScreen>

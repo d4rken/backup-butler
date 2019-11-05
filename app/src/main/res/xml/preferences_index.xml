@@ -2,37 +2,44 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
+        android:icon="@drawable/ic_account_onsurface"
         app:fragment="eu.darken.bb.upgrades.ui.settings.AccountSettingsFragment"
         app:summary="@string/account_settings_desc"
         app:title="@string/account_settings_label" />
 
     <Preference
+        android:icon="@drawable/ic_ui_onsurface"
         app:fragment="eu.darken.bb.main.ui.settings.ui.UISettingsFragment"
         app:summary="@string/userinterface_settings_desc"
         app:title="@string/userinterface_settings_label" />
 
     <Preference
+        android:icon="@drawable/ic_support_onsurface"
         app:fragment="eu.darken.bb.main.ui.settings.support.SupportFragment"
         app:summary="If you need some help."
         app:title="@string/support_settings_label" />
 
     <PreferenceCategory android:title="@string/category_core_label">
         <Preference
+            android:icon="@drawable/ic_settings_onsurface"
             app:fragment="eu.darken.bb.main.ui.settings.general.GeneralSettingsFragment"
             app:summary="@string/general_settings_desc"
             app:title="@string/general_settings_label" />
 
         <Preference
+            android:icon="@drawable/ic_storage_onsurface"
             app:fragment="eu.darken.bb.storage.ui.settings.StorageSettingsFragment"
             app:summary="@string/storage_settings_desc"
             app:title="@string/storage_settings_label" />
 
         <Preference
+            android:icon="@drawable/ic_task_onsurface"
             app:fragment="eu.darken.bb.task.ui.settings.TaskSettingsFragment"
             app:summary="@string/task_settings_desc"
             app:title="@string/task_tab_label" />
 
         <Preference
+            android:icon="@drawable/ic_scheduler_onsurface"
             app:fragment="eu.darken.bb.schedule.ui.settings.SchedulerSettingsFragment"
             app:summary="@string/schedule_settings_desc"
             app:title="@string/scheduler_settings_label" />
@@ -40,6 +47,7 @@
         <Preference
             app:fragment="eu.darken.bb.backup.ui.settings.BackupSettingsFragment"
             app:summary="@string/backup_settings_desc"
+            android:icon="@drawable/ic_backup_onsurface"
             app:title="@string/backups_label" />
 
     </PreferenceCategory>
@@ -47,15 +55,18 @@
 
         <Preference
             android:title="@string/changelog_label"
+            android:icon="@drawable/ic_changelog_onsurface"
             app:summary="v?.?.?" />
 
         <Preference
             app:fragment="eu.darken.bb.main.ui.settings.acks.AcknowledgementsFragment"
             app:summary="@string/general_thank_you_label"
+            android:icon="@drawable/ic_heart_onsurface"
             app:title="@string/acknowledgements_settings_label" />
 
         <Preference
             app:summary="@string/privacy_policy_settings_desc"
+            android:icon="@drawable/ic_book_onsurface"
             app:title="@string/privacy_policy_settings_label" />
 
     </PreferenceCategory>

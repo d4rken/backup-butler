@@ -32,7 +32,7 @@ interface Storage : Progress.Host {
             @Transient @StringRes val descriptionRes: Int
     ) {
         LOCAL(R.drawable.ic_sd_storage, R.string.storage_type_local_label, R.string.storage_type_local_desc),
-        SAF(R.drawable.ic_storage, R.string.storage_type_saf_label, R.string.storage_type_saf_desc);
+        SAF(R.drawable.ic_saf, R.string.storage_type_saf_label, R.string.storage_type_saf_desc);
     }
 
     val storageId: Id
