@@ -10,7 +10,7 @@ import eu.darken.bb.main.core.Settings
 import javax.inject.Inject
 
 @PerApp
-class CoreSettings @Inject constructor(
+class GeneralSettings @Inject constructor(
         @AppContext private val context: Context
 ) : Settings() {
 

@@ -1,7 +1,7 @@
 package eu.darken.bb.main.ui.settings.support
 
 import androidx.annotation.Keep
-import eu.darken.bb.CoreSettings
+import eu.darken.bb.GeneralSettings
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
@@ -17,8 +17,8 @@ class SupportFragment : SmartPreferenceFragment(), AutoInject {
     private val vdc: SupportFragmentVDC by vdcs { vdcSource }
 
     override val preferenceFile: Int = R.xml.preferences_support
-    @Inject lateinit var coreSettings: CoreSettings
+    @Inject lateinit var generalSettings: GeneralSettings
 
-    override val settings: CoreSettings by lazy { coreSettings }
+    override val settings: GeneralSettings by lazy { generalSettings }
 
 }

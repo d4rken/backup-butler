@@ -2,7 +2,7 @@ package eu.darken.bb.common.root
 
 import android.content.Context
 import eu.darken.bb.App
-import eu.darken.bb.CoreSettings
+import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.rxshell.root.RootContext
@@ -15,16 +15,16 @@ import javax.inject.Inject
 @PerApp
 class RootManager @Inject constructor(
         @AppContext private val context: Context,
-        private val coreSettings: CoreSettings
+        private val generalSettings: GeneralSettings
 ) {
     companion object {
         internal val TAG = App.logTag("RootManager")
     }
 
-    val rootContext: Single<RootContext> = Single.just(coreSettings)
+    val rootContext: Single<RootContext> = Single.just(generalSettings)
             .flatMap {
                 when {
-                    coreSettings.isRootDisabled -> {
+                    generalSettings.isRootDisabled -> {
                         Timber.tag(TAG).w("Rootcheck is disabled!")
                         Single.just(RootContext.EMPTY)
                     }
