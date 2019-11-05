@@ -10,7 +10,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
@@ -52,9 +51,9 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.repo_type_saf_storage_label)
+        requireActivityActionBar().subtitle = getString(R.string.storage_type_saf_label)
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferent(state.label)
 
             pathDisplay.text = state.path
@@ -62,7 +61,7 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
-        })
+        }
 
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
 
@@ -78,10 +77,10 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
             builder.setMessage(error.tryLocalizedErrorMessage(requireContext()))
 
             if (error is ExistingStorageException) {
-                builder.setNeutralButton(R.string.action_cancel) { dialog, _ ->
+                builder.setNeutralButton(R.string.general_cancel_action) { dialog, _ ->
                     dialog.dismiss()
                 }
-                builder.setPositiveButton(R.string.action_import) { _, _ ->
+                builder.setPositiveButton(R.string.general_import_action) { _, _ ->
                     vdc.importStorage(error.path)
                 }
             }
@@ -97,7 +96,7 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
             if (resultCode == Activity.RESULT_OK && data?.data != null) {
                 vdc.onPermissionResult(data.data!!)
             } else {
-                Toast.makeText(context, R.string.msg_please_try_again, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.general_please_try_again_msg, Toast.LENGTH_SHORT).show()
             }
         } else {
             throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$data")

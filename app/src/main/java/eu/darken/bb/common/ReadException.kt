@@ -13,7 +13,7 @@ class ReadException(val path: APath)
     constructor(file: File) : this(RawPath.build(file))
 
     override fun getLocalizedErrorMessage(context: Context): String {
-        return context.getString(R.string.error_msg_cant_access, path)
+        return context.getString(R.string.general_error_cant_access_msg, path)
     }
 
 }

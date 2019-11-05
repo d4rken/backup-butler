@@ -31,7 +31,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun doProcess(task: Task) {
-        progressParent.updateProgressPrimary(R.string.progress_label_processing_x, task.label)
+        progressParent.updateProgressPrimary(R.string.progress_processing_x_label, task.label)
         progressParent.updateProgressSecondary { task.getDescription(it) }
 
         task as Task.Backup

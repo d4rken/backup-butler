@@ -46,10 +46,10 @@ class BackupAdapter @Inject constructor()
         override fun bind(item: Backup.InfoOpt) {
             when {
                 item.error != null -> {
-                    typeLabel.setText(R.string.label_unknown)
+                    typeLabel.setText(R.string.general_unknown_label)
                     typeIcon.setImageResource(R.drawable.ic_error_outline)
 
-                    labelText.setText(R.string.error_generic_label)
+                    labelText.setText(R.string.general_error_label)
 
                     statusText.text = item.error.tryLocalizedErrorMessage(context)
                 }
@@ -66,7 +66,7 @@ class BackupAdapter @Inject constructor()
                     statusText.text = "$itemCount; $backupDate"
                 }
                 else -> {
-                    typeLabel.setText(R.string.label_unknown)
+                    typeLabel.setText(R.string.general_unknown_label)
                     labelText.setText(R.string.progress_loading_label)
                     statusText.text = ""
                 }

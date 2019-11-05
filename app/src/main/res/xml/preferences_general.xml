@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory android:title="@string/category_other_label">
+
+        <CheckBoxPreference app:title="Automatic bug reports" />
+
+        <CheckBoxPreference app:title="Update check" />
+
+        <CheckBoxPreference app:title="Analytics" />
+
+        <Preference
+            android:key="debug.recordlog"
+            android:summary="@string/debug_record_log_desc"
+            android:title="@string/debug_record_log_label" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -46,12 +46,12 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
         vdc.state.observe(this, Observer { state ->
             supportActionBar?.subtitle = when (state.taskType) {
                 Task.Type.BACKUP_SIMPLE -> {
-                    if (state.isExistingTask) getString(R.string.label_edit_backup_task)
-                    else getString(R.string.label_new_backup_task)
+                    if (state.isExistingTask) getString(R.string.task_backup_edit_label)
+                    else getString(R.string.task_backup_new_label)
                 }
                 Task.Type.RESTORE_SIMPLE -> {
-                    if (state.isExistingTask) getString(R.string.label_edit_restore_task)
-                    else getString(R.string.label_new_restore_task)
+                    if (state.isExistingTask) getString(R.string.task_restore_edit_label)
+                    else getString(R.string.task_restore_new_label)
                 }
             }
 

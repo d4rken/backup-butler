@@ -8,7 +8,7 @@ enum class TaskAction constructor(
         @DrawableRes val iconRes: Int,
         @StringRes val labelRes: Int
 ) {
-    RUN(R.drawable.ic_play_arrow, R.string.action_run),
-    EDIT(R.drawable.ic_mode_edit, R.string.action_edit),
-    DELETE(R.drawable.ic_delete, R.string.action_delete)
+    RUN(R.drawable.ic_play_arrow, R.string.general_run_action),
+    EDIT(R.drawable.ic_mode_edit, R.string.general_edit_action),
+    DELETE(R.drawable.ic_delete, R.string.general_delete_action)
 }

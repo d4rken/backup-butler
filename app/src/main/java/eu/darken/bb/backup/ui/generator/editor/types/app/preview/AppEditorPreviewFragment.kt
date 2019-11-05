@@ -50,18 +50,18 @@ class AppEditorPreviewFragment : SmartFragment(), AutoInject {
 
             when (state.previewMode) {
                 PreviewMode.PREVIEW -> {
-                    requireActivityActionBar().title = getString(R.string.label_preview)
-                    infoMode.setText(R.string.generator_itempreview_desc)
+                    requireActivityActionBar().title = getString(R.string.general_preview_label)
+                    infoMode.setText(R.string.backup_generator_app_itempreview_desc)
                     infoItems.text = resources.getCountString(R.plurals.x_items, state.pkgs.size)
                 }
                 PreviewMode.INCLUDE -> {
-                    requireActivityActionBar().title = getString(R.string.label_included)
-                    infoMode.setText(R.string.generator_includeditems_desc)
+                    requireActivityActionBar().title = getString(R.string.general_included_label)
+                    infoMode.setText(R.string.backup_generator_app_includeditems_desc)
                     infoItems.text = "${resources.getCountString(R.plurals.x_items, state.pkgs.size)} (${resources.getCountString(R.plurals.x_selected, state.selected.size)})"
                 }
                 PreviewMode.EXCLUDE -> {
-                    requireActivityActionBar().title = getString(R.string.label_excluded)
-                    infoMode.setText(R.string.generator_excludeditems_desc)
+                    requireActivityActionBar().title = getString(R.string.general_excluded_label)
+                    infoMode.setText(R.string.backup_generator_app_excludeditems_desc)
                     infoItems.text = "${resources.getCountString(R.plurals.x_items, state.pkgs.size)} (${resources.getCountString(R.plurals.x_selected, state.selected.size)})"
                 }
             }

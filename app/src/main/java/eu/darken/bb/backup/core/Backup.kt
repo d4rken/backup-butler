@@ -55,8 +55,8 @@ interface Backup {
             @StringRes val labelRes: Int,
             @StringRes val descriptionRes: Int
     ) {
-        APP(R.drawable.ic_apps, R.string.backuptype_app_label, R.string.backuptype_app_desc),
-        FILES(R.drawable.ic_folder, R.string.backuptype_files_label, R.string.backuptype_files_desc);
+        APP(R.drawable.ic_apps, R.string.backup_type_app_label, R.string.backup_type_app_desc),
+        FILES(R.drawable.ic_folder, R.string.backup_type_files_label, R.string.backup_type_files_desc);
     }
 
     @Keep @Parcelize

@@ -25,7 +25,7 @@
                     style="@style/TextAppearance.MaterialComponents.Overline"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/core_settings" />
+                    android:text="@string/general_core_settings_label" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -51,7 +51,7 @@
                             style="@style/TextInputLayoutOutlinedDense"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/label_name"
+                            android:hint="@string/general_name_label"
                             app:endIconMode="clear_text">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -70,7 +70,7 @@
                             android:layout_width="match_parent"
                             android:layout_marginTop="16dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_path" />
+                            android:text="@string/general_path_label" />
 
                         <TextView
                             android:id="@+id/path_display"
@@ -85,7 +85,7 @@
                             android:layout_width="wrap_content"
                             android:layout_gravity="end"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_select_path" />
+                            android:text="@string/general_select_path_label" />
                     </LinearLayout>
                 </FrameLayout>
             </FrameLayout>

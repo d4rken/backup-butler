@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/file_options_label"
+                android:text="@string/task_restore_config_file_options_label"
                 app:layout_constraintBottom_toTopOf="@+id/card_subtitle"
                 app:layout_constraintEnd_toStartOf="@+id/header_toggle"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -72,9 +72,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:pvDescription="@string/config_replace_existing_files_desc"
+                app:pvDescription="@string/task_restore_files_config_replace_existing_files_desc"
                 app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/config_replace_existing_files_label" />
+                app:pvTitle="@string/task_restore_files_config_replace_existing_files_label" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/option_path"
@@ -89,7 +89,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:text="Restoration path"
+                    android:text="@string/task_restore_file_config_restoration_path"
                     app:layout_constraintBottom_toTopOf="@+id/option_path_display"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -132,11 +132,11 @@
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    android:text="@string/action_change"
+                    android:text="@string/general_change_action"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/option_path_display"
-                    tools:text="@string/action_grant" />
+                    tools:text="@string/general_grant_action" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>

@@ -45,9 +45,9 @@ class GeneratorAdapter @Inject constructor()
                 typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
                 typeIcon.setImageResource(config.generatorType.iconRes)
             } else {
-                typeLabel.setText(R.string.label_unknown)
+                typeLabel.setText(R.string.general_unknown_label)
                 label.text = "?"
-                description.text = getString(R.string.error_msg_cant_access, item.generatorId)
+                description.text = getString(R.string.general_error_cant_access_msg, item.generatorId)
 
                 typeIcon.setColorFilter(getColor(R.color.colorError))
                 typeIcon.setImageResource(R.drawable.ic_error_outline)

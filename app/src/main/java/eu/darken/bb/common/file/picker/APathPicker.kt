@@ -71,7 +71,7 @@ object APathPicker {
             val result = fromActivityResult(data)
             if (!result.isCanceled) callback(result)
         } else if (resultCode == Activity.RESULT_OK) {
-            Toast.makeText(fragment.requireContext(), R.string.error_empty_result, Toast.LENGTH_SHORT).show()
+            Toast.makeText(fragment.requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
     }
 

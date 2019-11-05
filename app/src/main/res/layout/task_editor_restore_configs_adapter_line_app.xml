@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="@string/app_options_label"
+                android:text="@string/task_restore_app_config_options_label"
                 app:layout_constraintBottom_toTopOf="@+id/card_subtitle"
                 app:layout_constraintEnd_toStartOf="@+id/header_toggle"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -70,25 +70,25 @@
                 android:id="@+id/option_skip_existing_apps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:pvDescription="@string/config_skip_existing_apps_desc"
+                app:pvDescription="@string/task_restore_app_config_skip_existing_apps_desc"
                 app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/config_skip_existing_apps_label" />
+                app:pvTitle="@string/task_restore_app_config_skip_existing_apps_label" />
 
             <eu.darken.bb.common.ui.SwitchPreferenceView
                 android:id="@+id/option_restore_apk"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:pvDescription="@string/config_restore_apk_desc"
+                app:pvDescription="@string/task_restore_app_config_restore_apk_desc"
                 app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/config_restore_apk_label" />
+                app:pvTitle="@string/task_restore_app_config_restore_apk_label" />
 
             <eu.darken.bb.common.ui.SwitchPreferenceView
                 android:id="@+id/option_restore_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:pvDescription="@string/config_restore_data_desc"
+                app:pvDescription="@string/task_restore_app_config_restore_data_desc"
                 app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/config_restore_data_label" />
+                app:pvTitle="@string/task_restore_app_config_restore_data_label" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

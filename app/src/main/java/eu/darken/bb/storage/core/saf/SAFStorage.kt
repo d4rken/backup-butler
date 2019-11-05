@@ -229,7 +229,7 @@ class SAFStorage @AssistedInject constructor(
     }
 
     override fun save(backup: Backup.Unit): Backup.Info {
-        updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_label_saving))
+        updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_saving_label))
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
@@ -323,7 +323,7 @@ class SAFStorage @AssistedInject constructor(
         return try {
             specAdapter.fromSAFFile(safGateway, specFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get backup spec from ", specFile)
+            Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
             throw e
         }
     }

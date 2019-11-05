@@ -70,7 +70,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
                 emptyTextView.text = emptyText
             } else {
                 if ((0..5).random() == 0) {
-                    emptyTextView.setText(R.string.empty_list_msg_easter)
+                    emptyTextView.setText(R.string.empty_list_easter_msg)
                 } else {
                     emptyTextView.setText(R.string.empty_list_msg)
                 }

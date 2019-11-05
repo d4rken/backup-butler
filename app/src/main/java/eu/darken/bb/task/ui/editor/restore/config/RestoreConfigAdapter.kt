@@ -41,7 +41,7 @@ class RestoreConfigAdapter @Inject constructor()
     abstract class BaseVH(@LayoutRes layoutRes: Int, parent: ViewGroup)
         : ModularAdapter.VH(layoutRes, parent), BindableVH<ConfigUIWrap> {
 
-        private val defaultTag = getString(R.string.label_default)
+        private val defaultTag = getString(R.string.general_default_label)
         abstract val title: String
 
         @BindView(R.id.card_title) lateinit var cardTitle: TextView

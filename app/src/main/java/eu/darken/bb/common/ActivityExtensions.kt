@@ -43,5 +43,5 @@ fun AppCompatActivity.showFragment(
 }
 
 fun Activity.todoToast() {
-    Toast.makeText(this, R.string.todo, Toast.LENGTH_LONG).show()
+    Toast.makeText(this, R.string.general_todo_msg, Toast.LENGTH_LONG).show()
 }

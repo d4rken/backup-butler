@@ -47,7 +47,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
     override fun onCreate() {
         AndroidInjection.inject(this)
         super.onCreate()
-        updateProgressPrimary(R.string.label_progress_preparing)
+        updateProgressPrimary(R.string.progress_preparing_label)
         notifications.start(this)
         serviceControl.updateProgressHost(this)
     }
@@ -65,7 +65,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
             Timber.tag(TAG).e("Null intent!?")
             return
         }
-        updateProgressPrimary(R.string.label_progress_loading_task)
+        updateProgressPrimary(R.string.progress_loading_task_label)
         val taskID = intent.getTaskId()
         if (taskID == null) {
             Timber.tag(TAG).e("Intent had no UUID: %s", intent)

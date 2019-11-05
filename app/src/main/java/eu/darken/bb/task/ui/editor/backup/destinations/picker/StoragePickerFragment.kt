@@ -54,9 +54,9 @@ class StoragePickerFragment : SmartFragment(), AutoInject {
             adapter.update(state.storages)
 
             if (state.allExistingAdded) {
-                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.taskeditor_backup_destination_picker_alladded_msg)
+                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.task_editor_backup_destination_picker_alladded_desc)
             } else {
-                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.taskeditor_backup_destination_picker_empty_msg)
+                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_destination_picker_empty_desc)
             }
 
             loadingOverlay.setInvisible(!state.isLoading)

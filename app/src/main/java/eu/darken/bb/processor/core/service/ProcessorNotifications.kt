@@ -33,7 +33,7 @@ class ProcessorNotifications @Inject constructor(
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, context.getString(R.string.label_notification_channel_backup_progress), NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, context.getString(R.string.notification_channel_backup_progress_label), NotificationManager.IMPORTANCE_LOW)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -45,7 +45,7 @@ class ProcessorNotifications @Inject constructor(
                 .setContentIntent(openPi)
                 .setSmallIcon(R.drawable.ic_notification_backup_icon)
                 .setContentTitle(context.getString(R.string.app_name))
-                .setContentText(context.getString(R.string.label_progress_preparing))
+                .setContentText(context.getString(R.string.progress_preparing_label))
     }
 
     fun start(service: Service) {

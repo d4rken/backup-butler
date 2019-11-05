@@ -46,9 +46,9 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         vdc.state.observe(this, Observer { state ->
             if (state.existing) {
-                supportActionBar!!.title = getString(R.string.label_edit_storage)
+                supportActionBar!!.title = getString(R.string.storage_edit_action)
             } else {
-                supportActionBar!!.title = getString(R.string.label_create_storage)
+                supportActionBar!!.title = getString(R.string.storage_create_action)
             }
 
             allowCreate = state.allowSave
@@ -83,7 +83,7 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.action_save else R.string.action_create)
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
         return super.onPrepareOptionsMenu(menu)
     }
 

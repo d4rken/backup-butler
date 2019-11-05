@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"
-        app:rvwEmptyText="@string/taskeditor_backup_sources_picker_empty_msg"
+        app:rvwEmptyText="@string/task_editor_backup_sources_picker_empty_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">

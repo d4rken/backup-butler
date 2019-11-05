@@ -7,7 +7,7 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:rvwEmptyText="@string/taskeditor_backup_destinations_expl"
+        app:rvwEmptyText="@string/task_editor_backup_destinations_desc"
         app:layout_constraintBottom_toTopOf="@+id/setupbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,7 +38,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:sbvPositivePrimaryLabel="@string/action_run"
-        app:sbvPositiveSecondaryLabel="@string/action_save" />
+        app:sbvPositivePrimaryLabel="@string/general_run_action"
+        app:sbvPositiveSecondaryLabel="@string/general_save_action" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

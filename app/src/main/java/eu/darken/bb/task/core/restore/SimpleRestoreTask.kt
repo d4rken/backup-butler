@@ -26,7 +26,7 @@ data class SimpleRestoreTask(
         set(value) {}
 
     override fun getDescription(context: Context): String {
-        return context.getString(R.string.task_restore_simple_description, backupTargets.size)
+        return context.getString(R.string.task_type_restoresimple_description, backupTargets.size)
     }
 
 }

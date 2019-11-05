@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="@string/label_summary"
+                android:text="@string/general_summary_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,7 +49,7 @@
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/restore_task_x_backups_selected_desc" />
+                    tools:text="@plurals/task_restore_x_backups_selected_desc" />
             </LinearLayout>
 
             <eu.darken.bb.common.ui.LoadingOverlayView
@@ -96,6 +96,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:sbvPositiveSecondaryLabel="@string/action_continue" />
+        app:sbvPositiveSecondaryLabel="@string/general_continue_action" />
 </LinearLayout>
 

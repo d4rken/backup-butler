@@ -38,16 +38,16 @@ class StorageItemAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(info: BackupSpec.Info) {
-            typeLabel.setText(info.backupSpec.backupType.labelRes)
-            typeIcon.setImageResource(info.backupSpec.backupType.iconRes)
+        override fun bind(item: BackupSpec.Info) {
+            typeLabel.setText(item.backupSpec.backupType.labelRes)
+            typeIcon.setImageResource(item.backupSpec.backupType.iconRes)
 
-            labelText.text = info.backupSpec.getLabel(context)
+            labelText.text = item.backupSpec.getLabel(context)
 
-            val versionCount = getQuantityString(R.plurals.x_versions, info.backups.size)
+            val versionCount = getQuantityString(R.plurals.x_versions, item.backups.size)
             val lastBackup = getString(
-                    R.string.versions_last_backup_time_x,
-                    formatter.format(info.backups.first().createdAt)
+                    R.string.general_last_backup_time_x,
+                    formatter.format(item.backups.first().createdAt)
             )
             @SuppressLint("SetTextI18n")
             statusText.text = "$versionCount; $lastBackup"

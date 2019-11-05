@@ -8,7 +8,7 @@ enum class ItemAction constructor(
         @DrawableRes val iconRes: Int,
         @StringRes val labelRes: Int
 ) {
-    VIEW(R.drawable.ic_eye, R.string.action_view),
-    RESTORE(R.drawable.ic_restore_onprimary, R.string.action_restore),
-    DELETE(R.drawable.ic_delete, R.string.action_delete)
+    VIEW(R.drawable.ic_eye, R.string.general_view_action),
+    RESTORE(R.drawable.ic_restore_onprimary, R.string.general_restore_action),
+    DELETE(R.drawable.ic_delete, R.string.general_delete_action)
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
@@ -39,14 +40,14 @@ class OverviewFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.appState.observe(this, Observer {
+        vdc.appState.observe2(this) {
             @SuppressLint("SetTextI18n")
             appVersion.text = "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
             upgradeInfos.text = when {
-                it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.label_pro_version)
-                else -> getString(R.string.label_basic_version)
+                it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.upgrade_proversion_label)
+                else -> getString(R.string.upgrade_basicversion_label)
             }
-        })
+        }
 
         vdc.updateState.observe(this, Observer { updateState ->
             updateCard.setGone(!updateState.available)

@@ -1,6 +1,7 @@
-package eu.darken.bb.main.ui.settings.userinterface
+package eu.darken.bb.main.ui.settings.ui
 
 import android.content.SharedPreferences
+import androidx.annotation.Keep
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import eu.darken.bb.R
@@ -9,6 +10,7 @@ import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.main.core.UISettings
 import javax.inject.Inject
 
+@Keep
 class UISettingsFragment : SmartPreferenceFragment(), AutoInject {
 
     @Inject lateinit var uiSettings: UISettings

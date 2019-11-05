@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -20,6 +19,7 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.TaskRepo
@@ -58,8 +58,8 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
             vdc.generatorAction(actionsAdapter.data[i])
         })
 
-        vdc.state.observe(this, Observer { state ->
-            typeLabel.setText(state.config?.generatorType?.labelRes ?: R.string.label_unknown)
+        vdc.state.observe2(this) { state ->
+            typeLabel.setText(state.config?.generatorType?.labelRes ?: R.string.general_unknown_label)
             generatorName.text = state.config?.label ?: getString(R.string.progress_loading_label)
 
             actionsAdapter.update(state.allowedActions)
@@ -67,7 +67,7 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
             recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
-        })
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 

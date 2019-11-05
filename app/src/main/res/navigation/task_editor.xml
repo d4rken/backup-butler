@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/restoreSourcesFragment"
         android:name="eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment"
-        android:label="@string/label_backups"
+        android:label="@string/backups_label"
         tools:layout="@layout/task_editor_restore_sources_fragment">
         <action
             android:id="@+id/nav_action_next"
@@ -25,7 +25,7 @@
     <fragment
         android:id="@+id/restoreConfigFragment"
         android:name="eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment"
-        android:label="@string/label_configuration"
+        android:label="@string/general_configuration_label"
         tools:layout="@layout/task_editor_restore_configs_fragment">
         <argument
             android:name="taskId"
@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/introFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.intro.IntroFragment"
-        android:label="@string/label_introduction"
+        android:label="@string/general_introduction_label"
         tools:layout="@layout/task_editor_intro_fragment">
         <action
             android:id="@+id/nav_action_next"
@@ -52,7 +52,7 @@
     <fragment
         android:id="@+id/sourcesFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment"
-        android:label="@string/label_backupspec_generators"
+        android:label="@string/backup_generators_label"
         tools:layout="@layout/task_editor_backup_generators_fragment">
         <action
             android:id="@+id/nav_action_next"
@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/destinationsFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment"
-        android:label="@string/label_destinations"
+        android:label="@string/task_destinations_label"
         tools:layout="@layout/task_editor_backup_storages_fragment">
         <action
             android:id="@+id/nav_action_show_picker"
@@ -91,7 +91,7 @@
     <fragment
         android:id="@+id/storagePickerFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragment"
-        android:label="@string/action_add_destination"
+        android:label="@string/task_add_destination_action"
         tools:layout="@layout/task_editor_backup_storages_picker_fragment">
         <argument
             android:name="taskId"
@@ -101,7 +101,7 @@
         android:id="@+id/generatorPickerFragment"
         tools:layout="@layout/task_editor_backup_generators_picker_fragment"
         android:name="eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragment"
-        android:label="@string/action_add_backupspec_generator">
+        android:label="@string/backup_add_generator_action">
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />

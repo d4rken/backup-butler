@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference android:title="@string/documentation_label" />
+    <Preference android:title="@string/email_developer_label" />
+    <Preference android:title="@string/discord_label" />
+    <Preference android:title="@string/reddit_label" />
+    <Preference android:title="@string/xda_label" />
+    <Preference android:title="@string/twitter_label" />
+    <Preference android:title="@string/issue_tracker_label" />
+    <Preference android:title="@string/support_installid_label" />
+</PreferenceScreen>

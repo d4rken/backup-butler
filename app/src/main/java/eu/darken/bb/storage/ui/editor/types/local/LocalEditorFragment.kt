@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
@@ -55,9 +54,9 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.repo_type_local_storage_label)
+        requireActivityActionBar().subtitle = getString(R.string.storage_type_local_label)
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferent(state.label)
 
             pathDisplay.text = state.path
@@ -66,7 +65,7 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
             permissionCard.setGone(state.isPermissionGranted)
-        })
+        }
 
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
 
@@ -83,10 +82,10 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
             builder.setMessage(error.tryLocalizedErrorMessage(requireContext()))
 
             if (error is ExistingStorageException) {
-                builder.setNeutralButton(R.string.action_cancel) { dialog, _ ->
+                builder.setNeutralButton(R.string.general_cancel_action) { dialog, _ ->
                     dialog.dismiss()
                 }
-                builder.setPositiveButton(R.string.action_import) { _, _ ->
+                builder.setPositiveButton(R.string.general_import_action) { _, _ ->
                     vdc.importStorage(error.path)
                 }
             }

@@ -16,7 +16,6 @@ import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.debug.BBDebug
-import eu.darken.bb.common.todoToast
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.ui.settings.SettingsActivity
@@ -64,10 +63,6 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
         return when (item.itemId) {
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            R.id.action_help -> {
-                todoToast()
                 true
             }
             else -> super.onOptionsItemSelected(item)

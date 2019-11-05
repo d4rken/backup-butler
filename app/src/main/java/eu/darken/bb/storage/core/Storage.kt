@@ -31,8 +31,8 @@ interface Storage : Progress.Host {
             @Transient @StringRes val labelRes: Int,
             @Transient @StringRes val descriptionRes: Int
     ) {
-        LOCAL(R.drawable.ic_sd_storage, R.string.repo_type_local_storage_label, R.string.repo_type_local_storage_desc),
-        SAF(R.drawable.ic_storage, R.string.repo_type_saf_storage_label, R.string.repo_type_saf_storage_desc);
+        LOCAL(R.drawable.ic_sd_storage, R.string.storage_type_local_label, R.string.storage_type_local_desc),
+        SAF(R.drawable.ic_storage, R.string.storage_type_saf_label, R.string.storage_type_saf_desc);
     }
 
     val storageId: Id
@@ -137,7 +137,7 @@ interface Storage : Progress.Host {
                 @Transient @StringRes val labelRes: Int,
                 @Transient @StringRes val descriptionRes: Int
         ) {
-            SIMPLE(R.string.storage_strategy_label_simple, R.string.storage_strategy_desc_simple)
+            SIMPLE(R.string.storage_strategy_simple_label, R.string.storage_strategy_simple_desc)
         }
 
         companion object {

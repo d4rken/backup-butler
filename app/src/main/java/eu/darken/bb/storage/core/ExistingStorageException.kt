@@ -9,7 +9,7 @@ class ExistingStorageException(val path: APath)
     : Exception(), LocalizedError {
 
     override fun getLocalizedErrorMessage(context: Context): String {
-        return context.getString(R.string.error_msg_path_already_storage, path.userReadablePath(context))
+        return context.getString(R.string.storage_existing_storage_in_path_msg, path.userReadablePath(context))
     }
 
 }

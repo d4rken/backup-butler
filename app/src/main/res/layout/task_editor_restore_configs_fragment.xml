@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="@string/label_summary"
+                android:text="@string/general_summary_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -49,21 +49,21 @@
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/restore_task_x_backups_types_desc" />
+                    tools:text="@plurals/task_restore_x_backups_types_desc" />
 
                 <TextView
                     android:id="@+id/count_custom_configs"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/restore_task_x_backups_types_desc" />
+                    tools:text="@plurals/task_restore_x_backups_types_desc" />
 
                 <TextView
                     android:id="@+id/count_config_issues"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/x_configs_have_issues" />
+                    tools:text="@plurals/task_restore_x_configs_have_issues" />
 
             </LinearLayout>
 
@@ -111,6 +111,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:sbvPositivePrimaryLabel="@string/action_run" />
+        app:sbvPositivePrimaryLabel="@string/general_run_action" />
 </LinearLayout>
 

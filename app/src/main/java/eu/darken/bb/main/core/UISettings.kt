@@ -20,9 +20,9 @@ class UISettings @Inject constructor(
             @StringRes val label: Int,
             val identifier: String
     ) {
-        SYSTEM(R.string.theme_system_label, "theme_system"),
-        DARK(R.string.theme_dark_label, "theme_dark"),
-        LIGHT(R.string.theme_light_label, "theme_light");
+        SYSTEM(R.string.userinterface_theme_system_label, "theme_system"),
+        DARK(R.string.userinterface_theme_dark_label, "theme_dark"),
+        LIGHT(R.string.userinterface_theme_light_label, "theme_light");
 
         companion object {
             fun fromString(value: String) = values().first { it.identifier == value }

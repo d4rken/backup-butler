@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_restore"
         android:icon="@drawable/ic_restore_onprimary"
-        android:title="@string/action_restore"
+        android:title="@string/general_restore_action"
         android:visible="false"
         app:showAsAction="ifRoom" />
 </menu>

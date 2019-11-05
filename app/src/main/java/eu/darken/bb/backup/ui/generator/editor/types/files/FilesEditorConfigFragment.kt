@@ -54,7 +54,7 @@ class FilesEditorConfigFragment : SmartFragment(), AutoInject {
             labelInput.setTextIfDifferentAndNotFocused(state.label)
             pathDisplay.text = state.path?.userReadablePath(requireContext())
 
-            pathButton.setText(if (state.path == null) R.string.action_select else R.string.action_change)
+            pathButton.setText(if (state.path == null) R.string.general_select_action else R.string.general_change_action)
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
@@ -94,7 +94,7 @@ class FilesEditorConfigFragment : SmartFragment(), AutoInject {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.action_save else R.string.action_create)
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
         return super.onPrepareOptionsMenu(menu)
     }
 

@@ -41,11 +41,11 @@ interface Task {
             @StringRes val labelRes: Int,
             val value: String
     ) {
-        BACKUP_SIMPLE(R.drawable.ic_backup, R.string.backup_task_label, "backup_simple"),
-        RESTORE_SIMPLE(R.drawable.ic_restore, R.string.restore_task_label, "restore_simple");
+        BACKUP_SIMPLE(R.drawable.ic_backup, R.string.task_backup_label, "backup_simple"),
+        RESTORE_SIMPLE(R.drawable.ic_restore, R.string.task_restore_label, "restore_simple");
 
         companion object {
-            private val VALUE_MAP = values().associateBy(Type::value)
+            internal val VALUE_MAP = values().associateBy(Type::value)
             fun fromValue(value: String) = VALUE_MAP[value]
         }
     }
@@ -87,7 +87,7 @@ interface Task {
             override fun toString(): String = "ResultId($idString)"
         }
 
-        interface Builder<T : Task.Result> {
+        interface Builder<T : Result> {
             fun build(context: Context): T
         }
     }

@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -18,6 +17,7 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.Task
@@ -56,8 +56,8 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
             vdc.taskAction(actionsAdapter.data[i])
         })
 
-        vdc.state.observe(this, Observer { state ->
-            taskTypeLabel.setText(state.taskType?.labelRes ?: R.string.label_unknown)
+        vdc.state.observe2(this) { state ->
+            taskTypeLabel.setText(state.taskType?.labelRes ?: R.string.general_unknown_label)
             taskName.text = state.taskName
 
             actionsAdapter.update(state.allowedActions)
@@ -65,7 +65,7 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
             recyclerView.visibility = if (state.loading) View.INVISIBLE else View.VISIBLE
             progressBar.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
-        })
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

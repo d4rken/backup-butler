@@ -31,7 +31,7 @@ class AppBackupEndpoint @Inject constructor(
     override fun backup(spec: BackupSpec): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupWrapper(spec, Backup.Id())
-        updateProgressPrimary(R.string.progress_creating_backup)
+        updateProgressPrimary(R.string.progress_creating_backup_label)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 

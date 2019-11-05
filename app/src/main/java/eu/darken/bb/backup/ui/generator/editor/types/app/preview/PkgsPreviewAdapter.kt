@@ -47,11 +47,11 @@ class PkgsPreviewAdapter @Inject constructor(
                 }
                 PreviewMode.INCLUDE -> {
                     description.setTextColor(getColorForAttr(R.attr.colorAccent))
-                    description.text = if (isSelected) getString(R.string.label_included) else ""
+                    description.text = if (isSelected) getString(R.string.general_included_label) else ""
                 }
                 PreviewMode.EXCLUDE -> {
                     description.setTextColor(getColorForAttr(R.attr.colorError))
-                    description.text = if (isSelected) getString(R.string.label_excluded) else ""
+                    description.text = if (isSelected) getString(R.string.general_excluded_label) else ""
                 }
             }
         }

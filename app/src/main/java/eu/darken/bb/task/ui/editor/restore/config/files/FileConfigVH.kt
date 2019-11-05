@@ -22,7 +22,7 @@ class FileConfigVH(parent: ViewGroup)
     @BindView(R.id.option_path_info) lateinit var optionPathInfo: TextView
     @BindView(R.id.option_path_action) lateinit var optionPathAction: Button
 
-    override val title = getString(R.string.file_options_label)
+    override val title = getString(R.string.task_restore_config_file_options_label)
 
     init {
         ButterKnife.bind(this, itemView)
@@ -40,13 +40,13 @@ class FileConfigVH(parent: ViewGroup)
 
             if (!item.configWrap.isPermissionGranted) {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorError))
-                optionPathInfo.text = getString(R.string.error_msg_cant_access, item.configWrap.currentPath?.userReadablePath(context)
+                optionPathInfo.text = getString(R.string.general_error_cant_access_msg, item.configWrap.currentPath?.userReadablePath(context)
                         ?: "?")
             } else {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
                 optionPathInfo.text = ""
             }
-            optionPathAction.setText(R.string.action_change)
+            optionPathAction.setText(R.string.general_change_action)
 
             if (config.restorePath != null) {
                 optionPathDisplay.text = config.restorePath.userReadablePath(context)

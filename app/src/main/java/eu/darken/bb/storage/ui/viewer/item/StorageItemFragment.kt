@@ -6,7 +6,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.android.AndroidInjector
@@ -78,7 +77,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         }
         vdc.deletionState.observe2(this) { deletionState ->
             if (deletionState.backupSpec != null) {
-                loadingOverlay.setPrimaryText(getString(R.string.progress_deleting_x, deletionState.backupSpec.getLabel(requireContext())))
+                loadingOverlay.setPrimaryText(getString(R.string.progress_deleting_x_label, deletionState.backupSpec.getLabel(requireContext())))
             } else {
                 loadingOverlay.setPrimaryText(null)
             }
@@ -89,7 +88,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             bs.show(childFragmentManager, "${it.storageId}-${it.backupSpecId}")
         }
 
-        vdc.finishEvent.observe(this, Observer { activity?.finish() })
+        vdc.finishEvent.observe2(this) { finishActivity() }
 
         vdc.errorEvents.observe2(this) { toastError(it) }
 

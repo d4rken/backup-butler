@@ -60,7 +60,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFiles proguardRulesRelease
-            proguardFiles 'proguard-rules-debug.pro'
+//            proguardFiles 'proguard-rules-debug.pro'
         }
         beta {
             signingConfig signingConfigs.release

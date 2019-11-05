@@ -54,9 +54,9 @@ class GeneratorPickerFragment : SmartFragment(), AutoInject {
             adapter.update(state.generatorData)
 
             if (state.allExistingAdded) {
-                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.taskeditor_backup_sources_picker_alladded_msg)
+                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.task_editor_backup_sources_picker_alladded_desc)
             } else {
-                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.taskeditor_backup_sources_picker_empty_msg)
+                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_sources_picker_empty_desc)
             }
 
             loadingOverlay.setInvisible(!state.isLoading)

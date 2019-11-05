@@ -3,6 +3,15 @@
 
     <ListPreference
         android:key="ui.theme"
-        android:title="@string/theme_label"/>
+        android:title="@string/userinterface_theme_label" />
 
+
+    <PreferenceCategory android:title="@string/category_other_label">
+
+        <Preference android:title="@string/language_settings_label" />
+
+        <Preference android:title="@string/language_translation_label" />
+
+
+    </PreferenceCategory>
 </PreferenceScreen>

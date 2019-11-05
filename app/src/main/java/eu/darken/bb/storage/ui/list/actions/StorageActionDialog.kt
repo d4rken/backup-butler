@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -64,9 +63,9 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
             vdc.cancelCurrentOperation()
         }
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             if (state.storageInfo != null) {
-                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.label_unknown)
+                storageLabel.text = state.storageInfo.config?.label ?: getString(R.string.general_unknown_label)
                 typeLabel.text = getString(state.storageInfo.storageType.labelRes)
             }
 
@@ -77,7 +76,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
             recyclerView.setGone(state.isWorking)
             workingOverlay.setGone(!state.isWorking)
             workingOverlay.isCancelable = state.isCancelable
-        })
+        }
 
         vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }
         vdc.errorEvent.observe2(this) { toastError(it) }

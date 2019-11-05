@@ -37,7 +37,7 @@ class RecorderService : Service() {
         AndroidInjection.inject(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NOTIF_CHANID_DEBUG, getString(R.string.bug_reporting_labe), NotificationManager.IMPORTANCE_MIN)
+            val channel = NotificationChannel(NOTIF_CHANID_DEBUG, getString(R.string.general_bugreporting_label), NotificationManager.IMPORTANCE_MIN)
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -55,7 +55,7 @@ class RecorderService : Service() {
                 .setSmallIcon(R.drawable.ic_bug_report)
                 .setContentText("Idle")
                 .setContentTitle("Debug log is recording...")
-                .addAction(NotificationCompat.Action.Builder(0, getString(R.string.action_done), stopPi).build())
+                .addAction(NotificationCompat.Action.Builder(0, getString(R.string.general_done_action), stopPi).build())
 
         startForeground(NOTIFICATION_ID, builder.build())
 

@@ -8,7 +8,7 @@ class EmptyResultException
     : IllegalStateException("The result was empty."), LocalizedError {
 
     override fun getLocalizedErrorMessage(context: Context): String {
-        return context.getString(R.string.error_empty_result)
+        return context.getString(R.string.general_error_empty_result_msg)
     }
 
 }

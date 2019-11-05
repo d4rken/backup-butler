@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.settings.debug
+package eu.darken.bb.task.ui.settings
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module
-abstract class DebugSettingsFragmentModule {
+abstract class TaskSettingsFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(DebugSettingsFragmentVDC::class)
-    abstract fun ui(model: DebugSettingsFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(TaskSettingsFragmentVDC::class)
+    abstract fun ui(model: TaskSettingsFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

@@ -44,13 +44,13 @@ class StorageAdapter @Inject constructor()
 
         override fun bind(item: Storage.InfoOpt) {
             if (item.info == null) {
-                typeLabel.setText(R.string.label_unknown)
+                typeLabel.setText(R.string.general_unknown_label)
                 typeIcon.setColorFilter(getColor(R.color.colorError))
                 typeIcon.setImageResource(R.drawable.ic_error_outline)
 
                 labelText.text = "?"
 
-                statusText.text = getString(R.string.error_msg_cant_access, item.storageId)
+                statusText.text = getString(R.string.general_error_cant_access_msg, item.storageId)
                 return
             }
 
@@ -74,7 +74,7 @@ class StorageAdapter @Inject constructor()
                     statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
                     @SuppressLint("SetTextI18n")
                     statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${Formatter.formatFileSize(context, info.status.totalSize)}"
-                    if (info.status.isReadOnly) statusText.append("; " + getString(R.string.read_only_label))
+                    if (info.status.isReadOnly) statusText.append("; " + getString(R.string.general_read_only_label))
                 }
                 else -> {
                     statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))

@@ -32,6 +32,7 @@ class SettingsActivity
         ButterKnife.bind(this)
 
         if (savedInstanceState == null) {
+            title = getString(R.string.settings_label)
             supportFragmentManager
                     .beginTransaction()
                     .replace(R.id.content_frame, IndexFragment())
@@ -41,7 +42,7 @@ class SettingsActivity
         }
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
-                setTitle(R.string.label_settings)
+                setTitle(R.string.settings_label)
             }
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

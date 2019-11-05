@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -68,12 +67,12 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
             vdc.storageAction(actionsAdapter.data[i])
         })
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             if (state.info != null) {
                 typeLabel.text = getString(state.info.backupSpec.backupType.labelRes)
                 storageLabel.text = state.info.backupSpec.getLabel(requireContext())
             } else {
-                typeLabel.setText(R.string.label_unknown)
+                typeLabel.setText(R.string.general_unknown_label)
                 storageLabel.setText(R.string.progress_loading_label)
             }
             infoContainerLoading.setInvisible(state.info != null)
@@ -82,14 +81,14 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
 
             actionList.setInvisible(state.isWorking || state.allowedActions == null)
             actionListLoading.setInvisible(!state.isWorking && state.allowedActions != null)
-        })
+        }
 
-        vdc.pageEvent.observe(this, Observer { pageData ->
+        vdc.pageEvent.observe2(this) { pageData ->
             activityVdc.goTo(pageData)
             dismiss()
-        })
+        }
 
-        vdc.finishedEvent.observe(this, Observer { dismissAllowingStateLoss() })
+        vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }
 
         vdc.errorEvents.observe2(this) { toastError(it) }
 

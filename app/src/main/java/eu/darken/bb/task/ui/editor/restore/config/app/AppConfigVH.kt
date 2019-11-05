@@ -16,7 +16,7 @@ class AppConfigVH(parent: ViewGroup)
     @BindView(R.id.option_restore_apk) lateinit var optionRestoreApk: SwitchPreferenceView
     @BindView(R.id.option_restore_data) lateinit var optionRestoreData: SwitchPreferenceView
 
-    override val title = getString(R.string.app_options_label)
+    override val title = getString(R.string.task_restore_app_config_options_label)
 
     init {
         ButterKnife.bind(this, itemView)

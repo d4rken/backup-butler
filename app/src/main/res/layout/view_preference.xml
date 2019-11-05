@@ -14,7 +14,6 @@
         android:layout_height="24dp"
         android:layout_centerVertical="true"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,7 +37,7 @@
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/backuptype_app_label" />
+        tools:text="@string/backup_type_app_label" />
 
     <TextView
         android:id="@+id/description"
@@ -55,7 +54,7 @@
         app:layout_constraintStart_toStartOf="@+id/title"
         app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@string/descr_backuptype_app"/>
+        tools:text="@string/general_todo_msg" />
 
     <FrameLayout
         android:id="@+id/extra"
@@ -66,7 +65,6 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         tools:visibility="visible"
-        android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

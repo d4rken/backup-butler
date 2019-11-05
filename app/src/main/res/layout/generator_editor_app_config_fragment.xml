@@ -27,7 +27,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/core_settings" />
+                    android:text="@string/general_core_settings_label" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -51,7 +51,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:layout_marginEnd="16dp"
-                            android:hint="@string/label_name"
+                            android:hint="@string/general_name_label"
                             app:endIconMode="clear_text">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -68,37 +68,37 @@
                             android:id="@+id/core_settings_autoinclude"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:pvDescription="@string/backupoption_app_autoinclude_desc"
+                            app:pvDescription="@string/backup_generator_app_option_autoinclude_desc"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_autoinclude_label" />
+                            app:pvTitle="@string/backup_generator_app_option_autoinclude_label" />
 
                         <eu.darken.bb.common.ui.SwitchPreferenceView
                             android:id="@+id/core_settings_includeuser"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_includeuser_label" />
+                            app:pvTitle="@string/backup_generator_option_includeuser_label" />
 
                         <eu.darken.bb.common.ui.SwitchPreferenceView
                             android:id="@+id/core_settings_includesystem"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_includesystem_label" />
+                            app:pvTitle="@string/backup_generator_app_option_includesystem_label" />
 
                         <eu.darken.bb.common.ui.PreferenceView
                             android:id="@+id/core_settings_included_packages"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_included_apps_label" />
+                            app:pvTitle="@string/backup_generator_app_option_included_apps_label" />
 
                         <eu.darken.bb.common.ui.PreferenceView
                             android:id="@+id/core_settings_excluded_packages"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_excluded_apps_label" />
+                            app:pvTitle="@string/backup_generator_app_option_excluded_apps_label" />
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>
@@ -122,7 +122,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/label_options" />
+                    android:text="@string/general_options_label" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -146,21 +146,21 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_backupapk_label" />
+                            app:pvTitle="@string/backup_generator_app_option_backupapk_label" />
 
                         <eu.darken.bb.common.ui.SwitchPreferenceView
                             android:id="@+id/options_backupdata"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_backupdata_label" />
+                            app:pvTitle="@string/backup_generator_app_option_backupdata_label" />
 
                         <eu.darken.bb.common.ui.SwitchPreferenceView
                             android:id="@+id/options_backupcache"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backupoption_app_backupcache_label" />
+                            app:pvTitle="@string/backup_generator_app_option_backupcache_label" />
 
                     </LinearLayout>
                 </FrameLayout>

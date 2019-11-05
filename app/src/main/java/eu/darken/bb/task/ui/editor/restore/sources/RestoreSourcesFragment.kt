@@ -54,7 +54,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter, dividers = false)
 
         vdc.summaryState.observe2(this) { state ->
-            countBackups.setTextQuantity(R.plurals.restore_task_x_backups_selected_desc, state.sourceBackups.size)
+            countBackups.setTextQuantity(R.plurals.task_restore_x_backups_selected_desc, state.sourceBackups.size)
             setupBar.buttonPositiveSecondary.setGone(state.sourceBackups.isEmpty())
 
             countContainer.setInvisible(state.isWorking)
@@ -71,7 +71,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
                     ItemSwipeTool.SwipeAction(
                             direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
                             icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
-                            label = getString(R.string.action_exclude),
+                            label = getString(R.string.general_exclude_action),
                             background = ColorDrawable(getColorForAttr(R.attr.colorError)),
                             callback = { viewHolder, _ ->
                                 vdc.exclude(adapter.data[viewHolder.adapterPosition])
