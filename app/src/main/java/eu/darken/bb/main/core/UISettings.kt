@@ -57,8 +57,7 @@ class UISettings @Inject constructor(
         }
 
         override fun putString(key: String, value: String?) = when (key) {
-            PKEY_THEME -> theme = Theme.fromString(value
-                    ?: Theme.SYSTEM.identifier)
+            PKEY_THEME -> theme = Theme.fromString(value ?: Theme.SYSTEM.identifier)
             else -> super.putString(key, value)
         }
 

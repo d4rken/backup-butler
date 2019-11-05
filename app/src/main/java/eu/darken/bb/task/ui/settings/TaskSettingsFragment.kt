@@ -4,15 +4,15 @@ import androidx.annotation.Keep
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
-import eu.darken.bb.storage.core.StorageSettings
+import eu.darken.bb.task.core.TaskSettings
 import javax.inject.Inject
 
 @Keep
 class TaskSettingsFragment : SmartPreferenceFragment(), AutoInject {
 
-    @Inject lateinit var uiSettings: StorageSettings
+    @Inject lateinit var taskSettings: TaskSettings
 
-    override val settings: StorageSettings by lazy { uiSettings }
+    override val settings: TaskSettings by lazy { taskSettings }
 
     override val preferenceFile: Int = R.xml.preferences_task
 
