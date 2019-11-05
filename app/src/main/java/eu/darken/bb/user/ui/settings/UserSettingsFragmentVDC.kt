@@ -9,7 +9,7 @@ import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 
-class AccountSettingsFragmentVDC @AssistedInject constructor(
+class UserSettingsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val bbDebug: BBDebug
 ) : SmartVDC() {
@@ -39,5 +39,5 @@ class AccountSettingsFragmentVDC @AssistedInject constructor(
     )
 
     @AssistedInject.Factory
-    interface Factory : SavedStateVDCFactory<AccountSettingsFragmentVDC>
+    interface Factory : SavedStateVDCFactory<UserSettingsFragmentVDC>
 }

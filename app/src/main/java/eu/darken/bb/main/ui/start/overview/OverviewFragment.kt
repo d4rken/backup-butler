@@ -16,7 +16,7 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
-import eu.darken.bb.upgrades.UpgradeData
+import eu.darken.bb.user.core.UpgradeData
 import javax.inject.Inject
 
 

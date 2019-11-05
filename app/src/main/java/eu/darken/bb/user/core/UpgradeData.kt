@@ -1,4 +1,4 @@
-package eu.darken.bb.upgrades
+package eu.darken.bb.user.core
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass

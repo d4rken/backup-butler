@@ -11,8 +11,8 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.upgrades.UpgradeControl
-import eu.darken.bb.upgrades.UpgradeData
+import eu.darken.bb.user.core.UpgradeControl
+import eu.darken.bb.user.core.UpgradeData
 import io.reactivex.Single
 import io.reactivex.rxkotlin.Observables
 

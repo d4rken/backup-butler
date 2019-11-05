@@ -2,10 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
-        android:icon="@drawable/ic_account_onsurface"
-        app:fragment="eu.darken.bb.upgrades.ui.settings.AccountSettingsFragment"
-        app:summary="@string/account_settings_desc"
-        app:title="@string/account_settings_label" />
+        android:icon="@drawable/ic_user_onsurface"
+        app:fragment="eu.darken.bb.upgrades.ui.settings.UserSettingsFragment"
+        app:summary="@string/user_settings_desc"
+        app:title="@string/user_settings_label" />
 
     <Preference
         android:icon="@drawable/ic_ui_onsurface"

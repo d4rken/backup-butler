@@ -196,8 +196,8 @@
     <string name="scheduler_quick_explanation_desc">Schedules can be attached to tasks to run them under specific conditions (e.g. when charging) or at specific times (e.g. during the night).</string>
     <string name="acknowledgements_settings_label">Acknowledgements</string>
     <string name="support_settings_label">Support</string>
-    <string name="account_settings_label">Account</string>
-    <string name="account_settings_desc">Free or Pro version?</string>
+    <string name="user_settings_label">User</string>
+    <string name="user_settings_desc">Free or Pro version?</string>
     <string name="privacy_policy_settings_label">Privacy policy</string>
     <string name="privacy_policy_settings_desc">Handling data responsibly.</string>
     <string name="licenses_settings_label">Licenses</string>

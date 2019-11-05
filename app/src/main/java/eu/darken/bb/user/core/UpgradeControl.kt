@@ -1,4 +1,4 @@
-package eu.darken.bb.upgrades
+package eu.darken.bb.user.core
 
 import com.jakewharton.rx.replayingShare
 import eu.darken.bb.App

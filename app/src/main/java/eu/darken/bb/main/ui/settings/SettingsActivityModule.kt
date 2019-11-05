@@ -25,8 +25,8 @@ import eu.darken.bb.storage.ui.settings.StorageSettingsFragment
 import eu.darken.bb.storage.ui.settings.StorageSettingsFragmentModule
 import eu.darken.bb.task.ui.settings.TaskSettingsFragment
 import eu.darken.bb.task.ui.settings.TaskSettingsFragmentModule
-import eu.darken.bb.upgrades.ui.settings.AccountSettingsFragment
-import eu.darken.bb.upgrades.ui.settings.AccountSettingsFragmentModule
+import eu.darken.bb.user.ui.settings.UserSettingsFragment
+import eu.darken.bb.user.ui.settings.UserSettingsFragmentModule
 
 @Module
 abstract class SettingsActivityModule {
@@ -50,8 +50,8 @@ abstract class SettingsActivityModule {
     abstract fun ui(): UISettingsFragment
 
     @PerFragment
-    @ContributesAndroidInjector(modules = [AccountSettingsFragmentModule::class])
-    abstract fun account(): AccountSettingsFragment
+    @ContributesAndroidInjector(modules = [UserSettingsFragmentModule::class])
+    abstract fun user(): UserSettingsFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [SupportFragmentModule::class])
