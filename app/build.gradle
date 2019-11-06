@@ -54,7 +54,7 @@ android {
             lintOptions {
 
             }
-            ext.enableBugsnag = false
+            ext.enableBugsnag = true
             buildConfigField "boolean", "BETA", "true"
             minifyEnabled true
             shrinkResources true

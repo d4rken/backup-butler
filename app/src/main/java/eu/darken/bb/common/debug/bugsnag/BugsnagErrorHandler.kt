@@ -21,7 +21,7 @@ class BugsnagErrorHandler @Inject constructor(
 ) : BeforeNotify {
 
     override fun run(error: com.bugsnag.android.Error): Boolean {
-        Timber.tag(TAG).v("Handling error: %s", error)
+        Timber.tag(TAG).v("Handling error: %s", error.exception.toString())
         // TODO
 //        if (!ReportingPreferencesFragment.isBugReportingDesired(sdmContext)) return false
         bugsnagTree.update(error)
