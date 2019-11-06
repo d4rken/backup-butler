@@ -7,7 +7,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -85,7 +84,6 @@ class TaskBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
-            .optToMaybe()
             .flatMapSingleElement { task ->
                 val editor = editors.getValue(task.taskType).create(task.taskId)
                 editor.load(task).blockingGet()

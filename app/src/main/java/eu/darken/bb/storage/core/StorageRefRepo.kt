@@ -9,6 +9,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -46,9 +47,8 @@ class StorageRefRepo @Inject constructor(
                 }
     }
 
-    fun get(id: Storage.Id): Single<Opt<Storage.Ref>> = internalData.data
-            .firstOrError()
-            .map { Opt(it[id]) }
+    fun get(id: Storage.Id): Maybe<Storage.Ref> = internalData.data.firstOrError()
+            .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     fun put(ref: Storage.Ref): Single<Opt<Storage.Ref>> {
         var oldValue: Storage.Ref? = null

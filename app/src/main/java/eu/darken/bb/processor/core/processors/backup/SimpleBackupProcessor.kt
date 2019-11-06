@@ -11,6 +11,7 @@ import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.*
+import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
@@ -40,9 +41,8 @@ class SimpleBackupProcessor @AssistedInject constructor(
         var skipped = 0
         var error = 0
         task.sources.forEach { generatorId ->
-            val generatorConfig = generatorRepo.get(generatorId)
-                    .blockingGet()
-                    .notNullValue(errorMessage = "Can't find generator config for $generatorId")
+            val generatorConfig = generatorRepo.get(generatorId).blockingGet2()
+            requireNotNull(generatorConfig) { "Can't find generator config for $generatorId" }
             // TODO what if the config has been deleted?
 
             progressParent.updateProgressSecondary(generatorConfig.label)

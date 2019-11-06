@@ -9,7 +9,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.task.core.Task
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -95,7 +94,6 @@ class GeneratorBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Generator.Id): Maybe<Data> = generatorRepo.get(id)
-            .optToMaybe()
             .flatMapSingleElement { config ->
                 val editor = editors.getValue(config.generatorType).create(config.generatorId)
                 editor.load(config).blockingGet()

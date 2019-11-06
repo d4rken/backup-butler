@@ -6,6 +6,7 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.blockingGetUnWrapped
+import eu.darken.bb.common.rx.singleOrError
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -35,7 +36,8 @@ class StorageManager @Inject constructor(
 
     // TODO shouldn't this return StorageInfoOpt due to checking via Storage.Id
     fun info(id: Storage.Id): Observable<Storage.Info> = refRepo.get(id)
-            .flatMapObservable { optRef -> info(optRef.notNullValue("No storage for id: $id")) }
+            .singleOrError(IllegalArgumentException("Can't find storage for $id"))
+            .flatMapObservable { info(it) }
 
     fun infos(): Observable<Collection<Storage.Info>> = infos(wantedIds = null)
             .map { infos -> infos.map { info -> info.info!! } }
@@ -47,7 +49,8 @@ class StorageManager @Inject constructor(
                 return@fromCallable Observable.just(wantedIds)
                         .flatMapIterable { x -> x }
                         .flatMapSingle { id ->
-                            refRepo.get(id).map { optRef -> Pair(id, optRef.value) }
+                            refRepo.get(id).map { Pair<Storage.Id, Storage.Ref?>(id, it) }
+                                    .switchIfEmpty(Single.just(Pair<Storage.Id, Storage.Ref?>(id, null)))
                         }
                         .toList()
                         .map { it.toMap() }
@@ -81,7 +84,8 @@ class StorageManager @Inject constructor(
             .onErrorReturn { Storage.Info(storageId = ref.storageId, storageType = ref.storageType, error = it) }
 
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
-            .flatMapObservable { optRef -> getStorage(optRef.notNullValue("No storage for id: $id")) }
+            .singleOrError(IllegalArgumentException("Can't find storage for $id"))
+            .flatMapObservable { getStorage(it) }
 
     fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = getStorage(id).firstOrError()
             .flatMap { storage ->

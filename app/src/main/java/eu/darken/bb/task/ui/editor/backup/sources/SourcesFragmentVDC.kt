@@ -6,6 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -33,7 +34,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
         editorData
                 .subscribe { data ->
                     val configs = data.sources.map { id ->
-                        val config = generatorRepo.get(id).blockingGet().value
+                        val config = generatorRepo.get(id).blockingGet2()
                         GeneratorConfigOpt(id, config)
                     }
                     stater.update { it.copy(sources = configs) }

@@ -10,6 +10,7 @@ import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressPrimary
+import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
@@ -72,7 +73,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
             return
         }
 
-        val task = taskRepo.get(taskID).blockingGet().value
+        val task = taskRepo.get(taskID).blockingGet2()
         if (task == null) {
             Timber.tag(TAG).e("Unknown backup task: %s", taskID)
             return

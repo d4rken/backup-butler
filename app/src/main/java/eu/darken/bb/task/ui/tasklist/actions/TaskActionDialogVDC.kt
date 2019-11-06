@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
@@ -30,8 +31,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
     init {
         taskRepo.get(taskId)
                 .subscribeOn(Schedulers.io())
-                .subscribe { maybeTask ->
-                    val task = maybeTask.value
+                .subscribeNullable { task ->
                     stateUpdater.update {
                         if (task == null) {
                             it.copy(loading = true, finished = true)
@@ -53,7 +53,6 @@ class TaskActionDialogVDC @AssistedInject constructor(
                 taskRepo.get(taskId)
                         .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                         .subscribeOn(Schedulers.io())
-                        .map { it.notNullValue() }
                         .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                         .subscribe { task ->
                             processorControl.submit(task)

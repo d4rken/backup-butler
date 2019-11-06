@@ -10,6 +10,7 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.APathTool
 import eu.darken.bb.common.opt
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
@@ -37,9 +38,8 @@ class GeneratorRepo @Inject constructor(
         configsPub.onNext(internalConfigs)
     }
 
-    fun get(id: Generator.Id): Single<Opt<Generator.Config>> = configs
-            .firstOrError()
-            .map { Opt(it[id]) }
+    fun get(id: Generator.Id): Maybe<Generator.Config> = configs.firstOrError()
+            .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     // Puts the spec into storage, returns the previous value
     @Synchronized fun put(config: Generator.Config): Single<Opt<Generator.Config>> = Single.fromCallable {

@@ -9,6 +9,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -43,9 +44,8 @@ class TaskRepo @Inject constructor(
                 }
     }
 
-    fun get(id: Task.Id): Single<Opt<Task>> = tasks
-            .firstOrError()
-            .map { Opt(it[id]) }
+    fun get(id: Task.Id): Maybe<Task> = tasks.firstOrError()
+            .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     // Puts the task into storage, returns the previous value
     fun put(task: Task): Single<Opt<Task>> = internalData

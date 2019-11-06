@@ -7,7 +7,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -69,7 +68,7 @@ class StorageBuilder @Inject constructor(
 
     fun remove(id: Storage.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
-            .flatMap { storageId ->
+            .flatMap {
                 hotData.data
                         .firstOrError()
                         .flatMap { preDeleteMap ->
@@ -101,7 +100,6 @@ class StorageBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Storage.Id): Maybe<Data> = refRepo.get(id)
-            .optToMaybe()
             .flatMapSingleElement { ref: Storage.Ref ->
                 val editor = editors.getValue(ref.storageType).create(ref.storageId)
                 editor.load(ref).blockingGet()

@@ -8,6 +8,7 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsAction.*
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Single
@@ -27,8 +28,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
     init {
         generatorRepo.get(generatorId)
                 .subscribeOn(Schedulers.io())
-                .subscribe { maybeTask ->
-                    val config = maybeTask.value
+                .subscribeNullable { config ->
                     stateUpdater.update {
                         if (config == null) {
                             it.copy(loading = true, finished = true)
