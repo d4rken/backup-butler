@@ -7,8 +7,10 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -57,9 +59,8 @@ class TaskBuilder @Inject constructor(
             .doOnSuccess { Timber.tag(TAG).v("Task updated: %s (%s): %s", id, action, it) }
 
     fun remove(id: Task.Id): Single<Opt<Data>> = Single.just(id)
-            .flatMap { id ->
-                hotData.data
-                        .firstOrError()
+            .flatMap {
+                hotData.data.firstOrError()
                         .flatMap { preDeleteMap ->
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
@@ -83,12 +84,9 @@ class TaskBuilder @Inject constructor(
             .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
             .map { it }
 
-    fun load(id: Task.Id): Single<Data> = taskRepo.get(id)
-            .map { optTask ->
-                if (!optTask.isNull) optTask.value
-                else throw IllegalArgumentException("Task not in repo: $id")
-            }
-            .flatMap { task ->
+    fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
+            .optToMaybe()
+            .flatMapSingleElement { task ->
                 val editor = editors.getValue(task.taskType).create(task.taskId)
                 editor.load(task).blockingGet()
                 val data = Data(
@@ -99,16 +97,15 @@ class TaskBuilder @Inject constructor(
                 update(id) { data }.map { data }
             }
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
     fun startEditor(taskId: Task.Id): Completable = hotData.data.firstOrError()
-            .map { builderData ->
-                if (builderData.containsKey(taskId)) builderData.getValue(taskId)
-                else throw IllegalArgumentException("Task data not in builder: $taskId")
-            }
-            .onErrorResumeNext {
-                load(taskId)
-                        .doOnError { Timber.tag(TAG).e("No task data available for %s", taskId) }
-            }
+            .flatMapMaybe { Maybe.fromCallable<Data> { it[taskId] } }
+            .switchIfEmpty(
+                    load(taskId)
+                            .doOnSubscribe { Timber.tag(TAG).d("Trying existing task for %s", taskId) }
+                            .doOnSuccess { Timber.tag(TAG).d("Loaded existing task for %s", taskId) }
+            )
             .doOnSuccess { data ->
                 Timber.tag(TAG).v("Starting editor for ID %s", taskId)
                 val intent = Intent(context, TaskEditorActivity::class.java)
@@ -118,8 +115,7 @@ class TaskBuilder @Inject constructor(
             }
             .ignoreElement()
 
-    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.data
-            .firstOrError()
+    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.data.firstOrError()
             .map { existingData ->
                 require(!existingData.containsKey(newId)) { "Builder with this ID already exists: $newId" }
                 Data(taskId = newId, taskType = type, editor = editors.getValue(type).create(newId))

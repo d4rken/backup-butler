@@ -7,8 +7,10 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -98,12 +100,9 @@ class StorageBuilder @Inject constructor(
             .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
             .map { it }
 
-    fun load(id: Storage.Id): Single<Data> = refRepo.get(id)
-            .map { optTask ->
-                if (!optTask.isNull) optTask.value
-                else throw IllegalArgumentException("Ref not in repo: $id")
-            }
-            .flatMap { ref ->
+    fun load(id: Storage.Id): Maybe<Data> = refRepo.get(id)
+            .optToMaybe()
+            .flatMapSingleElement { ref: Storage.Ref ->
                 val editor = editors.getValue(ref.storageType).create(ref.storageId)
                 editor.load(ref).blockingGet()
                 val builderData = Data(
@@ -111,20 +110,22 @@ class StorageBuilder @Inject constructor(
                         storageType = ref.storageType,
                         editor = editor
                 )
-                return@flatMap update(id) { builderData }.map { builderData }
+                update(id) { builderData }.map { builderData }
             }
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
     fun startEditor(storageId: Storage.Id = Storage.Id()): Completable = hotData.data.firstOrError()
-            .map { builderData ->
-                if (builderData.containsKey(storageId)) builderData.getValue(storageId)
-                else throw IllegalArgumentException("StorageId not builder data: $storageId")
-            }
-            .onErrorResumeNext { load(storageId) }
-            .onErrorResumeNext {
-                Timber.tag(TAG).d("No existing ref for id %s, creating new builder.", storageId)
-                update(storageId) { Data(storageId = storageId) }.map { it.value!! }
-            }
+            .flatMapMaybe { Maybe.fromCallable<Data> { it[storageId] } }
+            .switchIfEmpty(
+                    load(storageId)
+                            .doOnSubscribe { Timber.tag(TAG).d("Trying existing storage for %s", storageId) }
+                            .doOnSuccess { Timber.tag(TAG).d("Loaded existing storage for %s", storageId) }
+            )
+            .switchIfEmpty(
+                    update(storageId) { Data(storageId = storageId) }.map { it.value!! }
+                            .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
+            )
             .doOnSuccess { data ->
                 Timber.tag(TAG).d("Starting editor for ID %s", storageId)
                 val intent = Intent(context, StorageEditorActivity::class.java)

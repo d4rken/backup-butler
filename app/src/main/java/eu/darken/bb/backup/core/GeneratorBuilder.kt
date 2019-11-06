@@ -9,7 +9,9 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.rx.optToMaybe
 import eu.darken.bb.task.core.Task
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -62,9 +64,8 @@ class GeneratorBuilder @Inject constructor(
 
     fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
-            .flatMap { id ->
-                hotData.data
-                        .firstOrError()
+            .flatMap {
+                hotData.data.firstOrError()
                         .flatMap { preDeleteMap ->
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
@@ -93,12 +94,9 @@ class GeneratorBuilder @Inject constructor(
             .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
             .map { it }
 
-    fun load(id: Generator.Id): Single<Data> = generatorRepo.get(id)
-            .map { optTask ->
-                if (!optTask.isNull) optTask.value
-                else throw IllegalArgumentException("Task not in repo: $id")
-            }
-            .flatMap { config ->
+    fun load(id: Generator.Id): Maybe<Data> = generatorRepo.get(id)
+            .optToMaybe()
+            .flatMapSingleElement { config ->
                 val editor = editors.getValue(config.generatorType).create(config.generatorId)
                 editor.load(config).blockingGet()
                 val data = Data(
@@ -108,23 +106,24 @@ class GeneratorBuilder @Inject constructor(
                 )
                 update(id) { data }.map { data }
             }
+            .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
+            .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
     fun startEditor(
             generatorId: Generator.Id = Generator.Id(),
             type: Backup.Type? = null,
             targetTask: Task.Id? = null
     ): Single<Generator.Id> = hotData.data.firstOrError()
-            .map { builderData ->
-                if (builderData.containsKey(generatorId)) builderData.getValue(generatorId)
-                else throw IllegalArgumentException("Config builder not in data: $generatorId")
-            }
-            .onErrorResumeNext { load(generatorId) }
-            .onErrorResumeNext {
-                Timber.tag(TAG).d("No existing generator generator for id %s, creating new dataset.", generatorId)
-                update(generatorId) {
-                    Data(generatorId = generatorId, generatorType = type, targetTask = targetTask)
-                }.map { it.value!! }
-            }
+            .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
+            .switchIfEmpty(
+                    load(generatorId)
+                            .doOnSubscribe { Timber.tag(TAG).d("Trying existing generator for %s", generatorId) }
+                            .doOnSuccess { Timber.tag(TAG).d("Loaded existing generator for %s", generatorId) }
+            )
+            .switchIfEmpty(
+                    update(generatorId) { Data(generatorId = generatorId, generatorType = type, targetTask = targetTask) }.map { it.value!! }
+                            .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
+            )
             .doOnSuccess { data ->
                 Timber.tag(TAG).v("Starting editor for ID %s", generatorId)
                 val intent = Intent(context, GeneratorEditorActivity::class.java)
