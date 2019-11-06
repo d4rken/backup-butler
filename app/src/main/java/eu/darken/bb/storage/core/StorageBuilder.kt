@@ -114,7 +114,6 @@ class StorageBuilder @Inject constructor(
                 return@flatMap update(id) { builderData }.map { builderData }
             }
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
-            .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
     fun startEditor(storageId: Storage.Id = Storage.Id()): Completable = hotData.data.firstOrError()
             .map { builderData ->
@@ -127,7 +126,7 @@ class StorageBuilder @Inject constructor(
                 update(storageId) { Data(storageId = storageId) }.map { it.value!! }
             }
             .doOnSuccess { data ->
-                Timber.tag(TAG).v("Starting editor for ID %s", storageId)
+                Timber.tag(TAG).d("Starting editor for ID %s", storageId)
                 val intent = Intent(context, StorageEditorActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 intent.putStorageId(data.storageId)

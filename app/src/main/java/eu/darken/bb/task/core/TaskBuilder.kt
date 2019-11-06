@@ -99,7 +99,6 @@ class TaskBuilder @Inject constructor(
                 update(id) { data }.map { data }
             }
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
-            .doOnError { Timber.tag(TAG).w(it, "Failed to load %s", id) }
 
     fun startEditor(taskId: Task.Id): Completable = hotData.data.firstOrError()
             .map { builderData ->
