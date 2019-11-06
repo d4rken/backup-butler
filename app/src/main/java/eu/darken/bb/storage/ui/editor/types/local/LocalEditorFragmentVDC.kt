@@ -110,12 +110,12 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun selectPath() {
-        pickerEvent.postValue(APathPicker.Options(
-        ))
-    }
-
-    fun selectRoot() {
-        // TODO
+        editorDataObs.firstOrError().subscribe { data ->
+            pickerEvent.postValue(APathPicker.Options(
+                    startPath = data.refPath,
+                    allowedTypes = setOf(APath.Type.LOCAL)
+            ))
+        }
     }
 
     fun onGrantPermission() {

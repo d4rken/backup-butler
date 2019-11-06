@@ -68,7 +68,7 @@ class APathPickerActivityVDC @AssistedInject constructor(
 
     fun onEmptyResult() {
         Timber.tag(TAG).d("onEmptyResult()")
-        if (options.allowTypeChange) {
+        if (options.allowedTypes.isEmpty()) {
             showOptions()
         } else {
             finishEvent.postValue(APathPicker.Result(
