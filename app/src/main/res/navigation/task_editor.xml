@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/destinationsFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment"
-        android:label="@string/task_destinations_label"
+        android:label="@string/task_editor_backup_destinations_label"
         tools:layout="@layout/task_editor_backup_storages_fragment">
         <action
             android:id="@+id/nav_action_show_picker"
@@ -91,7 +91,7 @@
     <fragment
         android:id="@+id/storagePickerFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragment"
-        android:label="@string/task_add_destination_action"
+        android:label="@string/task_editor_backup_add_destination_action"
         tools:layout="@layout/task_editor_backup_storages_picker_fragment">
         <argument
             android:name="taskId"

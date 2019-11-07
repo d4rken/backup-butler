@@ -34,9 +34,9 @@
     <string name="general_run_action">Run</string>
     <string name="general_edit_action">Edit</string>
     <string name="general_delete_action">Delete</string>
-    <string name="task_taskname_desc">Give your backup task a memorable name. You can also change it later.</string>
-    <string name="task_destinations_label">Destinations</string>
-    <string name="task_add_destination_action">Add destination</string>
+    <string name="task_editor_taskname_desc">What should your task be called? No worries, you can change it later.</string>
+    <string name="task_editor_backup_destinations_label">Destinations</string>
+    <string name="task_editor_backup_add_destination_action">Add destination</string>
     <string name="backup_generators_label">Sources</string>
     <string name="backup_add_generator_action">Add source</string>
     <string name="general_view_action">View</string>
@@ -102,20 +102,20 @@
     <string name="result_x_skipped">%d skipped</string>
     <string name="result_x_failed">%d failed</string>
     <string name="general_show_action">Show</string>
-    <string name="task_restore_edit_label">Edit restore task</string>
-    <string name="task_restore_new_label">New restore task</string>
+    <string name="task_editor_restore_edit_label">Edit restore task</string>
+    <string name="task_editor_restore_new_label">New restore task</string>
     <string name="task_backup_label">Backup task</string>
     <string name="task_restore_label">Restore task</string>
-    <string name="task_restore_app_config_skip_existing_apps_label">Skip existing apps</string>
-    <string name="task_restore_app_config_skip_existing_apps_desc">Don\'t restore apps that already exist.</string>
-    <string name="task_restore_app_config_options_label">App options</string>
-    <string name="task_restore_app_config_restore_apk_label">Restore APK</string>
-    <string name="task_restore_app_config_restore_apk_desc">Restore the app itself.</string>
-    <string name="task_restore_app_config_restore_data_label">Restore data</string>
-    <string name="task_restore_app_config_restore_data_desc">Restore the app\'s data.</string>
-    <string name="task_restore_files_config_replace_existing_files_label">Replace existing files</string>
-    <string name="task_restore_files_config_replace_existing_files_desc">Replace a file if it already exists.</string>
-    <string name="task_restore_config_file_options_label">File options</string>
+    <string name="task_editor_restore_app_config_skip_existing_apps_label">Skip existing apps</string>
+    <string name="task_editor_restore_app_config_skip_existing_apps_desc">Don\'t restore apps that already exist.</string>
+    <string name="task_editor_restore_app_config_options_label">App options</string>
+    <string name="task_editor_restore_app_config_restore_apk_label">Restore APK</string>
+    <string name="task_editor_restore_app_config_restore_apk_desc">Restore the app itself.</string>
+    <string name="task_editor_restore_app_config_restore_data_label">Restore data</string>
+    <string name="task_editor_restore_app_config_restore_data_desc">Restore the app\'s data.</string>
+    <string name="task_editor_restore_files_config_replace_existing_files_label">Replace existing files</string>
+    <string name="task_editor_restore_files_config_replace_existing_files_desc">Replace a file if it already exists.</string>
+    <string name="task_editor_restore_config_file_options_label">File options</string>
     <string name="task_type_restoresimple_description">Simple restore task for %d backups.</string>
     <string name="storage_detach_action">Detach</string>
     <string name="general_delete_all_action">Delete all</string>
@@ -137,19 +137,19 @@
     <string name="general_error_type_missmatch_msg">Type missmatch: Wanted %1$s, but got %2$s.</string>
     <string name="general_error_cant_access_msg">Can\'t access %s.</string>
     <string name="general_summary_label">Summary</string>
-    <plurals name="task_restore_x_backups_selected_desc">
+    <plurals name="task_editor_restore_x_backups_selected_desc">
         <item quantity="one">%d backup is selected for restoration.</item>
         <item quantity="other">%d backups are selected for restoration.</item>
     </plurals>
-    <plurals name="task_restore_x_backups_types_desc">
+    <plurals name="task_editor_restore_x_backups_types_desc">
         <item quantity="one">%d type of backup is selected for restoration.</item>
         <item quantity="other">%d types of backup are selected for restoration.</item>
     </plurals>
-    <plurals name="task_restore_x_items_custom_config_desc">
+    <plurals name="task_editor_restore_x_items_custom_config_desc">
         <item quantity="one">%d item has a custom configuration.</item>
         <item quantity="other">%d items have a custom configuration.</item>
     </plurals>
-    <plurals name="task_restore_x_configs_have_issues">
+    <plurals name="task_editor_restore_x_configs_have_issues">
         <item quantity="one">%d configuration is invalid.</item>
         <item quantity="other">%d configurations are invalid.</item>
     </plurals>
@@ -179,8 +179,8 @@
     <string name="general_continue_action">Continue</string>
     <string name="backups_label">Backups</string>
     <string name="storage_tab_label">Storages</string>
-    <string name="task_editor_backup_sources_desc">What should this task backup? Add one or more sources.</string>
-    <string name="task_editor_backup_destinations_desc">Where should this task save it\'s backups? Add multiple destinations if you want to store additional copies.</string>
+    <string name="task_editor_backup_sources_empty_desc">What should this task backup?</string>
+    <string name="task_editor_backup_destinations_empty_desc">Where should this task save it\'s backups?</string>
     <string name="task_editor_backup_sources_picker_empty_desc">You don\'t have any backup sources yet. Create one so you can add it to this task.</string>
     <string name="task_editor_backup_sources_picker_alladded_desc">All existing sources have already been added to this task. Want to backup additional data? Just create another source.</string>
     <string name="task_editor_backup_destination_picker_empty_desc">There are no existing storages. Let\'s create one so you can add it to this task.</string>
@@ -221,7 +221,7 @@
     <string name="twitter_label">Twitter</string>
     <string name="scheduler_settings_label">Scheduler</string>
     <string name="general_done_action">Done</string>
-    <string name="task_restore_file_config_restoration_path">Restoration path</string>
+    <string name="task_editor_restore_file_config_restoration_path">Restoration path</string>
     <string name="documentation_desc">The official Wiki for Backup Butler.</string>
     <string name="email_developer_desc">Note that I can only respond in german or english.</string>
     <string name="discord_desc">A place to hang out in and ask questions.</string>

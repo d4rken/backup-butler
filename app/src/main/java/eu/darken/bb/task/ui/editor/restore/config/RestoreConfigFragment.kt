@@ -57,12 +57,12 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter, dividers = false)
 
         vdc.summaryState.observe2(this) { state ->
-            countTypes.setTextQuantity(R.plurals.task_restore_x_backups_types_desc, state.backupTypes.size)
+            countTypes.setTextQuantity(R.plurals.task_editor_restore_x_backups_types_desc, state.backupTypes.size)
 
-            countCustomConfigs.setTextQuantity(R.plurals.task_restore_x_items_custom_config_desc, state.customConfigCount)
+            countCustomConfigs.setTextQuantity(R.plurals.task_editor_restore_x_items_custom_config_desc, state.customConfigCount)
             countCustomConfigs.setGone(state.customConfigCount == 0)
 
-            countConfigIssues.setTextQuantity(R.plurals.task_restore_x_configs_have_issues, state.configsWithIssues)
+            countConfigIssues.setTextQuantity(R.plurals.task_editor_restore_x_configs_have_issues, state.configsWithIssues)
             countConfigIssues.setGone(state.configsWithIssues == 0)
 
             setupBar.buttonPositivePrimary.setGone(state.configsWithIssues != 0)

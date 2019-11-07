@@ -25,11 +25,10 @@
 
     <Button
         android:id="@+id/action_positive_secondary"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
-        android:textColor="?colorOnPrimarySurface"
         android:text="@string/general_next_action"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -37,10 +36,9 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-
     <Button
         android:id="@+id/action_negative_secondary"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
@@ -54,7 +52,7 @@
 
     <Button
         android:id="@+id/action_negative_primary"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"

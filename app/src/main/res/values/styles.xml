@@ -85,4 +85,8 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:id">@id/loading_overlay</item>
     </style>
+
+    <style name="Widget.MaterialComponents.Button.TextButton2" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/material_button_texts</item>
+    </style>
 </resources>

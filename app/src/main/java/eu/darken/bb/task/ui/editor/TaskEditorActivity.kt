@@ -50,8 +50,8 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
                     else getString(R.string.task_backup_new_label)
                 }
                 Task.Type.RESTORE_SIMPLE -> {
-                    if (state.isExistingTask) getString(R.string.task_restore_edit_label)
-                    else getString(R.string.task_restore_new_label)
+                    if (state.isExistingTask) getString(R.string.task_editor_restore_edit_label)
+                    else getString(R.string.task_editor_restore_new_label)
                 }
             }
 

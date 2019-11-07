@@ -49,21 +49,21 @@
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/task_restore_x_backups_types_desc" />
+                    tools:text="@plurals/task_editor_restore_x_backups_types_desc" />
 
                 <TextView
                     android:id="@+id/count_custom_configs"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/task_restore_x_backups_types_desc" />
+                    tools:text="@plurals/task_editor_restore_x_backups_types_desc" />
 
                 <TextView
                     android:id="@+id/count_config_issues"
                     style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@plurals/task_restore_x_configs_have_issues" />
+                    tools:text="@plurals/task_editor_restore_x_configs_have_issues" />
 
             </LinearLayout>
 

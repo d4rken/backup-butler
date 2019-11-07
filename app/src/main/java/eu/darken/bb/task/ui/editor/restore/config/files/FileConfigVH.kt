@@ -22,7 +22,7 @@ class FileConfigVH(parent: ViewGroup)
     @BindView(R.id.option_path_info) lateinit var optionPathInfo: TextView
     @BindView(R.id.option_path_action) lateinit var optionPathAction: Button
 
-    override val title = getString(R.string.task_restore_config_file_options_label)
+    override val title = getString(R.string.task_editor_restore_config_file_options_label)
 
     init {
         ButterKnife.bind(this, itemView)

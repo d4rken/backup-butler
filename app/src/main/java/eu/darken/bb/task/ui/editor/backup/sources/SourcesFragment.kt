@@ -18,7 +18,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
-import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentArgs
@@ -55,7 +54,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.sources)
-            setupBar.buttonPositiveSecondary.setGone(state.sources.isEmpty())
+            setupBar.buttonPositiveSecondary.isEnabled = state.sources.isNotEmpty()
         }
 
         fab.clicksDebounced().subscribe {

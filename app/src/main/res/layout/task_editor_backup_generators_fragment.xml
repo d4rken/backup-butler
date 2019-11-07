@@ -7,7 +7,7 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:rvwEmptyText="@string/task_editor_backup_sources_desc"
+        app:rvwEmptyText="@string/task_editor_backup_sources_empty_desc"
         app:layout_constraintBottom_toTopOf="@+id/setupbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

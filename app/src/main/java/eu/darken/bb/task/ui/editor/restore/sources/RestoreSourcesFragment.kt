@@ -54,7 +54,7 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter, dividers = false)
 
         vdc.summaryState.observe2(this) { state ->
-            countBackups.setTextQuantity(R.plurals.task_restore_x_backups_selected_desc, state.sourceBackups.size)
+            countBackups.setTextQuantity(R.plurals.task_editor_restore_x_backups_selected_desc, state.sourceBackups.size)
             setupBar.buttonPositiveSecondary.setGone(state.sourceBackups.isEmpty())
 
             countContainer.setInvisible(state.isWorking)
