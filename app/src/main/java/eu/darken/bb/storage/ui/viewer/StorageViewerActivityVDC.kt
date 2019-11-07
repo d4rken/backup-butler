@@ -29,6 +29,8 @@ class StorageViewerActivityVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
     val pageEvent = SingleLiveEvent<PageData>()
+    val errorEvent = SingleLiveEvent<Throwable>()
+    val finishActivity = SingleLiveEvent<Boolean>()
 
     private val stater: Stater<State> = Stater {
         handle.ifFresh {
@@ -38,27 +40,22 @@ class StorageViewerActivityVDC @AssistedInject constructor(
     }
     val state = stater.liveData
 
-    val finishActivity = SingleLiveEvent<Boolean>()
-
     init {
-        storageManager.info(storageId).subscribeOn(Schedulers.io())
-                .subscribe(
-                        { info ->
-                            stater.update { state ->
-                                state.copy(
-                                        storageId = storageId,
-                                        label = info.config?.label ?: "",
-                                        storageType = info.config?.storageType
-                                )
-                            }
-                        },
-                        { error ->
-                            stater.update {
-                                it.copy(error = error)
-                            }
-                            finishActivity.postValue(true)
-                        }
-                )
+        storageManager.infos(listOf(storageId)).subscribeOn(Schedulers.io())
+                .map { it.single() }
+                .subscribe { optInfo ->
+                    stater.update {
+                        it.copy(
+                                storageId = storageId,
+                                storageType = optInfo.info?.storageType,
+                                label = optInfo.info?.config?.label ?: ""
+                        )
+                    }
+                    if (optInfo.anyError != null) {
+                        errorEvent.postValue(optInfo.anyError)
+                        finishActivity.postValue(true)
+                    }
+                }
                 .withScopeVDC(this)
     }
 
@@ -70,7 +67,6 @@ class StorageViewerActivityVDC @AssistedInject constructor(
             val storageId: Storage.Id,
             val label: String = "",
             val storageType: Storage.Type? = null,
-            val error: Throwable? = null,
             val loading: Boolean = true
     )
 

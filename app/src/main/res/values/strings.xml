@@ -230,4 +230,5 @@
     <string name="twitter_desc">darken\'s twitter account</string>
     <string name="issue_tracker_desc">A public issue tracker for bug reports and feature requests (english only).</string>
     <string name="support_installid_desc">Share your install ID with developer to help him find automatic error reports from your device.</string>
+    <string name="progress_deleting_label">Deleting</string>
 </resources>

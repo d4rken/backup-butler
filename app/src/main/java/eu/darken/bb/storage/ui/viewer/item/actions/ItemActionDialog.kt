@@ -21,6 +21,7 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
+import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -52,7 +53,7 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
     @BindView(R.id.info_container_loading) lateinit var infoContainerLoading: View
 
     @BindView(R.id.actionlist) lateinit var actionList: RecyclerView
-    @BindView(R.id.actionlist_loading) lateinit var actionListLoading: View
+    @BindView(R.id.actionlist_loading) lateinit var actionListLoading: LoadingOverlayView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storage_viewer_contentlist_action_dialog, container, false)
@@ -79,8 +80,11 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
 
             actionsAdapter.update(state.allowedActions)
 
-            actionList.setInvisible(state.isWorking || state.allowedActions == null)
-            actionListLoading.setInvisible(!state.isWorking && state.allowedActions != null)
+            actionList.setInvisible(state.isWorking)
+            actionListLoading.setInvisible(!state.isWorking)
+            if (state.currentOp != null) {
+                actionListLoading.setPrimaryText(state.currentOp.label.get(requireContext()))
+            }
         }
 
         vdc.pageEvent.observe2(this) { pageData ->

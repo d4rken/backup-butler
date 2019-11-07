@@ -36,23 +36,29 @@ class SAFStorageEditor @AssistedInject constructor(
     fun updatePath(uri: Uri, importExisting: Boolean): Single<SAFPath> =
             Single.just(SAFPath.build(uri)).flatMap { updatePath(it, importExisting) }
 
-    fun updatePath(path: SAFPath, importExisting: Boolean): Single<SAFPath> = Single.fromCallable {
+    fun updatePath(_path: SAFPath, importExisting: Boolean): Single<SAFPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-        check(path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
-        check(path.isDirectory(safGateway)) { "Target is not a directory!" }
+        check(_path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
+        check(_path.isDirectory(safGateway)) { "Target is not a directory!" }
 
-        if (path.child(STORAGE_CONFIG).exists(safGateway)) {
-            if (!importExisting) throw ExistingStorageException(path)
+        val tweakedPath: SAFPath = if (safGateway.isStorageRoot(_path)) {
+            _path.child("BackupButler")
+        } else {
+            _path
+        }
 
-            load(path).blockingGet()
+        if (tweakedPath.child(STORAGE_CONFIG).exists(safGateway)) {
+            if (!importExisting) throw ExistingStorageException(tweakedPath)
+
+            load(tweakedPath).blockingGet()
         } else {
             editorDataPub.update {
-                it.copy(refPath = path)
+                it.copy(refPath = tweakedPath)
             }
         }
 
-        return@fromCallable path
+        return@fromCallable tweakedPath
     }
 
     override fun isValid(): Observable<Boolean> = editorData.map {

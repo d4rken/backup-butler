@@ -25,6 +25,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
 
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
+    val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
@@ -39,12 +40,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }, { error ->
-                    stater.update {
-                        it.copy(
-                                error = error,
-                                loading = false
-                        )
-                    }
+                    errorEvent.postValue(error)
                     finishEvent.postValue(Any())
                 })
                 .withScopeVDC(this)
@@ -52,7 +48,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
 
     data class State(
             val backupSpec: BackupSpec? = null,
-            val versions: List<Backup.MetaData> = listOf(),
+            val versions: List<Backup.MetaData>? = null,
             val loading: Boolean = true,
             val error: Throwable? = null
     )

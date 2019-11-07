@@ -56,11 +56,11 @@ android {
             }
             ext.enableBugsnag = true
             buildConfigField "boolean", "BETA", "true"
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFiles proguardRulesRelease
-//            proguardFiles 'proguard-rules-debug.pro'
+            proguardFiles 'proguard-rules-debug.pro'
         }
         beta {
             signingConfig signingConfigs.release

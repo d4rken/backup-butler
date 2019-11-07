@@ -43,6 +43,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
     init {
         editorData
                 .switchMap { storageManager.infos(it.destinations) }
+                .takeUntil { infoOpts -> infoOpts.all { it.isFinished } }
                 .subscribe { storageStatuses ->
                     stater.update { it.copy(destinations = storageStatuses.toList()) }
                 }

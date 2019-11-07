@@ -56,7 +56,10 @@ class BugsnagErrorHandler @Inject constructor(
 //            }
 //        }
 
-        return !BuildConfig.DEBUG
+        // TODO check if enabled
+        val send = !BuildConfig.DEBUG
+        Timber.tag(TAG).d("Send error? %b", send)
+        return send
     }
 
     companion object {

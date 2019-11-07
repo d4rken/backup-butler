@@ -12,6 +12,9 @@
         app:rvwExplanationText="@string/storage_quick_explanation_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:id="@id/storage_list_wrapper"
+        android:visibility="invisible"
+        tools:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 

@@ -24,8 +24,9 @@ class StorageListFragmentVDC @AssistedInject constructor(
             .subscribeOn(Schedulers.io())
             .map { infos ->
                 StorageState(
-                        storages = infos.map { Storage.InfoOpt(it) },
-                        isLoading = false)
+                        storages = infos.toList(),
+                        isLoading = false
+                )
             }
             .startWith(StorageState())
             .toLiveData()

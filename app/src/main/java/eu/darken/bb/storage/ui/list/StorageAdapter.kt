@@ -82,7 +82,7 @@ class StorageAdapter @Inject constructor()
                 }
             }
 
-            loadingAnimation.setGone(info.config != null && info.status != null)
+            loadingAnimation.setGone(info.isFinished)
         }
     }
 

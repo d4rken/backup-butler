@@ -55,12 +55,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
+        <eu.darken.bb.common.ui.LoadingOverlayView
             android:id="@+id/actionlist_loading"
-            style="@style/ProgressStyleSpinner"
-            android:layout_margin="16dp"
-            android:visibility="visible"
-            tools:visibility="visible" />
+            style="@style/LoadingOverlayViewStyle" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/actionlist"

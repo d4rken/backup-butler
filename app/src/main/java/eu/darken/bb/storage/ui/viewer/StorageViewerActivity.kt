@@ -11,6 +11,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.putBackupSpecId
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
@@ -37,11 +38,9 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.storage_viewer_activity)
         ButterKnife.bind(this)
 
-        vdc.state.observe(this, Observer { state ->
-            if (state.error != null) {
-                Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
-            }
-        })
+        vdc.errorEvent.observe2(this) {
+            Toast.makeText(this, it.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
+        }
 
         vdc.pageEvent.observe(this, Observer { pageData ->
             showPage(pageData)

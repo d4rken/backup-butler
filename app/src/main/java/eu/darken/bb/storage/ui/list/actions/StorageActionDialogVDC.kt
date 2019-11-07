@@ -34,36 +34,39 @@ class StorageActionDialogVDC @AssistedInject constructor(
     val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
-        storageManager.info(storageId)
+        storageManager.infos(listOf(storageId))
                 .subscribeOn(Schedulers.io())
-                .subscribe(
-                        { storageInfo ->
-                            if (storageInfo == null) {
-                                closeDialogEvent.postValue(Any())
-                                return@subscribe
-                            }
-
-                            val allowedActions = mutableSetOf<StorageAction>()
-                            if (storageInfo.config != null) {
-                                allowedActions.add(VIEW)
-                                allowedActions.add(RESTORE)
-                                allowedActions.add(EDIT)
-                            }
-                            allowedActions.add(DETACH)
-                            if (storageInfo.status?.isReadOnly == false) allowedActions.add(DELETE)
-
-                            stater.update {
-                                it.copy(
-                                        storageInfo = storageInfo,
-                                        allowedActions = allowedActions.toList(),
-                                        isLoadingData = storageInfo.status == null
-                                )
-                            }
-                        },
-                        {
-                            closeDialogEvent.postValue(Any())
+                .map { it.single() }
+                .takeUntil { info -> info.isFinished }
+                .subscribe { infoOpt ->
+                    val allowedActions = mutableSetOf<StorageAction>().apply {
+                        if (infoOpt.info?.status != null) {
+                            add(VIEW)
+                            add(RESTORE)
                         }
-                )
+
+                        if (infoOpt.info?.config != null) {
+                            add(EDIT)
+                        }
+                        if (infoOpt.info?.status?.isReadOnly == false) {
+                            add(DELETE)
+                        }
+
+                        add(DETACH)
+                    }
+
+                    stater.update {
+                        it.copy(
+                                storageInfo = infoOpt?.info,
+                                allowedActions = allowedActions.toList(),
+                                isLoadingData = !infoOpt.isFinished
+                        )
+                    }
+
+                    if (infoOpt.anyError != null) {
+                        errorEvent.postValue(infoOpt.error)
+                    }
+                }
                 .withScopeVDC(this)
     }
 

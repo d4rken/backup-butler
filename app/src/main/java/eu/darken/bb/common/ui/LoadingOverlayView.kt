@@ -21,15 +21,16 @@ import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.tryLocalizedErrorMessage
 
+@Suppress("ProtectedInFinal")
 class LoadingOverlayView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         @AttrRes defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    @BindView(R.id.animation) lateinit var animation: LottieAnimationView
-    @BindView(R.id.primary_text) lateinit var primaryText: TextView
-    @BindView(R.id.cancel_button) lateinit var cancelButton: Button
+    @BindView(R.id.animation) protected lateinit var animation: LottieAnimationView
+    @BindView(R.id.primary_text) protected lateinit var primaryText: TextView
+    @BindView(R.id.cancel_button) protected lateinit var cancelButton: Button
 
     init {
         View.inflate(context, R.layout.loading_overlay_view, this)

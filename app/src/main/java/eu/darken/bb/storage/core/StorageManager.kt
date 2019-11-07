@@ -6,6 +6,7 @@ import dagger.Reusable
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.blockingGetUnWrapped
+import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import io.reactivex.Completable
@@ -35,12 +36,12 @@ class StorageManager @Inject constructor(
     }
 
     // TODO shouldn't this return StorageInfoOpt due to checking via Storage.Id
-    fun info(id: Storage.Id): Observable<Storage.Info> = refRepo.get(id)
-            .singleOrError(IllegalArgumentException("Can't find storage for $id"))
-            .flatMapObservable { info(it) }
-
-    fun infos(): Observable<Collection<Storage.Info>> = infos(wantedIds = null)
-            .map { infos -> infos.map { info -> info.info!! } }
+//    fun info(id: Storage.Id): Observable<Storage.InfoOpt> = refRepo.get(id)
+//            .singleOrError(IllegalArgumentException("Can't find storage for $id"))
+//            .flatMapObservable { info(it) }
+//
+//    fun infos(): Observable<Collection<Storage.InfoOpt>> = infos(wantedIds = null)
+//            .map { infos -> infos.map { info -> info.info!! } }
 
     fun infos(wantedIds: Collection<Storage.Id>? = null): Observable<Collection<Storage.InfoOpt>> = Observable
             .fromCallable {
@@ -76,27 +77,17 @@ class StorageManager @Inject constructor(
             }
 
     private fun info(ref: Storage.Ref): Observable<Storage.Info> = getStorage(ref)
-            .switchMap {
-                it.info().startWith(Storage.Info(storageId = ref.storageId, storageType = ref.storageType, config = it.storageConfig))
-            }
+            .switchMap { it.info().startWith(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
             .doOnError { Timber.tag(TAG).e(it) }
-            .startWith(Storage.Info(storageId = ref.storageId, storageType = ref.storageType))
-            .onErrorReturn { Storage.Info(storageId = ref.storageId, storageType = ref.storageType, error = it) }
+            .startWith(Storage.Info(ref.storageId, ref.storageType))
+            .onErrorMixLast { last, error ->
+                // because we have startWith
+                last!!.copy(error = error)
+            }
 
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
             .singleOrError(IllegalArgumentException("Can't find storage for $id"))
             .flatMapObservable { getStorage(it) }
-
-    fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = getStorage(id).firstOrError()
-            .flatMap { storage ->
-                synchronized(repoCache) {
-                    val removed = repoCache.remove(id)
-                    Timber.tag(TAG).d("Evicted from cache: %s", removed)
-                }
-                val ref = refRepo.remove(id).blockingGet()
-                storage.detach(wipe).toSingleDefault(ref.notNullValue())
-            }
-            .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
 
     private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
@@ -113,6 +104,17 @@ class StorageManager @Inject constructor(
             return@fromCallable repo
         }
     }
+
+    fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = getStorage(id).firstOrError()
+            .flatMap { storage ->
+                synchronized(repoCache) {
+                    val removed = repoCache.remove(id)
+                    Timber.tag(TAG).d("Evicted from cache: %s", removed)
+                }
+                val ref = refRepo.remove(id).blockingGet()
+                storage.detach(wipe).toSingleDefault(ref.notNullValue())
+            }
+            .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
 
     fun startViewer(storageId: Storage.Id): Completable = Completable.fromCallable {
         val intent = Intent(context, StorageViewerActivity::class.java)

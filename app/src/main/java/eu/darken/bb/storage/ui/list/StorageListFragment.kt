@@ -36,6 +36,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     @Inject lateinit var adapter: StorageAdapter
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
+    @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: View
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
@@ -53,7 +54,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             adapter.update(state.storages)
 
             loadingOverlay.setInvisible(!state.isLoading)
-            storageList.setInvisible(state.isLoading)
+            storageListWrapper.setInvisible(state.isLoading)
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()

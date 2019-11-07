@@ -43,7 +43,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     @Inject lateinit var adapter: StorageItemAdapter
 
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
+    @BindView(R.id.storage_item_list) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     private var showOptionDeleteAll = false
@@ -75,6 +75,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             showOptionDeleteAll = state.allowDeleteAll && !state.isWorking
             invalidateOptionsMenu()
         }
+
         vdc.deletionState.observe2(this) { deletionState ->
             if (deletionState.backupSpec != null) {
                 loadingOverlay.setPrimaryText(getString(R.string.progress_deleting_x_label, deletionState.backupSpec.getLabel(requireContext())))
@@ -83,6 +84,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             }
 
         }
+
         vdc.contentActionEvent.observe2(this) {
             val bs = ItemActionDialog.newInstance(it.storageId, it.backupSpecId)
             bs.show(childFragmentManager, "${it.storageId}-${it.backupSpecId}")

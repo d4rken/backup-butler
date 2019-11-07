@@ -110,6 +110,8 @@ interface Storage : Progress.Host {
             val error: Throwable? = null
     ) {
 
+        val isFinished: Boolean = error != null || (config != null && status != null)
+
         data class Status(
                 val isReadOnly: Boolean,
                 val itemCount: Int,
@@ -125,6 +127,10 @@ interface Storage : Progress.Host {
     ) : OptInfo<Info> {
         constructor(storageId: Id) : this(storageId, null)
         constructor(config: Info) : this(config.storageId, config)
+
+        val anyError: Throwable? = info?.error ?: error
+
+        override val isFinished: Boolean = info?.isFinished ?: (error != null)
     }
 
     @Keep

@@ -133,6 +133,8 @@ class BBDebug @Inject constructor(
 
     companion object {
         private val TAG = App.logTag("Debug")
+
+        fun isDebug() = BuildConfig.BETA || BuildConfig.DEBUG
     }
 
 }

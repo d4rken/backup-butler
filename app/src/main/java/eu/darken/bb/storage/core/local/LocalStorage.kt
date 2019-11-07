@@ -20,6 +20,7 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
+import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
@@ -72,6 +73,35 @@ class LocalStorage @AssistedInject constructor(
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
+
+    override fun info(): Observable<Storage.Info> = infoObs
+    private val infoObs: Observable<Storage.Info> = Observable
+            .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
+            .flatMap { info ->
+                specInfos().map { contents ->
+                    var status: Storage.Info.Status? = null
+                    try {
+                        status = Storage.Info.Status(
+                                itemCount = contents.size,
+                                totalSize = 0,
+                                isReadOnly = dataDir.exists() && !dataDir.canWrite()
+                        )
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).w(e)
+                    }
+
+                    info.copy(status = status)
+                }.startWith(info)
+            }
+            .doOnError { Timber.tag(TAG).e(it) }
+            .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
+            .doFinally { Timber.tag(TAG).d("info().doFinally()") }
+            .onErrorMixLast { last, error ->
+                // startWith
+                last!!.copy(error = error)
+            }
+            .replayingShare()
+
     override fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info> = specInfos()
             .map { specInfos ->
                 val item = specInfos.find { it.backupSpec.specId == specId }
@@ -116,32 +146,6 @@ class LocalStorage @AssistedInject constructor(
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
             .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
-            .replayingShare()
-
-    override fun info(): Observable<Storage.Info> = infoObs
-    private val infoObs: Observable<Storage.Info> = specInfos()
-            .map { contents ->
-                var status: Storage.Info.Status? = null
-                try {
-                    status = Storage.Info.Status(
-                            itemCount = contents.size,
-                            totalSize = 0,
-                            isReadOnly = dataDir.exists() && !dataDir.canWrite()
-                    )
-                } catch (e: Exception) {
-                    Timber.tag(TAG).w(e)
-                }
-
-                Storage.Info(
-                        storageId = this.storageRef.storageId,
-                        storageType = this.storageRef.storageType,
-                        config = storageConfig,
-                        status = status
-                )
-            }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
-            .doFinally { Timber.tag(TAG).d("info().doFinally()") }
             .replayingShare()
 
     override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = backupContent(specId, backupId)

@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
+        android:id="@+id/storage_item_list"
         android:layout_width="match_parent"
         android:visibility="invisible"
         tools:visibility="visible"

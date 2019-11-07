@@ -48,6 +48,15 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                 }
                 .withScopeVDC(this)
 
+        storageObs.flatMap { it.info() }
+                .filter { it.config != null }
+                .map { it.config!! }
+                .take(1)
+                .subscribe { config ->
+                    stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
+                }
+                .withScopeVDC(this)
+
         // TODO use storage extension?
         storageObs.flatMap { it.specInfos() }
                 .subscribe({ storageContents ->
@@ -61,15 +70,6 @@ class StorageItemFragmentVDC @AssistedInject constructor(
                     errorEvents.postValue(error)
                     finishEvent.postValue(true)
                 })
-                .withScopeVDC(this)
-
-        storageObs.flatMap { it.info() }
-                .filter { it.config != null }
-                .map { it.config!! }
-                .take(1)
-                .subscribe { config ->
-                    stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
-                }
                 .withScopeVDC(this)
     }
 

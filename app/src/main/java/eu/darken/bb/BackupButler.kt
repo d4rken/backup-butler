@@ -14,6 +14,7 @@ import java.io.File
 import javax.inject.Inject
 
 @SuppressLint("PackageManagerGetSignatures")
+@Suppress("DEPRECATION")
 @PerApp
 class BackupButler @Inject constructor(
         @AppContext val context: Context,
@@ -21,12 +22,17 @@ class BackupButler @Inject constructor(
 ) {
     private val selfHealthPrefs = context.getSharedPreferences("selfhealth", Context.MODE_PRIVATE)
 
+
     val appInfo: AppInfo by lazy {
         val pkgInfo = packageManager.getPackageInfo(context.packageName, 0)
         AppInfo(
                 versionCode = pkgInfo.versionCode.toLong(),
                 versionName = pkgInfo.versionName,
-                buildState = if (BuildConfig.DEBUG) BuildState.DEV else BuildState.ALPHA,
+                buildState = when {
+                    BuildConfig.DEBUG -> BuildState.DEV
+                    BuildConfig.BETA -> BuildState.BETA
+                    else -> BuildState.PRODUCTION
+                },
                 gitSha = BuildConfig.GITSHA,
                 buildTime = BuildConfig.BUILD_TYPE)
     }
@@ -75,6 +81,6 @@ class BackupButler @Inject constructor(
     )
 
     enum class BuildState {
-        DEV, ALPHA
+        DEV, BETA, PRODUCTION
     }
 }

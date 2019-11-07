@@ -28,7 +28,7 @@ class SAFGateway @Inject constructor(
             if (current == null) break
         }
 
-        Timber.tag(TAG).v("getDocumentFile(file=$file): ${current?.uri}")
+//       if(BBDebug.isDebug()) Timber.tag(TAG).v("getDocumentFile(file=$file): ${current?.uri}")
         return current
     }
 
@@ -166,6 +166,10 @@ class SAFGateway @Inject constructor(
         val requestIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         requestIntent.putExtra("android.content.extra.SHOW_ADVANCED", true)
         return requestIntent
+    }
+
+    fun isStorageRoot(path: SAFPath): Boolean {
+        return path.treeRoot.pathSegments[1].split(":").filter { it.isNotEmpty() }.size == 1
     }
 
     companion object {

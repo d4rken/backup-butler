@@ -36,6 +36,27 @@ fun <T> Observable<T>.onErrorComplete(
     return onErrorResumeNext(call)
 }
 
+fun <T> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
+        this.scan(Pair<T?, T?>(null, null)) { previous, current -> Pair(previous.second, current) }
+                .skip(1)
+                .map {
+                    @Suppress("UNCHECKED_CAST")
+                    it as Pair<T?, T>
+                }
+
+fun <T> Observable<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): Observable<T> =
+        materialize().withPrevious().flatMap { (previous, current) ->
+            when {
+                current.isOnComplete -> Observable.empty<T>()
+                current.isOnError -> {
+                    val value = current.value ?: previous?.value
+                    val error = current.error ?: previous?.error
+                    Observable.just(mixer(value, error!!))
+                }
+                else -> Observable.just(current.value)
+            }
+        }
+
 object Observables2 {
     fun <T> fromCallableSafe(producer: () -> T): Observable<T> {
         return Observable.create<T> {

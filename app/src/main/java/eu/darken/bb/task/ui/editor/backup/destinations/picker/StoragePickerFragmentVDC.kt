@@ -31,6 +31,7 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
 
     val storageData = storageManager.infos()
             .subscribeOn(Schedulers.io())
+            .takeUntil { optInfos -> optInfos.all { it.isFinished } }
             .flatMap { all ->
                 editorData
                         .map { it.destinations }.map { alreadyAdded ->
@@ -38,7 +39,7 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
                         }
                         .map { infos ->
                             StorageState(
-                                    storages = infos.map { Storage.InfoOpt(it) },
+                                    storages = infos,
                                     allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
                                     isLoading = false
                             )
