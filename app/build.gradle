@@ -153,10 +153,8 @@ dependencies {
 
     implementation "androidx.fragment:fragment:1.2.0-rc01"
 
-
-    def nav_version = "2.1.0"
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:${versions.androidx.navigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${versions.androidx.navigation}"
 
     implementation 'com.airbnb.android:lottie:3.1.0'
 
@@ -169,10 +167,9 @@ dependencies {
 
     implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
 
-    def kotlinVersion = "1.9.1"
-    implementation "com.squareup.moshi:moshi:$kotlinVersion"
-    implementation "com.squareup.moshi:moshi-adapters:$kotlinVersion"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:$kotlinVersion"
+    implementation "com.squareup.moshi:moshi:${versions.moshi}"
+    implementation "com.squareup.moshi:moshi-adapters:${versions.moshi}"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
 
     def room_version = "2.2.1"
     implementation "androidx.room:room-runtime:$room_version"
