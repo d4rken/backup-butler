@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/storage_viewer"
+    app:startDestination="@id/storageItemFragment">
+
+    <fragment
+        android:id="@+id/storageItemFragment"
+        android:name="eu.darken.bb.storage.ui.viewer.item.StorageItemFragment"
+        tools:layout="@layout/storage_viewer_itemlist_fragment"
+        android:label="StorageItemFragment">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        <action
+            android:id="@+id/action_storageItemFragment_to_storageItemActionDialog"
+            app:destination="@id/storageItemActionDialog"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/itemContentsFragment"
+        android:name="eu.darken.bb.storage.ui.viewer.content.ItemContentsFragment"
+        tools:layout="@layout/storage_viewer_itemcontent_fragment"
+        android:label="ItemContentsFragment">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        <argument
+            android:name="specId"
+            app:argType="eu.darken.bb.backup.core.BackupSpec$Id" />
+    </fragment>
+    <activity
+        android:id="@+id/storageViewerActivity"
+        android:name="eu.darken.bb.storage.ui.viewer.StorageViewerActivity"
+
+        tools:layout="@layout/storage_viewer_activity"
+        android:label="StorageViewerActivity">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </activity>
+    <dialog
+        android:id="@+id/storageItemActionDialog"
+        android:name="eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialog"
+        tools:layout="@layout/storage_viewer_contentlist_action_dialog"
+        android:label="ItemActionDialog">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        <argument
+            android:name="specId"
+            app:argType="eu.darken.bb.backup.core.BackupSpec$Id" />
+        <action
+            android:id="@+id/action_storageItemActionDialog_to_itemContentsFragment"
+            app:destination="@id/itemContentsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </dialog>
+</navigation>

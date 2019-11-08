@@ -6,6 +6,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.android.AndroidInjector
@@ -25,12 +27,13 @@ import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
-import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialog
+import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialogArgs
 import javax.inject.Inject
 
 
 class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
+
+    val navArgs by navArgs<StorageItemFragmentArgs>()
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
@@ -38,7 +41,7 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageItemFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageItemFragmentVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
 
     @Inject lateinit var adapter: StorageItemAdapter
@@ -54,9 +57,6 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
-
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
@@ -86,8 +86,8 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         }
 
         vdc.contentActionEvent.observe2(this) {
-            val bs = ItemActionDialog.newInstance(it.storageId, it.backupSpecId)
-            bs.show(childFragmentManager, "${it.storageId}-${it.backupSpecId}")
+            val args = ItemActionDialogArgs(storageId = it.storageId, specId = it.backupSpecId)
+            findNavController().navigate(R.id.action_storageItemFragment_to_storageItemActionDialog, args.toBundle())
         }
 
         vdc.finishEvent.observe2(this) { finishActivity() }
@@ -108,10 +108,6 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            requireActivity().finish()
-            true
-        }
         R.id.action_delete_all -> {
             vdc.deleteAll()
             true

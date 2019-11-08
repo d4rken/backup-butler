@@ -59,15 +59,18 @@ class SAFStorage @AssistedInject constructor(
     private val dataDirEvents = Observable
             .create<Array<SAFPath>> {
                 try {
-                    val current = dataDir.listFiles(safGateway)
-                    it.onNext(current)
+                    if (dataDir.exists(safGateway)) {
+                        it.onNext(dataDir.listFiles(safGateway))
+                    } else {
+                        it.onNext(emptyArray())
+                    }
                     it.onComplete()
                 } catch (e: IOException) {
                     it.tryOnError(e)
                 }
             }
             .subscribeOn(Schedulers.io())
-//            .onErrorReturnItem(emptyArray())
+            .onErrorReturnItem(emptyArray())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
             .filterUnchanged { old, new -> old != null && old.contentEquals(new) }
             .replayingShare()

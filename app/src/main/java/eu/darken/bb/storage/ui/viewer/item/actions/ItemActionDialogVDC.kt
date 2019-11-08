@@ -15,7 +15,6 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.viewer.StorageViewerActivityVDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -36,7 +35,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
     private val stater = Stater(State())
     val state = stater.liveData
 
-    val pageEvent = SingleLiveEvent<StorageViewerActivityVDC.PageData>()
+    val actionEvent = SingleLiveEvent<Triple<ItemAction, Storage.Id, BackupSpec.Id>>()
     val errorEvents = SingleLiveEvent<Throwable>()
     val finishedEvent = SingleLiveEvent<Any>()
 
@@ -72,7 +71,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
 
         when (action) {
             ItemAction.VIEW -> {
-                pageEvent.postValue(StorageViewerActivityVDC.PageData(StorageViewerActivityVDC.PageData.Page.DETAILS, storageId, backupSpecId))
+                actionEvent.postValue(Triple(ItemAction.VIEW, storageId, backupSpecId))
             }
             ItemAction.DELETE -> {
                 storageObs

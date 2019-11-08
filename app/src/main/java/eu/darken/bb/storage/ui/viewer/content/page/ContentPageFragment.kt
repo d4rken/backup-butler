@@ -6,7 +6,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -15,6 +15,7 @@ import eu.darken.bb.backup.core.getBackupSpecId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
@@ -56,7 +57,7 @@ class ContentPageFragment : SmartFragment(), AutoInject {
 
         recyclerView.setupDefaults(adapter)
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             if (state.metaData != null) {
                 creationDateValue.text = dateFormatter.format(state.metaData.createdAt)
             }
@@ -70,11 +71,11 @@ class ContentPageFragment : SmartFragment(), AutoInject {
 
             showRestoreAction = state.showRestoreAction
             invalidateOptionsMenu()
-        })
+        }
 
-        vdc.finishEvent.observe(this, Observer {
-            requireFragmentManager().popBackStack()
-        })
+        vdc.finishEvent.observe2(this) {
+            findNavController().popBackStack()
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -90,10 +91,6 @@ class ContentPageFragment : SmartFragment(), AutoInject {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            requireActivity().finish()
-            true
-        }
         R.id.action_restore -> {
             vdc.restore()
             true

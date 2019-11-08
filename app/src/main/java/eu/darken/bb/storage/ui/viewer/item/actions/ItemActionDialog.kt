@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -12,7 +14,6 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.getBackupSpecId
 import eu.darken.bb.backup.core.putBackupSpecId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
@@ -26,25 +27,28 @@ import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
+import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentArgs
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
-    private var unbinder: Unbinder? = null
 
-    @Inject lateinit var taskRepo: TaskRepo
-    @Inject lateinit var actionsAdapter: ActionsAdapter
+    val navArgs by navArgs<ItemActionDialogArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: ItemActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as ItemActionDialogVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!)
+        factory.create(handle, navArgs.storageId, navArgs.specId)
     })
 
     private val activityVdc by lazy { (requireActivity() as StorageViewerActivity).vdc }
+
+    private var unbinder: Unbinder? = null
+
+    @Inject lateinit var taskRepo: TaskRepo
+    @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView
@@ -87,9 +91,9 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
             }
         }
 
-        vdc.pageEvent.observe2(this) { pageData ->
-            activityVdc.goTo(pageData)
-            dismiss()
+        vdc.actionEvent.observe2(this) { (action, storageId, specId) ->
+            val args = ItemContentsFragmentArgs(storageId = storageId, specId = specId)
+            findNavController().navigate(R.id.action_storageItemActionDialog_to_itemContentsFragment, args.toBundle())
         }
 
         vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }

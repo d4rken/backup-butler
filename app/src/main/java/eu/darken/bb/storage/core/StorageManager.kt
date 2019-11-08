@@ -9,6 +9,7 @@ import eu.darken.bb.common.rx.blockingGetUnWrapped
 import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
+import eu.darken.bb.storage.ui.viewer.StorageViewerActivityArgs
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -118,7 +119,7 @@ class StorageManager @Inject constructor(
 
     fun startViewer(storageId: Storage.Id): Completable = Completable.fromCallable {
         val intent = Intent(context, StorageViewerActivity::class.java)
-        intent.putStorageId(storageId)
+        intent.putExtras(StorageViewerActivityArgs(storageId = storageId).toBundle())
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }

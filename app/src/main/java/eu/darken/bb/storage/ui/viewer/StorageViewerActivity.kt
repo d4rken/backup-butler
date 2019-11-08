@@ -1,35 +1,42 @@
 package eu.darken.bb.storage.ui.viewer
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
+import androidx.navigation.navArgs
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.putBackupSpecId
+import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
-import eu.darken.bb.storage.core.putStorageId
 import javax.inject.Inject
 
 class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var vdcSource: VDCSource.Factory
+    val navArgs by navArgs<StorageViewerActivityArgs>()
 
+    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+
+    @Inject lateinit var vdcSource: VDCSource.Factory
     val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageViewerActivityVDC.Factory
-        factory.create(handle, intent.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -42,39 +49,22 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
             Toast.makeText(this, it.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
         }
 
-        vdc.pageEvent.observe(this, Observer { pageData ->
-            showPage(pageData)
-        })
+        vdc.state.observe2(this) { state ->
+            if (!navController.isGraphSet()) {
+                val graph = navController.navInflater.inflate(R.navigation.storage_viewer)
+                navController.setGraph(graph, bundleOf("storageId" to state.storageId))
+                setupActionBarWithNavController(navController)
+            }
+        }
 
         vdc.finishActivity.observe(this, Observer { finish() })
     }
 
-    private fun showPage(pageData: StorageViewerActivityVDC.PageData) {
-        val current = supportFragmentManager.findFragmentById(R.id.content_frame)
-
-        val desired = supportFragmentManager.findFragmentByTag(pageData.page.name)
-        var newFragment = desired
-        if (newFragment == null) {
-            newFragment = supportFragmentManager.fragmentFactory.instantiate(this.classLoader, pageData.page.fragmentClass.qualifiedName!!)
-        }
-        newFragment.arguments = Bundle().apply {
-            putStorageId(pageData.storageId)
-            if (pageData.backupSpecId != null) putBackupSpecId(pageData.backupSpecId)
-        }
-        val transaction = supportFragmentManager.beginTransaction()
-        if (current != null) {
-            transaction.addToBackStack(null)
-            transaction.remove(current)
-        }
-        transaction.add(R.id.content_frame, newFragment, pageData.toString())
-        transaction.commitAllowingStateLoss()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-        } else {
-            super.onBackPressed()
-        }
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }

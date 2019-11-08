@@ -2,10 +2,11 @@ package eu.darken.bb.storage.ui.viewer.content
 
 import android.os.Bundle
 import android.text.format.DateUtils
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import butterknife.BindView
 import com.google.android.material.tabs.TabLayout
@@ -14,7 +15,6 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.getBackupSpecId
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -25,11 +25,12 @@ import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
 import javax.inject.Inject
 
 
 class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
+
+    val navArgs by navArgs<ItemContentsFragmentArgs>()
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
@@ -38,11 +39,10 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
 
     private val vdc: ItemContentsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as ItemContentsFragmentVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!)
+        factory.create(handle, navArgs.storageId, navArgs.specId)
     })
 
-    private val pagerAdapter by lazy { VersionPagerAdapter(this, arguments!!.getStorageId()!!, arguments!!.getBackupSpecId()!!) }
-
+    private val pagerAdapter by lazy { VersionPagerAdapter(this, navArgs.storageId, navArgs.specId) }
 
     @BindView(R.id.loading_overlay) lateinit var loadingOverlayView: LoadingOverlayView
     @BindView(R.id.viewpager_container) lateinit var viewPagerContainer: ViewGroup
@@ -51,13 +51,9 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
 
     init {
         layoutRes = R.layout.storage_viewer_itemcontent_fragment
-        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
-
         viewPager.adapter = pagerAdapter
         tabLayout.tabMode = TabLayout.MODE_SCROLLABLE
 
@@ -81,18 +77,9 @@ class ItemContentsFragment : SmartFragment(), AutoInject, HasSupportFragmentInje
             toastError(it)
         }
         vdc.finishEvent.observe2(this) {
-            requireFragmentManager().popBackStackImmediate()
+            findNavController().popBackStack()
         }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            requireFragmentManager().popBackStackImmediate()
-            true
-        }
-
-        else -> super.onOptionsItemSelected(item)
     }
 }
