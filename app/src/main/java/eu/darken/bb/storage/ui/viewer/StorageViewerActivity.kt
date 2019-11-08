@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.navArgs
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.ButterKnife
@@ -37,6 +38,16 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
     })
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+    private val graph by lazy { navController.navInflater.inflate(R.navigation.storage_viewer) }
+    private val appBarConf by lazy {
+        AppBarConfiguration.Builder()
+                .setFallbackOnNavigateUpListener {
+                    finish()
+                    true
+                }
+                .build()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -51,9 +62,8 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         vdc.state.observe2(this) { state ->
             if (!navController.isGraphSet()) {
-                val graph = navController.navInflater.inflate(R.navigation.storage_viewer)
                 navController.setGraph(graph, bundleOf("storageId" to state.storageId))
-                setupActionBarWithNavController(navController)
+                setupActionBarWithNavController(navController, appBarConf)
             }
         }
 
@@ -65,6 +75,6 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        return NavigationUI.navigateUp(navController, appBarConf) || super.onSupportNavigateUp()
     }
 }
