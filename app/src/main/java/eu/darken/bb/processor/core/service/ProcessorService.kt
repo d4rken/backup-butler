@@ -20,6 +20,7 @@ import eu.darken.bb.task.core.results.TaskResultRepo
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
+import java.lang.Thread.sleep
 import javax.inject.Inject
 
 class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, HasContext {
@@ -92,7 +93,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         }
 
         Timber.tag(TAG).i("Finished processing %s: %s", task, taskResult)
-
+        sleep(2000)
     }
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
