@@ -28,11 +28,11 @@ object APathPicker {
 
     fun createIntent(
             context: Context,
-            options: Options = Options()
+            options: Options
     ): Intent {
         val intent = Intent(context, APathPickerActivity::class.java)
-
-        return intoIntent(intent, options)
+        val bundle = APathPickerActivityArgs(options = options).toBundle()
+        return intent.putExtras(bundle)
     }
 
     @Keep @Parcelize
@@ -52,14 +52,6 @@ object APathPicker {
         return data.getParcelableExtra(ARG_PICKER_RESULT)
     }
 
-    fun fromIntent(intent: Intent): Options {
-        return intent.getParcelableExtra(ARG_PICKER_OPTIONS)
-    }
-
-    fun intoIntent(intent: Intent, options: Options): Intent {
-        return intent.putExtra(ARG_PICKER_OPTIONS, options)
-    }
-
     fun toActivityResult(result: Result): Intent {
         return Intent().apply {
             putExtra(ARG_PICKER_RESULT, result)
@@ -75,7 +67,6 @@ object APathPicker {
         }
     }
 
-    private const val ARG_PICKER_OPTIONS = "eu.darken.bb.common.file.picker.APathPicker.Options"
     private const val ARG_PICKER_RESULT = "eu.darken.bb.common.file.picker.APathPicker.Result"
 }
 

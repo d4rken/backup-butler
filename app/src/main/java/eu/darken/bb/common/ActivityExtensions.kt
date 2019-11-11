@@ -3,8 +3,10 @@ package eu.darken.bb.common
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -19,8 +21,24 @@ fun Fragment.requireActivityActionBar(): ActionBar {
     return (requireActivity() as AppCompatActivity).supportActionBar!!
 }
 
-fun Activity.view(): View {
+fun Activity.viewParent(): ViewGroup? {
     return findViewById(android.R.id.content)
+}
+
+fun Activity.view(): View? {
+    return viewParent()?.getChildAt(0)
+}
+
+fun Activity.isContentViewSet(): Boolean {
+    return view() != null
+}
+
+fun Activity.ensureContentView(@LayoutRes layoutRes: Int): Boolean {
+    if (!isContentViewSet()) {
+        setContentView(layoutRes)
+        return true
+    }
+    return false
 }
 
 fun AppCompatActivity.showFragment(

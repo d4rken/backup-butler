@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/picker_nav"
+    tools:ignore="InvalidNavigation">
+
+    <activity
+        android:id="@+id/aPathPickerActivity"
+        android:name="eu.darken.bb.common.file.picker.APathPickerActivity"
+        android:label="picker_activity">
+        <argument
+            android:name="options"
+            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+    </activity>
+    <fragment
+        android:id="@+id/localPickerFragment"
+        android:name="eu.darken.bb.common.file.picker.local.LocalPickerFragment"
+        android:label="@string/storage_type_local_label"
+        tools:layout="@layout/pathpicker_local_fragment">
+        <argument
+            android:name="options"
+            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+    </fragment>
+    <fragment
+        android:id="@+id/typesPickerFragment"
+        android:name="eu.darken.bb.common.file.picker.types.TypesPickerFragment"
+        android:label="@string/general_select_type_label"
+        tools:layout="@layout/pathpicker_types_fragment">
+        <action
+            android:id="@+id/action_typesPickerFragment_to_localPickerFragment"
+            app:destination="@id/localPickerFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <argument
+            android:name="options"
+            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+    </fragment>
+</navigation>

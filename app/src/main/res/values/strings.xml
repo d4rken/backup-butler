@@ -51,7 +51,7 @@
     <string name="storage_type_local_label">Local storage</string>
     <string name="storage_type_local_desc">Local storage that is directly accessible, e.g. internal sdcard.</string>
     <string name="storage_type_saf_label">SAF storage</string>
-    <string name="storage_type_saf_desc">Any type of device storage accessible through the Storage Access Framework.</string>
+    <string name="storage_type_saf_desc">Any type of storage accessible through the Storage Access Framework, e.g. sdcards or cloud storage.</string>
     <string name="general_name_label">Name</string>
     <string name="general_core_settings_label">Core settings</string>
     <string name="general_save_action">Save</string>

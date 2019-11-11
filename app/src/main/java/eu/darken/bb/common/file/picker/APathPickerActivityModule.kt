@@ -2,8 +2,14 @@ package eu.darken.bb.common.file.picker
 
 import dagger.Binds
 import dagger.Module
+import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import eu.darken.bb.common.dagger.PerActivity
+import eu.darken.bb.common.dagger.PerFragment
+import eu.darken.bb.common.file.picker.local.LocalPickerFragment
+import eu.darken.bb.common.file.picker.local.LocalPickerFragmentModule
+import eu.darken.bb.common.file.picker.types.TypesPickerFragment
+import eu.darken.bb.common.file.picker.types.TypesPickerFragmentModule
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
@@ -16,24 +22,12 @@ abstract class APathPickerActivityModule {
     @IntoMap
     @VDCKey(APathPickerActivityVDC::class)
     abstract fun pickerActivity(factory: APathPickerActivityVDC.Factory): VDCFactory<out VDC>
-//
-//    @PerFragment
-//    @ContributesAndroidInjector(modules = [IntroFragmentModule::class])
-//    abstract fun introFragment(): IntroFragment
-//
-//    @PerFragment
-//    @ContributesAndroidInjector(modules = [SourcesFragmentModule::class])
-//    abstract fun sourcesFragment(): SourcesFragment
-//
-//    @PerFragment
-//    @ContributesAndroidInjector(modules = [DestinationsFragmentModule::class])
-//    abstract fun destinationsFragment(): DestinationsFragment
-//
-//    @PerFragment
-//    @ContributesAndroidInjector(modules = [RestoreConfigFragmentModule::class])
-//    abstract fun restoreConfig(): RestoreConfigFragment
-//
-//    @PerFragment
-//    @ContributesAndroidInjector(modules = [RestoreSourcesFragmentModule::class])
-//    abstract fun restoreSources(): RestoreSourcesFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [TypesPickerFragmentModule::class])
+    abstract fun types(): TypesPickerFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [LocalPickerFragmentModule::class])
+    abstract fun local(): LocalPickerFragment
 }

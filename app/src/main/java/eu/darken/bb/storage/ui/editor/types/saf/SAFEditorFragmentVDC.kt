@@ -1,8 +1,6 @@
 package eu.darken.bb.storage.ui.editor.types.saf
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -13,6 +11,7 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.APath
 import eu.darken.bb.common.file.SAFGateway
 import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -43,7 +42,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
-    val openPickerEvent = SingleLiveEvent<Intent>()
+    val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
@@ -73,7 +72,10 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     }
 
     fun selectPath() {
-        openPickerEvent.postValue(safGateway.createPickerIntent())
+        openPickerEvent.postValue(APathPicker.Options(
+                startPath = editorDataObs.blockingFirst().refPath,
+                allowedTypes = setOf(APath.Type.SAF)
+        ))
     }
 
     override fun onNavigateBack(): Boolean = if (editorDataObs.map { it.existingStorage }.blockingFirst()) {
@@ -92,10 +94,11 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         true
     }
 
-    fun onPermissionResult(uri: Uri) {
-        editor.updatePath(uri, false)
+    fun onUpdatePath(result: APathPicker.Result) {
+        val p = result.selection!!.first() as SAFPath
+        editor.updatePath(p, false)
                 .subscribeOn(Schedulers.io())
-                .subscribe { path, error ->
+                .subscribe { _, error ->
                     if (error != null) {
                         errorEvent.postValue(error)
                     }
@@ -106,7 +109,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         path as SAFPath
         editor.updatePath(path, true)
                 .subscribeOn(Schedulers.io())
-                .subscribe { path, error ->
+                .subscribe { _, error ->
                     if (error != null) {
                         errorEvent.postValue(error.getRootCause())
                     }

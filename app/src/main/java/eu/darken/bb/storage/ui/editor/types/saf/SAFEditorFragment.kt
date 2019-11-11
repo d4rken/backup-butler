@@ -1,6 +1,5 @@
 package eu.darken.bb.storage.ui.editor.types.saf
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
@@ -8,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.file.picker.APathPicker
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.ui.setInvisible
@@ -69,7 +68,7 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
         labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
 
         vdc.openPickerEvent.observe2(this) {
-            startActivityForResult(it, 13)
+            startActivityForResult(APathPicker.createIntent(requireContext(), it), 13)
         }
 
         vdc.errorEvent.observe2(this) { error ->
@@ -92,14 +91,9 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 13) {
-            if (resultCode == Activity.RESULT_OK && data?.data != null) {
-                vdc.onPermissionResult(data.data!!)
-            } else {
-                Toast.makeText(context, R.string.general_please_try_again_msg, Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, result=$data")
+        when (requestCode) {
+            13 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.onUpdatePath(it) }
+            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

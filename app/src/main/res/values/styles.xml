@@ -89,4 +89,10 @@
     <style name="Widget.MaterialComponents.Button.TextButton2" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/material_button_texts</item>
     </style>
+
+    <style name="BreadCrumbBarStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <item name="android:background">?colorPrimary</item>
+    </style>
 </resources>
