@@ -58,7 +58,7 @@
             android:theme="@style/AppTheme.Floating" />
 
         <activity
-            android:name="eu.darken.bb.common.file.picker.APathPickerActivity"
+            android:name="eu.darken.bb.common.file.ui.picker.APathPickerActivity"
             android:theme="@style/AppTheme.Base" />
 
         <service android:name="eu.darken.bb.processor.core.service.ProcessorService" />

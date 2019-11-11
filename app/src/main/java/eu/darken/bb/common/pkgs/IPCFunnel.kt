@@ -9,7 +9,7 @@ import android.os.TransactionTooLargeException
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.core.APath
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import javax.inject.Inject

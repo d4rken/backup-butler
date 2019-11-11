@@ -2,14 +2,18 @@
 <resources>
     <!--The primary brand color of your app, used most predominantly in theming -->
     <color name="colorPrimary">#263238</color>
+    <color name="colorPrimaryDark">#000a12</color>
+    <color name="colorPrimaryLight">#4f5b62</color>
     <!--A lighter/darker variant of your primary brand color, used sparingly in theming -->
-    <color name="colorPrimaryVariant">#000a12</color>
+    <color name="colorPrimaryVariant">@color/colorPrimaryLight</color>
     <!--The color used for elements displayed on top of your primary colors (eg. Text and icons, often white or semi-transparent black depending on accessibility)-->
     <color name="colorOnPrimary">#FFFFFF</color>
     <!--The secondary brand color of your app, used mostly as an accent for certain widgets that need to stand out-->
     <color name="colorSecondary">#00c853</color>
+    <color name="colorSecondaryDark">#009624</color>
+    <color name="colorSecondaryLight">#5efc82</color>
     <!--A lighter/darker variant of your secondary brand color, used sparingly in theming-->
-    <color name="colorSecondaryVariant">#009624</color>
+    <color name="colorSecondaryVariant">@color/colorSecondaryLight</color>
     <!--The color used for elements displayed on top of your secondary colors-->
     <color name="colorOnSecondary">#FFFFFF</color>
     <!--The color used for errors (often a shade of red)-->

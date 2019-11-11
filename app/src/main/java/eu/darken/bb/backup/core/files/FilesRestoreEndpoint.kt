@@ -8,8 +8,13 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.*
-import eu.darken.bb.common.file.SAFGateway
+import eu.darken.bb.common.file.core.crumbsTo
+import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.core.local.copyTo
+import eu.darken.bb.common.file.core.saf.SAFGateway
+import eu.darken.bb.common.file.core.saf.SAFPath
+import eu.darken.bb.common.file.core.saf.tryCreateFile
+import eu.darken.bb.common.file.core.saf.tryMkDirs
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -19,7 +24,6 @@ import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.io.copyTo
 
 class FilesRestoreEndpoint @Inject constructor(
         @AppContext override val context: Context,

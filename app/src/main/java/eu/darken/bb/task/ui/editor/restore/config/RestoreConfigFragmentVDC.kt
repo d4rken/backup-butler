@@ -11,8 +11,8 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.file.SAFGateway
-import eu.darken.bb.common.file.picker.APathPicker
+import eu.darken.bb.common.file.core.saf.SAFGateway
+import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory

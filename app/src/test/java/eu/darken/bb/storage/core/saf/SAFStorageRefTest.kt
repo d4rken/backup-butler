@@ -2,8 +2,8 @@ package eu.darken.bb.storage.core.saf
 
 import android.net.Uri
 import eu.darken.bb.AppModule
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.storage.core.Storage
 import io.kotlintest.shouldBe
 import org.junit.Test

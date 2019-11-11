@@ -1,15 +1,14 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
-import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.LocalPath
-import eu.darken.bb.common.file.picker.APathPicker
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -19,7 +18,6 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
@@ -113,7 +111,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editorDataObs.firstOrError().subscribe { data ->
             pickerEvent.postValue(APathPicker.Options(
                     startPath = data.refPath,
-                    allowedTypes = setOf(APath.Type.LOCAL)
+                    allowedTypes = setOf(APath.Type.LOCAL, APath.Type.SAF)
             ))
         }
     }
@@ -138,11 +136,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): LocalEditorFragmentVDC
     }
-
-    @Parcelize
-    data class PermissionRequest(
-            val followUpWithDefaults: Boolean = true
-    ) : Parcelable
 
     companion object {
         val TAG = App.logTag("Storage", "Local", "Editor", "VDC")

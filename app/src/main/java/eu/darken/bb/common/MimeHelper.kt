@@ -2,8 +2,8 @@ package eu.darken.bb.common
 
 import android.webkit.MimeTypeMap
 import eu.darken.bb.App
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.asFile
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.asFile
 import timber.log.Timber
 import java.util.*
 

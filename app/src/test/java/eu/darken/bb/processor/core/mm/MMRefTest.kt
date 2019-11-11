@@ -3,7 +3,7 @@ package eu.darken.bb.processor.core.mm
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.RawPath
+import eu.darken.bb.common.file.core.RawPath
 import io.kotlintest.shouldBe
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

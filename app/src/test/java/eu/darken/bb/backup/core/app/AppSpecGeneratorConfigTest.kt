@@ -3,7 +3,7 @@ package eu.darken.bb.backup.core.app
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.common.file.RawPath
+import eu.darken.bb.common.file.core.RawPath
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 

@@ -12,8 +12,8 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.picker.APathPicker
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory

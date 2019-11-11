@@ -8,8 +8,8 @@ import androidx.core.content.FileProvider
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.asFile
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.asFile
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject

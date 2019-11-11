@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
-import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.core.APath
 
 @Keep
 @JsonClass(generateAdapter = true)

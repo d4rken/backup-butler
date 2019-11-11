@@ -5,9 +5,9 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import eu.darken.bb.App
 import eu.darken.bb.common.ReadException
-import eu.darken.bb.common.file.SAFGateway
-import eu.darken.bb.common.file.SAFPath
-import eu.darken.bb.common.file.tryMkFile
+import eu.darken.bb.common.file.core.local.tryMkFile
+import eu.darken.bb.common.file.core.saf.SAFGateway
+import eu.darken.bb.common.file.core.saf.SAFPath
 import okio.Okio
 import timber.log.Timber
 import java.io.*

@@ -6,8 +6,8 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.file.SAFGateway
-import eu.darken.bb.common.file.SAFPath
+import eu.darken.bb.common.file.core.saf.SAFGateway
+import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
 import eu.darken.bb.storage.core.ExistingStorageException

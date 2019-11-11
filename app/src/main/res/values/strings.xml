@@ -231,4 +231,8 @@
     <string name="issue_tracker_desc">A public issue tracker for bug reports and feature requests (english only).</string>
     <string name="support_installid_desc">Share your install ID with developer to help him find automatic error reports from your device.</string>
     <string name="progress_deleting_label">Deleting</string>
+    <string name="general_create_dir">Create directory</string>
+    <string name="general_select_path_action">Select path</string>
+    <string name="general_home_action">Return to start</string>
+    <string name="general_pick_a_path_action">Pick a path</string>
 </resources>

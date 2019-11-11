@@ -1,5 +1,7 @@
 package eu.darken.bb.common.file
 
+import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.common.file.core.crumbsTo
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 

@@ -12,7 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.ClipboardHelper
-import eu.darken.bb.common.file.RawPath
+import eu.darken.bb.common.file.core.RawPath
 import java.io.File
 
 class BreadCrumbBar<ItemT> @JvmOverloads constructor(
@@ -21,6 +21,7 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
         @AttrRes defStyleAttr: Int = 0,
         @StyleRes defStyleRes: Int = R.style.BreadCrumbBarStyle
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
+
     @BindView(R.id.path_container) lateinit var currentPathLayout: LinearLayout
     @BindView(R.id.path_container_scrollview) lateinit var scrollView: HorizontalScrollView
 

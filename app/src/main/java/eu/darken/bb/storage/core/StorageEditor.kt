@@ -1,6 +1,6 @@
 package eu.darken.bb.storage.core
 
-import eu.darken.bb.common.file.APath
+import eu.darken.bb.common.file.core.APath
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

@@ -1,8 +1,8 @@
 package eu.darken.bb.storage.core.local
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.LocalPath
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.storage.core.Storage
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test

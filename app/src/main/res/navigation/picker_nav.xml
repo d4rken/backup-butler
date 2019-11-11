@@ -7,24 +7,24 @@
 
     <activity
         android:id="@+id/aPathPickerActivity"
-        android:name="eu.darken.bb.common.file.picker.APathPickerActivity"
+        android:name="eu.darken.bb.common.file.ui.picker.APathPickerActivity"
         android:label="picker_activity">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.file.ui.picker.APathPicker$Options" />
     </activity>
     <fragment
         android:id="@+id/localPickerFragment"
-        android:name="eu.darken.bb.common.file.picker.local.LocalPickerFragment"
+        android:name="eu.darken.bb.common.file.ui.picker.local.LocalPickerFragment"
         android:label="@string/storage_type_local_label"
         tools:layout="@layout/pathpicker_local_fragment">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.file.ui.picker.APathPicker$Options" />
     </fragment>
     <fragment
         android:id="@+id/typesPickerFragment"
-        android:name="eu.darken.bb.common.file.picker.types.TypesPickerFragment"
+        android:name="eu.darken.bb.common.file.ui.picker.types.TypesPickerFragment"
         android:label="@string/general_select_type_label"
         tools:layout="@layout/pathpicker_types_fragment">
         <action
@@ -36,6 +36,6 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.file.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.file.ui.picker.APathPicker$Options" />
     </fragment>
 </navigation>

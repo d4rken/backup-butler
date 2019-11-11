@@ -95,4 +95,13 @@
         <item name="android:layout_height">?attr/actionBarSize</item>
         <item name="android:background">?colorPrimary</item>
     </style>
+
+    <style name="Widget.MaterialComponents.Button.Flush.Highlighted" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="backgroundTint">?colorSecondary</item>
+        <item name="android:textColor">?colorOnSecondary</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.Button.Flush" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@drawable/bg_flatbutton</item>
+    </style>
 </resources>

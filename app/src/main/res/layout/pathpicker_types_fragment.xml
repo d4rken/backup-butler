@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".common.file.picker.APathPickerActivity">
+    tools:context=".common.file.ui.picker.APathPickerActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/picktype_list"

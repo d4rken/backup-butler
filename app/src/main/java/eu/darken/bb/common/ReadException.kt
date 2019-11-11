@@ -2,8 +2,8 @@ package eu.darken.bb.common
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.common.file.APath
-import eu.darken.bb.common.file.RawPath
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.RawPath
 import java.io.File
 import java.io.IOException
 
