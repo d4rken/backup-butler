@@ -41,10 +41,10 @@ class IPCFunnel @Inject constructor(
     }
 
     interface PMQuery<T> {
-        fun onPackManAction(pm: PackageManager): T?
+        fun onPackManAction(pm: PackageManager): T
     }
 
-    data class PkgQuery(val pkgName: String, val flags: Int = 0) : PMQuery<Pkg> {
+    data class PkgQuery(val pkgName: String, val flags: Int = 0) : PMQuery<Pkg?> {
 
         override fun onPackManAction(pm: PackageManager): Pkg? {
             var packageInfo: PackageInfo? = null
@@ -64,7 +64,7 @@ class IPCFunnel @Inject constructor(
         }
     }
 
-    data class PkgsQuery(private val flags: Int) : PMQuery<List<PackageInfo>> {
+    data class PkgsQuery(private val flags: Int) : PMQuery<List<PackageInfo>?> {
 
         override fun onPackManAction(pm: PackageManager): List<PackageInfo>? {
             val ret: List<PackageInfo>
@@ -82,7 +82,7 @@ class IPCFunnel @Inject constructor(
         }
     }
 
-    class LabelQuery : PMQuery<String> {
+    class LabelQuery : PMQuery<String?> {
         val packageName: String?
         val applicationInfo: ApplicationInfo?
 
@@ -108,16 +108,16 @@ class IPCFunnel @Inject constructor(
         }
     }
 
-    data class ArchiveQuery(val path: String, val flags: Int = 0) : PMQuery<Pkg> {
+    data class ArchiveQuery(val path: String, val flags: Int = 0) : PMQuery<NormalPkg?> {
         constructor(file: APath, flags: Int) : this(file.path, flags)
 
-        override fun onPackManAction(pm: PackageManager): Pkg? {
+        override fun onPackManAction(pm: PackageManager): NormalPkg? {
             val info = pm.getPackageArchiveInfo(path, flags)
             return if (info != null) AppPkg(info) else null
         }
     }
 
-    data class InstallerQuery(val packageName: String) : PMQuery<String> {
+    data class InstallerQuery(val packageName: String) : PMQuery<String?> {
 
         override fun onPackManAction(pm: PackageManager): String? {
             return try {
@@ -129,7 +129,22 @@ class IPCFunnel @Inject constructor(
         }
     }
 
-    data class IconQuery(val packageName: String?, val applicationInfo: ApplicationInfo?) : PMQuery<Drawable> {
+    data class AppInfoQuery(val packageName: String) : PMQuery<ApplicationInfo?> {
+
+        override fun onPackManAction(pm: PackageManager): ApplicationInfo? {
+            return try {
+                pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES)
+            } catch (e: Throwable) {
+                Timber.tag(TAG).d(e)
+                null
+            }
+        }
+    }
+
+    data class IconQuery(val packageName: String?, val applicationInfo: ApplicationInfo?) : PMQuery<Drawable?> {
+
+        constructor(packageName: String) : this(packageName, null)
+        constructor(applicationInfo: ApplicationInfo) : this(null, applicationInfo)
 
         override fun onPackManAction(pm: PackageManager): Drawable? {
             return try {

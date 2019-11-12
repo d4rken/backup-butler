@@ -1,0 +1,73 @@
+package eu.darken.bb.common.previews.decoder
+
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.Options
+import com.bumptech.glide.load.ResourceDecoder
+import com.bumptech.glide.load.engine.Resource
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapResource
+import com.bumptech.glide.request.target.Target
+import dagger.Lazy
+import eu.darken.bb.App
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.previews.GlideUtil
+import eu.darken.bb.common.previews.model.FileData
+import timber.log.Timber
+
+
+class ApkDecoder(
+        val context: Context,
+        glide: Glide,
+        val ipcFunnelLazy: Lazy<IPCFunnel>
+) : ResourceDecoder<FileData, Bitmap> {
+    private val bitmapPool: BitmapPool = glide.bitmapPool
+
+    override fun handles(source: FileData, options: Options): Boolean {
+        return source.type == FileData.Type.APK
+    }
+
+    override fun decode(fileData: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
+        val bitmap: Bitmap? = when (fileData.file.pathType) {
+            APath.Type.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
+            APath.Type.SAF -> null // TODO
+            else -> null
+        }
+
+        return if (bitmap == null) null else BitmapResource(bitmap, bitmapPool)
+    }
+
+    private fun decodeLocalPath(filePath: LocalPath, _width: Int, _height: Int, options: Options): Bitmap? {
+        // TODO Support Root?
+        val packageInfo = ipcFunnelLazy.get().submit(IPCFunnel.ArchiveQuery(filePath.path, PackageManager.GET_ACTIVITIES))
+        if (packageInfo == null) return null
+
+        val appInfo = packageInfo.applicationInfo
+        if (appInfo == null) return null
+
+        // http://stackoverflow.com/questions/5674683/how-to-show-icon-of-apk-in-my-file-manager
+        appInfo.sourceDir = filePath.path
+        appInfo.publicSourceDir = filePath.path
+        var icon: Drawable? = null
+        try {
+            // FIXME pass through IPCFunnel?
+            icon = appInfo.loadIcon(context.packageManager)
+        } catch (e: OutOfMemoryError) {
+            Timber.tag(TAG).w(e)
+        }
+        if (icon == null) return null
+
+        val targetWidth = if (_width == Target.SIZE_ORIGINAL) icon.intrinsicWidth else _width
+        val targetHeight = if (_height == Target.SIZE_ORIGINAL) icon.intrinsicHeight else _height
+        return GlideUtil.getScaledBitmapFromDrawable(icon, targetWidth, targetHeight)
+    }
+
+    companion object {
+        internal val TAG = App.logTag("Preview", "Decoder", "ApkDecoder")
+    }
+}

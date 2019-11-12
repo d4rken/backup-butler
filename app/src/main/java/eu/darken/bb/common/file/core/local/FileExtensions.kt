@@ -1,7 +1,10 @@
 package eu.darken.bb.common.file.core.local
 
+import eu.darken.bb.App
 import eu.darken.bb.common.file.core.APath
-import okio.Okio
+import okio.buffer
+import okio.sink
+import okio.source
 import timber.log.Timber
 import java.io.*
 import java.io.File
@@ -107,8 +110,8 @@ fun File.deleteAll() {
 }
 
 fun File.copyTo(fd: FileDescriptor) {
-    Okio.source(FileInputStream(this)).use { source ->
-        Okio.buffer(Okio.sink(FileOutputStream(fd))).use { buffer ->
+    FileInputStream(this).source().use { source ->
+        FileOutputStream(fd).sink().buffer().use { buffer ->
             buffer.writeAll(source)
         }
     }
@@ -120,4 +123,16 @@ fun File.safeListFiles(): Array<File> {
 
 fun File.safeListFiles(filter: (File) -> Boolean): Array<File> {
     return this.listFiles(filter) ?: throw IOException("listFiles(filter=$filter) returned NULL")
+}
+
+fun File.isSymbolicLink(): Boolean {
+    val resolvedPath: File
+    try {
+        resolvedPath = canonicalFile
+    } catch (e: IOException) {
+        Timber.tag(App.logTag("File")).e(e)
+        return false
+    }
+
+    return this != resolvedPath
 }

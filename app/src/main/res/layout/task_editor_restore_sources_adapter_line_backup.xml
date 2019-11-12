@@ -36,7 +36,7 @@
             android:visibility="gone"
             tools:visibility="visible"
             tools:ignore="ContentDescription"
-            tools:src="@drawable/ic_folder" />
+            tools:src="@drawable/ic_folder_onsurface" />
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/loading_animation"

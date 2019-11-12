@@ -18,6 +18,8 @@ class GeneralSettings @Inject constructor(
         get() = preferences.getBoolean(PK_ROOT_DISABLED, false)
         set(value) = preferences.edit().putBoolean(PK_ROOT_DISABLED, value).apply()
 
+    var isPreviewEnabled: Boolean = true
+
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
         override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
             PK_ROOT_DISABLED -> isRootDisabled

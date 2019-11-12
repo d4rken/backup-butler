@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
-        tools:src="@drawable/ic_folder" />
+        tools:src="@drawable/ic_folder_onsurface" />
 
     <TextView
         android:id="@+id/label"

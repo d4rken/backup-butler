@@ -134,6 +134,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.kotlin.coroutines}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 
+    implementation("com.squareup.okio:okio:2.4.1")
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
+
     // Support libs
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'

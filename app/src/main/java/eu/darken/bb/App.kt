@@ -18,18 +18,6 @@ import javax.inject.Inject
 open class App
     : Application(), Configuration.Provider, HasActivityInjector, HasServiceInjector, HasBroadcastReceiverInjector {
 
-    companion object {
-        internal val TAG = logTag("App")
-
-        fun logTag(vararg tags: String): String {
-            val sb = StringBuilder("BB:")
-            for (i in tags.indices) {
-                sb.append(tags[i])
-                if (i < tags.size - 1) sb.append(":")
-            }
-            return sb.toString()
-        }
-    }
 
     @Inject lateinit var appComponent: AppComponent
     @Inject lateinit var activityInjector: DispatchingAndroidInjector<Activity>
@@ -40,7 +28,6 @@ open class App
 
     @Inject lateinit var uiSettings: UISettings
     @Inject lateinit var bbDebug: Lazy<BBDebug>
-
 
     override fun onCreate() {
         super.onCreate()
@@ -56,7 +43,10 @@ open class App
         // Sets theme mode
         uiSettings.theme = uiSettings.theme
 
+        setTheme(R.style.AppTheme_Base)
+
         Timber.tag(TAG).d("onCreate() done!")
+        instance = this
     }
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
@@ -68,4 +58,20 @@ open class App
     override fun serviceInjector(): AndroidInjector<Service> = serviceInjector
 
     override fun broadcastReceiverInjector(): AndroidInjector<BroadcastReceiver> = receiverInjector
+
+
+    companion object {
+        internal val TAG = logTag("App")
+
+        lateinit var instance: App
+
+        fun logTag(vararg tags: String): String {
+            val sb = StringBuilder("BB:")
+            for (i in tags.indices) {
+                sb.append(tags[i])
+                if (i < tags.size - 1) sb.append(":")
+            }
+            return sb.toString()
+        }
+    }
 }

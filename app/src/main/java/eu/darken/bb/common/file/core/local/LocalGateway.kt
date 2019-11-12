@@ -8,18 +8,22 @@ import javax.inject.Inject
 @PerApp class LocalGateway @Inject constructor(
 
 ) {
-    fun listFiles(path: LocalPath): List<LocalPath> {
+    fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> {
         return path.asFile().safeListFiles().map { LocalPath.build(it) }
     }
 
-    fun createDir(child: LocalPath): LocalPath {
+    fun createDir(child: LocalPath, mode: Mode = Mode.AUTO): LocalPath {
         if (child.asFile().mkdirs()) {
             return child
         }
         throw APathException(child, reason = "Failed to create dir")
     }
 
-    fun isDirectory(path: LocalPath): Boolean {
+    fun isDirectory(path: LocalPath, mode: Mode = Mode.AUTO): Boolean {
         return path.asFile().isDirectory
+    }
+
+    enum class Mode {
+        AUTO, NORMAL, ROOT
     }
 }

@@ -1,13 +1,16 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.previews.AppPreviewRequest
+import eu.darken.bb.common.previews.GlideApp
+import eu.darken.bb.common.previews.into
+import eu.darken.bb.common.ui.PreviewView
 import javax.inject.Inject
 
 
@@ -26,7 +29,8 @@ class PkgsPreviewAdapter @Inject constructor(
 
     class VH(parent: ViewGroup, private val ipcFunnel: IPCFunnel)
         : ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent), BindableVH<AppEditorPreviewFragmentVDC.PkgWrap> {
-        @BindView(R.id.icon) lateinit var icon: ImageView
+
+        @BindView(R.id.preview_container) lateinit var previewContainer: PreviewView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.description) lateinit var description: TextView
 
@@ -38,12 +42,12 @@ class PkgsPreviewAdapter @Inject constructor(
             val pkg = item.pkg
             val isSelected = item.isSelected
             val mode = item.mode
-//            icon.setImageResource(item.iconRes)
+
             label.text = pkg.getLabel(ipcFunnel)
             when (mode) {
                 PreviewMode.PREVIEW -> {
                     description.setTextColor(getColorForAttr(R.attr.colorOnBackground))
-                    description.text = ""
+                    description.text = pkg.packageName
                 }
                 PreviewMode.INCLUDE -> {
                     description.setTextColor(getColorForAttr(R.attr.colorAccent))
@@ -54,6 +58,10 @@ class PkgsPreviewAdapter @Inject constructor(
                     description.text = if (isSelected) getString(R.string.general_excluded_label) else ""
                 }
             }
+
+            GlideApp.with(context)
+                    .load(AppPreviewRequest(item.pkg, context))
+                    .into(previewContainer)
         }
 
     }

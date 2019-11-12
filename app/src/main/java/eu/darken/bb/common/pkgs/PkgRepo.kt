@@ -92,7 +92,7 @@ class PkgRepo @Inject constructor(
                     if (appMap.containsKey(pkgName)) continue
 
                     val sourcePath = matcher.group(1)
-                    val pkgInfo = ipcFunnel.submit(object : IPCFunnel.PMQuery<PackageInfo> {
+                    val pkgInfo = ipcFunnel.submit(object : IPCFunnel.PMQuery<PackageInfo?> {
                         override fun onPackManAction(pm: PackageManager): PackageInfo? {
                             return pm.getPackageArchiveInfo(sourcePath, request.flags)
                         }
@@ -106,7 +106,7 @@ class PkgRepo @Inject constructor(
 
         }
 
-        if (!hiddenPackages.isEmpty()) {
+        if (hiddenPackages.isNotEmpty()) {
             val dest = File(context.cacheDir, "packages.xml-" + UUID.randomUUID().toString())
             try {
                 val cpResult = Cmd.builder(

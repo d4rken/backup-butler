@@ -8,7 +8,9 @@ import eu.darken.bb.common.ReadException
 import eu.darken.bb.common.file.core.local.tryMkFile
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
-import okio.Okio
+import okio.buffer
+import okio.sink
+import okio.source
 import timber.log.Timber
 import java.io.*
 
@@ -17,7 +19,7 @@ val TAG: String = App.logTag("JsonAdapterExtensions")
 fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
     try {
         file.tryMkFile()
-        JsonWriter.of(Okio.buffer(Okio.sink(file))).use {
+        JsonWriter.of(file.sink().buffer()).use {
             it.indent = "    "
             toJson(it, value)
         }
@@ -36,7 +38,7 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T {
         if (!file.exists()) {
             throw ReadException(file)
         }
-        val value = JsonReader.of(Okio.buffer(Okio.source(file))).use {
+        val value = JsonReader.of(file.source().buffer()).use {
             return@use fromJson(it)
         }
         Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
@@ -51,7 +53,7 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T {
 
 fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor) {
     try {
-        JsonWriter.of(Okio.buffer(Okio.sink(FileOutputStream(fileDescriptor)))).use {
+        JsonWriter.of(FileOutputStream(fileDescriptor).sink().buffer()).use {
             it.indent = "    "
             toJson(it, value)
         }
@@ -66,7 +68,7 @@ fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor
 
 fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
     try {
-        val value = JsonReader.of(Okio.buffer(Okio.source(FileInputStream(fileDescriptor)))).use {
+        val value = JsonReader.of(FileInputStream(fileDescriptor).source().buffer()).use {
             return@use fromJson(it)
         }
         Timber.tag(TAG).v("fromFileDescriptor(fileDescriptor=%s): %s", fileDescriptor, value)
