@@ -9,6 +9,8 @@ import eu.darken.bb.backup.ui.generator.list.GeneratorsFragmentModule
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
+import eu.darken.bb.main.ui.start.debug.DebugFragment
+import eu.darken.bb.main.ui.start.debug.DebugFragmentModule
 import eu.darken.bb.main.ui.start.overview.OverviewFragment
 import eu.darken.bb.main.ui.start.overview.OverviewFragmentModule
 import eu.darken.bb.schedule.ui.list.SchedulesFragment
@@ -25,6 +27,9 @@ abstract class MainActivityModule {
     @IntoMap
     @VDCKey(MainActivityVDC::class)
     abstract fun mainActivityVDC(model: MainActivityVDC.Factory): VDCFactory<out VDC>
+
+    @ContributesAndroidInjector(modules = [DebugFragmentModule::class])
+    abstract fun debugFragment(): DebugFragment
 
     @ContributesAndroidInjector(modules = [OverviewFragmentModule::class])
     abstract fun overviewFragment(): OverviewFragment
