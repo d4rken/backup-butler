@@ -32,6 +32,8 @@ data class LocalPath(
 
     fun isDirectory(gateway: LocalGateway): Boolean = gateway.isDirectory(this)
 
+    fun cached(gateway: LocalGateway): LocalPathCached = gateway.buildCachedVersion(this)
+
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {

@@ -9,12 +9,14 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.core.local.LocalGateway
 import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.core.local.LocalPathCached
 import eu.darken.bb.common.file.core.local.toCrumbs
 import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 class LocalPickerFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -39,14 +41,17 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     val resultEvents = SingleLiveEvent<APathPicker.Result>()
     val errorEvents = SingleLiveEvent<Throwable>()
 
-    private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<LocalPath>> {
+    private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<LocalPathCached>> {
         val path = _path ?: LocalPath.build(Environment.getExternalStorageDirectory())
         val listing = localGateway.listFiles(path)
-                .sortedBy { it.name }
-                .filter { !options.onlyDirs || it.isDirectory(localGateway) }
+                .map { it.cached(localGateway) }
+                .sortedBy { it.name.toLowerCase(Locale.ROOT) }
+                .filter { !options.onlyDirs || it.isDirectory }
         val crumbs = path.toCrumbs()
         return Triple(path, crumbs, listing)
     }
+
+    fun selectItem(selected: LocalPathCached?) = selectItem(selected?.cachedPath)
 
     fun selectItem(selected: LocalPath?) {
         Observable
@@ -102,7 +107,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     data class State(
             val currentPath: LocalPath,
             val currentCrumbs: List<LocalPath>,
-            val currentListing: List<LocalPath>,
+            val currentListing: List<LocalPathCached>,
             val allowCreateDir: Boolean = false
     )
 

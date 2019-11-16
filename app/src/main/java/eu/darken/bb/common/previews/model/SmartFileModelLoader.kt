@@ -14,6 +14,7 @@ import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.file.core.APathCached
 import eu.darken.bb.common.previews.FilePreviewRequest
 import javax.inject.Inject
 
@@ -36,36 +37,39 @@ class SmartFileModelLoader constructor(
         private var bitMapFactoryOptions: BitmapFactory.Options? = null
 
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in FileData>) {
-            val file = preview.file
 
             val previewsEnabled = generalSettings.isPreviewEnabled
+            val resolvedFile = when (preview.file) {
+                is APathCached -> preview.file.cachedPath
+                else -> preview.file
+            }
 
             if (!previewsEnabled) {
-                callback.onDataReady(FileData(file, FileData.Type.FALLBACK))
+                callback.onDataReady(FileData(resolvedFile, FileData.Type.FALLBACK))
                 return
             }
 
-            if (file.name.endsWith(".apk")) {
-                callback.onDataReady(FileData(file, FileData.Type.APK))
+            if (resolvedFile.name.endsWith(".apk")) {
+                callback.onDataReady(FileData(resolvedFile, FileData.Type.APK))
                 return
             }
 
-            if (EXTENSIONS_IMAGE.any { file.name.endsWith(it) }) {
-                callback.onDataReady(FileData(file, FileData.Type.IMAGE))
+            if (EXTENSIONS_IMAGE.any { resolvedFile.name.endsWith(it) }) {
+                callback.onDataReady(FileData(resolvedFile, FileData.Type.IMAGE))
                 return
             }
 
-            if (EXTENSIONS_VIDEO.any { file.name.endsWith(it) }) {
-                callback.onDataReady(FileData(file, FileData.Type.VIDEO))
+            if (EXTENSIONS_VIDEO.any { resolvedFile.name.endsWith(it) }) {
+                callback.onDataReady(FileData(resolvedFile, FileData.Type.VIDEO))
                 return
             }
 
-            if (EXTENSIONS_MUSIC.any { file.name.endsWith(it) }) {
-                callback.onDataReady(FileData(file, FileData.Type.MUSIC))
+            if (EXTENSIONS_MUSIC.any { resolvedFile.name.endsWith(it) }) {
+                callback.onDataReady(FileData(resolvedFile, FileData.Type.MUSIC))
                 return
             }
 
-            callback.onDataReady(FileData(file, FileData.Type.FALLBACK, preview.theme))
+            callback.onDataReady(FileData(resolvedFile, FileData.Type.FALLBACK, preview.theme))
         }
 
         override fun cleanup() {

@@ -15,6 +15,7 @@ interface APath : Parcelable {
     val pathType: Type
 
     fun userReadablePath(context: Context) = path
+    fun userReadableName(context: Context) = name
 
     @Keep
     enum class Type {
