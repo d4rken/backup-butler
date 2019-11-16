@@ -186,7 +186,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
     implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
     implementation "io.reactivex.rxjava2:rxkotlin:${versions.rxkotlin}"
-    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.1.1'
+    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.2.0'
     implementation "com.uber.rxdogtag:rxdogtag:0.2.0"
 
     implementation "com.jakewharton.rxbinding3:rxbinding:${versions.rxbindings}"
