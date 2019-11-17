@@ -8,7 +8,9 @@ import butterknife.BindView
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.root.JavaRootClient
+import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.fileops.toInputStream
+import eu.darken.bb.common.root.javaroot.fileops.toOutputStream
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
@@ -45,6 +47,17 @@ class DebugFragment : SmartFragment(), AutoInject {
                 javaRootDisp = javaRootClient.session.subscribe { session ->
                     Timber.tag(TAG).i("The binder is here: %s", session)
                     session.ipc.sayHi()
+                    val fileOps = session.ipc.fileOps
+                    val ris = fileOps.readFile("/data/data/eu.thedarken.sdm/shared_prefs/global_preferences.xml")
+//                    ris.toInputStream().bufferedReader().lines().forEach {
+//                        Timber.tag(TAG).i(it)
+//                    }
+                    val ros = fileOps.writeFile("/data/data/eu.thedarken.sdm/shared_prefs/global_preferences.xml.bak")
+                    ris.toInputStream().use { inStream ->
+                        ros.toOutputStream().use { outStream ->
+                            inStream.copyTo(outStream)
+                        }
+                    }
                 }
             }
 

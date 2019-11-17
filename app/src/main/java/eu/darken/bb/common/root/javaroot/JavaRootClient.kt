@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root
+package eu.darken.bb.common.root.javaroot
 
 import android.content.Context
 import eu.darken.bb.App
@@ -17,12 +17,13 @@ class JavaRootClient @Inject constructor(
         @AppContext private val context: Context
 ) {
     data class Session(
-            val ipc: JavaRootIPC
+            val ipc: JavaRootConnection
     )
 
     val session: Observable<Session> = Observable
             .create<Session> { emitter ->
                 Timber.tag(TAG).d("Initiating connection to host.")
+
                 val rootSession = try {
                     RxCmdShell.builder().root(true).build().open().blockingGet()
                 } catch (e: Exception) {
@@ -30,13 +31,13 @@ class JavaRootClient @Inject constructor(
                     return@create
                 }
 
-                val ipcReceiver = object : RootIPCReceiver<JavaRootIPC>(context, 0) {
-                    override fun onConnect(ipc: JavaRootIPC) {
+                val ipcReceiver = object : RootIPCReceiver<JavaRootConnection>(context, 0) {
+                    override fun onConnect(ipc: JavaRootConnection) {
                         Timber.tag(TAG).d("onConnect(ipc=%s)", ipc)
                         emitter.onNext(Session(ipc))
                     }
 
-                    override fun onDisconnect(ipc: JavaRootIPC) {
+                    override fun onDisconnect(ipc: JavaRootConnection) {
                         Timber.tag(TAG).d("onDisconnect(ipc=%s)", ipc)
                         emitter.onComplete()
                     }

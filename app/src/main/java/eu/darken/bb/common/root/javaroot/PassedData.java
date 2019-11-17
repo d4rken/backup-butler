@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root;
+package eu.darken.bb.common.root.javaroot;
 
 import android.os.Parcel;
 import android.os.Parcelable;

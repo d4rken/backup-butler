@@ -1,10 +1,12 @@
-package eu.darken.bb.common.root
+package eu.darken.bb.common.root.javaroot
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.common.root.javaroot.fileops.FileOps
+import eu.darken.bb.common.root.javaroot.fileops.FileOpsModule
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
 import timber.log.Timber
@@ -21,6 +23,7 @@ import kotlin.system.exitProcess
 class JavaRootHost constructor(args: List<String>) {
     private val pathToAPK: String
     private val context: Context
+    internal val fileOps by lazy { FileOpsModule() }
 
     init {
         Log.d(TAG, "init(args=${args})")
@@ -68,23 +71,23 @@ class JavaRootHost constructor(args: List<String>) {
     }
 
     private fun run() {
-
         initIPC()
-
     }
 
     private fun initIPC() {
         Timber.d("initIPC()")
 
-        val ipc = object : JavaRootIPC.Stub() {
-            override fun sayHi(): String {
-                Timber.tag(TAG).i("Hi")
-                return "Hi"
-            }
+        val ipc = object : JavaRootConnection.Stub() {
             /* These calls are executed on a different thread, but not necessarily on the same
                one! Binder uses a thread pool, the calls could come in on any one of those
                threads. Guard variable access and method calls accordingly. */
 
+            override fun sayHi(): String {
+                Timber.tag(TAG).i("Hi")
+                return "Hi"
+            }
+
+            override fun getFileOps(): FileOps = this@JavaRootHost.fileOps
         }
 
 
