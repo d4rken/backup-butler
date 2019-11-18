@@ -43,16 +43,20 @@ class UISettings @Inject constructor(
             }
         }
 
+    var showDebugPage: Boolean
+        get() = preferences.getBoolean(PKEY_DEBUGPAGE, false)
+        set(value) = preferences.edit().putBoolean(PKEY_DEBUGPAGE, value).apply()
+
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
         override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
-
+            PKEY_DEBUGPAGE -> showDebugPage
             else -> super.getBoolean(key, defValue)
         }
 
         override fun putBoolean(key: String, value: Boolean) = when (key) {
-
+            PKEY_DEBUGPAGE -> showDebugPage = value
             else -> super.putBoolean(key, value)
         }
 
@@ -72,5 +76,6 @@ class UISettings @Inject constructor(
         internal val TAG = App.logTag("UI", "Settings")
         private const val PREF_FILE = "settings_ui"
         const val PKEY_THEME = "ui.theme"
+        const val PKEY_DEBUGPAGE = "ui.debugpage.show"
     }
 }

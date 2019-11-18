@@ -18,7 +18,9 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
+import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.settings.SettingsActivity
+import eu.darken.bb.main.ui.start.debug.DebugFragment
 import javax.inject.Inject
 
 
@@ -33,8 +35,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
     @BindView(R.id.viewpager) lateinit var viewPager: ViewPager2
     @BindView(R.id.tablayout) lateinit var tabLayout: TabLayout
 
+    @Inject lateinit var uiSettings: UISettings
     @Inject lateinit var pagerPages: List<PagerAdapter.Page>
-    private val pagerAdapter by lazy { PagerAdapter(this, pagerPages) }
+    private lateinit var pagerAdapter: PagerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Base)
@@ -42,6 +45,12 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject
 
         setContentView(R.layout.main_activity)
         ButterKnife.bind(this)
+
+        var pages = pagerPages
+        if (uiSettings.showDebugPage) {
+            pages = pages.plus(PagerAdapter.Page(DebugFragment::class, R.string.debug_label))
+        }
+        pagerAdapter = PagerAdapter(this, pages)
 
         viewPager.adapter = pagerAdapter
 
