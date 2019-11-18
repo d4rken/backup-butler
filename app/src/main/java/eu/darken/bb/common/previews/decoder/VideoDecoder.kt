@@ -35,7 +35,7 @@ class VideoDecoder(
     @Throws(IOException::class)
     override fun decode(fileData: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         var bitmap: Bitmap? = when (fileData.file.pathType) {
-            APath.Type.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
+            APath.PathType.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
             else -> null // TODO
         }
 

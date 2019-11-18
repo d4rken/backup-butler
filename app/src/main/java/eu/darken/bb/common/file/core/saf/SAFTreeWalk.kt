@@ -1,6 +1,6 @@
 package eu.darken.bb.common.file.core.saf
 
-import eu.darken.bb.common.file.core.AccessDeniedException
+import eu.darken.bb.common.file.core.ReadException
 import java.io.IOException
 import java.util.*
 
@@ -106,7 +106,7 @@ class SAFTreeWalk private constructor(
 
                     fileList = root.listFiles(gateway)
                     if (fileList == null) {
-                        onFail?.invoke(root, AccessDeniedException(file = root, reason = "Cannot list files in a directory"))
+                        onFail?.invoke(root, ReadException(root))
                         failed = true
                     }
                 }
@@ -147,7 +147,7 @@ class SAFTreeWalk private constructor(
                         // Then read an array of files, if any
                         fileList = root.listFiles(gateway)
                         if (fileList == null) {
-                            onFail?.invoke(root, AccessDeniedException(file = root, reason = "Cannot list files in a directory"))
+                            onFail?.invoke(root, ReadException(root))
                         }
                         if (fileList == null || fileList!!.isEmpty()) {
                             onLeave?.invoke(root)

@@ -1,7 +1,6 @@
 package eu.darken.bb.common.previews.model
 
 import android.graphics.BitmapFactory
-
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Options
@@ -14,7 +13,6 @@ import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.core.APathCached
 import eu.darken.bb.common.previews.FilePreviewRequest
 import javax.inject.Inject
 
@@ -39,10 +37,7 @@ class SmartFileModelLoader constructor(
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in FileData>) {
 
             val previewsEnabled = generalSettings.isPreviewEnabled
-            val resolvedFile = when (preview.file) {
-                is APathCached -> preview.file.cachedPath
-                else -> preview.file
-            }
+            val resolvedFile = preview.file
 
             if (!previewsEnabled) {
                 callback.onDataReady(FileData(resolvedFile, FileData.Type.FALLBACK))

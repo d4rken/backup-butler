@@ -38,11 +38,11 @@ class APathPickerActivityVDC @AssistedInject constructor(
             else -> null
         }
         when (startType) {
-            APath.Type.RAW -> TODO()
-            APath.Type.LOCAL -> {
+            APath.PathType.RAW -> TODO()
+            APath.PathType.LOCAL -> {
                 showLocal()
             }
-            APath.Type.SAF -> {
+            APath.PathType.SAF -> {
                 showSAF()
             }
             null -> {

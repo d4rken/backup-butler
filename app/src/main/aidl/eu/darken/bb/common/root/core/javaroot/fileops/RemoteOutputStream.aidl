@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root.javaroot.fileops;
+package eu.darken.bb.common.root.core.javaroot.fileops;
 
 interface RemoteOutputStream {
     void write(int b);

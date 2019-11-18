@@ -6,27 +6,36 @@ import androidx.annotation.Keep
 import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
+import kotlinx.android.parcel.Parcelize
 import java.io.File
 
 @Keep
 interface APath : Parcelable {
     val path: String
     val name: String
-    val pathType: Type
+    val pathType: PathType
 
     fun userReadablePath(context: Context) = path
     fun userReadableName(context: Context) = name
 
+    fun child(vararg segments: String): APath
+
     @Keep
-    enum class Type {
+    @Parcelize
+    enum class FileType : Parcelable {
+        DIRECTORY, FILE
+    }
+
+    @Keep
+    enum class PathType {
         RAW, LOCAL, SAF
     }
 
     companion object {
         val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> = MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
-                .withSubtype(RawPath::class.java, Type.RAW.name)
-                .withSubtype(LocalPath::class.java, Type.LOCAL.name)
-                .withSubtype(SAFPath::class.java, Type.SAF.name)
+                .withSubtype(RawPath::class.java, PathType.RAW.name)
+                .withSubtype(LocalPath::class.java, PathType.LOCAL.name)
+                .withSubtype(SAFPath::class.java, PathType.SAF.name)
                 .skipLabelSerialization()
     }
 

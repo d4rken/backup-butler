@@ -12,8 +12,8 @@ data class RawPath(
         override val path: String
 ) : APath {
 
-    override var pathType: APath.Type
-        get() = APath.Type.RAW
+    override var pathType: APath.PathType
+        get() = APath.PathType.RAW
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }
@@ -21,9 +21,12 @@ data class RawPath(
     override val name: String
         get() = path.substringAfterLast(File.separatorChar)
 
+    override fun child(vararg segments: String): APath {
+        throw NotImplementedError()
+    }
+
     companion object {
-        fun build(base: File, vararg crumbs: String): RawPath =
-                build(base.canonicalPath, *crumbs)
+        fun build(base: File, vararg crumbs: String): RawPath = build(base, *crumbs)
 
         fun build(vararg crumbs: String): RawPath {
             var compacter = File(crumbs[0])

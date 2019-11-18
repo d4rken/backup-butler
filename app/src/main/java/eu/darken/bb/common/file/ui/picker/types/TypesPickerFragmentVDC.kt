@@ -20,9 +20,9 @@ class TypesPickerFragmentVDC @AssistedInject constructor(
     private val stater = Stater {
         val types = options.allowedTypes.map {
             when (it) {
-                APath.Type.RAW -> TODO()
-                APath.Type.LOCAL -> Storage.Type.LOCAL
-                APath.Type.SAF -> Storage.Type.SAF
+                APath.PathType.RAW -> TODO()
+                APath.PathType.LOCAL -> Storage.Type.LOCAL
+                APath.PathType.SAF -> Storage.Type.SAF
             }
         }
         State(allowedTypes = types.sortedBy { it.name }.toList())

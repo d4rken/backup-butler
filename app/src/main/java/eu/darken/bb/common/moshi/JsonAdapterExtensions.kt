@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import eu.darken.bb.App
-import eu.darken.bb.common.ReadException
+import eu.darken.bb.common.file.core.ReadException
 import eu.darken.bb.common.file.core.local.tryMkFile
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath

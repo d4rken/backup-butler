@@ -2,7 +2,6 @@ package eu.darken.bb.common.previews.decoder
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.annotation.DrawableRes
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Options
@@ -15,9 +14,6 @@ import com.bumptech.glide.request.target.Target
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.core.local.isSymbolicLink
 import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
 
@@ -36,9 +32,9 @@ class FallbackDecoder(
     @Throws(IOException::class)
     override fun decode(source: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         val file = source.file
-        val drawableRes: Int = when (file.pathType) {
-            APath.Type.LOCAL -> decodeLocalPath(file as LocalPath)
-            else -> R.drawable.ic_file_unknown_onsurface
+        val drawableRes: Int = when (file.fileType) {
+            APath.FileType.DIRECTORY -> R.drawable.ic_folder_onsurface
+            APath.FileType.FILE -> R.drawable.ic_file_onsurface
         }
 
         // FIXME theme could leak?
@@ -51,18 +47,6 @@ class FallbackDecoder(
         }
 
         return if (bitmap != null) BitmapResource(bitmap, bitmapPool) else null
-    }
-
-    @DrawableRes
-    private fun decodeLocalPath(file: LocalPath): Int {
-        // TODO Support Root?
-        val javaFile = file.asFile()
-        return when {
-            javaFile.isDirectory -> R.drawable.ic_folder_onsurface
-            javaFile.isFile -> R.drawable.ic_file_onsurface
-            javaFile.isSymbolicLink() -> R.drawable.ic_file_link_onsurface
-            else -> R.drawable.ic_file_unknown_onsurface
-        }
     }
 
     companion object {

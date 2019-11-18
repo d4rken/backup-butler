@@ -45,12 +45,12 @@ class SAFPathTest {
     @Test
     fun `test fixed type`() {
         val file = SAFPath.build(testUri, "seg1", "seg2")
-        file.pathType shouldBe APath.Type.SAF
+        file.pathType shouldBe APath.PathType.SAF
         shouldThrow<java.lang.IllegalArgumentException> {
-            file.pathType = APath.Type.LOCAL
+            file.pathType = APath.PathType.LOCAL
             Any()
         }
-        file.pathType shouldBe APath.Type.SAF
+        file.pathType shouldBe APath.PathType.SAF
     }
 
     @Test

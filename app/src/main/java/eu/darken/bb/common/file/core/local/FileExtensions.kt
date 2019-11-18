@@ -136,3 +136,8 @@ fun File.isSymbolicLink(): Boolean {
 
     return this != resolvedPath
 }
+
+fun File.getAPathFileType(): APath.FileType = when {
+    isDirectory -> APath.FileType.DIRECTORY
+    else -> APath.FileType.FILE
+}

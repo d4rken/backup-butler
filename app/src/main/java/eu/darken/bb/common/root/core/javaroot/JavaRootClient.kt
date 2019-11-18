@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root.javaroot
+package eu.darken.bb.common.root.core.javaroot
 
 import android.content.Context
 import eu.darken.bb.App

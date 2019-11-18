@@ -50,12 +50,12 @@ class JavaPathTest {
     @Test
     fun `test fixed type`() {
         val file = LocalPath(testFile)
-        file.pathType shouldBe APath.Type.LOCAL
+        file.pathType shouldBe APath.PathType.LOCAL
         shouldThrow<IllegalArgumentException> {
-            file.pathType = APath.Type.RAW
+            file.pathType = APath.PathType.RAW
             Any()
         }
-        file.pathType shouldBe APath.Type.LOCAL
+        file.pathType shouldBe APath.PathType.LOCAL
     }
 
     @Test

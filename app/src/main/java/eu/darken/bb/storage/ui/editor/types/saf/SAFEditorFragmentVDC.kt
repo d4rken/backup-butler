@@ -74,7 +74,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     fun selectPath() {
         openPickerEvent.postValue(APathPicker.Options(
                 startPath = editorDataObs.blockingFirst().refPath,
-                allowedTypes = setOf(APath.Type.SAF)
+                allowedTypes = setOf(APath.PathType.SAF)
         ))
     }
 

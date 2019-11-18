@@ -7,8 +7,8 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
-import eu.darken.bb.common.ReadException
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.core.ReadException
 import timber.log.Timber
 import java.io.FileDescriptor
 import java.io.IOException

@@ -30,8 +30,8 @@ data class SAFPath(
         return super.userReadablePath(context)
     }
 
-    override var pathType: APath.Type
-        get() = APath.Type.SAF
+    override var pathType: APath.PathType
+        get() = APath.PathType.SAF
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }
@@ -57,7 +57,7 @@ data class SAFPath(
 
     fun canRead(gateway: SAFGateway) = gateway.canRead(this)
 
-    fun child(vararg segments: String): SAFPath {
+    override fun child(vararg segments: String): SAFPath {
         return build(this.treeRoot, *this.crumbs.toTypedArray(), *segments)
     }
 

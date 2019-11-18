@@ -39,12 +39,12 @@ class RawPathTest {
     @Test
     fun `test fixed type`() {
         val file = RawPath.build("test", "file")
-        file.pathType shouldBe APath.Type.RAW
+        file.pathType shouldBe APath.PathType.RAW
         shouldThrow<IllegalArgumentException> {
-            file.pathType = APath.Type.LOCAL
+            file.pathType = APath.PathType.LOCAL
             Any()
         }
-        file.pathType shouldBe APath.Type.RAW
+        file.pathType shouldBe APath.PathType.RAW
     }
 
     @Test

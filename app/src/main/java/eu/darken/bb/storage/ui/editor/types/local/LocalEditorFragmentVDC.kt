@@ -1,5 +1,6 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
+import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -7,8 +8,10 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.local.LocalGateway
 import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.ui.picker.APathPicker
+import eu.darken.bb.common.file.ui.picker.local.LocalPickerFragmentVDC
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.BaseEditorFragment
@@ -111,7 +114,10 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         editorDataObs.firstOrError().subscribe { data ->
             pickerEvent.postValue(APathPicker.Options(
                     startPath = data.refPath,
-                    allowedTypes = setOf(APath.Type.LOCAL, APath.Type.SAF)
+                    allowedTypes = setOf(APath.PathType.LOCAL),
+                    payload = Bundle().apply {
+                        putString(LocalPickerFragmentVDC.ARG_MODE, LocalGateway.Mode.NORMAL.name)
+                    }
             ))
         }
     }

@@ -6,7 +6,7 @@ import android.widget.TextView
 import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.file.core.local.LocalPathCached
+import eu.darken.bb.common.file.core.APathLookup
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.previews.FilePreviewRequest
 import eu.darken.bb.common.previews.GlideApp
@@ -17,20 +17,20 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 
-class LocalPathAdapter @Inject constructor()
-    : ModularAdapter<LocalPathAdapter.VH>(), DataAdapter<LocalPathCached> {
+class APathLookupAdapter @Inject constructor()
+    : ModularAdapter<APathLookupAdapter.VH>(), DataAdapter<APathLookup> {
 
-    override val data = mutableListOf<LocalPathCached>()
+    override val data = mutableListOf<APathLookup>()
 
     init {
-        modules.add(DataBinderModule<LocalPathCached, VH>(data))
+        modules.add(DataBinderModule<APathLookup, VH>(data))
         modules.add(SimpleVHCreator { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.pathpicker_local_adapter_line, parent), BindableVH<LocalPathCached> {
+        : ModularAdapter.VH(R.layout.pathpicker_local_adapter_line, parent), BindableVH<APathLookup> {
         @BindView(R.id.preview_container) lateinit var previewContainer: PreviewView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.last_modified) lateinit var lastModified: TextView
@@ -42,7 +42,7 @@ class LocalPathAdapter @Inject constructor()
             ButterKnife.bind(this, itemView)
         }
 
-        override fun bind(item: LocalPathCached) {
+        override fun bind(item: APathLookup) {
             label.text = item.userReadableName(context)
             lastModified.text = formatter.format(item.lastModified)
             size.text = Formatter.formatFileSize(context, item.size)

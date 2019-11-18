@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.APathLookup
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
@@ -14,8 +15,8 @@ data class LocalPath(
         val file: File
 ) : APath {
 
-    override var pathType: APath.Type
-        get() = APath.Type.LOCAL
+    override var pathType: APath.PathType
+        get() = APath.PathType.LOCAL
         set(value) {
             TypeMissMatchException.check(value, pathType)
         }
@@ -26,13 +27,13 @@ data class LocalPath(
     override val name: String
         get() = file.name
 
-    fun child(vararg segments: String): LocalPath {
+    override fun child(vararg segments: String): LocalPath {
         return build(this.file, *segments)
     }
 
     fun isDirectory(gateway: LocalGateway): Boolean = gateway.isDirectory(this)
 
-    fun cached(gateway: LocalGateway): LocalPathCached = gateway.buildCachedVersion(this)
+    fun lookup(gateway: LocalGateway): APathLookup = gateway.lookup(this)
 
     override fun toString(): String = "JavaFile(file=$file)"
 

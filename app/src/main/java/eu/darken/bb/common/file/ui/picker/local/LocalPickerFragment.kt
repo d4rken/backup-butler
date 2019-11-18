@@ -15,7 +15,7 @@ import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.ui.picker.SharedPickerVM
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -44,11 +44,11 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
         factory.create(handle, navArgs.options)
     })
 
-    @BindView(R.id.breadcrumb_bar) lateinit var breadCrumbBar: BreadCrumbBar<LocalPath>
+    @BindView(R.id.breadcrumb_bar) lateinit var breadCrumbBar: BreadCrumbBar<APath>
     @BindView(R.id.files_list) lateinit var filesList: RecyclerView
     @BindView(R.id.select_action) lateinit var selectAction: Button
 
-    @Inject lateinit var adapter: LocalPathAdapter
+    @Inject lateinit var adapter: APathLookupAdapter
     private val sharedVM by lazy { ViewModelProvider(requireActivity()).get(SharedPickerVM::class.java) }
 
     private var allowCreateDir = false

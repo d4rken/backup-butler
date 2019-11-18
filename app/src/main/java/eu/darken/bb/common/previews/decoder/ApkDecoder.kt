@@ -34,8 +34,8 @@ class ApkDecoder(
 
     override fun decode(fileData: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         val bitmap: Bitmap? = when (fileData.file.pathType) {
-            APath.Type.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
-            APath.Type.SAF -> null // TODO
+            APath.PathType.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
+            APath.PathType.SAF -> null // TODO
             else -> null
         }
 

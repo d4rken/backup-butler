@@ -1,5 +1,6 @@
 package eu.darken.bb.common
 
+import io.reactivex.Observable
 import java.lang.reflect.InvocationTargetException
 
 fun Throwable.getRootCause(): Throwable {
@@ -12,3 +13,8 @@ fun Throwable.getRootCause(): Throwable {
     }
     return error
 }
+
+fun <T> Observable<T>.mapError(wrapper: (Throwable) -> Throwable): Observable<T> =
+        onErrorResumeNext { err: Throwable ->
+            Observable.error(wrapper(err))
+        }

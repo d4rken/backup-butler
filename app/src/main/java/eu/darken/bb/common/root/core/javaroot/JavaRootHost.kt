@@ -1,14 +1,16 @@
-package eu.darken.bb.common.root.javaroot
+package eu.darken.bb.common.root.core.javaroot
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
-import eu.darken.bb.common.root.javaroot.fileops.FileOps
-import eu.darken.bb.common.root.javaroot.fileops.FileOpsModule
+import eu.darken.bb.common.root.core.javaroot.fileops.FileOps
+import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsModule
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
+import eu.darken.rxshell.cmd.Cmd
+import eu.darken.rxshell.cmd.RxCmdShell
 import timber.log.Timber
 import java.util.*
 import kotlin.reflect.KClass
@@ -22,7 +24,7 @@ import kotlin.system.exitProcess
 @SuppressLint("UnsafeDynamicallyLoadedCode")
 class JavaRootHost constructor(args: List<String>) {
     private val pathToAPK: String
-    private val context: Context
+    internal val context: Context
     internal val fileOps by lazy { FileOpsModule() }
 
     init {
@@ -78,13 +80,15 @@ class JavaRootHost constructor(args: List<String>) {
         Timber.d("initIPC()")
 
         val ipc = object : JavaRootConnection.Stub() {
-            /* These calls are executed on a different thread, but not necessarily on the same
-               one! Binder uses a thread pool, the calls could come in on any one of those
-               threads. Guard variable access and method calls accordingly. */
 
-            override fun sayHi(): String {
-                Timber.tag(TAG).i("Hi")
-                return "Hi"
+            override fun checkBase(): String {
+                val sb = StringBuilder()
+                sb.append("Our pkg: ${context.packageName}\n")
+                val ids = Cmd.builder("id").submit(RxCmdShell.Builder().build()).blockingGet()
+                sb.append("Shell ids are: ${ids.merge()}\n")
+                val result = sb.toString()
+                Timber.tag(TAG).i("checkBase(): %s", result)
+                return result
             }
 
             override fun getFileOps(): FileOps = this@JavaRootHost.fileOps
@@ -92,23 +96,10 @@ class JavaRootHost constructor(args: List<String>) {
 
 
         try {
-            /* Send our IPC binder to the non-root part of the app, wait for a connection, and
-               don't return until the app has disconnected.
-
-               It is possible to register multiple interfaces (with different codes) in which
-               case this connection-waiting/blocking mechanism is not ideal. You could run them
-               each in a separate thread or implement your own handling. But really the easiest
-               way is just to return other interfaces through methods of a single main interface,
-               and register that one here.
-            */
             RootIPC(BuildConfig.APPLICATION_ID, ipc, 0, 30 * 1000, true)
         } catch (e: RootIPC.TimeoutException) {
-            /* It doesn't make sense to wait for very long, the broadcast is *not* sticky. RootIPCReceiver
-               on the non-root side should connect immediately when it sees the broadcast. If it doesn't,
-               it doesn't seem likely it ever will. */
             Timber.tag(TAG).e("Non-root process did not connect in a timely fashion")
         }
-
     }
 
     companion object {
@@ -126,7 +117,8 @@ class JavaRootHost constructor(args: List<String>) {
                 context: Context,
                 clazz: KClass<*> = JavaRootHost::class,
                 params: Array<String>? = null,
-                libs: Array<String>? = null
+                libs: Array<String>? = null,
+                processName: String? = context.packageName + ":javaroothost"
         ): List<String> {
             // Add some of our parameters to whatever has been passed in
             // Doing it this way is an example of separating parameters you need every time from
@@ -145,7 +137,7 @@ class JavaRootHost constructor(args: List<String>) {
             if (params != null) Collections.addAll(paramList, *params)
 
             // Create actual script
-            return RootJava.getLaunchScript(context, clazz.java, null, null, paramList.toTypedArray(), context.packageName + ":javaroothost")
+            return RootJava.getLaunchScript(context, clazz.java, null, null, paramList.toTypedArray(), processName)
         }
 
 
