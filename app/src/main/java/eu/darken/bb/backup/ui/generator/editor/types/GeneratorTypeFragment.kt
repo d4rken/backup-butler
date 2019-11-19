@@ -58,13 +58,12 @@ class GeneratorTypeFragment : SmartFragment(), AutoInject {
                 Backup.Type.FILES -> R.id.action_generatorTypeFragment_to_filesEditorFragment
             }
             val args = when (type) {
-                Backup.Type.APP -> AppEditorConfigFragmentArgs(generatorId = navArgs.generatorId).toBundle()
-                Backup.Type.FILES -> FilesEditorConfigFragmentArgs(generatorId = navArgs.generatorId).toBundle()
+                Backup.Type.APP -> AppEditorConfigFragmentArgs(generatorId = id).toBundle()
+                Backup.Type.FILES -> FilesEditorConfigFragmentArgs(generatorId = id).toBundle()
             }
             val appbarConfig = AppBarConfiguration.Builder(R.id.appEditorConfigFragment, R.id.filesEditorFragment).build()
             setupActionBarWithNavController(requireActivity() as AppCompatActivity, findNavController(), appbarConfig)
             findNavController().navigate(nextStep, args)
-
         }
 
         super.onViewCreated(view, savedInstanceState)

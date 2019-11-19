@@ -2,6 +2,11 @@ package eu.darken.bb.storage.ui.editor.types
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import eu.darken.bb.R
@@ -11,22 +16,24 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
+import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentArgs
+import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
 import javax.inject.Inject
 
 
-class TypeSelectionFragment : BaseEditorFragment(), AutoInject {
+class TypeSelectionFragment : SmartFragment(), AutoInject {
+
+    val navArgs by navArgs<TypeSelectionFragmentArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: TypeSelectionFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: TypeSelectionFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as TypeSelectionFragmentVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
-
 
     @Inject lateinit var adapter: TypeSelectionAdapter
 
@@ -37,16 +44,26 @@ class TypeSelectionFragment : BaseEditorFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
-        requireActivityActionBar().subtitle = getString(R.string.storage_selection_label)
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
-
         recyclerView.setupDefaults(adapter)
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 
         vdc.state.observe2(this) {
             adapter.update(it.supportedTypes)
+        }
+
+        vdc.navigationEvent.observe2(this) { (type, id) ->
+            val nextStep = when (type) {
+                Storage.Type.LOCAL -> R.id.action_typeSelectionFragment_to_localEditorFragment
+                Storage.Type.SAF -> R.id.action_typeSelectionFragment_to_safEditorFragment
+            }
+            val args = when (type) {
+                Storage.Type.LOCAL -> LocalEditorFragmentArgs(storageId = id).toBundle()
+                Storage.Type.SAF -> SAFEditorFragmentArgs(storageId = id).toBundle()
+            }
+            val appbarConfig = AppBarConfiguration.Builder(R.id.localEditorFragment, R.id.safEditorFragment).build()
+            NavigationUI.setupActionBarWithNavController(requireActivity() as AppCompatActivity, findNavController(), appbarConfig)
+            findNavController().navigate(nextStep, args)
         }
 
         super.onViewCreated(view, savedInstanceState)

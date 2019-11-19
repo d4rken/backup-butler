@@ -1,27 +1,29 @@
 package eu.darken.bb.storage.ui.editor
 
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import butterknife.BindView
+import androidx.navigation.findNavController
+import androidx.navigation.navArgs
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.ButterKnife
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import eu.darken.bb.R
-import eu.darken.bb.common.showFragment
-import eu.darken.bb.common.ui.LoadingOverlayView
-import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.common.navigation.isGraphSet
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
-import eu.darken.bb.storage.core.putStorageId
 import javax.inject.Inject
 
 class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
+
+    val navArgs by navArgs<StorageEditorActivityArgs>()
 
     @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
@@ -29,13 +31,10 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageEditorActivityVDC.Factory
-        factory.create(handle, intent.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
 
-    private var allowCreate: Boolean = false
-    private var existing: Boolean = false
-
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
+    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -44,55 +43,37 @@ class StorageEditorActivity : AppCompatActivity(), HasSupportFragmentInjector {
         setContentView(R.layout.storage_editor_activity)
         ButterKnife.bind(this)
 
-        vdc.state.observe(this, Observer { state ->
-            if (state.existing) {
-                supportActionBar!!.title = getString(R.string.storage_edit_action)
-            } else {
-                supportActionBar!!.title = getString(R.string.storage_create_action)
+        vdc.state.observe2(this) { state ->
+            supportActionBar?.subtitle = if (state.isExisting) getString(R.string.storage_edit_action)
+            else getString(R.string.storage_create_action)
+
+            if (!navController.isGraphSet()) {
+                val graph = navController.navInflater.inflate(R.navigation.storage_editor)
+                graph.startDestination = state.stepFlow.start
+                navController.setGraph(graph, bundleOf("storageId" to state.storageId))
+
+                setupActionBarWithNavController(navController)
             }
+        }
 
-            allowCreate = state.allowSave
-            existing = state.existing
-            loadingOverlay.setGone(!state.isWorking)
-            invalidateOptionsMenu()
-        })
+        vdc.finishEvent.observe2(this) { finish() }
 
-        vdc.pageEvent.observe(this, Observer { pageEvent ->
-            showFragment(
-                    fragmentClass = pageEvent.getPage().fragmentClass,
-                    arguments = Bundle().apply { putStorageId(pageEvent.storageId) }
-            )
-        })
+        onBackPressedDispatcher.addCallback {
+            if (!navController.popBackStack()) finish()
+        }
+    }
 
-        vdc.finishActivityEvent.observe(this, Observer { finish() })
+    override fun onDestroy() {
+        if (isFinishing) vdc.dismiss()
+        super.onDestroy()
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return if (supportFragmentManager.popBackStackImmediate()) {
-            true
-        } else {
-            finish()
-            super.onSupportNavigateUp()
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_storage_editor_activity, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
-        return super.onPrepareOptionsMenu(menu)
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_create -> {
-            vdc.saveConfig()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
+        else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
     }
 
 }

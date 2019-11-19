@@ -3,37 +3,40 @@ package eu.darken.bb.storage.ui.editor.types.local
 import android.Manifest
 import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.ui.picker.APathPicker
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.setTextIfDifferent
+import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.ExistingStorageException
-import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 
-class LocalEditorFragment : BaseEditorFragment(), AutoInject {
+class LocalEditorFragment : SmartFragment(), AutoInject {
+
+    val navArgs by navArgs<LocalEditorFragmentArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: LocalEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: LocalEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as LocalEditorFragmentVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
 
     @Inject lateinit var adapter: StorageAdapter
@@ -49,13 +52,15 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
     @BindView(R.id.permission_card) lateinit var permissionCard: View
     @BindView(R.id.permission_grant_button) lateinit var permissionGrant: Button
 
+    private var allowCreate: Boolean = false
+    private var existing: Boolean = false
+
     init {
         layoutRes = R.layout.storage_editor_local_fragment
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.storage_type_local_label)
-
         vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferent(state.label)
 
@@ -65,6 +70,10 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
             permissionCard.setGone(state.isPermissionGranted)
+
+            allowCreate = state.isValid
+            existing = state.isExisting
+            requireActivity().invalidateOptionsMenu()
         }
 
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
@@ -99,6 +108,10 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
         }
 
+        vdc.finishEvent.observe2(this) {
+            finishActivity()
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -116,6 +129,25 @@ class LocalEditorFragment : BaseEditorFragment(), AutoInject {
         } else {
             throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_storage_editor_local_fragment, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.action_create).isVisible = allowCreate
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_create -> {
+            vdc.saveConfig()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
 }

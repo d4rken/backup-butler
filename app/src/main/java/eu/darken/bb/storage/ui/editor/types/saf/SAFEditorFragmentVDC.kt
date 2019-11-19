@@ -14,7 +14,6 @@ import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -29,10 +28,10 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         @AppContext private val context: Context,
         private val builder: StorageBuilder,
         private val safGateway: SAFGateway
-) : SmartVDC(), BaseEditorFragment.VDC {
+) : SmartVDC() {
 
     private val stater = Stater(State())
-    override val state = stater.liveData
+    val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
             .subscribeOn(Schedulers.io())
@@ -42,8 +41,10 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
     private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
+
     val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
+    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         editorDataObs.take(1)
@@ -64,6 +65,11 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
                     }
                 }
                 .withScopeVDC(this)
+
+        editorObs
+                .switchMap { it.isValid() }
+                .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
+                .withScopeVDC(this)
     }
 
     fun updateName(label: String) {
@@ -76,22 +82,6 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
                 startPath = editorDataObs.blockingFirst().refPath,
                 allowedTypes = setOf(APath.PathType.SAF)
         ))
-    }
-
-    override fun onNavigateBack(): Boolean = if (editorDataObs.map { it.existingStorage }.blockingFirst()) {
-        builder.remove(storageId)
-                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-        true
-    } else {
-        builder
-                .update(storageId) { data ->
-                    data!!.copy(storageType = null, editor = null)
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-        true
     }
 
     fun onUpdatePath(result: APathPicker.Result) {
@@ -116,13 +106,23 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
                 }
     }
 
+    fun saveConfig() {
+        builder.save(storageId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
+                .doFinally { finishEvent.postValue(Any()) }
+                .subscribe()
+    }
+
     data class State(
             val label: String = "",
             val path: String = "",
             val validPath: Boolean = false,
             val isWorking: Boolean = false,
-            override val isExisting: Boolean = false
-    ) : BaseEditorFragment.VDC.State
+            val isExisting: Boolean = false,
+            val isValid: Boolean = false
+    )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<SAFEditorFragmentVDC> {

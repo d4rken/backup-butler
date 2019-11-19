@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/storage_editor"
+    tools:ignore="InvalidNavigation">
+
+    <activity
+        android:id="@+id/storageEditorActivity"
+        android:name="eu.darken.bb.storage.ui.editor.StorageEditorActivity"
+        android:label="StorageEditorActivity">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </activity>
+    <fragment
+        android:id="@+id/typeSelectionFragment"
+        android:name="eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment"
+        android:label="@string/general_select_type_label">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        <action
+            android:id="@+id/action_typeSelectionFragment_to_localEditorFragment"
+            app:destination="@id/localEditorFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/storage_editor"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_typeSelectionFragment_to_safEditorFragment"
+            app:destination="@id/safEditorFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/storage_editor"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/localEditorFragment"
+        android:name="eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragment"
+        android:label="@string/storage_type_local_label">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </fragment>
+    <fragment
+        android:id="@+id/safEditorFragment"
+        android:name="eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragment"
+        android:label="@string/storage_type_saf_label">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </fragment>
+</navigation>

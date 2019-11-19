@@ -8,6 +8,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
+import eu.darken.bb.storage.ui.editor.StorageEditorActivityArgs
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -128,7 +129,8 @@ class StorageBuilder @Inject constructor(
                 Timber.tag(TAG).d("Starting editor for ID %s", storageId)
                 val intent = Intent(context, StorageEditorActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.putStorageId(data.storageId)
+                val navArgs = StorageEditorActivityArgs(storageId = data.storageId)
+                intent.putExtras(navArgs.toBundle())
                 context.startActivity(intent)
             }
             .ignoreElement()

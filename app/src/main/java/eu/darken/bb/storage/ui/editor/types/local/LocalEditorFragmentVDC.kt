@@ -14,7 +14,6 @@ import eu.darken.bb.common.file.ui.picker.APathPicker
 import eu.darken.bb.common.file.ui.picker.local.LocalPickerFragmentVDC
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.ui.BaseEditorFragment
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -27,10 +26,10 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
         private val builder: StorageBuilder
-) : SmartVDC(), BaseEditorFragment.VDC {
+) : SmartVDC() {
 
     private val stater = Stater(State(isPermissionGranted = true))
-    override val state = stater.liveData
+    val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
             .subscribeOn(Schedulers.io())
@@ -40,9 +39,13 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
     private val editorDataObs = editorObs.switchMap { it.editorData }
 
     private val editor: LocalStorageEditor by lazy { editorObs.blockingFirst() }
+
     val requestPermissionEvent = SingleLiveEvent<Any>()
+
     val errorEvent = SingleLiveEvent<Throwable>()
     val pickerEvent = SingleLiveEvent<APathPicker.Options>()
+    val finishEvent = SingleLiveEvent<Any>()
+
 
     init {
         editorDataObs
@@ -57,6 +60,11 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                         )
                     }
                 }
+                .withScopeVDC(this)
+
+        editorObs
+                .switchMap { it.isValid() }
+                .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
                 .withScopeVDC(this)
     }
 
@@ -94,22 +102,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 }
     }
 
-    override fun onNavigateBack(): Boolean = if (editorDataObs.map { it.existingStorage }.blockingFirst()) {
-        builder.remove(storageId)
-                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-        true
-    } else {
-        builder
-                .update(storageId) { data ->
-                    data!!.copy(storageType = null, editor = null)
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-        true
-    }
-
     fun selectPath() {
         editorDataObs.firstOrError().subscribe { data ->
             pickerEvent.postValue(APathPicker.Options(
@@ -130,13 +122,23 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         stater.update { it.copy(isPermissionGranted = editor.isPermissionGranted()) }
     }
 
+    fun saveConfig() {
+        builder.save(storageId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
+                .doFinally { finishEvent.postValue(true) }
+                .subscribe()
+    }
+
     data class State(
             val label: String = "",
             val path: String = "",
             val isWorking: Boolean = false,
             val isPermissionGranted: Boolean = true,
-            override val isExisting: Boolean = false
-    ) : BaseEditorFragment.VDC.State
+            val isExisting: Boolean = false,
+            val isValid: Boolean = false
+    )
 
     @AssistedInject.Factory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {

@@ -2,35 +2,38 @@ package eu.darken.bb.storage.ui.editor.types.saf
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
-import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.file.ui.picker.APathPicker
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.ui.BaseEditorFragment
+import eu.darken.bb.common.setTextIfDifferent
+import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.ExistingStorageException
-import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 
-class SAFEditorFragment : BaseEditorFragment(), AutoInject {
+class SAFEditorFragment : SmartFragment(), AutoInject {
+
+    val navArgs by navArgs<SAFEditorFragmentArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory
-    override val vdc: SAFEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+    val vdc: SAFEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as SAFEditorFragmentVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!)
+        factory.create(handle, navArgs.storageId)
     })
 
     @Inject lateinit var adapter: StorageAdapter
@@ -38,20 +41,21 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
 
-
     @BindView(R.id.path_display) lateinit var pathDisplay: TextView
     @BindView(R.id.path_button) lateinit var pathSelect: TextView
 
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
     @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
 
+    private var allowCreate: Boolean = false
+    private var existing: Boolean = false
+
     init {
         layoutRes = R.layout.storage_editor_saf_fragment
+        setHasOptionsMenu(true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().subtitle = getString(R.string.storage_type_saf_label)
-
         vdc.state.observe2(this) { state ->
             labelInput.setTextIfDifferent(state.label)
 
@@ -60,6 +64,10 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
 
             coreSettingsContainer.setInvisible(state.isWorking)
             coreSettingsProgress.setInvisible(!state.isWorking)
+
+            allowCreate = state.isValid
+            existing = state.isExisting
+            requireActivity().invalidateOptionsMenu()
         }
 
         pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
@@ -87,6 +95,10 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
             builder.show()
         }
 
+        vdc.finishEvent.observe2(this) {
+            finishActivity()
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -96,6 +108,25 @@ class SAFEditorFragment : BaseEditorFragment(), AutoInject {
             else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_storage_editor_saf_fragment, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.action_create).isVisible = allowCreate
+        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_create -> {
+            vdc.saveConfig()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
 }
