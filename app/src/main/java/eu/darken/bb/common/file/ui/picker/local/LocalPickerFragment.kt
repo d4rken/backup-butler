@@ -22,7 +22,6 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
@@ -59,8 +58,6 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_cancel)
-
         breadCrumbBar.crumbNamer = {
             if (it.name.isEmpty()) File.separator else it.name
         }

@@ -65,13 +65,20 @@ class APathPickerActivity : SmartActivity(), HasSupportFragmentInjector {
             startActivityForResult(intent, 18)
         }
 
-        vdc.launchLocalEvents.observe2(this) {
+        vdc.launchLocalEvents.observe2(this) { options ->
             ensureContentView(R.layout.pathpicker_activity)
-            val args = LocalPickerFragmentArgs(options = it)
+            val args = LocalPickerFragmentArgs(options = options)
             if (!navController.isGraphSet()) {
-                graph.startDestination = R.id.localPickerFragment
+                if (options.allowedTypes.size > 1) {
+                    graph.startDestination = R.id.typesPickerFragment
+                } else {
+                    graph.startDestination = R.id.localPickerFragment
+                }
                 navController.setGraph(graph, args.toBundle())
                 setupActionBarWithNavController(navController, appBarConf)
+                if (options.allowedTypes.size > 1) {
+                    navController.navigate(R.id.localPickerFragment, args.toBundle())
+                }
             } else {
                 navController.navigate(R.id.action_typesPickerFragment_to_localPickerFragment, args.toBundle())
             }
