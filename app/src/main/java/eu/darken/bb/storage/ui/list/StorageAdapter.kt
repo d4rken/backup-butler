@@ -59,10 +59,10 @@ class StorageAdapter @Inject constructor()
             typeIcon.setImageResource(info.storageType.iconRes)
             typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
 
-            if (info.config != null) {
-                labelText.text = info.config.label
-            } else {
-                labelText.setText(R.string.progress_loading_label)
+            when {
+                info.config != null && info.isFinished -> labelText.text = info.config.label
+                info.isFinished -> labelText.setText(R.string.general_error_label)
+                else -> labelText.setText(R.string.progress_loading_label)
             }
 
             when {
