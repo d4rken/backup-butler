@@ -8,16 +8,19 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.APathGateway
 import eu.darken.bb.common.file.core.ReadException
 import timber.log.Timber
 import java.io.FileDescriptor
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 class SAFGateway @Inject constructor(
         @AppContext private val context: Context,
         private val contentResolver: ContentResolver
-) {
+) : APathGateway<SAFPath, SAFPathLookup> {
     private fun getDocumentFile(file: SAFPath): DocumentFile? {
         val treeRoot = DocumentFile.fromTreeUri(context, file.treeRoot)
         checkNotNull(treeRoot) { "Couldn't create DocumentFile for: $treeRoot" }
@@ -32,12 +35,26 @@ class SAFGateway @Inject constructor(
         return current
     }
 
-    fun createFile(path: SAFPath): SAFPath {
-        return SAFPath.build(createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.crumbs))
+    @Throws(IOException::class)
+    override fun createFile(path: SAFPath): Boolean {
+        return try {
+            createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.crumbs)
+            true
+        } catch (e: Exception) {
+            Timber.tag(TAG).d(e, "createFile(path=%s) failed", path)
+            false
+        }
     }
 
-    fun createDir(path: SAFPath): SAFPath {
-        return SAFPath.build(createDocumentFile(DIR_TYPE, path.treeRoot, path.crumbs))
+    @Throws(IOException::class)
+    override fun createDir(path: SAFPath): Boolean {
+        return try {
+            createDocumentFile(DIR_TYPE, path.treeRoot, path.crumbs)
+            true
+        } catch (e: Exception) {
+            Timber.tag(TAG).d(e, "createDir(path=%s) failed", path)
+            false
+        }
     }
 
     private fun createDocumentFile(mimeType: String, treeUri: Uri, segments: List<String>): DocumentFile {
@@ -71,27 +88,70 @@ class SAFGateway @Inject constructor(
         return currentRoot
     }
 
-    fun listFiles(path: SAFPath): Array<SAFPath> {
-        return getDocumentFile(path)?.listFiles()?.map {
-            val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-            path.child(name)
-        }?.toTypedArray() ?: throw IOException("listFiles(path=$path) returned NULL")
+    @Throws(IOException::class)
+    override fun listFiles(path: SAFPath): List<SAFPath> = try {
+        getDocumentFile(path)!!
+                .listFiles()
+                .map {
+                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                    path.child(name)
+                }
+    } catch (e: Exception) {
+        Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
+        throw ReadException(path, cause = e)
     }
 
-    fun exists(path: SAFPath): Boolean {
+    @Throws(IOException::class)
+    override fun exists(path: SAFPath): Boolean {
         return getDocumentFile(path)?.exists() == true
     }
 
+    @Throws(IOException::class)
     fun delete(path: SAFPath): Boolean {
         return getDocumentFile(path)?.delete() == true
     }
 
-    fun canWrite(path: SAFPath): Boolean {
+    @Throws(IOException::class)
+    override fun canWrite(path: SAFPath): Boolean {
         return getDocumentFile(path)?.canWrite() == true
     }
 
-    fun canRead(path: SAFPath): Boolean {
+    @Throws(IOException::class)
+    override fun canRead(path: SAFPath): Boolean {
         return getDocumentFile(path)?.canRead() == true
+    }
+
+    @Throws(IOException::class)
+    override fun lookup(path: SAFPath): SAFPathLookup {
+        return try {
+            val file = getDocumentFile(path)!!
+            val fileType: APath.FileType = when {
+                file.isDirectory -> APath.FileType.DIRECTORY
+                else -> APath.FileType.FILE
+            }
+            SAFPathLookup(
+                    lookedUp = path,
+                    fileType = fileType,
+                    lastModified = Date(file.lastModified()),
+                    size = file.length()
+            )
+        } catch (e: Exception) {
+            Timber.tag(TAG).w("lookup(%s) failed.", path)
+            throw ReadException(path, cause = e)
+        }
+    }
+
+    override fun lookupFiles(path: SAFPath): List<SAFPathLookup> = try {
+        getDocumentFile(path)!!
+                .listFiles()
+                .map {
+                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                    path.child(name)
+                }
+                .map { lookup(it) }
+    } catch (e: Exception) {
+        Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
+        throw ReadException(path, cause = e)
     }
 
     fun isFile(path: SAFPath): Boolean {

@@ -51,7 +51,7 @@ data class SAFPath(
         }
 
     @Throws(IOException::class)
-    fun listFiles(gateway: SAFGateway): Array<SAFPath> = gateway.listFiles(this)
+    fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
 
     fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
 

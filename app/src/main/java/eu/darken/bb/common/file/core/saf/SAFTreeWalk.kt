@@ -91,7 +91,7 @@ class SAFTreeWalk private constructor(
 
             private var rootVisited = false
 
-            private var fileList: Array<SAFPath>? = null
+            private var fileList: List<SAFPath>? = null
 
             private var fileIndex = 0
 
@@ -129,7 +129,7 @@ class SAFTreeWalk private constructor(
         private inner class TopDownDirectoryState(rootDir: SAFPath) : DirectoryState(rootDir) {
 
             private var rootVisited = false
-            private var fileList: Array<SAFPath>? = null
+            private var fileList: List<SAFPath>? = null
             private var fileIndex = 0
 
             /** First root directory, then all children */

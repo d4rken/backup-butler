@@ -30,7 +30,10 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
     private var sessionSub: Disposable = Disposables.disposed()
     private val startPath = options.startPath as? LocalPath
-    private val mode = LocalGateway.Mode.valueOf(options.payload.getString(ARG_MODE, LocalGateway.Mode.AUTO.name))
+    private val mode: LocalGateway.Mode by lazy {
+        options.payload.classLoader = App::class.java.classLoader
+        LocalGateway.Mode.valueOf(options.payload.getString(ARG_MODE, LocalGateway.Mode.AUTO.name))
+    }
 
     private val stater = Stater {
         val (path, crumbs, listing) = doCd(startPath)
@@ -53,7 +56,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         super.onCleared()
     }
 
-    private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<APathLookup>> {
+    private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> {
         // TODO cleaner keep alive?
         if (sessionSub.isDisposed) sessionSub = localGateway.session.subscribe()
 
@@ -65,7 +68,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         return Triple(path, crumbs, listing)
     }
 
-    fun selectItem(selected: APathLookup?) = selectItem(selected?.lookedUp)
+    fun selectItem(selected: APathLookup<APath>?) = selectItem(selected?.lookedUp)
 
     fun selectItem(selected: APath?) {
         Observable
@@ -123,7 +126,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     data class State(
             val currentPath: APath,
             val currentCrumbs: List<APath>,
-            val currentListing: List<APathLookup>,
+            val currentListing: List<APathLookup<*>>,
             val allowCreateDir: Boolean = false
     )
 

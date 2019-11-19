@@ -4,8 +4,8 @@ import androidx.annotation.Keep
 import java.util.*
 
 @Keep
-interface APathLookup : APath {
-    val lookedUp: APath
+interface APathLookup<T> : APath {
+    val lookedUp: T
     val fileType: APath.FileType
     val size: Long
     val lastModified: Date

@@ -70,20 +70,19 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         it.label.isNotEmpty() && it.path != null
     }
 
-    fun updateLabel(label: String) {
-        editorDataPub.update { it.copy(label = label) }
-    }
+    fun updateLabel(label: String): Completable = editorDataPub
+            .updateRx { it.copy(label = label) }
+            .ignoreElement()
 
-    fun updatePath(path: APath) {
-        require(pathTool.canRead(path)) { "Can't read $path" }
-
-        editorDataPub.update {
-            it.copy(
-                    path = path,
-                    label = if (it.label == "") path.userReadablePath(context) else it.label
-            )
-        }
-    }
+    fun updatePath(path: APath): Completable = Completable
+            .fromCallable { require(pathTool.canRead(path)) { "Can't read $path" } }
+            .andThen(editorDataPub.updateRx {
+                it.copy(
+                        path = path,
+                        label = if (it.label == "") path.userReadablePath(context) else it.label
+                )
+            })
+            .ignoreElement()
 
     data class Data(
             override val generatorId: Generator.Id,

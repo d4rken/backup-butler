@@ -12,7 +12,7 @@ class RootPathLookup internal constructor(
         override val size: Long,
         val lastModifiedRaw: Long,
         override val fileType: APath.FileType
-) : Parcelable, APathLookup {
+) : Parcelable, APathLookup<RootPath> {
 
     override val lastModified: Date = Date(lastModifiedRaw)
 

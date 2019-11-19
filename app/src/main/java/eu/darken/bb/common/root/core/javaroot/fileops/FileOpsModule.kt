@@ -57,6 +57,34 @@ class FileOpsModule : FileOps.Stub() {
         throw UnsupportedOperationException(e)
     }
 
+    override fun createNewFile(path: RootPath): Boolean = try {
+        path.asFile().createNewFile()
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "mkdirs(path=$path) failed.")
+        throw UnsupportedOperationException(e)
+    }
+
+    override fun canRead(path: RootPath): Boolean = try {
+        path.asFile().canRead()
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "path(path=$path) failed.")
+        throw UnsupportedOperationException(e)
+    }
+
+    override fun canWrite(path: RootPath): Boolean = try {
+        path.asFile().canWrite()
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "canWrite(path=$path) failed.")
+        throw UnsupportedOperationException(e)
+    }
+
+    override fun exists(path: RootPath): Boolean = try {
+        path.asFile().exists()
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "exists(path=$path) failed.")
+        throw UnsupportedOperationException(e)
+    }
+
     companion object {
         val TAG = App.logTag("Root", "Java", "Host", "FileOps")
     }

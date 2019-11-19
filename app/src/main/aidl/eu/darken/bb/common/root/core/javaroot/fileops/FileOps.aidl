@@ -11,6 +11,12 @@ interface FileOps {
     RemoteOutputStream writeFile(in RootPath path);
 
     boolean mkdirs(in RootPath path);
+    boolean createNewFile(in RootPath path);
+
+    boolean canRead(in RootPath path);
+    boolean canWrite(in RootPath path);
+
+    boolean exists(in RootPath path);
 
     List<RootPath> listFiles(in RootPath path);
 

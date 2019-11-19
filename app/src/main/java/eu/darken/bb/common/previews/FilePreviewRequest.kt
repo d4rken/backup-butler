@@ -5,7 +5,7 @@ import android.content.res.Resources
 import eu.darken.bb.common.file.core.APathLookup
 
 
-data class FilePreviewRequest(val file: APathLookup, val theme: Resources.Theme? = null) {
-    constructor(file: APathLookup, context: Context) : this(file, context.theme)
+data class FilePreviewRequest(val file: APathLookup<*>, val theme: Resources.Theme? = null) {
+    constructor(file: APathLookup<*>, context: Context) : this(file, context.theme)
 }
 

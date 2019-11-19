@@ -72,6 +72,11 @@ class FilesEditorConfigFragmentVDC @AssistedInject constructor(
 
     fun updateLabel(label: String) {
         editor.updateLabel(label)
+                .subscribeOn(Schedulers.computation())
+                .subscribe(
+                        { },
+                        { err -> errorEvent.postValue(err) }
+                )
     }
 
     fun updatePath(result: APathPicker.Result) {
@@ -81,11 +86,19 @@ class FilesEditorConfigFragmentVDC @AssistedInject constructor(
             return
         }
         editor.updatePath(result.selection!!.first())
+                .subscribeOn(Schedulers.computation())
+                .subscribe(
+                        { },
+                        { err -> errorEvent.postValue(err) }
+                )
     }
 
     fun showPicker() {
         pickerEvent.postValue(APathPicker.Options(
-//                startPath = configObs.blockingFirst().path, // TODO
+                startPath = editorDataObs.blockingFirst().path,
+                allowedTypes = setOf(APath.PathType.SAF, APath.PathType.LOCAL),
+                selectionLimit = 1,
+                onlyDirs = true,
                 payload = Bundle().apply { putParcelable("generatorId", generatorId) }
         ))
     }
