@@ -375,7 +375,7 @@ class SAFStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<SAFStorage>
 
     companion object {
-        val TAG = App.logTag("StorageRepo", "SAF")
+        val TAG = App.logTag("Storage", "SAF")
         private const val DATA_EXT = ".data"
         private const val PROP_EXT = ".prop.json"
         private const val SPEC_FILE = "spec.json"
