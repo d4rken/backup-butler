@@ -10,7 +10,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.APathTool
-import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
 import io.reactivex.Completable
@@ -88,7 +87,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
             override val generatorId: Generator.Id,
             override val label: String = "",
             override val isExistingGenerator: Boolean = false,
-            val path: APath? = LocalPath.build("/storage/emulated/0/BB")
+            val path: APath? = null
     ) : GeneratorEditor.Data
 
     @AssistedInject.Factory

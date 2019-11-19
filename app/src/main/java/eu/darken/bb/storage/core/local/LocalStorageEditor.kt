@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.core.local
 
 import android.Manifest
-import android.os.Environment
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
@@ -114,6 +113,6 @@ class LocalStorageEditor @AssistedInject constructor(
             override val storageId: Storage.Id,
             override val label: String = "",
             override val existingStorage: Boolean = false,
-            override val refPath: LocalPath? = LocalPath.build(File(Environment.getExternalStorageDirectory(), "BackupButler")) // TODO this bypasses the import check
+            override val refPath: LocalPath? = null
     ) : StorageEditor.Data
 }

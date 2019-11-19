@@ -1,5 +1,7 @@
 package eu.darken.bb.common.file.ui.picker.local
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -86,6 +88,16 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
         vdc.resultEvents.observe2(this) {
             sharedVM.postResult(it)
         }
+        vdc.missingPermissionEvent.observe2(this) {
+            Snackbar.make(requireView(), R.string.storage_additional_permission_required_msg, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.general_grant_action) {
+                        vdc.grantPermission()
+                    }
+                    .show()
+        }
+        vdc.requestPermissionEvent.observe2(this) {
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        }
 
         vdc.createDirEvent.observe2(this) {
             val alertLayout = layoutInflater.inflate(R.layout.view_alertdialog_edittext, null)
@@ -136,4 +148,11 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
         else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1) {
+            vdc.onPermissionResult(grantResults.all { it == PackageManager.PERMISSION_GRANTED })
+        } else {
+            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
+        }
+    }
 }
