@@ -1,4 +1,4 @@
-package eu.darken.bb.onboarding.steps
+package eu.darken.bb.onboarding.steps.hello
 
 import dagger.Binds
 import dagger.Module

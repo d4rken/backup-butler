@@ -7,8 +7,8 @@ import dagger.multibindings.IntoMap
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
-import eu.darken.bb.onboarding.steps.HelloStepFragment
-import eu.darken.bb.onboarding.steps.HelloStepFragmentModule
+import eu.darken.bb.onboarding.steps.hello.HelloStepFragment
+import eu.darken.bb.onboarding.steps.hello.HelloStepFragmentModule
 
 @Module(includes = [HelloStepFragmentModule::class])
 abstract class OnboardingActivityModule {

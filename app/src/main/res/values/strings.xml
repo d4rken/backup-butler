@@ -236,4 +236,7 @@
     <string name="general_home_action">Return to start</string>
     <string name="general_pick_a_path_action">Pick a path</string>
     <string name="debug_label">Debug</string>
+    <string name="startmode_simple_label">Simple</string>
+    <string name="startmode_advanced_label">Advanced</string>
+    <string name="userinterface_startmode_label">Startmode</string>
 </resources>

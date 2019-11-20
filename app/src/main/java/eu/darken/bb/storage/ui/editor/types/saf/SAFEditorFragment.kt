@@ -38,7 +38,6 @@ class SAFEditorFragment : SmartFragment(), AutoInject {
 
     @Inject lateinit var adapter: StorageAdapter
 
-
     @BindView(R.id.name_input) lateinit var labelInput: EditText
 
     @BindView(R.id.path_display) lateinit var pathDisplay: TextView

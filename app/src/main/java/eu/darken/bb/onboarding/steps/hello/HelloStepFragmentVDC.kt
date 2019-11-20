@@ -1,4 +1,4 @@
-package eu.darken.bb.onboarding.steps
+package eu.darken.bb.onboarding.steps.hello
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
