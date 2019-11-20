@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.start.overview
+package eu.darken.bb.main.ui.advanced.debug
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.common.vdc.VDCKey
 
 
 @Module
-abstract class OverviewFragmentModule {
+abstract class DebugFragmentModule {
     @Binds
     @IntoMap
-    @VDCKey(OverviewFragmentVDC::class)
-    abstract fun overviewVDC(model: OverviewFragmentVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(DebugFragmentVDC::class)
+    abstract fun debug(model: DebugFragmentVDC.Factory): VDCFactory<out VDC>
 }
 

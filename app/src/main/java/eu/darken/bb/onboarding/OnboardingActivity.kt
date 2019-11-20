@@ -11,7 +11,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
-import eu.darken.bb.main.ui.start.overview.OverviewFragment
+import eu.darken.bb.main.ui.advanced.overview.OverviewFragment
 import javax.inject.Inject
 
 
@@ -25,7 +25,7 @@ class OnboardingActivity : AppCompatActivity(), HasSupportFragmentInjector, Auto
         setTheme(R.style.AppTheme_Base_NoActionBar)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.main_activity)
+        setContentView(R.layout.main_advanced_activity)
         ButterKnife.bind(this)
 
         vdc.state.observe(this, Observer { showStep(it.step) })

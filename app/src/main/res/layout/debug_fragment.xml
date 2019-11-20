@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.ui.start.debug.DebugFragment">
+    tools:context=".main.ui.advanced.debug.DebugFragment">
 
     <Button
         android:id="@+id/librootjava_start"

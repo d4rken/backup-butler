@@ -9,10 +9,12 @@ import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.debug.recording.ui.RecorderActivityModule
 import eu.darken.bb.common.file.ui.picker.APathPickerActivity
 import eu.darken.bb.common.file.ui.picker.APathPickerActivityModule
+import eu.darken.bb.main.ui.advanced.AdvancedActivity
+import eu.darken.bb.main.ui.advanced.AdvancedActivityModule
 import eu.darken.bb.main.ui.settings.SettingsActivity
 import eu.darken.bb.main.ui.settings.SettingsActivityModule
-import eu.darken.bb.main.ui.start.MainActivity
-import eu.darken.bb.main.ui.start.MainActivityModule
+import eu.darken.bb.main.ui.simple.SimpleActivity
+import eu.darken.bb.main.ui.simple.SimpleActivityModule
 import eu.darken.bb.onboarding.OnboardingActivity
 import eu.darken.bb.onboarding.OnboardingActivityModule
 import eu.darken.bb.processor.ui.ProcessorActivity
@@ -29,8 +31,12 @@ import eu.darken.bb.task.ui.editor.TaskEditorActivityModule
 abstract class ActivityBinder {
 
     @PerActivity
-    @ContributesAndroidInjector(modules = [MainActivityModule::class])
-    abstract fun mainActivity(): MainActivity
+    @ContributesAndroidInjector(modules = [SimpleActivityModule::class])
+    abstract fun simpleActivity(): SimpleActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = [AdvancedActivityModule::class])
+    abstract fun advancedActivity(): AdvancedActivity
 
     @PerActivity
     @ContributesAndroidInjector(modules = [SettingsActivityModule::class])

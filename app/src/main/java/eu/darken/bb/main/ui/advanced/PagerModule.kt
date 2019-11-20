@@ -1,10 +1,10 @@
-package eu.darken.bb.main.ui.start
+package eu.darken.bb.main.ui.advanced
 
 import dagger.Module
 import dagger.Provides
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorsFragment
-import eu.darken.bb.main.ui.start.overview.OverviewFragment
+import eu.darken.bb.main.ui.advanced.overview.OverviewFragment
 import eu.darken.bb.schedule.ui.list.SchedulesFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment

@@ -29,6 +29,13 @@ class UISettings @Inject constructor(
         }
     }
 
+    enum class StartMode(
+            @StringRes val label: Int,
+            val identifier: String
+    ) {
+        ONBOARDING
+    }
+
     var theme: Theme
         get() {
             val id = preferences.getString(PKEY_THEME, Theme.DARK.identifier)!!

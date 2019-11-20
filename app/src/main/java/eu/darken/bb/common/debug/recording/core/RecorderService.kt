@@ -12,7 +12,7 @@ import dagger.android.AndroidInjection
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
-import eu.darken.bb.main.ui.start.MainActivity
+import eu.darken.bb.main.ui.advanced.AdvancedActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import timber.log.Timber
@@ -41,7 +41,7 @@ class RecorderService : Service() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val openIntent = Intent(this, MainActivity::class.java)
+        val openIntent = Intent(this, AdvancedActivity::class.java)
         val openPi = PendingIntent.getActivity(this, 0, openIntent, 0)
 
         val stopIntent = Intent(this, RecorderService::class.java)

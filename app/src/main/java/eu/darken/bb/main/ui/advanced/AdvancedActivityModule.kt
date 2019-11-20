@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.start
+package eu.darken.bb.main.ui.advanced
 
 import dagger.Binds
 import dagger.Module
@@ -9,10 +9,10 @@ import eu.darken.bb.backup.ui.generator.list.GeneratorsFragmentModule
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
-import eu.darken.bb.main.ui.start.debug.DebugFragment
-import eu.darken.bb.main.ui.start.debug.DebugFragmentModule
-import eu.darken.bb.main.ui.start.overview.OverviewFragment
-import eu.darken.bb.main.ui.start.overview.OverviewFragmentModule
+import eu.darken.bb.main.ui.advanced.debug.DebugFragment
+import eu.darken.bb.main.ui.advanced.debug.DebugFragmentModule
+import eu.darken.bb.main.ui.advanced.overview.OverviewFragment
+import eu.darken.bb.main.ui.advanced.overview.OverviewFragmentModule
 import eu.darken.bb.schedule.ui.list.SchedulesFragment
 import eu.darken.bb.schedule.ui.list.SchedulesFragmentModule
 import eu.darken.bb.storage.ui.list.StorageListFragment
@@ -21,12 +21,12 @@ import eu.darken.bb.task.ui.tasklist.TaskListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragmentModule
 
 @Module(includes = [PagerModule::class])
-abstract class MainActivityModule {
+abstract class AdvancedActivityModule {
 
     @Binds
     @IntoMap
-    @VDCKey(MainActivityVDC::class)
-    abstract fun mainActivityVDC(model: MainActivityVDC.Factory): VDCFactory<out VDC>
+    @VDCKey(AdvancedActivityVDC::class)
+    abstract fun mainActivityVDC(model: AdvancedActivityVDC.Factory): VDCFactory<out VDC>
 
     @ContributesAndroidInjector(modules = [DebugFragmentModule::class])
     abstract fun debugFragment(): DebugFragment

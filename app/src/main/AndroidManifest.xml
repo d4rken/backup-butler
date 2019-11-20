@@ -22,10 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Base.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity
-            android:name="eu.darken.bb.main.ui.start.MainActivity"
+            android:name=".main.ui.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.LauncherToMainActivity">
+            android:noHistory="true"
+            android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,6 +36,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".onboarding.OnboardingActivity" />
+        <activity
+            android:name="eu.darken.bb.main.ui.simple.SimpleActivity"
+            android:theme="@style/AppTheme.Base" />
+        <activity
+            android:name="eu.darken.bb.main.ui.advanced.AdvancedActivity"
+            android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".task.ui.editor.TaskEditorActivity"
             android:theme="@style/AppTheme.Base" />

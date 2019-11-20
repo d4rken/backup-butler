@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="eu.darken.bb.main.ui.advanced.AdvancedActivity">
     <item
-        android:id="@+id/action_create"
+        android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="@string/general_create_action"
-        app:showAsAction="always|withText" />
+        android:title="@string/settings_label"
+        android:icon="@drawable/ic_settings"
+        app:showAsAction="always" />
 </menu>

@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.start
+package eu.darken.bb.main.ui.advanced
 
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment

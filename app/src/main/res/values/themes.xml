@@ -18,7 +18,7 @@
         <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
     </style>
 
-    <style name="AppTheme.LauncherToMainActivity" parent="AppTheme.Base">
+    <style name="AppTheme.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 

@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.start.debug
+package eu.darken.bb.main.ui.advanced.debug
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
