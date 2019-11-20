@@ -11,6 +11,7 @@ import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.Bugs
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -29,6 +30,7 @@ import javax.inject.Inject
 class BBDebug @Inject constructor(
         @AppContext private val context: Context,
         moduleFactories: Set<@JvmSuppressWildcards DebugModule.Factory<out DebugModule>>,
+        private val generalSettings: GeneralSettings,
         private val installId: InstallId,
         private val errorHandlerSrc: Lazy<BugsnagErrorHandler>,
         private val noopHandlerSrc: Lazy<NOPBugsnagErrorHandler>,
@@ -102,17 +104,16 @@ class BBDebug @Inject constructor(
         val bugsnagClient = Bugsnag.init(context)
         bugsnagClient.setUserId(installId.installId.toString())
 
-//        if (ReportingPreferencesFragment.isBugReportingDesired(sdmContext)) {
-        Timber.plant(bugsnagTreeSrc.get())
-        bugsnagClient.setAutoCaptureSessions(true)
-        bugsnagClient.beforeNotify(errorHandlerSrc.get())
-        Timber.tag(App.TAG).i("Bugsnag setup done!")
-//        } else {
-        // TODO
-//            bugsnagClient.setAutoCaptureSessions(false)
-//            bugsnagClient.beforeNotify(noopHandlerSrc.get())
-//            Timber.tag(TAG).i("Installing Bugsnag NOP error handler due to user opt-out!")
-//        }
+        if (generalSettings.isBugTrackingEnabled) {
+            Timber.plant(bugsnagTreeSrc.get())
+            bugsnagClient.setAutoCaptureSessions(true)
+            bugsnagClient.beforeNotify(errorHandlerSrc.get())
+            Timber.tag(App.TAG).i("Bugsnag setup done!")
+        } else {
+            bugsnagClient.setAutoCaptureSessions(false)
+            bugsnagClient.beforeNotify(noopHandlerSrc.get())
+            Timber.tag(TAG).i("Installing Bugsnag NOP error handler due to user opt-out!")
+        }
 
     }
 

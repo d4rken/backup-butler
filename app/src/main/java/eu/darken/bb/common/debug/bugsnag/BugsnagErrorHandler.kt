@@ -5,6 +5,7 @@ import com.bugsnag.android.BeforeNotify
 import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.BBEnv
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.InstallId
@@ -17,7 +18,8 @@ class BugsnagErrorHandler @Inject constructor(
         private val bbEnv: BBEnv,
         private val installId: InstallId,
         private val bugsnagTree: BugsnagTree,
-        private val backupButler: BackupButler
+        private val backupButler: BackupButler,
+        private val generalSettings: GeneralSettings
 ) : BeforeNotify {
 
     override fun run(error: com.bugsnag.android.Error): Boolean {
@@ -56,8 +58,7 @@ class BugsnagErrorHandler @Inject constructor(
 //            }
 //        }
 
-        // TODO check if enabled
-        val send = !BuildConfig.DEBUG
+        val send = !BuildConfig.DEBUG && generalSettings.isBugTrackingEnabled
         Timber.tag(TAG).d("Send error? %b", send)
         return send
     }

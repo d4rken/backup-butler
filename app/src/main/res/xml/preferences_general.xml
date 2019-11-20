@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/category_other_label">
 
         <CheckBoxPreference
             android:icon="@drawable/ic_spider_thread_onsurface"
+            android:key="core.bugtracking.enabled"
             android:summary="Automatically reports issues, e.g. details on the app crashes so I can fix figure out why and fix it."
-            app:title="Automatic bug reports" />
+            android:title="Automatic bug reports" />
 
         <CheckBoxPreference
             android:icon="@drawable/ic_update_onsurface"
             android:summary="Check for new updates!"
-            app:title="Update check" />
+            android:title="Update check" />
 
         <CheckBoxPreference
             android:icon="@drawable/ic_analytics_onsurface"
             android:summary="Anonymous statistics, e.g. what Android device and version you have."
-            app:title="Analytics" />
+            android:title="Analytics" />
 
         <Preference
-            android:key="debug.recordlog"
             android:icon="@drawable/ic_record_onsurface"
+            android:key="debug.recordlog"
             android:summary="@string/debug_record_log_desc"
             android:title="@string/debug_record_log_label" />
 
