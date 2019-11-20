@@ -55,7 +55,8 @@ class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
         recyclerView.setupDefaults(actionsAdapter)
 
         actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-            vdc.generatorAction(actionsAdapter.data[i])
+            actionsAdapter.data[i].guardedAction { vdc.generatorAction(it) }
+            actionsAdapter.notifyItemChanged(i)
         })
 
         vdc.state.observe2(this) { state ->

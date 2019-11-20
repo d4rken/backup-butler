@@ -33,7 +33,8 @@
     </style>
 
     <style name="ListItemTextTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
-
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
     <style name="ListItemTextPrimary" parent="TextAppearance.MaterialComponents.Body2">

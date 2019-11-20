@@ -7,6 +7,7 @@ import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -39,20 +40,20 @@ class StorageActionDialogVDC @AssistedInject constructor(
                 .map { it.single() }
                 .takeUntil { info -> info.isFinished }
                 .subscribe { infoOpt ->
-                    val allowedActions = mutableSetOf<StorageAction>().apply {
+                    val allowedActions = mutableSetOf<Confirmable<StorageAction>>().apply {
                         if (infoOpt.info?.status != null) {
-                            add(VIEW)
-                            add(RESTORE)
+                            add(Confirmable(VIEW))
+                            add(Confirmable(RESTORE))
                         }
 
                         if (infoOpt.info?.config != null) {
-                            add(EDIT)
+                            add(Confirmable(EDIT))
                         }
                         if (infoOpt.info?.status?.isReadOnly == false) {
-                            add(DELETE)
+                            add(Confirmable(DELETE, requiredLvl = 2))
                         }
 
-                        add(DETACH)
+                        add(Confirmable(DETACH, requiredLvl = 1))
                     }
 
                     stater.update {
@@ -149,7 +150,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
 
     data class State(
             val storageInfo: Storage.Info? = null,
-            val allowedActions: List<StorageAction> = listOf(),
+            val allowedActions: List<Confirmable<StorageAction>> = listOf(),
             val isCancelable: Boolean = false,
             val isLoadingData: Boolean = false,
             val currentOperation: Disposable? = null

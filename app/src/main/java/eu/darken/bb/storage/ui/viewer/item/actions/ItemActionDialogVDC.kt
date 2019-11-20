@@ -11,6 +11,7 @@ import eu.darken.bb.common.Operation
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
@@ -55,8 +56,12 @@ class ItemActionDialogVDC @AssistedInject constructor(
                 .filter { it.isFinished }
                 .take(1)
                 .subscribe({ info ->
-                    val actions = ItemAction.values().toMutableList().apply {
-                        if (info.status?.isReadOnly == true) remove(ItemAction.DELETE)
+                    val actions = mutableListOf<Confirmable<ItemAction>>().apply {
+                        add(Confirmable(ItemAction.VIEW))
+                        add(Confirmable(ItemAction.RESTORE))
+                        if (info.status?.isReadOnly == false) {
+                            add(Confirmable(ItemAction.DELETE, requiredLvl = 1))
+                        }
                     }.toList()
                     stater.update { it.copy(allowedActions = actions) }
                 }, { error ->
@@ -112,7 +117,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
 
     data class State(
             val info: BackupSpec.Info? = null,
-            val allowedActions: List<ItemAction>? = null,
+            val allowedActions: List<Confirmable<ItemAction>>? = null,
             val currentOp: Operation? = null
     ) {
         val isWorking: Boolean

@@ -6,9 +6,11 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
-import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsAction.*
+import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsAction.DELETE
+import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsAction.EDIT
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.subscribeNullable
+import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Single
@@ -29,6 +31,10 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
         generatorRepo.get(generatorId)
                 .subscribeOn(Schedulers.io())
                 .subscribeNullable { config ->
+                    val actions = listOf(
+                            Confirmable(EDIT),
+                            Confirmable(DELETE, requiredLvl = 1)
+                    )
                     stateUpdater.update {
                         if (config == null) {
                             it.copy(loading = true, finished = true)
@@ -36,7 +42,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
                             it.copy(
                                     config = config,
                                     loading = false,
-                                    allowedActions = values().toList()
+                                    allowedActions = actions
                             )
                         }
                     }
@@ -67,7 +73,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
             val loading: Boolean = true,
             val finished: Boolean = false,
             val config: Generator.Config? = null,
-            val allowedActions: List<GeneratorsAction> = listOf()
+            val allowedActions: List<Confirmable<GeneratorsAction>> = listOf()
     )
 
     @AssistedInject.Factory

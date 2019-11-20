@@ -52,8 +52,9 @@ class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(actionsAdapter)
 
-        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-            vdc.taskAction(actionsAdapter.data[i])
+        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, pos: Int ->
+            actionsAdapter.data[pos].guardedAction { vdc.taskAction(it) }
+            actionsAdapter.notifyItemChanged(pos)
         })
 
         vdc.state.observe2(this) { state ->

@@ -5,6 +5,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.subscribeNullable
+import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
@@ -32,6 +33,10 @@ class TaskActionDialogVDC @AssistedInject constructor(
         taskRepo.get(taskId)
                 .subscribeOn(Schedulers.io())
                 .subscribeNullable { task ->
+                    val actions = listOf(
+                            Confirmable(EDIT),
+                            Confirmable(DELETE, requiredLvl = 1)
+                    )
                     stateUpdater.update {
                         if (task == null) {
                             it.copy(loading = true, finished = true)
@@ -40,7 +45,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                                     taskName = task.label,
                                     taskType = task.taskType,
                                     loading = false,
-                                    allowedActions = values().toList()
+                                    allowedActions = actions
                             )
                         }
                     }
@@ -82,7 +87,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
             val finished: Boolean = false,
             val taskName: String = "",
             val taskType: Task.Type? = null,
-            val allowedActions: List<TaskAction> = listOf()
+            val allowedActions: List<Confirmable<TaskAction>> = listOf()
     )
 
     @AssistedInject.Factory

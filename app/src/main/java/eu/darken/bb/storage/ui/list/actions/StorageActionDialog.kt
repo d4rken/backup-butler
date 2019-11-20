@@ -13,7 +13,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -55,8 +54,10 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(actionsAdapter)
 
-        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-            vdc.storageAction(actionsAdapter.data[i])
+        actionsAdapter.modules.add(ClickModule { _: ActionsAdapter.VH, pos: Int ->
+            val confirmable = actionsAdapter.data[pos]
+            confirmable.guardedAction { vdc.storageAction(it) }
+            actionsAdapter.notifyItemChanged(pos)
         })
 
         workingOverlay.setOnCancelListener {

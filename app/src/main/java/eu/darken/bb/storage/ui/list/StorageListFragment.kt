@@ -40,7 +40,6 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
-
     init {
         layoutRes = R.layout.storage_list_fragment
     }

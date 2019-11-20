@@ -68,8 +68,9 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         actionList.setupDefaults(actionsAdapter)
 
-        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-            vdc.storageAction(actionsAdapter.data[i])
+        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, pos: Int ->
+            actionsAdapter.data[pos].guardedAction { vdc.storageAction(it) }
+            actionsAdapter.notifyItemChanged(pos)
         })
 
         vdc.state.observe2(this) { state ->

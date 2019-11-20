@@ -242,7 +242,7 @@ class LocalStorage @AssistedInject constructor(
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
 
-        // TODO check that backup dir doesn't exist, ie version dir?
+        // TODO guardAction that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
                 updateProgressSecondary(ref.originalPath.path)

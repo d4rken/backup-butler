@@ -42,11 +42,13 @@ class HelloStepFragment : SmartFragment() {
             uiSettings.showOnboarding = false
             uiSettings.startMode = UISettings.StartMode.SIMPLE
             startActivity(Intent(requireActivity(), MainActivity::class.java))
+            finishActivity()
         }
         actionStartAdvanced.clicksDebounced().subscribe {
             uiSettings.showOnboarding = false
             uiSettings.startMode = UISettings.StartMode.ADVANCED
             startActivity(Intent(requireActivity(), MainActivity::class.java))
+            finishActivity()
         }
 
         super.onViewCreated(view, savedInstanceState)
