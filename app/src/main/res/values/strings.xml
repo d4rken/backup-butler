@@ -229,7 +229,7 @@
     <string name="xda_desc">Our own thread on XDA-Developers.</string>
     <string name="twitter_desc">darken\'s twitter account</string>
     <string name="issue_tracker_desc">A public issue tracker for bug reports and feature requests (english only).</string>
-    <string name="support_installid_desc">Share your install ID with developer to help him find automatic error reports from your device.</string>
+    <string name="support_installid_desc">Automatic error reports are anonymous. Share your install ID if the developer needs to find your error reports.</string>
     <string name="progress_deleting_label">Deleting</string>
     <string name="general_create_dir">Create directory</string>
     <string name="general_select_path_action">Select path</string>
@@ -241,4 +241,5 @@
     <string name="userinterface_startmode_label">Startmode</string>
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>
+    <string name="general_copy_action">Copy</string>
 </resources>

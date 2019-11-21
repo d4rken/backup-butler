@@ -6,7 +6,6 @@ import dagger.multibindings.IntoMap
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.common.vdc.VDCKey
-import eu.darken.bb.main.ui.settings.debug.SupportFragmentVDC
 
 
 @Module
