@@ -17,6 +17,7 @@
         <CheckBoxPreference
             android:icon="@drawable/ic_analytics_onsurface"
             android:summary="Anonymous statistics, e.g. what Android device and version you have."
+            android:enabled="false"
             android:title="Analytics" />
 
         <Preference

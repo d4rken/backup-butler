@@ -1,10 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/general_thank_you_label">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:title="@string/general_thank_you_label"
+        app:iconSpaceReserved="false">
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/licenses_settings_label">
-
+    <PreferenceCategory
+        android:title="@string/licenses_settings_label"
+        app:iconSpaceReserved="false">
+        <Preference
+            android:key="license.bugsnag"
+            android:summary="Client side library for crash monitoring via bugsnag.com. (MIT)"
+            android:title="Bugsnag"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bugsnag/bugsnag-android" />
+        </Preference>
+        <Preference
+            android:key="license.butterknife"
+            android:summary="View 'injection' library for Android. (APACHE 2.0)"
+            android:title="Butter Knife"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JakeWharton/butterknife" />
+        </Preference>
+        <Preference
+            android:key="license.timber"
+            android:summary="A logger with a small, extensible API which provides utility on top of Android's normal Log class. (APACHE 2.0)"
+            android:title="Timber"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JakeWharton/timber" />
+        </Preference>
+        <Preference
+            android:key="license.fastscroll"
+            android:summary="Provides fast scroll and section indexer for recycler view. (APACHE 2.0)"
+            android:title="Recycler Bubble"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/FutureMind/recycler-fast-scroll" />
+        </Preference>
+        <Preference
+            android:key="license.glide"
+            android:summary="An image loading and caching library for Android focused on smooth scrolling. (Multiple licenses)"
+            android:title="Glide"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bumptech/glide" />
+        </Preference>
+        <Preference
+            android:key="license.rxandroid"
+            android:summary="RxJava / RxAndroid (APACHE 2.0)"
+            android:title="RxAndroid"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/ReactiveX/RxAndroid" />
+        </Preference>
+        <Preference
+            android:key="license.rxlifecycle"
+            android:summary="Lifecycle handling APIs for Android apps using RxJava. (APACHE 2.0)"
+            android:title="RxLifecycle"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/trello/RxLifecycle" />
+        </Preference>
+        <Preference
+            android:key="license.matomo"
+            android:summary="Matomo-Android-SDK (BSD-3 Clause license)"
+            android:title="Matomo-Android-SDK"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/castorflex/SmoothProgressBar" />
+        </Preference>
+        <Preference
+            android:key="license.libsuperuser"
+            android:summary="Thanks to Chainfire&apos;s libsuperuser. (APACHE 2.0)"
+            android:title="libsuperuser"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/Chainfire/libsuperuser" />
+        </Preference>
+        <Preference
+            android:key="license.librootjava"
+            android:summary="Thanks to Chainfire&apos;s librootjava. (APACHE 2.0)"
+            android:title="libsuperuser"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/Chainfire/librootjava" />
+        </Preference>
+        <Preference
+            android:key="license.materialdesignicons"
+            android:summary="materialdesignicons.com (SIL Open Font License 1.1 / Attribution 4.0 International)"
+            android:title="Material Design Icons"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/Templarian/MaterialDesign" />
+        </Preference>
+        <Preference
+            android:key="license.lottie"
+            android:summary="Airbnb's Lottie for Android. (APACHE 2.0)"
+            android:title="Lottie"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/airbnb/lottie-android" />
+        </Preference>
+        <Preference
+            android:key="license.kotlin"
+            android:summary="The Kotlin Programming Language. (APACHE 2.0)"
+            android:title="Kotlin"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JetBrains/kotlin" />
+        </Preference>
+        <Preference
+            android:key="license.okio"
+            android:summary="A modern I/O library for Android, Kotlin, and Java. (APACHE 2.0)"
+            android:title="OKIO"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/square/okio" />
+        </Preference>
+        <Preference
+            android:key="license.leakcanary"
+            android:summary="LeakCanary is a memory leak detection library for Android. (APACHE 2.0)"
+            android:title="LeakCanary"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/square/leakcanary" />
+        </Preference>
+        <Preference
+            android:key="license.retrofit"
+            android:summary="Type-safe HTTP client for Android and Java by Square, Inc. (APACHE 2.0)"
+            android:title="RetroFit"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/square/retrofit" />
+        </Preference>
+        <Preference
+            android:key="license.replayingshare"
+            android:summary="An RxJava 2 transformer which combines replay(1), publish(), and refCount() operators. (APACHE 2.0)"
+            android:title="RxReplayingShare"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JakeWharton/RxReplayingShare" />
+        </Preference>
+        <Preference
+            android:key="license.rxdogtag"
+            android:summary="Automatic tagging of RxJava 2 originating subscribe points for onError() investigation. (APACHE 2.0)"
+            android:title="RxDogTag"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/uber/RxDogTag" />
+        </Preference>
+        <Preference
+            android:key="license.rxbinding"
+            android:summary="RxJava binding APIs for Android's UI widgets. (APACHE 2.0)"
+            android:title="RxBinding"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JakeWharton/RxBinding" />
+        </Preference>
+        <Preference
+            android:key="license.dagger"
+            android:summary="A fast dependency injector for Android and Java. (APACHE 2.0)"
+            android:title="Dagger"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/google/dagger" />
+        </Preference>
+        <Preference
+            android:key="license.assistedinject"
+            android:summary="Assisted injection for JSR 330. (APACHE 2.0)"
+            android:title="Dagger"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/square/AssistedInject" />
+        </Preference>
+        <Preference
+            android:key="android.android"
+            android:summary="Android Open Source Project (APACHE 2.0)"
+            android:title="Android"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://source.android.com/source/licenses.html" />
+        </Preference>
+        <Preference
+            android:key="android.logo"
+            android:summary="The Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License."
+            android:title="Android"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://developer.android.com/distribute/tools/promote/brand.html" />
+        </Preference>
     </PreferenceCategory>
 </PreferenceScreen>
