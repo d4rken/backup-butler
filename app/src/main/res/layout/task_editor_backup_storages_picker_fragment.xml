@@ -10,7 +10,6 @@
         android:id="@+id/storage_list_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
         app:rvwEmptyText="@string/task_editor_backup_destination_picker_empty_desc">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -32,10 +31,5 @@
         android:tint="@color/colorOnPrimary"
         android:visibility="invisible"
         tools:visibility="visible" />
-
-    <eu.darken.bb.common.ui.LoadingOverlayView
-        android:id="@+id/loading_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -10,6 +10,7 @@
         app:rvwEmptyText="@string/task_editor_backup_sources_empty_desc"
         app:layout_constraintBottom_toTopOf="@+id/setupbar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:rvwLoadingShowByDefault="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 

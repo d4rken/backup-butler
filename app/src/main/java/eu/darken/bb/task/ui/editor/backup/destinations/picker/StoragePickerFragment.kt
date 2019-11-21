@@ -16,7 +16,6 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -39,7 +38,6 @@ class StoragePickerFragment : SmartFragment(), AutoInject {
     @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     init {
         layoutRes = R.layout.task_editor_backup_storages_picker_fragment
@@ -54,13 +52,12 @@ class StoragePickerFragment : SmartFragment(), AutoInject {
             adapter.update(state.storages)
 
             if (state.allExistingAdded) {
-                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.task_editor_backup_destination_picker_alladded_desc)
+                storageListWrapper.setEmptyState(R.drawable.ic_emoji_happy, R.string.task_editor_backup_destination_picker_alladded_desc)
             } else {
-                storageListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_destination_picker_empty_desc)
+                storageListWrapper.setEmptyState(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_destination_picker_empty_desc)
             }
 
-            loadingOverlay.setInvisible(!state.isLoading)
-            storageListWrapper.setInvisible(state.isLoading)
+            storageListWrapper.setLoadingState(state.isLoading)
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()

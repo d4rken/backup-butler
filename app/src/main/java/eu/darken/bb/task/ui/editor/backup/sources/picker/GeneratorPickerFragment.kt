@@ -17,7 +17,6 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
@@ -39,7 +38,6 @@ class GeneratorPickerFragment : SmartFragment(), AutoInject {
     @BindView(R.id.storage_list_wrapper) lateinit var generatorListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.storage_list) lateinit var generatorList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     init {
         layoutRes = R.layout.task_editor_backup_generators_picker_fragment
@@ -54,13 +52,12 @@ class GeneratorPickerFragment : SmartFragment(), AutoInject {
             adapter.update(state.generatorData)
 
             if (state.allExistingAdded) {
-                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_happy, R.string.task_editor_backup_sources_picker_alladded_desc)
+                generatorListWrapper.setEmptyState(R.drawable.ic_emoji_happy, R.string.task_editor_backup_sources_picker_alladded_desc)
             } else {
-                generatorListWrapper.setEmptyInfos(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_sources_picker_empty_desc)
+                generatorListWrapper.setEmptyState(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_sources_picker_empty_desc)
             }
 
-            loadingOverlay.setInvisible(!state.isLoading)
-            generatorListWrapper.setInvisible(state.isLoading)
+            generatorListWrapper.setLoadingState(state.isLoading)
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()
