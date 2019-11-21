@@ -5,33 +5,58 @@
     <Preference
         android:icon="@drawable/ic_card_text_onsurface"
         android:summary="@string/documentation_desc"
-        android:title="@string/documentation_label" />
+        android:title="@string/documentation_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://bb.darken.eu/wiki" />
+    </Preference>
     <Preference
         android:icon="@drawable/ic_email_onsurface"
+        android:key="support.email.darken"
         android:summary="@string/email_developer_desc"
         android:title="@string/email_developer_label" />
     <Preference
         android:icon="@drawable/ic_github_onsurface"
         android:summary="@string/issue_tracker_desc"
-        android:title="@string/issue_tracker_label" />
+        android:title="@string/issue_tracker_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://bb.darken.eu/issues" />
+    </Preference>
     <Preference
         android:icon="@drawable/ic_discord_onsurface"
         android:summary="@string/discord_desc"
-        android:title="@string/discord_label" />
+        android:title="@string/discord_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://bb.darken.eu/discord" />
+    </Preference>
     <Preference
         android:icon="@drawable/ic_reddit_onsurface"
         android:summary="@string/reddit_desc"
-        android:title="@string/reddit_label" />
+        android:title="@string/reddit_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://bb.darken.eu/reddit" />
+    </Preference>
     <Preference
         android:icon="@drawable/ic_xda_onsurface"
         android:summary="@string/xda_desc"
-        android:title="@string/xda_label" />
+        android:title="@string/xda_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://bb.darken.eu/xda" />
+    </Preference>
 
     <PreferenceCategory app:title="@string/category_other_label">
         <Preference
             android:icon="@drawable/ic_twitter_onsurface"
             android:summary="@string/twitter_desc"
-            android:title="@string/twitter_label" />
+            android:title="@string/twitter_label">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://bb.darken.eu/twitter" />
+        </Preference>
         <Preference
             android:icon="@drawable/ic_id_onsurface"
             android:key="support.installid"

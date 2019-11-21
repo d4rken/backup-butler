@@ -242,4 +242,5 @@
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>
     <string name="general_copy_action">Copy</string>
+    <string name="general_send_mail_label">Send mail</string>
 </resources>
