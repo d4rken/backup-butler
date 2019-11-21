@@ -45,5 +45,6 @@ class GeneralSettings @Inject constructor(
         internal val TAG = App.logTag("Core", "Settings")
         private const val PK_ROOT_DISABLED = "core.root.disabled"
         private const val PK_BUGTRACKING_ENABLED = "core.bugtracking.enabled"
+        const val PKEY_RECORD_DEBUG = "core.debug.recordlog"
     }
 }

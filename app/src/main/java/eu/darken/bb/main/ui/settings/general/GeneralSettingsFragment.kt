@@ -9,7 +9,6 @@ import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
-import eu.darken.bb.main.core.DebugSettings
 import eu.darken.bb.main.ui.settings.debug.GeneralSettingsFragmentVDC
 import javax.inject.Inject
 
@@ -24,7 +23,7 @@ class GeneralSettingsFragment : SmartPreferenceFragment(), AutoInject {
     override val settings: GeneralSettings by lazy { debugSettings }
     override val preferenceFile: Int = R.xml.preferences_general
 
-    private val recordPref by lazy { findPreference<Preference>(DebugSettings.PKEY_RECORD)!! }
+    private val recordPref by lazy { findPreference<Preference>(GeneralSettings.PKEY_RECORD_DEBUG)!! }
 
     override fun onPreferencesCreated() {
 

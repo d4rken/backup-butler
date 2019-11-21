@@ -21,7 +21,7 @@
 
         <Preference
             android:icon="@drawable/ic_record_onsurface"
-            android:key="debug.recordlog"
+            android:key="core.debug.recordlog"
             android:summary="@string/debug_record_log_desc"
             android:title="@string/debug_record_log_label" />
 
