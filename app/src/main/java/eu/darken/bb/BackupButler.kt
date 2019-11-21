@@ -78,7 +78,10 @@ class BackupButler @Inject constructor(
             val buildState: BuildState,
             val gitSha: String,
             val buildTime: String
-    )
+    ) {
+
+        val fullVersionString = "$versionName ($versionCode) [$gitSha]"
+    }
 
     enum class BuildState {
         DEV, BETA, PRODUCTION

@@ -2,8 +2,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
-        app:fragment="eu.darken.bb.user.ui.settings.UserSettingsFragment"
+        android:icon="@drawable/ic_settings_onsurface"
+        app:fragment="eu.darken.bb.main.ui.settings.general.GeneralSettingsFragment"
+        app:summary="@string/general_settings_desc"
+        app:title="@string/general_settings_label" />
+
+    <Preference
         android:icon="@drawable/ic_user_onsurface"
+        app:fragment="eu.darken.bb.user.ui.settings.UserSettingsFragment"
         app:summary="@string/user_settings_desc"
         app:title="@string/user_settings_label" />
 
@@ -20,12 +26,6 @@
         app:title="@string/support_settings_label" />
 
     <PreferenceCategory android:title="@string/category_core_label">
-        <Preference
-            android:icon="@drawable/ic_settings_onsurface"
-            app:fragment="eu.darken.bb.main.ui.settings.general.GeneralSettingsFragment"
-            app:summary="@string/general_settings_desc"
-            app:title="@string/general_settings_label" />
-
         <Preference
             android:icon="@drawable/ic_storage_onsurface"
             app:fragment="eu.darken.bb.storage.ui.settings.StorageSettingsFragment"
@@ -56,7 +56,12 @@
         <Preference
             android:icon="@drawable/ic_changelog_onsurface"
             android:title="@string/changelog_label"
-            app:summary="v?.?.?" />
+            android:key="core.changelog"
+            app:summary="v?.?.?">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://bb.darken.eu/changelog" />
+        </Preference>
 
         <Preference
             android:icon="@drawable/ic_heart_onsurface"
@@ -67,7 +72,11 @@
         <Preference
             android:icon="@drawable/ic_book_onsurface"
             app:summary="@string/privacy_policy_settings_desc"
-            app:title="@string/privacy_policy_settings_label" />
+            app:title="@string/privacy_policy_settings_label">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://bb.darken.eu/privacypolicy" />
+        </Preference>
 
     </PreferenceCategory>
 </PreferenceScreen>
