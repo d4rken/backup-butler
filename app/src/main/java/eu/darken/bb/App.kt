@@ -9,6 +9,7 @@ import dagger.Lazy
 import dagger.android.*
 import eu.darken.bb.common.dagger.AppInjector
 import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
 import timber.log.Timber
@@ -28,6 +29,7 @@ open class App
 
     @Inject lateinit var uiSettings: UISettings
     @Inject lateinit var bbDebug: Lazy<BBDebug>
+    @Inject lateinit var languageEnforcer: LanguageEnforcer
 
     override fun onCreate() {
         super.onCreate()
@@ -47,6 +49,8 @@ open class App
 
         Timber.tag(TAG).d("onCreate() done!")
         instance = this
+
+        languageEnforcer.setup()
     }
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()

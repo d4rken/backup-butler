@@ -3,9 +3,11 @@ package eu.darken.bb.main.ui.settings.ui
 import android.content.SharedPreferences
 import androidx.annotation.Keep
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
+import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import javax.inject.Inject
 
@@ -18,8 +20,11 @@ class UISettingsFragment : SmartPreferenceFragment(), AutoInject {
 
     override val preferenceFile: Int = R.xml.preferences_ui
 
+    @Inject lateinit var languageEnforcer: LanguageEnforcer
+
     val themePref by lazy { findPreference<ListPreference>(UISettings.PKEY_THEME)!! }
     val startModePref by lazy { findPreference<ListPreference>(UISettings.PKEY_STARTMODE)!! }
+    val pickLanguage by lazy { findPreference<Preference>("ui.language.picker")!! }
 
     override fun onPreferencesCreated() {
         themePref.apply {
@@ -32,6 +37,11 @@ class UISettingsFragment : SmartPreferenceFragment(), AutoInject {
             entryValues = UISettings.StartMode.values().map { it.identifier }.toTypedArray()
             setSummary(settings.startMode.label)
         }
+    }
+
+    override fun onResume() {
+        pickLanguage.summary = languageEnforcer.lookup(languageEnforcer.currentLocale).localeFormatted
+        super.onResume()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {

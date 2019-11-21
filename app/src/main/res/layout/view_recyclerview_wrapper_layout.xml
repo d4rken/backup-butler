@@ -90,4 +90,9 @@
             app:layout_constraintVertical_chainStyle="packed" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <eu.darken.bb.common.ui.LoadingOverlayView
+        style="@style/LoadingOverlayViewStyle"
+        android:visibility="invisible"
+        tools:visibility="visible" />
+
 </merge>

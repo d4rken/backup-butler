@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Backup Butler</string>
     <string name="settings_label">Settings</string>
@@ -215,6 +216,7 @@
     <string name="storage_settings_label">Storage</string>
     <string name="language_settings_label">Language</string>
     <string name="language_translation_label">Translation</string>
+    <string name="language_list_of_translators">Matthias Urhahn (darken)</string>
     <string name="support_installid_label">Install ID</string>
     <string name="general_settings_label">General</string>
     <string name="general_settings_desc">General tweaks that affect the whole app.</string>

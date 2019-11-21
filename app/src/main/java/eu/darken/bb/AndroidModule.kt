@@ -1,5 +1,6 @@
 package eu.darken.bb
 
+import android.app.Application
 import android.app.NotificationManager
 import android.content.ContentResolver
 import android.content.Context
@@ -16,6 +17,10 @@ import eu.darken.bb.common.dagger.PerApp
 
 @Module
 class AndroidModule {
+
+    @Provides
+    @PerApp
+    fun application(app: App): Application = app
 
     @Provides
     @AppContext

@@ -19,6 +19,8 @@ import eu.darken.bb.main.ui.settings.support.SupportFragment
 import eu.darken.bb.main.ui.settings.support.SupportFragmentModule
 import eu.darken.bb.main.ui.settings.ui.UISettingsFragment
 import eu.darken.bb.main.ui.settings.ui.UISettingsFragmentModule
+import eu.darken.bb.main.ui.settings.ui.language.LanguageFragment
+import eu.darken.bb.main.ui.settings.ui.language.LanguageFragmentModule
 import eu.darken.bb.schedule.ui.settings.SchedulerSettingsFragment
 import eu.darken.bb.schedule.ui.settings.SchedulerSettingsFragmentModule
 import eu.darken.bb.storage.ui.settings.StorageSettingsFragment
@@ -76,4 +78,8 @@ abstract class SettingsActivityModule {
     @PerFragment
     @ContributesAndroidInjector(modules = [AcknowledgementsFragmentModule::class])
     abstract fun acknowledgements(): AcknowledgementsFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [LanguageFragmentModule::class])
+    abstract fun languagePicker(): LanguageFragment
 }

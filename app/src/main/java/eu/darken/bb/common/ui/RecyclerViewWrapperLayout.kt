@@ -27,6 +27,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     @BindView(R.id.explanation_container) protected lateinit var explanationContainer: ViewGroup
     @BindView(R.id.explanation_icon) protected lateinit var explanationIconView: ImageView
     @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
+    @BindView(R.id.loading_overlay) protected lateinit var loadingOverlayView: LoadingOverlayView
 
     protected val recyclerView: RecyclerView by lazy<RecyclerView> {
         for (i in 0 until childCount) {
@@ -36,22 +37,30 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         throw IllegalArgumentException("No RecyclerView found")
     }
 
-    protected var shouldDisplayExplanation = true
+    protected var displayExplanation = true
+
+    protected var currentAdapter: RecyclerView.Adapter<*>? = null
+    protected var loadingAutoHide: Boolean = true
+    protected var afterFirstData: Boolean = false
+    protected var loadingShowByDefault: Boolean = false
 
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
             recyclerView.setInvisible(currentAdapter?.itemCount == 0)
 
-            if (shouldDisplayExplanation && currentAdapter?.itemCount != 0) {
-                shouldDisplayExplanation = false
+            if (displayExplanation && currentAdapter?.itemCount != 0) {
+                displayExplanation = false
             }
 
-            emptyContainer.setInvisible(shouldDisplayExplanation || currentAdapter?.itemCount != 0)
-            explanationContainer.setGone(!shouldDisplayExplanation || currentAdapter?.itemCount != 0)
+            emptyContainer.setInvisible(displayExplanation || currentAdapter?.itemCount != 0 || (!afterFirstData && loadingShowByDefault))
+            explanationContainer.setInvisible(!displayExplanation || currentAdapter?.itemCount != 0 || (!afterFirstData && loadingShowByDefault))
+
+            if (!afterFirstData && currentAdapter?.itemCount != 0) {
+                afterFirstData = true
+                loadingOverlayView.setInvisible(loadingAutoHide)
+            }
         }
     }
-
-    internal var currentAdapter: RecyclerView.Adapter<*>? = null
 
     init {
         View.inflate(getContext(), R.layout.view_recyclerview_wrapper_layout, this)
@@ -61,6 +70,17 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.RecyclerViewWrapperLayout)
 
+            loadingAutoHide = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingAutoHide, true)
+            loadingShowByDefault = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingShowByDefault, false)
+            loadingOverlayView.setInvisible(!loadingShowByDefault)
+
+            val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
+            if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
+
+            val explanationText = typedArray.getStringOrRef(R.styleable.RecyclerViewWrapperLayout_rvwExplanationText)
+            if (explanationText != null) explanationTextView.text = explanationText
+            explanationContainer.setInvisible(explanationText == null || loadingShowByDefault)
+            displayExplanation = explanationText != null
 
             val emptyIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwEmptyIcon)
             if (emptyIcon != null) emptyIconView.setImageResource(emptyIcon)
@@ -75,34 +95,11 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
                     emptyTextView.setText(R.string.empty_list_msg)
                 }
             }
-
-            val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
-            if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
-
-            val explanationText = typedArray.getStringOrRef(R.styleable.RecyclerViewWrapperLayout_rvwExplanationText)
-            if (explanationText != null) explanationTextView.text = explanationText
-            explanationContainer.setGone(explanationText == null)
-
-
-            emptyContainer.setInvisible(explanationText != null)
-            shouldDisplayExplanation = explanationText != null
-
+            emptyContainer.setInvisible(explanationText != null || loadingShowByDefault)
         } finally {
             typedArray.recycle()
         }
     }
-
-//    override fun onFinishInflate() {
-//        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
-//            override fun onChildViewDetachedFromWindow(view: View) {}
-//
-//            override fun onChildViewAttachedToWindow(view: View) {
-//                checkAdapter()
-//            }
-//
-//        })
-//        super.onFinishInflate()
-//    }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         checkAdapter()
@@ -122,5 +119,9 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     fun setEmptyInfos(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
         if (iconRes != null) emptyIconView.setImageResource(iconRes)
         if (stringRes != null) emptyTextView.setText(stringRes)
+    }
+
+    fun setLoadingState(isLoading: Boolean) {
+        loadingOverlayView.setInvisible(!isLoading)
     }
 }

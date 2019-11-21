@@ -9,6 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
+import java.util.*
 import javax.inject.Inject
 
 @PerApp
@@ -72,6 +73,17 @@ class UISettings @Inject constructor(
         get() = preferences.getBoolean(PKEY_ONBOARDING, true)
         set(value) = preferences.edit().putBoolean(PKEY_ONBOARDING, value).apply()
 
+
+    var language: Locale
+        get() {
+            val tag = preferences.getString(PKEY_LANGUAGE, Locale.getDefault().toLanguageTag())!!
+            return Locale.forLanguageTag(tag)
+        }
+        set(value) {
+            val tag = value.toLanguageTag()
+            preferences.edit().putString(PKEY_LANGUAGE, tag).apply()
+        }
+
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
@@ -90,12 +102,14 @@ class UISettings @Inject constructor(
         override fun putString(key: String, value: String?) = when (key) {
             PKEY_THEME -> theme = Theme.fromString(value ?: Theme.SYSTEM.identifier)
             PKEY_STARTMODE -> startMode = StartMode.fromString(value ?: StartMode.SIMPLE.identifier)
+            PKEY_LANGUAGE -> language = value?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
             else -> super.putString(key, value)
         }
 
         override fun getString(key: String, defValue: String?) = when (key) {
             PKEY_THEME -> theme.identifier
             PKEY_STARTMODE -> startMode.identifier
+            PKEY_LANGUAGE -> language.toLanguageTag()
             else -> super.getString(key, defValue)
         }
     }
@@ -108,5 +122,6 @@ class UISettings @Inject constructor(
         const val PKEY_STARTMODE = "ui.startmode"
         const val PKEY_DEBUGPAGE = "ui.debugpage.show"
         const val PKEY_ONBOARDING = "ui.onboarding.show"
+        const val PKEY_LANGUAGE = "ui.language.locale"
     }
 }

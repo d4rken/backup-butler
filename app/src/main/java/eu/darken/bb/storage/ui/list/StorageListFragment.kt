@@ -18,7 +18,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.LoadingOverlayView
+import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
@@ -36,9 +36,8 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
     @Inject lateinit var adapter: StorageAdapter
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
-    @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: View
+    @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     init {
         layoutRes = R.layout.storage_list_fragment
@@ -52,8 +51,8 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         vdc.storageData.observe2(this) { state ->
             adapter.update(state.storages)
 
-            loadingOverlay.setInvisible(!state.isLoading)
-            storageListWrapper.setInvisible(state.isLoading)
+            storageListWrapper.setLoadingState(state.isLoading)
+
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()
