@@ -7,6 +7,7 @@ import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.file.core.asFile
+import eu.darken.bb.common.file.core.local.LocalGateway
 import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
@@ -21,7 +22,9 @@ import java.io.File
 class LocalStorageEditor @AssistedInject constructor(
         @Assisted initialStorageId: Storage.Id,
         moshi: Moshi,
-        private val runtimePermissionTool: RuntimePermissionTool
+        private val runtimePermissionTool: RuntimePermissionTool,
+        private val localGateway: LocalGateway
+
 ) : StorageEditor {
 
     private val editorDataPub = HotData(Data(storageId = initialStorageId))
@@ -34,26 +37,32 @@ class LocalStorageEditor @AssistedInject constructor(
     fun updatePath(path: String, importExisting: Boolean): Single<LocalPath> =
             Single.just(LocalPath.build(path)).flatMap { updatePath(it, importExisting) }
 
-    fun updatePath(path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single.fromCallable {
+    fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
         check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
 
-        check(path.asFile().canWrite()) { "Can't write to path." }
-        check(path.asFile().isDirectory) { "Target is not a directory!" }
+        check(_path.asFile().canWrite()) { "Can't write to path." }
+        check(_path.asFile().isDirectory) { "Target is not a directory!" }
 
-        val configFile = File(path.asFile(), STORAGE_CONFIG)
-        if (configFile.exists()) {
-            if (!importExisting) throw ExistingStorageException(path)
+        val tweakedPath: LocalPath = if (localGateway.isStorageRoot(_path)) {
+            _path.child("BackupButler")
+        } else {
+            _path
+        }
 
-            load(path).blockingGet()
+        val configFile = tweakedPath.child(STORAGE_CONFIG)
+        if (configFile.exists(localGateway, LocalGateway.Mode.NORMAL)) {
+            if (!importExisting) throw ExistingStorageException(tweakedPath)
+
+            load(tweakedPath).blockingGet()
         } else {
             editorDataPub.update {
-                it.copy(refPath = path)
+                it.copy(refPath = tweakedPath)
             }
         }
 
-        return@fromCallable path
+        return@fromCallable tweakedPath
     }
 
     fun isPermissionGranted(): Boolean {

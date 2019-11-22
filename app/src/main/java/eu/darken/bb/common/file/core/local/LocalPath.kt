@@ -36,6 +36,8 @@ data class LocalPath(
 
     fun canRead(gateway: LocalGateway): Boolean = gateway.canRead(this)
 
+    fun exists(gateway: LocalGateway, mode: LocalGateway.Mode = LocalGateway.Mode.AUTO): Boolean = gateway.exists(this, mode)
+
     override fun toString(): String = "JavaFile(file=$file)"
 
     companion object {

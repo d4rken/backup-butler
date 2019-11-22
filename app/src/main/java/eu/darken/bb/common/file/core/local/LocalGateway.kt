@@ -1,10 +1,7 @@
 package eu.darken.bb.common.file.core.local
 
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.core.APathGateway
-import eu.darken.bb.common.file.core.ReadException
-import eu.darken.bb.common.file.core.WriteException
-import eu.darken.bb.common.file.core.asFile
+import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.mapError
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
@@ -18,7 +15,8 @@ import java.util.*
 import javax.inject.Inject
 
 @PerApp class LocalGateway @Inject constructor(
-        private val javaRootClient: JavaRootClient
+        private val javaRootClient: JavaRootClient,
+        private val devEnvironment: DevEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
     val session = javaRootClient.session
@@ -200,6 +198,11 @@ import javax.inject.Inject
     } catch (e: IOException) {
         Timber.tag(SAFGateway.TAG).w("canRead(%s) failed.", path)
         throw ReadException(path, cause = e)
+    }
+
+    fun isStorageRoot(path: LocalPath): Boolean {
+        // TODO what about secondary storages?
+        return devEnvironment.publicDeviceStorages.map { it.path }.contains(path)
     }
 
 
