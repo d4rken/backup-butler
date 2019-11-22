@@ -57,7 +57,7 @@ class StoragePickerFragment : SmartFragment(), AutoInject {
                 storageListWrapper.setEmptyState(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_destination_picker_empty_desc)
             }
 
-            storageListWrapper.setLoadingState(state.isLoading)
+            storageListWrapper.updateLoadingState(state.isLoading)
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()

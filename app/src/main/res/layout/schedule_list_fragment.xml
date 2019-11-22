@@ -7,7 +7,8 @@
 
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
-        app:rvwLoadingShowByDefault="true"
+        app:rvwLoading="true"
+        app:rvwLoadingUntilFirstChange="true"
         android:layout_height="match_parent"
         app:rvwExplanationText="@string/scheduler_quick_explanation_desc">
 

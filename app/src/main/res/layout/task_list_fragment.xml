@@ -7,7 +7,9 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:rvwExplanationText="@string/task_quick_explanation">
+        app:rvwExplanationText="@string/task_quick_explanation"
+        app:rvwLoading="true"
+        app:rvwLoadingUntilFirstChange="true">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tasks_list"

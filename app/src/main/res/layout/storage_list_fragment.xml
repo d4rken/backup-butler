@@ -7,15 +7,15 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
+        android:id="@id/storage_list_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:rvwExplanationText="@string/storage_quick_explanation_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:id="@id/storage_list_wrapper"
-        app:rvwLoadingShowByDefault="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:rvwExplanationText="@string/storage_quick_explanation_desc"
+        app:rvwLoading="true">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/storage_list"

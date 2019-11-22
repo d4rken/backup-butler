@@ -54,6 +54,7 @@ class SourcesFragment : SmartFragment(), AutoInject {
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.sources)
+
             setupBar.buttonPositiveSecondary.isEnabled = state.sources.isNotEmpty()
         }
 

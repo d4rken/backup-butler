@@ -98,7 +98,8 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
                     stater.update { state ->
                         state.copy(
                                 pkgs = pkgs.sortedBy { it.pkg.getLabel(ipcFunnel) }.toList(),
-                                selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet()
+                                selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet(),
+                                isLoading = false
                         )
                     }
                 }
@@ -138,7 +139,8 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
     data class State(
             val previewMode: PreviewMode,
             val selected: Set<String> = emptySet(),
-            val pkgs: List<PkgWrap> = emptyList()
+            val pkgs: List<PkgWrap> = emptyList(),
+            val isLoading: Boolean = true
     )
 
     data class PkgWrap(

@@ -51,7 +51,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         vdc.storageData.observe2(this) { state ->
             adapter.update(state.storages)
 
-            storageListWrapper.setLoadingState(state.isLoading)
+            storageListWrapper.updateLoadingState(state.isLoading)
 
             fab.setInvisible(state.isLoading)
 

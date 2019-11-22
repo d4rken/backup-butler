@@ -15,7 +15,8 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:rvwLoadingShowByDefault="true"
+        app:rvwLoading="true"
+        app:rvwLoadingUntilFirstChange="true"
         app:layout_constraintBottom_toTopOf="@+id/select_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

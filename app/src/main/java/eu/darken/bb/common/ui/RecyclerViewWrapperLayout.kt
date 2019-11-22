@@ -37,29 +37,41 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         throw IllegalArgumentException("No RecyclerView found")
     }
 
-    protected var displayExplanation = true
-
     protected var currentAdapter: RecyclerView.Adapter<*>? = null
-    protected var loadingAutoHide: Boolean = true
-    protected var isFirstDataAvailable: Boolean = false
-    protected var loadingShow: Boolean = false
-
+    protected lateinit var state: State
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
-            recyclerView.setInvisible(currentAdapter?.itemCount == 0)
+            state = state.copy(dataCount = currentAdapter?.itemCount ?: -1)
 
-            if (displayExplanation && currentAdapter?.itemCount != 0) {
-                displayExplanation = false
+            if (!state.isPreFirstChange && state.isLoading && state.consumeFirstLoading) {
+                state = state.copy(isLoading = false, consumeFirstLoading = false)
             }
 
-            emptyContainer.setInvisible(displayExplanation || currentAdapter?.itemCount != 0 || (!isFirstDataAvailable && loadingShow))
-            explanationContainer.setInvisible(!displayExplanation || currentAdapter?.itemCount != 0 || (!isFirstDataAvailable && loadingShow))
+            updateStates()
 
-            if (!isFirstDataAvailable) {
-                isFirstDataAvailable = true
-                if (loadingAutoHide) loadingOverlayView.setInvisible(true)
+            if (state.isPreFirstChange) {
+                state = state.copy(isPreFirstChange = false)
+            }
+            if (state.isPreFirstData && state.dataCount > 0) {
+                state = state.copy(isPreFirstData = false)
             }
         }
+    }
+
+    var loadingBehavior: (State) -> Boolean = {
+        it.isLoading
+    }
+
+    var explanationBehavior: (State) -> Boolean = {
+        it.hasExplanation && it.isPreFirstData
+                && !it.isLoading
+                && it.dataCount == 0
+    }
+
+    var emptyBehavior: (State) -> Boolean = {
+        (!it.hasExplanation || !it.isPreFirstData)
+                && !it.isLoading
+                && it.dataCount == 0
     }
 
     init {
@@ -70,17 +82,14 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.RecyclerViewWrapperLayout)
 
-            loadingAutoHide = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingAutoHide, true)
-            loadingShow = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingShowByDefault, false)
-            loadingOverlayView.setInvisible(!loadingShow)
+            val loadingShow = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoading, false)
+            val consumeFirstLoading = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingUntilFirstChange, false)
 
             val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
             if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
 
             val explanationText = typedArray.getStringOrRef(R.styleable.RecyclerViewWrapperLayout_rvwExplanationText)
             if (explanationText != null) explanationTextView.text = explanationText
-            explanationContainer.setInvisible(explanationText == null || loadingShow)
-            displayExplanation = explanationText != null
 
             val emptyIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwEmptyIcon)
             if (emptyIcon != null) emptyIconView.setImageResource(emptyIcon)
@@ -95,18 +104,23 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
                     emptyTextView.setText(R.string.empty_list_msg)
                 }
             }
-            emptyContainer.setInvisible(explanationText != null || loadingShow)
+
+            state = State(
+                    hasExplanation = explanationText != null,
+                    isLoading = loadingShow,
+                    consumeFirstLoading = consumeFirstLoading
+            )
         } finally {
             typedArray.recycle()
         }
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        checkAdapter()
-        super.onLayout(changed, left, top, right, bottom)
+    override fun onFinishInflate() {
+        updateStates()
+        super.onFinishInflate()
     }
 
-    protected fun checkAdapter() {
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         if (currentAdapter != recyclerView.adapter) {
             Timber.v("Updating tracked adapter")
             currentAdapter?.unregisterAdapterDataObserver(dataListener)
@@ -114,6 +128,13 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             currentAdapter?.registerAdapterDataObserver(dataListener)
             dataListener.onChanged()
         }
+        super.onLayout(changed, left, top, right, bottom)
+    }
+
+    protected fun updateStates() {
+        loadingOverlayView.setInvisible(!loadingBehavior(state))
+        explanationContainer.setInvisible(!explanationBehavior(state))
+        emptyContainer.setInvisible(!emptyBehavior(state))
     }
 
     fun setEmptyState(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
@@ -121,23 +142,18 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         if (stringRes != null) emptyTextView.setText(stringRes)
     }
 
-    fun setLoadingState(isLoading: Boolean) {
-        loadingShow = isLoading
-        loadingOverlayView.setInvisible(!isLoading)
+    fun updateLoadingState(isLoading: Boolean) {
+        state = state.copy(isLoading = isLoading)
+        updateStates()
     }
-//
-//    data class State(
-//        val firstDataAvailable: Boolean = false,
-//        val dataCount: Int = 0
-//    )
-//
-//    interface Behavior {
-//        fun onAdapterChanged(State: State)
-//    }
-//
-//    var loadingOverlayBehavior: (State) -> Boolean = {
-//
-//    }
 
+    data class State(
+            val isPreFirstData: Boolean = true,
+            val isPreFirstChange: Boolean = true,
+            val isLoading: Boolean,
+            val consumeFirstLoading: Boolean,
+            val hasExplanation: Boolean,
+            val dataCount: Int = 0
+    )
 
 }

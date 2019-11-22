@@ -18,7 +18,7 @@
         <attr name="rvwEmptyText" format="reference|string" />
         <attr name="rvwExplanationIcon" format="reference" />
         <attr name="rvwExplanationText" format="reference|string" />
-        <attr name="rvwLoadingShowByDefault" format="boolean" />
-        <attr name="rvwLoadingAutoHide" format="boolean" />
+        <attr name="rvwLoading" format="boolean" />
+        <attr name="rvwLoadingUntilFirstChange" format="boolean" />
     </declare-styleable>
 </resources>

@@ -38,8 +38,9 @@
 
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
+        android:id="@+id/pkg_preview_list_wrapper"
         android:layout_height="0dp"
-        app:rvwLoadingShowByDefault="true"
+        app:rvwLoading="true"
         android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView

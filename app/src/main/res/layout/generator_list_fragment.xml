@@ -11,7 +11,8 @@
         app:rvwExplanationText="@string/backup_generator_quick_explanation_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:rvwLoadingShowByDefault="true"
+        app:rvwLoading="true"
+        app:rvwLoadingUntilFirstChange="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 

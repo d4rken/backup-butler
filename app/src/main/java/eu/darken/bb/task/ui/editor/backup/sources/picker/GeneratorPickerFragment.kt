@@ -57,7 +57,7 @@ class GeneratorPickerFragment : SmartFragment(), AutoInject {
                 generatorListWrapper.setEmptyState(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_sources_picker_empty_desc)
             }
 
-            generatorListWrapper.setLoadingState(state.isLoading)
+            generatorListWrapper.updateLoadingState(state.isLoading)
             fab.setInvisible(state.isLoading)
 
             requireActivity().invalidateOptionsMenu()
