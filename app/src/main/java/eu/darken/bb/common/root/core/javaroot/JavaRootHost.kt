@@ -6,7 +6,7 @@ import android.util.Log
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOps
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsModule
+import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsHost
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
 import eu.darken.rxshell.cmd.Cmd
@@ -25,7 +25,7 @@ import kotlin.system.exitProcess
 class JavaRootHost constructor(args: List<String>) {
     private val pathToAPK: String
     internal val context: Context
-    internal val fileOps by lazy { FileOpsModule() }
+    internal val fileOps by lazy { FileOpsHost() }
 
     init {
         Log.d(TAG, "init(args=${args})")

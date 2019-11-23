@@ -14,6 +14,7 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -40,7 +41,7 @@ class DebugFragment : SmartFragment(), AutoInject {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         librootJavaTest.clicksDebounced().subscribe {
-            javaRootClient.session.map { it.ipc }.map { it.checkBase() }.take(1)
+            Single.fromCallable { javaRootClient.runSessionAction { it.ipc.checkBase() } }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { result ->
                         Timber.tag(TAG).d("checkBase(): %s", result)

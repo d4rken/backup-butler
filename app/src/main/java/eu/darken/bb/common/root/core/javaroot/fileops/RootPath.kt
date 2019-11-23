@@ -25,6 +25,10 @@ class RootPath internal constructor(
 
     override fun describeContents(): Int = 0
 
+    override fun toString(): String {
+        return "RootPath(path=$path)"
+    }
+
     companion object CREATOR : Parcelable.Creator<RootPath> {
 
         override fun createFromParcel(parcel: Parcel): RootPath {

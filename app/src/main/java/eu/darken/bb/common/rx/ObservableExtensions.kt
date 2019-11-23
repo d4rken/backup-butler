@@ -56,17 +56,3 @@ fun <T> Observable<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): 
                 else -> Observable.just(current.value)
             }
         }
-
-object Observables2 {
-    fun <T> fromCallableSafe(producer: () -> T): Observable<T> {
-        return Observable.create<T> {
-            try {
-                it.onNext(producer.invoke())
-                it.onComplete()
-            } catch (e: Throwable) {
-                it.tryOnError(e)
-            }
-        }
-    }
-}
-

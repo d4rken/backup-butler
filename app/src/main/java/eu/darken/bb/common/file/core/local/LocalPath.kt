@@ -6,6 +6,7 @@ import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.file.core.APath
 import kotlinx.android.parcel.Parcelize
 import java.io.File
+import java.io.IOException
 
 
 @Keep @Parcelize
@@ -30,15 +31,31 @@ data class LocalPath(
         return build(this.file, *segments)
     }
 
+    @Throws(IOException::class)
     fun lookup(gateway: LocalGateway): LocalPathLookup = gateway.lookup(this)
 
-    fun canWrite(gateway: LocalGateway): Boolean = gateway.canWrite(this)
+    @Throws(IOException::class)
+    fun listFiles(gateway: LocalGateway): List<LocalPath> = gateway.listFiles(this)
 
-    fun canRead(gateway: LocalGateway): Boolean = gateway.canRead(this)
+    @Throws(IOException::class)
+    fun canWrite(gateway: LocalGateway) = gateway.canWrite(this)
 
-    fun exists(gateway: LocalGateway, mode: LocalGateway.Mode = LocalGateway.Mode.AUTO): Boolean = gateway.exists(this, mode)
+    @Throws(IOException::class)
+    fun canRead(gateway: LocalGateway) = gateway.canRead(this)
 
-    override fun toString(): String = "JavaFile(file=$file)"
+    @Throws(IOException::class)
+    fun delete(gateway: LocalGateway): Boolean = gateway.delete(this)
+
+    @Throws(IOException::class)
+    fun exists(gateway: LocalGateway): Boolean = gateway.exists(this)
+
+    @Throws(IOException::class)
+    fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.FILE
+
+    @Throws(IOException::class)
+    fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.DIRECTORY
+
+    override fun toString(): String = "LocalPath(file=$file)"
 
     companion object {
         fun build(base: File, vararg crumbs: String): LocalPath {

@@ -52,7 +52,7 @@ class LocalStorageEditor @AssistedInject constructor(
         }
 
         val configFile = tweakedPath.child(STORAGE_CONFIG)
-        if (configFile.exists(localGateway, LocalGateway.Mode.NORMAL)) {
+        if (configFile.exists(localGateway)) {
             if (!importExisting) throw ExistingStorageException(tweakedPath)
 
             load(tweakedPath).blockingGet()

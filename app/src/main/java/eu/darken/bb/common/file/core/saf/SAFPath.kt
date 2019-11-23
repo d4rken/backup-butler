@@ -25,6 +25,11 @@ data class SAFPath(
         require(SAFGateway.isTreeUri(treeRoot)) { "SAFFile URI's must be a tree uri: $treeRoot" }
     }
 
+    override fun userReadableName(context: Context): String {
+        // TODO
+        return super.userReadableName(context)
+    }
+
     override fun userReadablePath(context: Context): String {
         // TODO
         return super.userReadablePath(context)
@@ -50,24 +55,33 @@ data class SAFPath(
             treeRoot.pathSegments.last().split('/').last()
         }
 
-    @Throws(IOException::class)
-    fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
-
-    fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
-
-    fun canRead(gateway: SAFGateway) = gateway.canRead(this)
-
     override fun child(vararg segments: String): SAFPath {
         return build(this.treeRoot, *this.crumbs.toTypedArray(), *segments)
     }
 
+    @Throws(IOException::class)
+    fun lookup(gateway: SAFGateway): SAFPathLookup = gateway.lookup(this)
+
+    @Throws(IOException::class)
+    fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
+
+    @Throws(IOException::class)
+    fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
+
+    @Throws(IOException::class)
+    fun canRead(gateway: SAFGateway) = gateway.canRead(this)
+
+    @Throws(IOException::class)
     fun delete(gateway: SAFGateway): Boolean = gateway.delete(this)
 
+    @Throws(IOException::class)
     fun exists(gateway: SAFGateway): Boolean = gateway.exists(this)
 
-    fun isFile(gateway: SAFGateway): Boolean = gateway.isFile(this)
+    @Throws(IOException::class)
+    fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.FILE
 
-    fun isDirectory(gateway: SAFGateway): Boolean = gateway.isDirectory(this)
+    @Throws(IOException::class)
+    fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.DIRECTORY
 
     override fun toString(): String = "SAFFile(treeRoot=$treeRoot, crumbs=$crumbs)"
 
@@ -102,7 +116,7 @@ fun SAFPath.requireNotExists(gateway: SAFGateway): SAFPath {
 
 fun SAFPath.tryCreateFile(gateway: SAFGateway): SAFPath {
     if (exists(gateway)) {
-        if (gateway.isFile(this)) {
+        if (isFile(gateway)) {
             Timber.v("File already exists, not creating: %s", this)
             return this
         } else {
@@ -124,7 +138,7 @@ fun SAFPath.tryCreateFile(gateway: SAFGateway): SAFPath {
 
 fun SAFPath.tryMkDirs(gateway: SAFGateway): SAFPath {
     if (exists(gateway)) {
-        if (gateway.isDirectory(this)) {
+        if (isDirectory(gateway)) {
             Timber.v("Directory already exists, not creating: %s", this)
             return this
         } else {
@@ -145,7 +159,7 @@ fun SAFPath.tryMkDirs(gateway: SAFGateway): SAFPath {
 }
 
 fun SAFPath.deleteAll(gateway: SAFGateway) {
-    if (gateway.isDirectory(this)) {
+    if (isDirectory(gateway)) {
         listFiles(gateway).forEach { it.deleteAll(gateway) }
     }
     if (delete(gateway)) {

@@ -17,6 +17,7 @@ import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.local.LocalPathLookup
 import eu.darken.bb.common.file.core.local.toCrumbs
 import eu.darken.bb.common.file.ui.picker.APathPicker
+import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Observable
@@ -31,6 +32,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val options: APathPicker.Options,
         private val localGateway: LocalGateway,
+        private val javaRootClient: JavaRootClient,
         private val permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
 
@@ -72,7 +74,8 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
     private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> {
         // TODO cleaner keep alive?
-        if (sessionSub.isDisposed) sessionSub = localGateway.session.subscribe()
+//        if (sessionSub.isDisposed) sessionSub = localGateway.session.subscribe()
+        javaRootClient.getASession()
 
         val path = _path ?: LocalPath.build(Environment.getExternalStorageDirectory())
         val crumbs = path.toCrumbs()

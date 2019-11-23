@@ -154,14 +154,6 @@ class SAFGateway @Inject constructor(
         throw ReadException(path, cause = e)
     }
 
-    fun isFile(path: SAFPath): Boolean {
-        return getDocumentFile(path)?.isFile == true
-    }
-
-    fun isDirectory(path: SAFPath): Boolean {
-        return getDocumentFile(path)?.isDirectory == true
-    }
-
     enum class FileMode constructor(val value: String) {
         WRITE("w"), READ("r")
     }
