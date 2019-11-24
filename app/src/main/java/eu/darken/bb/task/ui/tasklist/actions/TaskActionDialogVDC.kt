@@ -34,6 +34,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .subscribeNullable { task ->
                     val actions = listOf(
+                            Confirmable(RUN),
                             Confirmable(EDIT),
                             Confirmable(DELETE, requiredLvl = 1)
                     )
