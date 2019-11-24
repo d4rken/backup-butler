@@ -1,11 +1,10 @@
-package eu.darken.bb.common.file
+package eu.darken.bb.common.file.core.saf
 
 import android.net.Uri
 import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.RawPath
-import eu.darken.bb.common.file.core.saf.SAFPath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.assertj.core.api.Assertions.assertThat

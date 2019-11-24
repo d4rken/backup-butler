@@ -221,7 +221,7 @@ class SAFGateway @Inject constructor(
     }
 
     fun isStorageRoot(path: SAFPath): Boolean {
-        return path.treeRoot.pathSegments[1].split(":").filter { it.isNotEmpty() }.size == 1
+        return path.crumbs.isEmpty() && path.treeRoot.pathSegments[1].split(":").filter { it.isNotEmpty() }.size == 1
     }
 
     companion object {

@@ -1,11 +1,9 @@
-package eu.darken.bb.common.file
+package eu.darken.bb.common.file.core.local
 
-import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.core.local.crumbsTo
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 
-class JavaPathExtensionsTest {
+class LocalPathExtensionsTest {
 
 
     @Test
