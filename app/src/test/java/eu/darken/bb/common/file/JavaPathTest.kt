@@ -29,7 +29,7 @@ class JavaPathTest {
         val adapter = AppModule().moshi().adapter(LocalPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"LOCAL\"}")
+        assertThat(json).isEqualTo("{\"file\":\"${testFile}\",\"pathType\":\"LOCAL\"}")
 
         adapter.fromJson(json) shouldBe original
     }
@@ -42,7 +42,7 @@ class JavaPathTest {
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile.canonicalPath}\",\"pathType\":\"LOCAL\"}")
+        assertThat(json).isEqualTo("{\"file\":\"${testFile}\",\"pathType\":\"LOCAL\"}")
 
         adapter.fromJson(json) shouldBe original
     }
