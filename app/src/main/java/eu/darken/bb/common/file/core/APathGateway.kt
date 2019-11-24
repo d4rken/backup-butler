@@ -27,4 +27,7 @@ interface APathGateway<P : APath, PLU : APathLookup<P>> {
     @Throws(IOException::class)
     fun canRead(path: P): Boolean
 
+    @Throws(IOException::class)
+    fun delete(path: P): Boolean
+
 }

@@ -107,7 +107,7 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    fun delete(path: SAFPath): Boolean {
+    override fun delete(path: SAFPath): Boolean {
         return getDocumentFile(path)?.delete() == true
     }
 

@@ -87,6 +87,13 @@ class FileOpsHost : FileOps.Stub() {
         throw wrapPropagating(e)
     }
 
+    override fun delete(path: RootPath): Boolean = try {
+        path.asFile().delete()
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "delete(path=$path) failed.")
+        throw wrapPropagating(e)
+    }
+
     private fun wrapPropagating(e: Exception): Exception {
         return if (e is UnsupportedOperationException) e
         else UnsupportedOperationException(e)

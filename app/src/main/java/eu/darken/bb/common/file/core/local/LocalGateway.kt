@@ -4,7 +4,6 @@ import eu.darken.bb.App
 import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.core.*
-import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
 import eu.darken.bb.common.root.core.javaroot.fileops.toLocalPath
@@ -16,7 +15,8 @@ import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
-@PerApp class LocalGateway @Inject constructor(
+@PerApp
+class LocalGateway @Inject constructor(
         private val javaRootClient: JavaRootClient,
         private val devEnvironment: DevEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
@@ -63,7 +63,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("createDir(%s) failed.", path)
+        Timber.tag(TAG).w("createDir(path=%s, mode=%s) failed.", path, mode)
         throw WriteException(path, cause = e)
     }
 
@@ -86,7 +86,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("createFile(%s) failed.", path)
+        Timber.tag(TAG).w("createFile(path=%s, mode=%s) failed.", path, mode)
         throw WriteException(path, cause = e)
     }
 
@@ -95,17 +95,25 @@ import javax.inject.Inject
 
     @Throws(IOException::class)
     fun lookup(path: LocalPath, mode: Mode = Mode.AUTO): LocalPathLookup = try {
-        // TODO root lookup?
-        // TODO what if file doesn't exist, exception?
         val javaFile = path.asFile()
-        LocalPathLookup(
-                lookedUp = path,
-                fileType = javaFile.getAPathFileType(),
-                lastModified = Date(javaFile.lastModified()),
-                size = javaFile.length()
-        )
+        val canRead = javaFile.canRead()
+        when {
+            mode == Mode.NORMAL || canRead && mode == Mode.AUTO -> {
+                if (!canRead) throw ReadException(path)
+                LocalPathLookup(
+                        lookedUp = path,
+                        fileType = javaFile.getAPathFileType(),
+                        lastModified = Date(javaFile.lastModified()),
+                        size = javaFile.length()
+                )
+            }
+            mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
+                runRootFileOps { it.lookUp(path.toRootPath()) }.toLocalPathLookup()
+            }
+            else -> throw IOException("No matching mode.")
+        }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("lookup(%s) failed.", path)
+        Timber.tag(TAG).w("lookup(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -113,10 +121,11 @@ import javax.inject.Inject
 
     @Throws(IOException::class)
     fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = try {
-        // TODO what if file doesn't exist, exception?
         val nonRootList: Array<File>? = path.asFile().listFiles()
         when {
-            mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> path.asFile().listFiles().map { LocalPath.build(it) }
+            mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
+                path.asFile().listFiles().map { LocalPath.build(it) }
+            }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 runRootFileOps {
                     it.listFiles(path.toRootPath())
@@ -125,7 +134,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("listFiles(%s) failed.", path)
+        Timber.tag(TAG).w("listFiles(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -134,7 +143,6 @@ import javax.inject.Inject
 
     @Throws(IOException::class)
     fun lookupFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPathLookup> = try {
-        // TODO what if file doesn't exist, exception?
         val nonRootList: Array<File>? = path.asFile().listFiles()
         when {
             mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
@@ -156,7 +164,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("lookupFiles(%s) failed.", path)
+        Timber.tag(TAG).w("lookupFiles(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -168,7 +176,9 @@ import javax.inject.Inject
         val javaFile = path.asFile()
         val existsNormal = javaFile.exists()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && existsNormal -> javaFile.exists()
+            mode == Mode.NORMAL || mode == Mode.AUTO && existsNormal -> {
+                javaFile.exists()
+            }
             mode == Mode.ROOT || mode == Mode.AUTO && !existsNormal -> {
                 runRootFileOps {
                     it.exists(path.toRootPath())
@@ -177,7 +187,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("exists(%s) failed.", path)
+        Timber.tag(TAG).w("exists(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -189,7 +199,9 @@ import javax.inject.Inject
         val javaFile = path.asFile()
         val canNormalWrite = javaFile.canWrite()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> javaFile.canWrite()
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                javaFile.canWrite()
+            }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
                 runRootFileOps {
                     it.canWrite(path.toRootPath())
@@ -198,7 +210,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("canWrite(%s) failed.", path)
+        Timber.tag(TAG).w("canWrite(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -210,7 +222,9 @@ import javax.inject.Inject
         val javaFile = path.asFile()
         val canNormalRead = javaFile.canRead()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> javaFile.canRead()
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
+                javaFile.canRead()
+            }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
                 runRootFileOps {
                     it.canRead(path.toRootPath())
@@ -219,7 +233,7 @@ import javax.inject.Inject
             else -> throw IOException("No matching mode.")
         }
     } catch (e: IOException) {
-        Timber.tag(SAFGateway.TAG).w("canRead(%s) failed.", path)
+        Timber.tag(TAG).w("canRead(path=%s, mode=%s) failed.", path, mode)
         throw ReadException(path, cause = e)
     }
 
@@ -228,8 +242,26 @@ import javax.inject.Inject
         return devEnvironment.publicDeviceStorages.map { it.path }.contains(path)
     }
 
-    fun delete(path: LocalPath, mode: Mode = Mode.AUTO): Boolean {
-        TODO()
+    @Throws(IOException::class)
+    override fun delete(path: LocalPath): Boolean = delete(path, Mode.AUTO)
+
+    @Throws(IOException::class)
+    fun delete(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
+        val javaFile = path.asFile()
+        val canNormalWrite = javaFile.canWrite()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                if (!canNormalWrite) throw WriteException(path)
+                javaFile.delete()
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                runRootFileOps { it.delete(path.toRootPath()) }
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("delete(path=%s, mode=%s) failed.", path, mode)
+        throw WriteException(path, cause = e)
     }
 
     enum class Mode {

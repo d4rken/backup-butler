@@ -78,6 +78,13 @@ class FileOpsClient(
         throw fakeIOException(e.getRootCause())
     }
 
+    fun delete(path: RootPath): Boolean = try {
+        fileOps.delete(path)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "delete(path=$path) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
     private fun fakeIOException(e: Throwable): IOException {
         val gulpExceptionPrefix = "java.io.IOException: "
         val message = when {

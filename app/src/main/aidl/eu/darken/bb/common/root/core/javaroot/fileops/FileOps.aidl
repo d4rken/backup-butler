@@ -18,6 +18,8 @@ interface FileOps {
 
     boolean exists(in RootPath path);
 
+    boolean delete(in RootPath path);
+
     List<RootPath> listFiles(in RootPath path);
 
     RootPathLookup lookUp(in RootPath path);
