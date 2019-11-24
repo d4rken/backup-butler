@@ -23,7 +23,7 @@ interface APath : Parcelable {
     @Keep
     @Parcelize
     enum class FileType : Parcelable {
-        DIRECTORY, FILE
+        DIRECTORY, SYMBOLIC_LINK, FILE
     }
 
     @Keep

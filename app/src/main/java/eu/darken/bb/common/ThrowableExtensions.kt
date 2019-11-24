@@ -1,6 +1,8 @@
 package eu.darken.bb.common
 
 import io.reactivex.Observable
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.lang.reflect.InvocationTargetException
 
 fun Throwable.getRootCause(): Throwable {
@@ -18,3 +20,11 @@ fun <T> Observable<T>.mapError(wrapper: (Throwable) -> Throwable): Observable<T>
         onErrorResumeNext { err: Throwable ->
             Observable.error(wrapper(err))
         }
+
+fun Throwable.getStackTraceString(): String {
+    val sw = StringWriter(256)
+    val pw = PrintWriter(sw, false)
+    printStackTrace(pw)
+    pw.flush()
+    return sw.toString()
+}

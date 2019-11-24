@@ -71,7 +71,7 @@ data class LocalPath(
         }
 
         fun build(file: File): LocalPath {
-            return LocalPath(file.canonicalFile)
+            return LocalPath(file)
         }
     }
 }

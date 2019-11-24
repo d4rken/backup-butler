@@ -138,6 +138,8 @@ fun File.isSymbolicLink(): Boolean {
 }
 
 fun File.getAPathFileType(): APath.FileType = when {
+    // Order matters!
+    isSymbolicLink() -> APath.FileType.SYMBOLIC_LINK
     isDirectory -> APath.FileType.DIRECTORY
     else -> APath.FileType.FILE
 }

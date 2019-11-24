@@ -7,6 +7,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.RuntimePermissionTool
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.file.core.APath
@@ -17,12 +18,9 @@ import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.local.LocalPathLookup
 import eu.darken.bb.common.file.core.local.toCrumbs
 import eu.darken.bb.common.file.ui.picker.APathPicker
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.IOException
@@ -32,11 +30,9 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val options: APathPicker.Options,
         private val localGateway: LocalGateway,
-        private val javaRootClient: JavaRootClient,
         private val permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
 
-    private var sessionSub: Disposable = Disposables.disposed()
     private val startPath = options.startPath as? LocalPath
     private val mode: LocalGateway.Mode by lazy {
         options.payload.classLoader = App::class.java.classLoader
@@ -58,8 +54,9 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     val resultEvents = SingleLiveEvent<APathPicker.Result>()
     val errorEvents = SingleLiveEvent<Throwable>()
     val missingPermissionEvent = SingleLiveEvent<Any>()
-
     val requestPermissionEvent = SingleLiveEvent<Any>()
+    var resourceToken: SharedResource.Token<*>? = null
+
 
     init {
         if (!permissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -68,19 +65,16 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     }
 
     override fun onCleared() {
-        sessionSub.dispose()
+        resourceToken?.close()
         super.onCleared()
     }
 
     private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> {
-        // TODO cleaner keep alive?
-//        if (sessionSub.isDisposed) sessionSub = localGateway.session.subscribe()
-        javaRootClient.getASession()
-
         val path = _path ?: LocalPath.build(Environment.getExternalStorageDirectory())
         val crumbs = path.toCrumbs()
 
         val listing = try {
+            if (resourceToken == null) resourceToken = localGateway.sharedResource.getResource()
             localGateway.lookupFiles(path, mode = mode)
                     .sortedBy { it.name.toLowerCase(Locale.ROOT) }
                     .filter { !options.onlyDirs || it.isDirectory }

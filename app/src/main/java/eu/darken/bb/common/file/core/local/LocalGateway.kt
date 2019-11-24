@@ -1,5 +1,7 @@
 package eu.darken.bb.common.file.core.local
 
+import eu.darken.bb.App
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.file.core.saf.SAFGateway
@@ -19,7 +21,24 @@ import javax.inject.Inject
         private val devEnvironment: DevEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
+    val sharedResource = SharedResource<LocalGateway>("$TAG:SharedResource") { emitter ->
+        try {
+            emitter.onAvailable(this@LocalGateway)
+        } catch (e: Throwable) {
+            emitter.onError(e)
+        }
+    }
+
     private fun <T> runRootFileOps(action: (FileOpsClient) -> T): T {
+        if (!javaRootClient.sharedResource.isOpen) {
+            try {
+                val rootResource = javaRootClient.sharedResource.getResource()
+                sharedResource.addChildResource(rootResource)
+            } catch (e: IOException) {
+                Timber.tag(TAG).d("Couldn't open root client: %s", e.message)
+            }
+        }
+
         return javaRootClient.runModuleAction(FileOpsClient::class.java) {
             return@runModuleAction action(it)
         }
@@ -215,5 +234,9 @@ import javax.inject.Inject
 
     enum class Mode {
         AUTO, NORMAL, ROOT
+    }
+
+    companion object {
+        val TAG = App.logTag("Local", "Gateway")
     }
 }

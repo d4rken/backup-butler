@@ -34,6 +34,7 @@ class FallbackDecoder(
         val file = source.file
         val drawableRes: Int = when (file.fileType) {
             APath.FileType.DIRECTORY -> R.drawable.ic_folder_onsurface
+            APath.FileType.SYMBOLIC_LINK -> R.drawable.ic_file_link_onsurface
             APath.FileType.FILE -> R.drawable.ic_file_onsurface
         }
 
