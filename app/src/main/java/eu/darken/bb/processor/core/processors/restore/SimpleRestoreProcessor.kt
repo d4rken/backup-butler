@@ -83,15 +83,17 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
         val endpointFactory = restoreEndpointFactories[backupType]
         requireNotNull(endpointFactory) { "Unknown endpoint: type=$backupType (${specId}" }
-        val endpoint = endpointFactory.get()
 
-        val endpointProgressSub = endpoint.progress
-                .subscribeOn(Schedulers.io())
-                .subscribe { pro -> progressChild.updateProgress { pro } }
+        endpointFactory.get().use { endpoint ->
 
-        endpoint.restore(config, backupUnit)
+            val endpointProgressSub = endpoint.progress
+                    .subscribeOn(Schedulers.io())
+                    .subscribe { pro -> progressChild.updateProgress { pro } }
 
-        endpointProgressSub.dispose()
+            endpoint.restore(config, backupUnit)
+
+            endpointProgressSub.dispose()
+        }
 
         // TODO success? true/false?
         return true

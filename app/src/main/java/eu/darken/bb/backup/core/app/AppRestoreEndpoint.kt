@@ -27,6 +27,10 @@ class AppRestoreEndpoint @Inject constructor(
         TODO("not implemented")
     }
 
+    override fun close() {
+//        TODO("not implemented")
+    }
+
     override fun toString(): String = "AppEndpoint()"
 
     companion object {

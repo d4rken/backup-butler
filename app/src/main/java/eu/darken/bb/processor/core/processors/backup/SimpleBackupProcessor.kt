@@ -26,7 +26,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         @AppContext context: Context,
         private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Backup.Endpoint>>,
         private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
-        private val MMDataRepo: MMDataRepo,
+        private val mmDataRepo: MMDataRepo,
         private val generatorRepo: GeneratorRepo,
         private val storageManager: StorageManager
 ) : SimpleBaseProcessor(context, progressParent) {
@@ -53,34 +53,36 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 progressParent.updateProgressTertiary { config.getLabel(it) }
                 progressParent.updateProgressCount(Progress.Count.Counter(backupConfigs.indexOf(config) + 1, backupConfigs.size))
 
-                val endpoint = backupEndpointFactories.getValue(config.backupType).get()
-                Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
+                backupEndpointFactories.getValue(config.backupType).get().use { endpoint ->
+                    Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
-                val endpointProgressSub = endpoint.progress
-                        .subscribeOn(Schedulers.io())
-                        .subscribe { pro -> progressChild.updateProgress { pro } }
-
-                val backup = endpoint.backup(config)
-                Timber.tag(TAG).i("Backup created: %s", backup)
-
-                endpointProgressSub.dispose()
-
-                task.destinations.forEach { storageId ->
-                    // TODO what if the storage has been deleted?
-                    val repo = storageManager.getStorage(storageId).blockingFirst()
-                    Timber.tag(TAG).i("Storing %s using %s", backup.backupId, repo)
-
-                    val storageProgressSub = repo.progress
+                    val endpointProgressSub = endpoint.progress
                             .subscribeOn(Schedulers.io())
                             .subscribe { pro -> progressChild.updateProgress { pro } }
 
-                    val result = repo.save(backup)
-                    success++
-                    Timber.tag(TAG).i("Backup (%s) stored: %s", backup.backupId, result)
+                    val backup = endpoint.backup(config)
+                    Timber.tag(TAG).i("Backup created: %s", backup)
 
-                    storageProgressSub.dispose()
+                    endpointProgressSub.dispose()
+
+                    task.destinations.forEach { storageId ->
+                        // TODO what if the storage has been deleted?
+                        val repo = storageManager.getStorage(storageId).blockingFirst()
+                        Timber.tag(TAG).i("Storing %s using %s", backup.backupId, repo)
+
+                        val storageProgressSub = repo.progress
+                                .subscribeOn(Schedulers.io())
+                                .subscribe { pro -> progressChild.updateProgress { pro } }
+
+                        val result = repo.save(backup)
+                        success++
+                        Timber.tag(TAG).i("Backup (%s) stored: %s", backup.backupId, result)
+
+                        storageProgressSub.dispose()
+                    }
+                    mmDataRepo.deleteAll(backup.backupId)
                 }
-                MMDataRepo.deleteAll(backup.backupId)
+
             }
             progressParent.updateProgressTertiary("")
         }
@@ -88,7 +90,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
     }
 
     override fun onCleanup() {
-        MMDataRepo.wipe()
+        mmDataRepo.wipe()
         super.onCleanup()
     }
 

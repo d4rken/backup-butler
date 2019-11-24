@@ -58,6 +58,10 @@ class AppBackupEndpoint @Inject constructor(
         return builder.createUnit()
     }
 
+    override fun close() {
+//        TODO("not implemented")
+    }
+
 
     override fun toString(): String = "AppEndpoint()"
 

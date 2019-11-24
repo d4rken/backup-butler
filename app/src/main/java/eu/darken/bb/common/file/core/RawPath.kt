@@ -26,7 +26,7 @@ data class RawPath(
     }
 
     companion object {
-        fun build(base: File, vararg crumbs: String): RawPath = build(base, *crumbs)
+        fun build(base: File, vararg crumbs: String): RawPath = build(base.path, *crumbs)
 
         fun build(vararg crumbs: String): RawPath {
             var compacter = File(crumbs[0])

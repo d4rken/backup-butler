@@ -51,6 +51,10 @@ class FilesBackupEndpoint @Inject constructor(
         return builder.createUnit()
     }
 
+    override fun close() {
+//        TODO("not implemented")
+    }
+
     private fun backupFile(spec: FilesBackupSpec): FilesBackupWrapper {
         val builder = FilesBackupWrapper(spec, Backup.Id())
         val pathToBackup = spec.path.asFile()

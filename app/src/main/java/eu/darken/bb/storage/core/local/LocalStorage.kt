@@ -12,6 +12,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.file.core.ReadException
 import eu.darken.bb.common.file.core.asFile
 import eu.darken.bb.common.file.core.local.*
 import eu.darken.bb.common.moshi.fromFile
@@ -308,8 +309,13 @@ class LocalStorage @AssistedInject constructor(
     private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
         getSpecDir(specId).safeListFiles().filter { it.isDirectory }.forEach { dir ->
-            val metaData = readBackupMeta(specId, Backup.Id(dir.name))
-            metaDatas.add(metaData)
+            try {
+                val metaData = readBackupMeta(specId, Backup.Id(dir.name))
+                metaDatas.add(metaData)
+            } catch (e: ReadException) {
+                // TODO what do we do with bad backups?
+                Timber.tag(TAG).w(e, "Backup.json is missing")
+            }
         }
         return metaDatas
     }

@@ -17,10 +17,11 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.storage.core.Storage
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
+import java.io.Closeable
 import java.util.*
 
 interface Backup {
-    interface Endpoint : Progress.Host {
+    interface Endpoint : Progress.Host, Closeable {
         fun backup(spec: BackupSpec): Unit
     }
 

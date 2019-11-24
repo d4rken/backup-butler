@@ -63,6 +63,10 @@ class FilesRestoreEndpoint @Inject constructor(
         return true
     }
 
+    override fun close() {
+//        TODO("not implemented")
+    }
+
     private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: LocalPath) {
         val chunks = spec.path.crumbsTo(ref.originalPath)
         val itemFile = restorePath.child(*chunks).file
