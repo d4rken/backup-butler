@@ -12,21 +12,22 @@ import eu.darken.bb.common.file.core.asFile
 import eu.darken.bb.common.file.core.local.asSFile
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
-import eu.darken.bb.common.file.core.saf.copyTo
 import eu.darken.bb.common.file.core.saf.walkTopDown
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.processor.core.mm.FileRefSource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.SAFPathRefSource
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
 
 class FilesBackupEndpoint @Inject constructor(
         @AppContext override val context: Context,
-        private val MMDataRepo: MMDataRepo,
+        private val mmDataRepo: MMDataRepo,
         private val safGateway: SAFGateway
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
@@ -71,15 +72,16 @@ class FilesBackupEndpoint @Inject constructor(
         for (item in items) {
             updateProgressSecondary(item.path)
 
-            val ref: MMRef = MMDataRepo.create(
+            // TODO root support
+            val refRequest = MMRef.Request(
                     backupId = builder.backupId,
-                    orig = item.asSFile()
+                    source = FileRefSource(item),
+                    props = MMRef.Props(
+                            originalPath = item.asSFile(),
+                            dataType = if (item.isDirectory) MMRef.Type.DIRECTORY else MMRef.Type.FILE
+                    )
             )
-            if (item.isDirectory) {
-                ref.tmpPath.mkdirs()
-            } else {
-                item.copyTo(ref.tmpPath)
-            }
+            val ref = mmDataRepo.create(refRequest)
             builder.files.add(ref)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))
@@ -103,14 +105,16 @@ class FilesBackupEndpoint @Inject constructor(
         for (item in items) {
             updateProgressSecondary(item.path)
 
-            val ref: MMRef = MMDataRepo.create(backupId = builder.backupId, orig = item)
+            val refRequest = MMRef.Request(
+                    backupId = builder.backupId,
+                    source = SAFPathRefSource(item, safGateway),
+                    props = MMRef.Props(
+                            originalPath = item,
+                            dataType = if (item.isDirectory(safGateway)) MMRef.Type.DIRECTORY else MMRef.Type.FILE
+                    )
+            )
 
-            if (item.isDirectory(safGateway)) {
-                ref.tmpPath.mkdirs()
-            } else {
-                item.copyTo(safGateway, ref.tmpPath)
-            }
-
+            val ref = mmDataRepo.create(refRequest)
             builder.files.add(ref)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))

@@ -2,21 +2,10 @@ package eu.darken.bb.common.file.core.local
 
 import eu.darken.bb.App
 import eu.darken.bb.common.file.core.APath
-import okio.buffer
-import okio.sink
-import okio.source
 import timber.log.Timber
-import java.io.*
 import java.io.File
-
-fun File.copyTo(file: File) {
-    file.tryMkFile()
-    inputStream().use { input ->
-        file.outputStream().use { output ->
-            input.copyTo(output)
-        }
-    }
-}
+import java.io.FileNotFoundException
+import java.io.IOException
 
 @Suppress("FunctionName")
 fun File(vararg crumbs: String): File {
@@ -101,19 +90,11 @@ fun File.deleteAll() {
         dirContent?.forEach { it.deleteAll() }
     }
     if (delete()) {
-        Timber.v("File.deleteAll(): Deleted %s", this)
+        Timber.v("File.release(): Deleted %s", this)
     } else if (!exists()) {
-        Timber.w("File.deleteAll(): File didn't exist: %s", this)
+        Timber.w("File.release(): File didn't exist: %s", this)
     } else {
         throw FileNotFoundException("Failed to delete file: $this")
-    }
-}
-
-fun File.copyTo(fd: FileDescriptor) {
-    FileInputStream(this).source().use { source ->
-        FileOutputStream(fd).sink().buffer().use { buffer ->
-            buffer.writeAll(source)
-        }
     }
 }
 

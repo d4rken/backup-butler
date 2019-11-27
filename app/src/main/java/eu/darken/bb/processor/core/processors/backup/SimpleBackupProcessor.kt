@@ -80,7 +80,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
 
                         storageProgressSub.dispose()
                     }
-                    mmDataRepo.deleteAll(backup.backupId)
+                    mmDataRepo.release(backup.backupId)
                 }
 
             }
@@ -90,7 +90,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
     }
 
     override fun onCleanup() {
-        mmDataRepo.wipe()
+        mmDataRepo.releaseAll()
         super.onCleanup()
     }
 

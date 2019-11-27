@@ -13,7 +13,7 @@ import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.local.copyTo
+import eu.darken.bb.common.file.core.copyToAutoClose
 import eu.darken.bb.common.file.core.local.deleteAll
 import eu.darken.bb.common.file.core.saf.*
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -28,6 +28,7 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
+import eu.darken.bb.processor.core.mm.SAFPathRefSource
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -215,19 +216,15 @@ class SAFStorage @AssistedInject constructor(
         versionPath.listFiles(safGateway)
                 .filter { it.name.endsWith(PROP_EXT) }
                 .forEach { propFile ->
-                    val prop = propsAdapter.fromSAFFile(safGateway, propFile)!!
-                    val tmpRef = mmDataRepo.create(backupId, prop)
 
-                    when (prop.refType) {
-                        FILE -> {
-                            val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
-                            safGateway.openFile(dataFile, SAFGateway.FileMode.READ) { it.copyTo(tmpRef.tmpPath) }
-                        }
-                        DIRECTORY -> {
-                            tmpRef.tmpPath.mkdirs()
-                        }
-                        MMRef.Type.UNUSED -> throw IllegalStateException("$prop is unused")
-                    }
+                    val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
+
+                    val refRequest = MMRef.Request(
+                            backupId = backupId,
+                            source = SAFPathRefSource(dataFile, safGateway),
+                            props = safGateway.read(propFile).use { mmDataRepo.readProps(it) }
+                    )
+                    val tmpRef = mmDataRepo.create(refRequest)
 
                     val keySplit = propFile.name.split("#")
                     dataMap.getOrPut(
@@ -265,7 +262,7 @@ class SAFStorage @AssistedInject constructor(
         // TODO check that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
-                updateProgressSecondary(ref.originalPath.path)
+                updateProgressSecondary(ref.props.originalPath?.path ?: "Ref without originalPath")
                 updateProgressCount(Progress.Count.Counter(++current, max))
 
                 var key = baseKey
@@ -274,17 +271,16 @@ class SAFStorage @AssistedInject constructor(
                 val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)
 
-                when (ref.type) {
+                when (ref.props.dataType) {
                     FILE -> {
                         val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         target.tryCreateFile(safGateway)
-                        safGateway.openFile(target, SAFGateway.FileMode.WRITE) { ref.tmpPath.copyTo(it) }
+                        ref.source!!.open().copyToAutoClose(safGateway.write(target))
                     }
                     DIRECTORY -> {
                         val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         target.tryMkDirs(safGateway)
                     }
-                    MMRef.Type.UNUSED -> throw IllegalStateException("$ref is unused")
                 }
             }
         }

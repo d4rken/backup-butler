@@ -16,13 +16,42 @@ import java.io.*
 
 val TAG: String = App.logTag("JsonAdapterExtensions")
 
-fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
+fun <T> JsonAdapter<T>.into(value: T, outputStream: OutputStream) {
     try {
-        file.tryMkFile()
-        JsonWriter.of(file.sink().buffer()).use {
+        JsonWriter.of(outputStream.sink().buffer()).use {
             it.indent = "    "
             toJson(it, value)
         }
+    } catch (e: Exception) {
+        if (e !is InterruptedIOException) {
+            Timber.w("into(value=%s, outputStream=%s)", value, outputStream)
+        }
+        throw e
+    } finally {
+        Timber.tag(TAG).v("into(value=%s, outputStream=%s)", value, outputStream)
+    }
+}
+
+fun <T> JsonAdapter<T>.from(inputStream: InputStream): T {
+    try {
+
+        val value = JsonReader.of(inputStream.source().buffer()).use {
+            return@use fromJson(it)
+        }
+        Timber.tag(TAG).v("from(inputStream=%s): %s", inputStream, value)
+        return value ?: throw IOException("Can't read: $inputStream")
+    } catch (e: Exception) {
+        if (e !is InterruptedIOException) {
+            Timber.w("from(inputStream=%s)", inputStream)
+        }
+        throw e
+    }
+}
+
+fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
+    try {
+        file.tryMkFile()
+        file.outputStream().use { into(value, it) }
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
             Timber.w("toFile(value=%s, file=%s)", value, file)
@@ -38,9 +67,7 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T {
         if (!file.exists()) {
             throw ReadException(file)
         }
-        val value = JsonReader.of(file.source().buffer()).use {
-            return@use fromJson(it)
-        }
+        val value = file.inputStream().use { from(it) }
         Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
         return value ?: throw ReadException(file)
     } catch (e: Exception) {
@@ -51,49 +78,19 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T {
     }
 }
 
-fun <T> JsonAdapter<T>.toFileDescriptor(value: T, fileDescriptor: FileDescriptor) {
-    try {
-        JsonWriter.of(FileOutputStream(fileDescriptor).sink().buffer()).use {
-            it.indent = "    "
-            toJson(it, value)
-        }
-        Timber.tag(TAG).v("toFile(value=%s, fileDescriptor=%s)", value, fileDescriptor)
-    } catch (e: Exception) {
-        if (e !is InterruptedIOException) {
-            Timber.w(e, "toFileDescriptor(value=%s, fileDescriptor=%s)", value, fileDescriptor)
-        }
-        throw e
-    }
-}
-
-fun <T> JsonAdapter<T>.fromFileDescriptor(fileDescriptor: FileDescriptor): T? {
-    try {
-        val value = JsonReader.of(FileInputStream(fileDescriptor).source().buffer()).use {
-            return@use fromJson(it)
-        }
-        Timber.tag(TAG).v("fromFileDescriptor(fileDescriptor=%s): %s", fileDescriptor, value)
-        return value
-    } catch (e: Exception) {
-        if (e !is InterruptedIOException) {
-            Timber.w(e, "fromFileDescriptor(fileDescriptor=%s)", fileDescriptor)
-        }
-        throw e
-    }
-}
-
 fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) {
     if (!file.exists(safGateway)) {
         safGateway.createFile(file)
     }
-    return safGateway.openFile(file, SAFGateway.FileMode.WRITE) {
-        this.toFileDescriptor(value, it)
+    return safGateway.write(file).use {
+        into(value, it)
     }
 }
 
 fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T {
     try {
-        val value = safGateway.openFile(file, SAFGateway.FileMode.READ) {
-            this.fromFileDescriptor(it)
+        val value = safGateway.read(file).use {
+            from(it)
         }
         Timber.tag(TAG).v("fromSAFFile(file=%s): %s", file, value)
         return value ?: throw ReadException(file)

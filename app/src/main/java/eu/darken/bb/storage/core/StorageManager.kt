@@ -106,14 +106,25 @@ class StorageManager @Inject constructor(
         }
     }
 
-    fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = getStorage(id).firstOrError()
-            .flatMap { storage ->
+    fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = Single
+            .fromCallable {
+                val storage = try {
+                    getStorage(id).blockingFirst()
+                } catch (e: Exception) {
+                    Timber.tag(TAG).e(e, "Failed to get storage for detach.")
+                    null
+                }
+                try {
+                    storage?.detach(wipe)?.blockingGet()
+                } catch (e: Exception) {
+                    Timber.tag(TAG).e(e, "Failed to execute detach on storage.")
+                }
                 synchronized(repoCache) {
                     val removed = repoCache.remove(id)
                     Timber.tag(TAG).d("Evicted from cache: %s", removed)
                 }
                 val ref = refRepo.remove(id).blockingGet()
-                storage.detach(wipe).toSingleDefault(ref.notNullValue())
+                ref.notNullValue()
             }
             .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
 

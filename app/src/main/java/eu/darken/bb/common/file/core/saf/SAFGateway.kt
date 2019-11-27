@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
@@ -11,9 +12,11 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.APathGateway
 import eu.darken.bb.common.file.core.ReadException
+import eu.darken.bb.common.file.core.WriteException
 import timber.log.Timber
-import java.io.FileDescriptor
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -154,19 +157,28 @@ class SAFGateway @Inject constructor(
         throw ReadException(path, cause = e)
     }
 
-    enum class FileMode constructor(val value: String) {
+    private enum class FileMode constructor(val value: String) {
         WRITE("w"), READ("r")
     }
 
-    fun <T> openFile(path: SAFPath, mode: FileMode, action: (FileDescriptor) -> T): T {
+    fun read(path: SAFPath): InputStream {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw ReadException(path)
 
-        contentResolver.openFileDescriptor(docFile.uri, mode.value).use { pfd ->
-            checkNotNull(pfd) { "Couldn't open $path" }
-            val fileDescriptor = pfd.fileDescriptor
-            return action.invoke(fileDescriptor)
+        val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.READ.value)) {
+            "Couldn't open $path"
         }
+        return ParcelFileDescriptor.AutoCloseInputStream(pfd)
+    }
+
+    fun write(path: SAFPath): OutputStream {
+        val docFile = getDocumentFile(path)
+        if (docFile == null) throw WriteException(path)
+
+        val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.WRITE.value)) {
+            "Couldn't open $path"
+        }
+        return ParcelFileDescriptor.AutoCloseOutputStream(pfd)
     }
 
     fun takePermission(path: SAFPath): Boolean {

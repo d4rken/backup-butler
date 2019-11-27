@@ -121,7 +121,8 @@ interface Backup {
         data class PropsEntry(
                 val spec: BackupSpec,
                 val metaData: MetaData,
-                val props: MMRef.Props) : Entry {
+                val props: MMRef.Props
+        ) : Entry {
 
             override fun getLabel(context: Context): String = metaData.getItemLabel(context, spec, props)
         }

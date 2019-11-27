@@ -8,19 +8,17 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.local.asSFile
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMDataRepo
-import eu.darken.bb.processor.core.mm.MMRef
 import io.reactivex.Observable
 import javax.inject.Inject
 
 class AppBackupEndpoint @Inject constructor(
         @AppContext override val context: Context,
-        private val MMDataRepo: MMDataRepo,
+        private val mmDataRepo: MMDataRepo,
         private val apkExporter: APKExporter
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
@@ -39,21 +37,23 @@ class AppBackupEndpoint @Inject constructor(
         updateProgressCount(Progress.Count.Counter(1, (apkData.splitSources.size + 1)))
 
         updateProgressSecondary(apkData.mainSource.path)
-        val baseApkRef: MMRef = MMDataRepo.create(backupId = builder.backupId, orig = apkData.mainSource.asSFile())
-
-        apkData.mainSource.copyTo(baseApkRef.tmpPath)
-        builder.baseApk = baseApkRef
-
-        val splitApkRefs = mutableListOf<MMRef>()
-        apkData.splitSources.forEach { splitApk ->
-            updateProgressSecondary(splitApk.path)
-            updateProgressCount(Progress.Count.Counter(apkData.splitSources.indexOf(splitApk) + 2, (apkData.splitSources.size + 2)))
-
-            val splitSourceRef = MMDataRepo.create(backupId = builder.backupId, orig = splitApk.asSFile())
-            splitApk.copyTo(splitSourceRef.tmpPath)
-            splitApkRefs.add(splitSourceRef)
-        }
-        builder.splitApks = splitApkRefs
+        // FIXME
+        // TODO
+//        val baseApkRef: MMRef = MMDataRepo.create(backupId = builder.backupId, orig = apkData.mainSource.asSFile())
+//
+//        apkData.mainSource.safeCopyTo(baseApkRef.tmpPath)
+//        builder.baseApk = baseApkRef
+//
+//        val splitApkRefs = mutableListOf<MMRef>()
+//        apkData.splitSources.forEach { splitApk ->
+//            updateProgressSecondary(splitApk.path)
+//            updateProgressCount(Progress.Count.Counter(apkData.splitSources.indexOf(splitApk) + 2, (apkData.splitSources.size + 2)))
+//
+//            val splitSourceRef = MMDataRepo.create(backupId = builder.backupId, orig = splitApk.asSFile())
+//            splitApk.safeCopyTo(splitSourceRef.tmpPath)
+//            splitApkRefs.add(splitSourceRef)
+//        }
+//        builder.splitApks = splitApkRefs
 
         return builder.createUnit()
     }

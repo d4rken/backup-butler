@@ -14,6 +14,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.ReadException
 import eu.darken.bb.common.file.core.asFile
+import eu.darken.bb.common.file.core.copyToAutoClose
 import eu.darken.bb.common.file.core.local.*
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
@@ -23,9 +24,11 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.common.rx.onErrorMixLast
+import eu.darken.bb.processor.core.mm.FileRefSource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
+import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
@@ -52,8 +55,6 @@ class LocalStorage @AssistedInject constructor(
 
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
-
-    private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
@@ -168,7 +169,7 @@ class LocalStorage @AssistedInject constructor(
                             return@map versionDir.safeListFiles()
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
-                                        val props = propsAdapter.fromFile(file)
+                                        val props = file.inputStream().use { mmDataRepo.readProps(it) }
                                         Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
                                     }
                                     .toList()
@@ -199,16 +200,15 @@ class LocalStorage @AssistedInject constructor(
 
         val versionPath = getVersionDir(specId, backupId).requireExists()
         versionPath.safeListFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
-            val prop = propsAdapter.fromFile(propFile)!!
+
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
 
-            val tmpRef = mmDataRepo.create(backupId, prop)
-
-            if (dataFile.isDirectory) {
-                tmpRef.tmpPath.mkdirs()
-            } else {
-                dataFile.copyTo(tmpRef.tmpPath)
-            }
+            val refRequest = MMRef.Request(
+                    backupId = backupId,
+                    source = FileRefSource(dataFile),
+                    props = propFile.inputStream().use { mmDataRepo.readProps(it) }
+            )
+            val tmpRef = mmDataRepo.create(refRequest)
 
             val keySplit = propFile.name.split("#")
             dataMap.getOrPut(
@@ -246,19 +246,18 @@ class LocalStorage @AssistedInject constructor(
         // TODO guardAction that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
-                updateProgressSecondary(ref.originalPath.path)
+                updateProgressSecondary(ref.props.originalPath?.path ?: "Ref without originalPath")
                 updateProgressCount(Progress.Count.Counter(++current, max))
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
-                propsAdapter.toFile(ref.props, targetProp)
+                targetProp.outputStream().use { mmDataRepo.writeProps(ref.props, it) }
 
                 val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
-                when (ref.type) {
-                    FILE -> ref.tmpPath.copyTo(target)
+                when (ref.props.dataType) {
+                    FILE -> ref.source!!.open().copyToAutoClose(target.outputStream())
                     DIRECTORY -> target.mkdir()
-                    UNUSED -> throw IllegalStateException("Ref is unused: ${ref.tmpPath}")
                 }
             }
         }

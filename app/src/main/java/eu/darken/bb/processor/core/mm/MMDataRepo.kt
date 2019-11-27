@@ -1,89 +1,79 @@
 package eu.darken.bb.processor.core.mm
 
+import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.deleteAll
+import eu.darken.bb.common.moshi.from
+import eu.darken.bb.common.moshi.into
 import timber.log.Timber
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @PerApp
 class MMDataRepo @Inject constructor(
-        @CachePath private val cachePath: File
+        @CachePath private val cachePath: File,
+        moshi: Moshi
 ) {
 
     private val tmpDir: File = File(cachePath, CACHEDIR)
     private val refMap = mutableMapOf<Backup.Id, MutableList<MMRef>>()
+    private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
 
     init {
         if (tmpDir.mkdirs()) {
             Timber.tag(TAG).d("TMP dirs created: %s", tmpDir)
+        } else {
+            thread(start = true, name = "MMRepo Cleanup") {
+                tmpDir.listFiles().forEach {
+                    it.deleteRecursively()
+                }
+            }
         }
     }
 
     @Synchronized
-    fun create(backupId: Backup.Id, props: MMRef.Props): MMRef {
-        val refId = MMRef.Id()
-
-        val ref = MMRef(
-                backupId = backupId,
-                refId = refId,
-                tmpPath = File(tmpDir, refId.idString),
-                originalPath = props.originalPath
-        )
-
-        refMap.getOrPut(backupId, { mutableListOf() }).add(ref)
-
-        return ref
-    }
-
-    @Synchronized
-    fun create(backupId: Backup.Id, orig: APath): MMRef {
+    fun create(request: MMRef.Request): MMRef {
         val refId = MMRef.Id()
 
         val ref = MMRef(
                 refId = refId,
-                backupId = backupId,
-                tmpPath = File(tmpDir, refId.idString),
-                originalPath = orig
+                backupId = request.backupId,
+                source = request.source,
+                props = request.props
         )
 
-        refMap.getOrPut(backupId, { mutableListOf() }).add(ref)
+        refMap.getOrPut(request.backupId, { mutableListOf() }).add(ref)
 
         return ref
     }
 
+    fun readProps(input: InputStream): MMRef.Props = propsAdapter.from(input)
+
+    fun writeProps(props: MMRef.Props, output: OutputStream) = propsAdapter.into(props, output)
+
     @Synchronized
-    fun deleteAll(backupId: Backup.Id) {
-        Timber.tag(TAG).d("deleteAll(%s): %s", backupId, refMap[backupId])
+    fun release(backupId: Backup.Id) {
+        Timber.tag(TAG).d("release(%s): %s", backupId, refMap[backupId])
         refMap[backupId]?.forEach { it ->
-            when (it.type) {
-                MMRef.Type.FILE -> {
-                    val deleted = it.tmpPath.delete()
-                    Timber.tag(TAG).v("Deleted tmp file (success=%b): %s", deleted, it.tmpPath)
-                }
-                MMRef.Type.DIRECTORY -> {
-                    val deleted = it.tmpPath.deleteAll()
-                    Timber.tag(TAG).v("Deleted tmp dir (success=%b): %s", deleted, it.tmpPath)
-                }
-                MMRef.Type.UNUSED -> Timber.tag(TAG).e("Unused ref: %s", it)
-            }
+            it.source?.release()
         }
         refMap.remove(backupId)
     }
 
     @Synchronized
-    fun wipe() {
-        Timber.tag(TAG).d("Wiping remaining ref cache.")
+    fun releaseAll() {
+        Timber.tag(TAG).d("Releasing all refs.")
         refMap.keys.toList().forEach {
-            deleteAll(it)
+            release(it)
         }
     }
 
     companion object {
-        val TAG = App.logTag("TmpDataRepo")
+        val TAG = App.logTag("MMDataRepo")
         const val CACHEDIR = "mmdatarepo"
     }
 }

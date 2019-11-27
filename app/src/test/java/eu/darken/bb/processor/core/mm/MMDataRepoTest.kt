@@ -37,7 +37,7 @@ class MMDataRepoTest : BaseTest() {
         ref2.tmpPath.createNewFile()
         ref2.type shouldBe MMRef.Type.FILE
 
-        repo.wipe()
+        repo.releaseAll()
         ref1.type shouldBe MMRef.Type.UNUSED
         ref2.type shouldBe MMRef.Type.UNUSED
     }

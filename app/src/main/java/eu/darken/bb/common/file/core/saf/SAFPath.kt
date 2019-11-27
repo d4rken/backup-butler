@@ -7,7 +7,6 @@ import androidx.documentfile.provider.DocumentFile
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.copyTo
 import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 import java.io.File
@@ -163,9 +162,9 @@ fun SAFPath.deleteAll(gateway: SAFGateway) {
         listFiles(gateway).forEach { it.deleteAll(gateway) }
     }
     if (delete(gateway)) {
-        Timber.v("File.deleteAll(): Deleted %s", this)
+        Timber.v("File.release(): Deleted %s", this)
     } else if (!exists(gateway)) {
-        Timber.w("File.deleteAll(): File didn't exist: %s", this)
+        Timber.w("File.release(): File didn't exist: %s", this)
     } else {
         throw FileNotFoundException("Failed to delete file: $this")
     }
@@ -174,10 +173,3 @@ fun SAFPath.deleteAll(gateway: SAFGateway) {
 fun SAFPath.walk(gateway: SAFGateway, direction: FileWalkDirection): SAFTreeWalk = SAFTreeWalk(gateway, this, direction)
 
 fun SAFPath.walkTopDown(gateway: SAFGateway): SAFTreeWalk = walk(gateway, FileWalkDirection.TOP_DOWN)
-
-fun SAFPath.copyTo(gateway: SAFGateway, file: File): SAFPath {
-    gateway.openFile(this, SAFGateway.FileMode.READ) {
-        it.copyTo(file)
-    }
-    return this
-}

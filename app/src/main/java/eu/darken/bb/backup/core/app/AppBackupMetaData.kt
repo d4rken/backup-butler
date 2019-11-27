@@ -19,7 +19,7 @@ data class AppBackupMetaData(
     override fun getItemLabel(context: Context, spec: BackupSpec, props: MMRef.Props): String {
         spec as AppBackupSpec
 //        TODO("not implemented")
-        return props.originalPath.path
+        return props.label
     }
 
     override var backupType: Backup.Type
