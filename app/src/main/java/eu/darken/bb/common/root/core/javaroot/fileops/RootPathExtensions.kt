@@ -3,9 +3,9 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.local.LocalPathLookup
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import okio.Sink
+import okio.Source
 import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 
 fun RootPath.toLocalPath(): LocalPath {
     return LocalPath.build(path)
@@ -28,14 +28,14 @@ fun RootPathLookup.toLocalPathLookup(): LocalPathLookup {
     )
 }
 
-fun RootPath.inputStream(client: JavaRootClient): InputStream {
+fun RootPath.source(client: JavaRootClient): Source {
     val resource = client.sharedResource.get()
     val fileOps = resource.data.getModule<FileOpsClient>()
-    return fileOps.readFile(this).wrap { resource.close() }
+    return fileOps.readFile(this).callbacks { resource.close() }
 }
 
-fun RootPath.outputStream(client: JavaRootClient): OutputStream {
+fun RootPath.sink(client: JavaRootClient): Sink {
     val resource = client.sharedResource.get()
     val fileOps = resource.data.getModule<FileOpsClient>()
-    return fileOps.writeFile(this).wrap { resource.close() }
+    return fileOps.writeFile(this).callbacks { resource.close() }
 }

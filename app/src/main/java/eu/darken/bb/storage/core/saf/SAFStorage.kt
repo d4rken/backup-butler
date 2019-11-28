@@ -24,11 +24,11 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.common.rx.onErrorMixLast
+import eu.darken.bb.processor.core.mm.APathRefResource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
-import eu.darken.bb.processor.core.mm.PathRefResource
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -221,7 +221,7 @@ class SAFStorage @AssistedInject constructor(
 
                     val refRequest = MMRef.Request(
                             backupId = backupId,
-                            source = PathRefResource(dataFile, safGateway),
+                            source = APathRefResource(dataFile, safGateway),
                             props = safGateway.read(propFile).use { mmDataRepo.readProps(it) }
                     )
                     val tmpRef = mmDataRepo.create(refRequest)

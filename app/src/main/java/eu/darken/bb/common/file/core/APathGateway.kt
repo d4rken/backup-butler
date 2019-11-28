@@ -1,10 +1,14 @@
 package eu.darken.bb.common.file.core
 
+import eu.darken.bb.common.SharedResource
+import okio.Sink
+import okio.Source
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
-interface APathGateway<P : APath, out PLU : APathLookup<P>> {
+interface APathGateway<P : APath, PLU : APathLookup<P>> {
+
+    val resourceTokens: SharedResource<out APathGateway<P, PLU>>
+
     @Throws(IOException::class)
     fun createDir(path: P): Boolean
 
@@ -30,10 +34,10 @@ interface APathGateway<P : APath, out PLU : APathLookup<P>> {
     fun canRead(path: P): Boolean
 
     @Throws(IOException::class)
-    fun read(path: P): InputStream
+    fun read(path: P): Source
 
     @Throws(IOException::class)
-    fun write(path: P): OutputStream
+    fun write(path: P): Sink
 
     @Throws(IOException::class)
     fun delete(path: P): Boolean

@@ -8,41 +8,41 @@ import eu.darken.bb.common.file.core.ReadException
 import eu.darken.bb.common.file.core.local.tryMkFile
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
-import okio.buffer
-import okio.sink
-import okio.source
+import okio.*
 import timber.log.Timber
-import java.io.*
+import java.io.File
+import java.io.IOException
+import java.io.InterruptedIOException
 
 val TAG: String = App.logTag("JsonAdapterExtensions")
 
-fun <T> JsonAdapter<T>.into(value: T, outputStream: OutputStream) {
+fun <T> JsonAdapter<T>.into(value: T, output: Sink) {
     try {
-        JsonWriter.of(outputStream.sink().buffer()).use {
+        JsonWriter.of(output.buffer()).use {
             it.indent = "    "
             toJson(it, value)
         }
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
-            Timber.w("into(value=%s, outputStream=%s)", value, outputStream)
+            Timber.w("into(value=%s, output=%s)", value, output)
         }
         throw e
     } finally {
-        Timber.tag(TAG).v("into(value=%s, outputStream=%s)", value, outputStream)
+        Timber.tag(TAG).v("into(value=%s, output=%s)", value, output)
     }
 }
 
-fun <T> JsonAdapter<T>.from(inputStream: InputStream): T {
+fun <T> JsonAdapter<T>.from(source: Source): T {
     try {
 
-        val value = JsonReader.of(inputStream.source().buffer()).use {
+        val value = JsonReader.of(source.buffer()).use {
             return@use fromJson(it)
         }
-        Timber.tag(TAG).v("from(inputStream=%s): %s", inputStream, value)
-        return value ?: throw IOException("Can't read: $inputStream")
+        Timber.tag(TAG).v("from(source=%s): %s", source, value)
+        return value ?: throw IOException("Can't read: $source")
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
-            Timber.w("from(inputStream=%s)", inputStream)
+            Timber.w("from(source=%s)", source)
         }
         throw e
     }
@@ -51,7 +51,7 @@ fun <T> JsonAdapter<T>.from(inputStream: InputStream): T {
 fun <T> JsonAdapter<T>.toFile(value: T, file: File) {
     try {
         file.tryMkFile()
-        file.outputStream().use { into(value, it) }
+        file.sink().use { into(value, it) }
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
             Timber.w("toFile(value=%s, file=%s)", value, file)
@@ -67,7 +67,7 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T {
         if (!file.exists()) {
             throw ReadException(file)
         }
-        val value = file.inputStream().use { from(it) }
+        val value = file.source().use { from(it) }
         Timber.tag(TAG).v("fromFile(file=%s): %s", file, value)
         return value ?: throw ReadException(file)
     } catch (e: Exception) {

@@ -2,10 +2,10 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 
 import eu.darken.bb.App
 import eu.darken.bb.common.getRootCause
+import okio.Sink
+import okio.Source
 import timber.log.Timber
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
 class FileOpsClient(
         private val fileOps: FileOps
@@ -31,15 +31,15 @@ class FileOpsClient(
         throw fakeIOException(e.getRootCause())
     }
 
-    fun readFile(path: RootPath): InputStream = try {
-        fileOps.readFile(path).toInputStream()
+    fun readFile(path: RootPath): Source = try {
+        fileOps.readFile(path).source()
     } catch (e: IOException) {
         Timber.tag(TAG).e(e, "readFile(path=$path) failed.")
         throw fakeIOException(e.getRootCause())
     }
 
-    fun writeFile(path: RootPath): OutputStream = try {
-        fileOps.writeFile(path).toOutputStream()
+    fun writeFile(path: RootPath): Sink = try {
+        fileOps.writeFile(path).sink()
     } catch (e: IOException) {
         Timber.tag(TAG).e(e, "writeFile(path=$path) failed.")
         throw fakeIOException(e.getRootCause())

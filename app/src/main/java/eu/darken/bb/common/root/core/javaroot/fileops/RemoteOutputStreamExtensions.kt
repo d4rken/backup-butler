@@ -2,6 +2,8 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 
 
 import android.os.RemoteException
+import okio.Sink
+import okio.sink
 import timber.log.Timber
 import java.io.IOException
 import java.io.OutputStream
@@ -10,7 +12,7 @@ import java.io.OutputStream
 /**
  * Use this on the root side
  */
-fun OutputStream.toRemoteOutputStream(): RemoteOutputStream.Stub = object : RemoteOutputStream.Stub() {
+internal fun OutputStream.toRemoteOutputStream(): RemoteOutputStream.Stub = object : RemoteOutputStream.Stub() {
     override fun write(b: Int) = try {
         this@toRemoteOutputStream.write(b)
     } catch (e: IOException) {
@@ -40,11 +42,11 @@ fun OutputStream.toRemoteOutputStream(): RemoteOutputStream.Stub = object : Remo
 /**
  * Use this on the non-root side.
  */
-fun RemoteOutputStream.toOutputStream(bufferSize: Int = 64 * 1024): OutputStream = object : OutputStream() {
+internal fun RemoteOutputStream.outputStream(): OutputStream = object : OutputStream() {
 
     @Throws(IOException::class)
     override fun write(b: Int) = try {
-        this@toOutputStream.write(b)
+        this@outputStream.write(b)
     } catch (e: RemoteException) {
         throw IOException("Remote Exception during write($b)", e)
     }
@@ -52,21 +54,22 @@ fun RemoteOutputStream.toOutputStream(bufferSize: Int = 64 * 1024): OutputStream
     override fun write(b: ByteArray) = writeBuffer(b, 0, b.size)
 
     override fun write(b: ByteArray, off: Int, len: Int) = try {
-        this@toOutputStream.writeBuffer(b, 0, len)
+        this@outputStream.writeBuffer(b, 0, len)
     } catch (e: RemoteException) {
         throw IOException("Remote Exception during write(size=${b.size}, off=$off, len=$len)", e)
     }
 
     override fun close() = try {
-        this@toOutputStream.close()
+        this@outputStream.close()
     } catch (e: RemoteException) {
         throw IOException("Remote Exception during close() ", e)
     }
 
     override fun flush() = try {
-        this@toOutputStream.flush()
+        this@outputStream.flush()
     } catch (e: RemoteException) {
         throw IOException("Remote Exception during flush()", e)
     }
+}
 
-}.buffered(bufferSize)
+fun RemoteOutputStream.sink(): Sink = outputStream().sink()

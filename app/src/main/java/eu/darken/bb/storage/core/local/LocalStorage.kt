@@ -35,6 +35,8 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import okio.sink
+import okio.source
 import timber.log.Timber
 import java.io.File
 import java.io.InterruptedIOException
@@ -169,7 +171,7 @@ class LocalStorage @AssistedInject constructor(
                             return@map versionDir.safeListFiles()
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
-                                        val props = file.inputStream().use { mmDataRepo.readProps(it) }
+                                        val props = file.source().use { mmDataRepo.readProps(it) }
                                         Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
                                     }
                                     .toList()
@@ -206,7 +208,7 @@ class LocalStorage @AssistedInject constructor(
             val refRequest = MMRef.Request(
                     backupId = backupId,
                     source = FileRefSource(dataFile),
-                    props = propFile.inputStream().use { mmDataRepo.readProps(it) }
+                    props = propFile.source().use { mmDataRepo.readProps(it) }
             )
             val tmpRef = mmDataRepo.create(refRequest)
 
@@ -252,11 +254,11 @@ class LocalStorage @AssistedInject constructor(
                 if (key.isNotBlank()) key += "#"
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
-                targetProp.outputStream().use { mmDataRepo.writeProps(ref.props, it) }
+                targetProp.sink().use { mmDataRepo.writeProps(ref.props, it) }
 
                 val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 when (ref.props.dataType) {
-                    FILE -> ref.source!!.open().copyToAutoClose(target.outputStream())
+                    FILE -> ref.source!!.open().copyToAutoClose(target.sink())
                     DIRECTORY -> target.mkdir()
                 }
             }

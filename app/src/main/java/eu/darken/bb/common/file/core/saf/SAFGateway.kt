@@ -8,15 +8,15 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.APathGateway
 import eu.darken.bb.common.file.core.ReadException
 import eu.darken.bb.common.file.core.WriteException
+import okio.*
 import timber.log.Timber
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -24,6 +24,15 @@ class SAFGateway @Inject constructor(
         @AppContext private val context: Context,
         private val contentResolver: ContentResolver
 ) : APathGateway<SAFPath, SAFPathLookup> {
+
+    override val resourceTokens = SharedResource<SAFGateway>("${TAG}:SharedResource") { emitter ->
+        try {
+            emitter.onAvailable(this@SAFGateway)
+        } catch (e: Throwable) {
+            emitter.onError(e)
+        }
+    }
+
     private fun getDocumentFile(file: SAFPath): DocumentFile? {
         val treeRoot = DocumentFile.fromTreeUri(context, file.treeRoot)
         checkNotNull(treeRoot) { "Couldn't create DocumentFile for: $treeRoot" }
@@ -162,25 +171,25 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun read(path: SAFPath): InputStream {
+    override fun read(path: SAFPath): Source {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw ReadException(path)
 
         val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.READ.value)) {
             "Couldn't open $path"
         }
-        return ParcelFileDescriptor.AutoCloseInputStream(pfd)
+        return ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
     }
 
     @Throws(IOException::class)
-    override fun write(path: SAFPath): OutputStream {
+    override fun write(path: SAFPath): Sink {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw WriteException(path)
 
         val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.WRITE.value)) {
             "Couldn't open $path"
         }
-        return ParcelFileDescriptor.AutoCloseOutputStream(pfd)
+        return ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
     }
 
     fun takePermission(path: SAFPath): Boolean {

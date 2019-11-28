@@ -13,6 +13,14 @@ class APathTool @Inject constructor(
         private val localGateway: LocalGateway
 ) {
 
+    fun getGateway(path: APath): APathGateway<APath, APathLookup<APath>> {
+        return when (path) {
+            is SAFPath -> safGateway as APathGateway<APath, APathLookup<APath>>
+            is LocalPath -> localGateway as APathGateway<APath, APathLookup<APath>>
+            else -> throw NotImplementedError()
+        }
+    }
+
     fun canWrite(path: APath): Boolean {
         return when (path) {
             is SAFPath -> path.canWrite(safGateway)

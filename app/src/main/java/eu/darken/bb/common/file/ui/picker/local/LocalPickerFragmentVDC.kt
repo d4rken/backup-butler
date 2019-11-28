@@ -74,7 +74,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         val crumbs = path.toCrumbs()
 
         val listing = try {
-            if (resourceToken == null) resourceToken = localGateway.sharedResource.get()
+            if (resourceToken == null) resourceToken = localGateway.resourceTokens.get()
             localGateway.lookupFiles(path, mode = mode)
                     .sortedBy { it.name.toLowerCase(Locale.ROOT) }
                     .filter { !options.onlyDirs || it.isDirectory }

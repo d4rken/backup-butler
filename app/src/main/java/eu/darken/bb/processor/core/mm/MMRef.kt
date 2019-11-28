@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.file.core.APath
-import java.io.InputStream
+import okio.Source
 import java.util.*
 
 data class MMRef(
@@ -16,7 +16,7 @@ data class MMRef(
 ) {
 
     interface RefSource {
-        fun open(): InputStream
+        fun open(): Source
         fun release()
     }
 

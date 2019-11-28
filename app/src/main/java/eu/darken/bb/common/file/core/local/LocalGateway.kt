@@ -6,11 +6,10 @@ import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.fileops.*
+import okio.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -20,7 +19,7 @@ class LocalGateway @Inject constructor(
         private val devEnvironment: DevEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
-    val sharedResource = SharedResource<LocalGateway>("$TAG:SharedResource") { emitter ->
+    override val resourceTokens = SharedResource<LocalGateway>("$TAG:SharedResource") { emitter ->
         try {
             emitter.onAvailable(this@LocalGateway)
         } catch (e: Throwable) {
@@ -32,7 +31,7 @@ class LocalGateway @Inject constructor(
         if (!javaRootClient.sharedResource.isOpen) {
             try {
                 val rootResource = javaRootClient.sharedResource.get()
-                sharedResource.addChildResource(rootResource)
+                resourceTokens.addChildResource(rootResource)
             } catch (e: IOException) {
                 Timber.tag(TAG).d("Couldn't open root client: %s", e.message)
             }
@@ -242,18 +241,18 @@ class LocalGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun read(path: LocalPath): InputStream = read(path, Mode.AUTO)
+    override fun read(path: LocalPath): Source = read(path, Mode.AUTO)
 
     @Throws(IOException::class)
-    fun read(path: LocalPath, mode: Mode = Mode.AUTO): InputStream = try {
+    fun read(path: LocalPath, mode: Mode = Mode.AUTO): Source = try {
         val javaFile = path.asFile()
         val canNormalRead = javaFile.canRead()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
-                javaFile.inputStream()
+                javaFile.source()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
-                path.toRootPath().inputStream(javaRootClient)
+                path.toRootPath().source(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
         }
@@ -263,18 +262,18 @@ class LocalGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun write(path: LocalPath): OutputStream = write(path, Mode.AUTO)
+    override fun write(path: LocalPath): Sink = write(path, Mode.AUTO)
 
     @Throws(IOException::class)
-    fun write(path: LocalPath, mode: Mode = Mode.AUTO): OutputStream = try {
+    fun write(path: LocalPath, mode: Mode = Mode.AUTO): Sink = try {
         val javaFile = path.asFile()
         val canNormalRead = javaFile.canRead()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
-                javaFile.outputStream()
+                javaFile.sink()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
-                path.toRootPath().outputStream(javaRootClient)
+                path.toRootPath().sink(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
         }

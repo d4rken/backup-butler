@@ -2,6 +2,8 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 
 
 import android.os.RemoteException
+import okio.Source
+import okio.source
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
@@ -25,7 +27,7 @@ import java.io.InputStream
 /**
  * Use this on the root side
  */
-fun InputStream.toRemoteInputStream(): RemoteInputStream.Stub = object : RemoteInputStream.Stub() {
+internal fun InputStream.toRemoteInputStream(): RemoteInputStream.Stub = object : RemoteInputStream.Stub() {
 
     override fun available(): Int = try {
         this@toRemoteInputStream.available()
@@ -51,7 +53,6 @@ fun InputStream.toRemoteInputStream(): RemoteInputStream.Stub = object : RemoteI
     override fun close() = try {
         this@toRemoteInputStream.close()
     } catch (e: IOException) {
-        // no action required
     }
 
 }
@@ -62,14 +63,14 @@ fun InputStream.toRemoteInputStream(): RemoteInputStream.Stub = object : RemoteI
  * exception.
  *
  *
- * We also wrap the InputStream we create inside a BufferedInputStream, to potentially reduce
+ * We also callbacks the InputStream we create inside a BufferedInputStream, to potentially reduce
  * the number of calls made. We increase the buffer size to 64kb in case this is ever used
  * to actually read large files, which is quite a bit faster than the default 8kb.
  *
  *
  * Use this on the non-root side.
  */
-fun RemoteInputStream.toInputStream(bufferSize: Int = 64 * 1024): InputStream = object : InputStream() {
+internal fun RemoteInputStream.inputStream(): InputStream = object : InputStream() {
 
     @Throws(IOException::class)
     private fun throwIO(r: Int): Int {
@@ -79,14 +80,14 @@ fun RemoteInputStream.toInputStream(bufferSize: Int = 64 * 1024): InputStream = 
 
     @Throws(IOException::class)
     override fun available(): Int = try {
-        throwIO(this@toInputStream.available())
+        throwIO(this@inputStream.available())
     } catch (e: RemoteException) {
         throw IOException("Remote Exception", e)
     }
 
     @Throws(IOException::class)
     override fun read(): Int = try {
-        throwIO(this@toInputStream.read())
+        throwIO(this@inputStream.read())
     } catch (e: RemoteException) {
         throw IOException("Remote Exception", e)
     }
@@ -96,18 +97,17 @@ fun RemoteInputStream.toInputStream(bufferSize: Int = 64 * 1024): InputStream = 
 
     @Throws(IOException::class)
     override fun read(b: ByteArray, off: Int, len: Int): Int = try {
-        // Overriding this one too will make reading much faster than just having read()
-        throwIO(this@toInputStream.readBuffer(b, off, len))
+        throwIO(this@inputStream.readBuffer(b, off, len))
     } catch (e: RemoteException) {
         throw IOException("Remote Exception", e)
     }
 
     @Throws(IOException::class)
     override fun close() = try {
-        // This method too is an optional override, but we wouldn't want to leave our files open, would we?
-        this@toInputStream.close()
+        this@inputStream.close()
     } catch (e: RemoteException) {
         throw IOException("Remote Exception", e)
     }
+}
 
-}.buffered(bufferSize)
+fun RemoteInputStream.source(): Source = inputStream().source()

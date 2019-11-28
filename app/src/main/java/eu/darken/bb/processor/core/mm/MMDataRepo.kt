@@ -6,10 +6,10 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
+import okio.Sink
+import okio.Source
 import timber.log.Timber
 import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
@@ -51,9 +51,9 @@ class MMDataRepo @Inject constructor(
         return ref
     }
 
-    fun readProps(input: InputStream): MMRef.Props = propsAdapter.from(input)
+    fun readProps(input: Source): MMRef.Props = propsAdapter.from(input)
 
-    fun writeProps(props: MMRef.Props, output: OutputStream) = propsAdapter.into(props, output)
+    fun writeProps(props: MMRef.Props, output: Sink) = propsAdapter.into(props, output)
 
     @Synchronized
     fun release(backupId: Backup.Id) {
