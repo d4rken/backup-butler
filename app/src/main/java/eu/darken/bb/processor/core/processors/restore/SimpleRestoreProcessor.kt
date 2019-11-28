@@ -12,6 +12,7 @@ import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -25,7 +26,8 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         @AppContext context: Context,
         private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
         private val restoreConfigRepo: RestoreConfigRepo,
-        private val storageManager: StorageManager
+        private val storageManager: StorageManager,
+        private val mmDataRepo: MMDataRepo
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun doProcess(task: Task) {
@@ -94,6 +96,8 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
             endpointProgressSub.dispose()
         }
+
+        mmDataRepo.release(backupUnit.backupId)
 
         // TODO success? true/false?
         return true

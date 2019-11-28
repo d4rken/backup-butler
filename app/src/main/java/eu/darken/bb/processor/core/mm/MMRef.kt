@@ -17,7 +17,6 @@ data class MMRef(
 
     interface RefSource {
         fun open(): InputStream
-        // TODO check that this is called?
         fun release()
     }
 
