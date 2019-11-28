@@ -5,13 +5,12 @@ import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
-import eu.darken.bb.common.root.core.javaroot.fileops.toLocalPath
-import eu.darken.bb.common.root.core.javaroot.fileops.toLocalPathLookup
-import eu.darken.bb.common.root.core.javaroot.fileops.toRootPath
+import eu.darken.bb.common.root.core.javaroot.fileops.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 import javax.inject.Inject
 
@@ -29,10 +28,10 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    private fun <T> runRootFileOps(action: (FileOpsClient) -> T): T {
+    private fun <T> rootOps(action: (FileOpsClient) -> T): T {
         if (!javaRootClient.sharedResource.isOpen) {
             try {
-                val rootResource = javaRootClient.sharedResource.getResource()
+                val rootResource = javaRootClient.sharedResource.get()
                 sharedResource.addChildResource(rootResource)
             } catch (e: IOException) {
                 Timber.tag(TAG).d("Couldn't open root client: %s", e.message)
@@ -56,7 +55,7 @@ class LocalGateway @Inject constructor(
                 javaChild.mkdirs()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                runRootFileOps {
+                rootOps {
                     it.mkdirs(path.toRootPath())
                 }
             }
@@ -79,7 +78,7 @@ class LocalGateway @Inject constructor(
                 javaChild.createNewFile()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                runRootFileOps {
+                rootOps {
                     it.createNewFile(path.toRootPath())
                 }
             }
@@ -108,7 +107,7 @@ class LocalGateway @Inject constructor(
                 )
             }
             mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
-                runRootFileOps { it.lookUp(path.toRootPath()) }.toLocalPathLookup()
+                rootOps { it.lookUp(path.toRootPath()) }.toLocalPathLookup()
             }
             else -> throw IOException("No matching mode.")
         }
@@ -127,7 +126,7 @@ class LocalGateway @Inject constructor(
                 path.asFile().listFiles().map { LocalPath.build(it) }
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
-                runRootFileOps {
+                rootOps {
                     it.listFiles(path.toRootPath())
                 }.map { it.toLocalPath() }
             }
@@ -157,7 +156,7 @@ class LocalGateway @Inject constructor(
                 }
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
-                runRootFileOps {
+                rootOps {
                     it.lookupFiles(path.toRootPath())
                 }.map { it.toLocalPathLookup() }
             }
@@ -180,7 +179,7 @@ class LocalGateway @Inject constructor(
                 javaFile.exists()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !existsNormal -> {
-                runRootFileOps {
+                rootOps {
                     it.exists(path.toRootPath())
                 }
             }
@@ -203,7 +202,7 @@ class LocalGateway @Inject constructor(
                 javaFile.canWrite()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                runRootFileOps {
+                rootOps {
                     it.canWrite(path.toRootPath())
                 }
             }
@@ -226,7 +225,7 @@ class LocalGateway @Inject constructor(
                 javaFile.canRead()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
-                runRootFileOps {
+                rootOps {
                     it.canRead(path.toRootPath())
                 }
             }
@@ -243,6 +242,48 @@ class LocalGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
+    override fun read(path: LocalPath): InputStream = read(path, Mode.AUTO)
+
+    @Throws(IOException::class)
+    fun read(path: LocalPath, mode: Mode = Mode.AUTO): InputStream = try {
+        val javaFile = path.asFile()
+        val canNormalRead = javaFile.canRead()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
+                javaFile.inputStream()
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
+                path.toRootPath().inputStream(javaRootClient)
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("read(path=%s, mode=%s) failed.", path, mode)
+        throw ReadException(path, cause = e)
+    }
+
+    @Throws(IOException::class)
+    override fun write(path: LocalPath): OutputStream = write(path, Mode.AUTO)
+
+    @Throws(IOException::class)
+    fun write(path: LocalPath, mode: Mode = Mode.AUTO): OutputStream = try {
+        val javaFile = path.asFile()
+        val canNormalRead = javaFile.canRead()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
+                javaFile.outputStream()
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
+                path.toRootPath().outputStream(javaRootClient)
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("read(path=%s, mode=%s) failed.", path, mode)
+        throw ReadException(path, cause = e)
+    }
+
+    @Throws(IOException::class)
     override fun delete(path: LocalPath): Boolean = delete(path, Mode.AUTO)
 
     @Throws(IOException::class)
@@ -255,7 +296,7 @@ class LocalGateway @Inject constructor(
                 javaFile.delete()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                runRootFileOps { it.delete(path.toRootPath()) }
+                rootOps { it.delete(path.toRootPath()) }
             }
             else -> throw IOException("No matching mode.")
         }

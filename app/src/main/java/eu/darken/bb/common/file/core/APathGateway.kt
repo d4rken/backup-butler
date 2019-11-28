@@ -1,8 +1,10 @@
 package eu.darken.bb.common.file.core
 
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
-interface APathGateway<P : APath, PLU : APathLookup<P>> {
+interface APathGateway<P : APath, out PLU : APathLookup<P>> {
     @Throws(IOException::class)
     fun createDir(path: P): Boolean
 
@@ -26,6 +28,12 @@ interface APathGateway<P : APath, PLU : APathLookup<P>> {
 
     @Throws(IOException::class)
     fun canRead(path: P): Boolean
+
+    @Throws(IOException::class)
+    fun read(path: P): InputStream
+
+    @Throws(IOException::class)
+    fun write(path: P): OutputStream
 
     @Throws(IOException::class)
     fun delete(path: P): Boolean

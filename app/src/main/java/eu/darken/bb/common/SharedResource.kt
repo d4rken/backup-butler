@@ -75,11 +75,11 @@ class SharedResource<T> constructor(
             .refCount()
 
     @Throws(IOException::class)
-    fun getResource(): Token<T> {
+    fun get(): Resource<T> {
         val keepAlive = resourceHolder.subscribe({
 
         }, {
-            Timber.tag(tag).d("getResource().onError(): %s", it)
+            Timber.tag(tag).d("get().onError(): %s", it)
         })
 
         if (activeTokens.add(keepAlive)) {
@@ -89,7 +89,7 @@ class SharedResource<T> constructor(
         }
 
         if (BBDebug.isDebug()) {
-            Timber.tag(tag).v("getResource() Caller: %s", Throwable().getStackTraceString())
+            Timber.tag(tag).v("get() Caller: %s", Throwable().getStackTraceString())
         }
 
         val resource = try {
@@ -105,24 +105,30 @@ class SharedResource<T> constructor(
             }
 
             override fun dispose() {
-                if (keepAlive.isDisposed) Timber.tag(tag).v("Already disposed!")
-                activeTokens.remove(keepAlive)
-                Timber.tag(tag).d("Removing token, now: %d", activeTokens.size())
-                keepAlive.dispose()
+                if (keepAlive.isDisposed) {
+                    Timber.tag(tag).v("Already disposed!")
+                } else {
+                    activeTokens.remove(keepAlive)
+                    Timber.tag(tag).d("Removing token, now: %d", activeTokens.size())
+                    keepAlive.dispose()
+                }
             }
         }
 
-        return Token(resource, wrappedKeepAlive)
+        return Resource(resource, wrappedKeepAlive)
     }
 
-    fun addChildResource(token: Token<out Any>) {
+    fun addChildResource(resource: Resource<out Any>) {
         synchronized(this@SharedResource) {
+            if (!isOpen) {
+                Timber.tag(tag).w("Adding child to an already closed resource: %s", resource)
+            }
             childTokens.add(object : Disposable {
                 var disposed: Boolean = false
                 override fun isDisposed(): Boolean = disposed
 
                 override fun dispose() {
-                    token.close()
+                    resource.close()
                     disposed = true
                 }
 
@@ -136,14 +142,14 @@ class SharedResource<T> constructor(
         }
     }
 
-    data class Token<T>(
-            private val internalResource: T,
+    data class Resource<T>(
+            private val _data: T,
             private val keepAlive: Disposable
     ) : Closeable, AutoCloseable {
-        val resource: T
+        val data: T
             get() {
                 check(!keepAlive.isDisposed) { "Trying to access closed resource!" }
-                return internalResource
+                return _data
             }
 
         override fun close() = keepAlive.dispose()

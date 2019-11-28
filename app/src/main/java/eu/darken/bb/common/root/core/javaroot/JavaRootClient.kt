@@ -24,7 +24,11 @@ class JavaRootClient @Inject constructor(
     data class Connection(
             val ipc: JavaRootConnection,
             val clientModules: List<ClientModule>
-    )
+    ) {
+        inline fun <reified T> getModule(): T {
+            return clientModules.single { it is T } as T
+        }
+    }
 
     val sharedResource = SharedResource<Connection>("$TAG:SharedResource") { emitter ->
         Timber.tag(TAG).d("Initiating connection to host.")
@@ -70,8 +74,8 @@ class JavaRootClient @Inject constructor(
     @Throws(IOException::class)
     fun <T> runSessionAction(action: (Connection) -> T): T {
         try {
-            sharedResource.getResource().use {
-                return action(it.resource)
+            sharedResource.get().use {
+                return action(it.data)
             }
         } catch (e: Exception) {
             throw e.unwrapIf(RuntimeException::class)

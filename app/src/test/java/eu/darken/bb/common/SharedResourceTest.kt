@@ -14,7 +14,7 @@ class SharedResourceTest {
         }
         sr.isOpen shouldBe false
 
-        val token = sr.getResource()
+        val token = sr.get()
         sr.isOpen shouldBe true
         token.resource shouldBe testValue
 
@@ -28,7 +28,7 @@ class SharedResourceTest {
             val sr = SharedResource<Any>("tag") {
                 it.onError(IllegalArgumentException())
             }
-            sr.getResource()
+            sr.get()
         }
     }
 
@@ -37,8 +37,8 @@ class SharedResourceTest {
     fun `test staggered close`() {
         val sr = SharedResource<Any>("tag") { it.onAvailable(Any()) }
 
-        val token1 = sr.getResource()
-        val token2 = sr.getResource()
+        val token1 = sr.get()
+        val token2 = sr.get()
         token1.resource shouldBe token2.resource
         sr.isOpen shouldBe true
         token1.close()
@@ -51,8 +51,8 @@ class SharedResourceTest {
     fun `test close all`() {
         val sr = SharedResource<Any>("tag") { it.onAvailable(Any()) }
 
-        sr.getResource()
-        sr.getResource()
+        sr.get()
+        sr.get()
 
         sr.isOpen shouldBe true
         sr.closeAll()
@@ -64,8 +64,8 @@ class SharedResourceTest {
         val sr1 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
         val sr2 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
 
-        val token1 = sr1.getResource()
-        val token2 = sr2.getResource()
+        val token1 = sr1.get()
+        val token2 = sr2.get()
         sr1.addChildResource(token2)
 
         sr1.isOpen shouldBe true
@@ -80,8 +80,8 @@ class SharedResourceTest {
         val sr1 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
         val sr2 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
 
-        val token1 = sr1.getResource()
-        val token2 = sr2.getResource()
+        val token1 = sr1.get()
+        val token2 = sr2.get()
         sr1.addChildResource(token2)
 
         sr1.isOpen shouldBe true
@@ -99,7 +99,7 @@ class SharedResourceTest {
         val sr1 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
         val sr2 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
 
-        val token2 = sr2.getResource()
+        val token2 = sr2.get()
         sr1.isOpen shouldBe false
         sr2.isOpen shouldBe true
 
@@ -111,7 +111,7 @@ class SharedResourceTest {
     @Test
     fun `test accessing closed resource`() {
         val sr1 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
-        val token = sr1.getResource()
+        val token = sr1.get()
         token.resource
         token.close()
         shouldThrow<IllegalStateException> {

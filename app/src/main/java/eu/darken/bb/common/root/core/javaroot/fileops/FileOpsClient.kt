@@ -4,6 +4,8 @@ import eu.darken.bb.App
 import eu.darken.bb.common.getRootCause
 import timber.log.Timber
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 class FileOpsClient(
         private val fileOps: FileOps
@@ -29,15 +31,15 @@ class FileOpsClient(
         throw fakeIOException(e.getRootCause())
     }
 
-    fun readFile(path: RootPath): RemoteInputStream = try {
-        fileOps.readFile(path)
+    fun readFile(path: RootPath): InputStream = try {
+        fileOps.readFile(path).toInputStream()
     } catch (e: IOException) {
         Timber.tag(TAG).e(e, "readFile(path=$path) failed.")
         throw fakeIOException(e.getRootCause())
     }
 
-    fun writeFile(path: RootPath): RemoteOutputStream = try {
-        fileOps.writeFile(path)
+    fun writeFile(path: RootPath): OutputStream = try {
+        fileOps.writeFile(path).toOutputStream()
     } catch (e: IOException) {
         Timber.tag(TAG).e(e, "writeFile(path=$path) failed.")
         throw fakeIOException(e.getRootCause())

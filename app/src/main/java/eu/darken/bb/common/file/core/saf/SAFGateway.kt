@@ -161,7 +161,8 @@ class SAFGateway @Inject constructor(
         WRITE("w"), READ("r")
     }
 
-    fun read(path: SAFPath): InputStream {
+    @Throws(IOException::class)
+    override fun read(path: SAFPath): InputStream {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw ReadException(path)
 
@@ -171,7 +172,8 @@ class SAFGateway @Inject constructor(
         return ParcelFileDescriptor.AutoCloseInputStream(pfd)
     }
 
-    fun write(path: SAFPath): OutputStream {
+    @Throws(IOException::class)
+    override fun write(path: SAFPath): OutputStream {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw WriteException(path)
 

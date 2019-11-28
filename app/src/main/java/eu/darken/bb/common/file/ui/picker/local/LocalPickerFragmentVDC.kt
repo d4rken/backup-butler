@@ -55,7 +55,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     val errorEvents = SingleLiveEvent<Throwable>()
     val missingPermissionEvent = SingleLiveEvent<Any>()
     val requestPermissionEvent = SingleLiveEvent<Any>()
-    var resourceToken: SharedResource.Token<*>? = null
+    var resourceToken: SharedResource.Resource<*>? = null
 
 
     init {
@@ -74,7 +74,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         val crumbs = path.toCrumbs()
 
         val listing = try {
-            if (resourceToken == null) resourceToken = localGateway.sharedResource.getResource()
+            if (resourceToken == null) resourceToken = localGateway.sharedResource.get()
             localGateway.lookupFiles(path, mode = mode)
                     .sortedBy { it.name.toLowerCase(Locale.ROOT) }
                     .filter { !options.onlyDirs || it.isDirectory }

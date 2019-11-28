@@ -7,7 +7,6 @@ import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import kotlinx.android.parcel.Parcelize
-import java.io.File
 
 @Keep
 interface APath : Parcelable {
@@ -39,9 +38,4 @@ interface APath : Parcelable {
                 .skipLabelSerialization()
     }
 
-}
-
-fun APath.asFile(): File = when (this) {
-    is LocalPath -> this.file
-    else -> File(this.path)
 }
