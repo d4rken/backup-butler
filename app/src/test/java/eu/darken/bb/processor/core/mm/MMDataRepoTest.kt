@@ -1,7 +1,10 @@
 package eu.darken.bb.processor.core.mm
 
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.verify
+import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.core.RawPath
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -25,20 +28,40 @@ class MMDataRepoTest : BaseTest() {
     }
 
     @Test
-    fun `test wipe`() {
-        val repo = MMDataRepo(testDir)
+    fun `test release`() {
+        val repo = MMDataRepo(testDir, AppModule().moshi())
         File(testDir, CACHEDIR).exists() shouldBe true
 
-        val ref1 = repo.create(Backup.Id(), RawPath.build("originalpath"))
-        val ref2 = repo.create(Backup.Id(), RawPath.build("originalpath"))
-        ref1.tmpPath.mkdir()
-        ref1.type shouldBe MMRef.Type.DIRECTORY
+        val req1 = MMRef.Request(
+                backupId = Backup.Id(),
+                source = spy { FileRefSource(File("testfile")) },
+                props = MMRef.Props(
+                        name = "testname",
+                        originalPath = null,
+                        dataType = MMRef.Type.DIRECTORY
+                )
+        )
+        val ref1 = repo.create(req1)
+        req1.source shouldBe ref1.source
+        verify(req1.source, never()).release()
 
-        ref2.tmpPath.createNewFile()
-        ref2.type shouldBe MMRef.Type.FILE
+        val req2 = MMRef.Request(
+                backupId = Backup.Id(),
+                source = spy { FileRefSource(File("testfile")) },
+                props = MMRef.Props(
+                        name = "testname",
+                        originalPath = null,
+                        dataType = MMRef.Type.DIRECTORY
+                )
+        )
+        val ref2 = repo.create(req2)
+        req2.source shouldBe ref2.source
+        verify(req2.source, never()).release()
+
+        repo.release(req1.backupId)
+        verify(req1.source).release()
 
         repo.releaseAll()
-        ref1.type shouldBe MMRef.Type.UNUSED
-        ref2.type shouldBe MMRef.Type.UNUSED
+        verify(req2.source).release()
     }
 }

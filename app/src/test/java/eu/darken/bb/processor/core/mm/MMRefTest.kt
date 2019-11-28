@@ -5,9 +5,9 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.file.core.RawPath
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class MMRefTest {
     @Test
@@ -15,8 +15,11 @@ class MMRefTest {
         val ref = MMRef(
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
-                tmpPath = File("simplefile"),
-                originalPath = RawPath.build("originalpath")
+                source = null,
+                props = MMRef.Props(
+                        originalPath = RawPath.build("originalpath"),
+                        dataType = MMRef.Type.FILE
+                )
         )
 
         val orig = ref.props
@@ -24,26 +27,20 @@ class MMRefTest {
         val adapter = AppModule().moshi().adapter(MMRef.Props::class.java)
 
         val json = adapter.toJson(orig)
-        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"},\"refType\":\"UNUSED\"}"
+        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"},\"dataType\":\"FILE\"}"
 
         assertThat(adapter.fromJson(json)).isEqualTo(orig)
     }
 
     @Test
-    fun `test typing`() {
-        val ref = MMRef(
-                refId = MMRef.Id(),
-                backupId = Backup.Id(),
-                tmpPath = File("simplefile"),
-                originalPath = RawPath.build("originalpath")
-        )
-        ref.tmpPath.mkdir()
-        ref.type shouldBe MMRef.Type.DIRECTORY
-        ref.tmpPath.delete()
-
-        ref.tmpPath.createNewFile()
-        ref.type shouldBe MMRef.Type.FILE
-        ref.tmpPath.delete()
+    fun `test props labeling`() {
+        shouldThrow<IllegalArgumentException> {
+            MMRef.Props(
+                    name = null,
+                    originalPath = null,
+                    dataType = MMRef.Type.FILE
+            )
+        }
     }
 
     @Test

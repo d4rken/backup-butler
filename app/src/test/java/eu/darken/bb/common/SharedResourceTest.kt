@@ -16,7 +16,7 @@ class SharedResourceTest {
 
         val token = sr.get()
         sr.isOpen shouldBe true
-        token.resource shouldBe testValue
+        token.data shouldBe testValue
 
         token.close()
         sr.isOpen shouldBe false
@@ -39,7 +39,7 @@ class SharedResourceTest {
 
         val token1 = sr.get()
         val token2 = sr.get()
-        token1.resource shouldBe token2.resource
+        token1.data shouldBe token2.data
         sr.isOpen shouldBe true
         token1.close()
         sr.isOpen shouldBe true
@@ -112,10 +112,10 @@ class SharedResourceTest {
     fun `test accessing closed resource`() {
         val sr1 = SharedResource<Any>("tag") { it.onAvailable(Any()) }
         val token = sr1.get()
-        token.resource
+        token.data
         token.close()
         shouldThrow<IllegalStateException> {
-            token.resource
+            token.data
         }
     }
 

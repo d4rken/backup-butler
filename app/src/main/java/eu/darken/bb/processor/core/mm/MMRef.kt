@@ -27,6 +27,11 @@ data class MMRef(
             val originalPath: APath?,
             val dataType: Type
     ) {
+
+        init {
+            require(name != null || originalPath != null) { "Provide name or path!" }
+        }
+
         val label: String
             get() = (originalPath?.path ?: name)!!
     }
