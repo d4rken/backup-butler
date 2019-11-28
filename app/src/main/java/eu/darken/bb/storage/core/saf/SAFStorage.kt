@@ -28,7 +28,7 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
-import eu.darken.bb.processor.core.mm.SAFPathRefSource
+import eu.darken.bb.processor.core.mm.PathRefResource
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -221,7 +221,7 @@ class SAFStorage @AssistedInject constructor(
 
                     val refRequest = MMRef.Request(
                             backupId = backupId,
-                            source = SAFPathRefSource(dataFile, safGateway),
+                            source = PathRefResource(dataFile, safGateway),
                             props = safGateway.read(propFile).use { mmDataRepo.readProps(it) }
                     )
                     val tmpRef = mmDataRepo.create(refRequest)

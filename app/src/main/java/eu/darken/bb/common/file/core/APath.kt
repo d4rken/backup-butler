@@ -39,3 +39,8 @@ interface APath : Parcelable {
     }
 
 }
+
+
+inline fun <reified PT : APath, GT : APathGateway<PT, APathLookup<PT>>> PT.walk(gateway: GT, direction: FileWalkDirection): APathTreeWalk<PT, GT> = APathTreeWalk(gateway, this, direction)
+
+inline fun <reified PT : APath, GT : APathGateway<PT, APathLookup<PT>>> PT.walkTopDown(gateway: GT): APathTreeWalk<PT, GT> = walk(gateway, FileWalkDirection.TOP_DOWN)

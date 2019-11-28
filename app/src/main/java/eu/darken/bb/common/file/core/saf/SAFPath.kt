@@ -169,7 +169,3 @@ fun SAFPath.deleteAll(gateway: SAFGateway) {
         throw FileNotFoundException("Failed to delete file: $this")
     }
 }
-
-fun SAFPath.walk(gateway: SAFGateway, direction: FileWalkDirection): SAFTreeWalk = SAFTreeWalk(gateway, this, direction)
-
-fun SAFPath.walkTopDown(gateway: SAFGateway): SAFTreeWalk = walk(gateway, FileWalkDirection.TOP_DOWN)

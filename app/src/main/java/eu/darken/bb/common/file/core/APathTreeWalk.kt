@@ -16,15 +16,14 @@ class APathTreeWalk<PT : APath, GT : APathGateway<PT, APathLookup<PT>>> private 
         private val gateway: GT,
         private val start: PT,
         private val direction: FileWalkDirection = FileWalkDirection.TOP_DOWN,
-        private val onEnter: ((PT) -> Boolean)?,
-        private val onLeave: ((PT) -> Unit)?,
-        private val onFail: ((f: PT, e: IOException) -> Unit)?,
+        private val onEnter: ((PT) -> Boolean)? = null,
+        private val onLeave: ((PT) -> Unit)? = null,
+        private val onFail: ((f: PT, e: IOException) -> Unit)? = null,
         private val maxDepth: Int = Int.MAX_VALUE
 ) : Sequence<PT> {
 
-    internal constructor(gateway: GT, start: PT, direction: FileWalkDirection = FileWalkDirection.TOP_DOWN)
+    constructor(gateway: GT, start: PT, direction: FileWalkDirection = FileWalkDirection.TOP_DOWN)
             : this(gateway, start, direction, null, null, null)
-
 
     /** Returns an iterator walking through files. */
     override fun iterator(): Iterator<PT> = FileTreeWalkIterator()

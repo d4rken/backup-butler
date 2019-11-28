@@ -1,6 +1,5 @@
 package eu.darken.bb.common.file.core.local
 
-import eu.darken.bb.common.file.core.APathTreeWalk
 import eu.darken.bb.common.file.core.asFile
 
 
@@ -23,8 +22,3 @@ fun LocalPath.toCrumbs(): List<LocalPath> {
     }
     return crumbs
 }
-
-
-fun LocalPath.walk(gateway: LocalGateway, direction: FileWalkDirection): APathTreeWalk<LocalPath, LocalGateway> = APathTreeWalk(gateway, this, direction)
-
-fun LocalPath.walkTopDown(gateway: LocalGateway): APathTreeWalk<LocalPath, LocalGateway> = walk(gateway, FileWalkDirection.TOP_DOWN)

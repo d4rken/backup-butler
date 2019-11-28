@@ -11,10 +11,9 @@ import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.local.LocalGateway
 import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.core.local.walkTopDown
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
-import eu.darken.bb.common.file.core.saf.walkTopDown
+import eu.darken.bb.common.file.core.walkTopDown
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -22,7 +21,6 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.PathRefResource
-import eu.darken.bb.processor.core.mm.SAFPathRefSource
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
@@ -115,7 +113,7 @@ class FilesBackupEndpoint @Inject constructor(
 
             val refRequest = MMRef.Request(
                     backupId = builder.backupId,
-                    source = SAFPathRefSource(item, safGateway),
+                    source = PathRefResource(item, safGateway),
                     props = MMRef.Props(
                             originalPath = item,
                             dataType = if (item.isDirectory(safGateway)) MMRef.Type.DIRECTORY else MMRef.Type.FILE
