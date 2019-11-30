@@ -4,6 +4,7 @@ import eu.darken.bb.App
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.APathGateway
 import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.file.core.toMMRefType
 import okio.Source
 import okio.source
 import timber.log.Timber
@@ -38,9 +39,49 @@ abstract class BaseRefSource(
 }
 
 
-class FileRefSource(private val file: File) : BaseRefSource({ file.source() })
+class FileRefSource(
+        private val file: File,
+        override val props: MMRef.Props
+) : BaseRefSource({ file.source() }) {
+
+//    override val props: MMRef.Props by lazy {
+//        val dataType = file.getAPathFileType().toMMRefType()
+//        val symlinkTarget: APath? = if (dataType == MMRef.Type.SYMBOLIC_LINK) {
+//            LocalPath.build(file.canonicalFile)
+//        } else {
+//            null
+//        }
+//        MMRef.Props(
+//                originalPath = LocalPath.build(file),
+//                dataType = dataType,
+//                symlinkTarget = symlinkTarget
+//        )
+//    }
+
+}
 
 class APathRefResource<PathType : APath, GateType : APathGateway<in PathType, out APathLookup<PathType>>>(
         private val path: PathType,
-        private val gateway: GateType
-) : BaseRefSource({ gateway.read(path) })
+        private val gateway: GateType,
+        providedProps: MMRef.Props? = null
+) : BaseRefSource({ gateway.read(path) }) {
+
+    private val autoGenProps: MMRef.Props by lazy {
+
+        val dataType = gateway.lookup(path).fileType.toMMRefType()
+        val symlinkTarget: APath? = if (dataType == MMRef.Type.SYMBOLIC_LINK) {
+            gateway.lookup(path).target
+        } else {
+            null
+        }
+        MMRef.Props(
+                originalPath = path,
+                dataType = dataType,
+                symlinkTarget = symlinkTarget
+        )
+    }
+
+
+    override val props: MMRef.Props = providedProps ?: autoGenProps
+
+}

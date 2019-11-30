@@ -98,12 +98,7 @@ class LocalGateway @Inject constructor(
         when {
             mode == Mode.NORMAL || canRead && mode == Mode.AUTO -> {
                 if (!canRead) throw ReadException(path)
-                LocalPathLookup(
-                        lookedUp = path,
-                        fileType = javaFile.getAPathFileType(),
-                        lastModified = Date(javaFile.lastModified()),
-                        size = javaFile.length()
-                )
+                javaFile.toLocalPathLookup()
             }
             mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
                 rootOps { it.lookUp(path.toRootPath()) }.toLocalPathLookup()
@@ -145,14 +140,7 @@ class LocalGateway @Inject constructor(
         when {
             mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
                 if (nonRootList == null) throw ReadException(path)
-                nonRootList.map {
-                    LocalPathLookup(
-                            lookedUp = LocalPath.build(it),
-                            fileType = it.getAPathFileType(),
-                            lastModified = Date(it.lastModified()),
-                            size = it.length()
-                    )
-                }
+                nonRootList.map { it.toLocalPathLookup() }
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 rootOps {
@@ -218,12 +206,12 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun canRead(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
         val javaFile = path.asFile()
-        val canNormalRead = javaFile.canRead()
+        val canNormalOpen = javaFile.canOpenRead()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
-                javaFile.canRead()
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
+                canNormalOpen
             }
-            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
                 rootOps {
                     it.canRead(path.toRootPath())
                 }
@@ -246,12 +234,12 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun read(path: LocalPath, mode: Mode = Mode.AUTO): Source = try {
         val javaFile = path.asFile()
-        val canNormalRead = javaFile.canRead()
+        val canNormalOpen = javaFile.canOpenRead()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
                 javaFile.source()
             }
-            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
                 path.toRootPath().source(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
@@ -267,12 +255,12 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun write(path: LocalPath, mode: Mode = Mode.AUTO): Sink = try {
         val javaFile = path.asFile()
-        val canNormalRead = javaFile.canRead()
+        val canOpen = javaFile.canOpenRead()
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalRead -> {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canOpen -> {
                 javaFile.sink()
             }
-            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalRead -> {
+            mode == Mode.ROOT || mode == Mode.AUTO && !canOpen -> {
                 path.toRootPath().sink(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
@@ -303,6 +291,39 @@ class LocalGateway @Inject constructor(
         Timber.tag(TAG).w("delete(path=%s, mode=%s) failed.", path, mode)
         throw WriteException(path, cause = e)
     }
+
+    @Throws(IOException::class)
+    override fun createSymlink(linkPath: LocalPath, targetPath: LocalPath): Boolean = createSymlink(linkPath, targetPath, Mode.AUTO)
+
+    @Throws(IOException::class)
+    fun createSymlink(linkPath: LocalPath, targetPath: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
+        val linkPathJava = linkPath.asFile()
+        val targetPathJava = targetPath.asFile()
+        val canNormalWrite = linkPathJava.canWrite()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                linkPathJava.createSymlink(targetPathJava)
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                rootOps {
+                    it.createSymlink(linkPath.toRootPath(), targetPath.toRootPath())
+                }
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("createSymlink(linkPath=%s, targetPath=%s, mode=%s) failed.", linkPath, targetPath, mode)
+        throw WriteException(linkPath, cause = e)
+    }
+
+    private fun File.toLocalPathLookup(): LocalPathLookup = LocalPathLookup(
+            lookedUp = LocalPath.build(this),
+            fileType = this.getAPathFileType(),
+            lastModified = Date(this.lastModified()),
+            size = this.length(),
+            target = this.readLink()?.let { LocalPath.build(it) }
+    )
+
 
     enum class Mode {
         AUTO, NORMAL, ROOT

@@ -27,8 +27,7 @@ import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.FileRefSource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
-import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
@@ -207,8 +206,10 @@ class LocalStorage @AssistedInject constructor(
 
             val refRequest = MMRef.Request(
                     backupId = backupId,
-                    source = FileRefSource(dataFile),
-                    props = propFile.source().use { mmDataRepo.readProps(it) }
+                    source = FileRefSource(
+                            dataFile,
+                            propFile.source().use { mmDataRepo.readProps(it) }
+                    )
             )
             val tmpRef = mmDataRepo.create(refRequest)
 
@@ -258,8 +259,13 @@ class LocalStorage @AssistedInject constructor(
 
                 val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 when (ref.props.dataType) {
-                    FILE -> ref.source!!.open().copyToAutoClose(target.sink())
-                    DIRECTORY -> target.mkdir()
+                    FILE -> ref.source.open().copyToAutoClose(target.sink())
+                    DIRECTORY -> {
+                        // NOOP props are enough
+                    }
+                    SYMBOLIC_LINK -> {
+                        // NOOP props are enough
+                    }
                 }
             }
         }

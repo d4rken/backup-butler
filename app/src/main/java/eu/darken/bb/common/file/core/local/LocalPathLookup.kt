@@ -9,9 +9,10 @@ import java.util.*
 @Parcelize
 data class LocalPathLookup(
         override val lookedUp: LocalPath,
+        override val fileType: APath.FileType,
         override val size: Long,
         override val lastModified: Date,
-        override val fileType: APath.FileType
+        override val target: LocalPath?
 ) : APathLookup<LocalPath> {
     override fun child(vararg segments: String): APath {
         return lookedUp.child(*segments)

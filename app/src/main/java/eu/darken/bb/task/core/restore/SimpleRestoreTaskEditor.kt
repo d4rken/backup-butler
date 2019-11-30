@@ -10,7 +10,7 @@ import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathTool
+import eu.darken.bb.common.file.core.GatewaySwitch
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -31,7 +31,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         @Assisted private val taskId: Task.Id,
         private val restoreConfigRepo: RestoreConfigRepo,
         private val storageManager: StorageManager,
-        private val pathTool: APathTool
+        private val pathTool: GatewaySwitch
 ) : TaskEditor {
 
     private val editorDataPub = HotData(Data(taskId = taskId))

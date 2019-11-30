@@ -42,8 +42,7 @@ class MMDataRepo @Inject constructor(
         val ref = MMRef(
                 refId = refId,
                 backupId = request.backupId,
-                source = request.source,
-                props = request.props
+                source = request.source
         )
 
         refMap.getOrPut(request.backupId, { mutableListOf() }).add(ref)
@@ -59,7 +58,7 @@ class MMDataRepo @Inject constructor(
     fun release(backupId: Backup.Id) {
         Timber.tag(TAG).d("release(%s): %s", backupId, refMap[backupId])
         refMap[backupId]?.forEach { it ->
-            it.source?.release()
+            it.source.release()
         }
         refMap.remove(backupId)
     }

@@ -24,7 +24,8 @@ fun RootPathLookup.toLocalPathLookup(): LocalPathLookup {
             lookedUp = lookedUp.toLocalPath(),
             fileType = fileType,
             size = size,
-            lastModified = lastModified
+            lastModified = lastModified,
+            target = target?.toLocalPath()
     )
 }
 

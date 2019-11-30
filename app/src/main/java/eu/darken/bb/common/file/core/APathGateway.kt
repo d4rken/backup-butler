@@ -42,4 +42,8 @@ interface APathGateway<P : APath, PLU : APathLookup<P>> {
     @Throws(IOException::class)
     fun delete(path: P): Boolean
 
+    @Throws(IOException::class)
+    fun createSymlink(linkPath: P, targetPath: P): Boolean
+
+    // TODO support setLastModified ??
 }

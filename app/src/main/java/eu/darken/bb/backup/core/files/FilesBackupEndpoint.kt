@@ -24,7 +24,7 @@ import javax.inject.Inject
 class FilesBackupEndpoint @Inject constructor(
         @AppContext override val context: Context,
         private val mmDataRepo: MMDataRepo,
-        private val pathTool: APathTool
+        private val pathTool: GatewaySwitch
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -67,20 +67,10 @@ class FilesBackupEndpoint @Inject constructor(
 
         for (item in items) {
             updateProgressSecondary(item.path)
-            // TODO support symlinks
-            val dataType = when (gateway.lookup(item).fileType) {
-                APath.FileType.DIRECTORY -> MMRef.Type.DIRECTORY
-                APath.FileType.FILE -> MMRef.Type.FILE
-                APath.FileType.SYMBOLIC_LINK -> throw IllegalArgumentException("No support for symlinks!")
-            }
 
             val refRequest = MMRef.Request(
                     backupId = builder.backupId,
-                    source = APathRefResource(item, gateway),
-                    props = MMRef.Props(
-                            originalPath = item,
-                            dataType = dataType
-                    )
+                    source = APathRefResource(item, gateway)
             )
             val ref = mmDataRepo.create(refRequest)
             builder.files.add(ref)

@@ -9,6 +9,7 @@ interface APathLookup<T> : APath {
     val fileType: APath.FileType
     val size: Long
     val lastModified: Date
+    val target: APath?
 
     val isDirectory: Boolean
         get() = fileType == APath.FileType.DIRECTORY

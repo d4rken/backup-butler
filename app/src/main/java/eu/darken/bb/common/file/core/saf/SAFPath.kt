@@ -8,9 +8,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.file.core.APath
 import kotlinx.android.parcel.Parcelize
-import timber.log.Timber
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 
 @Keep @Parcelize
@@ -92,80 +90,5 @@ data class SAFPath(
         fun build(base: Uri, vararg segs: String): SAFPath {
             return SAFPath(base, segs.toList())
         }
-    }
-}
-
-fun SAFPath.requireExists(gateway: SAFGateway): SAFPath {
-    if (!this.exists(gateway)) {
-        val ex = IllegalStateException("Path doesn't exist, but should: $this")
-        Timber.w(ex)
-        throw ex
-    }
-    return this
-}
-
-fun SAFPath.requireNotExists(gateway: SAFGateway): SAFPath {
-    if (this.exists(gateway)) {
-        val ex = IllegalStateException("Path exist, but shouldn't: $this")
-        Timber.w(ex)
-        throw ex
-    }
-    return this
-}
-
-fun SAFPath.tryCreateFile(gateway: SAFGateway): SAFPath {
-    if (exists(gateway)) {
-        if (isFile(gateway)) {
-            Timber.v("File already exists, not creating: %s", this)
-            return this
-        } else {
-            val ex = IllegalStateException("Exists, but is not a file: $this")
-            Timber.w(ex)
-            throw ex
-        }
-    }
-    try {
-        gateway.createFile(this)
-        Timber.v("File created: %s", this)
-        return this
-    } catch (e: Exception) {
-        val ex = IllegalStateException("Couldn't create file: $this", e)
-        Timber.w(ex)
-        throw ex
-    }
-}
-
-fun SAFPath.tryMkDirs(gateway: SAFGateway): SAFPath {
-    if (exists(gateway)) {
-        if (isDirectory(gateway)) {
-            Timber.v("Directory already exists, not creating: %s", this)
-            return this
-        } else {
-            val ex = IllegalStateException("Exists, but is not a directory: $this")
-            Timber.w(ex)
-            throw ex
-        }
-    }
-    try {
-        gateway.createDir(this)
-        Timber.v("Directory created: %s", this)
-        return this
-    } catch (e: Exception) {
-        val ex = IllegalStateException("Couldn't create Directory: $this", e)
-        Timber.w(ex)
-        throw ex
-    }
-}
-
-fun SAFPath.deleteAll(gateway: SAFGateway) {
-    if (isDirectory(gateway)) {
-        listFiles(gateway).forEach { it.deleteAll(gateway) }
-    }
-    if (delete(gateway)) {
-        Timber.v("File.release(): Deleted %s", this)
-    } else if (!exists(gateway)) {
-        Timber.w("File.release(): File didn't exist: %s", this)
-    } else {
-        throw FileNotFoundException("Failed to delete file: $this")
     }
 }

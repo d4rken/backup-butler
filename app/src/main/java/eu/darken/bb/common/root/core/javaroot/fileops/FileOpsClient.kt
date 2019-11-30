@@ -87,6 +87,13 @@ class FileOpsClient(
         throw fakeIOException(e.getRootCause())
     }
 
+    fun createSymlink(linkPath: RootPath, targetPath: RootPath): Boolean = try {
+        fileOps.createSymlink(linkPath, targetPath)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "createSymlink(linkPath=$linkPath, targetPath=$targetPath) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
     private fun fakeIOException(e: Throwable): IOException {
         val gulpExceptionPrefix = "java.io.IOException: "
         val message = when {

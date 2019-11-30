@@ -9,7 +9,7 @@ import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathTool
+import eu.darken.bb.common.file.core.GatewaySwitch
 import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
 import io.reactivex.Completable
@@ -20,7 +20,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         @AppContext private val context: Context,
         moshi: Moshi,
-        private val pathTool: APathTool,
+        private val pathTool: GatewaySwitch,
         private val safGateway: SAFGateway
 ) : GeneratorEditor {
 

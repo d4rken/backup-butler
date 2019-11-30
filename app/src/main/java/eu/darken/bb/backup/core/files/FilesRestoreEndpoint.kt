@@ -8,27 +8,20 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.copyToAutoClose
-import eu.darken.bb.common.file.core.crumbsTo
-import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.core.saf.SAFGateway
-import eu.darken.bb.common.file.core.saf.SAFPath
-import eu.darken.bb.common.file.core.saf.tryCreateFile
-import eu.darken.bb.common.file.core.saf.tryMkDirs
+import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
-import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
 
 class FilesRestoreEndpoint @Inject constructor(
         @AppContext override val context: Context,
-        private val safGateway: SAFGateway
+        private val gatewaySwitch: GatewaySwitch
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -51,15 +44,12 @@ class FilesRestoreEndpoint @Inject constructor(
             requireNotNull(ref.props.originalPath) { "Endpoint expects refs with an original path: $ref" }
             requireNotNull(ref.source) { "Invalid restore: config=$config, spec=$spec, ref=$ref" }
 
-            updateProgressSecondary(ref.props.originalPath.path)
+            updateProgressSecondary(ref.props.originalPath!!.path)
 
             val restorePath = config.restorePath ?: spec.path
 
-            if (restorePath is SAFPath) {
-                restoreSAF(config, spec, ref, restorePath)
-            } else {
-                restoreFile(config, spec, ref, restorePath as LocalPath)
-            }
+            // TODO add restore success to results?
+            restore(config, spec, ref, restorePath)
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
         }
@@ -71,41 +61,25 @@ class FilesRestoreEndpoint @Inject constructor(
 //        TODO("not implemented")
     }
 
-    private fun restoreFile(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: LocalPath) {
-        val chunks = spec.path.crumbsTo(ref.props.originalPath!!)
-        // TODO root support
-        val itemFile = restorePath.child(*chunks).file
-        if (itemFile.exists() && !config.replaceFiles) {
-            Timber.tag(TAG).d("Skipping existing: %s", itemFile)
-            return
-        }
-        when (ref.props.dataType) {
-            FILE -> {
-                itemFile.parentFile.mkdirs()
-                ref.source!!.open().copyToAutoClose(itemFile)
-            }
-            DIRECTORY -> {
-                itemFile.mkdirs()
-            }
-        }
-    }
-
-    private fun restoreSAF(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: SAFPath) {
+    private fun restore(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: APath) {
         val chunks = spec.path.crumbsTo(ref.props.originalPath!!)
         val itemFile = restorePath.child(*chunks)
 
-        if (itemFile.exists(safGateway) && !config.replaceFiles) {
+        if (itemFile.exists(gatewaySwitch) && !config.replaceFiles) {
             Timber.tag(TAG).d("Skipping existing: %s", itemFile)
             return
         }
-
+        // TODO check success ? add to results?
         when (ref.props.dataType) {
             FILE -> {
-                itemFile.tryCreateFile(safGateway)
-                ref.source!!.open().copyToAutoClose(safGateway.write(itemFile))
+                itemFile.createFileIfNecessary(gatewaySwitch)
+                ref.source.open().copyToAutoClose(itemFile.write(gatewaySwitch))
             }
             DIRECTORY -> {
-                itemFile.tryMkDirs(safGateway)
+                itemFile.createDirIfNecessary(gatewaySwitch)
+            }
+            SYMBOLIC_LINK -> {
+                itemFile.createSymlink(gatewaySwitch, ref.props.symlinkTarget!!)
             }
         }
     }

@@ -2,7 +2,9 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 
 import eu.darken.bb.App
 import eu.darken.bb.common.file.core.asFile
+import eu.darken.bb.common.file.core.local.createSymlink
 import eu.darken.bb.common.file.core.local.getAPathFileType
+import eu.darken.bb.common.file.core.local.readLink
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -15,7 +17,8 @@ class FileOpsHost : FileOps.Stub() {
                 lookedUp = path,
                 size = file.length(),
                 lastModifiedRaw = file.lastModified(),
-                fileType = file.getAPathFileType()
+                fileType = file.getAPathFileType(),
+                target = file.readLink()?.let { RootPath.build(it) }
         )
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "lookUp(path=$path) failed.")
@@ -91,6 +94,13 @@ class FileOpsHost : FileOps.Stub() {
         path.asFile().delete()
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "delete(path=$path) failed.")
+        throw wrapPropagating(e)
+    }
+
+    override fun createSymlink(linkPath: RootPath, targetPath: RootPath): Boolean = try {
+        linkPath.asFile().createSymlink(targetPath.asFile())
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "createSymlink(linkPath=$linkPath, targetPath=$targetPath) failed.")
         throw wrapPropagating(e)
     }
 

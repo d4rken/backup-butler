@@ -9,9 +9,10 @@ import java.util.*
 
 class RootPathLookup internal constructor(
         override val lookedUp: RootPath,
+        override val fileType: APath.FileType,
         override val size: Long,
         val lastModifiedRaw: Long,
-        override val fileType: APath.FileType
+        override val target: RootPath?
 ) : Parcelable, APathLookup<RootPath> {
 
     override val lastModified: Date = Date(lastModifiedRaw)
@@ -28,17 +29,19 @@ class RootPathLookup internal constructor(
 
     constructor(parcel: Parcel) : this(
             lookedUp = parcel.readClass<RootPath>()!!,
+            fileType = APath.FileType.valueOf(parcel.readString()!!),
             size = parcel.readLong(),
             lastModifiedRaw = parcel.readLong(),
-            fileType = APath.FileType.valueOf(parcel.readString()!!)
+            target = parcel.readClass<RootPath>()
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.apply {
             writeParcelable(lookedUp, flags)
+            writeString(fileType.name)
             writeLong(size)
             writeLong(lastModifiedRaw)
-            writeString(fileType.name)
+            writeParcelable(target, flags)
         }
     }
 

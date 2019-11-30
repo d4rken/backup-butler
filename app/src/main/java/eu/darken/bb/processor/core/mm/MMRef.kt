@@ -11,11 +11,14 @@ import java.util.*
 data class MMRef(
         val refId: Id,
         val backupId: Backup.Id,
-        val source: RefSource?,
-        val props: Props
+        val source: RefSource
 ) {
 
+    val props: Props
+        get() = source.props
+
     interface RefSource {
+        val props: Props
         fun open(): Source
         fun release()
     }
@@ -23,9 +26,10 @@ data class MMRef(
     @Keep
     @JsonClass(generateAdapter = true)
     data class Props(
+            val dataType: Type,
             val name: String? = null,
             val originalPath: APath?,
-            val dataType: Type
+            val symlinkTarget: APath? = null
     ) {
 
         init {
@@ -38,7 +42,7 @@ data class MMRef(
 
     @Keep
     enum class Type {
-        FILE, DIRECTORY
+        FILE, DIRECTORY, SYMBOLIC_LINK
     }
 
     @Keep
@@ -55,8 +59,7 @@ data class MMRef(
 
     data class Request(
             val backupId: Backup.Id,
-            val source: RefSource,
-            val props: Props
+            val source: RefSource
     )
 
 }

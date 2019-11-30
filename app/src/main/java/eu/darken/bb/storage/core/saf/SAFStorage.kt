@@ -12,10 +12,10 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.copyToAutoClose
+import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.file.core.local.deleteAll
-import eu.darken.bb.common.file.core.saf.*
+import eu.darken.bb.common.file.core.saf.SAFGateway
+import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
 import eu.darken.bb.common.moshi.toSAFFile
 import eu.darken.bb.common.progress.Progress
@@ -27,8 +27,7 @@ import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.APathRefResource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
-import eu.darken.bb.processor.core.mm.MMRef.Type.FILE
+import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -221,8 +220,11 @@ class SAFStorage @AssistedInject constructor(
 
                     val refRequest = MMRef.Request(
                             backupId = backupId,
-                            source = APathRefResource(dataFile, safGateway),
-                            props = safGateway.read(propFile).use { mmDataRepo.readProps(it) }
+                            source = APathRefResource(
+                                    dataFile,
+                                    safGateway,
+                                    safGateway.read(propFile).use { mmDataRepo.readProps(it) }
+                            )
                     )
                     val tmpRef = mmDataRepo.create(refRequest)
 
@@ -250,11 +252,11 @@ class SAFStorage @AssistedInject constructor(
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         } catch (e: Throwable) {
             Timber.tag(TAG).d("Reading existing spec failed (${e.message}, creating new one.")
-            getSpecDir(backup.specId).tryMkDirs(safGateway)
+            getSpecDir(backup.specId).createDirIfNecessary(safGateway)
             writeSpec(backup.specId, backup.spec)
         }
 
-        val versionDir = getVersionDir(backup.specId, backup.backupId).tryMkDirs(safGateway)
+        val versionDir = getVersionDir(backup.specId, backup.backupId).createDirIfNecessary(safGateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
@@ -274,12 +276,14 @@ class SAFStorage @AssistedInject constructor(
                 when (ref.props.dataType) {
                     FILE -> {
                         val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
-                        target.tryCreateFile(safGateway)
-                        ref.source!!.open().copyToAutoClose(safGateway.write(target))
+                        target.createFileIfNecessary(safGateway)
+                        ref.source.open().copyToAutoClose(safGateway.write(target))
                     }
                     DIRECTORY -> {
-                        val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
-                        target.tryMkDirs(safGateway)
+                        // NOOP , props are enough
+                    }
+                    SYMBOLIC_LINK -> {
+                        // NOOP , props are enough
                     }
                 }
             }

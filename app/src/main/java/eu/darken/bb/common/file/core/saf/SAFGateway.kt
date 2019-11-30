@@ -145,7 +145,8 @@ class SAFGateway @Inject constructor(
                     lookedUp = path,
                     fileType = fileType,
                     lastModified = Date(file.lastModified()),
-                    size = file.length()
+                    size = file.length(),
+                    target = null
             )
         } catch (e: Exception) {
             Timber.tag(TAG).w("lookup(%s) failed.", path)
@@ -190,6 +191,10 @@ class SAFGateway @Inject constructor(
             "Couldn't open $path"
         }
         return ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
+    }
+
+    override fun createSymlink(linkPath: SAFPath, targetPath: SAFPath): Boolean {
+        throw UnsupportedOperationException("SAF doesn't support symlinks. createSymlink(linkPath=$linkPath, targetPath=$targetPath)")
     }
 
     fun takePermission(path: SAFPath): Boolean {

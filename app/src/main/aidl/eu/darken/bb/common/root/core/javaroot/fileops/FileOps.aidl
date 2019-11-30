@@ -25,4 +25,6 @@ interface FileOps {
     RootPathLookup lookUp(in RootPath path);
     List<RootPathLookup> lookupFiles(in RootPath path);
 
+    boolean createSymlink(in RootPath linkPath, in RootPath targetPath);
+
 }

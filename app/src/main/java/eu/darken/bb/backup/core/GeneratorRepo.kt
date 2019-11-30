@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.core.APathTool
+import eu.darken.bb.common.file.core.GatewaySwitch
 import eu.darken.bb.common.opt
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class GeneratorRepo @Inject constructor(
         @AppContext context: Context,
         moshi: Moshi,
-        private val pathTool: APathTool
+        private val pathTool: GatewaySwitch
 ) {
     private val configAdapter = moshi.adapter(Generator.Config::class.java)
     private val preferences: SharedPreferences = context.getSharedPreferences("backup_generators", Context.MODE_PRIVATE)

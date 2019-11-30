@@ -11,7 +11,8 @@ data class SAFPathLookup(
         override val lookedUp: SAFPath,
         override val size: Long,
         override val lastModified: Date,
-        override val fileType: APath.FileType
+        override val fileType: APath.FileType,
+        override val target: SAFPath?
 ) : APathLookup<SAFPath> {
 
     override fun child(vararg segments: String): SAFPath {
