@@ -114,10 +114,11 @@ class LocalGateway @Inject constructor(
 
     @Throws(IOException::class)
     fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = try {
-        val nonRootList: Array<File>? = path.asFile().listFiles()
+        val nonRootList: List<File>? = path.asFile().listFilesSafe()
         when {
             mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
-                path.asFile().listFiles().map { LocalPath.build(it) }
+                if (nonRootList == null) throw ReadException(path)
+                nonRootList.map { LocalPath.build(it) }
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 rootOps {
@@ -136,7 +137,8 @@ class LocalGateway @Inject constructor(
 
     @Throws(IOException::class)
     fun lookupFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPathLookup> = try {
-        val nonRootList: List<LocalPath>? = path.asFile().listFiles().map { it.toLocalPath() }
+        val nonRootList: List<LocalPath>? = path.asFile().listFilesSafe()?.map { it.toLocalPath() }
+
         when {
             mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
                 if (nonRootList == null) throw ReadException(path)

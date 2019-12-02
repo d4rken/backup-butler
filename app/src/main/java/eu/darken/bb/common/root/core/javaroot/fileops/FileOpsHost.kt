@@ -8,7 +8,6 @@ import eu.darken.bb.common.file.core.local.*
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
 
 class FileOpsHost : FileOps.Stub() {
     override fun lookUp(path: LocalPath): LocalPathLookup = try {
@@ -19,9 +18,7 @@ class FileOpsHost : FileOps.Stub() {
     }
 
     override fun listFiles(path: LocalPath): List<LocalPath> = try {
-        val result = path.asFile().listFiles()
-        if (result == null) throw IOException("listFiles() returned null for ${path.path}")
-        result.map { LocalPath.build(it) }
+        path.asFile().listFilesThrowing().map { LocalPath.build(it) }
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "listFiles(path=$path) failed.")
         throw wrapPropagating(e)

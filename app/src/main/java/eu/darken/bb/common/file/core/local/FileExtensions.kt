@@ -86,10 +86,10 @@ fun File.tryMkFile(): File {
     }
 }
 
+@Throws(IOException::class)
 fun File.deleteAll() {
     if (isDirectory) {
-        val dirContent: Array<File>? = listFiles()
-        dirContent?.forEach { it.deleteAll() }
+        listFiles()?.forEach { it.deleteAll() }
     }
     if (delete()) {
         Timber.v("File.release(): Deleted %s", this)
@@ -100,12 +100,13 @@ fun File.deleteAll() {
     }
 }
 
-fun File.safeListFiles(): Array<File> {
-    return this.listFiles() ?: throw IOException("listFiles() returned NULL")
+fun File.listFilesSafe(): List<File>? {
+    return this.listFiles()?.toList()
 }
 
-fun File.safeListFiles(filter: (File) -> Boolean): Array<File> {
-    return this.listFiles(filter) ?: throw IOException("listFiles(filter=$filter) returned NULL")
+@Throws(IOException::class)
+fun File.listFilesThrowing(): List<File> {
+    return this.listFiles()?.toList() ?: throw IOException("listFiles() returned NULL on $path")
 }
 
 fun File.isSymbolicLink(): Boolean {

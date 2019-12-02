@@ -61,9 +61,9 @@ class LocalStorage @AssistedInject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
-            .fromCallable { dataDir.safeListFiles() }
+            .fromCallable { dataDir.listFilesThrowing() }
             .subscribeOn(Schedulers.io())
-            .onErrorReturnItem(emptyArray())
+            .onErrorReturnItem(emptyList())
             .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
             .filterUnchanged { old, new -> old.toList() != new.toList() }
             .replayingShare()
@@ -163,11 +163,11 @@ class LocalStorage @AssistedInject constructor(
                 val backupSpec = readSpec(specId)
                 val metaData = readBackupMeta(item.specId, backupId)
 
-                return@flatMap Observable.fromCallable { backupDir.safeListFiles() }
+                return@flatMap Observable.fromCallable { backupDir.listFilesThrowing() }
                         .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                         .filterUnchanged()
                         .map {
-                            return@map versionDir.safeListFiles()
+                            return@map versionDir.listFilesThrowing()
                                     .filter { it.path.endsWith(PROP_EXT) }
                                     .map { file ->
                                         val props = file.source().use { mmDataRepo.readProps(it) }
@@ -200,7 +200,7 @@ class LocalStorage @AssistedInject constructor(
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
 
         val versionPath = getVersionDir(specId, backupId).requireExists()
-        versionPath.safeListFiles { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
+        versionPath.listFilesThrowing().filter { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
 
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
 
@@ -315,7 +315,7 @@ class LocalStorage @AssistedInject constructor(
 
     private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
-        getSpecDir(specId).safeListFiles().filter { it.isDirectory }.forEach { dir ->
+        getSpecDir(specId).listFilesThrowing().filter { it.isDirectory }.forEach { dir ->
             try {
                 val metaData = readBackupMeta(specId, Backup.Id(dir.name))
                 metaDatas.add(metaData)

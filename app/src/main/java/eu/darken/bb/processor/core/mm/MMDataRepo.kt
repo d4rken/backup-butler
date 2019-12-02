@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.file.core.local.listFilesThrowing
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
 import okio.Sink
@@ -28,7 +29,7 @@ class MMDataRepo @Inject constructor(
             Timber.tag(TAG).d("TMP dirs created: %s", tmpDir)
         } else {
             thread(start = true, name = "MMRepo Cleanup") {
-                tmpDir.listFiles().forEach {
+                tmpDir.listFilesThrowing().forEach {
                     it.deleteRecursively()
                 }
             }
