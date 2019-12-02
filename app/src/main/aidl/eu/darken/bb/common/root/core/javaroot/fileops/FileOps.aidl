@@ -2,29 +2,28 @@ package eu.darken.bb.common.root.core.javaroot.fileops;
 
 import eu.darken.bb.common.root.core.javaroot.fileops.RemoteInputStream;
 import eu.darken.bb.common.root.core.javaroot.fileops.RemoteOutputStream;
-import eu.darken.bb.common.root.core.javaroot.fileops.RootPath;
-import eu.darken.bb.common.root.core.javaroot.fileops.RootPathLookup;
+import eu.darken.bb.common.file.core.local.LocalPath;
+import eu.darken.bb.common.file.core.local.LocalPathLookup;
 
 interface FileOps {
 
-    RemoteInputStream readFile(in RootPath path);
-    RemoteOutputStream writeFile(in RootPath path);
+    RemoteInputStream readFile(in LocalPath path);
+    RemoteOutputStream writeFile(in LocalPath path);
 
-    boolean mkdirs(in RootPath path);
-    boolean createNewFile(in RootPath path);
+    boolean mkdirs(in LocalPath path);
+    boolean createNewFile(in LocalPath path);
 
-    boolean canRead(in RootPath path);
-    boolean canWrite(in RootPath path);
+    boolean canRead(in LocalPath path);
+    boolean canWrite(in LocalPath path);
 
-    boolean exists(in RootPath path);
+    boolean exists(in LocalPath path);
 
-    boolean delete(in RootPath path);
+    boolean delete(in LocalPath path);
 
-    List<RootPath> listFiles(in RootPath path);
+    List<LocalPath> listFiles(in LocalPath path);
 
-    RootPathLookup lookUp(in RootPath path);
-    List<RootPathLookup> lookupFiles(in RootPath path);
+    LocalPathLookup lookUp(in LocalPath path);
+    List<LocalPathLookup> lookupFiles(in LocalPath path);
 
-    boolean createSymlink(in RootPath linkPath, in RootPath targetPath);
-
+    boolean createSymlink(in LocalPath linkPath, in LocalPath targetPath);
 }

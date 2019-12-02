@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root.core.javaroot.fileops
+package eu.darken.bb.common.file.core
 
 import okio.Buffer
 import okio.Source

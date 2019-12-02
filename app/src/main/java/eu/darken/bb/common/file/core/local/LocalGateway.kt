@@ -5,7 +5,7 @@ import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.fileops.*
+import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
 import okio.*
 import timber.log.Timber
 import java.io.File
@@ -55,7 +55,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
                 rootOps {
-                    it.mkdirs(path.toRootPath())
+                    it.mkdirs(path)
                 }
             }
             else -> throw IOException("No matching mode.")
@@ -78,7 +78,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
                 rootOps {
-                    it.createNewFile(path.toRootPath())
+                    it.createNewFile(path)
                 }
             }
             else -> throw IOException("No matching mode.")
@@ -101,7 +101,7 @@ class LocalGateway @Inject constructor(
                 javaFile.toLocalPathLookup()
             }
             mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
-                rootOps { it.lookUp(path.toRootPath()) }.toLocalPathLookup()
+                rootOps { it.lookUp(path) }
             }
             else -> throw IOException("No matching mode.")
         }
@@ -121,8 +121,8 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 rootOps {
-                    it.listFiles(path.toRootPath())
-                }.map { it.toLocalPath() }
+                    it.listFiles(path)
+                }
             }
             else -> throw IOException("No matching mode.")
         }
@@ -144,8 +144,8 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 rootOps {
-                    it.lookupFiles(path.toRootPath())
-                }.map { it.toLocalPathLookup() }
+                    it.lookupFiles(path)
+                }
             }
             else -> throw IOException("No matching mode.")
         }
@@ -167,7 +167,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !existsNormal -> {
                 rootOps {
-                    it.exists(path.toRootPath())
+                    it.exists(path)
                 }
             }
             else -> throw IOException("No matching mode.")
@@ -190,7 +190,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
                 rootOps {
-                    it.canWrite(path.toRootPath())
+                    it.canWrite(path)
                 }
             }
             else -> throw IOException("No matching mode.")
@@ -213,7 +213,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
                 rootOps {
-                    it.canRead(path.toRootPath())
+                    it.canRead(path)
                 }
             }
             else -> throw IOException("No matching mode.")
@@ -240,7 +240,7 @@ class LocalGateway @Inject constructor(
                 javaFile.source()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
-                path.toRootPath().source(javaRootClient).buffer()
+                path.sourceRoot(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
         }
@@ -261,7 +261,7 @@ class LocalGateway @Inject constructor(
                 javaFile.sink()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canOpen -> {
-                path.toRootPath().sink(javaRootClient).buffer()
+                path.sinkRoot(javaRootClient).buffer()
             }
             else -> throw IOException("No matching mode.")
         }
@@ -283,7 +283,7 @@ class LocalGateway @Inject constructor(
                 javaFile.delete()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                rootOps { it.delete(path.toRootPath()) }
+                rootOps { it.delete(path) }
             }
             else -> throw IOException("No matching mode.")
         }
@@ -306,7 +306,7 @@ class LocalGateway @Inject constructor(
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
                 rootOps {
-                    it.createSymlink(linkPath.toRootPath(), targetPath.toRootPath())
+                    it.createSymlink(linkPath, targetPath)
                 }
             }
             else -> throw IOException("No matching mode.")

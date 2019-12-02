@@ -34,12 +34,16 @@ class MMDataRepoTest : BaseTest() {
 
         val req1 = MMRef.Request(
                 backupId = Backup.Id(),
-                source = spy { FileRefSource(File("testfile")) },
-                props = MMRef.Props(
-                        name = "testname",
-                        originalPath = null,
-                        dataType = MMRef.Type.DIRECTORY
-                )
+                source = spy {
+                    FileRefSource(
+                            File("testfile"),
+                            props = MMRef.Props(
+                                    name = "testname",
+                                    originalPath = null,
+                                    dataType = MMRef.Type.DIRECTORY
+                            )
+                    )
+                }
         )
         val ref1 = repo.create(req1)
         req1.source shouldBe ref1.source
@@ -47,12 +51,16 @@ class MMDataRepoTest : BaseTest() {
 
         val req2 = MMRef.Request(
                 backupId = Backup.Id(),
-                source = spy { FileRefSource(File("testfile")) },
-                props = MMRef.Props(
-                        name = "testname",
-                        originalPath = null,
-                        dataType = MMRef.Type.DIRECTORY
-                )
+                source = spy {
+                    FileRefSource(
+                            File("testfile"),
+                            props = MMRef.Props(
+                                    name = "testname",
+                                    originalPath = null,
+                                    dataType = MMRef.Type.DIRECTORY
+                            )
+                    )
+                }
         )
         val ref2 = repo.create(req2)
         req2.source shouldBe ref2.source

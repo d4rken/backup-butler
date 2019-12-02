@@ -6,6 +6,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.file.core.RawPath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import okio.Source
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,11 +16,22 @@ class MMRefTest {
         val ref = MMRef(
                 refId = MMRef.Id(),
                 backupId = Backup.Id(),
-                source = null,
-                props = MMRef.Props(
-                        originalPath = RawPath.build("originalpath"),
-                        dataType = MMRef.Type.FILE
-                )
+                source = object : MMRef.RefSource {
+                    override val props: MMRef.Props
+                        get() = MMRef.Props(
+                                originalPath = RawPath.build("originalpath"),
+                                dataType = MMRef.Type.FILE
+                        )
+
+                    override fun open(): Source {
+                        TODO("not implemented")
+                    }
+
+                    override fun release() {
+                        TODO("not implemented")
+                    }
+
+                }
         )
 
         val orig = ref.props
@@ -27,7 +39,7 @@ class MMRefTest {
         val adapter = AppModule().moshi().adapter(MMRef.Props::class.java)
 
         val json = adapter.toJson(orig)
-        json shouldBe "{\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"},\"dataType\":\"FILE\"}"
+        json shouldBe "{\"dataType\":\"FILE\",\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}}"
 
         assertThat(adapter.fromJson(json)).isEqualTo(orig)
     }

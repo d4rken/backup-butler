@@ -1,15 +1,16 @@
 package eu.darken.bb.common.file.core.local
 
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.file.core.APath
-import kotlinx.android.parcel.Parcelize
 import java.io.File
 import java.io.IOException
 
 
-@Keep @Parcelize
+@Keep
 @JsonClass(generateAdapter = true)
 data class LocalPath(
         val file: File
@@ -57,7 +58,27 @@ data class LocalPath(
 
     override fun toString(): String = "LocalPath(file=$file)"
 
+    constructor(parcel: Parcel) : this(File(parcel.readString()))
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(file.path)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
     companion object {
+        @JvmField val CREATOR = object : Parcelable.Creator<LocalPath> {
+            override fun createFromParcel(parcel: Parcel): LocalPath {
+                return LocalPath(parcel)
+            }
+
+            override fun newArray(size: Int): Array<LocalPath?> {
+                return arrayOfNulls(size)
+            }
+        }
+
         fun build(base: File, vararg crumbs: String): LocalPath {
             return build(base.path, *crumbs)
         }
@@ -74,4 +95,6 @@ data class LocalPath(
             return LocalPath(file)
         }
     }
+
+
 }
