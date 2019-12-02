@@ -67,8 +67,8 @@ class APathRefResource<PathType : APath, GateType : APathGateway<in PathType, ou
 ) : BaseRefSource({ gateway.read(path) }) {
 
     private val autoGenProps: MMRef.Props by lazy {
-
-        val dataType = gateway.lookup(path).fileType.toMMRefType()
+        val lookup = gateway.lookup(path)
+        val dataType = lookup.fileType.toMMRefType()
         val symlinkTarget: APath? = if (dataType == MMRef.Type.SYMBOLIC_LINK) {
             gateway.lookup(path).target
         } else {
@@ -77,6 +77,11 @@ class APathRefResource<PathType : APath, GateType : APathGateway<in PathType, ou
         MMRef.Props(
                 originalPath = path,
                 dataType = dataType,
+                modifiedAt = lookup.modifiedAt,
+                createdAt = lookup.createdAt,
+                userId = lookup.userId,
+                groupId = lookup.groupId,
+                permissions = lookup.permissions,
                 symlinkTarget = symlinkTarget
         )
     }

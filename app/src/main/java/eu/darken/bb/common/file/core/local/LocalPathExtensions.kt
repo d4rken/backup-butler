@@ -1,11 +1,15 @@
 package eu.darken.bb.common.file.core.local
 
+import android.system.Os
+import eu.darken.bb.common.file.core.APathLookup
 import eu.darken.bb.common.file.core.asFile
 import eu.darken.bb.common.file.core.callbacks
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
 import okio.Sink
 import okio.Source
+import timber.log.Timber
+import java.util.*
 
 
 fun LocalPath.crumbsTo(child: LocalPath): Array<String> {
@@ -28,14 +32,34 @@ fun LocalPath.toCrumbs(): List<LocalPath> {
     return crumbs
 }
 
-fun LocalPath.sourceRoot(client: JavaRootClient): Source {
+internal fun LocalPath.sourceRoot(client: JavaRootClient): Source {
     val resource = client.sharedResource.get()
     val fileOps = resource.data.getModule<FileOpsClient>()
     return fileOps.readFile(this).callbacks { resource.close() }
 }
 
-fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
+internal fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
     val resource = client.sharedResource.get()
     val fileOps = resource.data.getModule<FileOpsClient>()
     return fileOps.writeFile(this).callbacks { resource.close() }
+}
+
+fun LocalPath.performLookup(): LocalPathLookup {
+    val fstat = try {
+        Os.lstat(file.path)
+    } catch (e: Exception) {
+        Timber.tag(LocalGateway.TAG).w(e, "fstat failed on %s", this)
+        null
+    }
+    return LocalPathLookup(
+            fileType = file.getAPathFileType(),
+            lookedUp = this,
+            size = file.length(),
+            modifiedAt = Date(file.lastModified()),
+            createdAt = fstat?.let { Date(it.st_ctime) } ?: Date(),
+            userId = fstat?.st_uid?.toLong() ?: -1L,
+            groupId = fstat?.st_gid?.toLong() ?: -1L,
+            permissions = fstat?.let { APathLookup.Permissions(it.st_mode) } ?: APathLookup.Permissions(-1),
+            target = file.readLink()?.let { LocalPath.build(it) }
+    )
 }

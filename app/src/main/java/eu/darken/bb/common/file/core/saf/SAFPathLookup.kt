@@ -10,7 +10,11 @@ import java.util.*
 data class SAFPathLookup(
         override val lookedUp: SAFPath,
         override val size: Long,
-        override val lastModified: Date,
+        override val modifiedAt: Date,
+        override val createdAt: Date,
+        override val userId: Long,
+        override val groupId: Long,
+        override val permissions: APathLookup.Permissions,
         override val fileType: APath.FileType,
         override val target: SAFPath?
 ) : APathLookup<SAFPath> {

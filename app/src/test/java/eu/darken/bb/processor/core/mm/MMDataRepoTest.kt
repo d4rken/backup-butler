@@ -5,6 +5,7 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.file.core.APathLookup
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import testhelper.BaseTest
 import java.io.File
+import java.util.*
 
 class MMDataRepoTest : BaseTest() {
 
@@ -40,7 +42,12 @@ class MMDataRepoTest : BaseTest() {
                             props = MMRef.Props(
                                     name = "testname",
                                     originalPath = null,
-                                    dataType = MMRef.Type.DIRECTORY
+                                    dataType = MMRef.Type.DIRECTORY,
+                                    modifiedAt = Date(),
+                                    createdAt = Date(),
+                                    userId = 123L,
+                                    groupId = 456L,
+                                    permissions = APathLookup.Permissions(16888)
                             )
                     )
                 }
@@ -57,7 +64,12 @@ class MMDataRepoTest : BaseTest() {
                             props = MMRef.Props(
                                     name = "testname",
                                     originalPath = null,
-                                    dataType = MMRef.Type.DIRECTORY
+                                    dataType = MMRef.Type.DIRECTORY,
+                                    modifiedAt = Date(),
+                                    createdAt = Date(),
+                                    userId = 123L,
+                                    groupId = 456L,
+                                    permissions = APathLookup.Permissions(16888)
                             )
                     )
                 }

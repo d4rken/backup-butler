@@ -2,23 +2,18 @@ package eu.darken.bb.common.root.core.javaroot.fileops
 
 import eu.darken.bb.App
 import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.local.*
+import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.core.local.LocalPathLookup
+import eu.darken.bb.common.file.core.local.createSymlink
+import eu.darken.bb.common.file.core.local.performLookup
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
 
 class FileOpsHost : FileOps.Stub() {
     override fun lookUp(path: LocalPath): LocalPathLookup = try {
-        val file = path.asFile()
-        LocalPathLookup(
-                lookedUp = path,
-                size = file.length(),
-                lastModified = Date(file.lastModified()),
-                fileType = file.getAPathFileType(),
-                target = file.readLink()?.let { LocalPath.build(it) }
-        )
+        path.performLookup()
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "lookUp(path=$path) failed.")
         throw wrapPropagating(e)

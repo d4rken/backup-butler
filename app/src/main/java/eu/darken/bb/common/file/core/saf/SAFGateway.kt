@@ -10,10 +10,7 @@ import androidx.documentfile.provider.DocumentFile
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathGateway
-import eu.darken.bb.common.file.core.ReadException
-import eu.darken.bb.common.file.core.WriteException
+import eu.darken.bb.common.file.core.*
 import okio.*
 import timber.log.Timber
 import java.io.IOException
@@ -141,10 +138,16 @@ class SAFGateway @Inject constructor(
                 file.isDirectory -> APath.FileType.DIRECTORY
                 else -> APath.FileType.FILE
             }
+            val fstat = file.fstat(contentResolver)
+
             SAFPathLookup(
                     lookedUp = path,
                     fileType = fileType,
-                    lastModified = Date(file.lastModified()),
+                    modifiedAt = Date(file.lastModified()),
+                    createdAt = fstat?.let { Date(it.st_ctime) } ?: Date(),
+                    userId = fstat?.st_uid?.toLong() ?: -1L,
+                    groupId = fstat?.st_gid?.toLong() ?: -1L,
+                    permissions = fstat?.let { APathLookup.Permissions(it.st_mode) } ?: APathLookup.Permissions(-1),
                     size = file.length(),
                     target = null
             )
@@ -167,18 +170,12 @@ class SAFGateway @Inject constructor(
         throw ReadException(path, cause = e)
     }
 
-    private enum class FileMode constructor(val value: String) {
-        WRITE("w"), READ("r")
-    }
-
     @Throws(IOException::class)
     override fun read(path: SAFPath): Source {
         val docFile = getDocumentFile(path)
         if (docFile == null) throw ReadException(path)
 
-        val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.READ.value)) {
-            "Couldn't open $path"
-        }
+        val pfd = docFile.openParcelFileDescriptor(contentResolver, FileMode.READ)
         return ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
     }
 
@@ -187,9 +184,7 @@ class SAFGateway @Inject constructor(
         val docFile = getDocumentFile(path)
         if (docFile == null) throw WriteException(path)
 
-        val pfd = requireNotNull(contentResolver.openFileDescriptor(docFile.uri, FileMode.WRITE.value)) {
-            "Couldn't open $path"
-        }
+        val pfd = docFile.openParcelFileDescriptor(contentResolver, FileMode.WRITE)
         return ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
     }
 

@@ -10,7 +10,6 @@ import okio.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.util.*
 import javax.inject.Inject
 
 @PerApp
@@ -98,7 +97,7 @@ class LocalGateway @Inject constructor(
         when {
             mode == Mode.NORMAL || canRead && mode == Mode.AUTO -> {
                 if (!canRead) throw ReadException(path)
-                javaFile.toLocalPathLookup()
+                path.performLookup()
             }
             mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
                 rootOps { it.lookUp(path) }
@@ -136,11 +135,11 @@ class LocalGateway @Inject constructor(
 
     @Throws(IOException::class)
     fun lookupFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPathLookup> = try {
-        val nonRootList: Array<File>? = path.asFile().listFiles()
+        val nonRootList: List<LocalPath>? = path.asFile().listFiles().map { it.toLocalPath() }
         when {
             mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
                 if (nonRootList == null) throw ReadException(path)
-                nonRootList.map { it.toLocalPathLookup() }
+                nonRootList.map { it.performLookup() }
             }
             mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
                 rootOps {
@@ -315,15 +314,6 @@ class LocalGateway @Inject constructor(
         Timber.tag(TAG).w("createSymlink(linkPath=%s, targetPath=%s, mode=%s) failed.", linkPath, targetPath, mode)
         throw WriteException(linkPath, cause = e)
     }
-
-    private fun File.toLocalPathLookup(): LocalPathLookup = LocalPathLookup(
-            lookedUp = LocalPath.build(this),
-            fileType = this.getAPathFileType(),
-            lastModified = Date(this.lastModified()),
-            size = this.length(),
-            target = this.readLink()?.let { LocalPath.build(it) }
-    )
-
 
     enum class Mode {
         AUTO, NORMAL, ROOT

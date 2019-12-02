@@ -5,6 +5,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.APathLookup
 import okio.Source
 import java.util.*
 
@@ -29,6 +30,11 @@ data class MMRef(
             val dataType: Type,
             val name: String? = null,
             val originalPath: APath?,
+            val modifiedAt: Date,
+            val createdAt: Date,
+            val userId: Long,
+            val groupId: Long,
+            val permissions: APathLookup.Permissions,
             val symlinkTarget: APath? = null
     ) {
 

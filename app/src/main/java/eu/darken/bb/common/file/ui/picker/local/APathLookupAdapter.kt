@@ -44,7 +44,7 @@ class APathLookupAdapter @Inject constructor()
 
         override fun bind(item: APathLookup<*>) {
             label.text = item.userReadableName(context)
-            lastModified.text = formatter.format(item.lastModified)
+            lastModified.text = formatter.format(item.modifiedAt)
             size.text = Formatter.formatFileSize(context, item.size)
             size.setInvisible(item.isDirectory)
 
