@@ -24,7 +24,7 @@ import javax.inject.Inject
 class FilesBackupEndpoint @Inject constructor(
         @AppContext override val context: Context,
         private val mmDataRepo: MMDataRepo,
-        private val pathTool: GatewaySwitch
+        private val gatewaySwitch: GatewaySwitch
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -40,7 +40,7 @@ class FilesBackupEndpoint @Inject constructor(
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val gateway = pathTool.getGateway(spec.path)
+        val gateway = gatewaySwitch.getGateway(spec.path)
         if (!resourceTokens.containsKey(spec.path.pathType)) {
             resourceTokens[spec.path.pathType] = gateway.resourceTokens.get()
         }

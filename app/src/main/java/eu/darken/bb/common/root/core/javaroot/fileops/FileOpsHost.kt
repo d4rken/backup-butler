@@ -1,11 +1,10 @@
 package eu.darken.bb.common.root.core.javaroot.fileops
 
 import eu.darken.bb.App
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.core.local.LocalPathLookup
-import eu.darken.bb.common.file.core.local.createSymlink
-import eu.darken.bb.common.file.core.local.performLookup
+import eu.darken.bb.common.file.core.local.*
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -95,6 +94,27 @@ class FileOpsHost : FileOps.Stub() {
         linkPath.asFile().createSymlink(targetPath.asFile())
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "createSymlink(linkPath=$linkPath, targetPath=$targetPath) failed.")
+        throw wrapPropagating(e)
+    }
+
+    override fun setModifiedAt(path: LocalPath, modifiedAt: Long): Boolean = try {
+        path.asFile().setLastModified(modifiedAt)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setModifiedAt(path=$path, modifiedAt=$modifiedAt) failed.")
+        throw wrapPropagating(e)
+    }
+
+    override fun setPermissions(path: LocalPath, permissions: Permissions): Boolean = try {
+        path.asFile().setPermissions(permissions)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setModifiedAt(path=$path, permissions=$permissions) failed.")
+        throw wrapPropagating(e)
+    }
+
+    override fun setOwnership(path: LocalPath, ownership: Ownership): Boolean = try {
+        path.asFile().setOwnership(ownership)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setModifiedAt(path=$path, ownership=$ownership) failed.")
         throw wrapPropagating(e)
     }
 

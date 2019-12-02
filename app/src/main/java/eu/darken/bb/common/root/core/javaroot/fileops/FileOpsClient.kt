@@ -1,6 +1,8 @@
 package eu.darken.bb.common.root.core.javaroot.fileops
 
 import eu.darken.bb.App
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.common.file.core.local.LocalPath
 import eu.darken.bb.common.file.core.local.LocalPathLookup
 import eu.darken.bb.common.getRootCause
@@ -8,6 +10,7 @@ import okio.Sink
 import okio.Source
 import timber.log.Timber
 import java.io.IOException
+import java.util.*
 
 class FileOpsClient(
         private val fileOps: FileOps
@@ -93,6 +96,27 @@ class FileOpsClient(
         fileOps.createSymlink(linkPath, targetPath)
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "createSymlink(linkPath=$linkPath, targetPath=$targetPath) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
+    fun setModifiedAt(path: LocalPath, modifiedAt: Date): Boolean = try {
+        fileOps.setModifiedAt(path, modifiedAt.time)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setModifiedAt(path=$path, modifiedAt=$modifiedAt) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
+    fun setPermissions(path: LocalPath, permissions: Permissions): Boolean = try {
+        fileOps.setPermissions(path, permissions)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setPermissions(path=$path, permissions=$permissions) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
+    fun setOwnership(path: LocalPath, ownership: Ownership): Boolean = try {
+        fileOps.setOwnership(path, ownership)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "setOwnership(path=$path, ownership=$ownership) failed.")
         throw fakeIOException(e.getRootCause())
     }
 

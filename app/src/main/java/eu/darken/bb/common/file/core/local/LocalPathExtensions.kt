@@ -1,7 +1,8 @@
 package eu.darken.bb.common.file.core.local
 
 import android.system.Os
-import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.common.file.core.asFile
 import eu.darken.bb.common.file.core.callbacks
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
@@ -56,10 +57,8 @@ fun LocalPath.performLookup(): LocalPathLookup {
             lookedUp = this,
             size = file.length(),
             modifiedAt = Date(file.lastModified()),
-            createdAt = fstat?.let { Date(it.st_ctime) } ?: Date(),
-            userId = fstat?.st_uid?.toLong() ?: -1L,
-            groupId = fstat?.st_gid?.toLong() ?: -1L,
-            permissions = fstat?.let { APathLookup.Permissions(it.st_mode) } ?: APathLookup.Permissions(-1),
+            ownership = Ownership(fstat?.st_uid ?: -1, fstat?.st_gid ?: -1),
+            permissions = Permissions(fstat?.st_mode ?: -1),
             target = file.readLink()?.let { LocalPath.build(it) }
     )
 }

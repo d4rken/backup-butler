@@ -7,6 +7,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.file.core.*
 import eu.darken.bb.common.progress.Progress
@@ -26,6 +27,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
+    private val resourceTokens = mutableMapOf<APath.PathType, SharedResource.Resource<*>>()
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
@@ -46,10 +48,13 @@ class FilesRestoreEndpoint @Inject constructor(
 
             updateProgressSecondary(ref.props.originalPath!!.path)
 
-            val restorePath = config.restorePath ?: spec.path
+            val gateway = gatewaySwitch.getGateway(spec.path)
+            if (!resourceTokens.containsKey(spec.path.pathType)) {
+                resourceTokens[spec.path.pathType] = gateway.resourceTokens.get()
+            }
 
             // TODO add restore success to results?
-            restore(config, spec, ref, restorePath)
+            restore(config, spec, ref, gateway)
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
         }
@@ -58,30 +63,32 @@ class FilesRestoreEndpoint @Inject constructor(
     }
 
     override fun close() {
-//        TODO("not implemented")
+        resourceTokens.values.forEach { it.close() }
     }
 
-    private fun restore(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, restorePath: APath) {
+    private fun restore(config: FilesRestoreConfig, spec: FilesBackupSpec, ref: MMRef, gateway: APathGateway<APath, APathLookup<APath>>) {
+        val restorePath = config.restorePath ?: spec.path
         val chunks = spec.path.crumbsTo(ref.props.originalPath!!)
         val itemFile = restorePath.child(*chunks)
 
-        if (itemFile.exists(gatewaySwitch) && !config.replaceFiles) {
+        if (itemFile.exists(gateway) && !config.replaceFiles) {
             Timber.tag(TAG).d("Skipping existing: %s", itemFile)
             return
         }
         // TODO check success ? add to results?
         when (ref.props.dataType) {
             FILE -> {
-                itemFile.createFileIfNecessary(gatewaySwitch)
-                ref.source.open().copyToAutoClose(itemFile.write(gatewaySwitch))
+                itemFile.createFileIfNecessary(gateway)
+                ref.source.open().copyToAutoClose(itemFile.write(gateway))
             }
             DIRECTORY -> {
-                itemFile.createDirIfNecessary(gatewaySwitch)
+                itemFile.createDirIfNecessary(gateway)
             }
             SYMBOLIC_LINK -> {
-                itemFile.createSymlink(gatewaySwitch, ref.props.symlinkTarget!!)
+                itemFile.createSymlink(gateway, ref.props.symlinkTarget!!)
             }
         }
+        itemFile.setMetaData(gateway, ref.props)
     }
 
     companion object {

@@ -78,9 +78,7 @@ class APathRefResource<PathType : APath, GateType : APathGateway<in PathType, ou
                 originalPath = path,
                 dataType = dataType,
                 modifiedAt = lookup.modifiedAt,
-                createdAt = lookup.createdAt,
-                userId = lookup.userId,
-                groupId = lookup.groupId,
+                ownership = lookup.ownership,
                 permissions = lookup.permissions,
                 symlinkTarget = symlinkTarget
         )

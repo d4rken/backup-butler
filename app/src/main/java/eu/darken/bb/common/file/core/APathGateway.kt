@@ -4,6 +4,7 @@ import eu.darken.bb.common.SharedResource
 import okio.Sink
 import okio.Source
 import java.io.IOException
+import java.util.*
 
 interface APathGateway<P : APath, PLU : APathLookup<P>> {
 
@@ -45,5 +46,12 @@ interface APathGateway<P : APath, PLU : APathLookup<P>> {
     @Throws(IOException::class)
     fun createSymlink(linkPath: P, targetPath: P): Boolean
 
-    // TODO support setLastModified ??
+    @Throws(IOException::class)
+    fun setModifiedAt(path: P, modifiedAt: Date): Boolean
+
+    @Throws(IOException::class)
+    fun setPermissions(path: P, permissions: Permissions): Boolean
+
+    @Throws(IOException::class)
+    fun setOwnership(path: P, ownership: Ownership): Boolean
 }

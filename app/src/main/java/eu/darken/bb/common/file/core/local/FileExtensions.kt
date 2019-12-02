@@ -2,6 +2,8 @@ package eu.darken.bb.common.file.core.local
 
 import android.system.Os
 import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -138,3 +140,23 @@ fun File.getAPathFileType(): APath.FileType = when {
 }
 
 fun File.toLocalPath(): LocalPath = LocalPath.build(this)
+
+fun File.setPermissions(permissions: Permissions): Boolean {
+    return if (permissions.isValid) {
+        Os.chmod(path, permissions.mode)
+        true
+    } else {
+        Timber.w("Can't do setPermissions(permissions=%s) with invalid modes on %s", this)
+        false
+    }
+}
+
+fun File.setOwnership(ownership: Ownership): Boolean {
+    return if (ownership.isValid) {
+        Os.lchown(path, ownership.userId, ownership.groupId)
+        true
+    } else {
+        Timber.w("Can't do setOwnership(ownership=%s) with invalid ids on %s", this)
+        false
+    }
+}

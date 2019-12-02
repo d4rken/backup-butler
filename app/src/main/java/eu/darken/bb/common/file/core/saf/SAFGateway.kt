@@ -144,10 +144,8 @@ class SAFGateway @Inject constructor(
                     lookedUp = path,
                     fileType = fileType,
                     modifiedAt = Date(file.lastModified()),
-                    createdAt = fstat?.let { Date(it.st_ctime) } ?: Date(),
-                    userId = fstat?.st_uid?.toLong() ?: -1L,
-                    groupId = fstat?.st_gid?.toLong() ?: -1L,
-                    permissions = fstat?.let { APathLookup.Permissions(it.st_mode) } ?: APathLookup.Permissions(-1),
+                    ownership = Ownership(fstat?.st_uid ?: -1, fstat?.st_gid ?: -1),
+                    permissions = fstat?.let { Permissions(it.st_mode) } ?: Permissions(-1),
                     size = file.length(),
                     target = null
             )
@@ -186,6 +184,25 @@ class SAFGateway @Inject constructor(
 
         val pfd = docFile.openParcelFileDescriptor(contentResolver, FileMode.WRITE)
         return ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
+    }
+
+    override fun setModifiedAt(path: SAFPath, modifiedAt: Date): Boolean {
+        // TODO setModifiedAt
+        return false
+    }
+
+    override fun setPermissions(path: SAFPath, permissions: Permissions): Boolean {
+        val docFile = getDocumentFile(path)
+        if (docFile == null) throw WriteException(path)
+
+        return docFile.setPermissions(contentResolver, permissions)
+    }
+
+    override fun setOwnership(path: SAFPath, ownership: Ownership): Boolean {
+        val docFile = getDocumentFile(path)
+        if (docFile == null) throw WriteException(path)
+
+        return docFile.setOwnership(contentResolver, ownership)
     }
 
     override fun createSymlink(linkPath: SAFPath, targetPath: SAFPath): Boolean {

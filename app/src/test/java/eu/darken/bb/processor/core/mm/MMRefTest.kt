@@ -3,7 +3,8 @@ package eu.darken.bb.processor.core.mm
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.common.file.core.RawPath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
@@ -24,10 +25,8 @@ class MMRefTest {
                                 originalPath = RawPath.build("originalpath"),
                                 dataType = MMRef.Type.FILE,
                                 modifiedAt = Date(0),
-                                createdAt = Date(0),
-                                userId = 123L,
-                                groupId = 456L,
-                                permissions = APathLookup.Permissions(16888)
+                                ownership = Ownership(123, 456),
+                                permissions = Permissions(16888)
                         )
 
                     override fun open(): Source {
@@ -50,9 +49,7 @@ class MMRefTest {
                 "\"dataType\":\"FILE\"," +
                 "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
                 "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"createdAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"userId\":123," +
-                "\"groupId\":456," +
+                "\"ownership\":{\"userId\":123,\"groupId\":456}," +
                 "\"permissions\":{\"mode\":16888}" +
                 "}"
 
@@ -67,10 +64,8 @@ class MMRefTest {
                     originalPath = null,
                     dataType = MMRef.Type.FILE,
                     modifiedAt = Date(),
-                    createdAt = Date(),
-                    userId = 123L,
-                    groupId = 456L,
-                    permissions = APathLookup.Permissions(16888)
+                    ownership = Ownership(123, 456),
+                    permissions = Permissions(16888)
             )
         }
     }

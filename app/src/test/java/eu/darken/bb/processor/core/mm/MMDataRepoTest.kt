@@ -5,7 +5,8 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -44,10 +45,8 @@ class MMDataRepoTest : BaseTest() {
                                     originalPath = null,
                                     dataType = MMRef.Type.DIRECTORY,
                                     modifiedAt = Date(),
-                                    createdAt = Date(),
-                                    userId = 123L,
-                                    groupId = 456L,
-                                    permissions = APathLookup.Permissions(16888)
+                                    ownership = Ownership(123, 456),
+                                    permissions = Permissions(16888)
                             )
                     )
                 }
@@ -66,10 +65,8 @@ class MMDataRepoTest : BaseTest() {
                                     originalPath = null,
                                     dataType = MMRef.Type.DIRECTORY,
                                     modifiedAt = Date(),
-                                    createdAt = Date(),
-                                    userId = 123L,
-                                    groupId = 456L,
-                                    permissions = APathLookup.Permissions(16888)
+                                    ownership = Ownership(123, 456),
+                                    permissions = Permissions(16888)
                             )
                     )
                 }

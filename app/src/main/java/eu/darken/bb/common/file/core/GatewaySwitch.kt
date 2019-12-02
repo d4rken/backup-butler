@@ -8,6 +8,7 @@ import eu.darken.bb.common.file.core.saf.SAFGateway
 import eu.darken.bb.common.file.core.saf.SAFPath
 import okio.Sink
 import okio.Source
+import java.util.*
 import javax.inject.Inject
 
 @PerApp
@@ -81,6 +82,17 @@ class GatewaySwitch @Inject constructor(
         return getGateway(linkPath).createSymlink(linkPath, targetPath)
     }
 
+    override fun setModifiedAt(path: APath, modifiedAt: Date): Boolean {
+        return getGateway(path).setModifiedAt(path, modifiedAt)
+    }
+
+    override fun setPermissions(path: APath, permissions: Permissions): Boolean {
+        return getGateway(path).setPermissions(path, permissions)
+    }
+
+    override fun setOwnership(path: APath, ownership: Ownership): Boolean {
+        return getGateway(path).setOwnership(path, ownership)
+    }
 
     fun tryReleaseResources(path: APath) {
         if (path is SAFPath) {

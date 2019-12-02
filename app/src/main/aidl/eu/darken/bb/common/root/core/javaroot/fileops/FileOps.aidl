@@ -4,6 +4,8 @@ import eu.darken.bb.common.root.core.javaroot.fileops.RemoteInputStream;
 import eu.darken.bb.common.root.core.javaroot.fileops.RemoteOutputStream;
 import eu.darken.bb.common.file.core.local.LocalPath;
 import eu.darken.bb.common.file.core.local.LocalPathLookup;
+import eu.darken.bb.common.file.core.Ownership;
+import eu.darken.bb.common.file.core.Permissions;
 
 interface FileOps {
 
@@ -26,4 +28,10 @@ interface FileOps {
     List<LocalPathLookup> lookupFiles(in LocalPath path);
 
     boolean createSymlink(in LocalPath linkPath, in LocalPath targetPath);
+
+    boolean setModifiedAt(in LocalPath path, in long modifiedAt);
+
+    boolean setPermissions(in LocalPath path, in Permissions permissions);
+
+    boolean setOwnership(in LocalPath path, in Ownership ownership);
 }

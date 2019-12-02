@@ -10,6 +10,7 @@ import okio.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 @PerApp
@@ -313,6 +314,66 @@ class LocalGateway @Inject constructor(
     } catch (e: IOException) {
         Timber.tag(TAG).w("createSymlink(linkPath=%s, targetPath=%s, mode=%s) failed.", linkPath, targetPath, mode)
         throw WriteException(linkPath, cause = e)
+    }
+
+    override fun setModifiedAt(path: LocalPath, modifiedAt: Date): Boolean = setModifiedAt(path, modifiedAt, Mode.AUTO)
+
+    fun setModifiedAt(path: LocalPath, modifiedAt: Date, mode: Mode = Mode.AUTO): Boolean = try {
+        val canNormalWrite = path.file.canWrite()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                path.file.setLastModified(modifiedAt.time)
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                rootOps {
+                    it.setModifiedAt(path, modifiedAt)
+                }
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("setModifiedAt(path=%s, modifiedAt=%s, mode=%s) failed.", path, modifiedAt, mode)
+        throw WriteException(path, cause = e)
+    }
+
+    override fun setPermissions(path: LocalPath, permissions: Permissions): Boolean = setPermissions(path, permissions, Mode.AUTO)
+
+    fun setPermissions(path: LocalPath, permissions: Permissions, mode: Mode = Mode.AUTO): Boolean = try {
+        val canNormalWrite = path.file.canWrite()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                path.file.setPermissions(permissions)
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                rootOps {
+                    it.setPermissions(path, permissions)
+                }
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("setPermissions(path=%s, permissions=%s, mode=%s) failed.", path, permissions, mode)
+        throw WriteException(path, cause = e)
+    }
+
+    override fun setOwnership(path: LocalPath, ownership: Ownership): Boolean = setOwnership(path, ownership, Mode.AUTO)
+
+    fun setOwnership(path: LocalPath, ownership: Ownership, mode: Mode = Mode.AUTO): Boolean = try {
+        val canNormalWrite = path.file.canWrite()
+        when {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                path.file.setOwnership(ownership)
+            }
+            mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                rootOps {
+                    it.setOwnership(path, ownership)
+                }
+            }
+            else -> throw IOException("No matching mode.")
+        }
+    } catch (e: IOException) {
+        Timber.tag(TAG).w("setOwnership(path=%s, ownership=%s, mode=%s) failed.", path, ownership, mode)
+        throw WriteException(path, cause = e)
     }
 
     enum class Mode {

@@ -10,6 +10,7 @@ import okio.Source
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.*
 
 fun APath.crumbsTo(child: APath): Array<String> {
     require(this.pathType == child.pathType)
@@ -131,4 +132,34 @@ fun <T : APath> T.read(gateway: APathGateway<T, out APathLookup<T>>): Source {
 
 fun <T : APath> T.createSymlink(gateway: APathGateway<T, out APathLookup<T>>, target: T): Boolean {
     return gateway.createSymlink(this, target)
+}
+
+fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, props: MMRef.Props): Boolean {
+    val modSuc = setModifiedAt(gateway, props.modifiedAt)
+    val permSuc = if (props.dataType == MMRef.Type.SYMBOLIC_LINK) {
+        true
+    } else {
+        setPermissions(gateway, props.permissions)
+    }
+    val ownSuc = setOwnership(gateway, props.ownership)
+    val allSuc = modSuc && permSuc && ownSuc
+    if (!allSuc) {
+        Timber.w(
+                "setMetaData(props=%s): setModifiedAt()=%b, setPermissions()=%b, setOwnerShip()=%b",
+                props, modSuc, permSuc, ownSuc
+        )
+    }
+    return allSuc
+}
+
+fun <T : APath> T.setModifiedAt(gateway: APathGateway<T, out APathLookup<T>>, modifiedAt: Date): Boolean {
+    return gateway.setModifiedAt(this, modifiedAt)
+}
+
+fun <T : APath> T.setPermissions(gateway: APathGateway<T, out APathLookup<T>>, permissions: Permissions): Boolean {
+    return gateway.setPermissions(this, permissions)
+}
+
+fun <T : APath> T.setOwnership(gateway: APathGateway<T, out APathLookup<T>>, ownership: Ownership): Boolean {
+    return gateway.setOwnership(this, ownership)
 }

@@ -2,6 +2,8 @@ package eu.darken.bb.common.file.core.saf
 
 import eu.darken.bb.common.file.core.APath
 import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.file.core.Ownership
+import eu.darken.bb.common.file.core.Permissions
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -11,10 +13,8 @@ data class SAFPathLookup(
         override val lookedUp: SAFPath,
         override val size: Long,
         override val modifiedAt: Date,
-        override val createdAt: Date,
-        override val userId: Long,
-        override val groupId: Long,
-        override val permissions: APathLookup.Permissions,
+        override val ownership: Ownership,
+        override val permissions: Permissions,
         override val fileType: APath.FileType,
         override val target: SAFPath?
 ) : APathLookup<SAFPath> {
