@@ -24,7 +24,7 @@ class RestoreConfigAdapter @Inject constructor()
     override val asyncDiffer: AsyncDiffer<ConfigUIWrap> = AsyncDiffer(
             this,
             compareItem = { i1, i2 -> i1.stableId == i2.stableId },
-            compareContent = { i1, i2 -> i1.config == i2.config }
+            compareContent = { i1, i2 -> i1 == i2 }
     )
 
     override fun getItemId(position: Int): Long = data[position].stableId

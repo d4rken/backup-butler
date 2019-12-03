@@ -25,12 +25,12 @@ class AsyncDiffer<T>(
         compareContent: (T, T) -> Boolean = { i1, i2 -> i1 == i2 }
 ) {
     private val callback = object : DiffUtil.ItemCallback<T>() {
-        override fun areItemsTheSame(newItem: T, oldItem: T): Boolean {
-            return compareItem(newItem, oldItem)
+        override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
+            return compareItem(oldItem, newItem)
         }
 
-        override fun areContentsTheSame(newItem: T, oldItem: T): Boolean {
-            return compareContent(newItem, oldItem)
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
+            return compareContent(oldItem, newItem)
         }
     }
 
