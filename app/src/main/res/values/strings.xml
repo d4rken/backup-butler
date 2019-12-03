@@ -240,7 +240,7 @@
     <string name="debug_label">Debug</string>
     <string name="startmode_simple_label">Simple</string>
     <string name="startmode_advanced_label">Advanced</string>
-    <string name="userinterface_startmode_label">Startmode</string>
+    <string name="userinterface_startmode_label">Start mode</string>
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>
     <string name="general_copy_action">Copy</string>
