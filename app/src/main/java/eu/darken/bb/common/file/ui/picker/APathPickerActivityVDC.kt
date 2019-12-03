@@ -38,7 +38,7 @@ class APathPickerActivityVDC @AssistedInject constructor(
             else -> null
         }
         when (startType) {
-            APath.PathType.RAW -> TODO()
+            APath.PathType.RAW -> throw UnsupportedOperationException("$startType is not supported")
             APath.PathType.LOCAL -> {
                 showLocal()
             }

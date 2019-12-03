@@ -19,8 +19,6 @@ data class SimpleRestoreTask(
         val backupTargets: Set<Backup.Target> = emptySet()
 ) : Task.Restore {
 
-    // TODO test serialization
-
     override var taskType: Task.Type
         get() = Task.Type.RESTORE_SIMPLE
         set(value) {}

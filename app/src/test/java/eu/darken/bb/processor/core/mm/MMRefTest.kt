@@ -30,11 +30,11 @@ class MMRefTest {
                         )
 
                     override fun open(): Source {
-                        TODO("not implemented")
+                        throw UnsupportedOperationException()
                     }
 
                     override fun release() {
-                        TODO("not implemented")
+
                     }
 
                 }

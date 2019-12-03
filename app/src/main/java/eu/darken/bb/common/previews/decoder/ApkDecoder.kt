@@ -14,17 +14,19 @@ import com.bumptech.glide.request.target.Target
 import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.file.core.GatewaySwitch
+import eu.darken.bb.common.file.core.local.LocalPathLookup
 import eu.darken.bb.common.pkgs.IPCFunnel
 import eu.darken.bb.common.previews.GlideUtil
 import eu.darken.bb.common.previews.model.FileData
 import timber.log.Timber
 
 
-class ApkDecoder(
+class ApkDecoder constructor(
         val context: Context,
         glide: Glide,
-        val ipcFunnelLazy: Lazy<IPCFunnel>
+        val ipcFunnelLazy: Lazy<IPCFunnel>,
+        val gatewaySwitch: GatewaySwitch
 ) : ResourceDecoder<FileData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 
@@ -34,7 +36,7 @@ class ApkDecoder(
 
     override fun decode(fileData: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         val bitmap: Bitmap? = when (fileData.file.pathType) {
-            APath.PathType.LOCAL -> decodeLocalPath(fileData.file as LocalPath, _width, _height, options)
+            APath.PathType.LOCAL -> decodeLocalPath(fileData.file as LocalPathLookup, _width, _height, options)
             APath.PathType.SAF -> null // TODO
             else -> null
         }
@@ -42,7 +44,7 @@ class ApkDecoder(
         return if (bitmap == null) null else BitmapResource(bitmap, bitmapPool)
     }
 
-    private fun decodeLocalPath(filePath: LocalPath, _width: Int, _height: Int, options: Options): Bitmap? {
+    private fun decodeLocalPath(filePath: LocalPathLookup, _width: Int, _height: Int, options: Options): Bitmap? {
         // TODO Support Root?
         val packageInfo = ipcFunnelLazy.get().submit(IPCFunnel.ArchiveQuery(filePath.path, PackageManager.GET_ACTIVITIES))
         if (packageInfo == null) return null

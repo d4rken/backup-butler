@@ -20,7 +20,7 @@ class TypesPickerFragmentVDC @AssistedInject constructor(
     private val stater = Stater {
         val types = options.allowedTypes.map {
             when (it) {
-                APath.PathType.RAW -> TODO()
+                APath.PathType.RAW -> throw UnsupportedOperationException("$it is not supported")
                 APath.PathType.LOCAL -> Storage.Type.LOCAL
                 APath.PathType.SAF -> Storage.Type.SAF
             }

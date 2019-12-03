@@ -12,6 +12,7 @@ import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import dagger.Lazy
 import eu.darken.bb.App
+import eu.darken.bb.common.file.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.IPCFunnel
 import eu.darken.bb.common.previews.decoder.*
 import eu.darken.bb.common.previews.model.*
@@ -30,6 +31,7 @@ class GlideConfigModule : AppGlideModule() {
     @Inject lateinit var pkgUriIconLoaderFactory: PkgUriIconLoader.Factory
     @Inject lateinit var appInfoIconLoaderFactory: AppInfoIconLoader.Factory
     @Inject lateinit var smartFileModelLoaderFactory: SmartFileModelLoader.Factory
+    @Inject lateinit var gatewaySwitch: GatewaySwitch
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         (context.applicationContext as App).appComponent.inject(this)
@@ -40,7 +42,7 @@ class GlideConfigModule : AppGlideModule() {
 
         registry.append(AppIconData::class.java, Bitmap::class.java, AppIconDecoder(context, glide, ipcFunnelLazy))
         registry.append(FileData::class.java, Bitmap::class.java, ImageDecoder(context, glide))
-        registry.append(FileData::class.java, Bitmap::class.java, ApkDecoder(context, glide, ipcFunnelLazy))
+        registry.append(FileData::class.java, Bitmap::class.java, ApkDecoder(context, glide, ipcFunnelLazy, gatewaySwitch))
         registry.append(FileData::class.java, Bitmap::class.java, VideoDecoder(context, glide))
         registry.append(FileData::class.java, Bitmap::class.java, MusicDecoder(context, glide))
         registry.append(FileData::class.java, Bitmap::class.java, FallbackDecoder(context, glide))

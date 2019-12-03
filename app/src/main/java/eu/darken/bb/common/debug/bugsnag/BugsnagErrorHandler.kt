@@ -24,8 +24,7 @@ class BugsnagErrorHandler @Inject constructor(
 
     override fun run(error: com.bugsnag.android.Error): Boolean {
         Timber.tag(TAG).v("Handling error: %s", error.exception.toString())
-        // TODO
-//        if (!ReportingPreferencesFragment.isBugReportingDesired(sdmContext)) return false
+
         bugsnagTree.update(error)
 
         error.addToTab(TAB_APP, "checksumMD5", backupButler.checksumApkMd5)
@@ -33,8 +32,8 @@ class BugsnagErrorHandler @Inject constructor(
 //        val upgradeControl = sdmContext.getUpgradeControl()
 //        error.addToTab(TAB_APP, "upgrades", formatLists(ArrayList(upgradeControl.getUpgradeData().map(???() { UpgradeData.getUpgrades() }).blockingFirst())))
 //        error.addToTab(TAB_APP, "debugMode", SDMDebug.INSTANCE.observeOptions().blockingFirst().getLevel())
-//        error.addToTab(TAB_APP, "gitSha", BuildConfig.GITSHA)
-//        error.addToTab(TAB_APP, "buildTime", BuildConfig.BUILDTIME)
+        error.addToTab(TAB_APP, "gitSha", BuildConfig.GITSHA)
+        error.addToTab(TAB_APP, "buildTime", BuildConfig.BUILDTIME)
 
         error.addToTab(TAB_APP, "signatures", backupButler.signatures.map { it.hashCode() }.toString())
 
