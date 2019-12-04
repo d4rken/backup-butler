@@ -24,10 +24,11 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.common.rx.onErrorMixLast
-import eu.darken.bb.processor.core.mm.APathRefResource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.Props
+import eu.darken.bb.processor.core.mm.file.APathRefResource
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -54,7 +55,7 @@ class SAFStorage @AssistedInject constructor(
 
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
-    private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
+    private val propsAdapter = moshi.adapter(Props::class.java)
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
@@ -274,15 +275,12 @@ class SAFStorage @AssistedInject constructor(
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)
 
                 when (ref.props.dataType) {
-                    FILE -> {
+                    FILE, ARCHIVE -> {
                         val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
                         target.createFileIfNecessary(safGateway)
                         ref.source.open().copyToAutoClose(safGateway.write(target))
                     }
-                    DIRECTORY -> {
-                        // NOOP , props are enough
-                    }
-                    SYMBOLIC_LINK -> {
+                    DIRECTORY, SYMLINK -> {
                         // NOOP , props are enough
                     }
                 }

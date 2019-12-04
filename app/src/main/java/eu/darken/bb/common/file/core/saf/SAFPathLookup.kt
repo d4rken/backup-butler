@@ -13,8 +13,8 @@ data class SAFPathLookup(
         override val lookedUp: SAFPath,
         override val size: Long,
         override val modifiedAt: Date,
-        override val ownership: Ownership,
-        override val permissions: Permissions,
+        override val ownership: Ownership?,
+        override val permissions: Permissions?,
         override val fileType: APath.FileType,
         override val target: SAFPath?
 ) : APathLookup<SAFPath> {

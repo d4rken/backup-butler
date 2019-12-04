@@ -14,8 +14,8 @@ data class LocalPathLookup(
         override val fileType: APath.FileType,
         override val size: Long,
         override val modifiedAt: Date,
-        override val ownership: Ownership,
-        override val permissions: Permissions,
+        override val ownership: Ownership?,
+        override val permissions: Permissions?,
         override val target: LocalPath?
 ) : APathLookup<LocalPath> {
     override fun child(vararg segments: String): APath {

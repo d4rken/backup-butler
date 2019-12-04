@@ -144,8 +144,8 @@ class SAFGateway @Inject constructor(
                     lookedUp = path,
                     fileType = fileType,
                     modifiedAt = Date(file.lastModified()),
-                    ownership = Ownership(fstat?.st_uid ?: -1, fstat?.st_gid ?: -1),
-                    permissions = fstat?.let { Permissions(it.st_mode) } ?: Permissions(-1),
+                    ownership = fstat?.let { Ownership(it.st_uid.toLong(), it.st_gid.toLong()) },
+                    permissions = fstat?.let { Permissions(it.st_mode) },
                     size = file.length(),
                     target = null
             )

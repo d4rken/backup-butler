@@ -30,4 +30,10 @@ class AppBackupWrapper
             data["APK_SPLIT"] = value
         }
 
+    var dataPrivate: MutableCollection<MMRef>
+        get() = data["DATA_PRIVATE"]!!
+        set(value) {
+            data["DATA_PRIVATE"] = value
+        }
+
 }

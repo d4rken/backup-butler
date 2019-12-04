@@ -4,9 +4,6 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.IdType
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.Ownership
-import eu.darken.bb.common.file.core.Permissions
 import okio.Source
 import java.util.*
 
@@ -26,28 +23,8 @@ data class MMRef(
     }
 
     @Keep
-    @JsonClass(generateAdapter = true)
-    data class Props(
-            val dataType: Type,
-            val name: String? = null,
-            val originalPath: APath?,
-            val modifiedAt: Date,
-            val ownership: Ownership,
-            val permissions: Permissions,
-            val symlinkTarget: APath? = null
-    ) {
-
-        init {
-            require(name != null || originalPath != null) { "Provide name or path!" }
-        }
-
-        val label: String
-            get() = (originalPath?.path ?: name)!!
-    }
-
-    @Keep
     enum class Type {
-        FILE, DIRECTORY, SYMBOLIC_LINK
+        FILE, DIRECTORY, SYMLINK, ARCHIVE
     }
 
     @Keep

@@ -34,13 +34,8 @@ internal fun DocumentFile.openParcelFileDescriptor(contentResolver: ContentResol
 internal fun DocumentFile.setPermissions(contentResolver: ContentResolver, permissions: Permissions): Boolean =
         openParcelFileDescriptor(contentResolver, FileMode.WRITE).use { pfd ->
             try {
-                if (permissions.isValid) {
-                    Os.fchmod(pfd.fileDescriptor, permissions.mode)
-                    true
-                } else {
-                    Timber.w("Can't do setPermissions(permissions=%s) with invalid modes on %s", this)
-                    false
-                }
+                Os.fchmod(pfd.fileDescriptor, permissions.mode)
+                true
             } catch (e: Exception) {
                 Timber.w(e, "setPermissions(permissions=%s) failed on %s", permissions, this)
                 false
@@ -50,13 +45,8 @@ internal fun DocumentFile.setPermissions(contentResolver: ContentResolver, permi
 internal fun DocumentFile.setOwnership(contentResolver: ContentResolver, ownership: Ownership): Boolean =
         openParcelFileDescriptor(contentResolver, FileMode.WRITE).use { pfd ->
             try {
-                if (ownership.isValid) {
-                    Os.fchown(pfd.fileDescriptor, ownership.userId, ownership.groupId)
-                    true
-                } else {
-                    Timber.w("Can't do setOwnership(ownership=%s) with invalid ids on %s", this)
-                    false
-                }
+                Os.fchown(pfd.fileDescriptor, ownership.userId.toInt(), ownership.groupId.toInt())
+                true
             } catch (e: Exception) {
                 Timber.w(e, "setOwnership(ownership=%s) failed on %s", ownership, this)
                 false

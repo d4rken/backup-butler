@@ -24,10 +24,12 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
 import eu.darken.bb.common.rx.onErrorMixLast
-import eu.darken.bb.processor.core.mm.FileRefSource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.archive.ArchiveProps
+import eu.darken.bb.processor.core.mm.archive.FileArchiveSource
+import eu.darken.bb.processor.core.mm.file.FileRefSource
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
@@ -203,13 +205,14 @@ class LocalStorage @AssistedInject constructor(
         versionPath.listFilesThrowing().filter { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
 
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
-
+            val props = propFile.source().use { mmDataRepo.readProps(it) }
+            val source: MMRef.RefSource = when (props.dataType) {
+                FILE, DIRECTORY, SYMLINK -> FileRefSource(dataFile, props)
+                ARCHIVE -> FileArchiveSource(dataFile, props as ArchiveProps)
+            }
             val refRequest = MMRef.Request(
                     backupId = backupId,
-                    source = FileRefSource(
-                            dataFile,
-                            propFile.source().use { mmDataRepo.readProps(it) }
-                    )
+                    source = source
             )
             val tmpRef = mmDataRepo.create(refRequest)
 
@@ -259,11 +262,8 @@ class LocalStorage @AssistedInject constructor(
 
                 val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 when (ref.props.dataType) {
-                    FILE -> ref.source.open().copyToAutoClose(target.sink())
-                    DIRECTORY -> {
-                        // NOOP props are enough
-                    }
-                    SYMBOLIC_LINK -> {
+                    FILE, ARCHIVE -> ref.source.open().copyToAutoClose(target.sink())
+                    DIRECTORY, SYMLINK -> {
                         // NOOP props are enough
                     }
                 }

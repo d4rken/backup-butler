@@ -11,7 +11,6 @@ data class Permissions(
         val mode: Int
 ) : Parcelable {
     @IgnoredOnParcel @Transient val octal: String = mode.toOctal()
-    @IgnoredOnParcel @Transient val isValid: Boolean = mode != -1
 
     constructor(parcel: Parcel) : this(parcel.readInt())
 

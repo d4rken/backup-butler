@@ -14,9 +14,9 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.processor.core.mm.APathRefResource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.file.APathRefResource
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject

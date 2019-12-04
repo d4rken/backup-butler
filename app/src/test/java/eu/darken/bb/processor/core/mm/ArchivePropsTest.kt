@@ -1,0 +1,75 @@
+package eu.darken.bb.processor.core.mm
+
+import eu.darken.bb.AppModule
+import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.processor.core.mm.archive.ArchiveProps
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
+import org.junit.jupiter.api.Test
+import java.util.*
+
+class ArchivePropsTest {
+
+    @Test
+    fun `test poly serialization of archive props`() {
+        val moshi = AppModule().moshi()
+
+        val original = ArchiveProps(
+                originalPath = RawPath.build("originalpath"),
+                modifiedAt = Date(0),
+                archiveType = "archive",
+                compressionType = "compression"
+        )
+
+        val adapter = moshi.adapter(Props::class.java)
+
+        val json = adapter.toJson(original)
+        json shouldBe "{" +
+                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
+                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
+                "\"archiveType\":\"archive\"," +
+                "\"compressionType\":\"compression\"," +
+                "\"dataType\":\"ARCHIVE\"" +
+                "}"
+
+        adapter.fromJson(json) shouldBe original
+    }
+
+    @Test
+    fun `test direct serialization of archive props`() {
+        val moshi = AppModule().moshi()
+
+        val original = ArchiveProps(
+                originalPath = RawPath.build("originalpath"),
+                modifiedAt = Date(0),
+                archiveType = "archive",
+                compressionType = "compression"
+        )
+
+        val adapter = moshi.adapter(ArchiveProps::class.java)
+
+        val json = adapter.toJson(original)
+        json shouldBe "{" +
+                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
+                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
+                "\"archiveType\":\"archive\"," +
+                "\"compressionType\":\"compression\"," +
+                "\"dataType\":\"ARCHIVE\"" +
+                "}"
+
+        adapter.fromJson(json) shouldBe original
+    }
+
+    @Test
+    fun `archive props should have either label or original path`() {
+        shouldThrow<IllegalArgumentException> {
+            ArchiveProps(
+                    label = null,
+                    originalPath = null,
+                    modifiedAt = Date(),
+                    compressionType = "compression",
+                    archiveType = "archive"
+            )
+        }
+    }
+}

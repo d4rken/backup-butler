@@ -8,6 +8,8 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.file.core.Ownership
 import eu.darken.bb.common.file.core.Permissions
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
+import eu.darken.bb.processor.core.mm.file.FileProps
+import eu.darken.bb.processor.core.mm.file.FileRefSource
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -40,10 +42,9 @@ class MMDataRepoTest : BaseTest() {
                 source = spy {
                     FileRefSource(
                             File("testfile"),
-                            props = MMRef.Props(
-                                    name = "testname",
+                            providedProps = FileProps(
+                                    label = "testname",
                                     originalPath = null,
-                                    dataType = MMRef.Type.DIRECTORY,
                                     modifiedAt = Date(),
                                     ownership = Ownership(123, 456),
                                     permissions = Permissions(16888)
@@ -60,10 +61,9 @@ class MMDataRepoTest : BaseTest() {
                 source = spy {
                     FileRefSource(
                             File("testfile"),
-                            props = MMRef.Props(
-                                    name = "testname",
+                            providedProps = FileProps(
+                                    label = "testname",
                                     originalPath = null,
-                                    dataType = MMRef.Type.DIRECTORY,
                                     modifiedAt = Date(),
                                     ownership = Ownership(123, 456),
                                     permissions = Permissions(16888)

@@ -14,6 +14,7 @@ import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.storage.core.Storage
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
@@ -40,7 +41,7 @@ interface Backup {
         val backupType: Type
         val createdAt: Date
 
-        fun getItemLabel(context: Context, spec: BackupSpec, props: MMRef.Props): String
+        fun getItemLabel(context: Context, spec: BackupSpec, props: Props): String
 
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> = MyPolymorphicJsonAdapterFactory.of(MetaData::class.java, "backupType")
@@ -121,7 +122,7 @@ interface Backup {
         data class PropsEntry(
                 val spec: BackupSpec,
                 val metaData: MetaData,
-                val props: MMRef.Props
+                val props: Props
         ) : Entry {
 
             override fun getLabel(context: Context): String = metaData.getItemLabel(context, spec, props)

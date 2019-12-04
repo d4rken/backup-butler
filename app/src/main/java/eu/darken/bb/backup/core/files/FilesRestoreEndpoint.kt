@@ -14,8 +14,11 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.processor.core.mm.DirectoryProps
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
+import eu.darken.bb.processor.core.mm.SymlinkProps
+import eu.darken.bb.processor.core.mm.file.FileProps
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
@@ -42,7 +45,10 @@ class FilesRestoreEndpoint @Inject constructor(
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
 
-        for (ref in handler.files) {
+        // Dirs first, for stuff like SAFPath's we can't just do path.parent.mkdir()
+        val toRestore = handler.files.sortedByDescending { it.props.dataType == DIRECTORY }
+
+        for (ref in toRestore) {
             requireNotNull(ref.props.originalPath) { "Endpoint expects refs with an original path: $ref" }
             requireNotNull(ref.source) { "Invalid restore: config=$config, spec=$spec, ref=$ref" }
 
@@ -75,17 +81,18 @@ class FilesRestoreEndpoint @Inject constructor(
             Timber.tag(TAG).d("Skipping existing: %s", itemFile)
             return
         }
+
         // TODO check success ? add to results?
-        when (ref.props.dataType) {
-            FILE -> {
+        when (ref.props) {
+            is FileProps -> {
                 itemFile.createFileIfNecessary(gateway)
                 ref.source.open().copyToAutoClose(itemFile.write(gateway))
             }
-            DIRECTORY -> {
+            is DirectoryProps -> {
                 itemFile.createDirIfNecessary(gateway)
             }
-            SYMBOLIC_LINK -> {
-                itemFile.createSymlink(gateway, ref.props.symlinkTarget!!)
+            is SymlinkProps -> {
+                itemFile.createSymlink(gateway, (ref.props as SymlinkProps).symlinkTarget)
             }
         }
         itemFile.setMetaData(gateway, ref.props)

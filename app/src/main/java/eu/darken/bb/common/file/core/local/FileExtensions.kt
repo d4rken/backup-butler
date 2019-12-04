@@ -143,21 +143,11 @@ fun File.getAPathFileType(): APath.FileType = when {
 fun File.toLocalPath(): LocalPath = LocalPath.build(this)
 
 fun File.setPermissions(permissions: Permissions): Boolean {
-    return if (permissions.isValid) {
-        Os.chmod(path, permissions.mode)
-        true
-    } else {
-        Timber.w("Can't do setPermissions(permissions=%s) with invalid modes on %s", this)
-        false
-    }
+    Os.chmod(path, permissions.mode)
+    return true
 }
 
 fun File.setOwnership(ownership: Ownership): Boolean {
-    return if (ownership.isValid) {
-        Os.lchown(path, ownership.userId, ownership.groupId)
-        true
-    } else {
-        Timber.w("Can't do setOwnership(ownership=%s) with invalid ids on %s", this)
-        false
-    }
+    Os.lchown(path, ownership.userId.toInt(), ownership.groupId.toInt())
+    return true
 }

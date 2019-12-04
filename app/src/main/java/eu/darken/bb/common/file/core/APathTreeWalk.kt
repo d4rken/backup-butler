@@ -12,7 +12,7 @@ import java.util.*
  * If the file path given is just a file, walker iterates only it.
  * If the file path given does not exist, walker iterates nothing, i.e. it's equivalent to an empty sequence.
  */
-class APathTreeWalk<PT : APath, GT : APathGateway<PT, APathLookup<PT>>> private constructor(
+class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> private constructor(
         private val gateway: GT,
         private val start: PT,
         private val direction: FileWalkDirection = FileWalkDirection.TOP_DOWN,

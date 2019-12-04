@@ -22,7 +22,7 @@ class MMDataRepo @Inject constructor(
 
     private val tmpDir: File = File(cachePath, CACHEDIR)
     private val refMap = mutableMapOf<Backup.Id, MutableList<MMRef>>()
-    private val propsAdapter = moshi.adapter(MMRef.Props::class.java)
+    private val propsAdapter = moshi.adapter(Props::class.java)
 
     init {
         if (tmpDir.mkdirs()) {
@@ -51,9 +51,9 @@ class MMDataRepo @Inject constructor(
         return ref
     }
 
-    fun readProps(input: Source): MMRef.Props = propsAdapter.from(input)
+    fun readProps(input: Source): Props = propsAdapter.from(input)
 
-    fun writeProps(props: MMRef.Props, output: Sink) = propsAdapter.into(props, output)
+    fun writeProps(props: Props, output: Sink) = propsAdapter.into(props, output)
 
     @Synchronized
     fun release(backupId: Backup.Id) {

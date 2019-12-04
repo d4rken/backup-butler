@@ -3,23 +3,21 @@ package eu.darken.bb.common.file.core
 import android.os.Parcel
 import android.os.Parcelable
 import com.squareup.moshi.JsonClass
-import kotlinx.android.parcel.IgnoredOnParcel
 
 @JsonClass(generateAdapter = true)
 data class Ownership(
-        val userId: Int,
-        val groupId: Int
+        val userId: Long,
+        val groupId: Long
 ) : Parcelable {
-    @IgnoredOnParcel @Transient val isValid: Boolean = userId != -1 && groupId != -1
 
     constructor(parcel: Parcel) : this(
-            parcel.readInt(),
-            parcel.readInt()
+            parcel.readLong(),
+            parcel.readLong()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(userId)
-        parcel.writeInt(groupId)
+        parcel.writeLong(userId)
+        parcel.writeLong(groupId)
     }
 
     override fun describeContents(): Int = 0

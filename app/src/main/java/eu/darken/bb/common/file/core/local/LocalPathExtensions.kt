@@ -57,8 +57,8 @@ fun LocalPath.performLookup(): LocalPathLookup {
             lookedUp = this,
             size = file.length(),
             modifiedAt = Date(file.lastModified()),
-            ownership = Ownership(fstat?.st_uid ?: -1, fstat?.st_gid ?: -1),
-            permissions = Permissions(fstat?.st_mode ?: -1),
+            ownership = fstat?.let { Ownership(it.st_uid.toLong(), it.st_gid.toLong()) },
+            permissions = fstat?.let { Permissions(it.st_mode) },
             target = file.readLink()?.let { LocalPath.build(it) }
     )
 }

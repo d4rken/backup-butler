@@ -5,6 +5,7 @@ import eu.darken.bb.common.file.core.local.crumbsTo
 import eu.darken.bb.common.file.core.saf.SAFPath
 import eu.darken.bb.common.file.core.saf.crumbsTo
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.processor.core.mm.Props
 import okio.Sink
 import okio.Source
 import timber.log.Timber
@@ -27,7 +28,7 @@ fun APath.asFile(): File = when (this) {
     else -> File(this.path)
 }
 
-inline fun <reified PT : APath, GT : APathGateway<PT, APathLookup<PT>>> PT.walk(
+fun <PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> PT.walk(
         gateway: GT,
         direction: FileWalkDirection = FileWalkDirection.TOP_DOWN
 ): APathTreeWalk<PT, GT> {
@@ -38,7 +39,7 @@ fun APath.FileType.toMMRefType(): MMRef.Type {
     return when (this) {
         APath.FileType.DIRECTORY -> MMRef.Type.DIRECTORY
         APath.FileType.FILE -> MMRef.Type.FILE
-        APath.FileType.SYMBOLIC_LINK -> MMRef.Type.SYMBOLIC_LINK
+        APath.FileType.SYMBOLIC_LINK -> MMRef.Type.SYMLINK
     }
 }
 
@@ -134,14 +135,22 @@ fun <T : APath> T.createSymlink(gateway: APathGateway<T, out APathLookup<T>>, ta
     return gateway.createSymlink(this, target)
 }
 
-fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, props: MMRef.Props): Boolean {
-    val modSuc = setModifiedAt(gateway, props.modifiedAt)
-    val permSuc = if (props.dataType == MMRef.Type.SYMBOLIC_LINK) {
-        true
+fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, props: Props): Boolean {
+    val modSuc = if (props is Props.HasModifiedDate) {
+        setModifiedAt(gateway, props.modifiedAt)
     } else {
-        setPermissions(gateway, props.permissions)
+        true
     }
-    val ownSuc = setOwnership(gateway, props.ownership)
+    val permSuc = if (props is Props.HasPermissions) {
+        props.permissions?.let { setPermissions(gateway, it) } ?: true
+    } else {
+        true
+    }
+    val ownSuc = if (props is Props.HasOwner) {
+        props.ownership?.let { setOwnership(gateway, it) } ?: true
+    } else {
+        true
+    }
     val allSuc = modSuc && permSuc && ownSuc
     if (!allSuc) {
         Timber.w(
