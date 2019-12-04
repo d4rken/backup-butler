@@ -222,8 +222,8 @@ class SAFStorage @AssistedInject constructor(
                     val refRequest = MMRef.Request(
                             backupId = backupId,
                             source = APathRefResource(
-                                    dataFile,
                                     safGateway,
+                                    dataFile,
                                     safGateway.read(propFile).use { mmDataRepo.readProps(it) }
                             )
                     )

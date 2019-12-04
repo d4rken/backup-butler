@@ -35,43 +35,42 @@ class FileArchiveSource(
         }.also { resources.add(it) }
 
         archiveInputStream.use {
-
-        }
-        var iter: TarArchiveEntry?
-        var lastDataStream: Source? = null
-        while (archiveInputStream.nextTarEntry.also { iter = it } != null) {
-            val entry = iter as TarArchiveEntry
-            var dataStream: Source?
-            lateinit var props: Props
-            if (entry.isDirectory) {
-                props = DirectoryProps(
-                        originalPath = LocalPath.build(entry.name),
-                        modifiedAt = entry.modTime,
-                        permissions = Permissions(entry.mode),
-                        ownership = Ownership(entry.longUserId, entry.longGroupId)
-                )
-                dataStream = null
-            } else {
-                props = if (entry.isSymbolicLink) {
-                    SymlinkProps(
-                            originalPath = LocalPath.build(entry.name),
-                            modifiedAt = entry.modTime,
-                            ownership = Ownership(entry.longUserId, entry.longGroupId),
-                            symlinkTarget = LocalPath.build(entry.linkName)
-                    )
-                } else {
-                    FileProps(
+            var iter: TarArchiveEntry?
+            var lastDataStream: Source? = null
+            while (archiveInputStream.nextTarEntry.also { iter = it } != null) {
+                val entry = iter as TarArchiveEntry
+                var dataStream: Source?
+                lateinit var props: Props
+                if (entry.isDirectory) {
+                    props = DirectoryProps(
                             originalPath = LocalPath.build(entry.name),
                             modifiedAt = entry.modTime,
                             permissions = Permissions(entry.mode),
                             ownership = Ownership(entry.longUserId, entry.longGroupId)
                     )
+                    dataStream = null
+                } else {
+                    props = if (entry.isSymbolicLink) {
+                        SymlinkProps(
+                                originalPath = LocalPath.build(entry.name),
+                                modifiedAt = entry.modTime,
+                                ownership = Ownership(entry.longUserId, entry.longGroupId),
+                                symlinkTarget = LocalPath.build(entry.linkName)
+                        )
+                    } else {
+                        FileProps(
+                                originalPath = LocalPath.build(entry.name),
+                                modifiedAt = entry.modTime,
+                                permissions = Permissions(entry.mode),
+                                ownership = Ownership(entry.longUserId, entry.longGroupId)
+                        )
+                    }
+                    dataStream = archiveInputStream.source().buffer().constrain(entry.size)
                 }
-                dataStream = archiveInputStream.source().buffer().constrain(entry.size)
+                lastDataStream?.close()
+                lastDataStream = dataStream
+                yield(Pair(props, dataStream))
             }
-            lastDataStream?.close()
-            lastDataStream = dataStream
-            yield(Pair(props, dataStream))
         }
     }
 }

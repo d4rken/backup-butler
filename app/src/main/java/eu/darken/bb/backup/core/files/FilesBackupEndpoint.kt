@@ -70,7 +70,7 @@ class FilesBackupEndpoint @Inject constructor(
 
             val refRequest = MMRef.Request(
                     backupId = builder.backupId,
-                    source = APathRefResource(item, gateway)
+                    source = APathRefResource(gateway, item)
             )
             val ref = mmDataRepo.create(refRequest)
             builder.files.add(ref)

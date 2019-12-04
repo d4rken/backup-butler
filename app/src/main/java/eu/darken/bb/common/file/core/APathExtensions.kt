@@ -161,6 +161,10 @@ fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, prop
     return allSuc
 }
 
+fun <T : APath> T.lookup(gateway: APathGateway<T, out APathLookup<T>>): APathLookup<T> {
+    return gateway.lookup(this)
+}
+
 fun <T : APath> T.setModifiedAt(gateway: APathGateway<T, out APathLookup<T>>, modifiedAt: Date): Boolean {
     return gateway.setModifiedAt(this, modifiedAt)
 }

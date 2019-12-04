@@ -261,6 +261,7 @@ class LocalStorage @AssistedInject constructor(
                 targetProp.sink().use { mmDataRepo.writeProps(ref.props, it) }
 
                 val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
+                // TODO errors should be shown in the result?
                 when (ref.props.dataType) {
                     FILE, ARCHIVE -> ref.source.open().copyToAutoClose(target.sink())
                     DIRECTORY, SYMLINK -> {

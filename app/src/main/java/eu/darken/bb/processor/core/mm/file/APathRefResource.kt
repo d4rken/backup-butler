@@ -8,8 +8,8 @@ import eu.darken.bb.processor.core.mm.Props
 import okio.Source
 
 class APathRefResource<PathType : APath, GateType : APathGateway<in PathType, out APathLookup<PathType>>>(
-        private val path: PathType,
         private val gateway: GateType,
+        private val path: PathType,
         providedProps: Props? = null
 ) : BaseRefSource() {
 

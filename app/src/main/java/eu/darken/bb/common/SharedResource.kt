@@ -83,7 +83,7 @@ class SharedResource<T> constructor(
         })
 
         if (activeTokens.add(keepAlive)) {
-            Timber.tag(tag).d("Adding token, now: %d", activeTokens.size())
+            Timber.tag(tag).v("Adding token, now: %d", activeTokens.size())
         } else {
             Timber.tag(tag).d("Can't add token, already disposed!")
         }
@@ -109,7 +109,7 @@ class SharedResource<T> constructor(
                     Timber.tag(tag).v("Already disposed!")
                 } else {
                     activeTokens.remove(keepAlive)
-                    Timber.tag(tag).d("Removing token, now: %d", activeTokens.size())
+                    Timber.tag(tag).v("Removing token, now: %d", activeTokens.size())
                     keepAlive.dispose()
                 }
             }
