@@ -22,30 +22,26 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
-import java.io.IOException
 import java.util.*
 
 class LocalPickerFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val options: APathPicker.Options,
         private val localGateway: LocalGateway,
-        private val permissionTool: RuntimePermissionTool
+        permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
+    private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
+    private val startPath = options.startPath as? LocalPath ?: fallbackPath
 
-    private val startPath = options.startPath as? LocalPath
     private val mode: LocalGateway.Mode by lazy {
         options.payload.classLoader = App::class.java.classLoader
         LocalGateway.Mode.valueOf(options.payload.getString(ARG_MODE, LocalGateway.Mode.AUTO.name))
     }
 
     private val stater = Stater {
-        val (path, crumbs, listing) = doCd(startPath)
         State(
-                currentPath = path,
-                currentListing = listing,
-                currentCrumbs = crumbs,
-                allowCreateDir = true
+                currentPath = startPath,
+                currentCrumbs = startPath.toCrumbs()
         )
     }
     val state = stater.liveData
@@ -61,6 +57,8 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     init {
         if (!permissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             missingPermissionEvent.postValue(Any())
+        } else {
+            selectItem(startPath)
         }
     }
 
@@ -69,32 +67,34 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         super.onCleared()
     }
 
-    private fun doCd(_path: LocalPath?): Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> {
-        val path = _path ?: LocalPath.build(Environment.getExternalStorageDirectory())
-        val crumbs = path.toCrumbs()
-
-        val listing = try {
-            if (resourceToken == null) resourceToken = localGateway.resourceTokens.get()
-            localGateway.lookupFiles(path, mode = mode)
-                    .sortedBy { it.name.toLowerCase(Locale.ROOT) }
-                    .filter { !options.onlyDirs || it.isDirectory }
-        } catch (e: IOException) {
-            Timber.tag(TAG).e(e, "Failed to cd %s", path)
-            errorEvents.postValue(e)
-            emptyList<APathLookup<*>>()
-        }
-
-        return Triple(path, crumbs, listing)
-    }
-
     fun selectItem(selected: APath?) {
         val unwrapped = when (selected) {
             is LocalPath -> selected
             is LocalPathLookup -> selected.lookedUp
             else -> null
         }
-        Observable
-                .fromCallable { doCd(unwrapped) }
+
+        val doCd: (LocalPath) -> Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> = { path ->
+            val crumbs = path.toCrumbs()
+
+            if (resourceToken == null) resourceToken = localGateway.resourceTokens.get()
+            val listing = localGateway.lookupFiles(path, mode = mode)
+                    .sortedBy { it.name.toLowerCase(Locale.ROOT) }
+                    .filter { !options.onlyDirs || it.isDirectory }
+
+            Triple(path, crumbs, listing)
+        }
+
+        Observable.just(unwrapped)
+                .map { path -> doCd(path) }
+                .onErrorReturn {
+                    errorEvents.postValue(it)
+                    doCd(fallbackPath)
+                }
+                .onErrorReturn {
+                    errorEvents.postValue(it)
+                    Triple(fallbackPath, fallbackPath.toCrumbs(), emptyList())
+                }
                 .subscribeOn(Schedulers.io())
                 .subscribe({ (path, crumbs, listing) ->
                     stater.update { state ->
@@ -148,20 +148,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     fun onPermissionResult(granted: Boolean) {
         if (!granted) return
 
-        Observable
-                .fromCallable { doCd(options.startPath as? LocalPath) }
-                .subscribeOn(Schedulers.io())
-                .subscribe({ (path, crumbs, listing) ->
-                    stater.update { state ->
-                        state.copy(
-                                currentPath = path,
-                                currentListing = listing,
-                                currentCrumbs = crumbs
-                        )
-                    }
-                }, {
-                    errorEvents.postValue(it)
-                })
+        selectItem(options.startPath)
     }
 
     fun grantPermission() {
@@ -171,7 +158,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     data class State(
             val currentPath: APath,
             val currentCrumbs: List<APath>,
-            val currentListing: List<APathLookup<*>>,
+            val currentListing: List<APathLookup<*>>? = null,
             val allowCreateDir: Boolean = false
     )
 

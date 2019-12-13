@@ -36,9 +36,8 @@ class SharedResource<T> constructor(
                         return internalEmitter.isDisposed
                     }
 
-                    override fun onError(t: Throwable): Boolean {
-                        Timber.tag(tag).d("onError: %s", t)
-                        return internalEmitter.tryOnError(t)
+                    override fun onError(t: Throwable) {
+                        internalEmitter.tryOnError(t)
                     }
 
                     override fun setCancellable(c: () -> Unit?) {
@@ -65,22 +64,21 @@ class SharedResource<T> constructor(
                 }
             }
             .doFinally {
-                Timber.tag(tag).d("doFinally()")
+                Timber.tag(tag).v("resourceHolder.doFinally()")
                 synchronized(this@SharedResource) {
                     activeTokens.dispose()
                     childTokens.dispose()
                 }
             }
+            .doOnError { Timber.tag(tag).v("resourceHolder.onError(): %s", it) }
+            .doOnComplete { Timber.tag(tag).v("resourceHolder.onComplete()") }
+            .doOnNext { Timber.tag(tag).v("resourceHolder.onNext(): %s", it) }
             .replay(1)
             .refCount()
 
     @Throws(IOException::class)
     fun get(): Resource<T> {
-        val keepAlive = resourceHolder.subscribe({
-
-        }, {
-            Timber.tag(tag).d("get().onError(): %s", it)
-        })
+        val keepAlive = resourceHolder.subscribe({ }, { })
 
         if (activeTokens.add(keepAlive)) {
             Timber.tag(tag).v("Adding token, now: %d", activeTokens.size())
@@ -93,16 +91,15 @@ class SharedResource<T> constructor(
         }
 
         val resource = try {
+            Timber.tag(tag).v("get(): Waiting for resource")
             resourceHolder.blockingFirst()
         } catch (e: Exception) {
             keepAlive.dispose()
-            throw e.unwrapIf(RuntimeException::class)
+            throw e
         }
 
         val wrappedKeepAlive = object : Disposable {
-            override fun isDisposed(): Boolean {
-                return keepAlive.isDisposed
-            }
+            override fun isDisposed(): Boolean = keepAlive.isDisposed
 
             override fun dispose() {
                 if (keepAlive.isDisposed) {
@@ -162,7 +159,7 @@ class SharedResource<T> constructor(
 
         fun isDisposed(): Boolean
 
-        fun onError(t: Throwable): Boolean
+        fun onError(t: Throwable)
 
         fun setCancellable(c: () -> Unit?)
     }

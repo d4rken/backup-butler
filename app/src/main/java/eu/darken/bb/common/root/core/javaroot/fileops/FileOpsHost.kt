@@ -32,7 +32,7 @@ class FileOpsHost : FileOps.Stub() {
     }
 
     override fun readFile(path: LocalPath): RemoteInputStream = try {
-        FileInputStream(path.asFile()).toRemoteInputStream()
+        FileInputStream(path.asFile()).remoteInputStream()
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "readFile(path=$path) failed.")
         throw wrapPropagating(e)
@@ -121,6 +121,6 @@ class FileOpsHost : FileOps.Stub() {
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "Host", "FileOps")
+        val TAG = App.logTag("Root", "Java", "FileOps", "Host")
     }
 }

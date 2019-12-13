@@ -19,19 +19,19 @@ class AppBackupWrapper
         get() = backupConfig.packageName
 
     var baseApk: MMRef
-        get() = data["APK_BASE"]!!.first()
+        get() = data["APK_BASE"]!!.single()
         set(value) {
-            data["APK_BASE"] = mutableListOf(value)
+            data["APK_BASE"] = listOf(value)
         }
 
-    var splitApks: MutableCollection<MMRef>
-        get() = data["APK_SPLIT"]!!
+    var splitApks: Collection<MMRef>
+        get() = data["APK_SPLIT"] ?: emptyList()
         set(value) {
             data["APK_SPLIT"] = value
         }
 
-    var dataPrivate: MutableCollection<MMRef>
-        get() = data["DATA_PRIVATE"]!!
+    var dataPrivate: Collection<MMRef>
+        get() = data["DATA_PRIVATE"] ?: emptyList()
         set(value) {
             data["DATA_PRIVATE"] = value
         }

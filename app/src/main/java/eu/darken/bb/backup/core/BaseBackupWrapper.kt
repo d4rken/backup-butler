@@ -5,10 +5,11 @@ import eu.darken.bb.processor.core.mm.MMRef
 abstract class BaseBackupWrapper<ConfigT : BackupSpec> {
     val backupId: Backup.Id
     val backupConfig: ConfigT
-    val data = mutableMapOf<String, MutableCollection<MMRef>>()
+    val data = mutableMapOf<String, Collection<MMRef>>()
 
     constructor(backup: Backup.Unit) {
         this.backupId = backup.backupId
+        @Suppress("UNCHECKED_CAST")
         this.backupConfig = backup.spec as ConfigT
         backup.data.forEach {
             data[it.key] = it.value.toMutableList()

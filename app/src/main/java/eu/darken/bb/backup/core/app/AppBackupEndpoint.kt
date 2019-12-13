@@ -74,18 +74,18 @@ class AppBackupEndpoint @Inject constructor(
             builder.splitApks = splitApkRefs
         }
 
+        val appInfo = ipcFunnel.submit(IPCFunnel.AppInfoQuery(spec.packageName))
+        requireNotNull(appInfo) { "Unable to lookup ${spec.packageName}" }
+
+        // TODO root stuff, only when enabled?
+        if (gatewayToken == null) gatewayToken = localGateway.resourceTokens.get()
+        val items = (LocalPath.build(appInfo.dataDir)).walk(localGateway)
+                .onEach { Timber.tag(TAG).v("To backup: %s", it) }
+                .map { it.lookup(localGateway) }
+                .toList()
+
         // Private data
         if (spec.backupData) {
-            if (gatewayToken == null) gatewayToken = localGateway.resourceTokens.get()
-
-            val appInfo = ipcFunnel.submit(IPCFunnel.AppInfoQuery(spec.packageName))
-            requireNotNull(appInfo) { "Unable to lookup ${spec.packageName}" }
-
-            val items = (LocalPath.build(appInfo.dataDir)).walk(localGateway)
-                    .onEach { Timber.tag(TAG).v("To backup: %s", it) }
-                    .map { it.lookup(localGateway) }
-                    .toList()
-
             val nonCacheItems = items.filterNot {
                 it.path.startsWith(LocalPath.build(appInfo.dataDir, "cache").path)
             }
@@ -98,9 +98,22 @@ class AppBackupEndpoint @Inject constructor(
         }
 
         if (spec.backupCache) {
-            if (gatewayToken == null) gatewayToken = localGateway.resourceTokens.get()
+            val cacheItems = items.filter {
+                it.path.startsWith(LocalPath.build(appInfo.dataDir, "cache").path)
+            }
 
+            val dataRef: MMRef = mmDataRepo.create(MMRef.Request(
+                    backupId = builder.backupId,
+                    source = APathArchiveSource(localGateway, LocalPath.build(appInfo.dataDir), cacheItems)
+            ))
+            builder.dataPrivate = mutableListOf(dataRef)
         }
+
+        // TODO copy public data
+
+        // TODO copy public cache
+
+        // TODO copy public clutter
 
         return builder.createUnit()
     }
@@ -108,7 +121,6 @@ class AppBackupEndpoint @Inject constructor(
     override fun close() {
         gatewayToken?.close()
     }
-
 
     override fun toString(): String = "AppEndpoint()"
 

@@ -7,6 +7,8 @@ import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOps
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsHost
+import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOps
+import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOpsHost
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
 import eu.darken.rxshell.cmd.Cmd
@@ -24,8 +26,9 @@ import kotlin.system.exitProcess
 @SuppressLint("UnsafeDynamicallyLoadedCode")
 class JavaRootHost constructor(args: List<String>) {
     private val pathToAPK: String
-    internal val context: Context
+    lateinit var context: Context
     internal val fileOps by lazy { FileOpsHost() }
+    internal val pkgOps by lazy { PkgOpsHost(context) }
 
     init {
         Log.d(TAG, "init(args=${args})")
@@ -92,8 +95,10 @@ class JavaRootHost constructor(args: List<String>) {
             }
 
             override fun getFileOps(): FileOps = this@JavaRootHost.fileOps
-        }
 
+            override fun getPkgOps(): PkgOps = this@JavaRootHost.pkgOps
+
+        }
 
         try {
             RootIPC(BuildConfig.APPLICATION_ID, ipc, 0, 30 * 1000, true)

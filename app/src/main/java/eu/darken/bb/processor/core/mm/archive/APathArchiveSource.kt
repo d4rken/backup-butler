@@ -53,11 +53,11 @@ class APathArchiveSource<PathType : APath, GateType : APathGateway<in PathType, 
                         Timber.tag(TAG).v("Compressing $p")
 
                         val entry: TarArchiveEntry = when (p.fileType) {
-                            APath.FileType.DIRECTORY -> TarArchiveEntry(p.path + File.separator, TarArchiveEntry.LF_DIR)
-                            APath.FileType.SYMBOLIC_LINK -> TarArchiveEntry(p.path, TarArchiveEntry.LF_SYMLINK).apply {
+                            APath.FileType.DIRECTORY -> TarArchiveEntry(p.path + File.separator, TarArchiveEntry.LF_DIR, true)
+                            APath.FileType.SYMBOLIC_LINK -> TarArchiveEntry(p.path, TarArchiveEntry.LF_SYMLINK, true).apply {
                                 linkName = p.target!!.path
                             }
-                            APath.FileType.FILE -> TarArchiveEntry(p.path, TarArchiveEntry.LF_NORMAL).apply {
+                            APath.FileType.FILE -> TarArchiveEntry(p.path, TarArchiveEntry.LF_NORMAL, true).apply {
                                 size = p.size
                             }
                         }

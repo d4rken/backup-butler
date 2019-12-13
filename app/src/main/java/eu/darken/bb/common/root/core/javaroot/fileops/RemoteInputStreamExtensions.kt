@@ -27,31 +27,31 @@ import java.io.InputStream
 /**
  * Use this on the root side
  */
-internal fun InputStream.toRemoteInputStream(): RemoteInputStream.Stub = object : RemoteInputStream.Stub() {
+internal fun InputStream.remoteInputStream(): RemoteInputStream.Stub = object : RemoteInputStream.Stub() {
 
     override fun available(): Int = try {
-        this@toRemoteInputStream.available()
+        this@remoteInputStream.available()
     } catch (e: IOException) {
         Timber.e(e)
         -2
     }
 
     override fun read(): Int = try {
-        this@toRemoteInputStream.read()
+        this@remoteInputStream.read()
     } catch (e: IOException) {
         Timber.e(e)
         -2
     }
 
     override fun readBuffer(b: ByteArray, off: Int, len: Int): Int = try {
-        this@toRemoteInputStream.read(b, off, len)
+        this@remoteInputStream.read(b, off, len)
     } catch (e: IOException) {
         Timber.e(e)
         -2
     }
 
     override fun close() = try {
-        this@toRemoteInputStream.close()
+        this@remoteInputStream.close()
     } catch (e: IOException) {
     }
 

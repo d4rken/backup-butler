@@ -65,6 +65,7 @@ class FilesBackupEndpoint @Inject constructor(
 
         updateProgressCount(Progress.Count.Counter(0, items.size))
 
+        val filesInUnit = mutableListOf<MMRef>()
         for (item in items) {
             updateProgressSecondary(item.path)
 
@@ -73,10 +74,11 @@ class FilesBackupEndpoint @Inject constructor(
                     source = APathRefResource(gateway, item)
             )
             val ref = mmDataRepo.create(refRequest)
-            builder.files.add(ref)
+            filesInUnit.add(ref)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))
         }
+        builder.files = filesInUnit
         return builder
     }
 

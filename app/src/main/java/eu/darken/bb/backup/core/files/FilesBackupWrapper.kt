@@ -15,6 +15,10 @@ class FilesBackupWrapper : BaseBackupWrapper<FilesBackupSpec> {
         return FilesBackupMetaData(backupId)
     }
 
-    val files: MutableCollection<MMRef> = data.getOrPut("", { mutableSetOf() })
+    var files: Collection<MMRef>
+        get() = data[""] ?: emptyList()
+        set(value) {
+            data[""] = value
+        }
 
 }

@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature
         android:name="android.software.leanback"
@@ -92,6 +93,10 @@
         <meta-data
             android:name="com.bugsnag.android.DETECT_NDK_CRASHES"
             android:value="false" />
+
+        <receiver
+            android:name=".common.root.core.javaroot.pkgops.InstallerReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

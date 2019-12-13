@@ -7,13 +7,13 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.root.core.javaroot.fileops.ClientModule
 import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
+import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOpsClient
 import eu.darken.bb.common.root.librootjava.RootIPCReceiver
 import eu.darken.bb.common.root.librootjava.RootJava
-import eu.darken.bb.common.unwrapIf
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 
 @PerApp
@@ -36,7 +36,7 @@ class JavaRootClient @Inject constructor(
         val rootSession = try {
             RxCmdShell.builder().root(true).build().open().blockingGet()
         } catch (e: Exception) {
-            emitter.onError(e.unwrapIf(RuntimeException::class))
+            emitter.onError(e)
             return@SharedResource
         }
 
@@ -46,7 +46,10 @@ class JavaRootClient @Inject constructor(
 
                 emitter.onAvailable(Connection(
                         ipc = ipc,
-                        clientModules = listOf(FileOpsClient(ipc.fileOps))
+                        clientModules = listOf(
+                                FileOpsClient(ipc.fileOps),
+                                PkgOpsClient(ipc.pkgOps)
+                        )
                 ))
             }
 
@@ -65,25 +68,25 @@ class JavaRootClient @Inject constructor(
 
         try {
             val script = JavaRootHost.getLaunchScript(context)
-            Cmd.builder(script).submit(rootSession).subscribe()
+            // Doesn't return until root host has quit
+            val result = Cmd.builder(script).submit(rootSession).observeOn(Schedulers.io()).blockingGet()
+            Timber.tag(TAG).d("Root host launch result was: %s", result)
+            // Check exitcode
+            if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
+                emitter.onError(RootUnavailableException("Shell died launching the java root host."))
+            }
         } catch (e: Exception) {
-            emitter.onError(e.unwrapIf(RuntimeException::class))
+            emitter.onError(e)
         }
     }
 
-    @Throws(IOException::class)
     fun <T> runSessionAction(action: (Connection) -> T): T {
-        try {
-            sharedResource.get().use {
-                return action(it.data)
-            }
-        } catch (e: Exception) {
-            throw e.unwrapIf(RuntimeException::class)
+        sharedResource.get().use {
+            return action(it.data)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Throws(IOException::class)
     fun <R, T> runModuleAction(moduleClass: Class<out R>, action: (R) -> T): T {
         return runSessionAction { session ->
             val module = session.clientModules.single { moduleClass.isInstance(it) } as R

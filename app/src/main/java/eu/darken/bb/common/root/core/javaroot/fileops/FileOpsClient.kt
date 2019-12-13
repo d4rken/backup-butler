@@ -131,6 +131,6 @@ class FileOpsClient(
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "Client", "FileOps")
+        val TAG = App.logTag("Root", "Java", "FileOps", "Client")
     }
 }
