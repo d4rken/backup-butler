@@ -14,6 +14,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
 
@@ -30,13 +31,22 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             .filter { it.editor != null }
             .map { it.editor!! }
 
+    private val editorDataObs = editorObs.flatMap { it.editorData }
+
     val finishEvent = SingleLiveEvent<Boolean>()
 
     private val stater: Stater<State> = Stater {
         val data = taskObs.blockingFirst()
         val steps = when (data.taskType) {
             Task.Type.BACKUP_SIMPLE -> StepFlow.BACKUP_SIMPLE
-            Task.Type.RESTORE_SIMPLE -> StepFlow.RESTORE_SIMPLE
+            Task.Type.RESTORE_SIMPLE -> {
+                val restoreData = editorDataObs.blockingFirst() as SimpleRestoreTaskEditor.Data
+                if (restoreData.backupTargets.size == 1) {
+                    StepFlow.RESTORE_SIMPLE_SINGLE
+                } else {
+                    StepFlow.RESTORE_SIMPLE
+                }
+            }
         }
         State(stepFlow = steps, taskId = taskId, taskType = data.taskType)
     }
@@ -95,7 +105,8 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     enum class StepFlow(@IdRes val start: Int) {
         BACKUP_SIMPLE(R.id.introFragment),
-        RESTORE_SIMPLE(R.id.restoreSourcesFragment);
+        RESTORE_SIMPLE(R.id.restoreSourcesFragment),
+        RESTORE_SIMPLE_SINGLE(R.id.restoreConfigFragment);
     }
 
     @AssistedInject.Factory
