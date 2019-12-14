@@ -9,6 +9,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.rx.swallowInterrupts
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -59,6 +60,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
         editorObs
                 .flatMap { it.isValid() }
+                .swallowInterrupts()
                 .subscribe { isValid ->
                     stater.update { it.copy(isValid = isValid) }
                 }

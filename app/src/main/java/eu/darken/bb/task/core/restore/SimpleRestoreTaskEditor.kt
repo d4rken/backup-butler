@@ -37,53 +37,77 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     private val editorDataPub = HotData(Data(taskId = taskId))
     override val editorData = editorDataPub.data
 
+    private val backupInfoCache = mutableMapOf<Backup.Id, Backup.InfoOpt>()
     val backupInfos: Observable<List<Backup.InfoOpt>> = editorData.map { it.backupTargets }
             .filterUnchanged()
             .switchMap { targets ->
                 if (targets.isEmpty()) return@switchMap Observable.just(emptyList<Backup.InfoOpt>())
                 // TODO make lookup more efficient, e.g. group by storage id.
                 val obs = targets.map { target ->
-                    storageManager.getStorage(target.storageId)
-                            .subscribeOn(Schedulers.io())
-                            .switchMap { it.backupInfosOpt(Pair(target.backupSpecId, target.backupId), live = false) }
-                            .map { it.first() }
+                    val cachedInfo = backupInfoCache[target.backupId]
+                    if (cachedInfo != null) {
+                        Observable.just(cachedInfo)
+                    } else {
+                        storageManager.getStorage(target.storageId)
+                                .subscribeOn(Schedulers.io())
+                                .switchMap { it.backupInfosOpt(Pair(target.backupSpecId, target.backupId), live = false) }
+                                .map { it.first() }
+                                .doOnNext { backupInfoCache[it.backupId] = it }
+                    }
                 }
                 Observable.combineLatest(obs) { it.asList() as List<Backup.InfoOpt> }
             }
             .replayingShare()
 
+
+    private fun buildConfigWrap(target: Backup.Target): ConfigWrap {
+        val data = editorData.blockingFirst()
+        var config = data.customConfigs[target.backupId]
+        val isCustom = config != null
+        if (config == null) config = data.defaultConfigs.getValue(target.backupType)
+
+        val infos = backupInfos.blockingFirst()
+        // Due to exclusion and data refresh, infos may no longer contains a data object
+        val infoOpt = infos.find { it.backupId == target.backupId }
+
+        return when (target.backupType) {
+            Backup.Type.APP -> {
+                config as AppRestoreConfig
+                AppsConfigWrap(
+                        backupInfoOpt = infoOpt,
+                        config = config,
+                        isCustomConfig = isCustom
+                )
+            }
+            Backup.Type.FILES -> {
+                config as FilesRestoreConfig
+                val defaultPath = (infoOpt?.info?.spec as? FilesBackupSpec)?.path
+                val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) }
+                        ?: false
+                FilesConfigWrap(
+                        backupInfoOpt = infoOpt,
+                        config = config,
+                        isCustomConfig = isCustom,
+                        defaultPath = defaultPath,
+                        isPermissionGranted = granted
+                )
+            }
+        }
+    }
+
+    private val customConfigCache = mutableMapOf<Backup.Id, ConfigWrap>()
     val customConfigs: Observable<List<ConfigWrap>> = Observables
             .combineLatest(backupInfos, editorData)
             .serialize()
             .map { (infos, data) ->
                 data.backupTargets.map { target ->
-                    var config = data.customConfigs[target.backupId]
-                    val isCustom = config != null
-                    if (config == null) config = data.defaultConfigs.getValue(target.backupType)
-
-                    val infoOpt = infos.single { it.backupId == target.backupId }
-                    when (target.backupType) {
-                        Backup.Type.APP -> {
-                            config as AppRestoreConfig
-                            AppsConfigWrap(
-                                    backupInfoOpt = infoOpt,
-                                    config = config,
-                                    isCustomConfig = isCustom
-                            )
-                        }
-                        Backup.Type.FILES -> {
-                            config as FilesRestoreConfig
-                            val defaultPath = (infoOpt.info?.spec as? FilesBackupSpec)?.path
-                            val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) } ?: false
-                            FilesConfigWrap(
-                                    backupInfoOpt = infoOpt,
-                                    config = config,
-                                    isCustomConfig = isCustom,
-                                    defaultPath = defaultPath,
-                                    isPermissionGranted = granted
-                            )
-                        }
+                    var wrap = customConfigCache[target.backupId]
+                    val hashMissMatch = wrap?.backupInfoOpt?.hashCode() != infos.find { it.backupId == target.backupId }?.hashCode()
+                    if (wrap == null || hashMissMatch) {
+                        wrap = buildConfigWrap(target)
+                        customConfigCache[target.backupId] = wrap
                     }
+                    wrap
                 }
             }
             .replayingShare()

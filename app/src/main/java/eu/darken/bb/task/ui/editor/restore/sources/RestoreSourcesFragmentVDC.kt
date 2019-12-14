@@ -6,6 +6,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
@@ -40,14 +41,20 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
     private val backupsStater = Stater(BackupsState())
     val backupsState = backupsStater.liveData
 
+    val finishEvent = SingleLiveEvent<Any>()
+
     init {
         editorData
                 .subscribe { data ->
-                    summaryStater.update { oldState ->
-                        oldState.copy(
-                                sourceBackups = data.backupTargets.toList(),
-                                workIds = oldState.clearWorkId()
-                        )
+                    if (data.backupTargets.isEmpty()) {
+                        finishEvent.postValue(Any())
+                    } else {
+                        summaryStater.update { oldState ->
+                            oldState.copy(
+                                    sourceBackups = data.backupTargets.toList(),
+                                    workIds = oldState.clearWorkId()
+                            )
+                        }
                     }
                 }
                 .withScopeVDC(this)

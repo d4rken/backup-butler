@@ -87,6 +87,10 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
                 )
             }
 
+            vdc.finishEvent.observe2(this) {
+                requireActivity().finish()
+            }
+
             super.onViewCreated(view, savedInstanceState)
         }
 

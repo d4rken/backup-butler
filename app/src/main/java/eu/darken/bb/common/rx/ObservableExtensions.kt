@@ -2,6 +2,7 @@ package eu.darken.bb.common.rx
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
+import eu.darken.bb.common.getRootCause
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
@@ -35,6 +36,8 @@ fun <T> Observable<T>.onErrorComplete(
     }
     return onErrorResumeNext(call)
 }
+
+fun <T> Observable<T>.swallowInterrupts() = onErrorComplete { it is InterruptedException || it.getRootCause() is InterruptedException }
 
 fun <T> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
         this.scan(Pair<T?, T?>(null, null)) { previous, current -> Pair(previous.second, current) }
