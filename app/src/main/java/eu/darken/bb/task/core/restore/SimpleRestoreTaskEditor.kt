@@ -107,7 +107,8 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                         wrap = buildConfigWrap(target)
                         customConfigCache[target.backupId] = wrap
                     }
-                    wrap
+                    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION") // WHY?
+                    wrap!!
                 }
             }
             .replayingShare()
@@ -172,8 +173,18 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     fun excludeBackup(excludedId: Backup.Id) {
         editorDataPub.update { data ->
+            val removed = data.backupTargets.single { it.backupId == excludedId }
+            val newTargets = data.backupTargets.filter { it.backupId != excludedId }.toSet()
+
+            val newDefaults = if (newTargets.none { it.backupType == removed.backupType }) {
+                data.defaultConfigs.filter { it.value.restoreType != removed.backupType }
+            } else {
+                data.defaultConfigs
+            }
+
             data.copy(
-                    backupTargets = data.backupTargets.filter { it.backupId != excludedId }.toSet()
+                    backupTargets = newTargets,
+                    defaultConfigs = newDefaults
             )
         }
     }
