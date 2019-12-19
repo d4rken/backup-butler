@@ -14,8 +14,8 @@ import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.load.resource.bitmap.VideoBitmapDecoder
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.previews.model.FileData
 
 import java.io.IOException

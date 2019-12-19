@@ -8,23 +8,23 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.Pkg
-import eu.darken.bb.common.pkgs.PkgRepo
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import javax.inject.Inject
 
 @Reusable
 class AppSpecGenerator @Inject constructor(
         @AppContext private val context: Context,
-        private val pkgRepo: PkgRepo
+        private val pkgOps: PkgOps
 ) : Generator {
 
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config
         val specs = mutableListOf<AppBackupSpec>()
 
-        val allPkgs = pkgRepo.getMap().values.filter { it.packageType == Pkg.Type.NORMAL }.map { it as NormalPkg }
+        val allPkgs = pkgOps.listPkgs().filter { it.packageType == Pkg.Type.NORMAL }.map { it as NormalPkg }
 
         val targetPackages = mutableSetOf<String>()
         if (config.autoInclude) {

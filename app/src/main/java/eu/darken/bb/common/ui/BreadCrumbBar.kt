@@ -12,7 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.ClipboardHelper
-import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.common.files.core.RawPath
 import java.io.File
 
 class BreadCrumbBar<ItemT> @JvmOverloads constructor(

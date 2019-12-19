@@ -7,11 +7,11 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.LocalGateway
-import eu.darken.bb.common.file.core.local.LocalPath
-import eu.darken.bb.common.file.ui.picker.APathPicker
-import eu.darken.bb.common.file.ui.picker.local.LocalPickerFragmentVDC
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.local.LocalGateway
+import eu.darken.bb.common.files.core.local.LocalPath
+import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.local.LocalPickerFragmentVDC
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC

@@ -1,12 +1,12 @@
 package eu.darken.bb.common.root.core.javaroot;
 
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOps;
-import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOps;
+import eu.darken.bb.common.files.core.local.root.FileOpsConnection;
+import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsConnection;
 
 interface JavaRootConnection {
     String checkBase();
 
-    FileOps getFileOps();
+    FileOpsConnection getFileOps();
 
-    PkgOps getPkgOps();
+    PkgOpsConnection getPkgOps();
 }

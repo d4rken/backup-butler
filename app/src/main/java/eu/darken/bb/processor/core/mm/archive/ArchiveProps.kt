@@ -2,7 +2,7 @@ package eu.darken.bb.processor.core.mm.archive
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
-import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import java.util.*

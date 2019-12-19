@@ -67,7 +67,7 @@
             android:theme="@style/AppTheme.Floating" />
 
         <activity
-            android:name="eu.darken.bb.common.file.ui.picker.APathPickerActivity"
+            android:name="eu.darken.bb.common.files.ui.picker.APathPickerActivity"
             android:theme="@style/AppTheme.Base" />
 
         <service android:name="eu.darken.bb.processor.core.service.ProcessorService" />
@@ -95,7 +95,7 @@
             android:value="false" />
 
         <receiver
-            android:name=".common.root.core.javaroot.pkgops.InstallerReceiver"
+            android:name="eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver"
             android:exported="false" />
     </application>
 

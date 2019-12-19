@@ -7,9 +7,9 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.*
+import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -29,7 +29,7 @@ class FilesBackupEndpoint @Inject constructor(
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
-    private val resourceTokens = mutableMapOf<APath.PathType, SharedResource.Resource<*>>()
+    private val resourceTokens = mutableMapOf<APath.PathType, SharedHolder.Resource<*>>()
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
@@ -42,7 +42,7 @@ class FilesBackupEndpoint @Inject constructor(
 
         val gateway = gatewaySwitch.getGateway(spec.path)
         if (!resourceTokens.containsKey(spec.path.pathType)) {
-            resourceTokens[spec.path.pathType] = gateway.resourceTokens.get()
+            resourceTokens[spec.path.pathType] = gateway.keepAliveHolder.get()
         }
         val builder = backupFile(spec, gateway)
 
@@ -56,8 +56,8 @@ class FilesBackupEndpoint @Inject constructor(
     private fun backupFile(spec: FilesBackupSpec, gateway: APathGateway<APath, APathLookup<APath>>): FilesBackupWrapper {
         val builder = FilesBackupWrapper(spec, Backup.Id())
         val pathToBackup = spec.path
-        val items: List<APath> = gateway.resourceTokens.get().use { res ->
-            pathToBackup.walk(res.data)
+        val items: List<APath> = gateway.keepAliveHolder.get().use { res ->
+            pathToBackup.walk(res.item)
                     .filterNot { it == pathToBackup }
                     .onEach { Timber.tag(TAG).v("To backup: %s", it) }
                     .toList()

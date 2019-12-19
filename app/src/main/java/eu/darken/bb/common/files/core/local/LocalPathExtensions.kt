@@ -1,0 +1,100 @@
+package eu.darken.bb.common.files.core.local
+
+import android.system.Os
+import eu.darken.bb.common.files.core.Ownership
+import eu.darken.bb.common.files.core.Permissions
+import eu.darken.bb.common.files.core.asFile
+import eu.darken.bb.common.files.core.callbacks
+import eu.darken.bb.common.files.core.local.root.FileOpsClient
+import eu.darken.bb.common.funnel.IPCFunnel
+import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
+import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.rxshell.cmd.Cmd
+import eu.darken.rxshell.cmd.RxCmdShell
+import okio.Sink
+import okio.Source
+import timber.log.Timber
+import java.util.*
+
+
+fun LocalPath.crumbsTo(child: LocalPath): Array<String> {
+    val childPath = child.path
+    val parentPath = this.path
+    val pure = childPath.replaceFirst(parentPath, "")
+    return pure.split(java.io.File.separatorChar)
+            .filter { it.isNotEmpty() }
+            .toTypedArray()
+}
+
+fun LocalPath.toCrumbs(): List<LocalPath> {
+    val crumbs = mutableListOf<LocalPath>()
+    crumbs.add(this)
+    var parent = this.asFile().parentFile
+    while (parent != null) {
+        crumbs.add(0, LocalPath.build(parent))
+        parent = parent.parentFile
+    }
+    return crumbs
+}
+
+internal fun LocalPath.sourceRoot(client: JavaRootClient): Source {
+    val resource = client.client.get()
+    val fileOps = resource.item.getModule<FileOpsClient>()
+    return fileOps.readFile(this).callbacks { resource.close() }
+}
+
+internal fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
+    val resource = client.client.get()
+    val fileOps = resource.item.getModule<FileOpsClient>()
+    return fileOps.writeFile(this).callbacks { resource.close() }
+}
+
+fun LocalPath.performLookup(
+        ipcFunnel: IPCFunnel? = null,
+        libcoreTool: LibcoreTool? = null,
+        shellSession: RxCmdShell.Session? = null
+): LocalPathLookup {
+    val fstat = try {
+        Os.lstat(file.path)
+    } catch (e: Exception) {
+        Timber.tag(LocalGateway.TAG).w(e, "fstat failed on %s", this)
+        null
+    }
+
+    val ownership = fstat?.let {
+        val uid = it.st_uid
+        val gid = it.st_gid
+
+        var userName: String? = null
+        var groupName: String? = null
+        if (shellSession != null) {
+            val result = Cmd.builder("stat -c \"%U:%G\" ${file.path}").execute(shellSession)
+            if (result.exitCode == Cmd.ExitCode.OK) {
+                val split = result.output.first().split(":")
+                userName = split[0]
+                groupName = split[1]
+            }
+        }
+
+        if (libcoreTool != null) {
+            if (userName == null) userName = libcoreTool.getNameForUid(uid)
+            if (groupName == null) groupName = libcoreTool.getNameForGid(gid)
+        }
+
+        if (ipcFunnel != null) {
+
+        }
+
+        Ownership(uid, gid, userName, groupName)
+    }
+
+    return LocalPathLookup(
+            fileType = file.getAPathFileType(),
+            lookedUp = this,
+            size = file.length(),
+            modifiedAt = Date(file.lastModified()),
+            ownership = ownership,
+            permissions = fstat?.let { Permissions(it.st_mode) },
+            target = file.readLink()?.let { LocalPath.build(it) }
+    )
+}

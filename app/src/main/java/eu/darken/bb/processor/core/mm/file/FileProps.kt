@@ -2,9 +2,9 @@ package eu.darken.bb.processor.core.mm.file
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.Ownership
-import eu.darken.bb.common.file.core.Permissions
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.Ownership
+import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import java.util.*

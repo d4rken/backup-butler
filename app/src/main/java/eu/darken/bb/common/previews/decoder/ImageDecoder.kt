@@ -12,8 +12,8 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.request.target.Target
 import eu.darken.bb.App
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.previews.GlideUtil
 import eu.darken.bb.common.previews.model.FileData
 

@@ -12,28 +12,28 @@ import com.bumptech.glide.signature.ObjectKey
 import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.PkgUriPreviewRequest
 import eu.darken.bb.common.previews.UriHelper
 import javax.inject.Inject
 
 
-class PkgUriIconLoader(val ipcFunnel: IPCFunnel) : ModelLoader<PkgUriPreviewRequest, AppIconData> {
+class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, AppIconData> {
 
     override fun buildLoadData(request: PkgUriPreviewRequest, width: Int, height: Int, options: Options): ModelLoader.LoadData<AppIconData>? {
-        return ModelLoader.LoadData(ObjectKey(request), AppDataFetcher(ipcFunnel, request))
+        return ModelLoader.LoadData(ObjectKey(request), AppDataFetcher(pkgOps, request))
     }
 
     override fun handles(request: PkgUriPreviewRequest): Boolean {
         return request.uri.scheme == UriHelper.APP_SCHEME
     }
 
-    private class AppDataFetcher constructor(val ipcFunnel: IPCFunnel, val request: PkgUriPreviewRequest) : DataFetcher<AppIconData> {
+    private class AppDataFetcher constructor(val pkgOps: PkgOps, val request: PkgUriPreviewRequest) : DataFetcher<AppIconData> {
 
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in AppIconData>) {
             val pkgName = request.uri.host
 
-            val applicationInfo = ipcFunnel.submit(IPCFunnel.AppInfoQuery(pkgName!!))
+            val applicationInfo = pkgOps.queryAppInfos(pkgName!!)
             if (applicationInfo != null) callback.onDataReady(AppIconData(applicationInfo))
             else callback.onLoadFailed(PackageManager.NameNotFoundException(pkgName))
         }
@@ -52,10 +52,10 @@ class PkgUriIconLoader(val ipcFunnel: IPCFunnel) : ModelLoader<PkgUriPreviewRequ
     }
 
     @PerApp
-    class Factory @Inject constructor(val ipcFunnelProvider: Lazy<IPCFunnel>) : ModelLoaderFactory<PkgUriPreviewRequest, AppIconData> {
+    class Factory @Inject constructor(val pkgOpsLazy: Lazy<PkgOps>) : ModelLoaderFactory<PkgUriPreviewRequest, AppIconData> {
 
         override fun build(multiModelLoaderFactory: MultiModelLoaderFactory): ModelLoader<PkgUriPreviewRequest, AppIconData> {
-            return PkgUriIconLoader(ipcFunnelProvider.get())
+            return PkgUriIconLoader(pkgOpsLazy.get())
         }
 
         override fun teardown() {

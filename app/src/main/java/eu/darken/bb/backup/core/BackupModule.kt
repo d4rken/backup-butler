@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import eu.darken.bb.backup.core.app.AppBackupEndpoint
-import eu.darken.bb.backup.core.app.AppRestoreEndpoint
+import eu.darken.bb.backup.core.app.backup.AppBackupEndpoint
+import eu.darken.bb.backup.core.app.restore.AppRestoreEndpoint
 import eu.darken.bb.backup.core.files.FilesBackupEndpoint
 import eu.darken.bb.backup.core.files.FilesRestoreEndpoint
 

@@ -1,9 +1,9 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.common.file.core.Ownership
-import eu.darken.bb.common.file.core.Permissions
-import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.common.files.core.Ownership
+import eu.darken.bb.common.files.core.Permissions
+import eu.darken.bb.common.files.core.RawPath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test

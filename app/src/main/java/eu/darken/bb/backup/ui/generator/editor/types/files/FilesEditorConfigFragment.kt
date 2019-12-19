@@ -10,7 +10,7 @@ import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
-import eu.darken.bb.common.file.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferentAndNotFocused

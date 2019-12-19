@@ -1,9 +1,9 @@
 package eu.darken.bb.processor.core.mm.archive
 
-import eu.darken.bb.common.file.constrain
-import eu.darken.bb.common.file.core.Ownership
-import eu.darken.bb.common.file.core.Permissions
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.files.core.Ownership
+import eu.darken.bb.common.files.core.Permissions
+import eu.darken.bb.common.files.core.constrain
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.processor.core.mm.BaseRefSource
 import eu.darken.bb.processor.core.mm.DirectoryProps
 import eu.darken.bb.processor.core.mm.Props

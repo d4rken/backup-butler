@@ -12,8 +12,8 @@ import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import dagger.Lazy
 import eu.darken.bb.App
-import eu.darken.bb.common.file.core.GatewaySwitch
-import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.files.core.GatewaySwitch
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.decoder.*
 import eu.darken.bb.common.previews.model.*
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class GlideConfigModule : AppGlideModule() {
                 .priority(Priority.LOW))
     }
 
-    @Inject lateinit var ipcFunnelLazy: Lazy<IPCFunnel>
+    @Inject lateinit var pkgOpsLazy: Lazy<PkgOps>
     @Inject lateinit var pkgUriIconLoaderFactory: PkgUriIconLoader.Factory
     @Inject lateinit var appInfoIconLoaderFactory: AppInfoIconLoader.Factory
     @Inject lateinit var smartFileModelLoaderFactory: SmartFileModelLoader.Factory
@@ -40,9 +40,9 @@ class GlideConfigModule : AppGlideModule() {
         registry.append(AppPreviewRequest::class.java, AppIconData::class.java, appInfoIconLoaderFactory)
         registry.append(FilePreviewRequest::class.java, FileData::class.java, smartFileModelLoaderFactory)
 
-        registry.append(AppIconData::class.java, Bitmap::class.java, AppIconDecoder(context, glide, ipcFunnelLazy))
+        registry.append(AppIconData::class.java, Bitmap::class.java, AppIconDecoder(context, glide, pkgOpsLazy))
         registry.append(FileData::class.java, Bitmap::class.java, ImageDecoder(context, glide))
-        registry.append(FileData::class.java, Bitmap::class.java, ApkDecoder(context, glide, ipcFunnelLazy, gatewaySwitch))
+        registry.append(FileData::class.java, Bitmap::class.java, ApkDecoder(context, glide, pkgOpsLazy, gatewaySwitch))
         registry.append(FileData::class.java, Bitmap::class.java, VideoDecoder(context, glide))
         registry.append(FileData::class.java, Bitmap::class.java, MusicDecoder(context, glide))
         registry.append(FileData::class.java, Bitmap::class.java, FallbackDecoder(context, glide))

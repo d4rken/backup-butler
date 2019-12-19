@@ -5,10 +5,13 @@ import android.content.Context
 import android.util.Log
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOps
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsHost
-import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOps
-import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOpsHost
+import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.files.core.local.root.FileOpsConnection
+import eu.darken.bb.common.files.core.local.root.FileOpsHost
+import eu.darken.bb.common.funnel.IPCFunnel
+import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
+import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsConnection
+import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsHost
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
 import eu.darken.rxshell.cmd.Cmd
@@ -25,10 +28,16 @@ import kotlin.system.exitProcess
  */
 @SuppressLint("UnsafeDynamicallyLoadedCode")
 class JavaRootHost constructor(args: List<String>) {
+    private val keepAliveHolder = SharedHolder.createKeepAlive(TAG)
+    private val keepAliveToken: SharedHolder.Resource<*>
+
+    private val libcoreTool: LibcoreTool by lazy { LibcoreTool() }
+    private val ipcFunnel: IPCFunnel by lazy { IPCFunnel(context) }
+
     private val pathToAPK: String
     lateinit var context: Context
-    internal val fileOps by lazy { FileOpsHost() }
-    internal val pkgOps by lazy { PkgOpsHost(context) }
+    internal val fileOpsConnection by lazy { FileOpsHost(keepAliveHolder, libcoreTool, ipcFunnel) }
+    internal val pkgOpsConnection by lazy { PkgOpsHost(context) }
 
     init {
         Log.d(TAG, "init(args=${args})")
@@ -73,6 +82,8 @@ class JavaRootHost constructor(args: List<String>) {
 
         Timber.tag(TAG).d("Running on threadId=%d", Thread.currentThread().id)
         //        Debugger.waitFor(true)
+
+        keepAliveToken = keepAliveHolder.get()
     }
 
     private fun run() {
@@ -94,9 +105,9 @@ class JavaRootHost constructor(args: List<String>) {
                 return result
             }
 
-            override fun getFileOps(): FileOps = this@JavaRootHost.fileOps
+            override fun getFileOps(): FileOpsConnection = this@JavaRootHost.fileOpsConnection
 
-            override fun getPkgOps(): PkgOps = this@JavaRootHost.pkgOps
+            override fun getPkgOps(): PkgOpsConnection = this@JavaRootHost.pkgOpsConnection
 
         }
 
@@ -105,6 +116,8 @@ class JavaRootHost constructor(args: List<String>) {
         } catch (e: RootIPC.TimeoutException) {
             Timber.tag(TAG).e("Non-root process did not connect in a timely fashion")
         }
+
+        keepAliveToken.close()
     }
 
     companion object {

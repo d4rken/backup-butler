@@ -5,8 +5,8 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.file.core.Ownership
-import eu.darken.bb.common.file.core.Permissions
+import eu.darken.bb.common.files.core.Ownership
+import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import eu.darken.bb.processor.core.mm.file.FileProps
 import eu.darken.bb.processor.core.mm.file.FileRefSource

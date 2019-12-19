@@ -37,7 +37,7 @@ fun <T> Observable<T>.onErrorComplete(
     return onErrorResumeNext(call)
 }
 
-fun <T> Observable<T>.swallowInterrupts() = onErrorComplete { it is InterruptedException || it.getRootCause() is InterruptedException }
+fun <T> Observable<T>.swallowInterruptExceptions() = onErrorComplete { it is InterruptedException || it.getRootCause() is InterruptedException }
 
 fun <T> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
         this.scan(Pair<T?, T?>(null, null)) { previous, current -> Pair(previous.second, current) }

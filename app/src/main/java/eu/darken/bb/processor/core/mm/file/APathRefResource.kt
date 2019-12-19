@@ -1,8 +1,8 @@
 package eu.darken.bb.processor.core.mm.file
 
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathGateway
-import eu.darken.bb.common.file.core.APathLookup
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.APathGateway
+import eu.darken.bb.common.files.core.APathLookup
 import eu.darken.bb.processor.core.mm.BaseRefSource
 import eu.darken.bb.processor.core.mm.Props
 import okio.Source

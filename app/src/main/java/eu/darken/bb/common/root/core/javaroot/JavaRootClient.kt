@@ -2,12 +2,12 @@ package eu.darken.bb.common.root.core.javaroot
 
 import android.content.Context
 import eu.darken.bb.App
-import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.root.core.javaroot.fileops.ClientModule
-import eu.darken.bb.common.root.core.javaroot.fileops.FileOpsClient
-import eu.darken.bb.common.root.core.javaroot.pkgops.PkgOpsClient
+import eu.darken.bb.common.files.core.local.root.ClientModule
+import eu.darken.bb.common.files.core.local.root.FileOpsClient
+import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.librootjava.RootIPCReceiver
 import eu.darken.bb.common.root.librootjava.RootJava
 import eu.darken.rxshell.cmd.Cmd
@@ -30,14 +30,14 @@ class JavaRootClient @Inject constructor(
         }
     }
 
-    val sharedResource = SharedResource<Connection>("$TAG:SharedResource") { emitter ->
+    val client = SharedHolder<Connection>("$TAG:SharedResource") { emitter ->
         Timber.tag(TAG).d("Initiating connection to host.")
 
         val rootSession = try {
             RxCmdShell.builder().root(true).build().open().blockingGet()
         } catch (e: Exception) {
             emitter.onError(e)
-            return@SharedResource
+            return@SharedHolder
         }
 
         val ipcReceiver = object : RootIPCReceiver<JavaRootConnection>(context, 0) {
@@ -81,8 +81,8 @@ class JavaRootClient @Inject constructor(
     }
 
     fun <T> runSessionAction(action: (Connection) -> T): T {
-        sharedResource.get().use {
-            return action(it.data)
+        client.get().use {
+            return action(it.item)
         }
     }
 

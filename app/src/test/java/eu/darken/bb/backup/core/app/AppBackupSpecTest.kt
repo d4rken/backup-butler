@@ -5,7 +5,7 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
-import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.common.files.core.RawPath
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test

@@ -9,9 +9,10 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.GatewaySwitch
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.rx.filterUnchanged
+import eu.darken.bb.common.rx.swallowInterruptExceptions
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.backupInfosOpt
@@ -82,8 +83,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             Backup.Type.FILES -> {
                 config as FilesRestoreConfig
                 val defaultPath = (infoOpt?.info?.spec as? FilesBackupSpec)?.path
-                val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) }
-                        ?: false
+                val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) } ?: false
                 FilesConfigWrap(
                         backupInfoOpt = infoOpt,
                         config = config,
@@ -111,6 +111,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                     wrap!!
                 }
             }
+            .swallowInterruptExceptions()
             .replayingShare()
 
     override fun load(task: Task): Completable = Single.just(task as SimpleRestoreTask)

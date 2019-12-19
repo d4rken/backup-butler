@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PermissionInfo
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 
 
 abstract class BasePkgInfo(internal val packageInfo: PackageInfo) : NormalPkg {
@@ -43,9 +44,9 @@ abstract class BasePkgInfo(internal val packageInfo: PackageInfo) : NormalPkg {
     override val permissions: Collection<PermissionInfo>?
         get() = if (packageInfo.permissions == null) null else listOf(*packageInfo.permissions)
 
-    override fun getLabel(ipcFunnel: IPCFunnel): String? {
+    override fun getLabel(pkgOps: PkgOps): String? {
         if (labelCache == null && applicationInfo != null) {
-            labelCache = ipcFunnel.submit(IPCFunnel.LabelQuery(applicationInfo!!))
+            labelCache = pkgOps.getLabel(applicationInfo!!)
         }
         return labelCache
     }

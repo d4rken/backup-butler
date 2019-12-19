@@ -6,9 +6,9 @@ import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
-import eu.darken.bb.common.file.core.asFile
-import eu.darken.bb.common.file.core.local.LocalGateway
-import eu.darken.bb.common.file.core.local.LocalPath
+import eu.darken.bb.common.files.core.asFile
+import eu.darken.bb.common.files.core.local.LocalGateway
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
 import eu.darken.bb.storage.core.ExistingStorageException

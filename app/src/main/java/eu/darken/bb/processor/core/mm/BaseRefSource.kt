@@ -1,9 +1,9 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.App
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathLookup
-import eu.darken.bb.common.file.core.toMMRefType
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.APathLookup
+import eu.darken.bb.common.files.core.toMMRefType
 import eu.darken.bb.processor.core.mm.file.FileProps
 import okio.Source
 import timber.log.Timber

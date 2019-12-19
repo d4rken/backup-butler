@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.CheckSummer
-import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.files.core.APath
 
 @Keep
 @JsonClass(generateAdapter = true)

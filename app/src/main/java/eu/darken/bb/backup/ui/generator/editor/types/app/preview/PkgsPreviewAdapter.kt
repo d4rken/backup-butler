@@ -6,7 +6,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.*
-import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.AppPreviewRequest
 import eu.darken.bb.common.previews.GlideApp
 import eu.darken.bb.common.previews.into
@@ -15,19 +15,19 @@ import javax.inject.Inject
 
 
 class PkgsPreviewAdapter @Inject constructor(
-        ipcFunnel: IPCFunnel
+        pkgOps: PkgOps
 ) : ModularAdapter<PkgsPreviewAdapter.VH>(), DataAdapter<AppEditorPreviewFragmentVDC.PkgWrap> {
 
     override val data = mutableListOf<AppEditorPreviewFragmentVDC.PkgWrap>()
 
     init {
         modules.add(DataBinderModule<AppEditorPreviewFragmentVDC.PkgWrap, VH>(data))
-        modules.add(SimpleVHCreator { VH(it, ipcFunnel) })
+        modules.add(SimpleVHCreator { VH(it, pkgOps) })
     }
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup, private val ipcFunnel: IPCFunnel)
+    class VH(parent: ViewGroup, private val pkgOps: PkgOps)
         : ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent), BindableVH<AppEditorPreviewFragmentVDC.PkgWrap> {
 
         @BindView(R.id.preview_container) lateinit var previewContainer: PreviewView
@@ -43,7 +43,7 @@ class PkgsPreviewAdapter @Inject constructor(
             val isSelected = item.isSelected
             val mode = item.mode
 
-            label.text = pkg.getLabel(ipcFunnel)
+            label.text = pkg.getLabel(pkgOps)
             when (mode) {
                 PreviewMode.PREVIEW -> {
                     description.setTextColor(getColorForAttr(R.attr.colorOnBackground))

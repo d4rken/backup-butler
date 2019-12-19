@@ -1,7 +1,7 @@
 package eu.darken.bb.processor.core.mm
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.common.file.core.RawPath
+import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow

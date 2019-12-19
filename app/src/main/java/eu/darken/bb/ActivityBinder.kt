@@ -7,8 +7,8 @@ import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityModule
 import eu.darken.bb.common.dagger.PerActivity
 import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.debug.recording.ui.RecorderActivityModule
-import eu.darken.bb.common.file.ui.picker.APathPickerActivity
-import eu.darken.bb.common.file.ui.picker.APathPickerActivityModule
+import eu.darken.bb.common.files.ui.picker.APathPickerActivity
+import eu.darken.bb.common.files.ui.picker.APathPickerActivityModule
 import eu.darken.bb.main.ui.advanced.AdvancedActivity
 import eu.darken.bb.main.ui.advanced.AdvancedActivityModule
 import eu.darken.bb.main.ui.settings.SettingsActivity

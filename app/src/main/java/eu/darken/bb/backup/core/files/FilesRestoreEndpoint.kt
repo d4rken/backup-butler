@@ -7,9 +7,9 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.file.core.*
+import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -30,7 +30,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
-    private val resourceTokens = mutableMapOf<APath.PathType, SharedResource.Resource<*>>()
+    private val resourceTokens = mutableMapOf<APath.PathType, SharedHolder.Resource<*>>()
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
@@ -56,7 +56,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
             val gateway = gatewaySwitch.getGateway(spec.path)
             if (!resourceTokens.containsKey(spec.path.pathType)) {
-                resourceTokens[spec.path.pathType] = gateway.resourceTokens.get()
+                resourceTokens[spec.path.pathType] = gateway.keepAliveHolder.get()
             }
 
             // TODO add restore success to results?

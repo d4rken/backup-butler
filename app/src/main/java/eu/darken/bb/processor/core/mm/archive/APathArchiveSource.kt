@@ -1,10 +1,8 @@
 package eu.darken.bb.processor.core.mm.archive
 
 import eu.darken.bb.App
-import eu.darken.bb.common.file.core.APath
-import eu.darken.bb.common.file.core.APathGateway
-import eu.darken.bb.common.file.core.APathLookup
-import eu.darken.bb.common.file.core.SourceWithCallbacks
+import eu.darken.bb.common.files.core.*
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.processor.core.mm.BaseRefSource
 import okio.Pipe
 import okio.Source
@@ -52,27 +50,39 @@ class APathArchiveSource<PathType : APath, GateType : APathGateway<in PathType, 
                     for (p in targets) {
                         Timber.tag(TAG).v("Compressing $p")
 
+                        val relativePath = LocalPath.build(p.path).relativeTo(LocalPath.build(props.originalPath!!.path))?.path
+                        requireNotNull(relativePath) { "Relative path is null for $p and $props" }
+
                         val entry: TarArchiveEntry = when (p.fileType) {
-                            APath.FileType.DIRECTORY -> TarArchiveEntry(p.path + File.separator, TarArchiveEntry.LF_DIR, true)
-                            APath.FileType.SYMBOLIC_LINK -> TarArchiveEntry(p.path, TarArchiveEntry.LF_SYMLINK, true).apply {
+                            APath.FileType.DIRECTORY -> TarArchiveEntry(relativePath + File.separator, TarArchiveEntry.LF_DIR)
+                            APath.FileType.SYMBOLIC_LINK -> TarArchiveEntry(relativePath, TarArchiveEntry.LF_SYMLINK).apply {
                                 linkName = p.target!!.path
                             }
-                            APath.FileType.FILE -> TarArchiveEntry(p.path, TarArchiveEntry.LF_NORMAL, true).apply {
+                            APath.FileType.FILE -> TarArchiveEntry(relativePath, TarArchiveEntry.LF_NORMAL).apply {
                                 size = p.size
                             }
                         }
+                        requireNotNull(entry.name) { "Name was null for $p" }
 
                         entry.setModTime(p.modifiedAt.time)
 
                         if (p.permissions != null) {
                             entry.mode = p.permissions!!.mode
                         }
-                        if (p.ownership != null) {
-                            entry.setUserId(p.ownership!!.userId)
-                            entry.setGroupId(p.ownership!!.groupId)
+
+                        p.ownership?.let {
+                            entry.setUserId(it.userId)
+                            entry.setGroupId(it.groupId)
+                            entry.userName = it.userName ?: ""
+                            entry.groupName = it.groupName ?: ""
                         }
 
-                        out.putArchiveEntry(entry)
+                        try {
+                            out.putArchiveEntry(entry)
+                        } catch (e: Exception) {
+                            Timber.tag(TAG).e(e, "Failed to write archive entry: ${entry.toHumanReadableString()}")
+                            throw e
+                        }
                         if (p.fileType == APath.FileType.FILE) {
                             gateway.read(p.lookedUp).use {
                                 it.buffer().inputStream().copyTo(out)

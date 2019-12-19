@@ -13,7 +13,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableDecoderCompat
 import com.bumptech.glide.request.target.Target
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.file.core.APath
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
 

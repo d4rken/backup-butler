@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
-import eu.darken.bb.common.file.core.GatewaySwitch
+import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.opt
 import io.reactivex.Maybe
 import io.reactivex.Observable

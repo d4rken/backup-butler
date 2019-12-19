@@ -15,7 +15,7 @@ import com.bumptech.glide.request.target.Target
 import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.pkgs.IPCFunnel
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.model.AppIconData
 import timber.log.Timber
 
@@ -23,7 +23,7 @@ import timber.log.Timber
 class AppIconDecoder(
         val context: Context,
         glide: Glide,
-        val ipcFunnelLazy: Lazy<IPCFunnel>
+        val pkgOpsLazy: Lazy<PkgOps>
 ) : ResourceDecoder<AppIconData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 
@@ -31,7 +31,7 @@ class AppIconDecoder(
 
     override fun decode(source: AppIconData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         var icon: Drawable? = try {
-            ipcFunnelLazy.get().submit(IPCFunnel.IconQuery(source.applicationInfo))
+            pkgOpsLazy.get().getIcon(source.applicationInfo)
         } catch (e: Exception) {
             Timber.tag(TAG).w(e)
             null

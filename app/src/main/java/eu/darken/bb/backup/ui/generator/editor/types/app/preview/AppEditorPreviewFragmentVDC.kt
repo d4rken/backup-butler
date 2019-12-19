@@ -8,7 +8,9 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.pkgs.*
+import eu.darken.bb.common.pkgs.AppPkg
+import eu.darken.bb.common.pkgs.Pkg
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -18,8 +20,7 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
         @Assisted private val generatorId: Generator.Id,
         @Assisted private val previewMode: PreviewMode,
         private val builder: GeneratorBuilder,
-        private val pkgRepo: PkgRepo,
-        private val ipcFunnel: IPCFunnel
+        private val pkgOps: PkgOps
 ) : SmartVDC() {
 
     private val stater = Stater(State(previewMode = previewMode))
@@ -36,7 +37,7 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
     init {
         editorDataObs
                 .map { data ->
-                    val allPkgs = pkgRepo.getMap(PkgRequest.NON_STALE).values
+                    val allPkgs = pkgOps.listPkgs()
                             .filter { it.packageType == Pkg.Type.NORMAL }
                             .map { it as AppPkg }
 
@@ -97,7 +98,7 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
                 .subscribe { pkgs ->
                     stater.update { state ->
                         state.copy(
-                                pkgs = pkgs.sortedBy { it.pkg.getLabel(ipcFunnel) }.toList(),
+                                pkgs = pkgs.sortedBy { it.pkg.getLabel(pkgOps) }.toList(),
                                 selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet(),
                                 isLoading = false
                         )
