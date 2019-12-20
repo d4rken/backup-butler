@@ -89,6 +89,14 @@
                 app:pvDescription="@string/task_editor_restore_app_config_restore_data_desc"
                 app:pvIcon="@drawable/ic_check_circle"
                 app:pvTitle="@string/task_editor_restore_app_config_restore_data_label" />
+
+            <eu.darken.bb.common.ui.SwitchPreferenceView
+                android:id="@+id/option_restore_cache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:pvDescription="@string/task_editor_restore_app_config_restore_cache_desc"
+                app:pvIcon="@drawable/ic_check_circle"
+                app:pvTitle="@string/task_editor_restore_app_config_restore_cache_label" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

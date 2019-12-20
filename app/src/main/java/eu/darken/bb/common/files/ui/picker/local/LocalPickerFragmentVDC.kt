@@ -77,7 +77,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         val doCd: (LocalPath) -> Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> = { path ->
             val crumbs = path.toCrumbs()
 
-            if (holderToken == null) holderToken = localGateway.keepAliveHolder.get()
+            if (holderToken == null) holderToken = localGateway.keepAlive.get()
             val listing = localGateway.lookupFiles(path, mode = mode)
                     .sortedBy { it.name.toLowerCase(Locale.ROOT) }
                     .filter { !options.onlyDirs || it.isDirectory }

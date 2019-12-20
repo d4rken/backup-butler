@@ -6,9 +6,7 @@ import okio.Source
 import java.io.IOException
 import java.util.*
 
-interface APathGateway<P : APath, PLU : APathLookup<P>> {
-
-    val keepAliveHolder: SharedHolder<out APathGateway<P, PLU>>
+interface APathGateway<P : APath, PLU : APathLookup<P>> : SharedHolder.HasKeepAlive<Any> {
 
     @Throws(IOException::class)
     fun createDir(path: P): Boolean

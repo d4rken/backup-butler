@@ -41,7 +41,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
         config as FilesRestoreConfig
         val spec = backup.spec as FilesBackupSpec
-        val handler = FilesBackupWrapper(backup)
+        val handler = FilesBackupWrap(backup)
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
 
@@ -56,7 +56,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
             val gateway = gatewaySwitch.getGateway(spec.path)
             if (!resourceTokens.containsKey(spec.path.pathType)) {
-                resourceTokens[spec.path.pathType] = gateway.keepAliveHolder.get()
+                resourceTokens[spec.path.pathType] = gateway.keepAlive.get()
             }
 
             // TODO add restore success to results?

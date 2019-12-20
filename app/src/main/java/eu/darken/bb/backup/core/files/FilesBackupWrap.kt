@@ -1,10 +1,10 @@
 package eu.darken.bb.backup.core.files
 
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.BaseBackupWrapper
+import eu.darken.bb.backup.core.BackupWrap
 import eu.darken.bb.processor.core.mm.MMRef
 
-class FilesBackupWrapper : BaseBackupWrapper<FilesBackupSpec> {
+class FilesBackupWrap : BackupWrap<FilesBackupSpec> {
 
     constructor(backup: Backup.Unit) : super(backup)
 

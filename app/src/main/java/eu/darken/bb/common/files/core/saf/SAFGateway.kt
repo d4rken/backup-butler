@@ -22,13 +22,7 @@ class SAFGateway @Inject constructor(
         private val contentResolver: ContentResolver
 ) : APathGateway<SAFPath, SAFPathLookup> {
 
-    override val keepAliveHolder = SharedHolder<SAFGateway>("${TAG}:SharedResource") { emitter ->
-        try {
-            emitter.onAvailable(this@SAFGateway)
-        } catch (e: Throwable) {
-            emitter.onError(e)
-        }
-    }
+    override val keepAlive = SharedHolder.createKeepAlive("${TAG}:SharedResource")
 
     private fun getDocumentFile(file: SAFPath): DocumentFile? {
         val treeRoot = DocumentFile.fromTreeUri(context, file.treeRoot)

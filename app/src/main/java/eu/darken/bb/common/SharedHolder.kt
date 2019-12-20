@@ -20,7 +20,7 @@ class SharedHolder<T> constructor(
     protected var childResources = mutableSetOf<Resource<*>>()
     protected var parentsThatKeepUsAlive = mutableMapOf<SharedHolder<*>, Resource<T>>()
 
-    val isOpen: Boolean
+    val isAlive: Boolean
         get() = !activeTokens.isDisposed
 
     private val resourceHolder: Observable<T> = Observable
@@ -134,7 +134,7 @@ class SharedHolder<T> constructor(
                 return
             }
 
-            if (!isOpen) {
+            if (!isAlive) {
                 Timber.tag(tag).w("Adding child to an already closed holder: %s", resource)
             }
 
@@ -151,9 +151,13 @@ class SharedHolder<T> constructor(
         }
     }
 
-    fun keepAliveBy(parent: SharedHolder<*>): SharedHolder<T> {
+    fun keepAliveWith(parent: HasKeepAlive<*>): SharedHolder<T> {
+        return keepAliveWith(parent.keepAlive)
+    }
+
+    fun keepAliveWith(parent: SharedHolder<*>): SharedHolder<T> {
         synchronized(this) {
-            if (!parent.isOpen) {
+            if (!parent.isAlive) {
                 Timber.tag(tag).w("Parent is closed, not adding keep alive: %s", parent)
                 return this
             }
@@ -194,9 +198,19 @@ class SharedHolder<T> constructor(
         fun setCancellable(c: () -> Unit)
     }
 
+    interface HasKeepAlive<T> {
+        val keepAlive: SharedHolder<T>
+
+        fun keepAliveWith(parent: HasKeepAlive<*>) {
+            keepAlive.keepAliveWith(parent)
+        }
+    }
+
     companion object {
         fun createKeepAlive(tag: String): SharedHolder<Any> {
-            return SharedHolder(tag) { Any() }
+            return SharedHolder(tag) {
+                it.onAvailable(Any())
+            }
         }
     }
 

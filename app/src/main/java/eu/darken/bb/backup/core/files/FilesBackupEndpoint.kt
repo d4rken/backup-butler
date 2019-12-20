@@ -42,7 +42,7 @@ class FilesBackupEndpoint @Inject constructor(
 
         val gateway = gatewaySwitch.getGateway(spec.path)
         if (!resourceTokens.containsKey(spec.path.pathType)) {
-            resourceTokens[spec.path.pathType] = gateway.keepAliveHolder.get()
+            resourceTokens[spec.path.pathType] = gateway.keepAlive.get()
         }
         val builder = backupFile(spec, gateway)
 
@@ -53,11 +53,11 @@ class FilesBackupEndpoint @Inject constructor(
         resourceTokens.values.forEach { it.close() }
     }
 
-    private fun backupFile(spec: FilesBackupSpec, gateway: APathGateway<APath, APathLookup<APath>>): FilesBackupWrapper {
-        val builder = FilesBackupWrapper(spec, Backup.Id())
+    private fun backupFile(spec: FilesBackupSpec, gateway: APathGateway<APath, APathLookup<APath>>): FilesBackupWrap {
+        val builder = FilesBackupWrap(spec, Backup.Id())
         val pathToBackup = spec.path
-        val items: List<APath> = gateway.keepAliveHolder.get().use { res ->
-            pathToBackup.walk(res.item)
+        val items: List<APath> = gateway.keepAlive.get().use {
+            pathToBackup.walk(gateway)
                     .filterNot { it == pathToBackup }
                     .onEach { Timber.tag(TAG).v("To backup: %s", it) }
                     .toList()

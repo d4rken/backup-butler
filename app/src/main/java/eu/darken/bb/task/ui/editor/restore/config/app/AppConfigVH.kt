@@ -15,6 +15,7 @@ class AppConfigVH(parent: ViewGroup)
     @BindView(R.id.option_skip_existing_apps) lateinit var optionSkipExisting: SwitchPreferenceView
     @BindView(R.id.option_restore_apk) lateinit var optionRestoreApk: SwitchPreferenceView
     @BindView(R.id.option_restore_data) lateinit var optionRestoreData: SwitchPreferenceView
+    @BindView(R.id.option_restore_cache) lateinit var optionRestoreCache: SwitchPreferenceView
 
     override val title = getString(R.string.task_editor_restore_app_config_options_label)
 
@@ -37,6 +38,10 @@ class AppConfigVH(parent: ViewGroup)
         optionRestoreData.isChecked = config.restoreData
         optionRestoreData.setSwitchListener { _, checked ->
             item.updateConfig(config.copy(restoreData = checked))
+        }
+        optionRestoreCache.isChecked = config.restoreCache
+        optionRestoreCache.setSwitchListener { _, checked ->
+            item.updateConfig(config.copy(restoreCache = checked))
         }
     }
 

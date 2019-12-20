@@ -2,7 +2,7 @@ package eu.darken.bb.backup.core
 
 import eu.darken.bb.processor.core.mm.MMRef
 
-abstract class BaseBackupWrapper<ConfigT : BackupSpec> {
+abstract class BackupWrap<ConfigT : BackupSpec> {
     val backupId: Backup.Id
     val backupConfig: ConfigT
     val data = mutableMapOf<String, Collection<MMRef>>()

@@ -26,13 +26,7 @@ class GatewaySwitch @Inject constructor(
         } as APathGateway<T, APathLookup<T>>
     }
 
-    override val keepAliveHolder: SharedHolder<out APathGateway<APath, APathLookup<APath>>> = SharedHolder<GatewaySwitch>("${TAG}:SharedResource") { emitter ->
-        try {
-            emitter.onAvailable(this@GatewaySwitch)
-        } catch (e: Throwable) {
-            emitter.onError(e)
-        }
-    }
+    override val keepAlive = SharedHolder.createKeepAlive("${TAG}:SharedResource")
 
     override fun createDir(path: APath): Boolean {
         return getGateway(path).createDir(path)

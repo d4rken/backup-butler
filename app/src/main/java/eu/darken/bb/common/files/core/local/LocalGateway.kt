@@ -27,25 +27,18 @@ class LocalGateway @Inject constructor(
         private val libcoreTool: LibcoreTool
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
-    private val sharedUserShell = SharedShell(TAG)
-
-    override val keepAliveHolder = SharedHolder<LocalGateway>("$TAG:SharedResource") { emitter ->
-        try {
-            emitter.onAvailable(this@LocalGateway)
-        } catch (e: Throwable) {
-            emitter.onError(e)
-        }
-    }
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private fun <T> rootOps(action: (FileOpsClient) -> T): T {
-        keepAliveHolder.keepAliveBy(javaRootClient.client)
+        javaRootClient.keepAliveWith(this)
         return javaRootClient.runModuleAction(FileOpsClient::class.java) {
             return@runModuleAction action(it)
         }
     }
 
+    private val sharedUserShell = SharedShell(TAG)
     private fun getShellSession(): SharedHolder.Resource<RxCmdShell.Session> {
-        return sharedUserShell.session.keepAliveBy(keepAliveHolder).get()
+        return sharedUserShell.session.keepAliveWith(this).get()
     }
 
     @Throws(IOException::class)

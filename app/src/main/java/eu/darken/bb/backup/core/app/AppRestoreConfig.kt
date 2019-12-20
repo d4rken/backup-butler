@@ -10,7 +10,8 @@ import eu.darken.bb.backup.core.Restore
 data class AppRestoreConfig(
         val skipExistingApps: Boolean = false,
         val restoreApk: Boolean = true,
-        val restoreData: Boolean = true
+        val restoreData: Boolean = true,
+        val restoreCache: Boolean = false
 ) : Restore.Config {
 
     override var restoreType: Backup.Type

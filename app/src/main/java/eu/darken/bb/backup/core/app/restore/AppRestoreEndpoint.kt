@@ -1,19 +1,20 @@
 package eu.darken.bb.backup.core.app.restore
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppBackupSpec
-import eu.darken.bb.backup.core.app.AppBackupWrapper
+import eu.darken.bb.backup.core.app.AppBackupWrap
+import eu.darken.bb.backup.core.app.AppBackupWrap.Type
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.files.core.*
-import eu.darken.bb.common.files.core.local.LocalPath
+import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -25,11 +26,6 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
 import io.reactivex.Observable
-import okio.source
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
@@ -37,7 +33,8 @@ class AppRestoreEndpoint @Inject constructor(
         private val javaRootClient: JavaRootClient,
         private val apkInstaller: APKInstaller,
         private val gatewaySwitch: GatewaySwitch,
-        private val pkgOps: PkgOps
+        private val pkgOps: PkgOps,
+        restoreHandlers: @JvmSuppressWildcards Set<RestoreHandler>
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -47,6 +44,8 @@ class AppRestoreEndpoint @Inject constructor(
     private var rootToken: SharedHolder.Resource<JavaRootClient.Connection>? = null
     private var rootAvailable = true
 
+    private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
+
     override fun restore(config: Restore.Config, backup: Backup.Unit): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary("")
@@ -54,9 +53,9 @@ class AppRestoreEndpoint @Inject constructor(
 
         config as AppRestoreConfig
         val spec = backup.spec as AppBackupSpec
-        val handler = AppBackupWrapper(backup)
+        val wrap = AppBackupWrap(backup)
 
-        updateProgressCount(Progress.Count.Counter(0, handler.data.size))
+        updateProgressCount(Progress.Count.Counter(0, wrap.data.size))
 
         if (config.skipExistingApps && pkgOps.queryPkg(spec.packageName) != null) {
             // TODO skip if pkg already exists?, result?
@@ -72,103 +71,77 @@ class AppRestoreEndpoint @Inject constructor(
         }
 
         val request = APKInstaller.Request(
-                packageName = handler.packageName,
-                baseApk = handler.baseApk,
-                splitApks = handler.splitApks.toList(),
+                packageName = wrap.packageName,
+                baseApk = wrap.baseApk,
+                splitApks = wrap.splitApks.toList(),
                 useRoot = rootAvailable
         )
         // TODO check result, error?
         val installResult = apkInstaller.install(request)
         // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
 
-        val pkg = pkgOps.queryPkg(handler.packageName)
-        requireNotNull(pkg) { "${handler.packageName} isn't installed." }
+        val pkg = pkgOps.queryPkg(wrap.packageName)
+        requireNotNull(pkg) { "${wrap.packageName} isn't installed." }
 
         val appInfo = (pkg as? AppPkg)?.applicationInfo
         requireNotNull(appInfo) { "${pkg.packageType} is currently not supported." }
 
+        // TODO if the app is running force stop it
+
         if (config.restoreData) {
-            // TODO Copy private data
-            val privateData = handler.dataPrivate
-            val archive = privateData.single()
-
-            val props = archive.props
-
-            val directoryTimeStamps = mutableMapOf<APath, Date>()
-
-            archive.source.open().use { source ->
-                val archiveStream = TarArchiveInputStream(GzipCompressorInputStream(source.inputStream()))
-
-                generateSequence { archiveStream.nextTarEntry }.forEach { entry ->
-                    val entryOrigPath = entry.name
-                    Timber.tag(TAG).v("Restoring: %s", entryOrigPath)
-
-                    props.originalPath
-                    val restoreTarget = LocalPath.build("/data/data/abnbtest", entryOrigPath)
-
-                    // TODO what if the file exists?
-                    when {
-                        entry.isSymbolicLink -> {
-
-                        }
-                        entry.isDirectory -> {
-                            restoreTarget.createDirIfNecessary(gatewaySwitch)
-                        }
-                        entry.isFile -> {
-                            restoreTarget.createFileIfNecessary(gatewaySwitch)
-                            archiveStream.source().constrain(entry.size).use { fileSource ->
-                                restoreTarget.write(gatewaySwitch).use {
-                                    fileSource.copyToAutoClose(it)
-                                }
-                            }
-                        }
-                        else -> throw UnsupportedOperationException("Unknown type for ${entry.name}")
-                    }
-
-                    val modifiedTime = entry.lastModifiedDate
-                    if (entry.isDirectory) {
-                        directoryTimeStamps[restoreTarget] = modifiedTime
-                    } else {
-                        restoreTarget.setModifiedAt(gatewaySwitch, modifiedTime)
-                    }
-
-                    val permissions = Permissions(entry.mode)
-                    restoreTarget.setPermissions(gatewaySwitch, permissions)
-
-                    val targetUID = appInfo.uid
-                    var targetGID: Int? = null
-
-                    val oldOwnership = entry.getOwnership()
-                    if (oldOwnership?.groupName?.endsWith("_cache") == true) {
-                        val targetUIDName = pkgOps.getUserNameForUID(targetUID)
-                        val targetGIDName = targetUIDName + "_cache"
-                        targetGID = pkgOps.getGIDForGroupName(targetGIDName)
-                    }
-                    if (targetGID == null) targetGID = targetUID
-
-                    restoreTarget.setOwnership(gatewaySwitch, Ownership(targetUID, targetGID))
-                }
-            }
-
-            Timber.tag(TAG).v("Setting timestamps for %d directories.", directoryTimeStamps.size)
-            directoryTimeStamps.forEach { (path, lastModified) ->
-                path.setModifiedAt(gatewaySwitch, lastModified)
-            }
-
-
+            val results = restoreData(config, spec, appInfo, wrap)
         }
 
-        // TODO Copy private cache
-
-        // TODO Copy public data
-
-        // TODO Copy public cache
-
-        // TODO Copy public clutter
-
+        if (config.restoreCache) {
+            val results = restoreCache(config, spec, appInfo, wrap)
+        }
 
         // TODO return result?
         return true
+    }
+
+    private fun restoreData(
+            config: AppRestoreConfig,
+            spec: AppBackupSpec,
+            appInfo: ApplicationInfo,
+            wrap: AppBackupWrap
+    ): Collection<RestoreHandler.Result> {
+        val results = mutableListOf<RestoreHandler.Result>()
+
+        // TODO Copy private data
+        val handler = restoreHandlers.first {
+            it.isResponsible(Type.DATA_PRIVATE_PRIMARY, config, spec)
+        }
+        val privateDataRestore = handler.restore(appInfo, config, Type.DATA_PRIVATE_PRIMARY, wrap)
+        results.add(privateDataRestore)
+
+
+        // TODO Copy public data
+
+        // TODO Copy public clutter
+
+        return results
+    }
+
+    private fun restoreCache(
+            config: AppRestoreConfig,
+            spec: AppBackupSpec,
+            appInfo: ApplicationInfo,
+            wrap: AppBackupWrap
+    ): Collection<RestoreHandler.Result> {
+        val results = mutableListOf<RestoreHandler.Result>()
+
+        // TODO Copy private cache
+        // TODO Copy private data
+        val handler = restoreHandlers.first {
+            it.isResponsible(Type.CACHE_PRIVATE_PRIMARY, config, spec)
+        }
+        val privateCacheRestore = handler.restore(appInfo, config, Type.CACHE_PRIVATE_PRIMARY, wrap)
+        results.add(privateCacheRestore)
+
+        // TODO Copy public cache
+
+        return results
     }
 
     override fun close() {
@@ -179,7 +152,7 @@ class AppRestoreEndpoint @Inject constructor(
     override fun toString(): String = "AppEndpoint()"
 
     companion object {
-        val TAG = App.logTag("AppBackup", "Endpoint")
+        val TAG = App.logTag("Backup", "App", "Restore")
     }
 
 }

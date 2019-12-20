@@ -21,7 +21,7 @@ class PkgOpsHost(
     }
 
     override fun getUserNameForUID(uid: Int): String? = try {
-        libcoreTool.getNameForGid(uid)
+        libcoreTool.getNameForUid(uid)
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "getUserNameForUID(uid=$uid) failed.")
         throw wrapPropagating(e)

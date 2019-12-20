@@ -22,7 +22,7 @@ class FileOpsHost(
     private val sharedShell = SharedShell(TAG)
 
     private fun getShellResource(): SharedHolder.Resource<RxCmdShell.Session> {
-        return sharedShell.session.keepAliveBy(parentHolder).get()
+        return sharedShell.session.keepAliveWith(parentHolder).get()
     }
 
     override fun lookUp(path: LocalPath): LocalPathLookup = try {

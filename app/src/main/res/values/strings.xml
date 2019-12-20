@@ -246,4 +246,6 @@
     <string name="general_copy_action">Copy</string>
     <string name="general_send_mail_label">Send mail</string>
     <string name="error_root_unavailable">Root access is unavailable.</string>
+    <string name="task_editor_restore_app_config_restore_cache_label">Restore cache</string>
+    <string name="task_editor_restore_app_config_restore_cache_desc">Restore the app\'s cache.</string>
 </resources>

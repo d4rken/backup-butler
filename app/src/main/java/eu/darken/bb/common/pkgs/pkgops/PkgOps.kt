@@ -26,7 +26,7 @@ class PkgOps @Inject constructor(
     val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private fun <T> rootOps(action: (PkgOpsClient) -> T): T {
-        keepAlive.keepAliveBy(javaRootClient.client)
+        keepAlive.keepAliveWith(javaRootClient.client)
         return javaRootClient.runModuleAction(PkgOpsClient::class.java) {
             return@runModuleAction action(it)
         }

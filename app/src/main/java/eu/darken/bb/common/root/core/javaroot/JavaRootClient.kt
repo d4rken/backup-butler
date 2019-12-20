@@ -19,7 +19,7 @@ import javax.inject.Inject
 @PerApp
 class JavaRootClient @Inject constructor(
         @AppContext private val context: Context
-) {
+) : SharedHolder.HasKeepAlive<JavaRootClient.Connection> {
 
     data class Connection(
             val ipc: JavaRootConnection,
@@ -79,6 +79,8 @@ class JavaRootClient @Inject constructor(
             emitter.onError(e)
         }
     }
+
+    override val keepAlive: SharedHolder<Connection> = this.client
 
     fun <T> runSessionAction(action: (Connection) -> T): T {
         client.get().use {
