@@ -86,7 +86,7 @@ class AppRestoreEndpoint @Inject constructor(
         val appInfo = (pkg as? AppPkg)?.applicationInfo
         requireNotNull(appInfo) { "${pkg.packageType} is currently not supported." }
 
-        // TODO if the app is running force stop it
+        pkgOps.forceStop(appInfo.packageName)
 
         if (config.restoreData) {
             val results = restoreData(config, spec, appInfo, wrap)

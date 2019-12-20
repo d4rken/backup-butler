@@ -58,6 +58,12 @@ class PkgOps @Inject constructor(
         }
     }
 
+    fun forceStop(packageName: String): Boolean {
+        return rootOps {
+            it.forceStop(packageName)
+        }
+    }
+
     fun queryPkg(pkgName: String, flags: Int = 0): Pkg? = ipcFunnel.queryPM { pm ->
         var foundPkg: Pkg? = null
         try {

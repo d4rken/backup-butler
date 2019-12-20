@@ -32,6 +32,13 @@ class PkgOpsClient(
         throw fakeIOException(e.getRootCause())
     }
 
+    fun forceStop(packageName: String): Boolean = try {
+        connection.forceStop(packageName)
+    } catch (e: Exception) {
+        Timber.tag(TAG).e(e, "forceStop(packageName=$packageName) failed.")
+        throw fakeIOException(e.getRootCause())
+    }
+
     private fun fakeIOException(e: Throwable): IOException {
         val gulpExceptionPrefix = "java.io.IOException: "
         val message = when {

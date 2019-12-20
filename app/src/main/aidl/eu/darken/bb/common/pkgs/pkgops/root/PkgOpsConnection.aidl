@@ -10,4 +10,6 @@ interface PkgOpsConnection {
 
     String getGroupNameforGID(int gid);
 
+    boolean forceStop(String packageName);
+
 }

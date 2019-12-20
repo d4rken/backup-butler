@@ -3,21 +3,16 @@ package eu.darken.bb.common.root.core.javaroot
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.files.core.local.root.FileOpsConnection
-import eu.darken.bb.common.files.core.local.root.FileOpsHost
-import eu.darken.bb.common.funnel.IPCFunnel
-import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
-import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsConnection
-import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsHost
 import eu.darken.bb.common.root.librootjava.RootIPC
 import eu.darken.bb.common.root.librootjava.RootJava
-import eu.darken.rxshell.cmd.Cmd
-import eu.darken.rxshell.cmd.RxCmdShell
+import eu.darken.bb.common.shell.SharedShell
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -27,17 +22,16 @@ import kotlin.system.exitProcess
  * package, but not instances - this is a separate process from the UI.
  */
 @SuppressLint("UnsafeDynamicallyLoadedCode")
-class JavaRootHost constructor(args: List<String>) {
-    private val keepAliveHolder = SharedHolder.createKeepAlive(TAG)
+class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<Any> {
+
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
     private val keepAliveToken: SharedHolder.Resource<*>
 
-    private val libcoreTool: LibcoreTool by lazy { LibcoreTool() }
-    private val ipcFunnel: IPCFunnel by lazy { IPCFunnel(context) }
-
     private val pathToAPK: String
-    lateinit var context: Context
-    internal val fileOpsConnection by lazy { FileOpsHost(keepAliveHolder, libcoreTool, ipcFunnel) }
-    internal val pkgOpsConnection by lazy { PkgOpsHost(context) }
+    private val component: RootComponent
+
+    @Inject lateinit var sharedShell: SharedShell
+    @Inject lateinit var connection: Lazy<JavaRootConnectionImpl>
 
     init {
         Log.d(TAG, "init(args=${args})")
@@ -78,47 +72,31 @@ class JavaRootHost constructor(args: List<String>) {
         }
 
         // Grab a (limited) context
-        context = RootJava.getSystemContext()
+        component = DaggerRootComponent.builder()
+                .application(RootJava.getSystemContext())
+                .build()
+        component.inject(this)
+
 
         Timber.tag(TAG).d("Running on threadId=%d", Thread.currentThread().id)
         //        Debugger.waitFor(true)
 
-        keepAliveToken = keepAliveHolder.get()
+        keepAliveToken = keepAlive.get()
+        sharedShell.keepAliveWith(this)
     }
 
     private fun run() {
-        initIPC()
-    }
-
-    private fun initIPC() {
-        Timber.d("initIPC()")
-
-        val ipc = object : JavaRootConnection.Stub() {
-
-            override fun checkBase(): String {
-                val sb = StringBuilder()
-                sb.append("Our pkg: ${context.packageName}\n")
-                val ids = Cmd.builder("id").submit(RxCmdShell.Builder().build()).blockingGet()
-                sb.append("Shell ids are: ${ids.merge()}\n")
-                val result = sb.toString()
-                Timber.tag(TAG).i("checkBase(): %s", result)
-                return result
-            }
-
-            override fun getFileOps(): FileOpsConnection = this@JavaRootHost.fileOpsConnection
-
-            override fun getPkgOps(): PkgOpsConnection = this@JavaRootHost.pkgOpsConnection
-
-        }
+        Timber.tag(TAG).d("Starting IPC connection")
 
         try {
-            RootIPC(BuildConfig.APPLICATION_ID, ipc, 0, 30 * 1000, true)
+            RootIPC(BuildConfig.APPLICATION_ID, connection.get(), 0, 30 * 1000, true)
         } catch (e: RootIPC.TimeoutException) {
             Timber.tag(TAG).e("Non-root process did not connect in a timely fashion")
         }
 
         keepAliveToken.close()
     }
+
 
     companion object {
         val TAG = App.logTag("Root", "Java", "Host")

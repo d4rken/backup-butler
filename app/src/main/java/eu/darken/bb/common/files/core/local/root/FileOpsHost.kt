@@ -1,7 +1,6 @@
 package eu.darken.bb.common.files.core.local.root
 
 import eu.darken.bb.App
-import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.asFile
@@ -9,24 +8,19 @@ import eu.darken.bb.common.files.core.local.*
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.shell.SharedShell
-import eu.darken.rxshell.cmd.RxCmdShell
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import javax.inject.Inject
 
-class FileOpsHost(
-        private val parentHolder: SharedHolder<*>,
+class FileOpsHost @Inject constructor(
+        private val sharedShell: SharedShell,
         private val libcoreTool: LibcoreTool,
         private val ipcFunnel: IPCFunnel
 ) : FileOpsConnection.Stub() {
-    private val sharedShell = SharedShell(TAG)
-
-    private fun getShellResource(): SharedHolder.Resource<RxCmdShell.Session> {
-        return sharedShell.session.keepAliveWith(parentHolder).get()
-    }
 
     override fun lookUp(path: LocalPath): LocalPathLookup = try {
-        getShellResource().use { sessionResource ->
+        sharedShell.session.get().use { sessionResource ->
             path.performLookup(ipcFunnel, libcoreTool, sessionResource.item)
         }
     } catch (e: Exception) {
