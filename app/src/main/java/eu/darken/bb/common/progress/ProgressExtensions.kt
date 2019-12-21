@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.annotation.StringRes
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.CAString
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 fun <T : Progress.Client> T.updateProgressPrimary(primary: String) {
     updateProgress { it.copy(primary = CAString(primary)) }
@@ -34,7 +36,7 @@ fun <T : Progress.Client> T.updateProgressSecondary(secondary: AString) {
 }
 
 fun <T : Progress.Client> T.updateProgressSecondary(@StringRes secondary: Int, vararg args: Any) {
-    updateProgress { state -> state.copy(primary = CAString(secondary, *args)) }
+    updateProgress { state -> state.copy(secondary = CAString(secondary, *args)) }
 }
 
 fun <T : Progress.Client> T.updateProgressTertiary(tertiary: String) {
@@ -55,4 +57,11 @@ fun <T : Progress.Client> T.updateProgressTertiary(tertiary: AString) {
 
 fun <T : Progress.Client> T.updateProgressCount(count: Progress.Count) {
     updateProgress { it.copy(count = count) }
+}
+
+fun <T : Progress.Host> T.forwardProgressTo(client: Progress.Client): Disposable {
+    return progress
+            .subscribeOn(Schedulers.io())
+            .doFinally { client.updateProgress { Progress.Data() } }
+            .subscribe { pro -> client.updateProgress { pro } }
 }

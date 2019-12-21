@@ -23,6 +23,7 @@ class AppRestoreConfigTest {
                 "\"skipExistingApps\":false," +
                 "\"restoreApk\":true," +
                 "\"restoreData\":true," +
+                "\"restoreCache\":false," +
                 "\"restoreType\":\"APP\"" +
                 "}"
 

@@ -94,8 +94,8 @@
     <string name="userinterface_theme_system_label">System</string>
     <string name="debug_record_log_label">Record debug log</string>
     <string name="debug_record_log_desc">Start recording everything the app does into a log file that you can share.</string>
-    <string name="progress_creating_backup_label">Creating backup</string>
-    <string name="progress_saving_to_storage_label">Saving to storage</string>
+    <string name="progress_creating_backup">Creating backup</string>
+    <string name="progress_saving_to_storage">Saving to storage</string>
     <string name="progress_working_label">Working</string>
     <string name="progress_processing_x_label">Processing: %s</string>
     <string name="progress_saving_label">Saving</string>
@@ -248,4 +248,12 @@
     <string name="error_root_unavailable">Root access is unavailable.</string>
     <string name="task_editor_restore_app_config_restore_cache_label">Restore cache</string>
     <string name="task_editor_restore_app_config_restore_cache_desc">Restore the app\'s cache.</string>
+    <string name="progress_processing_restore_task">Processing restore task</string>
+    <string name="progress_restoring_apk">Restoring APK data</string>
+    <string name="progress_restoring_app_data">Restoring app data</string>
+    <string name="progress_restoring_app_cache">Restorign app cache</string>
+    <string name="progress_waiting_on_install">Waiting for install to finish</string>
+    <string name="progress_fixing_timestamps">Fixing timestamps</string>
+    <string name="progress_creating_app_backup">Creating app backup</string>
+    <string name="progress_apk_lookup">Looking up APK data</string>
 </resources>

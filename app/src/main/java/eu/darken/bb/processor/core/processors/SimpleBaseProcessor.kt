@@ -14,7 +14,7 @@ import timber.log.Timber
 abstract class SimpleBaseProcessor constructor(
         val context: Context,
         val progressParent: Progress.Client
-) : Processor {
+) : Processor, Progress.Client {
 
     val progressChild = object : Progress.Client {
         override fun updateProgress(update: (Progress.Data) -> Progress.Data) {

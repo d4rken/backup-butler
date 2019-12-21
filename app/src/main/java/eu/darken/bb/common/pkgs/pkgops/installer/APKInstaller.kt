@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.R
+import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -12,9 +14,14 @@ import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent
 import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
+import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.progress.updateProgressCount
+import eu.darken.bb.common.progress.updateProgressPrimary
+import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
+import io.reactivex.Observable
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -24,7 +31,12 @@ import javax.inject.Inject
 class APKInstaller @Inject constructor(
         @AppContext private val context: Context,
         private val javaRootClient: JavaRootClient
-) {
+) : Progress.Client, Progress.Host {
+
+    private val progressPub = HotData(Progress.Data())
+    override val progress: Observable<Progress.Data> = progressPub.data
+    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+
     private val installer = context.packageManager.packageInstaller
     private val installMap = mutableMapOf<String, OnGoingInstall>()
 
@@ -48,6 +60,9 @@ class APKInstaller @Inject constructor(
 
     fun install(request: Request): Result {
         Timber.tag(TAG).d("install(request=%s)", request)
+        updateProgressPrimary(R.string.progress_restoring_apk)
+        updateProgressSecondary(R.string.progress_working_label)
+        updateProgressCount(Progress.Count.Indeterminate())
 
         val callbackLock = Semaphore(0)
         synchronized(installMap) {
@@ -97,6 +112,7 @@ class APKInstaller @Inject constructor(
             }
         }
 
+        updateProgressSecondary(R.string.progress_waiting_on_install)
         Timber.tag(TAG).d("Waiting for PackageInstaller callback for %s", request.packageName)
         callbackLock.tryAcquire(1, 120, TimeUnit.SECONDS)
 

@@ -4,13 +4,14 @@ import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
+import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
 import eu.darken.bb.common.OpStatus
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.progress.*
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
@@ -30,8 +31,14 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         private val mmDataRepo: MMDataRepo
 ) : SimpleBaseProcessor(context, progressParent) {
 
+    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)
+
     override fun doProcess(task: Task) {
+        progressParent.updateProgressPrimary(task.taskType.labelRes)
+        progressParent.updateProgressSecondary(task.label)
+
         task as SimpleRestoreTask
+        progressParent.updateProgressCount(Progress.Count.Counter(0, task.backupTargets.size))
 
         // TODO
         var success = 0
@@ -41,14 +48,20 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         val alreadyRestored = mutableSetOf<Backup.Id>()
 
         // Most specific first
-        task.backupTargets.forEach { target ->
+        task.backupTargets.forEachIndexed { index, target ->
+            progressParent.updateProgressTertiary(R.string.progress_restoring_backup)
+
             val storage = storageManager.getStorage(target.storageId).blockingFirst()
             val specInfo = storage.specInfo(target.backupSpecId).blockingFirst()
+
+            progressParent.updateProgressTertiary { it.getString(R.string.progress_processing_x_label, specInfo.backupSpec.getLabel(it)) }
             val backupMeta = specInfo.backups.find { it.backupId == target.backupId }!!
             val config = getConfig(task, backupMeta)
             if (restoreBackup(storage, config, specInfo.specId, backupMeta)) {
                 alreadyRestored.add(backupMeta.backupId)
             }
+
+            progressParent.updateProgressCount(Progress.Count.Counter(index + 1, task.backupTargets.size))
         }
 
         resultBuilder.primary(OpStatus(success, skipped, error).toDisplayString(context))

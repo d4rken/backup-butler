@@ -5,8 +5,9 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.progress.Progress
 
-interface RestoreHandler {
+interface RestoreHandler : Progress.Client, Progress.Host {
 
     val priority: Int
 

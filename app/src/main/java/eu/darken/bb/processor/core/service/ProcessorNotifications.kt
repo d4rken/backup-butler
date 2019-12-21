@@ -43,9 +43,11 @@ class ProcessorNotifications @Inject constructor(
         builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setChannelId(NOTIFICATION_CHANNEL_ID)
                 .setContentIntent(openPi)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_notification_backup_icon)
                 .setContentTitle(context.getString(R.string.app_name))
-                .setContentText(context.getString(R.string.progress_preparing_label))
+                .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.progress_preparing_label)))
+
     }
 
     fun start(service: Service) {
@@ -57,7 +59,7 @@ class ProcessorNotifications @Inject constructor(
                     .distinct { it.primary }
                     .subscribe {
                         builder.setContentTitle(it.primary.get(context))
-                        builder.setContentText(it.secondary.get(context))
+                        builder.setStyle(NotificationCompat.BigTextStyle().bigText(it.secondary.get(context)))
                         Timber.tag(TAG).v("updatingNotification(): %s", it)
                         notificationManager.notify(NOTIFICATION_ID, builder.build())
                     }

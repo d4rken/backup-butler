@@ -47,16 +47,14 @@ class AppBackupEndpoint @Inject constructor(
     override fun backup(spec: BackupSpec): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupWrap(spec, Backup.Id())
-        updateProgressPrimary(R.string.progress_creating_backup_label)
-        updateProgressSecondary("")
+        updateProgressPrimary(R.string.progress_creating_app_backup)
         updateProgressCount(Progress.Count.Indeterminate())
 
         if (keepAliveToken == null) keepAliveToken = keepAlive.get()
 
         if (spec.backupApk) {
+            updateProgressPrimary(R.string.progress_apk_lookup)
             val apkData = apkExporter.getAPKFile(spec.packageName)
-            updateProgressCount(Progress.Count.Counter(1, (apkData.splitSources.size + 1)))
-
             updateProgressSecondary(apkData.mainSource.path)
 
             val baseApkRef: MMRef = mmDataRepo.create(MMRef.Request(
@@ -69,8 +67,6 @@ class AppBackupEndpoint @Inject constructor(
             val splitApkRefs = mutableListOf<MMRef>()
             apkData.splitSources.forEach { splitApk ->
                 updateProgressSecondary(splitApk.path)
-                updateProgressCount(Progress.Count.Counter(apkData.splitSources.indexOf(splitApk) + 2, (apkData.splitSources.size + 2)))
-
                 val splitRef: MMRef = mmDataRepo.create(MMRef.Request(
                         backupId = builder.backupId,
                         source = FileRefSource(splitApk)
@@ -93,7 +89,6 @@ class AppBackupEndpoint @Inject constructor(
                     .map { it.lookup(localGateway) }
                     .toList()
         }
-
 
         // Private data
         if (spec.backupData) {

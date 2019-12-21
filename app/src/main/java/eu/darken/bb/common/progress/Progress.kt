@@ -30,9 +30,13 @@ interface Progress {
 
         class Percent(current: Long, max: Long) : Count(current, max) {
 
+            constructor(current: Int, max: Int) : this(current.toLong(), max.toLong())
+
             constructor(current: Long) : this(current, 100)
 
             override fun displayValue(context: Context): String {
+                if (current == 0L && max == 0L) return "NaN"
+                if (current == 0L) return "0%"
                 return "${ceil(((max / current) * 100).toDouble()).toInt()}%"
             }
         }

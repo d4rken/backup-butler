@@ -26,6 +26,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
@@ -48,14 +49,12 @@ class AppRestoreEndpoint @Inject constructor(
 
     override fun restore(config: Restore.Config, backup: Backup.Unit): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
-        updateProgressSecondary("")
+        updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
 
         config as AppRestoreConfig
         val spec = backup.spec as AppBackupSpec
         val wrap = AppBackupWrap(backup)
-
-        updateProgressCount(Progress.Count.Counter(0, wrap.data.size))
 
         if (config.skipExistingApps && pkgOps.queryPkg(spec.packageName) != null) {
             // TODO skip if pkg already exists?, result?
@@ -70,6 +69,11 @@ class AppRestoreEndpoint @Inject constructor(
             }
         }
 
+        val apkProgress = apkInstaller.progress
+                .subscribeOn(Schedulers.io())
+                .doFinally { updateProgress { Progress.Data() } }
+                .subscribe { progress -> updateProgress { progress } }
+
         val request = APKInstaller.Request(
                 packageName = wrap.packageName,
                 baseApk = wrap.baseApk,
@@ -79,6 +83,9 @@ class AppRestoreEndpoint @Inject constructor(
         // TODO check result, error?
         val installResult = apkInstaller.install(request)
         // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
+
+        apkProgress.dispose()
+
 
         val pkg = pkgOps.queryPkg(wrap.packageName)
         requireNotNull(pkg) { "${wrap.packageName} isn't installed." }
@@ -112,9 +119,16 @@ class AppRestoreEndpoint @Inject constructor(
         val handler = restoreHandlers.first {
             it.isResponsible(Type.DATA_PRIVATE_PRIMARY, config, spec)
         }
+
+        val dataProgress = handler.progress
+                .subscribeOn(Schedulers.io())
+                .doFinally { updateProgress { Progress.Data() } }
+                .subscribe { progress -> updateProgress { progress } }
+
         val privateDataRestore = handler.restore(appInfo, config, Type.DATA_PRIVATE_PRIMARY, wrap)
         results.add(privateDataRestore)
 
+        dataProgress.dispose()
 
         // TODO Copy public data
 
@@ -129,6 +143,7 @@ class AppRestoreEndpoint @Inject constructor(
             appInfo: ApplicationInfo,
             wrap: AppBackupWrap
     ): Collection<RestoreHandler.Result> {
+
         val results = mutableListOf<RestoreHandler.Result>()
 
         // TODO Copy private cache
@@ -136,8 +151,16 @@ class AppRestoreEndpoint @Inject constructor(
         val handler = restoreHandlers.first {
             it.isResponsible(Type.CACHE_PRIVATE_PRIMARY, config, spec)
         }
+
+        val cacheProgress = handler.progress
+                .subscribeOn(Schedulers.io())
+                .doFinally { updateProgress { Progress.Data() } }
+                .subscribe { progress -> updateProgress { progress } }
+
         val privateCacheRestore = handler.restore(appInfo, config, Type.CACHE_PRIVATE_PRIMARY, wrap)
         results.add(privateCacheRestore)
+
+        cacheProgress.dispose()
 
         // TODO Copy public cache
 

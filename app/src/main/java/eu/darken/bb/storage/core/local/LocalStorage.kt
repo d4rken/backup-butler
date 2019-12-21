@@ -61,6 +61,7 @@ class LocalStorage @AssistedInject constructor(
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
+    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
     private val dataDirEvents = Observable
             .fromCallable { dataDir.listFilesThrowing() }
@@ -76,9 +77,6 @@ class LocalStorage @AssistedInject constructor(
             Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
         }
     }
-
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
-
 
     override fun info(): Observable<Storage.Info> = infoObs
     private val infoObs: Observable<Storage.Info> = Observable
@@ -193,16 +191,22 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
+        updateProgressPrimary("Accessing ${storageConfig.label}")
+
+        updateProgressSecondary("Reading backup specifications")
         val item = specInfo(specId).blockingFirst()
         item as LocalStorageSpecInfo
 
+        updateProgressSecondary { "Reading metadata for ${item.backupSpec.getLabel(it)}" }
         val metaData = readBackupMeta(specId, backupId)
-        requireNotNull(metaData) { "BackupReference $item does not have a metadata file" }
 
+
+        updateProgressSecondary { "Building data lists for ${item.backupSpec.getLabel(it)}" }
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
-
         val versionPath = getVersionDir(specId, backupId).requireExists()
-        versionPath.listFilesThrowing().filter { file: File -> file.path.endsWith(PROP_EXT) }.forEach { propFile ->
+        val propFiles = versionPath.listFilesThrowing().filter { file: File -> file.path.endsWith(PROP_EXT) }
+        updateProgressCount(Progress.Count.Percent(0, propFiles.size))
+        propFiles.forEachIndexed { index, propFile ->
 
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
             val props = propFile.source().use { mmDataRepo.readProps(it) }
@@ -221,6 +225,8 @@ class LocalStorage @AssistedInject constructor(
                     if (keySplit.size == 2) keySplit[0] else "",
                     { mutableListOf() }
             ).add(tmpRef)
+
+            updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
         }
 
         return Backup.Unit(

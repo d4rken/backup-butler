@@ -4,7 +4,6 @@ import android.content.Context
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
-import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
@@ -17,7 +16,6 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -31,11 +29,17 @@ class SimpleBackupProcessor @AssistedInject constructor(
         private val storageManager: StorageManager
 ) : SimpleBaseProcessor(context, progressParent) {
 
+    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)
+
     override fun doProcess(task: Task) {
-        progressParent.updateProgressPrimary(R.string.progress_processing_x_label, task.label)
-        progressParent.updateProgressSecondary { task.getDescription(it) }
+        updateProgressPrimary(task.taskType.labelRes)
+        updateProgressSecondary(task.label)
 
         task as Task.Backup
+        val totalBackupCount = task.destinations.size * task.sources.size
+        var currentBackupCount = 0
+        updateProgressCount(Progress.Count.Counter(currentBackupCount, totalBackupCount))
+
 
         var success = 0
         var skipped = 0
@@ -45,20 +49,14 @@ class SimpleBackupProcessor @AssistedInject constructor(
             requireNotNull(generatorConfig) { "Can't find generator config for $generatorId" }
             // TODO what if the config has been deleted?
 
-            progressParent.updateProgressSecondary(generatorConfig.label)
-
             val backupConfigs = generators.getValue(generatorConfig.generatorType).generate(generatorConfig)
-
             backupConfigs.forEach { config ->
-                progressParent.updateProgressTertiary { config.getLabel(it) }
-                progressParent.updateProgressCount(Progress.Count.Counter(backupConfigs.indexOf(config) + 1, backupConfigs.size))
+                updateProgressTertiary { config.getLabel(it) }
 
                 backupEndpointFactories.getValue(config.backupType).get().use { endpoint ->
                     Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
-                    val endpointProgressSub = endpoint.progress
-                            .subscribeOn(Schedulers.io())
-                            .subscribe { pro -> progressChild.updateProgress { pro } }
+                    val endpointProgressSub = endpoint.forwardProgressTo(progressChild)
 
                     val backup = endpoint.backup(config)
                     Timber.tag(TAG).i("Backup created: %s", backup)
@@ -70,13 +68,12 @@ class SimpleBackupProcessor @AssistedInject constructor(
                         val repo = storageManager.getStorage(storageId).blockingFirst()
                         Timber.tag(TAG).i("Storing %s using %s", backup.backupId, repo)
 
-                        val storageProgressSub = repo.progress
-                                .subscribeOn(Schedulers.io())
-                                .subscribe { pro -> progressChild.updateProgress { pro } }
+                        val storageProgressSub = repo.forwardProgressTo(progressChild)
 
                         val result = repo.save(backup)
                         success++
                         Timber.tag(TAG).i("Backup (%s) stored: %s", backup.backupId, result)
+                        updateProgressCount(Progress.Count.Counter(++currentBackupCount, totalBackupCount))
 
                         storageProgressSub.dispose()
                     }
@@ -84,7 +81,6 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 }
 
             }
-            progressParent.updateProgressTertiary("")
         }
         resultBuilder.primary(OpStatus(success, skipped, error).toDisplayString(context))
     }

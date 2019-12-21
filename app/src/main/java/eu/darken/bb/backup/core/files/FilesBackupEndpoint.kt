@@ -36,7 +36,7 @@ class FilesBackupEndpoint @Inject constructor(
     override fun backup(spec: BackupSpec): Backup.Unit {
         spec as FilesBackupSpec
 
-        updateProgressPrimary(R.string.progress_creating_backup_label)
+        updateProgressPrimary(R.string.progress_creating_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
 
