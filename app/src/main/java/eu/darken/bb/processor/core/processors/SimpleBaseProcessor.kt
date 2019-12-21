@@ -3,9 +3,11 @@ package eu.darken.bb.processor.core.processors
 import android.content.Context
 import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.AString
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.SimpleResult
@@ -41,6 +43,7 @@ abstract class SimpleBaseProcessor constructor(
         } finally {
             onCleanup()
             progressParent.updateProgressSecondary(R.string.progress_working_label)
+            progressParent.updateProgressTertiary(AString.EMPTY)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
         }
