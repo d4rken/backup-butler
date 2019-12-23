@@ -9,7 +9,7 @@ import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.results.TaskResult
 import javax.inject.Inject
 
 
@@ -51,11 +51,11 @@ class TaskListAdapter @Inject constructor()
                 primary.append(" | " + DateUtils.getRelativeTimeSpanString(lastResult.startedAt.time + lastResult.duration))
 
                 when (lastResult.state) {
-                    Task.Result.State.SUCCESS -> {
+                    TaskResult.State.SUCCESS -> {
                         statusIcon.setImageResource(R.drawable.ic_check_circle)
                         statusIcon.setColorFilter(getColor(R.color.colorSecondary))
                     }
-                    Task.Result.State.ERROR -> {
+                    TaskResult.State.ERROR -> {
                         statusIcon.setImageResource(R.drawable.ic_error_outline)
                         statusIcon.setColorFilter(getColor(R.color.colorError))
                     }

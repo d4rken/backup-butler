@@ -4,8 +4,8 @@ import android.content.pm.ApplicationInfo
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppRestoreConfig
-import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.task.core.results.IOEvent
 
 interface RestoreHandler : Progress.Client, Progress.Host {
 
@@ -17,11 +17,7 @@ interface RestoreHandler : Progress.Client, Progress.Host {
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
             type: AppBackupWrap.Type,
-            wrap: AppBackupWrap
-    ): Result
-
-    data class Result(
-            val items: Collection<APath>,
-            val error: Exception? = null
+            wrap: AppBackupWrap,
+            logListener: ((IOEvent) -> Unit)? = null
     )
 }

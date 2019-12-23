@@ -13,6 +13,7 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
+import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     data class TaskState(
             val task: Task,
-            val lastResult: Task.Result? = null
+            val lastResult: TaskResult? = null
     )
 
     data class EditActions(

@@ -50,48 +50,6 @@ interface Task {
         }
     }
 
-    @Keep
-    interface Result {
-        @Keep
-        enum class State constructor(val value: String) {
-            SUCCESS("sucess"), ERROR("success");
-
-            companion object {
-                private val VALUE_MAP = values().associateBy(State::value)
-                fun fromValue(value: String) = VALUE_MAP[value]
-            }
-        }
-
-        val resultId: Id
-        val taskId: Task.Id
-        val taskType: Type
-        val label: String
-        val startedAt: Date
-        val duration: Long
-        val state: State
-        val primary: String?
-        val secondary: String?
-        val extra: String?
-        val taskLog: List<String>?
-
-        @Parcelize @Keep
-        @JsonClass(generateAdapter = true)
-        data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {
-
-            constructor(id: String) : this(UUID.fromString(id))
-
-            @IgnoredOnParcel @Transient override val idString: String = value.toString()
-
-            override fun compareTo(other: Id): Int = value.compareTo(other.value)
-
-            override fun toString(): String = "ResultId($idString)"
-        }
-
-        interface Builder<T : Result> {
-            fun build(context: Context): T
-        }
-    }
-
     @Parcelize @Keep
     @JsonClass(generateAdapter = true)
     data class Id(override val value: UUID = UUID.randomUUID()) : IdType<Id>, Parcelable {

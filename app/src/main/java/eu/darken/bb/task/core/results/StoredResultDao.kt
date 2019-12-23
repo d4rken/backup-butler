@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.results.stored.StoredResult
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -12,7 +13,7 @@ import io.reactivex.Single
 interface StoredResultDao {
 
     @Query("SELECT * FROM task_results WHERE resultId=:id")
-    fun get(id: Task.Result.Id): Single<StoredResult>
+    fun get(id: TaskResult.Id): Single<StoredResult>
 
     @Query("SELECT MAX(startedAt),* FROM task_results WHERE taskId IN (:ids) GROUP BY taskId")
     fun getLatestTaskResults(ids: List<Task.Id>): Observable<List<StoredResult>>

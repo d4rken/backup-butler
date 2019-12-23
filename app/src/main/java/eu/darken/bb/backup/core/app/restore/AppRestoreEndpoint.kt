@@ -25,6 +25,7 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
+import eu.darken.bb.task.core.results.IOEvent
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -47,7 +48,7 @@ class AppRestoreEndpoint @Inject constructor(
 
     private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit): Boolean {
+    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((IOEvent) -> Unit)?): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
@@ -81,7 +82,9 @@ class AppRestoreEndpoint @Inject constructor(
                 useRoot = rootAvailable
         )
         // TODO check result, error?
-        val installResult = apkInstaller.install(request)
+        val installResult = apkInstaller.install(request) {
+            logListener?.invoke(it)
+        }
         // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
 
         apkProgress.dispose()
@@ -96,11 +99,11 @@ class AppRestoreEndpoint @Inject constructor(
         pkgOps.forceStop(appInfo.packageName)
 
         if (config.restoreData) {
-            val results = restoreData(config, spec, appInfo, wrap)
+            val results = restoreData(config, spec, appInfo, wrap, logListener)
         }
 
         if (config.restoreCache) {
-            val results = restoreCache(config, spec, appInfo, wrap)
+            val results = restoreCache(config, spec, appInfo, wrap, logListener)
         }
 
         // TODO return result?
@@ -111,9 +114,9 @@ class AppRestoreEndpoint @Inject constructor(
             config: AppRestoreConfig,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            wrap: AppBackupWrap
-    ): Collection<RestoreHandler.Result> {
-        val results = mutableListOf<RestoreHandler.Result>()
+            wrap: AppBackupWrap,
+            logListener: ((IOEvent) -> Unit)?
+    ) {
 
         // TODO Copy private data
         val handler = restoreHandlers.first {
@@ -125,8 +128,7 @@ class AppRestoreEndpoint @Inject constructor(
                 .doFinally { updateProgress { Progress.Data() } }
                 .subscribe { progress -> updateProgress { progress } }
 
-        val privateDataRestore = handler.restore(appInfo, config, Type.DATA_PRIVATE_PRIMARY, wrap)
-        results.add(privateDataRestore)
+        handler.restore(appInfo, config, Type.DATA_PRIVATE_PRIMARY, wrap, logListener)
 
         dataProgress.dispose()
 
@@ -134,17 +136,15 @@ class AppRestoreEndpoint @Inject constructor(
 
         // TODO Copy public clutter
 
-        return results
     }
 
     private fun restoreCache(
             config: AppRestoreConfig,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            wrap: AppBackupWrap
-    ): Collection<RestoreHandler.Result> {
-
-        val results = mutableListOf<RestoreHandler.Result>()
+            wrap: AppBackupWrap,
+            logListener: ((IOEvent) -> Unit)?
+    ) {
 
         // TODO Copy private cache
         // TODO Copy private data
@@ -157,14 +157,11 @@ class AppRestoreEndpoint @Inject constructor(
                 .doFinally { updateProgress { Progress.Data() } }
                 .subscribe { progress -> updateProgress { progress } }
 
-        val privateCacheRestore = handler.restore(appInfo, config, Type.CACHE_PRIVATE_PRIMARY, wrap)
-        results.add(privateCacheRestore)
+        handler.restore(appInfo, config, Type.CACHE_PRIVATE_PRIMARY, wrap, logListener)
 
         cacheProgress.dispose()
 
         // TODO Copy public cache
-
-        return results
     }
 
     override fun close() {

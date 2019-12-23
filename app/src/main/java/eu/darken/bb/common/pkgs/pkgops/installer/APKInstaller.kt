@@ -11,6 +11,7 @@ import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent
 import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
@@ -21,6 +22,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.task.core.results.IOEvent
 import io.reactivex.Observable
 import timber.log.Timber
 import java.util.concurrent.Semaphore
@@ -30,7 +32,8 @@ import javax.inject.Inject
 @PerApp
 class APKInstaller @Inject constructor(
         @AppContext private val context: Context,
-        private val javaRootClient: JavaRootClient
+        private val javaRootClient: JavaRootClient,
+        private val pkgOps: PkgOps
 ) : Progress.Client, Progress.Host {
 
     private val progressPub = HotData(Progress.Data())
@@ -58,7 +61,7 @@ class APKInstaller @Inject constructor(
             val error: Exception? = null
     )
 
-    fun install(request: Request): Result {
+    fun install(request: Request, logListener: ((IOEvent) -> Unit)? = null): Result {
         Timber.tag(TAG).d("install(request=%s)", request)
         updateProgressPrimary(R.string.progress_restoring_apk)
         updateProgressSecondary(R.string.progress_working_label)
@@ -115,6 +118,16 @@ class APKInstaller @Inject constructor(
         updateProgressSecondary(R.string.progress_waiting_on_install)
         Timber.tag(TAG).d("Waiting for PackageInstaller callback for %s", request.packageName)
         callbackLock.tryAcquire(1, 120, TimeUnit.SECONDS)
+
+        logListener?.let { listener ->
+            // TODO split apk paths too?
+            val dest = pkgOps.queryAppInfos(request.packageName)!!
+            listener(IOEvent(IOEvent.Type.RESTORED, LocalPath.build(dest.sourceDir)))
+            dest.splitSourceDirs?.forEach {
+                listener(IOEvent(IOEvent.Type.RESTORED, LocalPath.build(it)))
+            }
+
+        }
 
         // TODO pass error?
         val success = installMap.remove(request.packageName)!!.installResult!!.code == InstallEvent.Code.SUCCESS

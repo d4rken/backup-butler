@@ -5,12 +5,13 @@ import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.core.app.backup.AppBackupEndpoint
+import eu.darken.bb.backup.core.app.backup.BackupHandlerModule
 import eu.darken.bb.backup.core.app.restore.AppRestoreEndpoint
-import eu.darken.bb.backup.core.app.restore.RestoreModule
+import eu.darken.bb.backup.core.app.restore.RestoreHandlerModule
 import eu.darken.bb.backup.core.files.FilesBackupEndpoint
 import eu.darken.bb.backup.core.files.FilesRestoreEndpoint
 
-@Module(includes = [RestoreModule::class])
+@Module(includes = [RestoreHandlerModule::class, BackupHandlerModule::class])
 abstract class BackupModule {
     @Binds
     @IntoMap

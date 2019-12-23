@@ -5,11 +5,12 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.task.core.results.IOEvent
 import java.io.Closeable
 
 interface Restore {
     interface Endpoint : Progress.Host, Closeable {
-        fun restore(config: Config, backup: Backup.Unit): Boolean
+        fun restore(config: Config, backup: Backup.Unit, logListener: ((IOEvent) -> Unit)? = null): Boolean
     }
 
     @Keep

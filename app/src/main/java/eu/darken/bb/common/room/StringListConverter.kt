@@ -2,14 +2,19 @@ package eu.darken.bb.common.room
 
 import androidx.room.TypeConverter
 import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.TaskResultDatabase
 import java.lang.reflect.ParameterizedType
 
 
 class StringListConverter {
-    private val type: ParameterizedType = Types.newParameterizedType(List::class.java, String::class.java)
-    private val adapter: JsonAdapter<List<String>> = Moshi.Builder().build().adapter(type)
+
+    private val adapter by lazy {
+        val type: ParameterizedType = Types.newParameterizedType(List::class.java, IOEvent::class.java)
+        val adapter: JsonAdapter<List<String>> = TaskResultDatabase.moshi.adapter(type)
+        adapter
+    }
 
     @TypeConverter
     fun fromValue(value: String?): List<String>? = value?.let {

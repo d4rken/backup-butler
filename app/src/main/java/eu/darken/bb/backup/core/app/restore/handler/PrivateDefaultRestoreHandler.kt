@@ -1,4 +1,4 @@
-package eu.darken.bb.backup.core.app.restore.modules
+package eu.darken.bb.backup.core.app.restore.handler
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -10,7 +10,6 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.Type
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
-import eu.darken.bb.backup.core.app.restore.RestoreHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -22,6 +21,7 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMRef
+import eu.darken.bb.task.core.results.IOEvent
 import io.reactivex.Observable
 import okio.source
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
@@ -31,7 +31,7 @@ import java.util.*
 import javax.inject.Inject
 
 @Reusable
-class PrivateDefaultHandler @Inject constructor(
+class PrivateDefaultRestoreHandler @Inject constructor(
         @AppContext context: Context,
         private val gatewaySwitch: GatewaySwitch,
         private val pkgOps: PkgOps
@@ -56,8 +56,9 @@ class PrivateDefaultHandler @Inject constructor(
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
             type: Type,
-            wrap: AppBackupWrap
-    ): RestoreHandler.Result {
+            wrap: AppBackupWrap,
+            logListener: ((IOEvent) -> Unit)?
+    ) {
         when (type) {
             Type.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
             Type.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
@@ -66,25 +67,17 @@ class PrivateDefaultHandler @Inject constructor(
         updateProgressSecondary(AString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val writtenItems = mutableListOf<APath>()
-        var error: Exception? = null
-
         val toRestore = wrap.getType(type)
 
         for ((index, archive) in toRestore.withIndex()) {
             try {
-                doRestore(appInfo, config, type, archive) {
-                    writtenItems.add(it)
-                }
+                doRestore(appInfo, config, type, archive, logListener)
+                updateProgressCount(Progress.Count.Percent(index + 1, toRestore.size))
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
-                error = e
-                break
+                throw e
             }
-
-            updateProgressCount(Progress.Count.Percent(index + 1, toRestore.size))
         }
-        return RestoreHandler.Result(writtenItems, error)
     }
 
     private fun doRestore(
@@ -92,7 +85,7 @@ class PrivateDefaultHandler @Inject constructor(
             config: AppRestoreConfig,
             type: Type,
             archive: MMRef,
-            notifyWrite: (APath) -> Unit
+            logListener: ((IOEvent) -> Unit)?
     ) {
 
         val directoryTimeStamps = mutableMapOf<APath, Date>()
@@ -133,8 +126,7 @@ class PrivateDefaultHandler @Inject constructor(
                     }
                     else -> throw UnsupportedOperationException("Unknown type for ${entry.name}")
                 }
-
-                notifyWrite(restoreTarget)
+                logListener?.invoke(IOEvent(IOEvent.Type.RESTORED, restoreTarget))
 
                 val modifiedTime = entry.lastModifiedDate
                 if (entry.isDirectory) {

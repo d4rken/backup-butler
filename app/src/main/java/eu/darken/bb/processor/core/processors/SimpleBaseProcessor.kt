@@ -11,6 +11,7 @@ import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.SimpleResult
+import eu.darken.bb.task.core.results.TaskResult
 import timber.log.Timber
 
 abstract class SimpleBaseProcessor constructor(
@@ -28,9 +29,9 @@ abstract class SimpleBaseProcessor constructor(
         }
     }
 
-    val resultBuilder = SimpleResult.Builder(context)
+    val resultBuilder = SimpleResult.Builder()
 
-    override fun process(task: Task): Task.Result {
+    override fun process(task: Task): TaskResult {
         Timber.tag(TAG).i("Processing task: %s", task)
         try {
             resultBuilder.forTask(task)
@@ -39,7 +40,7 @@ abstract class SimpleBaseProcessor constructor(
             resultBuilder.sucessful()
         } catch (exception: Exception) {
             Timber.tag(TAG).e(exception, "Task failed: %s", task)
-            resultBuilder.error(exception)
+            resultBuilder.error(context, exception)
         } finally {
             onCleanup()
             progressParent.updateProgressSecondary(R.string.progress_working_label)

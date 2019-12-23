@@ -1,12 +1,12 @@
 package eu.darken.bb.common.room
 
 import androidx.room.TypeConverter
-import eu.darken.bb.task.core.Task
+import eu.darken.bb.task.core.results.TaskResult
 
 class TaskResultIdConverter {
     @TypeConverter
-    fun fromString(id: String?): Task.Result.Id? = id?.let { Task.Result.Id(id) }
+    fun fromString(id: String?): TaskResult.Id? = id?.let { TaskResult.Id(id) }
 
     @TypeConverter
-    fun toStringValue(id: Task.Result.Id?): String? = id?.value?.toString()
+    fun toStringValue(id: TaskResult.Id?): String? = id?.value?.toString()
 }

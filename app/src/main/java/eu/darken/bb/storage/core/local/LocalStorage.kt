@@ -9,6 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.AString
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -191,22 +192,22 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
-        updateProgressPrimary("Accessing ${storageConfig.label}")
-
-        updateProgressSecondary("Reading backup specifications")
+        updateProgressPrimary(R.string.progress_reading_backup_specs)
+        updateProgressCount(Progress.Count.Indeterminate())
         val item = specInfo(specId).blockingFirst()
         item as LocalStorageSpecInfo
 
-        updateProgressSecondary { "Reading metadata for ${item.backupSpec.getLabel(it)}" }
+        updateProgressPrimary(R.string.progress_reading_backup_metadata)
         val metaData = readBackupMeta(specId, backupId)
 
-
-        updateProgressSecondary { "Building data lists for ${item.backupSpec.getLabel(it)}" }
+        updateProgressPrimary(R.string.progress_reading_backup_data)
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
         val versionPath = getVersionDir(specId, backupId).requireExists()
         val propFiles = versionPath.listFilesThrowing().filter { file: File -> file.path.endsWith(PROP_EXT) }
         updateProgressCount(Progress.Count.Percent(0, propFiles.size))
+
         propFiles.forEachIndexed { index, propFile ->
+            updateProgressSecondary(propFile.path)
 
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
             val props = propFile.source().use { mmDataRepo.readProps(it) }
@@ -214,6 +215,7 @@ class LocalStorage @AssistedInject constructor(
                 FILE, DIRECTORY, SYMLINK -> FileRefSource(dataFile, props)
                 ARCHIVE -> FileArchiveSource(dataFile, props as ArchiveProps)
             }
+
             val refRequest = MMRef.Request(
                     backupId = backupId,
                     source = source
@@ -228,6 +230,8 @@ class LocalStorage @AssistedInject constructor(
 
             updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
         }
+        updateProgressSecondary(AString.EMPTY)
+        updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
                 spec = item.backupSpec,
@@ -237,10 +241,8 @@ class LocalStorage @AssistedInject constructor(
     }
 
     override fun save(backup: Backup.Unit): Backup.Info {
-        updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_saving_label))
-        updateProgressSecondary("")
+        updateProgressPrimary(R.string.progress_writing_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
-
         try {
             val existingSpec = readSpec(backup.specId)
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
@@ -250,35 +252,43 @@ class LocalStorage @AssistedInject constructor(
             writeSpec(backup.specId, backup.spec)
         }
 
+        updateProgressPrimary(R.string.progress_writing_backup_data)
         val versionDir = getVersionDir(specId = backup.specId, backupId = backup.backupId).tryMkDirs()
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
+        updateProgressCount(Progress.Count.Counter(current, max))
 
         // TODO guardAction that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
-                updateProgressSecondary(ref.props.originalPath?.path ?: "Ref without originalPath")
-                updateProgressCount(Progress.Count.Counter(++current, max))
+                updateProgressSecondary(ref.props.tryLabel)
+
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
                 targetProp.sink().use { mmDataRepo.writeProps(ref.props, it) }
 
-                val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                 // TODO errors should be shown in the result?
                 when (ref.props.dataType) {
-                    FILE, ARCHIVE -> ref.source.open().copyToAutoClose(target.sink())
+                    FILE, ARCHIVE -> {
+                        val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
+                        ref.source.open().copyToAutoClose(target.sink())
+                    }
                     DIRECTORY, SYMLINK -> {
                         // NOOP props are enough
                     }
                 }
+
+                updateProgressCount(Progress.Count.Counter(++current, max))
             }
         }
+        updateProgressSecondary(AString.EMPTY)
+        updateProgressCount(Progress.Count.Indeterminate())
 
+        updateProgressPrimary(R.string.progress_writing_backup_metadata)
         writeBackupMeta(backup.specId, backup.backupId, backup.metaData)
-
         val info = Backup.Info(
                 storageId = storageId,
                 spec = backup.spec,

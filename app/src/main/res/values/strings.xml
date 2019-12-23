@@ -251,9 +251,19 @@
     <string name="progress_processing_restore_task">Processing restore task</string>
     <string name="progress_restoring_apk">Restoring APK data</string>
     <string name="progress_restoring_app_data">Restoring app data</string>
-    <string name="progress_restoring_app_cache">Restorign app cache</string>
+    <string name="progress_restoring_app_cache">Restoring app cache</string>
     <string name="progress_waiting_on_install">Waiting for install to finish</string>
     <string name="progress_fixing_timestamps">Fixing timestamps</string>
     <string name="progress_creating_app_backup">Creating app backup</string>
     <string name="progress_apk_lookup">Looking up APK data</string>
+    <string name="progress_backingup_app_data">Backing up app data</string>
+    <string name="progress_backingup_app_cache">Backing up app cache</string>
+    <string name="progress_loading_from_x">Loading from %s</string>
+    <string name="progress_reading_backup_data">Building backup data</string>
+    <string name="progress_writing_backup_data">Writing backup data</string>
+    <string name="progress_writing_backup_details">Writing backup details</string>
+    <string name="progress_writing_backup_metadata">Writing backup metadata</string>
+    <string name="progress_reading_backup_metadata">Reading backup metadata</string>
+    <string name="progress_writing_backup_specs">Writing backup specifications</string>
+    <string name="progress_reading_backup_specs">Reading backup specifications</string>
 </resources>

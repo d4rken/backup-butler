@@ -9,6 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.AString
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.dagger.AppContext
@@ -205,36 +206,44 @@ class SAFStorage @AssistedInject constructor(
             .replayingShare()
 
     override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
+        updateProgressPrimary(R.string.progress_reading_backup_specs)
+        updateProgressCount(Progress.Count.Indeterminate())
         val item = specInfo(specId).blockingFirst()
         item as SAFStorageSpecInfo
 
+        updateProgressPrimary(R.string.progress_reading_backup_metadata)
         val metaData = readBackupMeta(specId, backupId)
 
+        updateProgressPrimary(R.string.progress_reading_backup_data)
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
-
         val versionPath = getVersionDir(specId, backupId).requireExists(safGateway)
-        versionPath.listFiles(safGateway)
-                .filter { it.name.endsWith(PROP_EXT) }
-                .forEach { propFile ->
+        val propFiles = versionPath.listFiles(safGateway).filter { it.name.endsWith(PROP_EXT) }
+        updateProgressCount(Progress.Count.Percent(0, propFiles.size))
 
-                    val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
+        propFiles.forEachIndexed { index, propFile ->
+            updateProgressSecondary { propFile.userReadablePath(it) }
 
-                    val refRequest = MMRef.Request(
-                            backupId = backupId,
-                            source = APathRefResource(
-                                    safGateway,
-                                    dataFile,
-                                    safGateway.read(propFile).use { mmDataRepo.readProps(it) }
-                            )
+            val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
+
+            val refRequest = MMRef.Request(
+                    backupId = backupId,
+                    source = APathRefResource(
+                            safGateway,
+                            dataFile,
+                            safGateway.read(propFile).use { mmDataRepo.readProps(it) }
                     )
-                    val tmpRef = mmDataRepo.create(refRequest)
+            )
+            val tmpRef = mmDataRepo.create(refRequest)
 
-                    val keySplit = propFile.name.split("#")
-                    dataMap.getOrPut(
-                            if (keySplit.size == 2) keySplit[0] else "",
-                            { mutableListOf() }
-                    ).add(tmpRef)
-                }
+            val keySplit = propFile.name.split("#")
+            dataMap.getOrPut(
+                    if (keySplit.size == 2) keySplit[0] else "",
+                    { mutableListOf() }
+            ).add(tmpRef)
+            updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
+        }
+        updateProgressSecondary(AString.EMPTY)
+        updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
                 spec = item.backupSpec,
@@ -244,10 +253,8 @@ class SAFStorage @AssistedInject constructor(
     }
 
     override fun save(backup: Backup.Unit): Backup.Info {
-        updateProgressPrimary(storageConfig.label + ": " + context.getString(R.string.progress_saving_label))
-        updateProgressSecondary("")
+        updateProgressPrimary(R.string.progress_writing_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
-
         try {
             val existingSpec = readSpec(backup.specId)
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
@@ -257,16 +264,17 @@ class SAFStorage @AssistedInject constructor(
             writeSpec(backup.specId, backup.spec)
         }
 
+        updateProgressPrimary(R.string.progress_writing_backup_data)
         val versionDir = getVersionDir(backup.specId, backup.backupId).createDirIfNecessary(safGateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
+        updateProgressCount(Progress.Count.Counter(current, max))
 
         // TODO check that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
-                updateProgressSecondary(ref.props.originalPath?.path ?: "Ref without originalPath")
-                updateProgressCount(Progress.Count.Counter(++current, max))
+                updateProgressSecondary(ref.props.tryLabel)
 
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
@@ -284,11 +292,15 @@ class SAFStorage @AssistedInject constructor(
                         // NOOP , props are enough
                     }
                 }
+                updateProgressCount(Progress.Count.Counter(++current, max))
             }
         }
+        updateProgressSecondary(AString.EMPTY)
+        updateProgressCount(Progress.Count.Indeterminate())
 
         writeBackupMeta(backup.specId, backup.backupId, backup.metaData)
 
+        updateProgressPrimary(R.string.progress_writing_backup_metadata)
         val info = Backup.Info(
                 storageId = storageId,
                 spec = backup.spec,

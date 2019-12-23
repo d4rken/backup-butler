@@ -2,6 +2,7 @@ package eu.darken.bb.task.core
 
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
+import eu.darken.bb.task.core.results.TaskResult
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -24,11 +25,11 @@ class TaskIdResultTest {
     fun `test serialization within map`() {
         val moshi = AppModule().moshi()
 
-        val type = Types.newParameterizedType(Map::class.java, Task.Result.Id::class.java, Task.Result.Id::class.java)
-        val adapter = moshi.adapter<Map<Task.Result.Id, Task.Result.Id>>(type)
+        val type = Types.newParameterizedType(Map::class.java, TaskResult.Id::class.java, TaskResult.Id::class.java)
+        val adapter = moshi.adapter<Map<TaskResult.Id, TaskResult.Id>>(type)
 
-        val idKey = Task.Result.Id()
-        val idValue = Task.Result.Id()
+        val idKey = TaskResult.Id()
+        val idValue = TaskResult.Id()
         val testMap = mapOf(idKey to idValue)
         val json = adapter.toJson(testMap)
 
