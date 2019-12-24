@@ -21,7 +21,7 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import okio.source
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
@@ -57,7 +57,7 @@ class PrivateDefaultRestoreHandler @Inject constructor(
             config: AppRestoreConfig,
             type: Type,
             wrap: AppBackupWrap,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             Type.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
@@ -85,7 +85,7 @@ class PrivateDefaultRestoreHandler @Inject constructor(
             config: AppRestoreConfig,
             type: Type,
             archive: MMRef,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ) {
 
         val directoryTimeStamps = mutableMapOf<APath, Date>()
@@ -126,7 +126,7 @@ class PrivateDefaultRestoreHandler @Inject constructor(
                     }
                     else -> throw UnsupportedOperationException("Unknown type for ${entry.name}")
                 }
-                logListener?.invoke(IOEvent(IOEvent.Type.RESTORED, restoreTarget))
+                logListener?.invoke(LogEvent(LogEvent.Type.RESTORED, restoreTarget))
 
                 val modifiedTime = entry.lastModifiedDate
                 if (entry.isDirectory) {

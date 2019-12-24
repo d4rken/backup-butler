@@ -25,7 +25,7 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -48,7 +48,7 @@ class AppRestoreEndpoint @Inject constructor(
 
     private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((IOEvent) -> Unit)?): Boolean {
+    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
@@ -115,7 +115,7 @@ class AppRestoreEndpoint @Inject constructor(
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             wrap: AppBackupWrap,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ) {
 
         // TODO Copy private data
@@ -143,7 +143,7 @@ class AppRestoreEndpoint @Inject constructor(
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             wrap: AppBackupWrap,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ) {
 
         // TODO Copy private cache

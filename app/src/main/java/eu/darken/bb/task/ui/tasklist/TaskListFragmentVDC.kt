@@ -52,7 +52,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
         tasksObs
                 .flatMap { tasks ->
                     val ids = tasks.map { it.taskId }
-                    resultRepo.getLatestTaskResults(ids)
+                    resultRepo.getLatestTaskResultGlimse(ids)
                 }
                 .subscribe { results ->
                     stater.update { state ->

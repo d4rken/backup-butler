@@ -16,7 +16,7 @@ import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.backup.SimpleBackupTask
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import eu.darken.bb.task.core.results.SimpleResult
 import timber.log.Timber
 import javax.inject.Provider
@@ -56,10 +56,10 @@ class SimpleBackupProcessor @AssistedInject constructor(
 
                     val endpointProgressSub = endpoint.forwardProgressTo(progressChild)
 
-                    val logActions = mutableListOf<IOEvent>()
+                    val logEvents = mutableListOf<LogEvent>()
 
                     val backupUnit = endpoint.backup(config) {
-                        logActions.add(it)
+                        logEvents.add(it)
                     }
 
                     Timber.tag(TAG).i("Backup created: %s", backupUnit)
@@ -71,7 +71,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                         val storage = storageManager.getStorage(storageId).blockingFirst()
                         Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
 
-                        val subResultBuilder = SimpleResult.SimpleSubResult.Builder()
+                        val subResultBuilder = SimpleResult.SubResult.Builder()
                         try {
                             subResultBuilder.label(backupUnit.spec.getLabel(context)) // If there are errors before getting a better label
 
@@ -85,6 +85,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                             Timber.tag(TAG).e(e, "Error while saving backup to storage: %s", backupUnit, storage)
                             subResultBuilder.error(context, e)
                         } finally {
+                            subResultBuilder.addLogEvents(logEvents)
                             resultBuilder.addSubResult(subResultBuilder)
                         }
 

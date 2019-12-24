@@ -5,7 +5,7 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 
 interface RestoreHandler : Progress.Client, Progress.Host {
 
@@ -18,6 +18,6 @@ interface RestoreHandler : Progress.Client, Progress.Host {
             config: AppRestoreConfig,
             type: AppBackupWrap.Type,
             wrap: AppBackupWrap,
-            logListener: ((IOEvent) -> Unit)? = null
+            logListener: ((LogEvent) -> Unit)? = null
     )
 }

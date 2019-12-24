@@ -31,7 +31,7 @@ interface TaskResult {
     val state: State
     val primary: String?
     val secondary: String?
-    val subResults: List<SubResult>?
+    val subResults: List<SubResult>
     val extra: String?
 
     @Parcelize @Keep
@@ -56,13 +56,14 @@ interface TaskResult {
     interface SubResult {
         val subResultId: Id
         val resultId: TaskResult.Id
+        val startedAt: Date
+        val duration: Long
         val label: String
         val state: State
         val primary: String?
         val secondary: String?
         val extra: String?
-        val taskLog: List<String>?
-        val IOEvents: List<IOEvent>?
+        val logEvents: List<LogEvent>
 
         // TODO Test
 

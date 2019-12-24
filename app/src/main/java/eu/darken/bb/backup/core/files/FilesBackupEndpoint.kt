@@ -17,6 +17,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.file.APathRefResource
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,7 +34,7 @@ class FilesBackupEndpoint @Inject constructor(
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    override fun backup(spec: BackupSpec): Backup.Unit {
+    override fun backup(spec: BackupSpec, logListener: ((LogEvent) -> Unit)?): Backup.Unit {
         spec as FilesBackupSpec
 
         updateProgressPrimary(R.string.progress_creating_backup)
@@ -44,7 +45,7 @@ class FilesBackupEndpoint @Inject constructor(
         if (!resourceTokens.containsKey(spec.path.pathType)) {
             resourceTokens[spec.path.pathType] = gateway.keepAlive.get()
         }
-        val builder = backupFile(spec, gateway)
+        val builder = backupFile(spec, gateway, logListener)
 
         return builder.createUnit()
     }
@@ -53,7 +54,7 @@ class FilesBackupEndpoint @Inject constructor(
         resourceTokens.values.forEach { it.close() }
     }
 
-    private fun backupFile(spec: FilesBackupSpec, gateway: APathGateway<APath, APathLookup<APath>>): FilesBackupWrap {
+    private fun backupFile(spec: FilesBackupSpec, gateway: APathGateway<APath, APathLookup<APath>>, logListener: ((LogEvent) -> Unit)?): FilesBackupWrap {
         val builder = FilesBackupWrap(spec, Backup.Id())
         val pathToBackup = spec.path
         val items: List<APath> = gateway.keepAlive.get().use {
@@ -75,6 +76,7 @@ class FilesBackupEndpoint @Inject constructor(
             )
             val ref = mmDataRepo.create(refRequest)
             filesInUnit.add(ref)
+            logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, item))
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))
         }

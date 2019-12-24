@@ -43,7 +43,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         task.backupTargets.forEachIndexed { index, target ->
             progressParent.updateProgressTertiary(R.string.progress_restoring_backup)
 
-            val subResultBuilder = SimpleResult.SimpleSubResult.Builder()
+            val subResultBuilder = SimpleResult.SubResult.Builder()
 
             try {
                 restoreBackup(task, target, subResultBuilder)
@@ -75,7 +75,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     private fun restoreBackup(
             task: SimpleRestoreTask,
             target: Backup.Target,
-            subResultBuilder: SimpleResult.SimpleSubResult.Builder
+            subResultBuilder: SimpleResult.SubResult.Builder
     ) {
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 
@@ -107,7 +107,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
                     .subscribe { pro -> progressChild.updateProgress { pro } }
 
             endpoint.restore(config, backupUnit) {
-                subResultBuilder.addIOInfo(it)
+                subResultBuilder.addLogEvent(it)
             }
 
             endpointProgressSub.dispose()

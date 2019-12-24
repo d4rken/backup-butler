@@ -16,6 +16,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.task.core.results.LogEvent
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.io.Closeable
@@ -23,7 +24,7 @@ import java.util.*
 
 interface Backup {
     interface Endpoint : Progress.Host, Closeable {
-        fun backup(spec: BackupSpec): Unit
+        fun backup(spec: BackupSpec, logListener: ((LogEvent) -> kotlin.Unit)?): Unit
     }
 
     data class Unit(

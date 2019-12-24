@@ -17,7 +17,7 @@ data class SimpleResult constructor(
         override val primary: String? = null,
         override val secondary: String? = null,
         override val extra: String? = null,
-        override val subResults: List<SimpleSubResult>
+        override val subResults: List<SubResult>
 ) : TaskResult {
 
     class Builder : TaskResult.Builder<SimpleResult> {
@@ -31,7 +31,7 @@ data class SimpleResult constructor(
         private var primary: String? = null
         private var secondary: String? = null
         private var extra: String? = null
-        private var subResults = mutableListOf<SimpleSubResult>()
+        private var subResults = mutableListOf<SubResult>()
 
         fun forTask(task: Task) = apply {
             this.taskId = task.taskId
@@ -92,48 +92,60 @@ data class SimpleResult constructor(
             )
         }
 
-        fun addSubResult(subResultBuider: SimpleSubResult.Builder) {
+        fun addSubResult(subResultBuider: SubResult.Builder) {
             val subResult = subResultBuider.build(taskResultId)
             subResults.add(subResult)
         }
     }
 
-    data class SimpleSubResult(
+    data class SubResult(
             override val subResultId: TaskResult.SubResult.Id,
             override val resultId: TaskResult.Id,
             override val label: String,
             override val state: TaskResult.State,
+            override val startedAt: Date,
+            override val duration: Long,
             override val primary: String?,
             override val secondary: String?,
             override val extra: String?,
-            override val taskLog: List<String>?,
-            override val IOEvents: List<IOEvent>?
+            override val logEvents: List<LogEvent>
     ) : TaskResult.SubResult {
-        class Builder : TaskResult.SubResult.Builder<SimpleSubResult> {
+        class Builder : TaskResult.SubResult.Builder<SubResult> {
             private var label: String? = null
             private var state: TaskResult.State? = null
+            private var startedAt: Date = Date()
+            private var duration: Long = 60 * 1000L
             private var primary: String? = null
             private var secondary: String? = null
             private var extra: String? = null
-            private var logActions = mutableListOf<IOEvent>()
-            private var taskLog: List<String>? = null
+            private var logEvents = mutableListOf<LogEvent>()
 
             fun label(label: String) = apply {
                 this.label = label
             }
 
+            fun finished() = apply {
+                this.duration = System.currentTimeMillis() - startedAt.time
+            }
+
             fun sucessful() = apply {
                 this.state = TaskResult.State.SUCCESS
+                finished()
             }
 
             fun error(context: Context, error: Throwable) = apply {
                 this.state = TaskResult.State.ERROR
                 this.primary = error.javaClass.name
                 this.secondary = error.tryLocalizedErrorMessage(context)
+                finished()
             }
 
-            fun addIOInfo(IOEvent: IOEvent) = apply {
-                logActions.add(IOEvent)
+            fun addLogEvent(event: LogEvent) = apply {
+                logEvents.add(event)
+            }
+
+            fun addLogEvents(events: List<LogEvent>) = apply {
+                logEvents.addAll(events)
             }
 
             fun primary(primary: String?) = apply {
@@ -148,20 +160,22 @@ data class SimpleResult constructor(
                 this.extra = extra
             }
 
-            override fun build(taskResultId: TaskResult.Id): SimpleSubResult {
-                return SimpleSubResult(
+            override fun build(taskResultId: TaskResult.Id): SubResult {
+                return SubResult(
                         subResultId = TaskResult.SubResult.Id(),
                         resultId = taskResultId,
                         label = label!!,
                         state = state!!,
+                        startedAt = startedAt,
+                        duration = duration,
                         primary = primary,
                         secondary = secondary,
                         extra = extra,
-                        IOEvents = logActions,
-                        taskLog = taskLog
+                        logEvents = logEvents
 
                 )
             }
+
         }
 
     }

@@ -23,7 +23,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.archive.APathArchiveSource
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
@@ -55,7 +55,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         when (type) {
             Type.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
@@ -80,7 +80,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         updateProgressSecondary(appInfo.dataDir)
         // TODO split the walking? cache/non cache stuff?, extra mmrefs?
@@ -107,7 +107,9 @@ class PrivateDefaultBackupHandler @Inject constructor(
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
 
-//        filteredItems.forEach { logListener(it) }
+        logListener?.let { listener ->
+            filteredItems.forEach { listener(LogEvent(LogEvent.Type.BACKUPPED, it)) }
+        }
 
         val dataRef: MMRef = mmDataRepo.create(MMRef.Request(
                 backupId = backupId,

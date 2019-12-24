@@ -20,7 +20,7 @@ import eu.darken.bb.common.progress.*
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.file.FileRefSource
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ class AppBackupEndpoint @Inject constructor(
 
     private val backupHandlers = backupHandlers.sortedBy { it.priority }
 
-    override fun backup(spec: BackupSpec, logListener: ((IOEvent) -> Unit)?): Backup.Unit {
+    override fun backup(spec: BackupSpec, logListener: ((LogEvent) -> Unit)?): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupWrap(spec, Backup.Id())
         updateProgressPrimary(R.string.progress_creating_app_backup)
@@ -62,6 +62,7 @@ class AppBackupEndpoint @Inject constructor(
             ))
 
             builder.baseApk = baseApkRef
+            logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, apkData.mainSource.path))
 
             val splitApkRefs = mutableListOf<MMRef>()
             apkData.splitSources.forEach { splitApk ->
@@ -71,6 +72,7 @@ class AppBackupEndpoint @Inject constructor(
                         source = FileRefSource(splitApk)
                 ))
                 splitApkRefs.add(splitRef)
+                logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, splitApk.path))
             }
             builder.splitApks = splitApkRefs
         }
@@ -84,7 +86,7 @@ class AppBackupEndpoint @Inject constructor(
 
         // Private data
         if (spec.backupData) {
-            val privateDataRefs = backupData(Type.DATA_PRIVATE_PRIMARY, builder.backupId, spec, appInfo)
+            val privateDataRefs = backupData(Type.DATA_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, logListener)
             builder.putType(Type.DATA_PRIVATE_PRIMARY, privateDataRefs)
 
             // TODO public data
@@ -93,7 +95,7 @@ class AppBackupEndpoint @Inject constructor(
         }
 
         if (spec.backupCache) {
-            val privateCacheRefs = backupData(Type.CACHE_PRIVATE_PRIMARY, builder.backupId, spec, appInfo)
+            val privateCacheRefs = backupData(Type.CACHE_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, logListener)
             builder.putType(Type.CACHE_PRIVATE_PRIMARY, privateCacheRefs)
 
             // TODO public cache
@@ -106,7 +108,8 @@ class AppBackupEndpoint @Inject constructor(
             type: Type,
             backupId: Backup.Id,
             spec: AppBackupSpec,
-            appInfo: ApplicationInfo
+            appInfo: ApplicationInfo,
+            logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
 
         val handler = backupHandlers.first {
@@ -116,7 +119,7 @@ class AppBackupEndpoint @Inject constructor(
         val dataProgress = handler.forwardProgressTo(this)
 
         return try {
-            handler.backup(type, backupId, spec, appInfo)
+            handler.backup(type, backupId, spec, appInfo, logListener)
         } finally {
             dataProgress.dispose()
         }

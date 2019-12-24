@@ -11,7 +11,7 @@ import java.util.*
 @Entity(tableName = "task_results")
 data class StoredResult(
         @PrimaryKey
-        val resultId: TaskResult.Id,
+        val id: TaskResult.Id,
         val taskId: Task.Id,
         val label: String,
         val taskType: Task.Type,

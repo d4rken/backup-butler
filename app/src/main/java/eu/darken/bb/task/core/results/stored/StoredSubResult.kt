@@ -10,7 +10,7 @@ import java.util.*
 @Entity(tableName = "task_subresults")
 data class StoredSubResult(
         @PrimaryKey
-        val subResultId: TaskResult.SubResult.Id,
+        val id: TaskResult.SubResult.Id,
         val resultId: TaskResult.Id,
         val startedAt: Date,
         val duration: Long,
@@ -18,6 +18,5 @@ data class StoredSubResult(
         val state: TaskResult.State,
         val primary: String?,
         val secondary: String?,
-        val extra: String?,
-        val taskLog: List<String>?
+        val extra: String?
 )

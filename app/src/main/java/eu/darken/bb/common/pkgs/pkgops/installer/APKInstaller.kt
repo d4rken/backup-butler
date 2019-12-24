@@ -22,7 +22,7 @@ import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
 import java.util.concurrent.Semaphore
@@ -61,7 +61,7 @@ class APKInstaller @Inject constructor(
             val error: Exception? = null
     )
 
-    fun install(request: Request, logListener: ((IOEvent) -> Unit)? = null): Result {
+    fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
         Timber.tag(TAG).d("install(request=%s)", request)
         updateProgressPrimary(R.string.progress_restoring_apk)
         updateProgressSecondary(R.string.progress_working_label)
@@ -122,9 +122,9 @@ class APKInstaller @Inject constructor(
         logListener?.let { listener ->
             // TODO split apk paths too?
             val dest = pkgOps.queryAppInfos(request.packageName)!!
-            listener(IOEvent(IOEvent.Type.RESTORED, LocalPath.build(dest.sourceDir)))
+            listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(dest.sourceDir)))
             dest.splitSourceDirs?.forEach {
-                listener(IOEvent(IOEvent.Type.RESTORED, LocalPath.build(it)))
+                listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(it)))
             }
 
         }

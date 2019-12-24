@@ -19,7 +19,7 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
 import eu.darken.bb.processor.core.mm.SymlinkProps
 import eu.darken.bb.processor.core.mm.file.FileProps
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((IOEvent) -> Unit)?): Boolean {
+    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
@@ -78,7 +78,7 @@ class FilesRestoreEndpoint @Inject constructor(
             spec: FilesBackupSpec,
             ref: MMRef,
             gateway: APathGateway<APath, APathLookup<APath>>,
-            logListener: ((IOEvent) -> Unit)?
+            logListener: ((LogEvent) -> Unit)?
     ) {
         val restorePath = config.restorePath ?: spec.path
         val chunks = spec.path.crumbsTo(ref.props.originalPath!!)
@@ -102,7 +102,7 @@ class FilesRestoreEndpoint @Inject constructor(
                 itemFile.createSymlink(gateway, (ref.props as SymlinkProps).symlinkTarget)
             }
         }
-        logListener?.invoke(IOEvent(IOEvent.Type.RESTORED, restorePath))
+        logListener?.invoke(LogEvent(LogEvent.Type.RESTORED, restorePath))
 
         itemFile.setMetaData(gateway, ref.props)
     }

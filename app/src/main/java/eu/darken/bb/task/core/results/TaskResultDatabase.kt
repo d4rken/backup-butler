@@ -5,12 +5,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.squareup.moshi.Moshi
 import eu.darken.bb.common.room.*
+import eu.darken.bb.task.core.results.stored.StoredLogEvent
 import eu.darken.bb.task.core.results.stored.StoredResult
 import eu.darken.bb.task.core.results.stored.StoredSubResult
 
 @Database(entities = [
     StoredResult::class,
-    StoredSubResult::class
+    StoredSubResult::class,
+    StoredLogEvent::class
 ], version = 1, exportSchema = false)
 @TypeConverters(
         TaskResultIdConverter::class,

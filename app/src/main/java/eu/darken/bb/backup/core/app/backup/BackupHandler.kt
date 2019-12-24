@@ -6,7 +6,7 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.task.core.results.IOEvent
+import eu.darken.bb.task.core.results.LogEvent
 
 interface BackupHandler : Progress.Client, Progress.Host {
 
@@ -19,7 +19,7 @@ interface BackupHandler : Progress.Client, Progress.Host {
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            logListener: ((IOEvent) -> Unit)? = null
+            logListener: ((LogEvent) -> Unit)? = null
     ): Collection<MMRef>
 
 }
