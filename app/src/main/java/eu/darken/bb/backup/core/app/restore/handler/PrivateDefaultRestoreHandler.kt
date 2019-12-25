@@ -7,7 +7,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
-import eu.darken.bb.backup.core.app.AppBackupWrap.Type
+import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
 import eu.darken.bb.common.AString
@@ -41,10 +41,10 @@ class PrivateDefaultRestoreHandler @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    override fun isResponsible(type: Type, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
+    override fun isResponsible(type: DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
         when (type) {
-            Type.DATA_PRIVATE_PRIMARY,
-            Type.CACHE_PRIVATE_PRIMARY -> {
+            DataType.DATA_PRIVATE_PRIMARY,
+            DataType.CACHE_PRIVATE_PRIMARY -> {
                 // It's okay
             }
             else -> return false
@@ -55,19 +55,19 @@ class PrivateDefaultRestoreHandler @Inject constructor(
     override fun restore(
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
-            type: Type,
+            type: DataType,
             wrap: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
-            Type.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
-            Type.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
+            DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
+            DataType.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
         updateProgressSecondary(AString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        val toRestore = wrap.getType(type)
+        val toRestore = wrap.getDataType(type)
 
         for ((index, archive) in toRestore.withIndex()) {
             try {
@@ -83,7 +83,7 @@ class PrivateDefaultRestoreHandler @Inject constructor(
     private fun doRestore(
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
-            type: Type,
+            type: DataType,
             archive: MMRef,
             logListener: ((LogEvent) -> Unit)?
     ) {
@@ -100,8 +100,8 @@ class PrivateDefaultRestoreHandler @Inject constructor(
                 updateProgressSecondary(entryOrigPath)
 
                 val basePath = when (type) {
-                    Type.DATA_PRIVATE_PRIMARY -> appInfo.dataDir
-                    Type.CACHE_PRIVATE_PRIMARY -> appInfo.dataDir
+                    DataType.DATA_PRIVATE_PRIMARY -> appInfo.dataDir
+                    DataType.CACHE_PRIVATE_PRIMARY -> appInfo.dataDir
                     else -> throw UnsupportedOperationException("Can't restore $type")
                 }
 

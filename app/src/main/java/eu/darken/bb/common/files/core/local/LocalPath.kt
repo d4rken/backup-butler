@@ -79,6 +79,10 @@ data class LocalPath(
             }
         }
 
+        fun build(base: LocalPath, vararg crumbs: String): LocalPath {
+            return build(base.path, *crumbs)
+        }
+
         fun build(base: File, vararg crumbs: String): LocalPath {
             return build(base.path, *crumbs)
         }

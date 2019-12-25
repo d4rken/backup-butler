@@ -22,7 +22,7 @@ import javax.inject.Inject
 @PerApp
 class LocalGateway @Inject constructor(
         private val javaRootClient: JavaRootClient,
-        private val devEnvironment: DevEnvironment,
+        private val deviceEnvironment: DeviceEnvironment,
         private val ipcFunnel: IPCFunnel,
         private val libcoreTool: LibcoreTool
 ) : APathGateway<LocalPath, LocalPathLookup> {
@@ -225,8 +225,7 @@ class LocalGateway @Inject constructor(
     }
 
     fun isStorageRoot(path: LocalPath): Boolean {
-        // TODO what about secondary storages?
-        return devEnvironment.publicDeviceStorages.map { it.path }.contains(path)
+        return deviceEnvironment.publicStorage.any { it.storagePath == path }
     }
 
     @Throws(IOException::class)

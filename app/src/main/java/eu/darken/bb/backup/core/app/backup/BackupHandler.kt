@@ -12,10 +12,10 @@ interface BackupHandler : Progress.Client, Progress.Host {
 
     val priority: Int
 
-    fun isResponsible(type: AppBackupWrap.Type, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean
+    fun isResponsible(type: AppBackupWrap.DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean
 
     fun backup(
-            type: AppBackupWrap.Type,
+            type: AppBackupWrap.DataType,
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,

@@ -2,6 +2,7 @@ package eu.darken.bb.common
 
 import android.content.Context
 import androidx.annotation.StringRes
+import eu.darken.bb.common.files.core.APath
 
 interface AString {
     fun get(context: Context): String
@@ -15,7 +16,7 @@ interface AString {
     }
 }
 
-data class CAString(val resolv: (Context) -> String) : AString {
+open class CAString(val resolv: (Context) -> String) : AString {
 
     constructor(string: String)
             : this({ string })
@@ -32,5 +33,6 @@ data class CAString(val resolv: (Context) -> String) : AString {
             return cache
         }
     }
-
 }
+
+data class PathAString(private val path: APath) : CAString({ path.userReadablePath(it) })

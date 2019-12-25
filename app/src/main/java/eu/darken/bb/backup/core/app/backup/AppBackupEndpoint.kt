@@ -9,7 +9,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.app.APKExporter
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
-import eu.darken.bb.backup.core.app.AppBackupWrap.Type
+import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
@@ -22,6 +22,7 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.file.FileRefSource
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -86,17 +87,21 @@ class AppBackupEndpoint @Inject constructor(
 
         // Private data
         if (spec.backupData) {
-            val privateDataRefs = backupData(Type.DATA_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, logListener)
-            builder.putType(Type.DATA_PRIVATE_PRIMARY, privateDataRefs)
+            backupData(DataType.DATA_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
 
-            // TODO public data
+            backupData(DataType.DATA_PUBLIC_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
+
+            backupData(DataType.DATA_PUBLIC_SECONDARY, builder.backupId, spec, appInfo, builder, logListener)
 
             // TODO sdcard clutter
         }
 
         if (spec.backupCache) {
-            val privateCacheRefs = backupData(Type.CACHE_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, logListener)
-            builder.putType(Type.CACHE_PRIVATE_PRIMARY, privateCacheRefs)
+            backupData(DataType.CACHE_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
+
+            backupData(DataType.CACHE_PUBLIC_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
+
+            backupData(DataType.CACHE_PUBLIC_SECONDARY, builder.backupId, spec, appInfo, builder, logListener)
 
             // TODO public cache
         }
@@ -105,21 +110,23 @@ class AppBackupEndpoint @Inject constructor(
     }
 
     private fun backupData(
-            type: Type,
+            type: DataType,
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
+            builder: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)?
-    ): Collection<MMRef> {
-
+    ) {
         val handler = backupHandlers.first {
             it.isResponsible(type, spec, appInfo)
         }
 
-        val dataProgress = handler.forwardProgressTo(this)
+        Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
+        val dataProgress = handler.forwardProgressTo(this)
         return try {
-            handler.backup(type, backupId, spec, appInfo, logListener)
+            val refs = handler.backup(type, backupId, spec, appInfo, logListener)
+            builder.putDataType(type, refs)
         } finally {
             dataProgress.dispose()
         }

@@ -189,3 +189,7 @@ inline fun <reified T : APath> T.relativeTo(parent: T): APath? {
         else -> TODO()
     }
 }
+
+fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
+    return gateway.listFiles(this)
+}

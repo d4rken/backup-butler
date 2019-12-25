@@ -7,15 +7,14 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.app.AppBackupSpec
-import eu.darken.bb.backup.core.app.AppBackupWrap.Type
+import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.PathAString
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.files.core.GatewaySwitch
+import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
-import eu.darken.bb.common.files.core.lookup
-import eu.darken.bb.common.files.core.walk
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -39,10 +38,10 @@ class PrivateDefaultBackupHandler @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    override fun isResponsible(type: Type, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {
+    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {
         when (type) {
-            Type.DATA_PRIVATE_PRIMARY,
-            Type.CACHE_PRIVATE_PRIMARY -> {
+            DataType.DATA_PRIVATE_PRIMARY,
+            DataType.CACHE_PRIVATE_PRIMARY -> {
                 // It's okay
             }
             else -> return false
@@ -51,15 +50,15 @@ class PrivateDefaultBackupHandler @Inject constructor(
     }
 
     override fun backup(
-            type: Type,
+            type: DataType,
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         when (type) {
-            Type.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
-            Type.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
+            DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
+            DataType.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
         updateProgressSecondary(AString.EMPTY)
@@ -76,46 +75,55 @@ class PrivateDefaultBackupHandler @Inject constructor(
     }
 
     private fun doBackup(
-            type: Type,
+            type: DataType,
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         updateProgressSecondary(appInfo.dataDir)
-        // TODO split the walking? cache/non cache stuff?, extra mmrefs?
-        val walkedPath = LocalPath.build(appInfo.dataDir)
-        val items = gatewaySwitch.keepAlive.get().use {
-            walkedPath.walk(gatewaySwitch)
-                    .filterNot { it == walkedPath }
-                    .onEach { Timber.tag(TAG).v("To backup: %s", it) }
-                    .map { it.lookup(gatewaySwitch) }
-                    .toList()
-        }
 
-        val filteredItems = when (type) {
-            Type.DATA_PRIVATE_PRIMARY -> {
-                items.filterNot {
-                    it.path.startsWith(LocalPath.build(appInfo.dataDir, "cache").path)
-                }
+        val privDir = LocalPath.build(appInfo.dataDir)
+        if (!privDir.exists(gatewaySwitch)) return emptyList()
+
+        val targets = when (type) {
+            DataType.DATA_PRIVATE_PRIMARY -> {
+                privDir.listFiles(gatewaySwitch).filter { isNonCache(it) }
             }
-            Type.CACHE_PRIVATE_PRIMARY -> {
-                items.filter {
-                    it.path.startsWith(LocalPath.build(appInfo.dataDir, "cache").path)
-                }
+            DataType.CACHE_PRIVATE_PRIMARY -> {
+                privDir.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
             }
-            else -> throw UnsupportedOperationException("Can't restore $type")
+            else -> throw UnsupportedOperationException("Can't backup $type")
         }
 
-        logListener?.let { listener ->
-            filteredItems.forEach { listener(LogEvent(LogEvent.Type.BACKUPPED, it)) }
+        val items = mutableListOf<APathLookup<APath>>()
+        gatewaySwitch.keepAlive.get().use {
+            targets.forEach { target ->
+                updateProgressSecondary(PathAString(target))
+                target.walk(gatewaySwitch)
+                        .filterNot { it == target }
+                        .map { it.lookup(gatewaySwitch) }
+                        .forEach { items.add(it) }
+            }
         }
 
-        val dataRef: MMRef = mmDataRepo.create(MMRef.Request(
+        items.forEach {
+            Timber.tag(TAG).d("Adding to backup: %s", it)
+            logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, it))
+        }
+
+        val ref = mmDataRepo.create(MMRef.Request(
                 backupId = backupId,
-                source = APathArchiveSource(gatewaySwitch, LocalPath.build(appInfo.dataDir), filteredItems)
+                source = APathArchiveSource(gatewaySwitch, privDir, items)
         ))
-        return listOf(dataRef)
+        return listOf(ref)
+    }
+
+    private fun isNonCache(path: APath): Boolean {
+        if (path.name == "cache") return false
+        if (path.name == "code_cache") return false
+
+        return true
     }
 
 

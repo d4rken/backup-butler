@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
-import eu.darken.bb.backup.core.app.AppBackupWrap.Type
+import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
@@ -120,7 +120,7 @@ class AppRestoreEndpoint @Inject constructor(
 
         // TODO Copy private data
         val handler = restoreHandlers.first {
-            it.isResponsible(Type.DATA_PRIVATE_PRIMARY, config, spec)
+            it.isResponsible(DataType.DATA_PRIVATE_PRIMARY, config, spec)
         }
 
         val dataProgress = handler.progress
@@ -128,7 +128,7 @@ class AppRestoreEndpoint @Inject constructor(
                 .doFinally { updateProgress { Progress.Data() } }
                 .subscribe { progress -> updateProgress { progress } }
 
-        handler.restore(appInfo, config, Type.DATA_PRIVATE_PRIMARY, wrap, logListener)
+        handler.restore(appInfo, config, DataType.DATA_PRIVATE_PRIMARY, wrap, logListener)
 
         dataProgress.dispose()
 
@@ -149,7 +149,7 @@ class AppRestoreEndpoint @Inject constructor(
         // TODO Copy private cache
         // TODO Copy private data
         val handler = restoreHandlers.first {
-            it.isResponsible(Type.CACHE_PRIVATE_PRIMARY, config, spec)
+            it.isResponsible(DataType.CACHE_PRIVATE_PRIMARY, config, spec)
         }
 
         val cacheProgress = handler.progress
@@ -157,7 +157,7 @@ class AppRestoreEndpoint @Inject constructor(
                 .doFinally { updateProgress { Progress.Data() } }
                 .subscribe { progress -> updateProgress { progress } }
 
-        handler.restore(appInfo, config, Type.CACHE_PRIVATE_PRIMARY, wrap, logListener)
+        handler.restore(appInfo, config, DataType.CACHE_PRIVATE_PRIMARY, wrap, logListener)
 
         cacheProgress.dispose()
 

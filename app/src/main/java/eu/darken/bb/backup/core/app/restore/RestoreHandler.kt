@@ -11,12 +11,12 @@ interface RestoreHandler : Progress.Client, Progress.Host {
 
     val priority: Int
 
-    fun isResponsible(type: AppBackupWrap.Type, config: AppRestoreConfig, spec: AppBackupSpec): Boolean
+    fun isResponsible(type: AppBackupWrap.DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean
 
     fun restore(
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
-            type: AppBackupWrap.Type,
+            type: AppBackupWrap.DataType,
             wrap: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)? = null
     )

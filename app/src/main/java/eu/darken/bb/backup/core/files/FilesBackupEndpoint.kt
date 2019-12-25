@@ -60,7 +60,6 @@ class FilesBackupEndpoint @Inject constructor(
         val items: List<APath> = gateway.keepAlive.get().use {
             pathToBackup.walk(gateway)
                     .filterNot { it == pathToBackup }
-                    .onEach { Timber.tag(TAG).v("To backup: %s", it) }
                     .toList()
         }
 
@@ -77,6 +76,7 @@ class FilesBackupEndpoint @Inject constructor(
             val ref = mmDataRepo.create(refRequest)
             filesInUnit.add(ref)
             logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, item))
+            Timber.tag(TAG).d("Adding to backup: %s", item)
 
             updateProgressCount(Progress.Count.Counter(items.indexOf(item) + 1, items.size))
         }

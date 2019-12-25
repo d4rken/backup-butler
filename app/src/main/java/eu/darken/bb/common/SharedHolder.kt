@@ -84,16 +84,16 @@ class SharedHolder<T> constructor(
 
     @Throws(IOException::class)
     fun get(): Resource<T> {
+        if (BBDebug.isDebug() && !isAlive) {
+            Timber.tag(tag).v("get() Caller: %s", Throwable().getStackTraceString())
+        }
+
         val keepAlive = resourceHolder.subscribe({ }, { })
 
         if (activeTokens.add(keepAlive)) {
             Timber.tag(tag).v("Adding token, now: %d", activeTokens.size())
         } else {
             Timber.tag(tag).d("Can't add token, already disposed!")
-        }
-
-        if (BBDebug.isDebug()) {
-            Timber.tag(tag).v("get() Caller: %s", Throwable().getStackTraceString())
         }
 
         val resource = try {
