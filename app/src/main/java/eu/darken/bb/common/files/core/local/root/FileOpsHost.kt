@@ -64,7 +64,9 @@ class FileOpsHost @Inject constructor(
     }
 
     override fun createNewFile(path: LocalPath): Boolean = try {
-        path.asFile().createNewFile()
+        val file = path.asFile()
+        if (!file.parentFile.exists()) file.parentFile.mkdirs()
+        file.createNewFile()
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "mkdirs(path=$path) failed.")
         throw wrapPropagating(e)

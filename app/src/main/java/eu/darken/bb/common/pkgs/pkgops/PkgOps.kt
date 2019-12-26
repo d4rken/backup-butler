@@ -8,10 +8,13 @@ import android.os.TransactionTooLargeException
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.PerApp
+import eu.darken.bb.common.files.core.DeviceEnvironment
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.Pkg
+import eu.darken.bb.common.pkgs.PkgPathInfo
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import timber.log.Timber
@@ -20,7 +23,8 @@ import javax.inject.Inject
 @PerApp
 class PkgOps @Inject constructor(
         private val javaRootClient: JavaRootClient,
-        private val ipcFunnel: IPCFunnel
+        private val ipcFunnel: IPCFunnel,
+        private val deviceEnvironment: DeviceEnvironment
 ) {
 
     val keepAlive = SharedHolder.createKeepAlive(TAG)
@@ -133,6 +137,12 @@ class PkgOps @Inject constructor(
             Timber.tag(IPCFunnel.TAG).d(e)
             null
         }
+    }
+
+    fun getPathInfos(packageName: String): PkgPathInfo {
+        val pubPrimary = LocalPath.build(deviceEnvironment.publicPrimaryStorage.storagePath, "Android", "data", packageName)
+        val pubSecondary = deviceEnvironment.publicSecondaryStorage.map { LocalPath.build(it.storagePath, "Android", "data", packageName) }
+        return PkgPathInfo(packageName, pubPrimary, pubSecondary)
     }
 
     companion object {

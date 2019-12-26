@@ -14,7 +14,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.PathAString
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
-import eu.darken.bb.common.files.core.local.LocalPath
+import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -32,7 +32,7 @@ class PublicDefaultBackupHandler @Inject constructor(
         @AppContext context: Context,
         private val gatewaySwitch: GatewaySwitch,
         private val mmDataRepo: MMDataRepo,
-        private val environment: DeviceEnvironment
+        private val pkgOps: PkgOps
 ) : BaseBackupHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -69,7 +69,6 @@ class PublicDefaultBackupHandler @Inject constructor(
 
 
         return try {
-
             doBackup(type, backupId, spec, appInfo, logListener)
         } catch (e: Exception) {
             Timber.tag(TAG).e(e,
@@ -87,12 +86,11 @@ class PublicDefaultBackupHandler @Inject constructor(
             appInfo: ApplicationInfo,
             logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
-        // TODO split the walking? cache/non cache stuff?, extra mmrefs?
 
         val targetPairs = mutableListOf<Pair<APath, Collection<APath>>>()
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY -> {
-                val pubDataDir = LocalPath.build(environment.publicPrimaryStorage.storagePath, "Android", "data", appInfo.packageName)
+                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName).publicPrimary
                 val targets = if (pubDataDir.exists(gatewaySwitch)) {
                     pubDataDir.listFiles(gatewaySwitch).filter { isNonCache(it) }
                 } else {
@@ -101,19 +99,17 @@ class PublicDefaultBackupHandler @Inject constructor(
                 targetPairs.add(Pair(pubDataDir, targets))
             }
             DataType.DATA_PUBLIC_SECONDARY -> {
-                environment.publicSecondaryStorage
-                        .map { LocalPath.build(it.storagePath, "Android", "data", spec.packageName) }
-                        .forEach { secStor ->
-                            val targets = if (secStor.exists(gatewaySwitch)) {
-                                secStor.listFiles(gatewaySwitch).filter { isNonCache(it) }
-                            } else {
-                                emptyList()
-                            }
-                            targetPairs.add(Pair(secStor, targets))
-                        }
+                pkgOps.getPathInfos(appInfo.packageName).publicSecondary.forEach { secStor ->
+                    val targets = if (secStor.exists(gatewaySwitch)) {
+                        secStor.listFiles(gatewaySwitch).filter { isNonCache(it) }
+                    } else {
+                        emptyList()
+                    }
+                    targetPairs.add(Pair(secStor, targets))
+                }
             }
             DataType.CACHE_PUBLIC_PRIMARY -> {
-                val pubDataDir = LocalPath.build(environment.publicPrimaryStorage.storagePath, "Android", "data", appInfo.packageName)
+                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName).publicPrimary
                 val targets = if (pubDataDir.exists(gatewaySwitch)) {
                     pubDataDir.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
                 } else {
@@ -122,16 +118,14 @@ class PublicDefaultBackupHandler @Inject constructor(
                 targetPairs.add(Pair(pubDataDir, targets))
             }
             DataType.CACHE_PUBLIC_SECONDARY -> {
-                environment.publicSecondaryStorage
-                        .map { LocalPath.build(it.storagePath, "Android", "data", spec.packageName) }
-                        .forEach { secStor ->
-                            val targets = if (secStor.exists(gatewaySwitch)) {
-                                secStor.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
-                            } else {
-                                emptyList()
-                            }
-                            targetPairs.add(Pair(secStor, targets))
-                        }
+                pkgOps.getPathInfos(appInfo.packageName).publicSecondary.forEach { secStor ->
+                    val targets = if (secStor.exists(gatewaySwitch)) {
+                        secStor.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
+                    } else {
+                        emptyList()
+                    }
+                    targetPairs.add(Pair(secStor, targets))
+                }
             }
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
@@ -141,6 +135,7 @@ class PublicDefaultBackupHandler @Inject constructor(
             val collectedSubDirContent = mutableListOf<APathLookup<APath>>()
             subdirs.forEach { target ->
                 updateProgressSecondary(PathAString(target))
+                Timber.tag(TAG).v("Walking: %s", target)
 
                 gatewaySwitch.keepAlive.get().use {
                     target.walk(gatewaySwitch)
@@ -155,7 +150,7 @@ class PublicDefaultBackupHandler @Inject constructor(
             }
             val mmRef = mmDataRepo.create(MMRef.Request(
                     backupId = backupId,
-                    source = APathArchiveSource(gatewaySwitch, storageBase, collectedSubDirContent)
+                    source = APathArchiveSource(gatewaySwitch, type.key, storageBase, collectedSubDirContent)
             ))
             refs.add(mmRef)
         }
@@ -170,6 +165,6 @@ class PublicDefaultBackupHandler @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Backup", "PrivateDataDefault")
+        val TAG = App.logTag("Backup", "App", "Backup", "PublicDefaultHandler")
     }
 }

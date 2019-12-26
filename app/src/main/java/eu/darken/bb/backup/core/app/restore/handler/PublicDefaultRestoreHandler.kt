@@ -31,7 +31,7 @@ import java.util.*
 import javax.inject.Inject
 
 @Reusable
-class PrivateDefaultRestoreHandler @Inject constructor(
+class PublicDefaultRestoreHandler @Inject constructor(
         @AppContext context: Context,
         private val gatewaySwitch: GatewaySwitch,
         private val pkgOps: PkgOps
@@ -43,8 +43,10 @@ class PrivateDefaultRestoreHandler @Inject constructor(
 
     override fun isResponsible(type: DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
         when (type) {
-            DataType.DATA_PRIVATE_PRIMARY,
-            DataType.CACHE_PRIVATE_PRIMARY -> {
+            DataType.DATA_PUBLIC_PRIMARY,
+            DataType.DATA_PUBLIC_SECONDARY,
+            DataType.CACHE_PUBLIC_PRIMARY,
+            DataType.CACHE_PUBLIC_SECONDARY -> {
                 // It's okay
             }
             else -> return false
@@ -60,8 +62,8 @@ class PrivateDefaultRestoreHandler @Inject constructor(
             logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
-            DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
-            DataType.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
+            DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
+            DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
         updateProgressSecondary(AString.EMPTY)
@@ -71,7 +73,18 @@ class PrivateDefaultRestoreHandler @Inject constructor(
 
         for ((index, archive) in toRestore.withIndex()) {
             try {
-                doRestore(appInfo, config, type, archive, logListener)
+                val basePath = when (type) {
+                    DataType.DATA_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY -> {
+                        pkgOps.getPathInfos(appInfo.packageName).publicPrimary
+                    }
+                    DataType.DATA_PUBLIC_SECONDARY, DataType.CACHE_PUBLIC_SECONDARY -> {
+                        // TODO support more than one secondary, needs matching though
+                        pkgOps.getPathInfos(appInfo.packageName).publicSecondary.firstOrNull()
+                    }
+                    else -> throw UnsupportedOperationException("Can't restore $type")
+                }
+                if (basePath == null) continue
+                restorePath(type, appInfo, config, basePath, archive, logListener)
                 updateProgressCount(Progress.Count.Percent(index + 1, toRestore.size))
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
@@ -80,10 +93,11 @@ class PrivateDefaultRestoreHandler @Inject constructor(
         }
     }
 
-    private fun doRestore(
+    private fun restorePath(
+            type: DataType,
             appInfo: ApplicationInfo,
             config: AppRestoreConfig,
-            type: DataType,
+            basePath: APath,
             archive: MMRef,
             logListener: ((LogEvent) -> Unit)?
     ) {
@@ -96,12 +110,8 @@ class PrivateDefaultRestoreHandler @Inject constructor(
             Timber.tag(TAG).v("Restoring archive item: %s", itemProps)
             updateProgressSecondary(itemProps.tryLabel)
 
-            val basePath = when (type) {
-                DataType.DATA_PRIVATE_PRIMARY, DataType.CACHE_PRIVATE_PRIMARY -> appInfo.dataDir
-                else -> throw UnsupportedOperationException("Can't restore $type")
-            }
 
-            val restoreTarget = LocalPath.build(basePath, itemProps.originalPath!!.path)
+            val restoreTarget = LocalPath.build(basePath as LocalPath, itemProps.originalPath!!.path)
 
             // TODO what if the file exists?
             when (itemProps.dataType) {

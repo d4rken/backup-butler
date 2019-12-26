@@ -114,7 +114,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
         val ref = mmDataRepo.create(MMRef.Request(
                 backupId = backupId,
-                source = APathArchiveSource(gatewaySwitch, privDir, items)
+                source = APathArchiveSource(gatewaySwitch, type.key, privDir, items)
         ))
         return listOf(ref)
     }
@@ -128,6 +128,6 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Backup", "PrivateDataDefault")
+        val TAG = App.logTag("Backup", "App", "Backup", "PrivateDefaultHandler")
     }
 }

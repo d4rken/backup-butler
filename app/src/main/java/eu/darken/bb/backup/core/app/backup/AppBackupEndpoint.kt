@@ -87,29 +87,23 @@ class AppBackupEndpoint @Inject constructor(
 
         // Private data
         if (spec.backupData) {
-            backupData(DataType.DATA_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
-
-            backupData(DataType.DATA_PUBLIC_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
-
-            backupData(DataType.DATA_PUBLIC_SECONDARY, builder.backupId, spec, appInfo, builder, logListener)
+            listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
+                backupType(type, builder.backupId, spec, appInfo, builder, logListener)
+            }
 
             // TODO sdcard clutter
         }
 
         if (spec.backupCache) {
-            backupData(DataType.CACHE_PRIVATE_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
-
-            backupData(DataType.CACHE_PUBLIC_PRIMARY, builder.backupId, spec, appInfo, builder, logListener)
-
-            backupData(DataType.CACHE_PUBLIC_SECONDARY, builder.backupId, spec, appInfo, builder, logListener)
-
-            // TODO public cache
+            listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
+                backupType(type, builder.backupId, spec, appInfo, builder, logListener)
+            }
         }
 
         return builder.createUnit()
     }
 
-    private fun backupData(
+    private fun backupType(
             type: DataType,
             backupId: Backup.Id,
             spec: AppBackupSpec,

@@ -11,6 +11,7 @@ import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
+import eu.darken.rxshell.extra.CmdHelper
 import okio.Sink
 import okio.Source
 import timber.log.Timber
@@ -68,7 +69,7 @@ fun LocalPath.performLookup(
         var userName: String? = null
         var groupName: String? = null
         if (shellSession != null) {
-            val result = Cmd.builder("stat -c \"%U:%G\" ${file.path}").execute(shellSession)
+            val result = Cmd.builder("stat -c \"%U:%G\" ${CmdHelper.san(file.path)}").execute(shellSession)
             if (result.exitCode == Cmd.ExitCode.OK) {
                 val split = result.output.first().split(":")
                 userName = split[0]

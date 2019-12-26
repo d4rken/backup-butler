@@ -71,6 +71,7 @@ class LocalGateway @Inject constructor(
         val canNormalWrite = javaChild.canWrite()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
+                if (!javaChild.parentFile.exists()) javaChild.parentFile.mkdirs()
                 javaChild.createNewFile()
             }
             mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {

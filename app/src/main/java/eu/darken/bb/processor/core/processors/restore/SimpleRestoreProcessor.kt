@@ -37,10 +37,11 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         progressParent.updateProgressSecondary(task.label)
 
         task as SimpleRestoreTask
-        progressParent.updateProgressCount(Progress.Count.Counter(0, task.backupTargets.size))
+        progressParent.updateProgressCount(Progress.Count.Percent(0, task.backupTargets.size))
 
         // Most specific first
         task.backupTargets.forEachIndexed { index, target ->
+            Timber.tag(TAG).v("Restoring %s", target)
             progressParent.updateProgressTertiary(R.string.progress_restoring_backup)
 
             val subResultBuilder = SimpleResult.SubResult.Builder()
@@ -55,7 +56,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
                 resultBuilder.addSubResult(subResultBuilder)
             }
 
-            progressParent.updateProgressCount(Progress.Count.Counter(index + 1, task.backupTargets.size))
+            progressParent.updateProgressCount(Progress.Count.Percent(index + 1, task.backupTargets.size))
         }
     }
 
@@ -83,7 +84,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         val specInfo = storage.specInfo(target.backupSpecId).blockingFirst()
         subResultBuilder.label(specInfo.backupSpec.getLabel(context))
 
-        progressParent.updateProgressTertiary { it.getString(R.string.progress_processing_x_label, specInfo.backupSpec.getLabel(it)) }
+        progressParent.updateProgressTertiary { specInfo.backupSpec.getLabel(it) }
         val backupMeta = specInfo.backups.find { it.backupId == target.backupId }!!
         val config = getConfig(task, backupMeta)
 
@@ -94,23 +95,26 @@ class SimpleRestoreProcessor @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .subscribe { pro -> progressChild.updateProgress { pro } }
 
+        Timber.tag(TAG).d("Loading backup unit from storage %s", storage)
         val backupUnit = storage.load(specInfo.specId, backupId)
         storageProgressSub.dispose()
+        Timber.tag(TAG).d("Backup unit loaded: %s", backupUnit)
 
         val endpointFactory = restoreEndpointFactories[backupType]
         requireNotNull(endpointFactory) { "Unknown endpoint: type=$backupType ($specInfo" }
 
         endpointFactory.get().use { endpoint ->
+            Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)
 
             val endpointProgressSub = endpoint.progress
                     .subscribeOn(Schedulers.io())
                     .subscribe { pro -> progressChild.updateProgress { pro } }
-
             endpoint.restore(config, backupUnit) {
                 subResultBuilder.addLogEvent(it)
             }
-
             endpointProgressSub.dispose()
+
+            Timber.tag(TAG).d("Restoration done for %s", backupUnit.spec)
         }
 
         mmDataRepo.release(backupUnit.backupId)

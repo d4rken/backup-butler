@@ -28,6 +28,7 @@ import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
@@ -52,6 +53,8 @@ class AppRestoreEndpoint @Inject constructor(
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
+
+        Timber.tag(TAG).i("Restoring %s with config %s.", backup.spec, config)
 
         config as AppRestoreConfig
         val spec = backup.spec as AppBackupSpec
@@ -99,36 +102,44 @@ class AppRestoreEndpoint @Inject constructor(
         pkgOps.forceStop(appInfo.packageName)
 
         if (config.restoreData) {
-            val results = restoreData(config, spec, appInfo, wrap, logListener)
+            listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
+                backupType(type, config, spec, appInfo, wrap, logListener)
+            }
+
+            // TODO sdcard clutter
         }
 
         if (config.restoreCache) {
-            val results = restoreCache(config, spec, appInfo, wrap, logListener)
+            listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
+                backupType(type, config, spec, appInfo, wrap, logListener)
+            }
         }
 
         // TODO return result?
         return true
     }
 
-    private fun restoreData(
+    private fun backupType(
+            type: DataType,
             config: AppRestoreConfig,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
-            wrap: AppBackupWrap,
+            builder: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)?
     ) {
 
-        // TODO Copy private data
         val handler = restoreHandlers.first {
-            it.isResponsible(DataType.DATA_PRIVATE_PRIMARY, config, spec)
+            it.isResponsible(type, config, spec)
         }
+
+        Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
         val dataProgress = handler.progress
                 .subscribeOn(Schedulers.io())
                 .doFinally { updateProgress { Progress.Data() } }
                 .subscribe { progress -> updateProgress { progress } }
 
-        handler.restore(appInfo, config, DataType.DATA_PRIVATE_PRIMARY, wrap, logListener)
+        handler.restore(type, appInfo, config, builder, logListener)
 
         dataProgress.dispose()
 
@@ -136,32 +147,6 @@ class AppRestoreEndpoint @Inject constructor(
 
         // TODO Copy public clutter
 
-    }
-
-    private fun restoreCache(
-            config: AppRestoreConfig,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            wrap: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)?
-    ) {
-
-        // TODO Copy private cache
-        // TODO Copy private data
-        val handler = restoreHandlers.first {
-            it.isResponsible(DataType.CACHE_PRIVATE_PRIMARY, config, spec)
-        }
-
-        val cacheProgress = handler.progress
-                .subscribeOn(Schedulers.io())
-                .doFinally { updateProgress { Progress.Data() } }
-                .subscribe { progress -> updateProgress { progress } }
-
-        handler.restore(appInfo, config, DataType.CACHE_PRIVATE_PRIMARY, wrap, logListener)
-
-        cacheProgress.dispose()
-
-        // TODO Copy public cache
     }
 
     override fun close() {

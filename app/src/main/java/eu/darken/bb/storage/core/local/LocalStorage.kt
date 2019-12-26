@@ -28,8 +28,8 @@ import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
+import eu.darken.bb.processor.core.mm.archive.APathArchiveSource
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
-import eu.darken.bb.processor.core.mm.archive.FileArchiveSource
 import eu.darken.bb.processor.core.mm.file.FileRefSource
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorage
@@ -213,7 +213,7 @@ class LocalStorage @AssistedInject constructor(
             val props = propFile.source().use { mmDataRepo.readProps(it) }
             val source: MMRef.RefSource = when (props.dataType) {
                 FILE, DIRECTORY, SYMLINK -> FileRefSource(dataFile, props)
-                ARCHIVE -> FileArchiveSource(dataFile, props as ArchiveProps)
+                ARCHIVE -> APathArchiveSource({ dataFile.source() }, { props as ArchiveProps })
             }
 
             val refRequest = MMRef.Request(
@@ -262,12 +262,12 @@ class LocalStorage @AssistedInject constructor(
         // TODO guardAction that backup dir doesn't exist, ie version dir?
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
-                updateProgressSecondary(ref.props.tryLabel)
 
                 var key = baseKey
                 if (key.isNotBlank()) key += "#"
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
+                updateProgressSecondary(targetProp.path)
                 targetProp.sink().use { mmDataRepo.writeProps(ref.props, it) }
 
                 // TODO errors should be shown in the result?

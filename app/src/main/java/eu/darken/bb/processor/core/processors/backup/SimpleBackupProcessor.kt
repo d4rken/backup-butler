@@ -40,7 +40,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         task as SimpleBackupTask
         val totalBackupCount = task.destinations.size * task.sources.size
         var currentBackupCount = 0
-        updateProgressCount(Progress.Count.Counter(currentBackupCount, totalBackupCount))
+        updateProgressCount(Progress.Count.Percent(currentBackupCount, totalBackupCount))
 
         task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId).blockingGet2()
@@ -89,7 +89,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                             resultBuilder.addSubResult(subResultBuilder)
                         }
 
-                        updateProgressCount(Progress.Count.Counter(++currentBackupCount, totalBackupCount))
+                        updateProgressCount(Progress.Count.Percent(++currentBackupCount, totalBackupCount))
                     }
                     mmDataRepo.release(backupUnit.backupId)
                 }
