@@ -19,7 +19,9 @@ import javax.inject.Inject
 @PerApp
 class JavaRootClient @Inject constructor(
         @AppContext private val context: Context
-) : SharedHolder.HasKeepAlive<JavaRootClient.Connection> {
+) : SharedHolder<JavaRootClient.Connection>(
+        TAG, connectionSourcer(context)
+) {
 
     data class Connection(
             val ipc: JavaRootConnection,
@@ -30,60 +32,8 @@ class JavaRootClient @Inject constructor(
         }
     }
 
-    val client = SharedHolder<Connection>("$TAG:SharedResource") { emitter ->
-        Timber.tag(TAG).d("Initiating connection to host.")
-
-        val rootSession = try {
-            RxCmdShell.builder().root(true).build().open().blockingGet()
-        } catch (e: Exception) {
-            emitter.onError(e)
-            return@SharedHolder
-        }
-
-        val ipcReceiver = object : RootIPCReceiver<JavaRootConnection>(context, 0) {
-            override fun onConnect(ipc: JavaRootConnection) {
-                Timber.tag(TAG).d("onConnect(ipc=%s)", ipc)
-
-                emitter.onAvailable(Connection(
-                        ipc = ipc,
-                        clientModules = listOf(
-                                FileOpsClient(ipc.fileOps),
-                                PkgOpsClient(ipc.pkgOps)
-                        )
-                ))
-            }
-
-            override fun onDisconnect(ipc: JavaRootConnection) {
-                Timber.tag(TAG).d("onDisconnect(ipc=%s)", ipc)
-                emitter.onEnd()
-            }
-        }
-        emitter.setCancellable {
-            Timber.tag(TAG).d("Canceling!")
-            ipcReceiver.release()
-            // TODO timeout until we CANCEL?
-            rootSession.close().subscribe()
-            RootJava.cleanupCache(context)
-        }
-
-        try {
-            val script = JavaRootHost.getLaunchScript(context)
-            // Doesn't return until root host has quit
-            val result = Cmd.builder(script).submit(rootSession).observeOn(Schedulers.io()).blockingGet()
-            Timber.tag(TAG).d("Root host launch result was: %s", result)
-            // Check exitcode
-            if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
-                emitter.onError(RootUnavailableException("Shell died launching the java root host."))
-            }
-        } catch (e: Exception) {
-            emitter.onError(e)
-        }
-    }
-
-    override val keepAlive: SharedHolder<Connection> = this.client
-
     fun <T> runSessionAction(action: (Connection) -> T): T {
-        client.get().use {
+        get().use {
             return action(it.item)
         }
     }
@@ -98,5 +48,55 @@ class JavaRootClient @Inject constructor(
 
     companion object {
         val TAG = App.logTag("Root", "Java", "Client")
+
+        internal fun connectionSourcer(context: Context): (ResourceEmitter<Connection>) -> Unit = gen@{ emitter ->
+            Timber.tag(TAG).d("Initiating connection to host.")
+
+            val rootSession = try {
+                RxCmdShell.builder().root(true).build().open().blockingGet()
+            } catch (e: Exception) {
+                emitter.onError(e)
+                return@gen
+            }
+
+            val ipcReceiver = object : RootIPCReceiver<JavaRootConnection>(context, 0) {
+                override fun onConnect(ipc: JavaRootConnection) {
+                    Timber.tag(TAG).d("onConnect(ipc=%s)", ipc)
+
+                    emitter.onAvailable(Connection(
+                            ipc = ipc,
+                            clientModules = listOf(
+                                    FileOpsClient(ipc.fileOps),
+                                    PkgOpsClient(ipc.pkgOps)
+                            )
+                    ))
+                }
+
+                override fun onDisconnect(ipc: JavaRootConnection) {
+                    Timber.tag(TAG).d("onDisconnect(ipc=%s)", ipc)
+                    emitter.onEnd()
+                }
+            }
+            emitter.setCancellable {
+                Timber.tag(TAG).d("Canceling!")
+                ipcReceiver.release()
+                // TODO timeout until we CANCEL?
+                rootSession.close().subscribe()
+                RootJava.cleanupCache(context)
+            }
+
+            try {
+                val script = JavaRootHost.getLaunchScript(context)
+                // Doesn't return until root host has quit
+                val result = Cmd.builder(script).submit(rootSession).observeOn(Schedulers.io()).blockingGet()
+                Timber.tag(TAG).d("Root host launch result was: %s", result)
+                // Check exitcode
+                if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
+                    emitter.onError(RootUnavailableException("Shell died launching the java root host."))
+                }
+            } catch (e: Exception) {
+                emitter.onError(e)
+            }
+        }
     }
 }

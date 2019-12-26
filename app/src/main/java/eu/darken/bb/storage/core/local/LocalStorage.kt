@@ -12,6 +12,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.asFile
@@ -28,9 +29,9 @@ import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
-import eu.darken.bb.processor.core.mm.archive.APathArchiveSource
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
-import eu.darken.bb.processor.core.mm.file.FileRefSource
+import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
+import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
@@ -50,8 +51,11 @@ class LocalStorage @AssistedInject constructor(
         @Assisted storageConfig: Storage.Config,
         @AppContext override val context: Context,
         moshi: Moshi,
-        private val mmDataRepo: MMDataRepo
+        private val mmDataRepo: MMDataRepo,
+        private val localGateway: LocalGateway
 ) : Storage, HasContext, Progress.Client {
+
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private val storageRef: LocalStorageRef = storageRef as LocalStorageRef
     override val storageConfig: LocalStorageConfig = storageConfig as LocalStorageConfig
@@ -212,8 +216,8 @@ class LocalStorage @AssistedInject constructor(
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
             val props = propFile.source().use { mmDataRepo.readProps(it) }
             val source: MMRef.RefSource = when (props.dataType) {
-                FILE, DIRECTORY, SYMLINK -> FileRefSource(dataFile, props)
-                ARCHIVE -> APathArchiveSource({ dataFile.source() }, { props as ArchiveProps })
+                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.source() }, { props })
+                ARCHIVE -> ArchiveRefSource({ dataFile.source() }, { props as ArchiveProps })
             }
 
             val refRequest = MMRef.Request(

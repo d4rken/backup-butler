@@ -14,28 +14,23 @@ import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.APKInstaller
-import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.common.progress.updateProgressCount
-import eu.darken.bb.common.progress.updateProgressPrimary
-import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
+import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
         @AppContext override val context: Context,
-        private val javaRootClient: JavaRootClient,
         private val apkInstaller: APKInstaller,
-        private val gatewaySwitch: GatewaySwitch,
+        private val javaRootClient: JavaRootClient,
         private val pkgOps: PkgOps,
         restoreHandlers: @JvmSuppressWildcards Set<RestoreHandler>
 ) : Restore.Endpoint, Progress.Client, HasContext {
@@ -44,8 +39,7 @@ class AppRestoreEndpoint @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    private var rootToken: SharedHolder.Resource<JavaRootClient.Connection>? = null
-    private var rootAvailable = true
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
 
@@ -64,19 +58,13 @@ class AppRestoreEndpoint @Inject constructor(
             // TODO skip if pkg already exists?, result?
         }
 
-        if (rootAvailable && rootToken == null) {
-            try {
-                rootToken = javaRootClient.client.get()
-            } catch (e: Exception) {
-                if (e.hasCause(RootUnavailableException::class)) rootAvailable = false
-                else throw e
-            }
+        val rootAvailable = try {
+            javaRootClient.keepAliveWith(this)
+            true
+        } catch (e: Exception) {
+            if (e.hasCause(RootUnavailableException::class)) false
+            else throw e
         }
-
-        val apkProgress = apkInstaller.progress
-                .subscribeOn(Schedulers.io())
-                .doFinally { updateProgress { Progress.Data() } }
-                .subscribe { progress -> updateProgress { progress } }
 
         val request = APKInstaller.Request(
                 packageName = wrap.packageName,
@@ -85,12 +73,13 @@ class AppRestoreEndpoint @Inject constructor(
                 useRoot = rootAvailable
         )
         // TODO check result, error?
-        val installResult = apkInstaller.install(request) {
-            logListener?.invoke(it)
+        val installResult = apkInstaller.forwardProgressTo(this).withScopeThis {
+            apkInstaller.keepAliveWIth(this).install(request) {
+                logListener?.invoke(it)
+            }
         }
-        // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
 
-        apkProgress.dispose()
+        // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
 
 
         val pkg = pkgOps.queryPkg(wrap.packageName)
@@ -127,31 +116,17 @@ class AppRestoreEndpoint @Inject constructor(
             builder: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)?
     ) {
-
         val handler = restoreHandlers.first {
             it.isResponsible(type, config, spec)
         }
 
         Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
-        val dataProgress = handler.progress
-                .subscribeOn(Schedulers.io())
-                .doFinally { updateProgress { Progress.Data() } }
-                .subscribe { progress -> updateProgress { progress } }
+        handler.keepAliveWith(this)
 
-        handler.restore(type, appInfo, config, builder, logListener)
-
-        dataProgress.dispose()
-
-        // TODO Copy public data
-
-        // TODO Copy public clutter
-
-    }
-
-    override fun close() {
-        rootToken?.close()
-//        TODO("not implemented")
+        handler.forwardProgressTo(this).withScopeThis {
+            handler.restore(type, appInfo, config, builder, logListener)
+        }
     }
 
     override fun toString(): String = "AppEndpoint()"

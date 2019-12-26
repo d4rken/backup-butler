@@ -21,3 +21,11 @@ fun <T> Observable<T>.withScopeLiveData(stater: Stater<*>): () -> Disposable? {
     }
     return { disp }
 }
+
+fun <T> Disposable.withScopeThis(action: () -> T): T {
+    return try {
+        action()
+    } finally {
+        dispose()
+    }
+}

@@ -25,12 +25,12 @@ class PkgOps @Inject constructor(
         private val javaRootClient: JavaRootClient,
         private val ipcFunnel: IPCFunnel,
         private val deviceEnvironment: DeviceEnvironment
-) {
+) : SharedHolder.HasKeepAlive<Any> {
 
-    val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private fun <T> rootOps(action: (PkgOpsClient) -> T): T {
-        keepAlive.keepAliveWith(javaRootClient.client)
+        keepAlive.keepAliveWith(javaRootClient)
         return javaRootClient.runModuleAction(PkgOpsClient::class.java) {
             return@runModuleAction action(it)
         }

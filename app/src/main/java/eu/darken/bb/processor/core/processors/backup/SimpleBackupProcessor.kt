@@ -10,6 +10,7 @@ import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.blockingGet2
+import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
@@ -42,6 +43,8 @@ class SimpleBackupProcessor @AssistedInject constructor(
         var currentBackupCount = 0
         updateProgressCount(Progress.Count.Percent(currentBackupCount, totalBackupCount))
 
+        val endpointCache = mutableMapOf<Backup.Type, Backup.Endpoint>()
+
         task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId).blockingGet2()
             requireNotNull(generatorConfig) { "Can't find generator config for $generatorId" }
@@ -51,49 +54,47 @@ class SimpleBackupProcessor @AssistedInject constructor(
             backupConfigs.forEach { config ->
                 updateProgressTertiary { config.getLabel(it) }
 
-                backupEndpointFactories.getValue(config.backupType).get().use { endpoint ->
-                    Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
+                val endpoint = endpointCache.getOrPut(config.backupType) {
+                    backupEndpointFactories.getValue(config.backupType).get().keepAliveWIth(this)
+                }
+                Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
-                    val endpointProgressSub = endpoint.forwardProgressTo(progressChild)
-
-                    val logEvents = mutableListOf<LogEvent>()
-
-                    val backupUnit = endpoint.backup(config) {
+                val logEvents = mutableListOf<LogEvent>()
+                val backupUnit = endpoint.forwardProgressTo(progressChild).withScopeThis {
+                    endpoint.backup(config) {
                         logEvents.add(it)
                     }
-
-                    Timber.tag(TAG).i("Backup created: %s", backupUnit)
-
-                    endpointProgressSub.dispose()
-
-                    task.destinations.forEach { storageId ->
-                        // TODO what if the storage has been deleted?
-                        val storage = storageManager.getStorage(storageId).blockingFirst()
-                        Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
-
-                        val subResultBuilder = SimpleResult.SubResult.Builder()
-                        try {
-                            subResultBuilder.label(backupUnit.spec.getLabel(context)) // If there are errors before getting a better label
-
-                            val storageProgressSub = storage.forwardProgressTo(progressChild)
-                            val result = storage.save(backupUnit)
-                            storageProgressSub.dispose()
-
-                            Timber.tag(TAG).i("Backup (%s) stored: %s", backupUnit.backupId, result)
-                            subResultBuilder.sucessful()
-                        } catch (e: Exception) {
-                            Timber.tag(TAG).e(e, "Error while saving backup to storage: %s", backupUnit, storage)
-                            subResultBuilder.error(context, e)
-                        } finally {
-                            subResultBuilder.addLogEvents(logEvents)
-                            resultBuilder.addSubResult(subResultBuilder)
-                        }
-
-                        updateProgressCount(Progress.Count.Percent(++currentBackupCount, totalBackupCount))
-                    }
-                    mmDataRepo.release(backupUnit.backupId)
                 }
 
+                Timber.tag(TAG).i("Backup created: %s", backupUnit)
+
+                task.destinations.forEach { storageId ->
+                    // TODO what if the storage has been deleted?
+                    val storage = storageManager.getStorage(storageId).blockingFirst()
+                    storage.keepAliveWith(this)
+                    Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
+
+                    val subResultBuilder = SimpleResult.SubResult.Builder()
+                    try {
+                        subResultBuilder.label(backupUnit.spec.getLabel(context)) // If there are errors before getting a better label
+
+                        val result = storage.forwardProgressTo(progressChild).withScopeThis {
+                            storage.save(backupUnit)
+                        }
+
+                        Timber.tag(TAG).i("Backup (%s) stored: %s", backupUnit.backupId, result)
+                        subResultBuilder.sucessful()
+                    } catch (e: Exception) {
+                        Timber.tag(TAG).e(e, "Error while saving backup to storage: %s", backupUnit, storage)
+                        subResultBuilder.error(context, e)
+                    } finally {
+                        subResultBuilder.addLogEvents(logEvents)
+                        resultBuilder.addSubResult(subResultBuilder)
+                    }
+
+                    updateProgressCount(Progress.Count.Percent(++currentBackupCount, totalBackupCount))
+                }
+                mmDataRepo.release(backupUnit.backupId)
             }
         }
     }

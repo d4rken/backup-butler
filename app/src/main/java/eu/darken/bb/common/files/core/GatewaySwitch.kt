@@ -19,11 +19,13 @@ class GatewaySwitch @Inject constructor(
 
     fun <T : APath> getGateway(path: T): APathGateway<T, APathLookup<T>> {
         @Suppress("UNCHECKED_CAST")
-        return when (path.pathType) {
+        val gateway = when (path.pathType) {
             APath.PathType.SAF -> safGateway
             APath.PathType.LOCAL -> localGateway
             else -> throw NotImplementedError()
         } as APathGateway<T, APathLookup<T>>
+        gateway.keepAliveWith(this)
+        return gateway
     }
 
     override val keepAlive = SharedHolder.createKeepAlive("${TAG}:SharedResource")

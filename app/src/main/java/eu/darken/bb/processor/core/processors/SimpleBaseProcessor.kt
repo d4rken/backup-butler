@@ -4,6 +4,7 @@ import android.content.Context
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.AString
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
@@ -17,7 +18,7 @@ import timber.log.Timber
 abstract class SimpleBaseProcessor constructor(
         val context: Context,
         val progressParent: Progress.Client
-) : Processor, Progress.Client {
+) : Processor, Progress.Client, SharedHolder.HasKeepAlive<Any> {
 
     val progressChild = object : Progress.Client {
         override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
@@ -28,6 +29,7 @@ abstract class SimpleBaseProcessor constructor(
             }
         }
     }
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     val resultBuilder = SimpleResult.Builder()
 
@@ -36,7 +38,11 @@ abstract class SimpleBaseProcessor constructor(
         try {
             resultBuilder.forTask(task)
             resultBuilder.startNow()
-            doProcess(task)
+
+            keepAlive.get().use {
+                doProcess(task)
+            }
+
             resultBuilder.sucessful()
         } catch (exception: Exception) {
             Timber.tag(TAG).e(exception, "Task failed: %s", task)

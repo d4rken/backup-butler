@@ -2,7 +2,7 @@ package eu.darken.bb.backup.core.app
 
 import android.content.pm.PackageManager
 import dagger.Reusable
-import java.io.File
+import eu.darken.bb.common.files.core.local.LocalPath
 import javax.inject.Inject
 
 @Reusable
@@ -11,15 +11,15 @@ class APKExporter @Inject constructor(
 ) {
     fun getAPKFile(packageName: String): APKData {
         val appInfo = packageManager.getApplicationInfo(packageName, 0)
-        val apk = File(appInfo.publicSourceDir)
-        val splitFiles = mutableSetOf<File>()
-        appInfo.splitPublicSourceDirs?.forEach { splitFiles.add(File(it)) }
+        val apk = LocalPath.build(appInfo.publicSourceDir)
+        val splitFiles = mutableSetOf<LocalPath>()
+        appInfo.splitPublicSourceDirs?.forEach { splitFiles.add(LocalPath.build(it)) }
         return APKData(apk, splitFiles)
     }
 
     data class APKData(
-            val mainSource: File,
-            val splitSources: Collection<File>
+            val mainSource: LocalPath,
+            val splitSources: Collection<LocalPath>
     )
 
 }

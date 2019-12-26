@@ -11,7 +11,7 @@ import java.io.IOException
 
 
 @Suppress("ProtectedInFinal")
-class SharedHolder<T> constructor(
+open class SharedHolder<T> constructor(
         private val tag: String,
         private val sourcer: (ResourceEmitter<T>) -> Unit
 ) {
@@ -55,6 +55,7 @@ class SharedHolder<T> constructor(
             }
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
+                Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
                 require(activeTokens.isDisposed) { "Previous active tokens were not disposed!" }
                 activeTokens.dispose()
                 activeTokens = CompositeDisposable()
@@ -166,8 +167,6 @@ class SharedHolder<T> constructor(
                     parent.addChildResource(ourself)
                 }
             }
-        } else {
-            Timber.tag(tag).w("Parent %s is alraedy keeping us alive.", parent.tag)
         }
 
         return this
@@ -204,6 +203,11 @@ class SharedHolder<T> constructor(
         fun keepAliveWith(parent: HasKeepAlive<*>) {
             keepAlive.keepAliveWith(parent)
         }
+
+        fun <C : HasKeepAlive<T>> C.keepAliveWIth(parent: HasKeepAlive<*>) = apply {
+            keepAlive.keepAliveWith(parent)
+        }
+
     }
 
     companion object {

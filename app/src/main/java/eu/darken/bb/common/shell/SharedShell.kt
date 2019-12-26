@@ -6,10 +6,10 @@ import timber.log.Timber
 
 class SharedShell constructor(tag: String) : SharedHolder.HasKeepAlive<RxCmdShell.Session> {
 
-    val tag = "$tag:SharedShell"
+    val aTag = "$tag:SharedShell"
 
-    val session = SharedHolder<RxCmdShell.Session>(tag) { emitter ->
-        Timber.tag(tag).d("Initiating connection to host.")
+    val session = SharedHolder<RxCmdShell.Session>(aTag) { emitter ->
+        Timber.tag(aTag).d("Initiating connection to host.")
 
         val session = try {
             RxCmdShell.builder().build().open().blockingGet()
@@ -19,7 +19,7 @@ class SharedShell constructor(tag: String) : SharedHolder.HasKeepAlive<RxCmdShel
         }
 
         emitter.setCancellable {
-            Timber.tag(tag).d("Canceling!")
+            Timber.tag(aTag).d("Canceling!")
             session.close().subscribe()
         }
 

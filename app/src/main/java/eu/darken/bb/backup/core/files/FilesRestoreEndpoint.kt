@@ -14,11 +14,11 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.processor.core.mm.DirectoryProps
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.DIRECTORY
-import eu.darken.bb.processor.core.mm.SymlinkProps
-import eu.darken.bb.processor.core.mm.file.FileProps
+import eu.darken.bb.processor.core.mm.generic.DirectoryProps
+import eu.darken.bb.processor.core.mm.generic.FileProps
+import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
@@ -31,9 +31,9 @@ class FilesRestoreEndpoint @Inject constructor(
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
-    private val resourceTokens = mutableMapOf<APath.PathType, SharedHolder.Resource<*>>()
-
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean {
         updateProgressPrimary(R.string.progress_restoring_backup)
@@ -46,6 +46,8 @@ class FilesRestoreEndpoint @Inject constructor(
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
 
+        gatewaySwitch.keepAliveWith(this)
+
         // Dirs first, for stuff like SAFPath's we can't just do path.parent.mkdir()
         val toRestore = handler.files.sortedByDescending { it.props.dataType == DIRECTORY }
 
@@ -55,13 +57,8 @@ class FilesRestoreEndpoint @Inject constructor(
 
             updateProgressSecondary(ref.props.originalPath!!.path)
 
-            val gateway = gatewaySwitch.getGateway(spec.path)
-            if (!resourceTokens.containsKey(spec.path.pathType)) {
-                resourceTokens[spec.path.pathType] = gateway.keepAlive.get()
-            }
-
             // TODO add restore success to results?
-            restore(config, spec, ref, gateway, logListener)
+            restore(config, spec, ref, gatewaySwitch, logListener)
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
         }
@@ -69,15 +66,11 @@ class FilesRestoreEndpoint @Inject constructor(
         return true
     }
 
-    override fun close() {
-        resourceTokens.values.forEach { it.close() }
-    }
-
     private fun restore(
             config: FilesRestoreConfig,
             spec: FilesBackupSpec,
             ref: MMRef,
-            gateway: APathGateway<APath, APathLookup<APath>>,
+            gateway: GatewaySwitch,
             logListener: ((LogEvent) -> Unit)?
     ) {
         val restorePath = config.restorePath ?: spec.path

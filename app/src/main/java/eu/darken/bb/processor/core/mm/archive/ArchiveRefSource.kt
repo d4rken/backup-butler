@@ -4,10 +4,10 @@ import eu.darken.bb.App
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.processor.core.mm.BaseRefSource
-import eu.darken.bb.processor.core.mm.DirectoryProps
 import eu.darken.bb.processor.core.mm.Props
-import eu.darken.bb.processor.core.mm.SymlinkProps
-import eu.darken.bb.processor.core.mm.file.FileProps
+import eu.darken.bb.processor.core.mm.generic.DirectoryProps
+import eu.darken.bb.processor.core.mm.generic.FileProps
+import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import okio.Pipe
 import okio.Source
 import okio.buffer
@@ -21,7 +21,7 @@ import timber.log.Timber
 import java.io.File
 import kotlin.concurrent.thread
 
-class APathArchiveSource(
+open class ArchiveRefSource(
         private val sourceGenerator: (ArchiveProps) -> Source,
         propGenerator: () -> ArchiveProps
 ) : BaseRefSource(), ArchiveRef {
@@ -38,7 +38,10 @@ class APathArchiveSource(
 
     override val props: ArchiveProps by lazy { propGenerator() }
 
-    override fun doOpen(): Source = sourceGenerator(props)
+    override fun doOpen(): Source {
+        Timber.tag(TAG).v("Opening source for %s", props)
+        return sourceGenerator(props)
+    }
 
     override fun openArchive(): Sequence<Pair<Props, Source?>> = sequence {
         val archiveInputStream = if (props.archiveType == "tar" && props.compressionType == "gzip") {
@@ -88,7 +91,7 @@ class APathArchiveSource(
     }
 
     companion object {
-        val TAG = App.logTag("MMDataRepo", "MMRef", "APathArchiveSource")
+        val TAG = App.logTag("MMDataRepo", "MMRef", "ArchiveRefSource")
 
         internal fun genProps(label: String?, archivePath: APath): () -> ArchiveProps {
             return {

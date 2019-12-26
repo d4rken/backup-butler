@@ -54,7 +54,7 @@ class RXSDebugModule @AssistedInject constructor(
                 .filter { !previousOptions.compareIgnorePath(it) }
                 .doOnNext { previousOptions = it }
                 .subscribe { options ->
-                    RXSDebug.setDebug(options.level == Log.VERBOSE)
+                    RXSDebug.setDebug(options.level == Log.VERBOSE && options.isRecording)
                     if (options.level == Log.VERBOSE) RXSDebug.addCallback(processCallback)
                     else RXSDebug.removeCallback(processCallback)
                 }

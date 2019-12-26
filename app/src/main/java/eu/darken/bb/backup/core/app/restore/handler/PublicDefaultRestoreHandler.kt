@@ -12,6 +12,7 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -41,6 +42,9 @@ class PublicDefaultRestoreHandler @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
+    // TODO use this keepAlive?
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+
     override fun isResponsible(type: DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY,
@@ -68,6 +72,9 @@ class PublicDefaultRestoreHandler @Inject constructor(
         }
         updateProgressSecondary(AString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
+
+        gatewaySwitch.keepAliveWith(this)
+        pkgOps.keepAliveWith(this)
 
         val toRestore = wrap.getDataType(type)
 
@@ -171,6 +178,6 @@ class PublicDefaultRestoreHandler @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Restore", "PrivateDataDefault")
+        val TAG = App.logTag("Backup", "App", "Restore", "PublicDefaultRestoreHandler")
     }
 }

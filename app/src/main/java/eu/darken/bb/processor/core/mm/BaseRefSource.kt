@@ -4,7 +4,9 @@ import eu.darken.bb.App
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.APathLookup
 import eu.darken.bb.common.files.core.toMMRefType
-import eu.darken.bb.processor.core.mm.file.FileProps
+import eu.darken.bb.processor.core.mm.generic.DirectoryProps
+import eu.darken.bb.processor.core.mm.generic.FileProps
+import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import okio.Source
 import timber.log.Timber
 import java.io.Closeable
@@ -32,31 +34,31 @@ abstract class BaseRefSource : MMRef.RefSource {
         }
     }
 
-    fun APathLookup<APath>.toProps(): Props {
-        return when (fileType.toMMRefType()) {
-            MMRef.Type.FILE -> FileProps(
-                    originalPath = lookedUp,
-                    modifiedAt = modifiedAt,
-                    ownership = ownership,
-                    permissions = permissions
-            )
-            MMRef.Type.DIRECTORY -> DirectoryProps(
-                    originalPath = lookedUp,
-                    modifiedAt = modifiedAt,
-                    ownership = ownership,
-                    permissions = permissions
-            )
-            MMRef.Type.SYMLINK -> SymlinkProps(
-                    originalPath = lookedUp,
-                    modifiedAt = modifiedAt,
-                    ownership = ownership,
-                    symlinkTarget = target!!
-            )
-            MMRef.Type.ARCHIVE -> throw UnsupportedOperationException("Pathlookups can't be direct archives.")
-        }
-    }
-
     companion object {
         val TAG = App.logTag("MMDataRepo", "BaseRefSource")
+
+        fun APathLookup<APath>.toProps(): Props {
+            return when (fileType.toMMRefType()) {
+                MMRef.Type.FILE -> FileProps(
+                        originalPath = lookedUp,
+                        modifiedAt = modifiedAt,
+                        ownership = ownership,
+                        permissions = permissions
+                )
+                MMRef.Type.DIRECTORY -> DirectoryProps(
+                        originalPath = lookedUp,
+                        modifiedAt = modifiedAt,
+                        ownership = ownership,
+                        permissions = permissions
+                )
+                MMRef.Type.SYMLINK -> SymlinkProps(
+                        originalPath = lookedUp,
+                        modifiedAt = modifiedAt,
+                        ownership = ownership,
+                        symlinkTarget = target!!
+                )
+                MMRef.Type.ARCHIVE -> throw UnsupportedOperationException("Pathlookups can't be direct archives.")
+            }
+        }
     }
 }

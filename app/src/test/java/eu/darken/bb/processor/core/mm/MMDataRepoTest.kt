@@ -8,8 +8,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
-import eu.darken.bb.processor.core.mm.file.FileProps
-import eu.darken.bb.processor.core.mm.file.FileRefSource
+import eu.darken.bb.processor.core.mm.generic.FileProps
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

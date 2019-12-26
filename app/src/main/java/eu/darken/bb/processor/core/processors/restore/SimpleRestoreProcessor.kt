@@ -10,6 +10,7 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.*
+import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
@@ -17,7 +18,6 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
 import eu.darken.bb.task.core.results.SimpleResult
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -39,6 +39,8 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         task as SimpleRestoreTask
         progressParent.updateProgressCount(Progress.Count.Percent(0, task.backupTargets.size))
 
+        val endpointCache = mutableMapOf<Backup.Type, Restore.Endpoint>()
+
         // Most specific first
         task.backupTargets.forEachIndexed { index, target ->
             Timber.tag(TAG).v("Restoring %s", target)
@@ -47,7 +49,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
             val subResultBuilder = SimpleResult.SubResult.Builder()
 
             try {
-                restoreBackup(task, target, subResultBuilder)
+                restoreBackup(task, endpointCache, target, subResultBuilder)
                 subResultBuilder.sucessful()
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "Error while processing backup target: %s", target)
@@ -59,7 +61,6 @@ class SimpleRestoreProcessor @AssistedInject constructor(
             progressParent.updateProgressCount(Progress.Count.Percent(index + 1, task.backupTargets.size))
         }
     }
-
 
     private fun getConfig(task: SimpleRestoreTask, metaData: Backup.MetaData): Restore.Config {
         var config = task.customConfigs[metaData.backupId]
@@ -75,12 +76,15 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
     private fun restoreBackup(
             task: SimpleRestoreTask,
+            endpointCache: MutableMap<Backup.Type, Restore.Endpoint>,
             target: Backup.Target,
             subResultBuilder: SimpleResult.SubResult.Builder
     ) {
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 
         val storage = storageManager.getStorage(target.storageId).blockingFirst()
+        storage.keepAliveWith(this)
+
         val specInfo = storage.specInfo(target.backupSpecId).blockingFirst()
         subResultBuilder.label(specInfo.backupSpec.getLabel(context))
 
@@ -91,31 +95,27 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         val backupType = backupMeta.backupType
         val backupId = backupMeta.backupId
 
-        val storageProgressSub = storage.progress
-                .subscribeOn(Schedulers.io())
-                .subscribe { pro -> progressChild.updateProgress { pro } }
-
         Timber.tag(TAG).d("Loading backup unit from storage %s", storage)
-        val backupUnit = storage.load(specInfo.specId, backupId)
-        storageProgressSub.dispose()
+        val backupUnit = storage.forwardProgressTo(progressChild).withScopeThis {
+            storage.load(specInfo.specId, backupId)
+        }
         Timber.tag(TAG).d("Backup unit loaded: %s", backupUnit)
 
-        val endpointFactory = restoreEndpointFactories[backupType]
-        requireNotNull(endpointFactory) { "Unknown endpoint: type=$backupType ($specInfo" }
-
-        endpointFactory.get().use { endpoint ->
-            Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)
-
-            val endpointProgressSub = endpoint.progress
-                    .subscribeOn(Schedulers.io())
-                    .subscribe { pro -> progressChild.updateProgress { pro } }
-            endpoint.restore(config, backupUnit) {
-                subResultBuilder.addLogEvent(it)
-            }
-            endpointProgressSub.dispose()
-
-            Timber.tag(TAG).d("Restoration done for %s", backupUnit.spec)
+        val endpoint = endpointCache.getOrPut(backupType) {
+            restoreEndpointFactories.getValue(backupType).get().keepAliveWIth(this)
         }
+
+        Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)
+
+        endpoint.forwardProgressTo(progressChild).withScopeThis {
+            endpoint.keepAlive.get().use {
+                endpoint.restore(config, backupUnit) {
+                    subResultBuilder.addLogEvent(it)
+                }
+            }
+        }
+
+        Timber.tag(TAG).d("Restoration done for %s", backupUnit.spec)
 
         mmDataRepo.release(backupUnit.backupId)
     }

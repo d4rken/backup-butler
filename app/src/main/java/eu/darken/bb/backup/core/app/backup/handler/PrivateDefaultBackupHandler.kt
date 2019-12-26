@@ -7,11 +7,13 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.app.AppBackupSpec
+import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.PathAString
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -21,7 +23,7 @@ import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.archive.APathArchiveSource
+import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
@@ -37,6 +39,9 @@ class PrivateDefaultBackupHandler @Inject constructor(
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+
+    // TODO use this keepAlive?
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {
         when (type) {
@@ -54,8 +59,9 @@ class PrivateDefaultBackupHandler @Inject constructor(
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
+            wrap: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)?
-    ): Collection<MMRef> {
+    ) {
         when (type) {
             DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
             DataType.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
@@ -64,9 +70,11 @@ class PrivateDefaultBackupHandler @Inject constructor(
         updateProgressSecondary(AString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
+        gatewaySwitch.keepAliveWith(this)
 
-        return try {
-            doBackup(type, backupId, spec, appInfo, logListener)
+        try {
+            val result = doBackup(type, backupId, spec, appInfo, logListener)
+            wrap.putDataType(type, result)
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "backup(type=%s, backupId=%s, spec=%s, appInfo=%s) failed",
                     type, backupId, spec, appInfo)
@@ -114,7 +122,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
         val ref = mmDataRepo.create(MMRef.Request(
                 backupId = backupId,
-                source = APathArchiveSource(gatewaySwitch, type.key, privDir, items)
+                source = ArchiveRefSource(gatewaySwitch, type.key, privDir, items)
         ))
         return listOf(ref)
     }
@@ -128,6 +136,6 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Backup", "PrivateDefaultHandler")
+        val TAG = App.logTag("Backup", "App", "Backup", "PrivateDefaultBackupHandler")
     }
 }

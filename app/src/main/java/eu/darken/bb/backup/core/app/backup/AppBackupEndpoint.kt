@@ -14,12 +14,13 @@ import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.files.core.local.LocalGateway
+import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
+import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
-import eu.darken.bb.processor.core.mm.file.FileRefSource
+import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
@@ -31,16 +32,15 @@ class AppBackupEndpoint @Inject constructor(
         private val pkgOps: PkgOps,
         private val mmDataRepo: MMDataRepo,
         private val apkExporter: APKExporter,
-        private val localGateway: LocalGateway,
+        private val gatewaySwitch: GatewaySwitch,
         backupHandlers: @JvmSuppressWildcards Set<BackupHandler>
-) : Backup.Endpoint, Progress.Client, HasContext, SharedHolder.HasKeepAlive<Any> {
+) : Backup.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
-    private var keepAliveToken: SharedHolder.Resource<Any>? = null
 
     private val backupHandlers = backupHandlers.sortedBy { it.priority }
 
@@ -50,7 +50,8 @@ class AppBackupEndpoint @Inject constructor(
         updateProgressPrimary(R.string.progress_creating_app_backup)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        if (keepAliveToken == null) keepAliveToken = keepAlive.get()
+        gatewaySwitch.keepAliveWith(this)
+        pkgOps.keepAliveWith(this)
 
         if (spec.backupApk) {
             updateProgressPrimary(R.string.progress_apk_lookup)
@@ -59,7 +60,7 @@ class AppBackupEndpoint @Inject constructor(
 
             val baseApkRef: MMRef = mmDataRepo.create(MMRef.Request(
                     backupId = builder.backupId,
-                    source = FileRefSource(apkData.mainSource)
+                    source = GenericRefSource(gatewaySwitch, apkData.mainSource)
             ))
 
             builder.baseApk = baseApkRef
@@ -70,7 +71,7 @@ class AppBackupEndpoint @Inject constructor(
                 updateProgressSecondary(splitApk.path)
                 val splitRef: MMRef = mmDataRepo.create(MMRef.Request(
                         backupId = builder.backupId,
-                        source = FileRefSource(splitApk)
+                        source = GenericRefSource(gatewaySwitch, splitApk)
                 ))
                 splitApkRefs.add(splitRef)
                 logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, splitApk.path))
@@ -80,7 +81,7 @@ class AppBackupEndpoint @Inject constructor(
 
         val appInfo = pkgOps.queryAppInfos(spec.packageName)
         requireNotNull(appInfo) { "Unable to lookup ${spec.packageName}" }
-        localGateway.keepAliveWith(this)
+
 
         // TODO root stuff, only when enabled?
 
@@ -117,17 +118,11 @@ class AppBackupEndpoint @Inject constructor(
 
         Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
-        val dataProgress = handler.forwardProgressTo(this)
-        return try {
-            val refs = handler.backup(type, backupId, spec, appInfo, logListener)
-            builder.putDataType(type, refs)
-        } finally {
-            dataProgress.dispose()
-        }
-    }
+        handler.keepAliveWith(this)
 
-    override fun close() {
-        keepAliveToken?.close()
+        handler.forwardProgressTo(this).withScopeThis {
+            handler.backup(type, backupId, spec, appInfo, builder, logListener)
+        }
     }
 
     override fun toString(): String = "AppEndpoint()"

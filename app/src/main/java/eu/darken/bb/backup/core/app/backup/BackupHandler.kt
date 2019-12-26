@@ -4,11 +4,11 @@ import android.content.pm.ApplicationInfo
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.task.core.results.LogEvent
 
-interface BackupHandler : Progress.Client, Progress.Host {
+interface BackupHandler : Progress.Client, Progress.Host, SharedHolder.HasKeepAlive<Any> {
 
     val priority: Int
 
@@ -19,7 +19,8 @@ interface BackupHandler : Progress.Client, Progress.Host {
             backupId: Backup.Id,
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
+            wrap: AppBackupWrap,
             logListener: ((LogEvent) -> Unit)? = null
-    ): Collection<MMRef>
+    )
 
 }

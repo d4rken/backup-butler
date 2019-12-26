@@ -6,6 +6,7 @@ import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -34,11 +35,13 @@ class APKInstaller @Inject constructor(
         @AppContext private val context: Context,
         private val javaRootClient: JavaRootClient,
         private val pkgOps: PkgOps
-) : Progress.Client, Progress.Host {
+) : Progress.Client, Progress.Host, SharedHolder.HasKeepAlive<Any> {
 
     private val progressPub = HotData(Progress.Data())
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+
+    override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     private val installer = context.packageManager.packageInstaller
     private val installMap = mutableMapOf<String, OnGoingInstall>()
@@ -98,6 +101,7 @@ class APKInstaller @Inject constructor(
             }
 
             if (request.useRoot) {
+                javaRootClient.keepAliveWith(this)
                 javaRootClient.runModuleAction(PkgOpsClient::class.java) {
                     it.install(remoteRequest)
                 }

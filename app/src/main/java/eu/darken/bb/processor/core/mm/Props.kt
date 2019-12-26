@@ -6,7 +6,9 @@ import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
-import eu.darken.bb.processor.core.mm.file.FileProps
+import eu.darken.bb.processor.core.mm.generic.DirectoryProps
+import eu.darken.bb.processor.core.mm.generic.FileProps
+import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import java.util.*
 
 @Keep

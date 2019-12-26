@@ -4,6 +4,7 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.RawPath
+import eu.darken.bb.processor.core.mm.generic.DirectoryProps
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.jupiter.api.Test
