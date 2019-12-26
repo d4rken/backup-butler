@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/storage_item_list"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="invisible"
-        tools:visibility="visible"
-        android:layout_height="match_parent"/>
+        tools:visibility="visible" />
 
-    <eu.darken.bb.common.ui.LoadingOverlayView
-        style="@style/LoadingOverlayViewStyle"/>
-</FrameLayout>
+    <eu.darken.bb.common.ui.LoadingOverlayView style="@style/LoadingOverlayViewStyle" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

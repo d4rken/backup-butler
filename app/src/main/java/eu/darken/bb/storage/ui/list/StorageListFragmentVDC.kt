@@ -6,8 +6,10 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -17,7 +19,8 @@ import timber.log.Timber
 class StorageListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val storageManager: StorageManager,
-        private val storageBuilder: StorageBuilder
+        private val storageBuilder: StorageBuilder,
+        processorControl: ProcessorControl
 ) : SmartVDC() {
 
     val storageData = storageManager.infos()
@@ -32,6 +35,14 @@ class StorageListFragmentVDC @AssistedInject constructor(
             .toLiveData()
 
     val editTaskEvent = SingleLiveEvent<Storage.Id>()
+
+    val processorEvent = SingleLiveEvent<Boolean>()
+
+    init {
+        processorControl.progressHost
+                .subscribe { processorEvent.postValue(it.isNotNull) }
+                .withScopeVDC(this)
+    }
 
     fun createStorage() {
         storageBuilder.startEditor()

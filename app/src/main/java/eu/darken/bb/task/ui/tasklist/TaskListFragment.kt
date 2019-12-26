@@ -38,7 +38,6 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
     @BindView(R.id.tasks_list) lateinit var tasksList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
-    var snackbar: Snackbar? = null
 
     init {
         layoutRes = R.layout.task_list_fragment
@@ -49,27 +48,9 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
 
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
+
         vdc.state.observe2(this) { state ->
             adapter.update(state.tasks)
-
-            if (state.hasRunningTask && snackbar == null) {
-                snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.general_show_action) {
-                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
-                        }
-                        .addCallback(object : Snackbar.Callback() {
-                            override fun onShown(sb: Snackbar?) {
-                                snackbar = sb
-                            }
-
-                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                                snackbar = null
-                            }
-                        })
-                snackbar?.show()
-            } else {
-                snackbar?.dismiss()
-            }
         }
 
         fab.clicks().subscribe { vdc.newTask() }
@@ -77,6 +58,21 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
         vdc.editTaskEvent.observe2(this) {
             val bs = TaskActionDialog.newInstance(it.taskId)
             bs.show(childFragmentManager, it.taskId.toString())
+        }
+
+        var snackbar: Snackbar? = null
+        vdc.processorEvent.observe2(this) { isActive ->
+            if (isVisible && isActive && snackbar == null) {
+                snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
+                        .setAnchorView(fab)
+                        .setAction(R.string.general_show_action) {
+                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                        }
+                snackbar?.show()
+            } else if (!isActive && snackbar != null) {
+                snackbar?.dismiss()
+                snackbar = null
+            }
         }
         super.onViewCreated(view, savedInstanceState)
     }

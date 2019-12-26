@@ -1,5 +1,6 @@
 package eu.darken.bb.storage.ui.viewer.item
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -27,6 +29,7 @@ import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
+import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialogArgs
 import javax.inject.Inject
 
@@ -94,6 +97,19 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
         vdc.errorEvents.observe2(this) { toastError(it) }
 
+        var snackbar: Snackbar? = null
+        vdc.processorEvent.observe2(this) { isActive ->
+            if (isVisible && isActive && snackbar == null) {
+                snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.general_show_action) {
+                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                        }
+                snackbar?.show()
+            } else if (!isActive && snackbar != null) {
+                snackbar?.dismiss()
+                snackbar = null
+            }
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 

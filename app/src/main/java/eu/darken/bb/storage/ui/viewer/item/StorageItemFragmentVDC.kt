@@ -12,6 +12,7 @@ import eu.darken.bb.common.rx.onErrorComplete
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.Single
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit
 class StorageItemFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val storageId: Storage.Id,
+        processorControl: ProcessorControl,
         storageManager: StorageManager
 ) : SmartVDC() {
 
@@ -38,8 +40,12 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     val finishEvent = SingleLiveEvent<Boolean>()
     val errorEvents = SingleLiveEvent<Throwable>()
     val contentActionEvent = SingleLiveEvent<ContentActionEvent>()
-
+    val processorEvent = SingleLiveEvent<Boolean>()
     init {
+        processorControl.progressHost
+                .subscribe { processorEvent.postValue(it.isNotNull) }
+                .withScopeVDC(this)
+
         storageObs.flatMap { it.info() }
                 .filter { it.status != null }.map { it.status!! }
                 .onErrorComplete()

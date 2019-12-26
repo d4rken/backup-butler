@@ -1,11 +1,13 @@
 package eu.darken.bb.storage.ui.list
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -22,6 +24,7 @@ import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
+import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
 
@@ -38,6 +41,7 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
     @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
+
 
     init {
         layoutRes = R.layout.storage_list_fragment
@@ -65,6 +69,23 @@ class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
             bs.show(childFragmentManager, it.toString())
         }
 
+        var snackbar: Snackbar? = null
+        vdc.processorEvent.observe2(this) { isActive ->
+            if (isVisible && isActive && snackbar == null) {
+                snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
+                        .setAnchorView(fab)
+                        .setAction(R.string.general_show_action) {
+                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                        }
+                snackbar?.show()
+            } else if (!isActive && snackbar != null) {
+                snackbar?.dismiss()
+                snackbar = null
+            }
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
+
+
 }

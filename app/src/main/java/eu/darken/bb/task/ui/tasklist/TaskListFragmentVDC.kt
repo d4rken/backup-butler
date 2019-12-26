@@ -24,7 +24,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         private val taskRepo: TaskRepo,
         private val taskBuilder: TaskBuilder,
-        private val processorControl: ProcessorControl,
+        processorControl: ProcessorControl,
         private val resultRepo: TaskResultRepo
 ) : SmartVDC() {
     private val tasksObs = taskRepo.tasks.map { it.values }
@@ -36,12 +36,13 @@ class TaskListFragmentVDC @AssistedInject constructor(
 
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
+    val processorEvent = SingleLiveEvent<Boolean>()
+
     init {
         processorControl.progressHost
-                .subscribe { optHost ->
-                    stater.update { it.copy(hasRunningTask = optHost.isNotNull) }
-                }
+                .subscribe { processorEvent.postValue(it.isNotNull) }
                 .withScopeVDC(this)
+
         tasksObs
                 .subscribe { tasks ->
                     stater.update {
