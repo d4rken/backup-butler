@@ -42,7 +42,7 @@ interface Backup {
         val backupType: Type
         val createdAt: Date
 
-        fun getItemLabel(context: Context, spec: BackupSpec, props: Props): String
+        fun getItemLabel(context: Context, spec: BackupSpec, props: Props): Pair<String?, String>
 
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> = MyPolymorphicJsonAdapterFactory.of(MetaData::class.java, "backupType")
@@ -117,7 +117,7 @@ interface Backup {
         @Transient val backupType: Type = metaData.backupType
 
         interface Entry {
-            fun getLabel(context: Context): String
+            fun getLabel(context: Context): Pair<String?, String>
         }
 
         data class PropsEntry(
@@ -126,7 +126,7 @@ interface Backup {
                 val props: Props
         ) : Entry {
 
-            override fun getLabel(context: Context): String = metaData.getItemLabel(context, spec, props)
+            override fun getLabel(context: Context): Pair<String?, String> = metaData.getItemLabel(context, spec, props)
         }
 
     }

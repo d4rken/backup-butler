@@ -94,7 +94,7 @@ class PkgOps @Inject constructor(
         try {
             pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES)
         } catch (e: Throwable) {
-            Timber.tag(IPCFunnel.TAG).d(e)
+            Timber.tag(TAG).d(e)
             null
         }
     }
@@ -103,7 +103,7 @@ class PkgOps @Inject constructor(
         try {
             pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES)?.loadLabel(pm).toString()
         } catch (e: PackageManager.NameNotFoundException) {
-            Timber.tag(IPCFunnel.TAG).w(e)
+            Timber.tag(TAG).w(e)
             null
         }
     }
@@ -112,7 +112,7 @@ class PkgOps @Inject constructor(
         try {
             applicationInfo.loadLabel(pm).toString()
         } catch (e: PackageManager.NameNotFoundException) {
-            Timber.tag(IPCFunnel.TAG).w(e)
+            Timber.tag(TAG).w(e)
             null
         }
     }
@@ -125,7 +125,7 @@ class PkgOps @Inject constructor(
         try {
             getIcon(pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES))
         } catch (e: Throwable) {
-            Timber.tag(IPCFunnel.TAG).d(e)
+            Timber.tag(TAG).d(e)
             null
         }
     }
@@ -134,7 +134,7 @@ class PkgOps @Inject constructor(
         try {
             appInfo.loadIcon(pm)
         } catch (e: Throwable) {
-            Timber.tag(IPCFunnel.TAG).d(e)
+            Timber.tag(TAG).d(e)
             null
         }
     }

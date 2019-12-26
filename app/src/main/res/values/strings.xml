@@ -266,4 +266,12 @@
     <string name="progress_reading_backup_metadata">Reading backup metadata</string>
     <string name="progress_writing_backup_specs">Writing backup specifications</string>
     <string name="progress_reading_backup_specs">Reading backup specifications</string>
+    <string name="app_data_private_primary_label">Private app data (primary)</string>
+    <string name="app_data_public_primary_label">Public app data (primary)</string>
+    <string name="app_data_public_secondary_label">Public app data (secondary)</string>
+    <string name="app_cache_private_primary_label">Private app cache (primary)</string>
+    <string name="app_cache_public_primary_label">Public app cache (primary)</string>
+    <string name="app_cache_public_secondary_label">Public app cache (secondary)</string>
+    <string name="app_apk_base_label">Main install file</string>
+    <string name="app_apk_split_label">Additional install resource</string>
 </resources>

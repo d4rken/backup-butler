@@ -7,7 +7,6 @@ import eu.darken.bb.common.files.core.lookup
 import eu.darken.bb.common.files.core.read
 import eu.darken.bb.processor.core.mm.BaseRefSource
 import eu.darken.bb.processor.core.mm.Props
-import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import okio.Source
 import timber.log.Timber
 
@@ -19,16 +18,17 @@ class GenericRefSource(
     constructor(
             gateway: GatewaySwitch,
             path: APath,
+            label: String? = null,
             providedProps: Props? = null
     ) : this(
             sourceGenerator = { path.read(gateway) },
-            propGenerator = { providedProps ?: path.lookup(gateway).toProps() }
+            propGenerator = { providedProps ?: path.lookup(gateway).toProps(label) }
     )
 
     override val props: Props by lazy { propGenerator() }
 
     override fun doOpen(): Source {
-        Timber.tag(ArchiveRefSource.TAG).v("Opening source for %s", props)
+        Timber.tag(TAG).v("Opening source for %s", props)
         return sourceGenerator(props)
     }
 

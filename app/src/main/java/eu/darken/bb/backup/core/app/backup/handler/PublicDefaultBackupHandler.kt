@@ -10,10 +10,7 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
-import eu.darken.bb.common.AString
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.PathAString
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -158,7 +155,12 @@ class PublicDefaultBackupHandler @Inject constructor(
             }
             val mmRef = mmDataRepo.create(MMRef.Request(
                     backupId = backupId,
-                    source = ArchiveRefSource(gatewaySwitch, type.key, storageBase, collectedSubDirContent)
+                    source = ArchiveRefSource(
+                            gateway = gatewaySwitch,
+                            label = getString(type.labelRes),
+                            archivePath = storageBase,
+                            targets = collectedSubDirContent
+                    )
             ))
             refs.add(mmRef)
         }

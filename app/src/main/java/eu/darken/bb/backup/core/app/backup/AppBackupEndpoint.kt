@@ -15,6 +15,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.GatewaySwitch
+import eu.darken.bb.common.getString
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.withScopeThis
@@ -60,7 +61,11 @@ class AppBackupEndpoint @Inject constructor(
 
             val baseApkRef: MMRef = mmDataRepo.create(MMRef.Request(
                     backupId = builder.backupId,
-                    source = GenericRefSource(gatewaySwitch, apkData.mainSource)
+                    source = GenericRefSource(
+                            gateway = gatewaySwitch,
+                            label = getString(DataType.APK_BASE.labelRes),
+                            path = apkData.mainSource
+                    )
             ))
 
             builder.baseApk = baseApkRef
@@ -71,7 +76,10 @@ class AppBackupEndpoint @Inject constructor(
                 updateProgressSecondary(splitApk.path)
                 val splitRef: MMRef = mmDataRepo.create(MMRef.Request(
                         backupId = builder.backupId,
-                        source = GenericRefSource(gatewaySwitch, splitApk)
+                        source = GenericRefSource(
+                                gateway = gatewaySwitch,
+                                label = getString(DataType.APK_SPLIT.labelRes),
+                                path = splitApk)
                 ))
                 splitApkRefs.add(splitRef)
                 logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, splitApk.path))

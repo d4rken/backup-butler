@@ -33,7 +33,6 @@ import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.saf.SAFStorage
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -77,7 +76,7 @@ class LocalStorage @AssistedInject constructor(
             .replayingShare()
 
     init {
-        Timber.tag(SAFStorage.TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
+        Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
         if (!dataDir.exists()) {
             Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
         }
@@ -191,7 +190,7 @@ class LocalStorage @AssistedInject constructor(
                         }
             }
             .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
-            .doOnError { Timber.tag(SAFStorage.TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
+            .doOnError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
             .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
             .replayingShare()
 
@@ -298,7 +297,7 @@ class LocalStorage @AssistedInject constructor(
                 spec = backup.spec,
                 metaData = backup.metaData
         )
-        Timber.tag(SAFStorage.TAG).d("New backup created: %s", info)
+        Timber.tag(TAG).d("New backup created: %s", info)
         return info
     }
 
