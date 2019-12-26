@@ -55,26 +55,23 @@ class SharedHolder<T> constructor(
             }
             .subscribeOn(Schedulers.io())
             .doOnSubscribe {
-                synchronized(this@SharedHolder) {
-                    if (!activeTokens.isDisposed) Timber.tag(tag).e("Previous active tokens were not disposed!")
-                    activeTokens.dispose()
-                    activeTokens = CompositeDisposable()
+                require(activeTokens.isDisposed) { "Previous active tokens were not disposed!" }
+                activeTokens.dispose()
+                activeTokens = CompositeDisposable()
 
-                    if (!childsWeKeepAlive.isDisposed) Timber.tag(tag).e("Previous child tokens were not disposed!")
-                    childsWeKeepAlive.dispose()
-                    childResources.clear()
-                    parentsThatKeepUsAlive.clear()
-                    childsWeKeepAlive = CompositeDisposable()
-                }
+                require(childsWeKeepAlive.isDisposed) { "Previous child tokens were not disposed!" }
+                childsWeKeepAlive.dispose()
+                childResources.clear()
+                parentsThatKeepUsAlive.clear()
+                childsWeKeepAlive = CompositeDisposable()
             }
             .doFinally {
                 Timber.tag(tag).v("resourceHolder.doFinally()")
-                synchronized(this@SharedHolder) {
-                    activeTokens.dispose()
-                    childsWeKeepAlive.dispose()
-                    childResources.clear()
-                    parentsThatKeepUsAlive.clear()
-                }
+                activeTokens.dispose()
+                childsWeKeepAlive.dispose()
+
+                childResources.clear()
+                parentsThatKeepUsAlive.clear()
             }
             .doOnError { Timber.tag(tag).v("resourceHolder.onError(): %s", it) }
             .doOnComplete { Timber.tag(tag).v("resourceHolder.onComplete()") }
@@ -85,19 +82,17 @@ class SharedHolder<T> constructor(
     @Throws(IOException::class)
     fun get(): Resource<T> {
         if (BBDebug.isDebug() && !isAlive) {
-            Timber.tag(tag).v("get() Caller: %s", Throwable().getStackTraceString())
+            Timber.tag(tag).v("get() Reviving resource: %s", Throwable().getStackTraceString())
         }
 
         val keepAlive = resourceHolder.subscribe({ }, { })
 
-        if (activeTokens.add(keepAlive)) {
-            Timber.tag(tag).v("Adding token, now: %d", activeTokens.size())
-        } else {
+        if (!activeTokens.add(keepAlive)) {
             Timber.tag(tag).d("Can't add token, already disposed!")
         }
 
         val resource = try {
-            Timber.tag(tag).v("get(): Waiting for resource")
+            if (BBDebug.isDebug()) Timber.tag(tag).v("get(): Waiting for resource")
             resourceHolder.blockingFirst()
         } catch (e: Exception) {
             keepAlive.dispose()
@@ -112,7 +107,6 @@ class SharedHolder<T> constructor(
                     Timber.tag(tag).v("Already disposed!")
                 } else {
                     activeTokens.remove(keepAlive)
-                    Timber.tag(tag).v("Removing token, now: %d", activeTokens.size())
                     keepAlive.dispose()
                 }
             }
@@ -122,33 +116,32 @@ class SharedHolder<T> constructor(
     }
 
     fun closeAll() {
-        synchronized(this@SharedHolder) {
-            activeTokens.dispose()
-        }
+        activeTokens.dispose()
     }
 
     fun addChildResource(resource: Resource<*>) {
-        synchronized(this@SharedHolder) {
-            if (!childResources.add(resource)) {
-                Timber.tag(tag).w("Child resource has already been added: %s", resource)
-                return
-            }
-
-            if (!isAlive) {
-                Timber.tag(tag).w("Adding child to an already closed holder: %s", resource)
-            }
-
-            childsWeKeepAlive.add(object : Disposable {
-                var disposed: Boolean = false
-                override fun isDisposed(): Boolean = disposed
-
-                override fun dispose() {
-                    resource.close()
-                    disposed = true
-                }
-
-            })
+        if (!isAlive) {
+            Timber.tag(tag).w("Adding child resource to an already closed holder: %s", resource)
         }
+
+        if (!childResources.add(resource)) {
+            Timber.tag(tag).w("Child resource has already been added: %s", resource)
+            return
+        }
+
+        val wrapped = object : Disposable {
+            var disposed: Boolean = false
+            override fun isDisposed(): Boolean = disposed
+
+            override fun dispose() {
+                resource.close()
+                disposed = true
+                childsWeKeepAlive.remove(this)
+                childResources.remove(resource)
+            }
+
+        }
+        childsWeKeepAlive.add(wrapped)
     }
 
     fun keepAliveWith(parent: HasKeepAlive<*>): SharedHolder<T> {
@@ -156,21 +149,28 @@ class SharedHolder<T> constructor(
     }
 
     fun keepAliveWith(parent: SharedHolder<*>): SharedHolder<T> {
-        synchronized(this) {
-            if (!parent.isAlive) {
-                Timber.tag(tag).w("Parent is closed, not adding keep alive: %s", parent)
-                return this
-            }
-
-            if (!parentsThatKeepUsAlive.contains(parent)) {
-                Timber.tag(tag).v("Adding us as new keep-alive to parent %s", parent)
-                val ourself = get()
-                parentsThatKeepUsAlive[parent] = ourself
-                parent.addChildResource(ourself)
-            }
-
+        if (!parent.isAlive) {
+            Timber.tag(tag).w("Parent(%s) is closed, not adding keep alive.", parent.tag)
             return this
         }
+
+        if (!parentsThatKeepUsAlive.contains(parent)) {
+            Timber.tag(tag).v("Adding us as new keep-alive to parent %s", parent)
+            val ourself = get()
+            synchronized(parentsThatKeepUsAlive) {
+                if (parentsThatKeepUsAlive.contains(parent)) {
+                    // Race condition, synchronizing on get() would lead to dead-lock
+                    ourself.close()
+                } else {
+                    parentsThatKeepUsAlive[parent] = ourself
+                    parent.addChildResource(ourself)
+                }
+            }
+        } else {
+            Timber.tag(tag).w("Parent %s is alraedy keeping us alive.", parent.tag)
+        }
+
+        return this
     }
 
     data class Resource<T>(
