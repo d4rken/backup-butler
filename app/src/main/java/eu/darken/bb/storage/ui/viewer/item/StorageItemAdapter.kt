@@ -45,12 +45,12 @@ class StorageItemAdapter @Inject constructor()
             labelText.text = item.backupSpec.getLabel(context)
 
             val versionCount = getQuantityString(R.plurals.x_versions, item.backups.size)
-            val lastBackup = getString(
+            val lastBackupText = getString(
                     R.string.general_last_backup_time_x,
-                    formatter.format(item.backups.first().createdAt)
+                    formatter.format(item.backups.maxBy { it.createdAt }!!.createdAt)
             )
             @SuppressLint("SetTextI18n")
-            statusText.text = "$versionCount; $lastBackup"
+            statusText.text = "$versionCount; $lastBackupText"
         }
     }
 

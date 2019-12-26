@@ -41,6 +41,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     val errorEvents = SingleLiveEvent<Throwable>()
     val contentActionEvent = SingleLiveEvent<ContentActionEvent>()
     val processorEvent = SingleLiveEvent<Boolean>()
+
     init {
         processorControl.progressHost
                 .subscribe { processorEvent.postValue(it.isNotNull) }
@@ -66,8 +67,8 @@ class StorageItemFragmentVDC @AssistedInject constructor(
         // TODO use storage extension?
         storageObs.flatMap { it.specInfos() }
                 .subscribe({ storageContents ->
-                    stater.update {
-                        it.copy(
+                    stater.update { oldState ->
+                        oldState.copy(
                                 specInfos = storageContents.toList(),
                                 isLoading = false
                         )
