@@ -85,6 +85,8 @@ open class ArchiveRefSource(
                 }
                 lastDataStream?.close()
                 lastDataStream = dataStream
+
+                Timber.tag(TAG).v("Compressing ${entry.name}")
                 yield(Pair(props, dataStream))
             }
         }
