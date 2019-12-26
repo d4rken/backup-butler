@@ -1,6 +1,5 @@
 package eu.darken.bb.backup.core
 
-import android.content.Context
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
@@ -9,6 +8,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
+import eu.darken.bb.common.AString
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.SharedHolder
@@ -42,7 +42,7 @@ interface Backup {
         val backupType: Type
         val createdAt: Date
 
-        fun getItemLabel(context: Context, spec: BackupSpec, props: Props): Pair<String?, String>
+        fun getItemLabeling(spec: BackupSpec, props: Props): Pair<AString, AString>
 
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> = MyPolymorphicJsonAdapterFactory.of(MetaData::class.java, "backupType")
@@ -117,7 +117,7 @@ interface Backup {
         @Transient val backupType: Type = metaData.backupType
 
         interface Entry {
-            fun getLabel(context: Context): Pair<String?, String>
+            val labeling: Pair<AString, AString>
         }
 
         data class PropsEntry(
@@ -126,7 +126,7 @@ interface Backup {
                 val props: Props
         ) : Entry {
 
-            override fun getLabel(context: Context): Pair<String?, String> = metaData.getItemLabel(context, spec, props)
+            override val labeling: Pair<AString, AString> by lazy { metaData.getItemLabeling(spec, props) }
         }
 
     }

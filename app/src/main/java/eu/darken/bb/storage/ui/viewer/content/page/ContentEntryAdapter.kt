@@ -26,18 +26,18 @@ class ContentEntryAdapter @Inject constructor()
     class VH(parent: ViewGroup)
         : ModularAdapter.VH(R.layout.storage_viewer_item_content_entry_adapter_line, parent), BindableVH<Backup.ContentInfo.Entry> {
         //        @BindView(R.id.icon) lateinit var icon: ImageView
-        @BindView(R.id.label_caption) lateinit var labelCaptionView: TextView
-        @BindView(R.id.label) lateinit var labelView: TextView
+        @BindView(R.id.caption) lateinit var captionView: TextView
+        @BindView(R.id.description) lateinit var descriptionView: TextView
 
         init {
             ButterKnife.bind(this, itemView)
         }
 
         override fun bind(item: Backup.ContentInfo.Entry) {
-            val (caption, label) = item.getLabel(context)
-            labelCaptionView.text = caption
-            labelCaptionView.setGone(caption == null)
-            labelView.text = label
+            val (caption, description) = item.labeling
+            captionView.text = caption.get(context)
+            captionView.setGone(caption.isEmpty(context))
+            descriptionView.text = description.get(context)
         }
 
     }
