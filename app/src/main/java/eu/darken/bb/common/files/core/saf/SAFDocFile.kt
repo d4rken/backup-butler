@@ -160,7 +160,7 @@ internal data class SAFDocFile(
         val updated: Int = resolver.update(uri, updateValues, null, null)
         updated == 1
     } catch (e: Exception) {
-        Timber.tag(SAFGateway.TAG).w(e, "setLastModified(lastModified=%s) failed on %s", lastModified, this)
+        Timber.tag(SAFGateway.TAG).w("setLastModified(lastModified=%s) failed on %s, due to %s", lastModified, this, e.toString())
         false
     }
 
