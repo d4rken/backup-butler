@@ -191,8 +191,10 @@ class SAFGateway @Inject constructor(
     }
 
     override fun setModifiedAt(path: SAFPath, modifiedAt: Date): Boolean {
-        // TODO setModifiedAt
-        return false
+        val docFile = getDocumentFile(path)
+        if (docFile == null) throw WriteException(path)
+
+        return docFile.setLastModified(contentResolver, modifiedAt)
     }
 
     override fun setPermissions(path: SAFPath, permissions: Permissions): Boolean {
