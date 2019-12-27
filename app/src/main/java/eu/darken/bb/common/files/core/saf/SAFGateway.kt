@@ -40,23 +40,33 @@ class SAFGateway @Inject constructor(
 
     @Throws(IOException::class)
     override fun createFile(path: SAFPath): Boolean {
+        val docFile = getDocumentFile(path)
+        if (docFile != null) {
+            if (docFile.isFile) return false
+            else throw WriteException(path, message = "Path exists, but is not a file.")
+        }
         return try {
             createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.crumbs)
             true
         } catch (e: Exception) {
-            Timber.tag(TAG).d(e, "createFile(path=%s) failed", path)
-            false
+            Timber.tag(TAG).w(e, "createFile(path=%s) failed", path)
+            throw WriteException(path, cause = e)
         }
     }
 
     @Throws(IOException::class)
     override fun createDir(path: SAFPath): Boolean {
+        val docFile = getDocumentFile(path)
+        if (docFile != null) {
+            if (docFile.isDirectory) return false
+            else throw WriteException(path, message = "Path exists, but is not a directory.")
+        }
         return try {
             createDocumentFile(DIR_TYPE, path.treeRoot, path.crumbs)
             true
         } catch (e: Exception) {
-            Timber.tag(TAG).d(e, "createDir(path=%s) failed", path)
-            false
+            Timber.tag(TAG).w(e, "createDir(path=%s) failed", path)
+            throw WriteException(path, cause = e)
         }
     }
 
@@ -84,7 +94,7 @@ class SAFGateway @Inject constructor(
                 } else {
                     checkNotNull(currentRoot.createFile(mimeType, segName)) { "Failed to create file $segName in $currentRoot" }
                 }
-
+                require(segName == currentRoot.name) { "Unexpected name change: Wanted $segName, but got ${currentRoot.name}" }
             }
         }
         Timber.tag(TAG).v("createDocumentFile(mimeType=$mimeType, treeUri=$treeUri, crumbs=${segments.toList()}): ${currentRoot.uri}")
