@@ -18,6 +18,7 @@ class DeviceEnvironment @Inject constructor(
             return DeviceStorage(LocalPath.build(Environment.getExternalStorageDirectory()))
         }
 
+    // http://androidxref.com/5.1.1_r6/xref/frameworks/base/core/java/android/os/Environment.java#136
     val publicSecondaryStorage: Collection<DeviceStorage>
         get() {
             val pathResult = mutableListOf<LocalPath>()
@@ -42,18 +43,6 @@ class DeviceEnvironment @Inject constructor(
         get() {
             return listOf(publicPrimaryStorage).plus(publicSecondaryStorage)
         }
-
-    // http://androidxref.com/5.1.1_r6/xref/frameworks/base/core/java/android/os/Environment.java#136
-    val publicDeviceStorages: List<DeviceStorage>
-        get() {
-            // TODO what about secondary storages?
-            return listOf(
-                    DeviceStorage(
-                            storagePath = LocalPath.build(Environment.getExternalStorageDirectory())
-                    )
-            )
-        }
-
 
     data class DeviceStorage(
             val storagePath: LocalPath

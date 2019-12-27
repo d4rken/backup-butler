@@ -25,6 +25,7 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRef
+import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
 import timber.log.Timber
@@ -34,7 +35,7 @@ import javax.inject.Inject
 @Reusable
 class PublicDefaultRestoreHandler @Inject constructor(
         @AppContext context: Context,
-        private val gatewaySwitch: GatewaySwitch,
+        private val gateway: GatewaySwitch,
         private val pkgOps: PkgOps
 ) : BaseRestoreHandler(context) {
 
@@ -42,7 +43,6 @@ class PublicDefaultRestoreHandler @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    // TODO use this keepAlive?
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     override fun isResponsible(type: DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
@@ -73,7 +73,7 @@ class PublicDefaultRestoreHandler @Inject constructor(
         updateProgressSecondary(AString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        gatewaySwitch.keepAliveWith(this)
+        gateway.keepAliveWith(this)
         pkgOps.keepAliveWith(this)
 
         val toRestore = wrap.getDataType(type)
@@ -113,28 +113,32 @@ class PublicDefaultRestoreHandler @Inject constructor(
 
         val archiveProps = archive.props as ArchiveProps
         Timber.tag(TAG).d("Restoring archive: %s", archiveProps)
-        (archive.source as ArchiveRef).openArchive().forEach { (itemProps, itemSource) ->
+        for ((itemProps, itemSource) in (archive.source as ArchiveRef).openArchive()) {
             Timber.tag(TAG).v("Restoring archive item: %s", itemProps)
             updateProgressSecondary(itemProps.tryLabel)
 
-
             val restoreTarget = LocalPath.build(basePath as LocalPath, itemProps.originalPath!!.path)
 
-            // TODO what if the file exists?
+            if (!config.overwriteExisting && restoreTarget.exists(gateway)) {
+                Timber.tag(PrivateDefaultRestoreHandler.TAG).d("Overwriting existing files is disabled, skipping past: %s", restoreTarget)
+                continue
+            }
+
             when (itemProps.dataType) {
                 MMRef.Type.FILE -> {
-                    restoreTarget.createFileIfNecessary(gatewaySwitch)
+                    restoreTarget.createFileIfNecessary(gateway)
                     itemSource!!.use { fileSource ->
-                        restoreTarget.write(gatewaySwitch).use {
+                        restoreTarget.write(gateway).use {
                             fileSource.copyToAutoClose(it)
                         }
                     }
                 }
                 MMRef.Type.DIRECTORY -> {
-                    restoreTarget.createDirIfNecessary(gatewaySwitch)
+                    restoreTarget.createDirIfNecessary(gateway)
                 }
                 MMRef.Type.SYMLINK -> {
-                    // TODO
+                    itemProps as SymlinkProps
+                    restoreTarget.createSymlink(gateway, itemProps.symlinkTarget)
                 }
                 else -> throw UnsupportedOperationException("Unsupported type $itemProps")
             }
@@ -144,12 +148,12 @@ class PublicDefaultRestoreHandler @Inject constructor(
                 if (itemProps.dataType == MMRef.Type.DIRECTORY) {
                     directoryTimeStamps[restoreTarget] = itemProps.modifiedAt
                 } else {
-                    restoreTarget.setModifiedAt(gatewaySwitch, itemProps.modifiedAt)
+                    restoreTarget.setModifiedAt(gateway, itemProps.modifiedAt)
                 }
             }
 
             if (itemProps is Props.HasPermissions && itemProps.permissions != null) {
-                restoreTarget.setPermissions(gatewaySwitch, itemProps.permissions!!)
+                restoreTarget.setPermissions(gateway, itemProps.permissions!!)
             }
 
             if (itemProps is Props.HasOwner) {
@@ -166,14 +170,14 @@ class PublicDefaultRestoreHandler @Inject constructor(
                 }
                 if (targetGID == null) targetGID = targetUID
 
-                restoreTarget.setOwnership(gatewaySwitch, Ownership(targetUID, targetGID))
+                restoreTarget.setOwnership(gateway, Ownership(targetUID, targetGID))
             }
         }
 
         Timber.tag(TAG).v("Setting timestamps for %d directories.", directoryTimeStamps.size)
         updateProgressSecondary(R.string.progress_fixing_timestamps)
         directoryTimeStamps.forEach { (path, lastModified) ->
-            path.setModifiedAt(gatewaySwitch, lastModified)
+            path.setModifiedAt(gateway, lastModified)
         }
     }
 

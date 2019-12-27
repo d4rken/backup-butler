@@ -43,7 +43,7 @@ class AppRestoreEndpoint @Inject constructor(
 
     private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean {
+    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?) {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
@@ -55,32 +55,34 @@ class AppRestoreEndpoint @Inject constructor(
         val wrap = AppBackupWrap(backup)
 
         if (config.skipExistingApps && pkgOps.queryPkg(spec.packageName) != null) {
-            // TODO skip if pkg already exists?, result?
+            return
         }
 
         val rootAvailable = try {
             javaRootClient.keepAliveWith(this)
             true
         } catch (e: Exception) {
-            if (e.hasCause(RootUnavailableException::class)) false
-            else throw e
+            if (e.hasCause(RootUnavailableException::class)) false else throw e
         }
 
-        val request = APKInstaller.Request(
-                packageName = wrap.packageName,
-                baseApk = wrap.baseApk,
-                splitApks = wrap.splitApks.toList(),
-                useRoot = rootAvailable
-        )
-        // TODO check result, error?
-        val installResult = apkInstaller.forwardProgressTo(this).withScopeThis {
-            apkInstaller.keepAliveWIth(this).install(request) {
-                logListener?.invoke(it)
+        if (config.restoreApk) {
+            val request = APKInstaller.Request(
+                    packageName = wrap.packageName,
+                    baseApk = wrap.baseApk,
+                    splitApks = wrap.splitApks.toList(),
+                    useRoot = rootAvailable
+            )
+
+            val installResult = apkInstaller.forwardProgressTo(this).withScopeThis {
+                apkInstaller.keepAliveWIth(this).install(request) {
+                    logListener?.invoke(it)
+                }
+            }
+
+            if (!installResult.success) {
+                throw installResult.error!!
             }
         }
-
-        // TODO if we don't restore the APK and it's not installed then we can't restore data, error? log? result?
-
 
         val pkg = pkgOps.queryPkg(wrap.packageName)
         requireNotNull(pkg) { "${wrap.packageName} isn't installed." }
@@ -103,9 +105,6 @@ class AppRestoreEndpoint @Inject constructor(
                 backupType(type, config, spec, appInfo, wrap, logListener)
             }
         }
-
-        // TODO return result?
-        return true
     }
 
     private fun backupType(

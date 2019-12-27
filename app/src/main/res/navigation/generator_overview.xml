@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/generatorsActionDialog"
         android:name="eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog"
-        android:label="GeneratorsActionDialog">
+        android:label="@string/backup_generator_label">
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />

@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 class FilesRestoreEndpoint @Inject constructor(
         @AppContext override val context: Context,
-        private val gatewaySwitch: GatewaySwitch
+        private val gateway: GatewaySwitch
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -35,7 +35,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean {
+    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?) {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary("")
         updateProgressCount(Progress.Count.Indeterminate())
@@ -46,7 +46,7 @@ class FilesRestoreEndpoint @Inject constructor(
 
         updateProgressCount(Progress.Count.Counter(0, handler.files.size))
 
-        gatewaySwitch.keepAliveWith(this)
+        gateway.keepAliveWith(this)
 
         // Dirs first, for stuff like SAFPath's we can't just do path.parent.mkdir()
         val toRestore = handler.files.sortedByDescending { it.props.dataType == DIRECTORY }
@@ -57,20 +57,16 @@ class FilesRestoreEndpoint @Inject constructor(
 
             updateProgressSecondary(ref.props.originalPath!!.path)
 
-            // TODO add restore success to results?
-            restore(config, spec, ref, gatewaySwitch, logListener)
+            restore(config, spec, ref, logListener)
 
             updateProgressCount(Progress.Count.Counter(handler.files.indexOf(ref) + 1, handler.files.size))
         }
-
-        return true
     }
 
     private fun restore(
             config: FilesRestoreConfig,
             spec: FilesBackupSpec,
             ref: MMRef,
-            gateway: GatewaySwitch,
             logListener: ((LogEvent) -> Unit)?
     ) {
         val restorePath = config.restorePath ?: spec.path
@@ -82,7 +78,6 @@ class FilesRestoreEndpoint @Inject constructor(
             return
         }
 
-        // TODO check success ?
         when (ref.props) {
             is FileProps -> {
                 itemFile.createFileIfNecessary(gateway)

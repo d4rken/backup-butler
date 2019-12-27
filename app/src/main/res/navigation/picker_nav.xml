@@ -8,7 +8,7 @@
     <activity
         android:id="@+id/aPathPickerActivity"
         android:name="eu.darken.bb.common.files.ui.picker.APathPickerActivity"
-        android:label="picker_activity">
+        android:label="@string/general_pick_a_path_action">
         <argument
             android:name="options"
             app:argType="eu.darken.bb.common.files.ui.picker.APathPicker$Options" />

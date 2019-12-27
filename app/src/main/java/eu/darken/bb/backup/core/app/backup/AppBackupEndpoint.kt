@@ -10,14 +10,13 @@ import eu.darken.bb.backup.core.app.APKExporter
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
-import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.GatewaySwitch
-import eu.darken.bb.common.getString
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
+import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -34,6 +33,7 @@ class AppBackupEndpoint @Inject constructor(
         private val mmDataRepo: MMDataRepo,
         private val apkExporter: APKExporter,
         private val gatewaySwitch: GatewaySwitch,
+        private val javaRootClient: JavaRootClient,
         backupHandlers: @JvmSuppressWildcards Set<BackupHandler>
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
@@ -90,11 +90,15 @@ class AppBackupEndpoint @Inject constructor(
         val appInfo = pkgOps.queryAppInfos(spec.packageName)
         requireNotNull(appInfo) { "Unable to lookup ${spec.packageName}" }
 
-
+        val rootAvailable = try {
+            javaRootClient.keepAliveWith(this)
+            true
+        } catch (e: Exception) {
+            if (e.hasCause(RootUnavailableException::class)) false else throw e
+        }
         // TODO root stuff, only when enabled?
 
 
-        // Private data
         if (spec.backupData) {
             listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
                 backupType(type, builder.backupId, spec, appInfo, builder, logListener)

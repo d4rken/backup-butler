@@ -28,6 +28,7 @@ import io.reactivex.Observable
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 
 @PerApp
@@ -121,21 +122,33 @@ class APKInstaller @Inject constructor(
 
         updateProgressSecondary(R.string.progress_waiting_on_install)
         Timber.tag(TAG).d("Waiting for PackageInstaller callback for %s", request.packageName)
-        callbackLock.tryAcquire(1, 120, TimeUnit.SECONDS)
+        val noTimeout = callbackLock.tryAcquire(1, 120, TimeUnit.SECONDS)
 
-        logListener?.let { listener ->
-            // TODO split apk paths too?
-            val dest = pkgOps.queryAppInfos(request.packageName)!!
-            listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(dest.sourceDir)))
-            dest.splitSourceDirs?.forEach {
-                listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(it)))
+        val ongoingInstall = installMap.remove(request.packageName)
+        requireNotNull(ongoingInstall) { "No OnGoingInstall found for $request" }
+
+        var success = false
+        var error: Exception? = null
+        if (!noTimeout) {
+            error = TimeoutException("Installer did not finish in time: $request")
+        } else {
+            success = ongoingInstall.installResult!!.code == InstallEvent.Code.SUCCESS
+            if (!success) {
+                error = IllegalStateException(ongoingInstall.installResult.statusMessage)
             }
-
         }
 
-        // TODO pass error?
-        val success = installMap.remove(request.packageName)!!.installResult!!.code == InstallEvent.Code.SUCCESS
-        return Result(success)
+        if (success) {
+            logListener?.let { listener ->
+                val dest = pkgOps.queryAppInfos(request.packageName)!!
+                listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(dest.sourceDir)))
+                dest.splitSourceDirs?.forEach {
+                    listener(LogEvent(LogEvent.Type.RESTORED, LocalPath.build(it)))
+                }
+            }
+        }
+
+        return Result(success = success, error = error)
     }
 
     fun handleEvent(event: InstallEvent) = when (event.code) {

@@ -10,7 +10,7 @@ import eu.darken.bb.task.core.results.LogEvent
 
 interface Restore {
     interface Endpoint : Progress.Host, SharedHolder.HasKeepAlive<Any> {
-        fun restore(config: Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?): Boolean
+        fun restore(config: Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?)
     }
 
     @Keep

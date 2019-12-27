@@ -5,6 +5,5 @@
 
     <fragment
         android:id="@+id/helloStepFragment"
-        android:name="eu.darken.bb.onboarding.steps.hello.HelloStepFragment"
-        android:label="HelloStepFragment" />
+        android:name="eu.darken.bb.onboarding.steps.hello.HelloStepFragment" />
 </navigation>

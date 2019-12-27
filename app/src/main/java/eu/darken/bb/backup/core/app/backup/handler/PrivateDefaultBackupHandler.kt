@@ -37,7 +37,6 @@ class PrivateDefaultBackupHandler @Inject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    // TODO use this keepAlive?
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
     override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {

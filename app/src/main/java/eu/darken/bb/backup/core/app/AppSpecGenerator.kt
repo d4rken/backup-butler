@@ -75,7 +75,7 @@ class AppSpecGenerator @Inject constructor(
 
         override fun getDescription(context: Context): String {
             // TODO useful generator description
-            return generatorId.toString()
+            return "TODO$generatorId"
         }
 
         override var generatorType: Backup.Type
