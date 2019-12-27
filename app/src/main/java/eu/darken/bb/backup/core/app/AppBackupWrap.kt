@@ -53,6 +53,6 @@ class AppBackupWrap
         CACHE_PUBLIC_PRIMARY("CACHE_PUBLIC_PRIMARY", R.string.app_cache_public_primary_label),
         CACHE_PUBLIC_SECONDARY("CACHE_PUBLIC_SECONDARY", R.string.app_cache_public_secondary_label);
 
-        fun forUser(user: Int): String = "$key:$user"
+        fun forUser(user: Int): String = "${key};userId=$user"
     }
 }

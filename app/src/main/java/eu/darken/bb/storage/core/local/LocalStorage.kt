@@ -9,10 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.AString
-import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.asFile
@@ -214,22 +211,17 @@ class LocalStorage @AssistedInject constructor(
 
             val dataFile = File(propFile.parent, propFile.name.replace(PROP_EXT, DATA_EXT))
             val props = propFile.source().use { mmDataRepo.readProps(it) }
+
             val source: MMRef.RefSource = when (props.dataType) {
                 FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.source() }, { props })
                 ARCHIVE -> ArchiveRefSource({ dataFile.source() }, { props as ArchiveProps })
             }
 
-            val refRequest = MMRef.Request(
-                    backupId = backupId,
-                    source = source
-            )
-            val tmpRef = mmDataRepo.create(refRequest)
+            val tmpRef = mmDataRepo.create(MMRef.Request(backupId = backupId, source = source))
 
             val keySplit = propFile.name.split("#")
-            dataMap.getOrPut(
-                    if (keySplit.size == 2) keySplit[0] else "",
-                    { mutableListOf() }
-            ).add(tmpRef)
+            val key = if (keySplit.size == 2) Base64Tool.decode(keySplit[0]) else ""
+            dataMap.getOrPut(key, { mutableListOf() }).add(tmpRef)
 
             updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
         }
@@ -266,8 +258,12 @@ class LocalStorage @AssistedInject constructor(
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
 
-                var key = baseKey
-                if (key.isNotBlank()) key += "#"
+                val key = if (baseKey.isNotBlank()) {
+                    val encoded = Base64Tool.encode(baseKey)
+                    "$encoded#"
+                } else {
+                    ""
+                }
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
                 updateProgressSecondary(targetProp.path)

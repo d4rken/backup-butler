@@ -14,6 +14,7 @@ interface APath : Parcelable {
     val name: String
     val pathType: PathType
 
+    // TODO use AString
     fun userReadablePath(context: Context) = path
     fun userReadableName(context: Context) = name
 

@@ -1,11 +1,13 @@
 package eu.darken.bb.storage.core.saf
 
+import android.content.Context
 import android.net.Uri
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -20,6 +22,7 @@ import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(
         @Assisted initialStorageId: Storage.Id,
+        @AppContext private val context: Context,
         moshi: Moshi,
         private val safGateway: SAFGateway
 ) : StorageEditor {
@@ -54,7 +57,10 @@ class SAFStorageEditor @AssistedInject constructor(
             load(tweakedPath).blockingGet()
         } else {
             editorDataPub.update {
-                it.copy(refPath = tweakedPath)
+                it.copy(
+                        label = if (it.label.isEmpty()) tweakedPath.userReadableName(context) else it.label,
+                        refPath = tweakedPath
+                )
             }
         }
 

@@ -16,6 +16,7 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.getTaskId
+import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -90,8 +91,11 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
             Timber.tag(TAG).i("Removing one-time-task: %s", task)
             taskRepo.remove(task.taskId).blockingGet()
         }
-
-        Timber.tag(TAG).i("Finished processing %s: %s", task, taskResult)
+        if (taskResult.state == TaskResult.State.SUCCESS) {
+            Timber.tag(TAG).i("Successfully processed %s: %s", task, taskResult)
+        } else {
+            Timber.tag(TAG).e("Error while processing %s: %s", task, taskResult)
+        }
         sleep(2000)
     }
 

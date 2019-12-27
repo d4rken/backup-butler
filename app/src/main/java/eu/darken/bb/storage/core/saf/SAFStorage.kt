@@ -9,10 +9,7 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.AString
-import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.deleteAll
@@ -30,6 +27,8 @@ import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
 import eu.darken.bb.processor.core.mm.Props
+import eu.darken.bb.processor.core.mm.archive.ArchiveProps
+import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
 import io.reactivex.Completable
@@ -227,21 +226,19 @@ class SAFStorage @AssistedInject constructor(
             updateProgressSecondary { propFile.userReadablePath(it) }
 
             val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
+            val props = propFile.read(safGateway).use { mmDataRepo.readProps(it) }
 
-            val refRequest = MMRef.Request(
-                    backupId = backupId,
-                    source = GenericRefSource(
-                            { dataFile.read(safGateway) },
-                            { propFile.read(safGateway).use { mmDataRepo.readProps(it) } }
-                    )
-            )
-            val tmpRef = mmDataRepo.create(refRequest)
+            val source: MMRef.RefSource = when (props.dataType) {
+                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.read(safGateway) }, { props })
+                ARCHIVE -> ArchiveRefSource({ dataFile.read(safGateway) }, { props as ArchiveProps })
+            }
+
+            val tmpRef = mmDataRepo.create(MMRef.Request(backupId = backupId, source = source))
 
             val keySplit = propFile.name.split("#")
-            dataMap.getOrPut(
-                    if (keySplit.size == 2) keySplit[0] else "",
-                    { mutableListOf() }
-            ).add(tmpRef)
+            val key = if (keySplit.size == 2) Base64Tool.decode(keySplit[0]) else ""
+            dataMap.getOrPut(key, { mutableListOf() }).add(tmpRef)
+
             updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
         }
         updateProgressSecondary(AString.EMPTY)
@@ -278,8 +275,12 @@ class SAFStorage @AssistedInject constructor(
             refs.forEach { ref ->
                 updateProgressSecondary(ref.props.tryLabel)
 
-                var key = baseKey
-                if (key.isNotBlank()) key += "#"
+                val key = if (baseKey.isNotBlank()) {
+                    val encoded = Base64Tool.encode(baseKey)
+                    "$encoded#"
+                } else {
+                    ""
+                }
 
                 val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
                 propsAdapter.toSAFFile(ref.props, safGateway, targetProp)

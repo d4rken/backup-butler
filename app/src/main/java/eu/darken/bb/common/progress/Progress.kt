@@ -37,7 +37,7 @@ interface Progress {
             override fun displayValue(context: Context): String {
                 if (current == 0L && max == 0L) return "NaN"
                 if (current == 0L) return "0%"
-                return "${ceil(((max / current) * 100).toDouble()).toInt()}%"
+                return "${ceil(((current.toDouble() / max.toDouble()) * 100)).toInt()}%"
             }
         }
 
