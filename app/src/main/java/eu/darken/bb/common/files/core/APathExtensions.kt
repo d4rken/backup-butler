@@ -151,14 +151,7 @@ fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, prop
     } else {
         true
     }
-    val allSuc = modSuc && permSuc && ownSuc
-    if (!allSuc) {
-        Timber.w(
-                "setMetaData(props=%s): setModifiedAt()=%b, setPermissions()=%b, setOwnerShip()=%b",
-                props, modSuc, permSuc, ownSuc
-        )
-    }
-    return allSuc
+    return modSuc && permSuc && ownSuc
 }
 
 fun <T : APath> T.lookup(gateway: APathGateway<T, out APathLookup<T>>): APathLookup<T> {

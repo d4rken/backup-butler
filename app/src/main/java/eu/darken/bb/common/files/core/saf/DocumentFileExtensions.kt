@@ -34,15 +34,16 @@ internal fun DocumentFile.openParcelFileDescriptor(contentResolver: ContentResol
     return pfd
 }
 
-internal fun DocumentFile.setLastModified(contentResolver: ContentResolver, lastModified: Date): Boolean = try {
-    val updateValues = ContentValues()
-    updateValues.put(DocumentsContract.Document.COLUMN_LAST_MODIFIED, lastModified.time)
-    val updated: Int = contentResolver.update(uri, updateValues, null, null)
-    updated == 1
-} catch (e: Exception) {
-    Timber.tag(SAFGateway.TAG).w(e, "setLastModified(lastModified=%s) failed on %s", lastModified, this)
-    false
-}
+internal fun DocumentFile.setLastModified(contentResolver: ContentResolver, lastModified: Date): Boolean =
+        try {
+            val updateValues = ContentValues()
+            updateValues.put(DocumentsContract.Document.COLUMN_LAST_MODIFIED, lastModified.time)
+            val updated: Int = contentResolver.update(uri, updateValues, null, null)
+            updated == 1
+        } catch (e: Exception) {
+            Timber.tag(SAFGateway.TAG).w(e, "setLastModified(lastModified=%s) failed on %s", lastModified, this)
+            false
+        }
 
 internal fun DocumentFile.setPermissions(contentResolver: ContentResolver, permissions: Permissions): Boolean =
         openParcelFileDescriptor(contentResolver, FileMode.WRITE).use { pfd ->
