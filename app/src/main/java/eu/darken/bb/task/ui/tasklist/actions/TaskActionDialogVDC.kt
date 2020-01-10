@@ -12,7 +12,7 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
+import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

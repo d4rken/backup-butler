@@ -35,7 +35,7 @@
 
     <fragment
         android:id="@+id/introFragment"
-        android:name="eu.darken.bb.task.ui.editor.backup.intro.IntroFragment"
+        android:name="eu.darken.bb.task.ui.editor.common.intro.IntroFragment"
         android:label="@string/general_introduction_label"
         tools:layout="@layout/task_editor_intro_fragment">
         <action
@@ -99,11 +99,34 @@
     </fragment>
     <fragment
         android:id="@+id/generatorPickerFragment"
-        tools:layout="@layout/task_editor_backup_generators_picker_fragment"
         android:name="eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragment"
-        android:label="@string/backup_add_generator_action">
+        android:label="@string/backup_add_generator_action"
+        tools:layout="@layout/task_editor_backup_generators_picker_fragment">
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
+    </fragment>
+    <fragment
+        android:id="@+id/requirementsFragment"
+        android:name="eu.darken.bb.task.ui.editor.common.requirements.RequirementsFragment"
+        android:label="@string/requirements_label"
+        tools:layout="@layout/task_editor_requirements_fragment">
+        <argument
+            android:name="taskId"
+            app:argType="eu.darken.bb.task.core.Task$Id" />
+        <action
+            android:id="@+id/action_permissionFragment_to_restoreSourcesFragment"
+            app:destination="@id/restoreSourcesFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_permissionFragment_to_introFragment"
+            app:destination="@id/introFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 </navigation>

@@ -274,4 +274,15 @@
     <string name="app_cache_public_secondary_label">Public app cache (secondary)</string>
     <string name="app_apk_base_label">Main install file</string>
     <string name="app_apk_split_label">Additional install resource</string>
+    <string name="app_data_sdcard_primary">SDCard app data (primary)</string>
+    <string name="app_data_sdcard_secondary">SDCard app data (secondary)</string>
+    <string name="app_cache_sdcard_primary">SDCard app cache (primary)</string>
+    <string name="app_cache_sdcard_secondary">SDCard app cache (secondary)</string>
+    <string name="app_custom_data">Custom app paths</string>
+    <string name="requirements_desc">The following requirements should be satisfied, otherwise Backup Butler may fail to complete this task.</string>
+    <string name="requirements_extended_desc">You can safely continue if you are certain that a specific requirement is not needed. The shown requirements are what Backup Butler predicts will be necessary for successful completion. The exact set of requirements for this task are not known in advance, but only when actually processing the data.</string>
+    <string name="requirements_label">Requirements</string>
+    <string name="action_more">More</string>
+    <string name="permission_write_storage_label">Storage Access Permission</string>
+    <string name="permission_write_storage_desc">Write access to public storage, e.g. your built-in and/or removable sdcard. Necessary to read backups and restore app data.</string>
 </resources>

@@ -18,6 +18,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
@@ -31,7 +32,8 @@ class PublicDefaultBackupHandler @Inject constructor(
         @AppContext context: Context,
         private val gatewaySwitch: GatewaySwitch,
         private val mmDataRepo: MMDataRepo,
-        private val pkgOps: PkgOps
+        private val pkgOps: PkgOps,
+        private val userManagerBB: UserManagerBB
 ) : BaseBackupHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -40,12 +42,22 @@ class PublicDefaultBackupHandler @Inject constructor(
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
-    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {
+    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo, target: APath?): Boolean {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY,
-            DataType.DATA_PUBLIC_SECONDARY,
+            DataType.DATA_PUBLIC_SECONDARY -> {
+                // It's okay
+            }
             DataType.CACHE_PUBLIC_PRIMARY,
             DataType.CACHE_PUBLIC_SECONDARY -> {
+                // It's okay
+            }
+            DataType.DATA_SDCARD_PRIMARY,
+            DataType.DATA_SDCARD_SECONDARY -> {
+                // It's okay
+            }
+            DataType.CACHE_SDCARD_PRIMARY,
+            DataType.CACHE_SDCARD_SECONDARY -> {
                 // It's okay
             }
             else -> return false
@@ -59,11 +71,14 @@ class PublicDefaultBackupHandler @Inject constructor(
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             builder: AppBackupWrap,
+            target: APath?,
             logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
+            DataType.DATA_SDCARD_PRIMARY, DataType.DATA_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
             DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
+            DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
         updateProgressSecondary(AString.EMPTY)
@@ -91,11 +106,11 @@ class PublicDefaultBackupHandler @Inject constructor(
             appInfo: ApplicationInfo,
             logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
-
+        val currentUser = userManagerBB.currentUser
         val targetPairs = mutableListOf<Pair<APath, Collection<APath>>>()
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY -> {
-                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName).publicPrimary
+                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary
                 val targets = if (pubDataDir.exists(gatewaySwitch)) {
                     pubDataDir.listFiles(gatewaySwitch).filter { isNonCache(it) }
                 } else {
@@ -104,7 +119,7 @@ class PublicDefaultBackupHandler @Inject constructor(
                 targetPairs.add(Pair(pubDataDir, targets))
             }
             DataType.DATA_PUBLIC_SECONDARY -> {
-                pkgOps.getPathInfos(appInfo.packageName).publicSecondary.forEach { secStor ->
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.forEach { secStor ->
                     val targets = if (secStor.exists(gatewaySwitch)) {
                         secStor.listFiles(gatewaySwitch).filter { isNonCache(it) }
                     } else {
@@ -114,7 +129,7 @@ class PublicDefaultBackupHandler @Inject constructor(
                 }
             }
             DataType.CACHE_PUBLIC_PRIMARY -> {
-                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName).publicPrimary
+                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary
                 val targets = if (pubDataDir.exists(gatewaySwitch)) {
                     pubDataDir.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
                 } else {
@@ -123,7 +138,7 @@ class PublicDefaultBackupHandler @Inject constructor(
                 targetPairs.add(Pair(pubDataDir, targets))
             }
             DataType.CACHE_PUBLIC_SECONDARY -> {
-                pkgOps.getPathInfos(appInfo.packageName).publicSecondary.forEach { secStor ->
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.forEach { secStor ->
                     val targets = if (secStor.exists(gatewaySwitch)) {
                         secStor.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
                     } else {
@@ -131,6 +146,18 @@ class PublicDefaultBackupHandler @Inject constructor(
                     }
                     targetPairs.add(Pair(secStor, targets))
                 }
+            }
+            DataType.DATA_SDCARD_PRIMARY -> {
+                TODO()
+            }
+            DataType.DATA_SDCARD_SECONDARY -> {
+                TODO()
+            }
+            DataType.CACHE_SDCARD_PRIMARY -> {
+                TODO()
+            }
+            DataType.CACHE_SDCARD_SECONDARY -> {
+                TODO()
             }
             else -> throw UnsupportedOperationException("Can't restore $type")
         }

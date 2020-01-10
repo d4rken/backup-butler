@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.backup.intro
+package eu.darken.bb.task.ui.editor.common.intro
 
 import android.os.Bundle
 import android.view.View

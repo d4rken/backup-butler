@@ -13,12 +13,14 @@ import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentModule
 import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragment
 import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentModule
-import eu.darken.bb.task.ui.editor.backup.intro.IntroFragment
-import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentModule
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentModule
 import eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragment
 import eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragmentModule
+import eu.darken.bb.task.ui.editor.common.intro.IntroFragment
+import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentModule
+import eu.darken.bb.task.ui.editor.common.requirements.RequirementsFragment
+import eu.darken.bb.task.ui.editor.common.requirements.RequirementsFragmentModule
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragmentModule
 import eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment
@@ -36,6 +38,10 @@ abstract class TaskEditorActivityModule {
     @PerFragment
     @ContributesAndroidInjector(modules = [IntroFragmentModule::class])
     abstract fun introFragment(): IntroFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(modules = [RequirementsFragmentModule::class])
+    abstract fun requirementsFragment(): RequirementsFragment
 
     @PerFragment
     @ContributesAndroidInjector(modules = [SourcesFragmentModule::class])

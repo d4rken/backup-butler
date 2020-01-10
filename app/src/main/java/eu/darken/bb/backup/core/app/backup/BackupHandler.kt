@@ -5,6 +5,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.task.core.results.LogEvent
 
@@ -12,7 +13,12 @@ interface BackupHandler : Progress.Client, Progress.Host, SharedHolder.HasKeepAl
 
     val priority: Int
 
-    fun isResponsible(type: AppBackupWrap.DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean
+    fun isResponsible(
+            type: AppBackupWrap.DataType,
+            config: AppBackupSpec,
+            appInfo: ApplicationInfo,
+            target: APath?
+    ): Boolean
 
     fun backup(
             type: AppBackupWrap.DataType,
@@ -20,7 +26,8 @@ interface BackupHandler : Progress.Client, Progress.Host, SharedHolder.HasKeepAl
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             wrap: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)? = null
+            target: APath?,
+            logListener: ((LogEvent) -> Unit)?
     )
 
 }

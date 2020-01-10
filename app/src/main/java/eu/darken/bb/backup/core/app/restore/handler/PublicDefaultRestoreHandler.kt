@@ -21,6 +21,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.processor.core.mm.archive.ArchiveProps
@@ -36,7 +37,8 @@ import javax.inject.Inject
 class PublicDefaultRestoreHandler @Inject constructor(
         @AppContext context: Context,
         private val gateway: GatewaySwitch,
-        private val pkgOps: PkgOps
+        private val pkgOps: PkgOps,
+        private val userManager: UserManagerBB
 ) : BaseRestoreHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -48,9 +50,19 @@ class PublicDefaultRestoreHandler @Inject constructor(
     override fun isResponsible(type: DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY,
-            DataType.DATA_PUBLIC_SECONDARY,
+            DataType.DATA_PUBLIC_SECONDARY -> {
+                // It's okay
+            }
             DataType.CACHE_PUBLIC_PRIMARY,
             DataType.CACHE_PUBLIC_SECONDARY -> {
+                // It's okay
+            }
+            DataType.DATA_SDCARD_PRIMARY,
+            DataType.DATA_SDCARD_SECONDARY -> {
+                // It's okay
+            }
+            DataType.CACHE_SDCARD_PRIMARY,
+            DataType.CACHE_SDCARD_SECONDARY -> {
                 // It's okay
             }
             else -> return false
@@ -67,7 +79,9 @@ class PublicDefaultRestoreHandler @Inject constructor(
     ) {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
+            DataType.DATA_SDCARD_PRIMARY, DataType.DATA_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
             DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
+            DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
         updateProgressSecondary(AString.EMPTY)
@@ -76,17 +90,24 @@ class PublicDefaultRestoreHandler @Inject constructor(
         gateway.keepAliveWith(this)
         pkgOps.keepAliveWith(this)
 
+        val currentUser = userManager.currentUser
         val toRestore = wrap.getDataType(type)
 
         for ((index, archive) in toRestore.withIndex()) {
             try {
                 val basePath = when (type) {
                     DataType.DATA_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY -> {
-                        pkgOps.getPathInfos(appInfo.packageName).publicPrimary
+                        pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary
                     }
                     DataType.DATA_PUBLIC_SECONDARY, DataType.CACHE_PUBLIC_SECONDARY -> {
                         // TODO support more than one secondary, needs matching though
-                        pkgOps.getPathInfos(appInfo.packageName).publicSecondary.firstOrNull()
+                        pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.firstOrNull()
+                    }
+                    DataType.DATA_SDCARD_PRIMARY, DataType.CACHE_SDCARD_PRIMARY -> {
+                        TODO()
+                    }
+                    DataType.DATA_SDCARD_SECONDARY, DataType.CACHE_SDCARD_SECONDARY -> {
+                        TODO()
                     }
                     else -> throw UnsupportedOperationException("Can't restore $type")
                 }

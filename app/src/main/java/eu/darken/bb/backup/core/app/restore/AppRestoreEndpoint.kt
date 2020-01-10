@@ -94,20 +94,26 @@ class AppRestoreEndpoint @Inject constructor(
 
         if (config.restoreData) {
             listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
-                backupType(type, config, spec, appInfo, wrap, logListener)
+                restoreType(type, config, spec, appInfo, wrap, logListener)
             }
 
-            // TODO sdcard clutter
+            listOf(DataType.DATA_SDCARD_PRIMARY, DataType.DATA_SDCARD_SECONDARY).forEach { type ->
+                restoreType(type, config, spec, appInfo, wrap, logListener)
+            }
         }
 
         if (config.restoreCache) {
             listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
-                backupType(type, config, spec, appInfo, wrap, logListener)
+                restoreType(type, config, spec, appInfo, wrap, logListener)
+            }
+
+            listOf(DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY).forEach { type ->
+                restoreType(type, config, spec, appInfo, wrap, logListener)
             }
         }
     }
 
-    private fun backupType(
+    private fun restoreType(
             type: DataType,
             config: AppRestoreConfig,
             spec: AppBackupSpec,

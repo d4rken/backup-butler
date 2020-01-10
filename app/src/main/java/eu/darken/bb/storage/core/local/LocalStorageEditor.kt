@@ -11,6 +11,7 @@ import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
@@ -23,8 +24,8 @@ class LocalStorageEditor @AssistedInject constructor(
         @Assisted initialStorageId: Storage.Id,
         moshi: Moshi,
         private val runtimePermissionTool: RuntimePermissionTool,
-        private val localGateway: LocalGateway
-
+        private val localGateway: LocalGateway,
+        private val userManager: UserManagerBB
 ) : StorageEditor {
 
     private val editorDataPub = HotData(Data(storageId = initialStorageId))
@@ -45,7 +46,7 @@ class LocalStorageEditor @AssistedInject constructor(
         check(_path.asFile().canWrite()) { "Can't write to path." }
         check(_path.asFile().isDirectory) { "Target is not a directory!" }
 
-        val tweakedPath: LocalPath = if (localGateway.isStorageRoot(_path)) {
+        val tweakedPath: LocalPath = if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
             _path.child("BackupButler")
         } else {
             _path

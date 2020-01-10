@@ -1,0 +1,82 @@
+package eu.darken.bb.task.ui.editor.common.requirements
+
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import androidx.appcompat.app.AlertDialog
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
+import butterknife.BindView
+import eu.darken.bb.R
+import eu.darken.bb.common.dagger.AutoInject
+import eu.darken.bb.common.lists.ClickModule
+import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.observe2
+import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.ui.SetupBarView
+import eu.darken.bb.common.vdc.VDCSource
+import eu.darken.bb.common.vdc.vdcsAssisted
+import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
+import javax.inject.Inject
+
+
+class RequirementsFragment : SmartFragment(), AutoInject {
+
+    val navArgs by navArgs<RequirementsFragmentArgs>()
+
+    @Inject lateinit var vdcSource: VDCSource.Factory
+    private val vdc: RequirementsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
+        factory as RequirementsFragmentVDC.Factory
+        factory.create(handle, navArgs.taskId)
+    })
+
+    @BindView(R.id.explanation_more_action) lateinit var requirementsMoreAction: Button
+    @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
+    @BindView(R.id.requirements_list) lateinit var requirementsList: RecyclerView
+
+    @Inject lateinit var adapter: RequirementsAdapter
+
+    init {
+        layoutRes = R.layout.task_editor_requirements_fragment
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requirementsList.isNestedScrollingEnabled = false
+        requirementsList.setupDefaults(adapter, dividers = false)
+        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.runMainAction(adapter.data[i]) })
+
+        vdc.state.observe2(this) { state ->
+            adapter.update(state.requirements)
+        }
+
+        requirementsMoreAction.clicksDebounced().subscribe {
+            AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
+        }
+
+        setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
+            findNavController().navigate(
+                    R.id.nav_action_next,
+                    SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
+            )
+        }
+
+        vdc.runTimePermissionEvent.observe2(this) { req ->
+            requestPermissions(arrayOf(req.permission), 1)
+        }
+
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1) {
+            vdc.onPermissionResult(grantResults.all { it == PackageManager.PERMISSION_GRANTED })
+        } else {
+            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
+        }
+    }
+}

@@ -12,6 +12,7 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
@@ -98,19 +99,29 @@ class AppBackupEndpoint @Inject constructor(
         }
         // TODO root stuff, only when enabled?
 
-
         if (spec.backupData) {
             listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
                 backupType(type, builder.backupId, spec, appInfo, builder, logListener)
             }
 
-            // TODO sdcard clutter
+            listOf(DataType.DATA_SDCARD_PRIMARY, DataType.DATA_SDCARD_SECONDARY).forEach { type ->
+                backupType(type, builder.backupId, spec, appInfo, builder, logListener)
+            }
         }
 
         if (spec.backupCache) {
             listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
                 backupType(type, builder.backupId, spec, appInfo, builder, logListener)
             }
+
+
+            listOf(DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY).forEach { type ->
+                backupType(type, builder.backupId, spec, appInfo, builder, logListener)
+            }
+        }
+
+        spec.extraPaths.forEach { extra ->
+            backupExtra(builder.backupId, spec, appInfo, builder, extra, logListener)
         }
 
         return builder.createUnit()
@@ -125,7 +136,12 @@ class AppBackupEndpoint @Inject constructor(
             logListener: ((LogEvent) -> Unit)?
     ) {
         val handler = backupHandlers.first {
-            it.isResponsible(type, spec, appInfo)
+            it.isResponsible(
+                    type = type,
+                    config = spec,
+                    appInfo = appInfo,
+                    target = null
+            )
         }
 
         Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
@@ -133,7 +149,49 @@ class AppBackupEndpoint @Inject constructor(
         handler.keepAliveWith(this)
 
         handler.forwardProgressTo(this).withScopeThis {
-            handler.backup(type, backupId, spec, appInfo, builder, logListener)
+            handler.backup(
+                    type = type,
+                    backupId = backupId,
+                    spec = spec,
+                    appInfo = appInfo,
+                    wrap = builder,
+                    target = null,
+                    logListener = logListener
+            )
+        }
+    }
+
+    private fun backupExtra(
+            backupId: Backup.Id,
+            spec: AppBackupSpec,
+            appInfo: ApplicationInfo,
+            builder: AppBackupWrap,
+            target: APath,
+            logListener: ((LogEvent) -> Unit)?
+    ) {
+        val handler = backupHandlers.first {
+            it.isResponsible(
+                    type = DataType.EXTRA_PATHS,
+                    config = spec,
+                    appInfo = appInfo,
+                    target = null
+            )
+        }
+
+        Timber.tag(TAG).d("Processing pkg=%s extra=%s with handler:%s", appInfo.packageName, target, handler)
+
+        handler.keepAliveWith(this)
+
+        handler.forwardProgressTo(this).withScopeThis {
+            handler.backup(
+                    type = DataType.EXTRA_PATHS,
+                    backupId = backupId,
+                    spec = spec,
+                    appInfo = appInfo,
+                    wrap = builder,
+                    target = target,
+                    logListener = logListener
+            )
         }
     }
 

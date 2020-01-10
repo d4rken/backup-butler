@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.tryGetAppLabel
 
 @Keep
@@ -17,7 +18,7 @@ data class AppBackupSpec(
         val backupApk: Boolean,
         val backupData: Boolean,
         val backupCache: Boolean,
-        val extraPaths: Set<APath>
+        val extraPaths: Set<APath> = setOf(LocalPath.build("/storage/emulated/0/Download"))
 ) : BackupSpec {
 
     override fun getLabel(context: Context): String = context.packageManager.tryGetAppLabel(packageName)

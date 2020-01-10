@@ -15,6 +15,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
+import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
@@ -23,7 +24,8 @@ import kotlinx.android.parcel.Parcelize
 class TaskEditorActivityVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
         @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder
+        private val taskBuilder: TaskBuilder,
+        private val reqMan: RequirementsManager
 ) : SmartVDC() {
     private val taskObs = taskBuilder.task(taskId)
             .subscribeOn(Schedulers.io())
@@ -38,6 +40,9 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     private val stater: Stater<State> = Stater {
         val data = taskObs.blockingFirst()
+        val isReqReady = reqMan.reqsFor(data.taskType)
+                .map { reqs -> reqs.all { it.satisfied } }
+                .blockingGet()
         val steps = when (data.taskType) {
             Task.Type.BACKUP_SIMPLE -> StepFlow.BACKUP_SIMPLE
             Task.Type.RESTORE_SIMPLE -> {
@@ -49,11 +54,19 @@ class TaskEditorActivityVDC @AssistedInject constructor(
                 }
             }
         }
-        State(stepFlow = steps, taskId = taskId, taskType = data.taskType)
+        State(stepFlow = steps, taskId = taskId, taskType = data.taskType, requiresSetup = !isReqReady)
     }
     val state = stater.liveData
 
     init {
+        taskObs
+                .switchMapSingle { reqMan.reqsFor(it.taskType) }
+                .map { reqs -> reqs.all { it.satisfied } }
+                .subscribe { isReady ->
+                    stater.update { it.copy(requiresSetup = !isReady) }
+                }
+                .withScopeVDC(this)
+
         stater.data
                 .subscribe { handle.set("state", it) }
                 .withScopeVDC(this)
@@ -102,7 +115,8 @@ class TaskEditorActivityVDC @AssistedInject constructor(
             val isValid: Boolean = false,
             val isExistingTask: Boolean = false,
             val isLoading: Boolean = true,
-            val isOneTimeTask: Boolean = true
+            val isOneTimeTask: Boolean = true,
+            val requiresSetup: Boolean = true
     ) : Parcelable
 
     enum class StepFlow(@IdRes val start: Int) {

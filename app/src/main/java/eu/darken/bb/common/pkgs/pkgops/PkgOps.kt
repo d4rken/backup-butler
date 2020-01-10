@@ -17,6 +17,7 @@ import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.PkgPathInfo
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.user.UserHandleBB
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -139,9 +140,9 @@ class PkgOps @Inject constructor(
         }
     }
 
-    fun getPathInfos(packageName: String): PkgPathInfo {
-        val pubPrimary = LocalPath.build(deviceEnvironment.publicPrimaryStorage.storagePath, "Android", "data", packageName)
-        val pubSecondary = deviceEnvironment.publicSecondaryStorage.map { LocalPath.build(it.storagePath, "Android", "data", packageName) }
+    fun getPathInfos(packageName: String, userHandle: UserHandleBB): PkgPathInfo {
+        val pubPrimary = LocalPath.build(deviceEnvironment.getPublicPrimaryStorage(userHandle).localPath, "Android", "data", packageName)
+        val pubSecondary = deviceEnvironment.getPublicSecondaryStorage(userHandle).map { LocalPath.build(it.localPath, "Android", "data", packageName) }
         return PkgPathInfo(packageName, pubPrimary, pubSecondary)
     }
 

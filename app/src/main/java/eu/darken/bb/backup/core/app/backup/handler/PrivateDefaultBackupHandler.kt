@@ -39,7 +39,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
-    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo): Boolean {
+    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo, target: APath?): Boolean {
         when (type) {
             DataType.DATA_PRIVATE_PRIMARY,
             DataType.CACHE_PRIVATE_PRIMARY -> {
@@ -56,6 +56,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
             spec: AppBackupSpec,
             appInfo: ApplicationInfo,
             wrap: AppBackupWrap,
+            target: APath?,
             logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {

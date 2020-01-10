@@ -17,7 +17,7 @@ import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import eu.darken.bb.task.ui.editor.backup.intro.IntroFragmentVDC
+import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 

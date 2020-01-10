@@ -57,7 +57,11 @@ class TaskEditorActivity : SmartActivity(), HasSupportFragmentInjector {
 
             if (!navController.isGraphSet()) {
                 val graph = navController.navInflater.inflate(R.navigation.task_editor)
-                graph.startDestination = state.stepFlow.start
+                if (state.requiresSetup) {
+                    graph.startDestination = R.id.requirementsFragment
+                } else {
+                    graph.startDestination = state.stepFlow.start
+                }
                 navController.setGraph(graph, bundleOf("taskId" to state.taskId))
                 setupActionBarWithNavController(navController)
 

@@ -32,6 +32,12 @@ class AppBackupWrap
             data[DataType.APK_SPLIT.key] = value
         }
 
+    var extraPaths: Collection<MMRef>
+        get() = data[DataType.APK_SPLIT.key] ?: emptyList()
+        set(value) {
+            data[DataType.APK_SPLIT.key] = value
+        }
+
     fun getDataType(type: DataType, user: Int = 0): Collection<MMRef> {
         return data[type.forUser(user)] ?: emptyList()
     }
@@ -49,9 +55,14 @@ class AppBackupWrap
         DATA_PRIVATE_PRIMARY("DATA_PRIVATE_PRIMARY", R.string.app_data_private_primary_label),
         DATA_PUBLIC_PRIMARY("DATA_PUBLIC_PRIMARY", R.string.app_data_public_primary_label),
         DATA_PUBLIC_SECONDARY("DATA_PUBLIC_SECONDARY", R.string.app_data_public_secondary_label),
+        DATA_SDCARD_PRIMARY("DATA_SDCARD_PRIMARY", R.string.app_data_sdcard_primary),
+        DATA_SDCARD_SECONDARY("DATA_SDCARD_SECONDARY", R.string.app_data_sdcard_secondary),
         CACHE_PRIVATE_PRIMARY("CACHE_PRIVATE_PRIMARY", R.string.app_cache_private_primary_label),
         CACHE_PUBLIC_PRIMARY("CACHE_PUBLIC_PRIMARY", R.string.app_cache_public_primary_label),
-        CACHE_PUBLIC_SECONDARY("CACHE_PUBLIC_SECONDARY", R.string.app_cache_public_secondary_label);
+        CACHE_PUBLIC_SECONDARY("CACHE_PUBLIC_SECONDARY", R.string.app_cache_public_secondary_label),
+        CACHE_SDCARD_PRIMARY("CACHE_SDCARD_PRIMARY", R.string.app_cache_sdcard_primary),
+        CACHE_SDCARD_SECONDARY("CACHE_SDCARD_SECONDARY", R.string.app_cache_sdcard_secondary),
+        EXTRA_PATHS("EXTRA_PATHS", R.string.app_custom_data);
 
         fun forUser(user: Int): String = "${key};userId=$user"
     }

@@ -11,6 +11,7 @@ import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
 import eu.darken.bb.common.shell.SharedShell
+import eu.darken.bb.common.user.UserHandleBB
 import eu.darken.rxshell.cmd.RxCmdShell
 import okio.*
 import timber.log.Timber
@@ -225,8 +226,8 @@ class LocalGateway @Inject constructor(
         throw ReadException(path, cause = e)
     }
 
-    fun isStorageRoot(path: LocalPath): Boolean {
-        return deviceEnvironment.publicStorage.any { it.storagePath == path }
+    fun isStorageRoot(path: LocalPath, userHandle: UserHandleBB): Boolean {
+        return deviceEnvironment.getPublicStorage(userHandle).any { it.localPath == path }
     }
 
     @Throws(IOException::class)
