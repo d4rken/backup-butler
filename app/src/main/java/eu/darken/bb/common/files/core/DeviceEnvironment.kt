@@ -23,6 +23,7 @@ class DeviceEnvironment @Inject constructor(
     fun getPublicPrimaryStorage(userHandle: UserHandleBB): DeviceStorage {
         val path = Environment.getExternalStorageDirectory()
         val volume = storageManagerX.getRootStorageVolume(path)
+        requireNotNull(volume) { "Can't find volume for $path" }
         return DeviceStorage(
                 LocalPath.build(path),
                 SAFPath.build(buildUri(volume))
@@ -46,7 +47,14 @@ class DeviceEnvironment @Inject constructor(
         val primary = getPublicPrimaryStorage(userHandle).localPath
         return pathResult
                 .filter { it != primary }
-                .map { DeviceStorage((it)) }
+                .map {
+                    val volume = storageManagerX.getRootStorageVolume(it.asFile())
+                    requireNotNull(volume) { "Can't find volume for $it" }
+                    DeviceStorage(
+                            it,
+                            SAFPath.build(buildUri(volume))
+                    )
+                }
     }
 
 
@@ -70,8 +78,10 @@ class DeviceEnvironment @Inject constructor(
     companion object {
 
         val TAG = App.logTag("DeviceEnvironment")
+
         internal fun buildUri(volume: StorageVolumeX): Uri {
             return Uri.parse("content://com.android.externalstorage.documents/tree/${Uri.encode(volume.uuid)}")
         }
+
     }
 }
