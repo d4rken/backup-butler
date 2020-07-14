@@ -4,8 +4,9 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class SimpleBackupTaskTest {
 
@@ -19,23 +20,27 @@ class SimpleBackupTaskTest {
                 destinations = setOf(Storage.Id())
         )
 
-        val expectedOutput = "{" +
-                "\"taskId\":\"${original.taskId.idString}\"," +
-                "\"label\":\"BackupTaskName\"," +
-                "\"sources\":[\"${original.sources.first().idString}\"]," +
-                "\"destinations\":[\"${original.destinations.first().idString}\"]," +
-                "\"isOneTimeTask\":false," +
-                "\"taskType\":\"BACKUP_SIMPLE\"" +
-                "}"
+        val expectedOutput = """{
+            "taskId": "${original.taskId.idString}",
+            "label": "BackupTaskName",
+            "sources":[
+                "${original.sources.first().idString}"
+            ],
+            "destinations": [
+                "${original.destinations.first().idString}"
+            ],
+            "isOneTimeTask": false,
+            "taskType": "BACKUP_SIMPLE"
+        }""".toFormattedJson()
 
         val adapterDirect = AppModule().moshi().adapter(SimpleBackupTask::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedOutput
+        jsonDirect.toFormattedJson() shouldBe expectedOutput
         adapterDirect.fromJson(jsonDirect) shouldBe original
 
         val adapterPoly = AppModule().moshi().adapter(Task::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedOutput
+        jsonPoly.toFormattedJson() shouldBe expectedOutput
         adapterPoly.fromJson(jsonPoly) shouldBe original
     }
 

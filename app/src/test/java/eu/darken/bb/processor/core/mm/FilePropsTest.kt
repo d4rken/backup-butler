@@ -5,9 +5,10 @@ import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.processor.core.mm.generic.FileProps
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 import java.util.*
 
 class FilePropsTest {
@@ -26,13 +27,23 @@ class FilePropsTest {
         val adapter = moshi.adapter(Props::class.java)
 
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
-                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"ownership\":{\"userId\":123,\"groupId\":456}," +
-                "\"permissions\":{\"mode\":16888}," +
-                "\"dataType\":\"FILE\"" +
-                "}"
+        json.toFormattedJson() shouldBe """
+            {
+                "originalPath": {
+                    "path":"originalpath",
+                    "pathType":"RAW"
+                },
+                "modifiedAt": "1970-01-01T00:00:00.000Z",
+                "ownership": {
+                    "userId":123,
+                    "groupId":456
+                },
+                "permissions": {
+                    "mode":16888
+                },
+                "dataType":"FILE"
+            }
+            """.toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -51,13 +62,23 @@ class FilePropsTest {
         val adapter = moshi.adapter(FileProps::class.java)
 
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
-                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"ownership\":{\"userId\":123,\"groupId\":456}," +
-                "\"permissions\":{\"mode\":16888}," +
-                "\"dataType\":\"FILE\"" +
-                "}"
+        json.toFormattedJson() shouldBe """
+            {
+                "originalPath": {
+                    "path": "originalpath",
+                    "pathType":"RAW"
+                },
+                "modifiedAt": "1970-01-01T00:00:00.000Z",
+                "ownership": {
+                    "userId": 123,
+                    "groupId": 456
+                },
+                "permissions": {
+                    "mode": 16888
+                },
+                "dataType":"FILE"
+            }
+            """.toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }

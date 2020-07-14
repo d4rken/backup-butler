@@ -5,8 +5,9 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.RawPath
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class FilesSpecGeneratorConfigTest {
 
@@ -22,21 +23,23 @@ class FilesSpecGeneratorConfigTest {
         val adapterPath = moshi.adapter(APath::class.java)
         val jsonPath = adapterPath.toJson(original.path)
 
-        val expectedJson = "{" +
-                "\"generatorId\":\"${original.generatorId.idString}\"," +
-                "\"label\":\"FilesSpecLabel\"," +
-                "\"path\":$jsonPath," +
-                "\"generatorType\":\"FILES\"" +
-                "}"
+        val expectedJson = """
+            {
+                "generatorId":"${original.generatorId.idString}",
+                "label":"FilesSpecLabel",
+                "path":$jsonPath,
+                "generatorType":"FILES"
+            }
+        """.toFormattedJson()
 
         val adapterPoly = moshi.adapter(Generator.Config::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedJson
+        jsonPoly.toFormattedJson() shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
         val adapterDirect = moshi.adapter(FilesSpecGenerator.Config::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedJson
+        jsonDirect.toFormattedJson() shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
     }
 

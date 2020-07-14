@@ -6,9 +6,10 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.files.core.RawPath
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class AppBackupSpecTest {
 
@@ -25,25 +26,32 @@ class AppBackupSpecTest {
 
         val moshi = AppModule().moshi()
 
-        val expectedJson = "{" +
-                "\"packageName\":\"test.package\"," +
-                "\"specId\":\"pkg-test.package\"," +
-                "\"revisionLimit\":3," +
-                "\"backupApk\":true," +
-                "\"backupData\":true," +
-                "\"backupCache\":false," +
-                "\"extraPaths\":[{\"path\":\"testraw/path\",\"pathType\":\"RAW\"}]," +
-                "\"backupType\":\"APP\"" +
-                "}"
+        val expectedJson = """
+            {
+                "packageName": "test.package",
+                "specId": "pkg-test.package",
+                "revisionLimit": 3,
+                "backupApk": true,
+                "backupData": true,
+                "backupCache": false,
+                "extraPaths": [
+                    {
+                        "path": "testraw/path",
+                        "pathType": "RAW"
+                    }
+                ],
+                "backupType": "APP"
+            }
+        """.toFormattedJson()
 
         val adapterPoly = moshi.adapter(BackupSpec::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedJson
+        jsonPoly.toFormattedJson() shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
         val adapterDirect = moshi.adapter(AppBackupSpec::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedJson
+        jsonDirect.toFormattedJson() shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
     }
 

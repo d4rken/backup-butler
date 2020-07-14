@@ -3,10 +3,11 @@ package eu.darken.bb.storage.core.saf
 import eu.darken.bb.AppModule
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.local.LocalStorageConfig
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class SAFStorageConfigTest {
 
@@ -21,18 +22,18 @@ class SAFStorageConfigTest {
         val moshi = AppModule().moshi()
         val adapter = moshi.adapter(SAFStorageConfig::class.java)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"label\":\"testlabel\"," +
-                "\"storageId\":\"${testID.idString}\"," +
-                "\"strategy\":{\"type\":\"SIMPLE\"}," +
-                "\"storageType\":\"${Storage.Type.SAF}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "label": "testlabel",
+            "storageId": "${testID.idString}",
+            "strategy": {
+                "type": "SIMPLE"
+            },
+            "storageType": "${Storage.Type.SAF}"
+        }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(SAFStorageConfig::class.java)
-        assertThat(restored).isEqualTo(original)
-
-
+        restored.shouldBeTypeOf<SAFStorageConfig>()
+        restored shouldBe original
     }
 
     @Test
@@ -47,16 +48,18 @@ class SAFStorageConfigTest {
         val adapter = moshi.adapter(Storage.Config::class.java)
 
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"label\":\"testlabel\"," +
-                "\"storageId\":\"${testID.idString}\"," +
-                "\"strategy\":{\"type\":\"SIMPLE\"}," +
-                "\"storageType\":\"${Storage.Type.SAF}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "label": "testlabel",
+            "storageId": "${testID.idString}",
+            "strategy": {
+                "type": "SIMPLE"
+            },
+            "storageType":"${Storage.Type.SAF}"
+        }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(SAFStorageConfig::class.java)
-        assertThat(restored).isEqualTo(original)
+        restored.shouldBeTypeOf<SAFStorageConfig>()
+        restored shouldBe original
     }
 
     @Test

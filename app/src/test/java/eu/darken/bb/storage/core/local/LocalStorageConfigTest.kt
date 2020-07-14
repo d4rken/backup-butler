@@ -3,10 +3,11 @@ package eu.darken.bb.storage.core.local
 import eu.darken.bb.AppModule
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.saf.SAFStorageConfig
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class LocalStorageConfigTest {
     @Test
@@ -23,16 +24,16 @@ class LocalStorageConfigTest {
 
         val strategyJson = strategyAdapter.toJson(original.strategy)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"storageId\":\"${testID.idString}\"," +
-                "\"label\":\"testlabel\"," +
-                "\"strategy\":$strategyJson," +
-                "\"storageType\":\"${Storage.Type.LOCAL}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "storageId": "${testID.idString}",
+            "label": "testlabel",
+            "strategy": $strategyJson,
+            "storageType":"${Storage.Type.LOCAL}"
+        }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(LocalStorageConfig::class.java)
-        assertThat(restored).isEqualTo(original)
+        restored.shouldBeTypeOf<LocalStorageConfig>()
+        restored shouldBe original
     }
 
     @Test
@@ -50,16 +51,16 @@ class LocalStorageConfigTest {
         val strategyJson = strategyAdapter.toJson(original.strategy)
         val json = adapter.toJson(original)
 
-        json shouldBe "{" +
-                "\"storageId\":\"${testID.idString}\"," +
-                "\"label\":\"testlabel\"," +
-                "\"strategy\":$strategyJson," +
-                "\"storageType\":\"${Storage.Type.LOCAL}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "storageId": "${testID.idString}",
+            "label": "testlabel",
+            "strategy": $strategyJson,
+            "storageType": "${Storage.Type.LOCAL}"
+        }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
-        assertThat(restored).isInstanceOf(LocalStorageConfig::class.java)
-        assertThat(restored).isEqualTo(original)
+        restored.shouldBeTypeOf<LocalStorageConfig>()
+        restored shouldBe original
     }
 
     @Test

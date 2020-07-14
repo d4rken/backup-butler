@@ -5,9 +5,10 @@ import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.processor.core.mm.generic.SymlinkProps
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 import java.util.*
 
 class SymlinkPropsTest {
@@ -26,13 +27,22 @@ class SymlinkPropsTest {
         val adapter = moshi.adapter(Props::class.java)
 
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
-                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"ownership\":{\"userId\":123,\"groupId\":456}," +
-                "\"symlinkTarget\":{\"path\":\"target\",\"pathType\":\"RAW\"}," +
-                "\"dataType\":\"SYMLINK\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "originalPath": {
+                "path": "originalpath",
+                "pathType":"RAW"
+            },
+            "modifiedAt": "1970-01-01T00:00:00.000Z",
+            "ownership": {
+                "userId": 123,
+                "groupId": 456
+            },
+            "symlinkTarget": {
+                "path": "target",
+                "pathType":"RAW"
+            },
+            "dataType": "SYMLINK"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -51,13 +61,22 @@ class SymlinkPropsTest {
         val adapter = moshi.adapter(SymlinkProps::class.java)
 
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"originalPath\":{\"path\":\"originalpath\",\"pathType\":\"RAW\"}," +
-                "\"modifiedAt\":\"1970-01-01T00:00:00.000Z\"," +
-                "\"ownership\":{\"userId\":123,\"groupId\":456}," +
-                "\"symlinkTarget\":{\"path\":\"target\",\"pathType\":\"RAW\"}," +
-                "\"dataType\":\"SYMLINK\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+                "originalPath": {
+                    "path":"originalpath",
+                    "pathType":"RAW"
+                },
+                "modifiedAt": "1970-01-01T00:00:00.000Z",
+                "ownership": {
+                    "userId": 123,
+                    "groupId": 456
+                },
+                "symlinkTarget": {
+                    "path":"target",
+                    "pathType":"RAW"
+                },
+                "dataType":"SYMLINK"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }

@@ -2,9 +2,10 @@ package eu.darken.bb.task.core
 
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
-import io.kotlintest.shouldBe
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 import java.util.*
 
 class TaskIdTest {
@@ -12,14 +13,14 @@ class TaskIdTest {
     fun testSerialization() {
         val uuid = UUID.randomUUID()
         val orig = Task.Id(uuid)
-        assertThat(orig.toString()).isEqualTo("TaskId($uuid)")
+        orig.toString() shouldBe "TaskId($uuid)"
 
         val adapter = AppModule().moshi().adapter(Task.Id::class.java)
 
         val json = adapter.toJson(orig)
-        assertThat(json).contains(uuid.toString())
+        json shouldContain uuid.toString()
 
-        assertThat(adapter.fromJson(json)).isEqualTo(orig)
+        adapter.fromJson(json) shouldBe orig
     }
 
     @Test
@@ -34,7 +35,11 @@ class TaskIdTest {
         val testMap = mapOf(idKey to idValue)
         val json = adapter.toJson(testMap)
 
-        json shouldBe "{\"${idKey.idString}\":\"${idValue.idString}\"}"
+        json.toFormattedJson() shouldBe """
+            {
+                "${idKey.idString}": "${idValue.idString}"
+            }
+        """.toFormattedJson()
         testMap shouldBe adapter.fromJson(json)
     }
 }

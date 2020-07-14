@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.StrictMode
 import android.util.Log
 import com.bugsnag.android.Bugsnag
+import com.bugsnag.android.Configuration
 import com.uber.rxdogtag.RxDogTag
 import dagger.Lazy
 import eu.darken.bb.App
@@ -101,20 +102,20 @@ class BBDebug @Inject constructor(
     }
 
     private fun setupBugSnag() {
-        val bugsnagClient = Bugsnag.init(context)
-        bugsnagClient.setUserId(installId.installId.toString())
+        val config = Configuration.load(context).apply {
+            setUser(installId.installId.toString(), null, null)
+            autoTrackSessions = generalSettings.isBugTrackingEnabled
 
-        if (generalSettings.isBugTrackingEnabled) {
-            Timber.plant(bugsnagTreeSrc.get())
-            bugsnagClient.setAutoCaptureSessions(true)
-            bugsnagClient.beforeNotify(errorHandlerSrc.get())
-            Timber.tag(App.TAG).i("Bugsnag setup done!")
-        } else {
-            bugsnagClient.setAutoCaptureSessions(false)
-            bugsnagClient.beforeNotify(noopHandlerSrc.get())
-            Timber.tag(TAG).i("Installing Bugsnag NOP error handler due to user opt-out!")
+            if (generalSettings.isBugTrackingEnabled) {
+                Timber.plant(bugsnagTreeSrc.get())
+                addOnError(errorHandlerSrc.get())
+                Timber.tag(App.TAG).i("Bugsnag setup done!")
+            } else {
+                addOnError(noopHandlerSrc.get())
+                Timber.tag(TAG).i("Installing Bugsnag NOP error handler due to user opt-out!")
+            }
         }
-
+        Bugsnag.start(context, config)
     }
 
     override fun observeOptions(): Observable<DebugOptions> = optionsUpdater.data

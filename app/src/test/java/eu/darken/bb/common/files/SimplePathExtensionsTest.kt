@@ -2,7 +2,7 @@ package eu.darken.bb.common.files
 
 import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.common.files.core.crumbsTo
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class SimplePathExtensionsTest {

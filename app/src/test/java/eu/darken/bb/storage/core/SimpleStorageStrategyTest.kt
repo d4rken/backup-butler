@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.core
 
 import eu.darken.bb.AppModule
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class SimpleStorageStrategyTest {
 
@@ -10,18 +11,18 @@ class SimpleStorageStrategyTest {
     fun `test serialization`() {
         val original = SimpleStrategy()
 
-        val expectedOutput = "{" +
-                "\"type\":\"SIMPLE\"" +
-                "}"
+        val expectedOutput = """{
+            "type":"SIMPLE"
+        }""".toFormattedJson()
 
         val adapterDirect = AppModule().moshi().adapter(SimpleStrategy::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedOutput
+        jsonDirect.toFormattedJson() shouldBe expectedOutput
         adapterDirect.fromJson(jsonDirect) shouldBe original
 
         val adapterPoly = AppModule().moshi().adapter(Storage.Strategy::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedOutput
+        jsonPoly.toFormattedJson() shouldBe expectedOutput
         adapterPoly.fromJson(jsonPoly) shouldBe original
     }
 

@@ -6,10 +6,11 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.files.core.RawPath
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class AppRestoreConfigTest {
 
@@ -19,22 +20,25 @@ class AppRestoreConfigTest {
 
         val moshi = AppModule().moshi()
 
-        val expectedJson = "{" +
-                "\"skipExistingApps\":false," +
-                "\"restoreApk\":true," +
-                "\"restoreData\":true," +
-                "\"restoreCache\":false," +
-                "\"restoreType\":\"APP\"" +
-                "}"
+        val expectedJson = """
+            {
+                "skipExistingApps": false,
+                "restoreApk": true,
+                "restoreData": true,
+                "restoreCache": false,
+                "overwriteExisting": true,
+                "restoreType": "APP"
+            }
+        """.toFormattedJson()
 
         val adapterPoly = moshi.adapter(Restore.Config::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedJson
+        jsonPoly.toFormattedJson() shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
         val adapterDirect = moshi.adapter(AppRestoreConfig::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedJson
+        jsonDirect.toFormattedJson() shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
     }
 

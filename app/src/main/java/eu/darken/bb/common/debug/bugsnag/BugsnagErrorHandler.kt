@@ -1,7 +1,8 @@
 package eu.darken.bb.common.debug.bugsnag
 
 
-import com.bugsnag.android.BeforeNotify
+import com.bugsnag.android.Event
+import com.bugsnag.android.OnErrorCallback
 import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.BuildConfig
@@ -20,24 +21,24 @@ class BugsnagErrorHandler @Inject constructor(
         private val bugsnagTree: BugsnagTree,
         private val backupButler: BackupButler,
         private val generalSettings: GeneralSettings
-) : BeforeNotify {
+) : OnErrorCallback {
 
-    override fun run(error: com.bugsnag.android.Error): Boolean {
-        Timber.tag(TAG).v("Handling error: %s", error.exception.toString())
+    override fun onError(event: Event): Boolean {
+        Timber.tag(TAG).v(event.originalError, "Handling error: %s", event)
 
-        bugsnagTree.update(error)
+        bugsnagTree.injectLog(event)
 
-        error.addToTab(TAB_APP, "checksumMD5", backupButler.checksumApkMd5)
+        event.addMetadata(TAB_APP, "checksumMD5", backupButler.checksumApkMd5)
 
 //        val upgradeControl = sdmContext.getUpgradeControl()
 //        error.addToTab(TAB_APP, "upgrades", formatLists(ArrayList(upgradeControl.getUpgradeData().map(???() { UpgradeData.getUpgrades() }).blockingFirst())))
 //        error.addToTab(TAB_APP, "debugMode", SDMDebug.INSTANCE.observeOptions().blockingFirst().getLevel())
-        error.addToTab(TAB_APP, "gitSha", BuildConfig.GITSHA)
-        error.addToTab(TAB_APP, "buildTime", BuildConfig.BUILDTIME)
+        event.addMetadata(TAB_APP, "gitSha", BuildConfig.GITSHA)
+        event.addMetadata(TAB_APP, "buildTime", BuildConfig.BUILDTIME)
 
-        error.addToTab(TAB_APP, "signatures", backupButler.signatures.map { it.hashCode() }.toString())
+        event.addMetadata(TAB_APP, "signatures", backupButler.signatures.map { it.hashCode() }.toString())
 
-        error.addToTab(TAB_APP, "updateHistory", backupButler.updateHistory.toString())
+        event.addMetadata(TAB_APP, "updateHistory", backupButler.updateHistory.toString())
 
 
 //        if (sdmContext.getRootManager().isInitialized()) {

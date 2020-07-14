@@ -1,7 +1,7 @@
 package eu.darken.bb
 
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.collections.shouldContainAll
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -16,5 +16,5 @@ inline fun <reified T> PolymorphicJsonAdapterFactory<T>.testAllSubTypesRegistere
             }
     val registeredTypes = subtypes.getter.call(this) as List<Class<out T>>
     val expectedTypes = T::class.sealedSubclasses.map { it.java }
-    assertThat(registeredTypes).containsAll(expectedTypes)
+    registeredTypes shouldContainAll expectedTypes
 }

@@ -1,7 +1,7 @@
 package eu.darken.bb.common.moshi
 
 import eu.darken.bb.AppModule
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -16,6 +16,6 @@ class DateTest {
 
         val json = dateAdapter.toJson(orig)
 
-        assertThat(dateAdapter.fromJson(json)).isEqualTo(orig)
+        dateAdapter.fromJson(json) shouldBe orig
     }
 }

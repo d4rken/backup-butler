@@ -6,10 +6,10 @@ import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.common.files.core.local.File
 import eu.darken.bb.common.files.core.local.LocalPath
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class RawPathTest {
     @Test
@@ -19,9 +19,14 @@ class RawPathTest {
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"RAW\"}")
+        json.toFormattedJson() shouldBe """
+            {
+                "path": "test/file",
+                "pathType": "RAW"
+            }
+        """.toFormattedJson()
 
-        assertThat(adapter.fromJson(json)).isEqualTo(original)
+        adapter.fromJson(json) shouldBe original
     }
 
     @Test
@@ -31,9 +36,14 @@ class RawPathTest {
         val adapter = AppModule().moshi().adapter(RawPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"path\":\"test/file\",\"pathType\":\"RAW\"}")
+        json.toFormattedJson() shouldBe """
+            {
+                "path": "test/file",
+                "pathType": "RAW"
+            }
+        """.toFormattedJson()
 
-        assertThat(adapter.fromJson(json)).isEqualTo(original)
+        adapter.fromJson(json) shouldBe original
     }
 
     @Test

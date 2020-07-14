@@ -3,8 +3,9 @@ package eu.darken.bb.task.core
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
 import eu.darken.bb.task.core.results.TaskResult
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class TaskIdResultTest {
 //    @Test
@@ -33,7 +34,11 @@ class TaskIdResultTest {
         val testMap = mapOf(idKey to idValue)
         val json = adapter.toJson(testMap)
 
-        json shouldBe "{\"${idKey.idString}\":\"${idValue.idString}\"}"
+        json.toFormattedJson() shouldBe """
+            {
+                "${idKey.idString}": "${idValue.idString}"
+            }
+        """.toFormattedJson()
         testMap shouldBe adapter.fromJson(json)
     }
 }

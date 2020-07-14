@@ -222,36 +222,44 @@ dependencies {
     implementation "com.jakewharton.timber:timber:${versions.timber}"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
     implementation "com.uber.rxdogtag:rxdogtag:0.2.0"
-    implementation 'com.bugsnag:bugsnag-android:4.21.1'
+    implementation 'com.bugsnag:bugsnag-android:5.0.0'
 
     //Butterknife
     implementation "com.jakewharton:butterknife:${versions.butterknife}"
     kapt "com.jakewharton:butterknife-compiler:${versions.butterknife}"
 
-    // Unit testing
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.3.2"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.2"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.3.2"
+    /**
+     * Unit testing
+     */
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.1"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.6.1"
 
-    // Robolectric doesn't work with jUnit 5
-    testImplementation 'junit:junit:4.12'
+    testImplementation "io.mockk:mockk:1.10.0"
+    testImplementation "io.kotest:kotest-runner-junit5:${versions.kotest}"
+    testImplementation "io.kotest:kotest-assertions-core-jvm:${versions.kotest}"
+    testImplementation "io.kotest:kotest-property-jvm:${versions.kotest}"
 
-    testImplementation "org.assertj:assertj-core:3.11.1"
-
-    testImplementation "org.mockito:mockito-core:2.26.0"
-    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0'
-    testImplementation 'com.github.tmurakami:dexopener:1.0.2'
-
-
-    testImplementation "io.mockk:mockk:1.9.3.kotlin12"
-    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
-
-    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.awaitility:awaitility:4.0.2'
+    testImplementation 'org.awaitility:awaitility-kotlin:4.0.2'
 
     testImplementation 'androidx.test.ext:junit:1.1.1'
 
-    // Instrumentation testing
+    // A specific version just used within tests to format output when we don't want or can mock JSONObject
+    //noinspection GradleDependency
+    testImplementation 'org.json:json:20140107'
 
+    testImplementation 'org.robolectric:robolectric:4.3.1'
+    // Robolectric requires jUnit4
+    testImplementation "androidx.test.ext:junit:1.1.1"
+    testImplementation "junit:junit:4.13"
+    testImplementation "org.robolectric:robolectric:4.3.1"
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.2.0")
+
+
+    /**
+     * Instrumentation testing
+     */
     androidTestImplementation "org.mockito:mockito-core:2.26.0"
     androidTestImplementation 'org.mockito:mockito-android:2.23.0'
     androidTestImplementation 'com.github.tmurakami:dexopener:1.0.2'

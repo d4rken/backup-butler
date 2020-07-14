@@ -2,22 +2,23 @@ package eu.darken.bb.backup.core
 
 import com.squareup.moshi.Types
 import eu.darken.bb.AppModule
-import io.kotlintest.shouldBe
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class BackupSpecIdTest {
     @Test
     fun testSerialization() {
         val orig = BackupSpec.Id("cake")
-        assertThat(orig.toString()).isEqualTo("Identifier(cake)")
+        orig.toString() shouldBe "Identifier(cake)"
 
         val adapter = AppModule().moshi().adapter(BackupSpec.Id::class.java)
 
         val json = adapter.toJson(orig)
-        assertThat(json).contains("cake")
+        json shouldContain "cake"
 
-        assertThat(adapter.fromJson(json)).isEqualTo(orig)
+        adapter.fromJson(json) shouldBe orig
     }
 
     @Test
@@ -32,7 +33,11 @@ class BackupSpecIdTest {
         val testMap = mapOf(idKey to idValue)
         val json = adapter.toJson(testMap)
 
-        json shouldBe "{\"${idKey.idString}\":\"${idValue.idString}\"}"
+        json.toFormattedJson() shouldBe """
+            {
+                "${idKey.idString}": "${idValue.idString}"
+            }
+        """.toFormattedJson()
         testMap shouldBe adapter.fromJson(json)
     }
 }

@@ -4,11 +4,11 @@ import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.RawPath
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 import java.io.File
 
 class LocalPathTest {
@@ -27,7 +27,12 @@ class LocalPathTest {
         val adapter = AppModule().moshi().adapter(LocalPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile}\",\"pathType\":\"LOCAL\"}")
+        json.toFormattedJson() shouldBe """
+            {
+                "file": "$testFile",
+                "pathType":"LOCAL"
+            }
+        """.toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -40,7 +45,12 @@ class LocalPathTest {
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"file\":\"${testFile}\",\"pathType\":\"LOCAL\"}")
+        json.toFormattedJson() shouldBe """
+            {
+                "file":"$testFile",
+                "pathType":"LOCAL"
+            }
+        """.toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }

@@ -1,7 +1,7 @@
 package eu.darken.bb.common.files.core.saf
 
 import android.net.Uri
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

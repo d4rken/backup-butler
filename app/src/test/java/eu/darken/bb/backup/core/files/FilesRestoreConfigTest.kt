@@ -3,9 +3,10 @@ package eu.darken.bb.backup.core.files
 import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class FilesRestoreConfigTest {
 
@@ -15,19 +16,21 @@ class FilesRestoreConfigTest {
 
         val moshi = AppModule().moshi()
 
-        val expectedJson = "{" +
-                "\"replaceFiles\":false," +
-                "\"restoreType\":\"FILES\"" +
-                "}"
+        val expectedJson = """
+            {
+                "replaceFiles":false,
+                "restoreType":"FILES"
+            }
+        """.toFormattedJson()
 
         val adapterPoly = moshi.adapter(Restore.Config::class.java)
         val jsonPoly = adapterPoly.toJson(original)
-        jsonPoly shouldBe expectedJson
+        jsonPoly.toFormattedJson() shouldBe expectedJson
         adapterPoly.fromJson(jsonPoly) shouldBe original
 
         val adapterDirect = moshi.adapter(FilesRestoreConfig::class.java)
         val jsonDirect = adapterDirect.toJson(original)
-        jsonDirect shouldBe expectedJson
+        jsonDirect.toFormattedJson() shouldBe expectedJson
         adapterDirect.fromJson(jsonDirect) shouldBe original
     }
 

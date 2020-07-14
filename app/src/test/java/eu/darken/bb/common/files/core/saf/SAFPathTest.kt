@@ -5,12 +5,13 @@ import com.squareup.moshi.JsonDataException
 import eu.darken.bb.AppModule
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.RawPath
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import testhelper.toFormattedJson
+import testhelper.toJsonMap
 
 @RunWith(RobolectricTestRunner::class)
 class SAFPathTest {
@@ -24,7 +25,13 @@ class SAFPathTest {
         val adapter = AppModule().moshi().adapter(SAFPath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"treeRoot\":\"$testUri\",\"crumbs\":[\"seg1\",\"seg2\",\"seg3\"],\"pathType\":\"SAF\"}")
+        json.toFormattedJson() shouldBe """
+            {
+                "treeRoot": "$testUri",
+                "crumbs": ["seg1","seg2","seg3"],
+                "pathType":"SAF"
+            }
+        """.toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -36,7 +43,13 @@ class SAFPathTest {
         val adapter = AppModule().moshi().adapter(APath::class.java)
 
         val json = adapter.toJson(original)
-        assertThat(json).isEqualTo("{\"treeRoot\":\"$testUri\",\"crumbs\":[\"seg3\",\"seg2\",\"seg1\"],\"pathType\":\"SAF\"}")
+        json.toJsonMap() shouldBe """
+            {
+                "treeRoot": "$testUri",
+                "crumbs": ["seg3","seg2","seg1"],
+                "pathType":"SAF"
+            }
+        """.toJsonMap()
 
         adapter.fromJson(json) shouldBe original
     }

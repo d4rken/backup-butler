@@ -4,8 +4,9 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.storage.core.Storage
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class LocalStorageRefTest {
 
@@ -22,11 +23,11 @@ class LocalStorageRefTest {
 
         val pathJson = pathAdapter.toJson(original.path)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.idString}\"," +
-                "\"storageType\":\"${Storage.Type.LOCAL.name}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "path": $pathJson,
+            "storageId": "${original.storageId.idString}",
+            "storageType": "${Storage.Type.LOCAL.name}"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -44,11 +45,11 @@ class LocalStorageRefTest {
 
         val pathJson = pathAdapter.toJson(original.path)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.idString}\"," +
-                "\"storageType\":\"${Storage.Type.LOCAL.name}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "path": $pathJson,
+            "storageId": "${original.storageId.idString}",
+            "storageType": "${Storage.Type.LOCAL.name}"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }

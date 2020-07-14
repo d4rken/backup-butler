@@ -2,9 +2,9 @@ package eu.darken.bb.backup.core
 
 import eu.darken.bb.AppModule
 import eu.darken.bb.storage.core.Storage
-import io.kotlintest.shouldBe
-import org.assertj.core.api.Assertions.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import testhelper.toFormattedJson
 
 class BackupTargetTest {
     @Test
@@ -19,14 +19,16 @@ class BackupTargetTest {
         val adapter = AppModule().moshi().adapter(Backup.Target::class.java)
 
         val json = adapter.toJson(orig)
-        json shouldBe "{" +
-                "\"storageId\":\"${orig.storageId.idString}\"," +
-                "\"backupSpecId\":\"strawberry\"," +
-                "\"backupId\":\"${orig.backupId.idString}\"," +
-                "\"backupType\":\"${orig.backupType.name}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """
+            {
+                "storageId": "${orig.storageId.idString}",
+                "backupSpecId": "strawberry",
+                "backupId": "${orig.backupId.idString}",
+                "backupType": "${orig.backupType.name}"
+            }
+        """.toFormattedJson()
 
-        assertThat(adapter.fromJson(json)).isEqualTo(orig)
+        adapter.fromJson(json) shouldBe orig
     }
 
     @Test

@@ -5,10 +5,11 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.storage.core.Storage
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import testhelper.toFormattedJson
 
 @RunWith(RobolectricTestRunner::class)
 class SAFStorageRefTest {
@@ -27,11 +28,11 @@ class SAFStorageRefTest {
 
         val pathJson = pathAdapter.toJson(original.path)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.idString}\"," +
-                "\"storageType\":\"${Storage.Type.SAF.name}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "path": $pathJson,
+            "storageId": "${original.storageId.idString}",
+            "storageType": "${Storage.Type.SAF.name}"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }
@@ -47,11 +48,11 @@ class SAFStorageRefTest {
 
         val pathJson = pathAdapter.toJson(original.path)
         val json = adapter.toJson(original)
-        json shouldBe "{" +
-                "\"path\":$pathJson," +
-                "\"storageId\":\"${original.storageId.idString}\"," +
-                "\"storageType\":\"${Storage.Type.SAF.name}\"" +
-                "}"
+        json.toFormattedJson() shouldBe """{
+            "path": $pathJson,
+            "storageId": "${original.storageId.idString}",
+            "storageType": "${Storage.Type.SAF.name}"
+        }""".toFormattedJson()
 
         adapter.fromJson(json) shouldBe original
     }

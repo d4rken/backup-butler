@@ -1,18 +1,15 @@
 package eu.darken.bb.common
 
+import io.kotest.assertions.throwables.shouldThrow
 import org.hamcrest.core.Is.`is`
 import org.hamcrest.core.IsNull.nullValue
 import org.junit.Assert.assertThat
-import org.junit.Rule
-import org.junit.Test
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
+import org.junit.jupiter.api.Test
 import testhelper.BaseTest
 import java.io.File
 
 class CheckSummerTest : BaseTest() {
 
-    @get:Rule var rule: MockitoRule = MockitoJUnit.rule()
 
     @Test
     fun `test String to MD5`() {
@@ -64,7 +61,7 @@ class CheckSummerTest : BaseTest() {
         }
     }
 
-    @Test(expected = UnsupportedOperationException::class)
+    @Test
     fun `test File to BADALGO`() {
         val fileName = "FileToBADALGO.txt"
         val testFile = File(fileName)
@@ -72,8 +69,9 @@ class CheckSummerTest : BaseTest() {
             testFile.printWriter().use { out ->
                 out.println("This is a BADALGO test")
             }
-
-            assertThat(CheckSummer.calculate(testFile, CheckSummer.Type.BADALGO), `is`(nullValue()))
+            shouldThrow<UnsupportedOperationException> {
+                assertThat(CheckSummer.calculate(testFile, CheckSummer.Type.BADALGO), `is`(nullValue()))
+            }
         } finally {
             testFile.delete()
         }

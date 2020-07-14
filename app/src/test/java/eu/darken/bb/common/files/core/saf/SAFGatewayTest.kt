@@ -2,8 +2,8 @@ package eu.darken.bb.common.files.core.saf
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.nhaarman.mockitokotlin2.mock
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -16,8 +16,8 @@ class SAFGatewayTest {
     @Test
     fun `test storage root detection`() {
         val safGateway = SAFGateway(
-                mock { },
-                mock { }
+                mockk(),
+                mockk()
         )
         val nonRoot = Uri.parse("content://com.android.externalstorage.documents/tree/primary%3Asafstor")
         safGateway.isStorageRoot(SAFPath.build(nonRoot)) shouldBe false
