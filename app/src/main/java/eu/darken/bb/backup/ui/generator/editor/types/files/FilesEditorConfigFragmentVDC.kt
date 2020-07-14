@@ -108,7 +108,10 @@ class FilesEditorConfigFragmentVDC @AssistedInject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .doFinally { finishEvent.postValue(Any()) }
-                .subscribe()
+                .subscribe(
+                        { },
+                        { err -> errorEvent.postValue(err) }
+                )
     }
 
     data class State(

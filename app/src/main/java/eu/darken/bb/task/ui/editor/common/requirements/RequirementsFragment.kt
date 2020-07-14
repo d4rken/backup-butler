@@ -21,6 +21,7 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 import javax.inject.Inject
 
@@ -52,18 +53,24 @@ class RequirementsFragment : SmartFragment(), AutoInject {
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.requirements)
+
+            setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
+                val nextStep = when (state.taskType) {
+                    Task.Type.BACKUP_SIMPLE -> R.id.action_permissionFragment_to_introFragment
+                    Task.Type.RESTORE_SIMPLE -> R.id.action_permissionFragment_to_restoreSourcesFragment
+                }
+                findNavController().navigate(
+                        nextStep,
+                        SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
+                )
+            }
         }
 
         requirementsMoreAction.clicksDebounced().subscribe {
             AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
         }
 
-        setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
-            findNavController().navigate(
-                    R.id.nav_action_next,
-                    SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
-            )
-        }
+
 
         vdc.runTimePermissionEvent.observe2(this) { req ->
             requestPermissions(arrayOf(req.permission), 1)
