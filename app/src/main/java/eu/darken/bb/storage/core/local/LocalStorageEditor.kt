@@ -37,33 +37,37 @@ class LocalStorageEditor @AssistedInject constructor(
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
-    fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single.fromCallable {
-        check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
+    fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single
+            .fromCallable {
+                check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-        check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
+                check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
 
-        check(_path.asFile().canWrite()) { "Can't write to path." }
-        check(_path.asFile().isDirectory) { "Target is not a directory!" }
+                check(_path.asFile().canWrite()) { "Can't write to path." }
+                check(_path.asFile().isDirectory) { "Target is not a directory!" }
 
-        val tweakedPath: LocalPath = if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
-            _path.child("BackupButler")
-        } else {
-            _path
-        }
-
-        val configFile = tweakedPath.child(STORAGE_CONFIG)
-        if (configFile.exists(localGateway)) {
-            if (!importExisting) throw ExistingStorageException(tweakedPath)
-
-            load(tweakedPath).blockingGet()
-        } else {
-            editorDataPub.update {
-                it.copy(refPath = tweakedPath)
+                return@fromCallable if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
+                    _path.child("BackupButler")
+                } else {
+                    _path
+                }
             }
-        }
+            .flatMap { tweakedPath ->
+                val configFile = tweakedPath.child(STORAGE_CONFIG)
+                val nextAction = if (configFile.exists(localGateway)) {
+                    if (!importExisting) throw ExistingStorageException(tweakedPath)
 
-        return@fromCallable tweakedPath
-    }
+                    load(tweakedPath)
+                } else {
+                    editorDataPub.updateRx {
+                        it.copy(
+                                refPath = tweakedPath,
+                                label = if (it.label.isEmpty()) tweakedPath.name else it.label
+                        )
+                    }
+                }
+                nextAction.ignoreElement().toSingleDefault(tweakedPath)
+            }
 
     fun isPermissionGranted(): Boolean {
         return runtimePermissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
