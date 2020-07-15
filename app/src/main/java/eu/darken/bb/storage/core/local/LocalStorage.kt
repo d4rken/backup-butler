@@ -68,7 +68,7 @@ class LocalStorage @AssistedInject constructor(
             .fromCallable { dataDir.listFilesThrowing() }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyList())
-            .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+            .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
             .filterUnchanged { old, new -> old.toList() != new.toList() }
             .replayingShare()
 
@@ -319,10 +319,15 @@ class LocalStorage @AssistedInject constructor(
 
     override fun detach(wipe: Boolean): Completable = Completable
             .fromCallable {
-                if (wipe) storageRef.path.asFile().deleteAll()
+                if (wipe) {
+                    Timber.tag(TAG).i("Wiping %s", storageRef.path)
+                    // let's not use the gateway here as there is currently no reason to run this with root.
+                    storageRef.path.asFile().deleteAll()
+                }
+                // TODO dispose resources, i.e. observables.
             }
-            .doOnSubscribe { Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
-            .doFinally { Timber.w("detach(wipe=%b).dofinally %s", wipe, storageRef) }
+            .doOnSubscribe { Timber.tag(TAG).d("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
+            .doFinally { Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef) }
 
 
     private fun getSpecDir(specId: BackupSpec.Id): File = File(dataDir, specId.value)

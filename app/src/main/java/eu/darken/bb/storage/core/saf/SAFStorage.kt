@@ -12,7 +12,6 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
-import eu.darken.bb.common.files.core.local.deleteAll
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -78,7 +77,7 @@ class SAFStorage @AssistedInject constructor(
             }
             .subscribeOn(Schedulers.io())
             .onErrorReturnItem(emptyList())
-            .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+            .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
             .filterUnchanged { old, new -> old != null && old == new }
             .replayingShare()
 
@@ -337,9 +336,11 @@ class SAFStorage @AssistedInject constructor(
     override fun detach(wipe: Boolean): Completable = Completable
             .fromCallable {
                 if (wipe) {
-                    storageRef.path.asFile().deleteAll()
+                    Timber.tag(TAG).i("Wiping %s", storageRef.path)
+                    storageRef.path.deleteAll(safGateway)
                 }
                 safGateway.releasePermission(storageRef.path)
+                // TODO dispose resources
             }
             .doOnSubscribe { Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
             .doFinally { Timber.w("detach(wipe=%b).dofinally%s", wipe, storageRef) }
