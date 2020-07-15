@@ -9,7 +9,7 @@ import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
+import eu.darken.bb.common.root.core.javaroot.RootException
 import eu.darken.bb.common.shell.SharedShell
 import eu.darken.bb.common.user.UserHandleBB
 import eu.darken.rxshell.cmd.RxCmdShell
@@ -159,12 +159,12 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun exists(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
         val javaFile = path.asFile()
-        val existsNormal = javaFile.exists()
+        val canAccessParent = javaFile.parentFile?.canReadExecute() ?: false
         when {
-            mode == Mode.NORMAL || mode == Mode.AUTO && existsNormal -> {
+            mode == Mode.NORMAL || mode == Mode.AUTO && canAccessParent -> {
                 javaFile.exists()
             }
-            mode == Mode.ROOT || mode == Mode.AUTO && !existsNormal -> {
+            mode == Mode.ROOT || mode == Mode.AUTO && !canAccessParent -> {
                 rootOps { it.exists(path) }
             }
             else -> throw IOException("No matching mode.")
@@ -189,7 +189,7 @@ class LocalGateway @Inject constructor(
                 try {
                     rootOps { it.canWrite(path) }
                 } catch (e: Exception) {
-                    if (e.hasCause(RootUnavailableException::class)) false
+                    if (e.hasCause(RootException::class)) false
                     else throw e
                 }
             }
@@ -215,7 +215,7 @@ class LocalGateway @Inject constructor(
                 try {
                     rootOps { it.canRead(path) }
                 } catch (e: Exception) {
-                    if (e.hasCause(RootUnavailableException::class)) false
+                    if (e.hasCause(RootException::class)) false
                     else throw e
                 }
             }

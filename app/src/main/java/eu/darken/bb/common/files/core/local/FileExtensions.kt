@@ -133,6 +133,8 @@ fun File.canOpenRead(): Boolean = try {
     false
 }
 
+fun File.canReadExecute(): Boolean = canRead() && canExecute()
+
 fun File.getAPathFileType(): APath.FileType = when {
     // Order matters!
     isSymbolicLink() -> APath.FileType.SYMBOLIC_LINK
