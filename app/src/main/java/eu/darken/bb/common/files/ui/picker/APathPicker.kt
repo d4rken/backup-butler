@@ -10,6 +10,7 @@ import androidx.annotation.Keep
 import androidx.fragment.app.Fragment
 import eu.darken.bb.R
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.saf.SAFPath
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -41,6 +42,7 @@ object APathPicker {
             val options: Options,
             val error: Throwable? = null,
             val selection: Set<APath>? = null,
+            val persistedPermissions: Set<SAFPath>? = null,
             val payload: Bundle = Bundle()
     ) : Parcelable {
 

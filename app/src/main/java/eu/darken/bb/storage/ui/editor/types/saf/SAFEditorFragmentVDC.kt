@@ -86,12 +86,11 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
 
     fun onUpdatePath(result: APathPicker.Result) {
         val p = result.selection!!.first() as SAFPath
-        editor.updatePath(p, false)
+        val newlyPersistedPermission = result.persistedPermissions?.isNotEmpty() ?: false
+        editor.updatePath(p, false, newlyPersistedPermission)
                 .subscribeOn(Schedulers.io())
                 .subscribe { _, error ->
-                    if (error != null) {
-                        errorEvent.postValue(error)
-                    }
+                    if (error != null) errorEvent.postValue(error)
                 }
     }
 
@@ -100,9 +99,7 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         editor.updatePath(path, true)
                 .subscribeOn(Schedulers.io())
                 .subscribe { _, error ->
-                    if (error != null) {
-                        errorEvent.postValue(error.getRootCause())
-                    }
+                    if (error != null) errorEvent.postValue(error.getRootCause())
                 }
     }
 
@@ -112,13 +109,14 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
                 .observeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
                 .doFinally { finishEvent.postValue(Any()) }
-                .subscribe()
+                .subscribe { _, error ->
+                    if (error != null) errorEvent.postValue(error.getRootCause())
+                }
     }
 
     data class State(
             val label: String = "",
             val path: String = "",
-            val validPath: Boolean = false,
             val isWorking: Boolean = false,
             val isExisting: Boolean = false,
             val isValid: Boolean = false

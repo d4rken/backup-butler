@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
@@ -79,19 +79,17 @@ class SAFEditorFragment : SmartFragment(), AutoInject {
         }
 
         vdc.errorEvent.observe2(this) { error ->
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setMessage(error.tryLocalizedErrorMessage(requireContext()))
-
+            val snackbar = Snackbar.make(
+                    view,
+                    error.tryLocalizedErrorMessage(requireContext()),
+                    Snackbar.LENGTH_LONG
+            )
             if (error is ExistingStorageException) {
-                builder.setNeutralButton(R.string.general_cancel_action) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                builder.setPositiveButton(R.string.general_import_action) { _, _ ->
+                snackbar.setAction(R.string.general_import_action) {
                     vdc.importStorage(error.path)
                 }
             }
-
-            builder.show()
+            snackbar.show()
         }
 
         vdc.finishEvent.observe2(this) {

@@ -22,14 +22,17 @@ class TaskRepo @Inject constructor(
 ) {
     private val taskAdapter = moshi.adapter(Task::class.java)
     private val preferences: SharedPreferences = context.getSharedPreferences("task_repo", Context.MODE_PRIVATE)
-    private val internalData = HotData<Map<Task.Id, Task>> {
+
+    private val initializer = Single.fromCallable {
         val initialData = mutableMapOf<Task.Id, Task>()
         preferences.all.forEach {
             val task = taskAdapter.fromJson(it.value as String)!!
             initialData[task.taskId] = task
         }
-        initialData
+        initialData.toMap()
     }
+    private val internalData = HotData<Map<Task.Id, Task>>(initializer)
+
     val tasks = internalData.data
 
     init {

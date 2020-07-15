@@ -56,7 +56,8 @@ class RequirementsFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val requirements: List<Requirement> = emptyList()
+            val requirements: List<Requirement> = emptyList(),
+            val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
     )
 
     @AssistedInject.Factory

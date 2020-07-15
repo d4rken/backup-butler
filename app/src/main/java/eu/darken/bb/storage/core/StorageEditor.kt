@@ -15,7 +15,7 @@ interface StorageEditor {
 
     fun isValid(): Observable<Boolean>
 
-    fun release(): Completable
+    fun abort(): Completable
 
     interface Factory<EditorT : StorageEditor> {
         fun create(initialStorageId: Storage.Id): EditorT

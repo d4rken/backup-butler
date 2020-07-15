@@ -4,6 +4,7 @@ import android.Manifest
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
+import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.files.core.asFile
@@ -18,6 +19,7 @@ import eu.darken.bb.storage.core.StorageEditor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import timber.log.Timber
 import java.io.File
 
 class LocalStorageEditor @AssistedInject constructor(
@@ -34,9 +36,6 @@ class LocalStorageEditor @AssistedInject constructor(
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
-
-    fun updatePath(path: String, importExisting: Boolean): Single<LocalPath> =
-            Single.just(LocalPath.build(path)).flatMap { updatePath(it, importExisting) }
 
     fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single.fromCallable {
         check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
@@ -94,30 +93,35 @@ class LocalStorageEditor @AssistedInject constructor(
                 }
             }
 
-    override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single.fromCallable {
-        val data = editorDataPub.snapshot
-        val ref = LocalStorageRef(
-                storageId = data.storageId,
-                path = data.refPath!!
-        )
-        val config = LocalStorageConfig(
-                storageId = data.storageId,
-                label = data.label
-        )
+    override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single
+            .fromCallable {
+                val data = editorDataPub.snapshot
+                val ref = LocalStorageRef(
+                        storageId = data.storageId,
+                        path = data.refPath!!
+                )
+                val config = LocalStorageConfig(
+                        storageId = data.storageId,
+                        label = data.label
+                )
 
-        configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
+                configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
 
-        return@fromCallable Pair(ref, config)
-    }
+                return@fromCallable Pair(ref, config)
+            }
+            .doOnSubscribe { Timber.tag(TAG).v("save()") }
+            .flatMap { release().andThen(Single.just(it)) }
 
-    override fun release(): Completable = Completable.complete()
+    override fun abort(): Completable = Completable
+            .fromCallable { editorDataPub.close() }
+            .doOnSubscribe { Timber.tag(TAG).v("abort()") }
+
+    private fun release(): Completable = Completable
+            .fromCallable { editorDataPub.close() }
+            .doOnSubscribe { Timber.tag(TAG).v("release()") }
 
     @AssistedInject.Factory
     interface Factory : StorageEditor.Factory<LocalStorageEditor>
-
-    companion object {
-        const val STORAGE_CONFIG = "storage.data"
-    }
 
     data class Data(
             override val storageId: Storage.Id,
@@ -125,4 +129,9 @@ class LocalStorageEditor @AssistedInject constructor(
             override val existingStorage: Boolean = false,
             override val refPath: LocalPath? = null
     ) : StorageEditor.Data
+
+    companion object {
+        const val STORAGE_CONFIG = "storage.data"
+        val TAG = App.logTag("Storage", "Local", "Editor")
+    }
 }

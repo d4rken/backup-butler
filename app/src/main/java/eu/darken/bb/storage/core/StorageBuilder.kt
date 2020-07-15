@@ -67,7 +67,7 @@ class StorageBuilder @Inject constructor(
             .map { Opt(it.newValue[id]) }
             .doOnSuccess { Timber.tag(TAG).v("Storage updated: %s (%s): %s", id, action, it) }
 
-    fun remove(id: Storage.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
+    fun remove(id: Storage.Id, isAbort: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap {
                 hotData.data
@@ -78,8 +78,8 @@ class StorageBuilder @Inject constructor(
             }
             .doOnSuccess { Timber.tag(TAG).v("Removed storage: %s", id) }
             .map { optData ->
-                if (releaseResources && optData.isNotNull) {
-                    optData.value?.editor?.release()?.blockingAwait()
+                if (isAbort && optData.isNotNull) {
+                    optData.value?.editor?.abort()?.blockingAwait()
                 }
                 return@map optData
             }

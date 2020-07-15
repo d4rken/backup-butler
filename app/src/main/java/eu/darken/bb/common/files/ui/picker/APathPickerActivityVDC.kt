@@ -68,9 +68,14 @@ class APathPickerActivityVDC @AssistedInject constructor(
         Timber.tag(TAG).d("onSSAFPickerResult(data=%s)", data)
         if (data != null) {
             val path = SAFPath.build(data)
+            val takenPermissions = mutableSetOf<SAFPath>()
+            if (!safGateway.hasPermission(path) && safGateway.takePermission(path)) {
+                takenPermissions.add(path)
+            }
             val result = APathPicker.Result(
                     options,
-                    selection = setOf(path)
+                    selection = setOf(path),
+                    persistedPermissions = takenPermissions
             )
             resultEvents.postValue(result to true)
         } else {

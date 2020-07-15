@@ -114,4 +114,12 @@ object ApiHelper {
     fun hasAndroidQ(): Boolean {
         return Build.VERSION.RELEASE == "Q" || Build.VERSION.RELEASE == "10" || SDK_INT >= 29
     }
+
+
+    /**
+     * @return if >=30
+     */
+    fun hasAndroid11(): Boolean {
+        return "R" == Build.VERSION.RELEASE || "11" == Build.VERSION.RELEASE || SDK_INT >= 30
+    }
 }

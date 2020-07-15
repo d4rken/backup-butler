@@ -84,10 +84,8 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         Timber.tag(TAG).v("Updating path: %s", path)
         editor.updatePath(path, false)
                 .subscribeOn(Schedulers.io())
-                .subscribe { path, error ->
-                    if (error != null) {
-                        errorEvent.postValue(error)
-                    }
+                .subscribe { _, error ->
+                    if (error != null) errorEvent.postValue(error.getRootCause())
                 }
     }
 
@@ -95,10 +93,8 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         path as LocalPath
         editor.updatePath(path, true)
                 .subscribeOn(Schedulers.io())
-                .subscribe { path, error ->
-                    if (error != null) {
-                        errorEvent.postValue(error.getRootCause())
-                    }
+                .subscribe { _, error ->
+                    if (error != null) errorEvent.postValue(error.getRootCause())
                 }
     }
 
@@ -128,7 +124,9 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
                 .observeOn(Schedulers.io())
                 .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
                 .doFinally { finishEvent.postValue(true) }
-                .subscribe()
+                .subscribe { _, error ->
+                    if (error != null) errorEvent.postValue(error.getRootCause())
+                }
     }
 
     data class State(

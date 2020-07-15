@@ -1,94 +1,142 @@
 package eu.darken.bb.common
 
+import android.annotation.SuppressLint
+import com.jakewharton.rx.replayingShare
 import eu.darken.bb.App
-import eu.darken.bb.common.rx.withCompositeDisposable
+import eu.darken.bb.common.rx.SchedulersCustom
+import eu.darken.bb.common.rx.filterEqual
+import eu.darken.bb.common.rx.latest
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.ReplaySubject
-import kotlinx.coroutines.rx2.await
+import io.reactivex.subjects.Subject
 import timber.log.Timber
-import java.util.concurrent.Executors
+import java.util.*
 
+/**
+ * Threadsafe data/state updater
+ */
+@SuppressLint("CheckResult")
 open class HotData<T>(
-        initialValue: () -> T,
-        scheduler: Scheduler? = null
+        initialValue: Single<T>,
+        private val scheduler: Scheduler = createDefaultScheduler()
 ) {
-    constructor(
-            initialValue: () -> T
-    ) : this(initialValue, null)
 
     constructor(
             initialValue: T
-    ) : this({ initialValue }, null)
+    ) : this(Single.just(initialValue))
 
-    private val scheduler = scheduler ?: Schedulers.from(Executors.newSingleThreadExecutor())
+    constructor(
+            name: String,
+            initialValue: () -> T
+    ) : this(Single.fromCallable(initialValue), createDefaultScheduler(name))
 
-    private val updatePub = PublishSubject.create<(T) -> T>().toSerialized()
-    private val statePub = BehaviorSubject.create<T>().toSerialized()
+    constructor(
+            scheduler: Scheduler,
+            initialValue: () -> T
+    ) : this(Single.fromCallable(initialValue), scheduler)
+
+    private val updatePub = PublishSubject.create<UpdateAction<T>>().toSerialized()
+    private val statePub: Subject<State<T>> = BehaviorSubject.create<State<T>>().toSerialized()
+
+    var debugOutput: Boolean = false
 
     init {
-        Single
-                .fromCallable { initialValue.invoke() }
-                .subscribeOn(this.scheduler)
+        initialValue
+                .subscribeOn(scheduler)
+                .observeOn(scheduler)
                 .doOnError { Timber.tag(TAG).e(it, "Error while providing initial value.") }
                 .subscribe(
-                        { value -> statePub.onNext(value) },
+                        { value -> statePub.onNext(State(data = value, actionId = UUID.randomUUID())) },
                         { statePub.onError(it) }
                 )
 
         updatePub
-                .observeOn(this.scheduler)
-                .serialize()
+                .observeOn(scheduler)
                 .concatMap { action ->
-                    statePub.take(1).map { oldValue ->
-                        val newValue = action.invoke(oldValue)
-                        Timber.tag(TAG).v("Update $oldValue -> $newValue")
-                        require(newValue != null) { "New value can't be NULL, oldvalue: $oldValue" }
-                        newValue
+                    statePub.take(1).map { oldState ->
+                        val newData = action.modify(oldState.data)
+                        if (debugOutput) Timber.tag(TAG).v("Update ${oldState.data} -> $newData")
+                        if (newData != null) {
+                            State(
+                                    data = newData,
+                                    actionId = action.id
+                            )
+                        } else {
+                            oldState.copy(actionId = action.id)
+                        }
                     }
                 }
                 .doOnError { Timber.tag(TAG).e(it, "Error while updating value.") }
                 .subscribe(
-                        { statePub.onNext(it) },
+                        {
+                            @Suppress("UNCHECKED_CAST")
+                            statePub.onNext(it as State<T>)
+                        },
                         { statePub.onError(it) }
                 )
     }
 
+    val data: Observable<T> = statePub
+            .observeOn(scheduler)
+            .filterEqual { old, new -> old.dataId != new.dataId }
+            .map { it.data }
+            .replayingShare()
+            .hide()
+
+    val latest: Single<T> = statePub
+            .observeOn(scheduler)
+            .map { it.data }
+            .latest()
+            .hide()
+
     val snapshot: T
-        get() = data.blockingFirst()
+        get() = statePub
+                .map { it.data }
+                .latest()
+                .blockingGet()
 
-    val data: Observable<T> = statePub.hide()
-
-    fun update(action: (T) -> T) {
-        updatePub.onNext(action)
+    /**
+     * When you return null, no data update will be triggered and the old value remains
+     */
+    fun update(action: (T) -> T?) {
+        update(UpdateAction(modify = action))
     }
 
-    suspend fun updateBlocking(action: (T) -> T): Update<T> {
-        return updateRx(action).await()
+    fun update(updateAction: UpdateAction<T>) {
+        updatePub.onNext(updateAction)
     }
+
+    /**
+     * When you return null, no data update will be triggered and the old value remains
+     */
+    fun updateRx(action: (T) -> T?): Single<Update<T>> =
+            updateRx(UpdateAction(modify = action))
 
     /**
      * Guarantees that the updated data is visible to other subscribers when it is emitted
      */
-    fun updateRx(action: (T) -> T): Single<Update<T>> = Single.create<Update<T>> { emitter ->
-        val wrap: (T) -> T = { oldValue ->
+    fun updateRx(
+            updateAction: UpdateAction<T>
+    ): Single<Update<T>> = Single.create<Update<T>> { emitter ->
+        val wrap: (T) -> T? = { oldValue ->
             try {
-                val newValue = action.invoke(oldValue)
+                val newValue = updateAction.modify.invoke(oldValue)
 
                 val compDisp = CompositeDisposable()
 
-                val replayer = ReplaySubject.create<T>()
+                val replayer = ReplaySubject.create<State<T>>()
                 replayer
-                        .filter { it === newValue }
+                        //Wait for our action to have been processed
+                        .filter { it.actionId === updateAction.id }
                         .take(1)
                         .doFinally { compDisp.dispose() }
-                        .subscribe { emitter.onSuccess(Update(oldValue, newValue)) }
-                        .withCompositeDisposable(compDisp)
+                        .subscribe { emitter.onSuccess(Update(oldValue, newValue ?: oldValue)) }
+                        .also { compDisp.add(it) }
 
                 statePub
                         .doFinally { compDisp.dispose() }
@@ -97,7 +145,7 @@ open class HotData<T>(
                                 { replayer.onError(it) },
                                 { replayer.onComplete() }
                         )
-                        .withCompositeDisposable(compDisp)
+                        .also { compDisp.add(it) }
 
                 emitter.setDisposable(compDisp)
 
@@ -108,8 +156,8 @@ open class HotData<T>(
             }
         }
 
-        update(wrap)
-    }
+        update(UpdateAction(modify = wrap, id = updateAction.id))
+    }.subscribeOn(scheduler)
 
     fun close() {
         updatePub.onComplete()
@@ -118,7 +166,19 @@ open class HotData<T>(
 
     data class Update<T>(val oldValue: T, val newValue: T)
 
+    data class UpdateAction<T>(
+            val modify: (T) -> T?,
+            val id: UUID = UUID.randomUUID()
+    )
+
+    data class State<T>(
+            val data: T,
+            val dataId: UUID = UUID.randomUUID(),
+            val actionId: UUID
+    )
+
     companion object {
         private val TAG = App.logTag("HotData")
+        fun createDefaultScheduler(name: String? = null) = SchedulersCustom.customScheduler(1, name)
     }
 }
