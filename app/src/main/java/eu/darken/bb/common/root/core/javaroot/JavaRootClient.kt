@@ -55,7 +55,7 @@ class JavaRootClient @Inject constructor(
             val rootSession = try {
                 RxCmdShell.builder().root(true).build().open().blockingGet()
             } catch (e: Exception) {
-                emitter.onError(e)
+                emitter.onError(RootException("Failed to open root session.", e.cause))
                 return@gen
             }
 
@@ -92,10 +92,10 @@ class JavaRootClient @Inject constructor(
                 Timber.tag(TAG).d("Root host launch result was: %s", result)
                 // Check exitcode
                 if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
-                    emitter.onError(RootUnavailableException("Shell died launching the java root host."))
+                    emitter.onError(RootException("Shell died launching the java root host."))
                 }
             } catch (e: Exception) {
-                emitter.onError(e)
+                emitter.onError(RootException("Failed to launch java root host.", e.cause))
             }
         }
     }

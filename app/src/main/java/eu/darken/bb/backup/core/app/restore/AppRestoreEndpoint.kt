@@ -20,7 +20,7 @@ import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.APKInstaller
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.RootUnavailableException
+import eu.darken.bb.common.root.core.javaroot.RootException
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.Observable
@@ -62,7 +62,7 @@ class AppRestoreEndpoint @Inject constructor(
             javaRootClient.keepAliveWith(this)
             true
         } catch (e: Exception) {
-            if (e.hasCause(RootUnavailableException::class)) false else throw e
+            if (e.hasCause(RootException::class)) false else throw e
         }
 
         if (config.restoreApk) {
