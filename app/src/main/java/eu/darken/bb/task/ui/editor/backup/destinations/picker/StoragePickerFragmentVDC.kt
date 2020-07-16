@@ -5,6 +5,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -58,7 +59,7 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
 
     fun selectStorage(item: Storage.InfoOpt) {
         taskBuilder.task(taskId).subscribeOn(Schedulers.io())
-                .firstOrError()
+                .latest()
                 .map { it.editor as SimpleBackupTaskEditor }
                 .subscribe { editor ->
                     editor.addDestination(item.storageId)

@@ -64,7 +64,7 @@ class GeneratorBuilder @Inject constructor(
     fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap {
-                hotData.data.firstOrError()
+                hotData.latest
                         .flatMap { preDeleteMap ->
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
@@ -111,7 +111,7 @@ class GeneratorBuilder @Inject constructor(
             generatorId: Generator.Id = Generator.Id(),
             type: Backup.Type? = null,
             targetTask: Task.Id? = null
-    ): Single<Generator.Id> = hotData.data.firstOrError()
+    ): Single<Generator.Id> = hotData.latest
             .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
             .switchIfEmpty(
                     load(generatorId)

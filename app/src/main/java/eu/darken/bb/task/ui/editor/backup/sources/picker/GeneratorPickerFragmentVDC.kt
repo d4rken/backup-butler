@@ -8,6 +8,7 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -59,7 +60,7 @@ class GeneratorPickerFragmentVDC @AssistedInject constructor(
 
     fun selectGenerator(item: GeneratorConfigOpt) {
         taskBuilder.task(taskId).subscribeOn(Schedulers.io())
-                .firstOrError()
+                .latest()
                 .map { it.editor as SimpleBackupTaskEditor }
                 .subscribe { editor ->
                     editor.addSource(item.generatorId)

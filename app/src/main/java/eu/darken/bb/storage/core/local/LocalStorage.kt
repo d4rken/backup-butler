@@ -22,6 +22,7 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.rx.filterUnchanged
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -298,7 +299,7 @@ class LocalStorage @AssistedInject constructor(
     }
 
     override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = specInfo(specId)
-            .firstOrError()
+            .latest()
             .map { specInfo ->
                 specInfo as LocalStorageSpecInfo
                 if (backupId != null) {

@@ -59,7 +59,7 @@ class TaskBuilder @Inject constructor(
 
     fun remove(id: Task.Id): Single<Opt<Data>> = Single.just(id)
             .flatMap {
-                hotData.data.firstOrError()
+                hotData.latest
                         .flatMap { preDeleteMap ->
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
@@ -84,7 +84,6 @@ class TaskBuilder @Inject constructor(
 
     fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
             .doOnSuccess { Timber.tag(TAG).d("Next: %s", it) }
-            .doOnComplete { Timber.tag(TAG).d("Complete") }
             .flatMapSingle { task ->
                 val editor = editors.getValue(task.taskType).create(task.taskId)
                 editor.load(task).blockingAwait()
@@ -97,8 +96,9 @@ class TaskBuilder @Inject constructor(
             }
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
             .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
+            .doOnComplete { Timber.tag(TAG).d("No task found for %s", id) }
 
-    fun startEditor(taskId: Task.Id): Completable = hotData.data.firstOrError()
+    fun startEditor(taskId: Task.Id): Completable = hotData.latest
             .flatMapMaybe { Maybe.fromCallable<Data> { it[taskId] } }
             .switchIfEmpty(
                     load(taskId)
@@ -115,7 +115,7 @@ class TaskBuilder @Inject constructor(
             }
             .ignoreElement()
 
-    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.data.firstOrError()
+    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.latest
             .map { existingData ->
                 require(!existingData.containsKey(newId)) { "Builder with this ID already exists: $newId" }
                 Data(taskId = newId, taskType = type, editor = editors.getValue(type).create(newId))

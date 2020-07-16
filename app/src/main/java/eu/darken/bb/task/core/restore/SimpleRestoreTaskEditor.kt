@@ -12,6 +12,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.rx.filterUnchanged
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.swallowInterruptExceptions
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -241,8 +242,8 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             .ignoreElement()
 
     fun addStorageId(storageId: Storage.Id): Single<Collection<Backup.Target>> = storageManager.getStorage(storageId)
-            .firstOrError()
-            .flatMap { it.specInfos().firstOrError() }
+            .latest()
+            .flatMap { it.specInfos().latest() }
             .map { infos ->
                 infos
                         .filter {
@@ -258,8 +259,8 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             .flatMap { targets -> addTargets(*targets.toTypedArray()).toSingleDefault(targets) }
 
     fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id): Single<Backup.Target> = storageManager.getStorage(storageId)
-            .firstOrError()
-            .flatMap { it.specInfo(backupSpecId).firstOrError() }
+            .latest()
+            .flatMap { it.specInfo(backupSpecId).latest() }
             .doOnSuccess { require(it.backups.isNotEmpty()) { "BackupSpec contains no backups." } }
             .map {
                 val newest = it.backups.getNewest()!!

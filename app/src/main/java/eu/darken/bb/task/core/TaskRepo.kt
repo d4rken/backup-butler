@@ -9,6 +9,7 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
+import eu.darken.bb.common.rx.latest
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -47,7 +48,7 @@ class TaskRepo @Inject constructor(
                 }
     }
 
-    fun get(id: Task.Id): Maybe<Task> = tasks.firstOrError()
+    fun get(id: Task.Id): Maybe<Task> = tasks.latest()
             .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     // Puts the task into storage, returns the previous value

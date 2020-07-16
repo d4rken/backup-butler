@@ -70,8 +70,7 @@ class StorageBuilder @Inject constructor(
     fun remove(id: Storage.Id, isAbort: Boolean = true): Single<Opt<Data>> = Single.just(id)
             .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
             .flatMap {
-                hotData.data
-                        .firstOrError()
+                hotData.latest
                         .flatMap { preDeleteMap ->
                             update(id) { null }.map { Opt(preDeleteMap[id]) }
                         }
@@ -114,7 +113,7 @@ class StorageBuilder @Inject constructor(
             .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
             .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
-    fun startEditor(storageId: Storage.Id = Storage.Id()): Completable = hotData.data.firstOrError()
+    fun startEditor(storageId: Storage.Id = Storage.Id()): Completable = hotData.latest
             .flatMapMaybe { Maybe.fromCallable<Data> { it[storageId] } }
             .switchIfEmpty(
                     load(storageId)

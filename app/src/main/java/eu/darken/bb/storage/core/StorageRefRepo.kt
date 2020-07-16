@@ -50,7 +50,7 @@ class StorageRefRepo @Inject constructor(
                 }
     }
 
-    fun get(id: Storage.Id): Maybe<Storage.Ref> = internalData.data.firstOrError()
+    fun get(id: Storage.Id): Maybe<Storage.Ref> = internalData.latest
             .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     fun put(ref: Storage.Ref): Single<Opt<Storage.Ref>> {

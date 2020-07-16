@@ -13,6 +13,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -134,7 +135,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     }
 
     private fun save(execute: Boolean) {
-        editorObs.firstOrError()
+        editorObs.latest()
                 .flatMap { it.updateOneTime(execute) }
                 .flatMap { taskBuilder.save(taskId) }
                 .subscribeOn(Schedulers.io())
