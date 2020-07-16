@@ -6,7 +6,7 @@ import android.widget.EditText
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
-import com.jakewharton.rxbinding3.widget.editorActions
+import com.jakewharton.rxbinding4.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode

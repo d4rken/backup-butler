@@ -13,8 +13,8 @@ import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import javax.inject.Provider
 

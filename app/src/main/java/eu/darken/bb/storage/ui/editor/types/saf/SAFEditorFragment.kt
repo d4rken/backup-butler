@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding3.widget.editorActions
+import com.jakewharton.rxbinding4.widget.editorActions
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.APathPicker

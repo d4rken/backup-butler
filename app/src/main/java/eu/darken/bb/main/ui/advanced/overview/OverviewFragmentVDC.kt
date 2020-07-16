@@ -13,8 +13,8 @@ import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Observables
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Observables
 
 class OverviewFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

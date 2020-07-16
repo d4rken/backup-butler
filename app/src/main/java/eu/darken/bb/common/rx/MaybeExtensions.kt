@@ -1,9 +1,9 @@
 package eu.darken.bb.common.rx
 
-import io.reactivex.Maybe
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.internal.functions.Functions
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.internal.functions.Functions
 
 
 fun <T> Maybe<T>.subscribeNullable(

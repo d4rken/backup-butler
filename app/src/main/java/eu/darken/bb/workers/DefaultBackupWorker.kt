@@ -1,13 +1,13 @@
 package eu.darken.bb.workers
 
 import android.content.Context
-import androidx.work.RxWorker
 import androidx.work.WorkerParameters
+import androidx.work.rxjava3.RxWorker
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.task.core.Task
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 class DefaultBackupWorker @AssistedInject constructor(

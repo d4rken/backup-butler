@@ -1,7 +1,7 @@
 package eu.darken.bb.common
 
 import android.os.FileObserver
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.io.File
 
 class JavaFileObserver(private val path: File, private val mask: Int = 0) {

@@ -24,7 +24,7 @@ import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit

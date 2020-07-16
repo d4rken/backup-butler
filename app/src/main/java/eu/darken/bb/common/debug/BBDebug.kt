@@ -20,9 +20,9 @@ import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.timber.BugsnagTree
-import io.reactivex.Observable
-import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.exceptions.UndeliverableException
 import timber.log.Timber
 import java.io.InterruptedIOException
 import javax.inject.Inject

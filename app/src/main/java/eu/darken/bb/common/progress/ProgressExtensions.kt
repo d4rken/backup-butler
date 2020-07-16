@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.annotation.StringRes
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.CAString
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 fun <T : Progress.Client> T.updateProgressPrimary(primary: String) {
     updateProgress { it.copy(primary = CAString(primary)) }

@@ -4,8 +4,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.reactivex.schedulers.TestScheduler
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.schedulers.TestScheduler
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -41,7 +41,7 @@ class HotDataTest {
     fun `test close`() {
         val hotData = HotData("strawberry")
         val testSub = hotData.data.test()
-        testSub.assertNotTerminated()
+        testSub.assertNotComplete()
         hotData.close()
         testSub.assertNoErrors()
         testSub.assertComplete()
@@ -59,7 +59,7 @@ class HotDataTest {
         testSub.assertError(TimeoutException::class.java)
 
         pub.onNext("cake")
-        hotData.data.test().awaitCount(1).assertValue("cake")
+        hotData.data.test().awaitCount(1).assertValue { "cake" }
     }
 
     @Test

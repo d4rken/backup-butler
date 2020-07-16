@@ -1,6 +1,6 @@
 package eu.darken.bb.common
 
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.InvocationTargetException

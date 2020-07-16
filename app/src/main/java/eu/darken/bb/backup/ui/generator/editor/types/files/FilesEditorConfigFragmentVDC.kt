@@ -17,7 +17,7 @@ import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class FilesEditorConfigFragmentVDC @AssistedInject constructor(

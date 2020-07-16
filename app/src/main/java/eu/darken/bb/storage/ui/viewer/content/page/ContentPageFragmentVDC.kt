@@ -1,7 +1,7 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
@@ -17,7 +17,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class ContentPageFragmentVDC @AssistedInject constructor(

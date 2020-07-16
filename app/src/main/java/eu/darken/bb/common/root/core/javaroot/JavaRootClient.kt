@@ -12,7 +12,7 @@ import eu.darken.bb.common.root.librootjava.RootIPCReceiver
 import eu.darken.bb.common.root.librootjava.RootJava
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 

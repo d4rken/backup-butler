@@ -1,13 +1,13 @@
 package eu.darken.bb.user.core
 
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import eu.darken.bb.App
 import eu.darken.bb.common.dagger.PerApp
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.Subject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

@@ -1,19 +1,19 @@
 package eu.darken.bb.common
 
 import android.annotation.SuppressLint
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import eu.darken.bb.App
 import eu.darken.bb.common.rx.SchedulersCustom
 import eu.darken.bb.common.rx.filterEqual
 import eu.darken.bb.common.rx.latest
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.ReplaySubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.ReplaySubject
+import io.reactivex.rxjava3.subjects.Subject
 import timber.log.Timber
 import java.util.*
 

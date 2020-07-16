@@ -23,7 +23,7 @@ import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.root.core.javaroot.RootException
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 import javax.inject.Inject
 

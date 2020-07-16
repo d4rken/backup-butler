@@ -1,8 +1,8 @@
 package eu.darken.bb.common.rx
 
 import eu.darken.bb.common.Opt
-import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Single
 
 
 fun <T> Single<T>.blockingGetUnWrapped(): T {

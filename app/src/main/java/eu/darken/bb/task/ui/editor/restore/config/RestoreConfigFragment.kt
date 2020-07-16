@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
-import com.jakewharton.rxbinding3.view.longClicks
+import com.jakewharton.rxbinding4.view.longClicks
 import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.APathPicker

@@ -17,7 +17,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
 
 

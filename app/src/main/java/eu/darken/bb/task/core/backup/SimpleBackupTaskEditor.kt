@@ -8,9 +8,9 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 
 class SimpleBackupTaskEditor @AssistedInject constructor(

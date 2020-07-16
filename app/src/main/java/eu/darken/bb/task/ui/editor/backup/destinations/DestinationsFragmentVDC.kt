@@ -15,7 +15,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class DestinationsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

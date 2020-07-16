@@ -14,7 +14,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class StoragePickerFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,
@@ -45,7 +45,7 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
                             )
                         }
             }
-            .startWith(StorageState())
+            .startWithItem(StorageState())
             .toLiveData()
 
     val finishEvent = SingleLiveEvent<Any>()

@@ -10,7 +10,7 @@ import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
 import eu.darken.bb.common.debug.compareIgnorePath
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class UriPermissions @AssistedInject constructor(

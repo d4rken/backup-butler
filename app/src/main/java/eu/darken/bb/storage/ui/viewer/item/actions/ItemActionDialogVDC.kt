@@ -20,7 +20,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class ItemActionDialogVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

@@ -3,10 +3,10 @@ package eu.darken.bb.common.rx
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import eu.darken.bb.common.getRootCause
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableSource
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 fun <T> Observable<T>.toLiveData(): LiveData<T> {

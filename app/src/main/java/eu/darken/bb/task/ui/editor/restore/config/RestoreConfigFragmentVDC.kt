@@ -20,10 +20,10 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.awaitFirst
+import kotlinx.coroutines.rx3.awaitFirst
 import timber.log.Timber
 
 class RestoreConfigFragmentVDC @AssistedInject constructor(

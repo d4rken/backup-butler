@@ -14,8 +14,8 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class TaskActionDialogVDC @AssistedInject constructor(

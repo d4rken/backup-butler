@@ -20,8 +20,8 @@ import eu.darken.bb.common.files.core.local.toCrumbs
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 
 class LocalPickerFragmentVDC @AssistedInject constructor(
@@ -73,6 +73,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
             is LocalPathLookup -> selected.lookedUp
             else -> null
         }
+        if (unwrapped == null) return
 
         val doCd: (LocalPath) -> Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> = { path ->
             val crumbs = path.toCrumbs()

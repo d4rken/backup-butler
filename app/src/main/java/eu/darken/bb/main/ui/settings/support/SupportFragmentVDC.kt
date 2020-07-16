@@ -11,8 +11,8 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.InstallId
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class SupportFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

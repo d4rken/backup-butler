@@ -13,8 +13,8 @@ import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.main.ui.advanced.AdvancedActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
 import timber.log.Timber
 import javax.inject.Inject
 

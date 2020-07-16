@@ -132,7 +132,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.kotlin.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${versions.kotlin.coroutines}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 
     // Support libs
@@ -159,9 +159,10 @@ dependencies {
 
     implementation 'com.airbnb.android:lottie:3.1.0'
 
-    implementation 'androidx.work:work-runtime:2.2.0'
-    implementation 'androidx.work:work-rxjava2:2.2.0'
-    testImplementation 'androidx.work:work-testing:2.2.0'
+    def work_version = "2.4.0-rc01"
+    implementation "androidx.work:work-runtime:${work_version}"
+    implementation "androidx.work:work-rxjava3:${work_version}"
+    testImplementation "androidx.work:work-testing:${work_version}"
 
     // Network
     implementation("com.squareup.okio:okio:2.4.1")
@@ -200,21 +201,25 @@ dependencies {
     implementation 'eu.chainfire:libsuperuser:+'
 
     // Rx
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
-    implementation "io.reactivex.rxjava2:rxkotlin:${versions.rxkotlin}"
-    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.2.0'
+    implementation "io.reactivex.rxjava3:rxjava:${versions.rxjava}"
+    implementation "io.reactivex.rxjava3:rxandroid:${versions.rxandroid}"
+    implementation "io.reactivex.rxjava3:rxkotlin:${versions.rxkotlin}"
+    implementation 'com.jakewharton.rx3:replaying-share:3.0.0'
+    implementation "com.jakewharton.rx3:replaying-share-kotlin:3.0.0"
+    implementation "com.github.akarnokd:rxjava3-bridge:3.0.0"
 
-    implementation "com.jakewharton.rxbinding3:rxbinding:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-core:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-appcompat:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-drawerlayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-leanback:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-recyclerview:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-slidingpanelayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding3:rxbinding-material:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-core:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-appcompat:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-drawerlayout:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-leanback:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-recyclerview:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-slidingpanelayout:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-swiperefreshlayout:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-viewpager:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-viewpager2:${versions.rxbindings}"
+    implementation "com.jakewharton.rxbinding4:rxbinding-material:${versions.rxbindings}"
+
     implementation "eu.darken.rxshell:core:${versions.rxshell}"
     implementation "eu.darken.rxshell:root:${versions.rxshell}"
 

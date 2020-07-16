@@ -10,10 +10,10 @@ import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivityArgs
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -78,9 +78,9 @@ class StorageManager @Inject constructor(
             }
 
     private fun info(ref: Storage.Ref): Observable<Storage.Info> = getStorage(ref)
-            .switchMap { it.info().startWith(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
+            .switchMap { it.info().startWithItem(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
             .doOnError { Timber.tag(TAG).e(it) }
-            .startWith(Storage.Info(ref.storageId, ref.storageType))
+            .startWithItem(Storage.Info(ref.storageId, ref.storageType))
             .onErrorMixLast { last, error ->
                 // because we have startWith
                 last!!.copy(error = error)
@@ -115,7 +115,7 @@ class StorageManager @Inject constructor(
                     null
                 }
                 try {
-                    storage?.detach(wipe)?.blockingGet()
+                    storage?.detach(wipe)?.blockingAwait()
                 } catch (e: Exception) {
                     Timber.tag(TAG).e(e, "Failed to execute detach on storage.")
                 }

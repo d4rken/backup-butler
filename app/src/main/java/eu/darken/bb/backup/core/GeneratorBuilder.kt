@@ -10,10 +10,10 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.task.core.Task
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -94,9 +94,9 @@ class GeneratorBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Generator.Id): Maybe<Data> = generatorRepo.get(id)
-            .flatMapSingleElement { config ->
+            .flatMapSingle { config ->
                 val editor = editors.getValue(config.generatorType).create(config.generatorId)
-                editor.load(config).blockingGet()
+                editor.load(config).blockingAwait()
                 val data = Data(
                         generatorId = config.generatorId,
                         generatorType = config.generatorType,

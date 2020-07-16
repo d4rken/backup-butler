@@ -9,11 +9,11 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityArgs
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -101,7 +101,7 @@ class StorageBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Storage.Id): Maybe<Data> = refRepo.get(id)
-            .flatMapSingleElement { ref: Storage.Ref ->
+            .flatMapSingle { ref: Storage.Ref ->
                 val editor = editors.getValue(ref.storageType).create(ref.storageId)
                 editor.load(ref).blockingGet()
                 val builderData = Data(

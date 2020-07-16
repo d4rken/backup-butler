@@ -1,7 +1,7 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
 import androidx.lifecycle.SavedStateHandle
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
@@ -16,7 +16,7 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class RestoreSourcesFragmentVDC @AssistedInject constructor(

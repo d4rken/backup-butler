@@ -13,7 +13,7 @@ import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.common.vdc.VDCFactory
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class AppEditorConfigFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

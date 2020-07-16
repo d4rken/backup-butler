@@ -1,7 +1,7 @@
 package eu.darken.bb.storage.core.saf
 
 import android.content.Context
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
@@ -30,10 +30,10 @@ import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.io.IOException
 import java.io.InterruptedIOException
@@ -106,7 +106,7 @@ class SAFStorage @AssistedInject constructor(
                         Timber.tag(TAG).w(e)
                     }
                     info.copy(status = status)
-                }.startWith(info)
+                }.startWithItem(info)
             }
             .doOnError { Timber.tag(TAG).e(it) }
             .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }

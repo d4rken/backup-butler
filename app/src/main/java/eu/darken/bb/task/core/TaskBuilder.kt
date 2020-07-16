@@ -8,11 +8,11 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -69,8 +69,7 @@ class TaskBuilder @Inject constructor(
     fun save(id: Task.Id): Single<Task> = remove(id)
             .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
             .map {
-                checkNotNull(it.value) { "Can't find ID to save: $id" }
-                it.value
+                it.notNullValue("Can't find ID to save: $id")
             }
             .flatMap {
                 checkNotNull(it.editor) { "Can't save builder data NULL editor: $it" }
@@ -84,9 +83,11 @@ class TaskBuilder @Inject constructor(
             .map { it }
 
     fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
-            .flatMapSingleElement { task ->
+            .doOnSuccess { Timber.tag(TAG).d("Next: %s", it) }
+            .doOnComplete { Timber.tag(TAG).d("Complete") }
+            .flatMapSingle { task ->
                 val editor = editors.getValue(task.taskType).create(task.taskId)
-                editor.load(task).blockingGet()
+                editor.load(task).blockingAwait()
                 val data = Data(
                         taskId = task.taskId,
                         taskType = task.taskType,
@@ -103,6 +104,7 @@ class TaskBuilder @Inject constructor(
                     load(taskId)
                             .doOnSubscribe { Timber.tag(TAG).d("Trying existing task for %s", taskId) }
                             .doOnSuccess { Timber.tag(TAG).d("Loaded existing task for %s", taskId) }
+                            .doOnError { Timber.tag(TAG).e("Failed to load existing task for %s", taskId) }
             )
             .doOnSuccess { data ->
                 Timber.tag(TAG).v("Starting editor for ID %s", taskId)

@@ -1,7 +1,7 @@
 package eu.darken.bb.common.debug
 
 import android.content.SharedPreferences
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 interface DebugModuleHost {
 

@@ -17,9 +17,9 @@ import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.IllegalStoragePathException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(

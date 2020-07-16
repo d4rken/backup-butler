@@ -18,8 +18,8 @@ import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import timber.log.Timber
 import java.lang.Thread.sleep
 import javax.inject.Inject

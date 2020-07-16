@@ -3,7 +3,7 @@
 package eu.darken.bb.common.moshi
 
 import com.squareup.moshi.*
-import io.reactivex.annotations.CheckReturnValue
+import io.reactivex.rxjava3.annotations.CheckReturnValue
 import java.io.IOException
 import java.lang.reflect.Type
 import java.util.*

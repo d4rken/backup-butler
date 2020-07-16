@@ -1,6 +1,6 @@
 package eu.darken.bb.task.core.restore
 
-import com.jakewharton.rx.replayingShare
+import com.jakewharton.rx3.replayingShare
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
@@ -18,11 +18,11 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.backupInfosOpt
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.Observables
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.Observables
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*

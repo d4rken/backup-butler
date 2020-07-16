@@ -6,7 +6,7 @@ import com.squareup.inject.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.debug.*
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class AppInfoModule @AssistedInject constructor(

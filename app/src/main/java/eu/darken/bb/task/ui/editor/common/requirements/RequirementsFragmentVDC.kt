@@ -12,7 +12,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.Requirement
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class RequirementsFragmentVDC @AssistedInject constructor(
         @Assisted private val handle: SavedStateHandle,

@@ -1,10 +1,10 @@
 package eu.darken.bb.common
 
 import eu.darken.bb.common.debug.BBDebug
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.io.Closeable
 import java.io.IOException

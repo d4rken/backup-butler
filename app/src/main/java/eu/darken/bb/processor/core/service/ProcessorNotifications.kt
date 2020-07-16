@@ -13,7 +13,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.ui.ProcessorActivity
-import io.reactivex.disposables.Disposables
+import io.reactivex.rxjava3.disposables.Disposable
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class ProcessorNotifications @Inject constructor(
     }
 
     private val builder: NotificationCompat.Builder
-    private var progressSub = Disposables.disposed()
+    private var progressSub = Disposable.disposed()
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

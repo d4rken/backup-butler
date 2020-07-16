@@ -27,7 +27,7 @@ import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRef
 import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject

@@ -5,7 +5,7 @@ import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.task.core.Task
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 @PerApp

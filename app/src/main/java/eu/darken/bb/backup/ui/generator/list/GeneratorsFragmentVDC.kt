@@ -12,7 +12,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class GeneratorsFragmentVDC @AssistedInject constructor(

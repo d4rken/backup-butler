@@ -20,7 +20,7 @@ import eu.darken.bb.processor.core.mm.generic.DirectoryProps
 import eu.darken.bb.processor.core.mm.generic.FileProps
 import eu.darken.bb.processor.core.mm.generic.SymlinkProps
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 import javax.inject.Inject
 

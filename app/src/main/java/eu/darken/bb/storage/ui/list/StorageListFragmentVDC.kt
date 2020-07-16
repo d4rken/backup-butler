@@ -13,7 +13,7 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class StorageListFragmentVDC @AssistedInject constructor(
@@ -31,7 +31,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
                         isLoading = false
                 )
             }
-            .startWith(StorageState())
+            .startWithItem(StorageState())
             .toLiveData()
 
     val editTaskEvent = SingleLiveEvent<Storage.Id>()

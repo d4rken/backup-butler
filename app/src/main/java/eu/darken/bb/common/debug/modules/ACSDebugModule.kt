@@ -9,7 +9,7 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 @TargetApi(Build.VERSION_CODES.N)
 class ACSDebugModule @AssistedInject constructor(

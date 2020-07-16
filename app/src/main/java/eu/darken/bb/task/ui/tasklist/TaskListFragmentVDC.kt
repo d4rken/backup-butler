@@ -17,7 +17,6 @@ import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 class TaskListFragmentVDC @AssistedInject constructor(
@@ -70,7 +69,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
         GlobalScope.launch {
             taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
                     .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
-                    .await()
+                    .blockingAwait()
         }
     }
 

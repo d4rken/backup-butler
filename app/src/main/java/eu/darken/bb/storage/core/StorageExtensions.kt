@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 object StorageExtensions {
     internal const val STORAGEID_KEY = "storage.id"
@@ -37,7 +37,7 @@ fun Storage.specInfosOpt(vararg specIds: BackupSpec.Id, live: Boolean = false): 
                 it.asList() as Collection<BackupSpec.InfoOpt>
             }
         }
-        .startWith(specIds.map { BackupSpec.InfoOpt(storageId = this.storageId, specId = it) })
+        .startWithItem(specIds.map { BackupSpec.InfoOpt(storageId = this.storageId, specId = it) })
         .map { it as Collection<BackupSpec.InfoOpt> }
 
 
@@ -56,5 +56,5 @@ fun Storage.backupInfosOpt(vararg backupIds: Pair<BackupSpec.Id, Backup.Id>, liv
                 it.asList() as Collection<Backup.InfoOpt>
             }
         }
-        .startWith(backupIds.map { Backup.InfoOpt(storageId = this.storageId, specId = it.first, backupId = it.second) })
+        .startWithItem(backupIds.map { Backup.InfoOpt(storageId = this.storageId, specId = it.first, backupId = it.second) })
         .map { it }

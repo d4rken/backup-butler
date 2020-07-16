@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.format.Formatter
 import eu.darken.bb.common.AString
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import kotlin.math.ceil
 
 interface Progress {

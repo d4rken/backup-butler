@@ -11,9 +11,11 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.stored.StoredLogEvent
 import eu.darken.bb.task.core.results.stored.StoredResult
 import eu.darken.bb.task.core.results.stored.StoredSubResult
-import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import hu.akarnokd.rxjava3.bridge.RxJavaBridge
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -85,14 +87,14 @@ class TaskResultRepo @Inject constructor(
             }
             .flatMap { (result, subResults, logEvents) ->
                 Timber.tag(TAG).d("Inserting result.")
-                database.storedResultDao().insertResult(result)
+                database.storedResultDao().insertResult(result).`as`(RxJavaBridge.toV3Single())
                         .flatMap {
                             Timber.tag(TAG).d("Inserting subresults.")
-                            database.storedResultDao().insertSubResults(subResults)
+                            database.storedResultDao().insertSubResults(subResults).`as`(RxJavaBridge.toV3Single())
                         }
                         .flatMap {
                             Timber.tag(TAG).d("Inserting log events.")
-                            database.storedResultDao().insertLogEvents(logEvents)
+                            database.storedResultDao().insertLogEvents(logEvents).`as`(RxJavaBridge.toV3Single())
                         }
             }
             .ignoreElement()
@@ -100,7 +102,7 @@ class TaskResultRepo @Inject constructor(
             .doOnError { Timber.tag(TAG).e(it, "Error saving result: %s", result) }
             .doOnComplete { Timber.tag(TAG).d("Result saved: %s", result) }
 
-    fun getLatestTaskResultGlimse(taskIds: List<Task.Id>) = database.storedResultDao().getLatestTaskResults(taskIds)
+    fun getLatestTaskResultGlimse(taskIds: List<Task.Id>): Observable<List<GlimpsedTaskResult>> = database.storedResultDao().getLatestTaskResults(taskIds).`as`(RxJavaBridge.toV3Observable())
             .map { storedResults ->
                 storedResults.map {
                     GlimpsedTaskResult(
@@ -122,10 +124,10 @@ class TaskResultRepo @Inject constructor(
             .doOnNext { Timber.tag(TAG).d("Current results: %s for %s", it, taskIds) }
             .onErrorReturn { emptyList() }
 
-    fun getTaskResult(taskId: Task.Id) = database.storedResultDao().getTaskResult(taskId)
+    fun getTaskResult(taskId: Task.Id): Single<SimpleResult> = database.storedResultDao().getTaskResult(taskId).`as`(RxJavaBridge.toV3Single())
             .flatMap { storedResult ->
-                database.storedResultDao().getSubTaskResults(storedResult.id).flatMap { storedSubResults ->
-                    database.storedResultDao().getLogEvents(storedSubResults.map { it.id })
+                database.storedResultDao().getSubTaskResults(storedResult.id).`as`(RxJavaBridge.toV3Single()).flatMap { storedSubResults ->
+                    database.storedResultDao().getLogEvents(storedSubResults.map { it.id }).`as`(RxJavaBridge.toV3Single())
                             .map { storedLogEvents ->
                                 val subResults = storedSubResults.map { storedSubResult ->
                                     val logEvents = storedLogEvents.filter { it.subResultId == storedSubResult.id }

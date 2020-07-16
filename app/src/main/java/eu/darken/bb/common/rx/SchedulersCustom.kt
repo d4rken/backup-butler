@@ -1,7 +1,7 @@
 package eu.darken.bb.common.rx
 
-import io.reactivex.Scheduler
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.Executors
 
 object SchedulersCustom {
