@@ -39,7 +39,7 @@ class ClipboardHelper @Inject constructor(
     }
 
     fun copyToClipboard(text: String) {
-        val clip = ClipData.newPlainText("SD Maid", text)
-        clipboard.primaryClip = clip
+        val clip = ClipData.newPlainText("Backup Butler", text)
+        clipboard.setPrimaryClip(clip)
     }
 }

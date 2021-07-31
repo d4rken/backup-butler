@@ -37,7 +37,7 @@ class BackupButler @Inject constructor(
                 buildTime = BuildConfig.BUILD_TYPE)
     }
 
-    val checksumApkMd5: String by lazy {
+    val checksumApkMd5: String by lazy<String> {
         val info = packageManager.getPackageInfo(context.packageName, 0)
 
         val lastVersion = selfHealthPrefs.getLong("apk.chksm.version", 0)

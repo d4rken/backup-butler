@@ -52,7 +52,7 @@ object APathPicker {
     }
 
     fun fromActivityResult(data: Intent): Result {
-        return data.getParcelableExtra(ARG_PICKER_RESULT)
+        return data.getParcelableExtra(ARG_PICKER_RESULT)!!
     }
 
     fun toActivityResult(result: Result): Intent {
