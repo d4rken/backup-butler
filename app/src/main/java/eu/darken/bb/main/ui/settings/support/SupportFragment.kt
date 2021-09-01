@@ -48,10 +48,10 @@ class SupportFragment : SmartPreferenceFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.clipboardEvent.observe2(this) { installId ->
             Snackbar.make(requireView(), installId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.general_copy_action) {
-                        clipboardHelper.copyToClipboard(installId)
-                    }
-                    .show()
+                .setAction(R.string.general_copy_action) {
+                    clipboardHelper.copyToClipboard(installId)
+                }
+                .show()
         }
 
         vdc.emailEvent.observe2(this) {

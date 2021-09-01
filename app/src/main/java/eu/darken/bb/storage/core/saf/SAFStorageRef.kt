@@ -8,8 +8,8 @@ import eu.darken.bb.storage.core.Storage
 @Keep
 @JsonClass(generateAdapter = true)
 data class SAFStorageRef(
-        override val path: SAFPath,
-        override val storageId: Storage.Id = Storage.Id()
+    override val path: SAFPath,
+    override val storageId: Storage.Id = Storage.Id()
 ) : Storage.Ref {
 
     override var storageType: Storage.Type

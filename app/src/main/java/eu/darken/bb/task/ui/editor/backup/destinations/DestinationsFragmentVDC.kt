@@ -18,16 +18,16 @@ import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class DestinationsFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val storageManager: StorageManager,
-        private val processorControl: ProcessorControl
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val storageManager: StorageManager,
+    private val processorControl: ProcessorControl
 ) : SmartVDC() {
 
     private val editorObs = taskBuilder.task(taskId)
-            .filter { it.editor != null }
-            .map { it.editor as SimpleBackupTaskEditor }
+        .filter { it.editor != null }
+        .map { it.editor as SimpleBackupTaskEditor }
 
     private val editor: SimpleBackupTaskEditor by lazy {
         editorObs.blockingFirst()
@@ -42,14 +42,14 @@ class DestinationsFragmentVDC @AssistedInject constructor(
 
     init {
         editorData
-                .switchMap { dests ->
-                    storageManager.infos(dests.destinations)
-                            .takeUntil { ios -> ios.all { it.isFinished } }
-                }
-                .subscribe { storageStatuses ->
-                    stater.update { it.copy(destinations = storageStatuses.toList()) }
-                }
-                .withScopeVDC(this)
+            .switchMap { dests ->
+                storageManager.infos(dests.destinations)
+                    .takeUntil { ios -> ios.all { it.isFinished } }
+            }
+            .subscribe { storageStatuses ->
+                stater.update { it.copy(destinations = storageStatuses.toList()) }
+            }
+            .withScopeVDC(this)
     }
 
     fun removeDestination(storage: Storage.InfoOpt) {
@@ -66,21 +66,21 @@ class DestinationsFragmentVDC @AssistedInject constructor(
 
     private fun save(execute: Boolean = false) {
         taskBuilder.save(taskId)
-                .doOnSubscribe {
-                    stater.update {
-                        it.copy(isWorking = true)
-                    }
+            .doOnSubscribe {
+                stater.update {
+                    it.copy(isWorking = true)
                 }
-                .subscribeOn(Schedulers.computation())
-                .subscribe { savedTask ->
-                    if (execute) processorControl.submit(savedTask)
-                    finishEvent.postValue(true)
-                }
+            }
+            .subscribeOn(Schedulers.computation())
+            .subscribe { savedTask ->
+                if (execute) processorControl.submit(savedTask)
+                finishEvent.postValue(true)
+            }
     }
 
     data class State(
-            val destinations: List<Storage.InfoOpt> = emptyList(),
-            val isWorking: Boolean = false
+        val destinations: List<Storage.InfoOpt> = emptyList(),
+        val isWorking: Boolean = false
     )
 
     @AssistedInject.Factory

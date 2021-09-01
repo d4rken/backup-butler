@@ -14,12 +14,12 @@ import javax.inject.Inject
 
 @PerApp
 class UISettings @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) : Settings() {
 
     enum class Theme(
-            @StringRes val label: Int,
-            val identifier: String
+        @StringRes val label: Int,
+        val identifier: String
     ) {
         SYSTEM(R.string.userinterface_theme_system_label, "theme_system"),
         DARK(R.string.userinterface_theme_dark_label, "theme_dark"),
@@ -45,8 +45,8 @@ class UISettings @Inject constructor(
         }
 
     enum class StartMode(
-            @StringRes val label: Int,
-            val identifier: String
+        @StringRes val label: Int,
+        val identifier: String
     ) {
         SIMPLE(R.string.startmode_simple_label, "startmode_simple"),
         ADVANCED(R.string.startmode_advanced_label, "startmode_advanced");

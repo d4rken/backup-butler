@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @PerApp
 class BBEnv @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) {
 
     val privateFilesPath: File = context.filesDir

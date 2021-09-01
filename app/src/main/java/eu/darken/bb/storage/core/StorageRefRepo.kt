@@ -18,10 +18,11 @@ import javax.inject.Inject
 
 @PerApp
 class StorageRefRepo @Inject constructor(
-        @AppContext context: Context,
-        moshi: Moshi
+    @AppContext context: Context,
+    moshi: Moshi
 ) {
-    private val preferences: SharedPreferences = context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
+    private val preferences: SharedPreferences =
+        context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
     private val refAdapter = moshi.adapter(Storage.Ref::class.java)
 
     private val initializer = Single.fromCallable {
@@ -41,45 +42,45 @@ class StorageRefRepo @Inject constructor(
 
     init {
         internalData.data
-                .subscribeOn(Schedulers.io())
-                .subscribe { data ->
-                    preferences.edit().clear().apply()
-                    data.values.forEach {
-                        preferences.edit().putString("${it.storageId}", refAdapter.toJson(it)).apply()
-                    }
+            .subscribeOn(Schedulers.io())
+            .subscribe { data ->
+                preferences.edit().clear().apply()
+                data.values.forEach {
+                    preferences.edit().putString("${it.storageId}", refAdapter.toJson(it)).apply()
                 }
+            }
     }
 
     fun get(id: Storage.Id): Maybe<Storage.Ref> = internalData.latest
-            .flatMapMaybe { Maybe.fromCallable { it[id] } }
+        .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     fun put(ref: Storage.Ref): Single<Opt<Storage.Ref>> {
         var oldValue: Storage.Ref? = null
         return internalData
-                .updateRx { data ->
-                    data.toMutableMap().apply {
-                        oldValue = put(ref.storageId, ref)
-                    }
+            .updateRx { data ->
+                data.toMutableMap().apply {
+                    oldValue = put(ref.storageId, ref)
                 }
-                .map { oldValue.opt() }
-                .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
-                .doOnSuccess { affectedIdPub.onNext(ref.storageId) }
+            }
+            .map { oldValue.opt() }
+            .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
+            .doOnSuccess { affectedIdPub.onNext(ref.storageId) }
     }
 
     fun remove(refId: Storage.Id): Single<Opt<Storage.Ref>> {
         var oldValue: Storage.Ref? = null
         return internalData
-                .updateRx { data ->
-                    data.toMutableMap().apply {
-                        oldValue = remove(refId)
-                    }
+            .updateRx { data ->
+                data.toMutableMap().apply {
+                    oldValue = remove(refId)
                 }
-                .map { oldValue.opt() }
-                .doOnSuccess {
-                    Timber.d("remove(refId=%s) -> old=%s", refId, it.value)
-                    if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
-                }
-                .doOnSuccess { affectedIdPub.onNext(refId) }
+            }
+            .map { oldValue.opt() }
+            .doOnSuccess {
+                Timber.d("remove(refId=%s) -> old=%s", refId, it.value)
+                if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
+            }
+            .doOnSuccess { affectedIdPub.onNext(refId) }
     }
 
     companion object {

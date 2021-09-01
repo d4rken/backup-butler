@@ -33,7 +33,12 @@ class ContentPageFragment : SmartFragment(), AutoInject {
 
     private val vdc: ContentPageFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as ContentPageFragmentVDC.Factory
-        factory.create(handle, requireArguments().getStorageId()!!, requireArguments().getBackupSpecId()!!, requireArguments().getBackupId()!!)
+        factory.create(
+            handle,
+            requireArguments().getStorageId()!!,
+            requireArguments().getBackupSpecId()!!,
+            requireArguments().getBackupId()!!
+        )
     })
 
     @Inject lateinit var adapter: ContentEntryAdapter

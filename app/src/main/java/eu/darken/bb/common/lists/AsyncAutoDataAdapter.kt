@@ -20,9 +20,9 @@ fun <X, T> X.update(newData: List<T>?, notify: Boolean = true)
 }
 
 class AsyncDiffer<T>(
-        adapter: RecyclerView.Adapter<*>,
-        compareItem: (T, T) -> Boolean = { i1, i2 -> i1 == i2 },
-        compareContent: (T, T) -> Boolean = { i1, i2 -> i1 == i2 }
+    adapter: RecyclerView.Adapter<*>,
+    compareItem: (T, T) -> Boolean = { i1, i2 -> i1 == i2 },
+    compareContent: (T, T) -> Boolean = { i1, i2 -> i1 == i2 }
 ) {
     private val callback = object : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {

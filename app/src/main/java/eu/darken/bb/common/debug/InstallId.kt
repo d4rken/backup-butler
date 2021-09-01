@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @PerApp
 class InstallId @Inject constructor(
-        bbEnv: BBEnv
+    bbEnv: BBEnv
 ) {
     private val installIdFile = File(bbEnv.privateFilesPath, "installid")
 

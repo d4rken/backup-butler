@@ -18,13 +18,13 @@ import eu.darken.bb.task.ui.editor.restore.config.files.FileConfigVH
 import javax.inject.Inject
 
 
-class RestoreConfigAdapter @Inject constructor()
-    : ModularAdapter<RestoreConfigAdapter.BaseVH>(), AsyncAutoDataAdapter<ConfigUIWrap> {
+class RestoreConfigAdapter @Inject constructor() : ModularAdapter<RestoreConfigAdapter.BaseVH>(),
+    AsyncAutoDataAdapter<ConfigUIWrap> {
 
     override val asyncDiffer: AsyncDiffer<ConfigUIWrap> = AsyncDiffer(
-            this,
-            compareItem = { i1, i2 -> i1.stableId == i2.stableId },
-            compareContent = { i1, i2 -> i1 == i2 }
+        this,
+        compareItem = { i1, i2 -> i1.stableId == i2.stableId },
+        compareContent = { i1, i2 -> i1 == i2 }
     )
 
     override fun getItemId(position: Int): Long = data[position].stableId
@@ -38,8 +38,8 @@ class RestoreConfigAdapter @Inject constructor()
         modules.add(TypedVHCreator(1, { data[it].config is FilesRestoreConfig }) { FileConfigVH(it) })
     }
 
-    abstract class BaseVH(@LayoutRes layoutRes: Int, parent: ViewGroup)
-        : ModularAdapter.VH(layoutRes, parent), BindableVH<ConfigUIWrap> {
+    abstract class BaseVH(@LayoutRes layoutRes: Int, parent: ViewGroup) : ModularAdapter.VH(layoutRes, parent),
+        BindableVH<ConfigUIWrap> {
 
         private val defaultTag = getString(R.string.general_default_label)
         abstract val title: String

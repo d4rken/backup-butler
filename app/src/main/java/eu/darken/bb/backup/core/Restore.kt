@@ -18,7 +18,8 @@ interface Restore {
         val restoreType: Backup.Type
 
         companion object {
-            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> = MyPolymorphicJsonAdapterFactory.of(Config::class.java, "restoreType")
+            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> =
+                MyPolymorphicJsonAdapterFactory.of(Config::class.java, "restoreType")
                     .withSubtype(AppRestoreConfig::class.java, Backup.Type.APP.name)
                     .withSubtype(FilesRestoreConfig::class.java, Backup.Type.FILES.name)
                     .skipLabelSerialization()

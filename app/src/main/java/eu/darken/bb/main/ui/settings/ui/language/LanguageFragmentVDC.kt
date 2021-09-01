@@ -13,24 +13,24 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class LanguageFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        val languageEnforcer: LanguageEnforcer
+    @Assisted private val handle: SavedStateHandle,
+    val languageEnforcer: LanguageEnforcer
 ) : SmartVDC() {
 
     val state = Observable.fromCallable { languageEnforcer.supportedLocales }
-            .subscribeOn(Schedulers.computation())
-            .map { locales ->
-                locales
-                        .map { languageEnforcer.lookup(it) }
-                        .filter { it.isTranslated }
-            }
-            .map { languages ->
-                State(
-                        current = languageEnforcer.lookup(languageEnforcer.currentLocale),
-                        languages = languages
-                )
-            }
-            .toLiveData()
+        .subscribeOn(Schedulers.computation())
+        .map { locales ->
+            locales
+                .map { languageEnforcer.lookup(it) }
+                .filter { it.isTranslated }
+        }
+        .map { languages ->
+            State(
+                current = languageEnforcer.lookup(languageEnforcer.currentLocale),
+                languages = languages
+            )
+        }
+        .toLiveData()
     val finishEvent = SingleLiveEvent<Any>()
 
     fun selectLanguage(language: LanguageEnforcer.Language, resources: Resources) {
@@ -39,8 +39,8 @@ class LanguageFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val languages: List<LanguageEnforcer.Language>,
-            val current: LanguageEnforcer.Language
+        val languages: List<LanguageEnforcer.Language>,
+        val current: LanguageEnforcer.Language
     )
 
     @AssistedInject.Factory

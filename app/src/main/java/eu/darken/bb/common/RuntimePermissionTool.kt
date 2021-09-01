@@ -11,12 +11,12 @@ import javax.inject.Inject
 
 @Reusable
 class RuntimePermissionTool @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) {
 
     fun hasPermission(vararg permssions: String): Boolean {
         val notGranted = permssions.map { Pair(it, ContextCompat.checkSelfPermission(context, it)) }
-                .filter { it.second != PackageManager.PERMISSION_GRANTED }
+            .filter { it.second != PackageManager.PERMISSION_GRANTED }
         Timber.tag(TAG).d("Not granted: %s", notGranted)
         return notGranted.isEmpty()
     }

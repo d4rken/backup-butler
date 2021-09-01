@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 @Reusable
 class AppSpecGenerator @Inject constructor(
-        @AppContext private val context: Context,
-        private val pkgOps: PkgOps
+    @AppContext private val context: Context,
+    private val pkgOps: PkgOps
 ) : Generator {
 
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
@@ -38,21 +38,22 @@ class AppSpecGenerator @Inject constructor(
             }
         }
 
-        allPkgs.map { it.packageName }.filter { config.packagesIncluded.contains(it) }.forEach { targetPackages.add(it) }
+        allPkgs.map { it.packageName }.filter { config.packagesIncluded.contains(it) }
+            .forEach { targetPackages.add(it) }
 
         targetPackages.removeAll { config.packagesExcluded.contains(it) }
 
         targetPackages
-                .map { pkgName ->
-                    AppBackupSpec(
-                            packageName = pkgName,
-                            backupApk = config.backupApk,
-                            backupData = config.backupData,
-                            backupCache = config.backupCache,
-                            extraPaths = config.extraPaths[pkgName] ?: emptySet()
-                    )
-                }
-                .forEach { specs.add(it) }
+            .map { pkgName ->
+                AppBackupSpec(
+                    packageName = pkgName,
+                    backupApk = config.backupApk,
+                    backupData = config.backupData,
+                    backupCache = config.backupCache,
+                    extraPaths = config.extraPaths[pkgName] ?: emptySet()
+                )
+            }
+            .forEach { specs.add(it) }
 
         return specs
     }
@@ -60,17 +61,17 @@ class AppSpecGenerator @Inject constructor(
     @Keep
     @JsonClass(generateAdapter = true)
     data class Config(
-            override val generatorId: Generator.Id,
-            override val label: String,
-            val autoInclude: Boolean,
-            val includeUserApps: Boolean,
-            val includeSystemApps: Boolean,
-            val packagesIncluded: Set<String>,
-            val packagesExcluded: Set<String>,
-            val backupApk: Boolean,
-            val backupData: Boolean,
-            val backupCache: Boolean,
-            val extraPaths: Map<String, Set<APath>>
+        override val generatorId: Generator.Id,
+        override val label: String,
+        val autoInclude: Boolean,
+        val includeUserApps: Boolean,
+        val includeSystemApps: Boolean,
+        val packagesIncluded: Set<String>,
+        val packagesExcluded: Set<String>,
+        val backupApk: Boolean,
+        val backupData: Boolean,
+        val backupCache: Boolean,
+        val extraPaths: Map<String, Set<APath>>
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {

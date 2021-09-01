@@ -14,9 +14,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 class StorageViewerActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        storageManager: StorageManager
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    storageManager: StorageManager
 ) : SmartVDC() {
 
     val errorEvent = SingleLiveEvent<Throwable>()
@@ -27,28 +27,28 @@ class StorageViewerActivityVDC @AssistedInject constructor(
 
     init {
         storageManager.infos(listOf(storageId)).subscribeOn(Schedulers.io())
-                .map { it.single() }
-                .subscribe { optInfo ->
-                    stater.update {
-                        it.copy(
-                                storageId = storageId,
-                                storageType = optInfo.info?.storageType,
-                                label = optInfo.info?.config?.label ?: ""
-                        )
-                    }
-                    if (optInfo.anyError != null) {
-                        errorEvent.postValue(optInfo.anyError)
-                        finishActivity.postValue(true)
-                    }
+            .map { it.single() }
+            .subscribe { optInfo ->
+                stater.update {
+                    it.copy(
+                        storageId = storageId,
+                        storageType = optInfo.info?.storageType,
+                        label = optInfo.info?.config?.label ?: ""
+                    )
                 }
-                .withScopeVDC(this)
+                if (optInfo.anyError != null) {
+                    errorEvent.postValue(optInfo.anyError)
+                    finishActivity.postValue(true)
+                }
+            }
+            .withScopeVDC(this)
     }
 
     data class State(
-            val storageId: Storage.Id,
-            val label: String = "",
-            val storageType: Storage.Type? = null,
-            val loading: Boolean = true
+        val storageId: Storage.Id,
+        val label: String = "",
+        val storageType: Storage.Type? = null,
+        val loading: Boolean = true
     )
 
     @AssistedInject.Factory

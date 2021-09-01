@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 @Reusable
 class APKExporter @Inject constructor(
-        private val packageManager: PackageManager
+    private val packageManager: PackageManager
 ) {
     fun getAPKFile(packageName: String): APKData {
         val appInfo = packageManager.getApplicationInfo(packageName, 0)
@@ -18,8 +18,8 @@ class APKExporter @Inject constructor(
     }
 
     data class APKData(
-            val mainSource: LocalPath,
-            val splitSources: Collection<LocalPath>
+        val mainSource: LocalPath,
+        val splitSources: Collection<LocalPath>
     )
 
 }

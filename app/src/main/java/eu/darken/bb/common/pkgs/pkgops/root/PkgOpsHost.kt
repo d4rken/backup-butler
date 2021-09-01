@@ -13,9 +13,9 @@ import javax.inject.Inject
 
 
 class PkgOpsHost @Inject constructor(
-        private val context: Context,
-        private val sharedShell: SharedShell,
-        private val libcoreTool: LibcoreTool
+    private val context: Context,
+    private val sharedShell: SharedShell,
+    private val libcoreTool: LibcoreTool
 ) : PkgOpsConnection.Stub() {
     override fun install(request: RemoteInstallRequest): Int = try {
         DefaultRoutine(context).install(request)

@@ -7,17 +7,17 @@ import timber.log.Timber
 import java.util.*
 
 data class SimpleResult constructor(
-        override val resultId: TaskResult.Id,
-        override val taskId: Task.Id,
-        override val taskType: Task.Type,
-        override val label: String,
-        override val startedAt: Date,
-        override val duration: Long,
-        override val state: TaskResult.State,
-        override val primary: String? = null,
-        override val secondary: String? = null,
-        override val extra: String? = null,
-        override val subResults: List<SubResult>
+    override val resultId: TaskResult.Id,
+    override val taskId: Task.Id,
+    override val taskType: Task.Type,
+    override val label: String,
+    override val startedAt: Date,
+    override val duration: Long,
+    override val state: TaskResult.State,
+    override val primary: String? = null,
+    override val secondary: String? = null,
+    override val extra: String? = null,
+    override val subResults: List<SubResult>
 ) : TaskResult {
 
     class Builder : TaskResult.Builder<SimpleResult> {
@@ -78,17 +78,17 @@ data class SimpleResult constructor(
             if (subResults.isEmpty()) Timber.w("Empty subresults: %s", this)
 
             return SimpleResult(
-                    resultId = taskResultId,
-                    taskId = taskId!!,
-                    taskType = taskType!!,
-                    label = taskName!!,
-                    startedAt = startedAt,
-                    duration = duration,
-                    state = state!!,
-                    primary = primary,
-                    secondary = secondary,
-                    subResults = subResults,
-                    extra = extra
+                resultId = taskResultId,
+                taskId = taskId!!,
+                taskType = taskType!!,
+                label = taskName!!,
+                startedAt = startedAt,
+                duration = duration,
+                state = state!!,
+                primary = primary,
+                secondary = secondary,
+                subResults = subResults,
+                extra = extra
             )
         }
 
@@ -99,16 +99,16 @@ data class SimpleResult constructor(
     }
 
     data class SubResult(
-            override val subResultId: TaskResult.SubResult.Id,
-            override val resultId: TaskResult.Id,
-            override val label: String,
-            override val state: TaskResult.State,
-            override val startedAt: Date,
-            override val duration: Long,
-            override val primary: String?,
-            override val secondary: String?,
-            override val extra: String?,
-            override val logEvents: List<LogEvent>
+        override val subResultId: TaskResult.SubResult.Id,
+        override val resultId: TaskResult.Id,
+        override val label: String,
+        override val state: TaskResult.State,
+        override val startedAt: Date,
+        override val duration: Long,
+        override val primary: String?,
+        override val secondary: String?,
+        override val extra: String?,
+        override val logEvents: List<LogEvent>
     ) : TaskResult.SubResult {
         class Builder : TaskResult.SubResult.Builder<SubResult> {
             private var label: String? = null
@@ -162,16 +162,16 @@ data class SimpleResult constructor(
 
             override fun build(taskResultId: TaskResult.Id): SubResult {
                 return SubResult(
-                        subResultId = TaskResult.SubResult.Id(),
-                        resultId = taskResultId,
-                        label = label!!,
-                        state = state!!,
-                        startedAt = startedAt,
-                        duration = duration,
-                        primary = primary,
-                        secondary = secondary,
-                        extra = extra,
-                        logEvents = logEvents
+                    subResultId = TaskResult.SubResult.Id(),
+                    resultId = taskResultId,
+                    label = label!!,
+                    state = state!!,
+                    startedAt = startedAt,
+                    duration = duration,
+                    primary = primary,
+                    secondary = secondary,
+                    extra = extra,
+                    logEvents = logEvents
 
                 )
             }

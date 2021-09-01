@@ -22,10 +22,10 @@ import javax.inject.Inject
 
 @PerApp
 class LocalGateway @Inject constructor(
-        private val javaRootClient: JavaRootClient,
-        private val deviceEnvironment: DeviceEnvironment,
-        private val ipcFunnel: IPCFunnel,
-        private val libcoreTool: LibcoreTool
+    private val javaRootClient: JavaRootClient,
+    private val deviceEnvironment: DeviceEnvironment,
+    private val ipcFunnel: IPCFunnel,
+    private val libcoreTool: LibcoreTool
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
@@ -295,7 +295,8 @@ class LocalGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun createSymlink(linkPath: LocalPath, targetPath: LocalPath): Boolean = createSymlink(linkPath, targetPath, Mode.AUTO)
+    override fun createSymlink(linkPath: LocalPath, targetPath: LocalPath): Boolean =
+        createSymlink(linkPath, targetPath, Mode.AUTO)
 
     @Throws(IOException::class)
     fun createSymlink(linkPath: LocalPath, targetPath: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
@@ -336,7 +337,8 @@ class LocalGateway @Inject constructor(
         throw WriteException(path, cause = e)
     }
 
-    override fun setPermissions(path: LocalPath, permissions: Permissions): Boolean = setPermissions(path, permissions, Mode.AUTO)
+    override fun setPermissions(path: LocalPath, permissions: Permissions): Boolean =
+        setPermissions(path, permissions, Mode.AUTO)
 
     fun setPermissions(path: LocalPath, permissions: Permissions, mode: Mode = Mode.AUTO): Boolean = try {
         val canNormalWrite = path.file.canWrite()

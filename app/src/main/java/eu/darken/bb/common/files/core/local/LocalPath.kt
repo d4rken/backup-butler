@@ -14,7 +14,7 @@ import java.io.IOException
 @Keep
 @JsonClass(generateAdapter = true)
 data class LocalPath(
-        val file: File
+    val file: File
 ) : APath {
 
     override var pathType: APath.PathType

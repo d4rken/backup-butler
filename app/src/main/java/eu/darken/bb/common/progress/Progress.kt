@@ -9,12 +9,12 @@ import kotlin.math.ceil
 
 interface Progress {
     data class Data(
-            val icon: Drawable? = null,
-            val primary: AString = AString.EMPTY,
-            val secondary: AString = AString.EMPTY,
-            val tertiary: AString = AString.EMPTY,
-            val count: Count = Count.None(),
-            val child: Data? = null
+        val icon: Drawable? = null,
+        val primary: AString = AString.EMPTY,
+        val secondary: AString = AString.EMPTY,
+        val tertiary: AString = AString.EMPTY,
+        val count: Count = Count.None(),
+        val child: Data? = null
     )
 
     interface Host {

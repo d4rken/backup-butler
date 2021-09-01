@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 @PerApp
 class DeviceEnvironment @Inject constructor(
-        @AppContext private val context: Context,
-        private val storageManagerX: StorageManagerX
+    @AppContext private val context: Context,
+    private val storageManagerX: StorageManagerX
 ) {
 
     fun getPublicPrimaryStorage(userHandle: UserHandleBB): DeviceStorage {
@@ -25,8 +25,8 @@ class DeviceEnvironment @Inject constructor(
         val volume = storageManagerX.getRootStorageVolume(path)
         requireNotNull(volume) { "Can't find volume for $path" }
         return DeviceStorage(
-                LocalPath.build(path),
-                SAFPath.build(buildUri(volume))
+            LocalPath.build(path),
+            SAFPath.build(buildUri(volume))
         )
     }
 
@@ -46,15 +46,15 @@ class DeviceEnvironment @Inject constructor(
         }
         val primary = getPublicPrimaryStorage(userHandle).localPath
         return pathResult
-                .filter { it != primary }
-                .map {
-                    val volume = storageManagerX.getRootStorageVolume(it.asFile())
-                    requireNotNull(volume) { "Can't find volume for $it" }
-                    DeviceStorage(
-                            it,
-                            SAFPath.build(buildUri(volume))
-                    )
-                }
+            .filter { it != primary }
+            .map {
+                val volume = storageManagerX.getRootStorageVolume(it.asFile())
+                requireNotNull(volume) { "Can't find volume for $it" }
+                DeviceStorage(
+                    it,
+                    SAFPath.build(buildUri(volume))
+                )
+            }
     }
 
 
@@ -71,8 +71,8 @@ class DeviceEnvironment @Inject constructor(
     }
 
     data class DeviceStorage(
-            val localPath: LocalPath,
-            val safPath: SAFPath
+        val localPath: LocalPath,
+        val safPath: SAFPath
     )
 
     companion object {

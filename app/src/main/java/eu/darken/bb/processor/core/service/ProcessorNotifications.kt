@@ -18,8 +18,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ProcessorNotifications @Inject constructor(
-        @AppContext private val context: Context,
-        private val notificationManager: NotificationManager
+    @AppContext private val context: Context,
+    private val notificationManager: NotificationManager
 ) {
 
     companion object {
@@ -33,7 +33,11 @@ class ProcessorNotifications @Inject constructor(
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, context.getString(R.string.notification_channel_backup_progress_label), NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                context.getString(R.string.notification_channel_backup_progress_label),
+                NotificationManager.IMPORTANCE_LOW
+            )
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -41,12 +45,12 @@ class ProcessorNotifications @Inject constructor(
         val openPi = PendingIntent.getActivity(context, 0, openIntent, 0)
 
         builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-                .setChannelId(NOTIFICATION_CHANNEL_ID)
-                .setContentIntent(openPi)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSmallIcon(R.drawable.ic_notification_backup_icon)
-                .setContentTitle(context.getString(R.string.app_name))
-                .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.progress_preparing_label)))
+            .setChannelId(NOTIFICATION_CHANNEL_ID)
+            .setContentIntent(openPi)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSmallIcon(R.drawable.ic_notification_backup_icon)
+            .setContentTitle(context.getString(R.string.app_name))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.progress_preparing_label)))
 
     }
 
@@ -56,13 +60,13 @@ class ProcessorNotifications @Inject constructor(
         progressSub.dispose()
         if (service is Progress.Host) {
             progressSub = service.progress
-                    .distinct { it.primary }
-                    .subscribe {
-                        builder.setContentTitle(it.primary.get(context))
-                        builder.setStyle(NotificationCompat.BigTextStyle().bigText(it.secondary.get(context)))
-                        Timber.tag(TAG).v("updatingNotification(): %s", it)
-                        notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    }
+                .distinct { it.primary }
+                .subscribe {
+                    builder.setContentTitle(it.primary.get(context))
+                    builder.setStyle(NotificationCompat.BigTextStyle().bigText(it.secondary.get(context)))
+                    Timber.tag(TAG).v("updatingNotification(): %s", it)
+                    notificationManager.notify(NOTIFICATION_ID, builder.build())
+                }
         }
     }
 

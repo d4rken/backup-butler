@@ -54,7 +54,10 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
         recyclerView.setupDefaults(adapter, dividers = false)
 
         vdc.summaryState.observe2(this) { state ->
-            countBackups.setTextQuantity(R.plurals.task_editor_restore_x_backups_selected_desc, state.sourceBackups.size)
+            countBackups.setTextQuantity(
+                R.plurals.task_editor_restore_x_backups_selected_desc,
+                state.sourceBackups.size
+            )
             setupBar.buttonPositiveSecondary.setGone(state.sourceBackups.isEmpty())
 
             countContainer.setInvisible(state.isWorking)
@@ -68,22 +71,22 @@ class RestoreSourcesFragment : SmartFragment(), AutoInject {
             loadingOverlayBackupList.setInvisible(!state.isWorking)
 
             val swipeTool = ItemSwipeTool(
-                    ItemSwipeTool.SwipeAction(
-                            direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
-                            icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
-                            label = getString(R.string.general_exclude_action),
-                            background = ColorDrawable(getColorForAttr(R.attr.colorError)),
-                            callback = { viewHolder, _ ->
-                                vdc.exclude(adapter.data[viewHolder.adapterPosition])
-                            }
-                    )
+                ItemSwipeTool.SwipeAction(
+                    direction = ItemSwipeTool.SwipeAction.Direction.RIGHT,
+                    icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_cancel)!!,
+                    label = getString(R.string.general_exclude_action),
+                    background = ColorDrawable(getColorForAttr(R.attr.colorError)),
+                    callback = { viewHolder, _ ->
+                        vdc.exclude(adapter.data[viewHolder.adapterPosition])
+                    }
+                )
             )
             swipeTool.attach(recyclerView)
 
             setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
                 findNavController().navigate(
-                        R.id.nav_action_next,
-                        RestoreConfigFragmentArgs(taskId = navArgs.taskId).toBundle()
+                    R.id.nav_action_next,
+                    RestoreConfigFragmentArgs(taskId = navArgs.taskId).toBundle()
                 )
             }
 

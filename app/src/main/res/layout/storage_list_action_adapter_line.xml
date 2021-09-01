@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    style="@style/OneLineListItemContainer"
+<androidx.constraintlayout.widget.ConstraintLayout style="@style/OneLineListItemContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -16,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText"
-        tools:src="@drawable/ic_error_outline"/>
+        tools:src="@drawable/ic_error_outline" />
 
     <TextView
         android:id="@+id/name"
@@ -30,6 +29,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Lorem ipsum task name"/>
+        tools:text="Lorem ipsum task name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

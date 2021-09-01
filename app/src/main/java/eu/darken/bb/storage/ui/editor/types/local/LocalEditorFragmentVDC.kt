@@ -24,18 +24,18 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class LocalEditorFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        private val builder: StorageBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    private val builder: StorageBuilder
 ) : SmartVDC() {
 
     private val stater = Stater(State(isPermissionGranted = true))
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
-            .subscribeOn(Schedulers.io())
-            .filter { it.editor != null }
-            .map { it.editor as LocalStorageEditor }
+        .subscribeOn(Schedulers.io())
+        .filter { it.editor != null }
+        .map { it.editor as LocalStorageEditor }
 
     private val editorDataObs = editorObs.switchMap { it.editorData }
 
@@ -50,23 +50,23 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
 
     init {
         editorDataObs
-                .subscribe { editorData ->
-                    stater.update { state ->
-                        state.copy(
-                                label = editorData.label,
-                                path = editorData.refPath?.path ?: "",
-                                isWorking = false,
-                                isExisting = editorData.existingStorage,
-                                isPermissionGranted = editor.isPermissionGranted()
-                        )
-                    }
+            .subscribe { editorData ->
+                stater.update { state ->
+                    state.copy(
+                        label = editorData.label,
+                        path = editorData.refPath?.path ?: "",
+                        isWorking = false,
+                        isExisting = editorData.existingStorage,
+                        isPermissionGranted = editor.isPermissionGranted()
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
 
         editorObs
-                .switchMap { it.isValid() }
-                .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
-                .withScopeVDC(this)
+            .switchMap { it.isValid() }
+            .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
+            .withScopeVDC(this)
     }
 
     fun updateName(label: String) {
@@ -84,29 +84,29 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         val path: LocalPath = result.selection!!.first() as LocalPath
         Timber.tag(TAG).v("Updating path: %s", path)
         editor.updatePath(path, false)
-                .subscribeOn(Schedulers.io())
-                .subscribe { _, error ->
-                    if (error != null) errorEvent.postValue(error.getRootCause())
-                }
+            .subscribeOn(Schedulers.io())
+            .subscribe { _, error ->
+                if (error != null) errorEvent.postValue(error.getRootCause())
+            }
     }
 
     fun importStorage(path: APath) {
         path as LocalPath
         editor.updatePath(path, true)
-                .subscribeOn(Schedulers.io())
-                .subscribe { _, error ->
-                    if (error != null) errorEvent.postValue(error.getRootCause())
-                }
+            .subscribeOn(Schedulers.io())
+            .subscribe { _, error ->
+                if (error != null) errorEvent.postValue(error.getRootCause())
+            }
     }
 
     fun selectPath() {
         editorDataObs.latest().subscribe { data ->
             pickerEvent.postValue(APathPicker.Options(
-                    startPath = data.refPath,
-                    allowedTypes = setOf(APath.PathType.LOCAL),
-                    payload = Bundle().apply {
-                        putString(LocalPickerFragmentVDC.ARG_MODE, LocalGateway.Mode.NORMAL.name)
-                    }
+                startPath = data.refPath,
+                allowedTypes = setOf(APath.PathType.LOCAL),
+                payload = Bundle().apply {
+                    putString(LocalPickerFragmentVDC.ARG_MODE, LocalGateway.Mode.NORMAL.name)
+                }
             ))
         }
     }
@@ -121,22 +121,22 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
 
     fun saveConfig() {
         builder.save(storageId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-                .doFinally { finishEvent.postValue(true) }
-                .subscribe { _, error ->
-                    if (error != null) errorEvent.postValue(error.getRootCause())
-                }
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
+            .doFinally { finishEvent.postValue(true) }
+            .subscribe { _, error ->
+                if (error != null) errorEvent.postValue(error.getRootCause())
+            }
     }
 
     data class State(
-            val label: String = "",
-            val path: String = "",
-            val isWorking: Boolean = false,
-            val isPermissionGranted: Boolean = true,
-            val isExisting: Boolean = false,
-            val isValid: Boolean = false
+        val label: String = "",
+        val path: String = "",
+        val isWorking: Boolean = false,
+        val isPermissionGranted: Boolean = true,
+        val isExisting: Boolean = false,
+        val isValid: Boolean = false
     )
 
     @AssistedInject.Factory

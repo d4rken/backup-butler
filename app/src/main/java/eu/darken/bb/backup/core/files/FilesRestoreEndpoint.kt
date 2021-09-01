@@ -25,8 +25,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class FilesRestoreEndpoint @Inject constructor(
-        @AppContext override val context: Context,
-        private val gateway: GatewaySwitch
+    @AppContext override val context: Context,
+    private val gateway: GatewaySwitch
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -64,10 +64,10 @@ class FilesRestoreEndpoint @Inject constructor(
     }
 
     private fun restore(
-            config: FilesRestoreConfig,
-            spec: FilesBackupSpec,
-            ref: MMRef,
-            logListener: ((LogEvent) -> Unit)?
+        config: FilesRestoreConfig,
+        spec: FilesBackupSpec,
+        ref: MMRef,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         val restorePath = config.restorePath ?: spec.path
         val chunks = spec.path.crumbsTo(ref.props.originalPath!!)

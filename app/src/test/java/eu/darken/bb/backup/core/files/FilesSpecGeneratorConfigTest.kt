@@ -14,9 +14,9 @@ class FilesSpecGeneratorConfigTest {
     @Test
     fun `test serialization`() {
         val original = FilesSpecGenerator.Config(
-                generatorId = Generator.Id(),
-                label = "FilesSpecLabel",
-                path = RawPath.build("testcrumb")
+            generatorId = Generator.Id(),
+            label = "FilesSpecLabel",
+            path = RawPath.build("testcrumb")
         )
 
         val moshi = AppModule().moshi()
@@ -46,9 +46,9 @@ class FilesSpecGeneratorConfigTest {
     @Test
     fun `test fixed type`() {
         val original = FilesSpecGenerator.Config(
-                generatorId = Generator.Id(),
-                label = "TestLabel",
-                path = RawPath.build("testcrumb")
+            generatorId = Generator.Id(),
+            label = "TestLabel",
+            path = RawPath.build("testcrumb")
         )
         original.generatorType shouldBe Backup.Type.FILES
         original.generatorType = Backup.Type.APP

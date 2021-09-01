@@ -15,7 +15,7 @@ class LocalStorageRefTest {
         val moshi = AppModule().moshi()
 
         val original = LocalStorageRef(
-                LocalPath.build("test", "path")
+            LocalPath.build("test", "path")
         )
 
         val pathAdapter = moshi.adapter(APath::class.java)
@@ -37,7 +37,7 @@ class LocalStorageRefTest {
         val moshi = AppModule().moshi()
 
         val original = LocalStorageRef(
-                LocalPath.build("test", "path")
+            LocalPath.build("test", "path")
         )
 
         val pathAdapter = moshi.adapter(APath::class.java)

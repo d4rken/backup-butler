@@ -37,9 +37,9 @@ interface Task {
 
     @Keep
     enum class Type(
-            @DrawableRes val iconRes: Int,
-            @StringRes val labelRes: Int,
-            val value: String
+        @DrawableRes val iconRes: Int,
+        @StringRes val labelRes: Int,
+        val value: String
     ) {
         BACKUP_SIMPLE(R.drawable.ic_backup, R.string.task_backup_label, "backup_simple"),
         RESTORE_SIMPLE(R.drawable.ic_restore, R.string.task_restore_label, "restore_simple");
@@ -64,7 +64,8 @@ interface Task {
     }
 
     companion object {
-        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Task> = MyPolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Task> =
+            MyPolymorphicJsonAdapterFactory.of(Task::class.java, "taskType")
                 .withSubtype(SimpleBackupTask::class.java, Type.BACKUP_SIMPLE.name)
                 .withSubtype(SimpleRestoreTask::class.java, Type.RESTORE_SIMPLE.name)
                 .skipLabelSerialization()

@@ -13,7 +13,10 @@ class CheckSummerTest : BaseTest() {
 
     @Test
     fun `test String to MD5`() {
-        assertThat(CheckSummer.calculate("This is a test", CheckSummer.Type.MD5), `is`("CE114E4501D2F4E2DCEA3E17B546F339"))
+        assertThat(
+            CheckSummer.calculate("This is a test", CheckSummer.Type.MD5),
+            `is`("CE114E4501D2F4E2DCEA3E17B546F339")
+        )
     }
 
     @Test
@@ -40,7 +43,10 @@ class CheckSummerTest : BaseTest() {
                 out.println("This is a SHA1 test")
             }
 
-            assertThat(CheckSummer.calculate(testFile, CheckSummer.Type.SHA1), `is`("C3A77E4289829C9A2688856DAD7A4D12C39D254A"))
+            assertThat(
+                CheckSummer.calculate(testFile, CheckSummer.Type.SHA1),
+                `is`("C3A77E4289829C9A2688856DAD7A4D12C39D254A")
+            )
         } finally {
             testFile.delete()
         }
@@ -55,7 +61,10 @@ class CheckSummerTest : BaseTest() {
                 out.println("This is a SHA256 test")
             }
 
-            assertThat(CheckSummer.calculate(testFile, CheckSummer.Type.SHA256), `is`("C2AFACFB14D64AFD3D38E40CEC5FA961788706898798BBE304AD756FB73488EF"))
+            assertThat(
+                CheckSummer.calculate(testFile, CheckSummer.Type.SHA256),
+                `is`("C2AFACFB14D64AFD3D38E40CEC5FA961788706898798BBE304AD756FB73488EF")
+            )
         } finally {
             testFile.delete()
         }

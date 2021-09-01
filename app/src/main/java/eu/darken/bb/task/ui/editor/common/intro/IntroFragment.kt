@@ -46,8 +46,8 @@ class IntroFragment : SmartFragment(), AutoInject {
 
         setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
             findNavController().navigate(
-                    R.id.nav_action_next,
-                    SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
+                R.id.nav_action_next,
+                SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
             )
         }
 

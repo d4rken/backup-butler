@@ -9,10 +9,10 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 
 class VDCSource @AssistedInject constructor(
-        private val creators: @JvmSuppressWildcards Map<Class<out VDC>, VDCFactory<out VDC>>,
-        @Assisted savedStateOwner: SavedStateRegistryOwner,
-        @Assisted defaultSavedState: Bundle?,
-        @Assisted private val assistAction: ((VDCFactory<out VDC>, SavedStateHandle) -> VDC)?
+    private val creators: @JvmSuppressWildcards Map<Class<out VDC>, VDCFactory<out VDC>>,
+    @Assisted savedStateOwner: SavedStateRegistryOwner,
+    @Assisted defaultSavedState: Bundle?,
+    @Assisted private val assistAction: ((VDCFactory<out VDC>, SavedStateHandle) -> VDC)?
 ) : AbstractSavedStateViewModelFactory(savedStateOwner, defaultSavedState) {
 
 
@@ -38,9 +38,9 @@ class VDCSource @AssistedInject constructor(
     @AssistedInject.Factory
     interface Factory {
         fun create(
-                savedStateOwner: SavedStateRegistryOwner,
-                defaultSavedState: Bundle?,
-                assistAction: ((VDCFactory<out VDC>, SavedStateHandle) -> VDC)? = null
+            savedStateOwner: SavedStateRegistryOwner,
+            defaultSavedState: Bundle?,
+            assistAction: ((VDCFactory<out VDC>, SavedStateHandle) -> VDC)? = null
         ): VDCSource
     }
 }

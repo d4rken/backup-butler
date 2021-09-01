@@ -7,19 +7,19 @@ import io.reactivex.rxjava3.internal.functions.Functions
 
 
 fun <T> Maybe<T>.subscribeNullable(
-        callback: (T?) -> Unit
+    callback: (T?) -> Unit
 ): Disposable = subscribeNullable(callback, { Functions.ON_ERROR_MISSING.accept(it) })
 
 fun <T> Maybe<T>.subscribeNullable(
-        callback: (T?) -> Unit,
-        onError: (Throwable) -> Unit
+    callback: (T?) -> Unit,
+    onError: (Throwable) -> Unit
 ): Disposable = subscribe(
-        { callback(it) },
-        { onError(it) },
-        { callback(null) }
+    { callback(it) },
+    { onError(it) },
+    { callback(null) }
 )
 
 fun <T> Maybe<T>.blockingGet2(): T? = blockingGet()
 
 fun <T> Maybe<T>.singleOrError(throwable: Throwable): Single<T> =
-        switchIfEmpty(Single.error(throwable))
+    switchIfEmpty(Single.error(throwable))

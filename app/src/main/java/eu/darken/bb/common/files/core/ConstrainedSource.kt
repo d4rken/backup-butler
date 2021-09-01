@@ -6,8 +6,8 @@ import okio.Timeout
 import java.io.IOException
 
 class ConstrainedSource constructor(
-        private val parent: Source,
-        byteLimit: Long
+    private val parent: Source,
+    byteLimit: Long
 ) : Source {
 
     private var closed: Boolean = false

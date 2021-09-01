@@ -64,10 +64,10 @@ class TaskListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector
         vdc.processorEvent.observe2(this) { isActive ->
             if (isVisible && isActive && snackbar == null) {
                 snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                        .setAnchorView(fab)
-                        .setAction(R.string.general_show_action) {
-                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
-                        }
+                    .setAnchorView(fab)
+                    .setAction(R.string.general_show_action) {
+                        startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                    }
                 snackbar?.show()
             } else if (!isActive && snackbar != null) {
                 snackbar?.dismiss()

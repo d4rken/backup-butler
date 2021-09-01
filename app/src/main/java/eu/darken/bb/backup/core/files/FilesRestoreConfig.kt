@@ -9,8 +9,8 @@ import eu.darken.bb.common.files.core.APath
 @Keep
 @JsonClass(generateAdapter = true)
 data class FilesRestoreConfig(
-        val replaceFiles: Boolean = false,
-        val restorePath: APath? = null
+    val replaceFiles: Boolean = false,
+    val restorePath: APath? = null
 ) : Restore.Config {
 
     override var restoreType: Backup.Type

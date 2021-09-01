@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import eu.darken.bb.R
 
 enum class TaskAction constructor(
-        @DrawableRes val iconRes: Int,
-        @StringRes val labelRes: Int
+    @DrawableRes val iconRes: Int,
+    @StringRes val labelRes: Int
 ) {
     RUN(R.drawable.ic_play_arrow, R.string.general_run_action),
     EDIT(R.drawable.ic_mode_edit, R.string.general_edit_action),

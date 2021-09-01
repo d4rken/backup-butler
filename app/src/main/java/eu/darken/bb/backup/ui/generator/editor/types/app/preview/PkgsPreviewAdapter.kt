@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 
 class PkgsPreviewAdapter @Inject constructor(
-        pkgOps: PkgOps
+    pkgOps: PkgOps
 ) : ModularAdapter<PkgsPreviewAdapter.VH>(), DataAdapter<AppEditorPreviewFragmentVDC.PkgWrap> {
 
     override val data = mutableListOf<AppEditorPreviewFragmentVDC.PkgWrap>()
@@ -27,8 +27,9 @@ class PkgsPreviewAdapter @Inject constructor(
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup, private val pkgOps: PkgOps)
-        : ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent), BindableVH<AppEditorPreviewFragmentVDC.PkgWrap> {
+    class VH(parent: ViewGroup, private val pkgOps: PkgOps) :
+        ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent),
+        BindableVH<AppEditorPreviewFragmentVDC.PkgWrap> {
 
         @BindView(R.id.preview_container) lateinit var previewContainer: PreviewView
         @BindView(R.id.name) lateinit var label: TextView
@@ -60,8 +61,8 @@ class PkgsPreviewAdapter @Inject constructor(
             }
 
             GlideApp.with(context)
-                    .load(AppPreviewRequest(item.pkg, context))
-                    .into(previewContainer)
+                .load(AppPreviewRequest(item.pkg, context))
+                .into(previewContainer)
         }
 
     }

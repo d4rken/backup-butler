@@ -29,8 +29,8 @@ fun APath.asFile(): File = when (this) {
 }
 
 fun <PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> PT.walk(
-        gateway: GT,
-        direction: FileWalkDirection = FileWalkDirection.TOP_DOWN
+    gateway: GT,
+    direction: FileWalkDirection = FileWalkDirection.TOP_DOWN
 ): APathTreeWalk<PT, GT> {
     return APathTreeWalk(gateway, this, direction)
 }

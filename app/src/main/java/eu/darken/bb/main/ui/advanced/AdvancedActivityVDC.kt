@@ -9,7 +9,7 @@ import eu.darken.bb.common.vdc.VDC
 
 
 class AdvancedActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+    @Assisted private val handle: SavedStateHandle
 ) : VDC() {
 
     val state: MutableLiveData<State> = MutableLiveData(State(false))

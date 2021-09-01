@@ -17,9 +17,9 @@ fun Throwable.getRootCause(): Throwable {
 }
 
 fun <T> Observable<T>.mapError(wrapper: (Throwable) -> Throwable): Observable<T> =
-        onErrorResumeNext { err: Throwable ->
-            Observable.error(wrapper(err))
-        }
+    onErrorResumeNext { err: Throwable ->
+        Observable.error(wrapper(err))
+    }
 
 fun Throwable.getStackTraceString(): String {
     val sw = StringWriter(256)

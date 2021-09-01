@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 @PerApp
 class LanguageEnforcer @Inject constructor(
-        private val application: Application,
-        private val uiSettings: UISettings
+    private val application: Application,
+    private val uiSettings: UISettings
 ) {
     private val defaultListOfTranslators: String by lazy {
         val configuration = Configuration(application.resources.configuration)
@@ -46,14 +46,15 @@ class LanguageEnforcer @Inject constructor(
         val translatorsString = localizedResources.getString(R.string.language_list_of_translators)
         val translators = translatorsString.split(";")
         return Language(
-                locale = locale,
-                translators = translators,
-                isTranslated = defaultListOfTranslators != translatorsString || locale.language == "en"
+            locale = locale,
+            translators = translators,
+            isTranslated = defaultListOfTranslators != translatorsString || locale.language == "en"
         )
     }
 
     private val activityCallback = object : Application.ActivityLifecycleCallbacks {
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = enforceLanguage(activity.resources)
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) =
+            enforceLanguage(activity.resources)
 
         override fun onActivityStarted(activity: Activity) = Unit
 
@@ -104,9 +105,9 @@ class LanguageEnforcer @Inject constructor(
     }
 
     data class Language(
-            val locale: Locale,
-            val translators: List<String>,
-            val isTranslated: Boolean
+        val locale: Locale,
+        val translators: List<String>,
+        val isTranslated: Boolean
     ) {
         val localeFormatted: String = locale.formatLocale()
 

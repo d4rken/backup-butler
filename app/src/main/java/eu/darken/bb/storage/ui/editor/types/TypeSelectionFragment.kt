@@ -62,7 +62,11 @@ class TypeSelectionFragment : SmartFragment(), AutoInject {
                 Storage.Type.SAF -> SAFEditorFragmentArgs(storageId = id).toBundle()
             }
             val appbarConfig = AppBarConfiguration.Builder(R.id.localEditorFragment, R.id.safEditorFragment).build()
-            NavigationUI.setupActionBarWithNavController(requireActivity() as AppCompatActivity, findNavController(), appbarConfig)
+            NavigationUI.setupActionBarWithNavController(
+                requireActivity() as AppCompatActivity,
+                findNavController(),
+                appbarConfig
+            )
             findNavController().navigate(nextStep, args)
         }
 

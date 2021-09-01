@@ -20,15 +20,15 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class StorageItemFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        processorControl: ProcessorControl,
-        storageManager: StorageManager
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    processorControl: ProcessorControl,
+    storageManager: StorageManager
 ) : SmartVDC() {
 
     private val storageObs = storageManager.getStorage(storageId)
-            .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
-            .replayingShare()
+        .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+        .replayingShare()
 
     private val stater: Stater<State> = Stater(State())
     val state = stater.liveData
@@ -43,70 +43,72 @@ class StorageItemFragmentVDC @AssistedInject constructor(
 
     init {
         processorControl.progressHost
-                .subscribe { processorEvent.postValue(it.isNotNull) }
-                .withScopeVDC(this)
+            .subscribe { processorEvent.postValue(it.isNotNull) }
+            .withScopeVDC(this)
 
         storageObs.flatMap { it.info() }
-                .filter { it.status != null }.map { it.status!! }
-                .onErrorComplete()
-                .subscribe { status ->
-                    stater.update { it.copy(allowDeleteAll = !status.isReadOnly) }
-                }
-                .withScopeVDC(this)
+            .filter { it.status != null }.map { it.status!! }
+            .onErrorComplete()
+            .subscribe { status ->
+                stater.update { it.copy(allowDeleteAll = !status.isReadOnly) }
+            }
+            .withScopeVDC(this)
 
         storageObs.flatMap { it.info() }
-                .filter { it.config != null }
-                .map { it.config!! }
-                .take(1)
-                .subscribe { config ->
-                    stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
-                }
-                .withScopeVDC(this)
+            .filter { it.config != null }
+            .map { it.config!! }
+            .take(1)
+            .subscribe { config ->
+                stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
+            }
+            .withScopeVDC(this)
 
         // TODO use storage extension?
         storageObs.flatMap { it.specInfos() }
-                .subscribe({ storageContents ->
-                    stater.update { oldState ->
-                        oldState.copy(
-                                specInfos = storageContents.toList(),
-                                isLoading = false
-                        )
-                    }
-                }, { error ->
-                    errorEvents.postValue(error)
-                    finishEvent.postValue(true)
-                })
-                .withScopeVDC(this)
+            .subscribe({ storageContents ->
+                stater.update { oldState ->
+                    oldState.copy(
+                        specInfos = storageContents.toList(),
+                        isLoading = false
+                    )
+                }
+            }, { error ->
+                errorEvents.postValue(error)
+                finishEvent.postValue(true)
+            })
+            .withScopeVDC(this)
     }
 
     fun viewContent(info: BackupSpec.Info) {
-        contentActionEvent.postValue(ContentActionEvent(
+        contentActionEvent.postValue(
+            ContentActionEvent(
                 storageId = info.storageId,
                 backupSpecId = info.backupSpec.specId,
                 allowView = true,
                 allowDelete = true
-        ))
+            )
+        )
     }
 
     fun deleteAll() {
         storageObs
-                .subscribeOn(Schedulers.io())
-                .switchMap { storage ->
-                    storage.specInfos()
-                            .take(1)
-                            .flatMapIterable { it }
-                            .concatMapSingle { content ->
-                                deletionStater.update { it.copy(backupSpec = content.backupSpec) }
-                                Single.timer(100, TimeUnit.MILLISECONDS).flatMap { storage.remove(content.backupSpec.specId) }
-                            }
-                }
-                .doOnError { Bugs.track(it) }
-                .doFinally { stater.update { it.copy(currentOperation = null) } }
-                .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                .subscribe(
-                        { },
-                        { error -> errorEvents.postValue(error) }
-                )
+            .subscribeOn(Schedulers.io())
+            .switchMap { storage ->
+                storage.specInfos()
+                    .take(1)
+                    .flatMapIterable { it }
+                    .concatMapSingle { content ->
+                        deletionStater.update { it.copy(backupSpec = content.backupSpec) }
+                        Single.timer(100, TimeUnit.MILLISECONDS).flatMap { storage.remove(content.backupSpec.specId) }
+                    }
+            }
+            .doOnError { Bugs.track(it) }
+            .doFinally { stater.update { it.copy(currentOperation = null) } }
+            .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+            .subscribe(
+                { },
+                { error -> errorEvents.postValue(error) }
+            )
     }
 
     override fun onCleared() {
@@ -115,26 +117,26 @@ class StorageItemFragmentVDC @AssistedInject constructor(
     }
 
     data class DeletionState(
-            val backupSpec: BackupSpec? = null
+        val backupSpec: BackupSpec? = null
     )
 
     data class State(
-            val storageLabel: String? = null,
-            val storageType: Storage.Type? = null,
-            val specInfos: List<BackupSpec.Info> = emptyList(),
-            val allowDeleteAll: Boolean = false,
-            val isLoading: Boolean = true,
-            val currentOperation: Disposable? = null
+        val storageLabel: String? = null,
+        val storageType: Storage.Type? = null,
+        val specInfos: List<BackupSpec.Info> = emptyList(),
+        val allowDeleteAll: Boolean = false,
+        val isLoading: Boolean = true,
+        val currentOperation: Disposable? = null
     ) {
         val isWorking: Boolean
             get() = isLoading || currentOperation != null
     }
 
     data class ContentActionEvent(
-            val storageId: Storage.Id,
-            val backupSpecId: BackupSpec.Id,
-            val allowView: Boolean = false,
-            val allowDelete: Boolean = false
+        val storageId: Storage.Id,
+        val backupSpecId: BackupSpec.Id,
+        val allowView: Boolean = false,
+        val allowDelete: Boolean = false
     )
 
     @AssistedInject.Factory

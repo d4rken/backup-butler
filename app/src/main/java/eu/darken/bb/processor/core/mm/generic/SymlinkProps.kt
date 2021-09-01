@@ -11,11 +11,11 @@ import java.util.*
 @Keep
 @JsonClass(generateAdapter = true)
 data class SymlinkProps(
-        override val label: String? = null,
-        override val originalPath: APath?,
-        override val modifiedAt: Date,
-        override val ownership: Ownership?,
-        val symlinkTarget: APath
+    override val label: String? = null,
+    override val originalPath: APath?,
+    override val modifiedAt: Date,
+    override val ownership: Ownership?,
+    val symlinkTarget: APath
 ) : Props, Props.HasModifiedDate, Props.HasOwner {
     init {
         require(label != null || originalPath != null) { "Provide name or path!" }

@@ -11,8 +11,7 @@ import eu.darken.bb.common.lists.*
 import javax.inject.Inject
 
 
-class GeneratorTypeAdapter @Inject constructor()
-    : ModularAdapter<GeneratorTypeAdapter.VH>(), DataAdapter<Backup.Type> {
+class GeneratorTypeAdapter @Inject constructor() : ModularAdapter<GeneratorTypeAdapter.VH>(), DataAdapter<Backup.Type> {
 
     override val data = mutableListOf<Backup.Type>()
 
@@ -23,8 +22,8 @@ class GeneratorTypeAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.generator_editor_typeselection_adapter_line, parent), BindableVH<Backup.Type> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.generator_editor_typeselection_adapter_line, parent),
+        BindableVH<Backup.Type> {
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.description) lateinit var description: TextView

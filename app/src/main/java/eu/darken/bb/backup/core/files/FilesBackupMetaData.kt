@@ -15,8 +15,8 @@ import java.util.*
 @Keep
 @JsonClass(generateAdapter = true)
 data class FilesBackupMetaData(
-        override val backupId: Backup.Id,
-        override val createdAt: Date = Date()
+    override val backupId: Backup.Id,
+    override val createdAt: Date = Date()
 ) : Backup.MetaData {
 
     override fun getItemLabeling(spec: BackupSpec, props: Props): Pair<AString, AString> {

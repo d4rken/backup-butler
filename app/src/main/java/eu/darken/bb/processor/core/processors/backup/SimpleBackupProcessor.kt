@@ -23,13 +23,13 @@ import timber.log.Timber
 import javax.inject.Provider
 
 class SimpleBackupProcessor @AssistedInject constructor(
-        @Assisted progressParent: Progress.Client,
-        @AppContext context: Context,
-        private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Backup.Endpoint>>,
-        private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
-        private val mmDataRepo: MMDataRepo,
-        private val generatorRepo: GeneratorRepo,
-        private val storageManager: StorageManager
+    @Assisted progressParent: Progress.Client,
+    @AppContext context: Context,
+    private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Backup.Endpoint>>,
+    private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
+    private val mmDataRepo: MMDataRepo,
+    private val generatorRepo: GeneratorRepo,
+    private val storageManager: StorageManager
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)

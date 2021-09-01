@@ -25,7 +25,8 @@ interface APath : Parcelable {
     }
 
     companion object {
-        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> = MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<APath> =
+            MyPolymorphicJsonAdapterFactory.of(APath::class.java, "pathType")
                 .withSubtype(RawPath::class.java, PathType.RAW.name)
                 .withSubtype(LocalPath::class.java, PathType.LOCAL.name)
                 .withSubtype(SAFPath::class.java, PathType.SAF.name)

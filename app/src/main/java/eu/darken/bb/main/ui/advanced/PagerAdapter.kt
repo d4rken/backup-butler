@@ -8,8 +8,8 @@ import kotlin.reflect.KClass
 
 
 class PagerAdapter constructor(
-        private val fragmentActivity: FragmentActivity,
-        val pages: List<Page>
+    private val fragmentActivity: FragmentActivity,
+    val pages: List<Page>
 ) : FragmentStateAdapter(fragmentActivity) {
 
     override fun getItemCount(): Int = pages.size
@@ -20,7 +20,7 @@ class PagerAdapter constructor(
     }
 
     data class Page(
-            val fragmentClazz: KClass<out Fragment>,
-            @StringRes val titleRes: Int
+        val fragmentClazz: KClass<out Fragment>,
+        @StringRes val titleRes: Int
     )
 }

@@ -28,10 +28,15 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
     }
 
     private val touchCallback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            actions.map { it.direction }.fold(initial = 0, operation = { acc: Int, dir: SwipeAction.Direction -> acc.or(dir.value) })
+        0,
+        actions.map { it.direction }
+            .fold(initial = 0, operation = { acc: Int, dir: SwipeAction.Direction -> acc.or(dir.value) })
     ) {
-        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
             return false
         }
 
@@ -41,7 +46,15 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
             action.callback(viewHolder, action.direction)
         }
 
-        override fun onChildDraw(canvas: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+        override fun onChildDraw(
+            canvas: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
             super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
 
             val iv = viewHolder.itemView
@@ -156,11 +169,11 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
     }
 
     data class SwipeAction(
-            val direction: Direction,
-            val callback: (RecyclerView.ViewHolder, Direction) -> Unit,
-            val icon: Drawable?,
-            val label: String?,
-            val background: Drawable?
+        val direction: Direction,
+        val callback: (RecyclerView.ViewHolder, Direction) -> Unit,
+        val icon: Drawable?,
+        val label: String?,
+        val background: Drawable?
     ) {
         enum class Direction(val value: Int) {
             LEFT(ItemTouchHelper.LEFT),

@@ -22,18 +22,18 @@ import java.io.File
 import kotlin.concurrent.thread
 
 open class ArchiveRefSource(
-        private val sourceGenerator: (ArchiveProps) -> Source,
-        propGenerator: () -> ArchiveProps
+    private val sourceGenerator: (ArchiveProps) -> Source,
+    propGenerator: () -> ArchiveProps
 ) : BaseRefSource(), ArchiveRef {
 
     constructor(
-            gateway: GatewaySwitch,
-            label: String?,
-            archivePath: APath,
-            targets: List<APathLookup<APath>>
+        gateway: GatewaySwitch,
+        label: String?,
+        archivePath: APath,
+        targets: List<APathLookup<APath>>
     ) : this(
-            sourceGenerator = genArchive(gateway, targets),
-            propGenerator = genProps(label, archivePath)
+        sourceGenerator = genArchive(gateway, targets),
+        propGenerator = genProps(label, archivePath)
     )
 
     override val props: ArchiveProps by lazy { propGenerator() }
@@ -59,26 +59,26 @@ open class ArchiveRefSource(
                 lateinit var props: Props
                 if (entry.isDirectory) {
                     props = DirectoryProps(
-                            originalPath = LocalPath.build(entry.name),
-                            modifiedAt = entry.modTime,
-                            permissions = Permissions(entry.mode),
-                            ownership = Ownership(entry.longUserId, entry.longGroupId)
+                        originalPath = LocalPath.build(entry.name),
+                        modifiedAt = entry.modTime,
+                        permissions = Permissions(entry.mode),
+                        ownership = Ownership(entry.longUserId, entry.longGroupId)
                     )
                     dataStream = null
                 } else {
                     props = if (entry.isSymbolicLink) {
                         SymlinkProps(
-                                originalPath = LocalPath.build(entry.name),
-                                modifiedAt = entry.modTime,
-                                ownership = Ownership(entry.longUserId, entry.longGroupId),
-                                symlinkTarget = LocalPath.build(entry.linkName)
+                            originalPath = LocalPath.build(entry.name),
+                            modifiedAt = entry.modTime,
+                            ownership = Ownership(entry.longUserId, entry.longGroupId),
+                            symlinkTarget = LocalPath.build(entry.linkName)
                         )
                     } else {
                         FileProps(
-                                originalPath = LocalPath.build(entry.name),
-                                modifiedAt = entry.modTime,
-                                permissions = Permissions(entry.mode),
-                                ownership = Ownership(entry.longUserId, entry.longGroupId)
+                            originalPath = LocalPath.build(entry.name),
+                            modifiedAt = entry.modTime,
+                            permissions = Permissions(entry.mode),
+                            ownership = Ownership(entry.longUserId, entry.longGroupId)
                         )
                     }
                     dataStream = archiveInputStream.source().buffer().constrain(entry.size)
@@ -98,17 +98,17 @@ open class ArchiveRefSource(
         internal fun genProps(label: String?, archivePath: APath): () -> ArchiveProps {
             return {
                 ArchiveProps(
-                        label = label,
-                        originalPath = if (archivePath is APathLookup<*>) archivePath.lookedUp as APath? else archivePath,
-                        archiveType = "tar",
-                        compressionType = "gzip"
+                    label = label,
+                    originalPath = if (archivePath is APathLookup<*>) archivePath.lookedUp as APath? else archivePath,
+                    archiveType = "tar",
+                    compressionType = "gzip"
                 )
             }
         }
 
         internal fun <PathType : APath, GateType : APathGateway<in PathType, out APathLookup<PathType>>> genArchive(
-                gateway: GateType,
-                targets: List<APathLookup<PathType>>
+            gateway: GateType,
+            targets: List<APathLookup<PathType>>
         ): (ArchiveProps) -> Source = genfun@{ props ->
             val pipe = Pipe(8192)
             val out = TarArchiveOutputStream(GzipCompressorOutputStream(pipe.sink.buffer().outputStream())).apply {
@@ -122,7 +122,8 @@ open class ArchiveRefSource(
                         for (p in targets) {
                             Timber.tag(TAG).v("Compressing $p")
 
-                            val relativePath = LocalPath.build(p.path).relativeTo(LocalPath.build(props.originalPath!!.path))?.path
+                            val relativePath =
+                                LocalPath.build(p.path).relativeTo(LocalPath.build(props.originalPath!!.path))?.path
                             requireNotNull(relativePath) { "Relative path is null for $p and $props" }
 
                             val entry: TarArchiveEntry = when (p.fileType) {

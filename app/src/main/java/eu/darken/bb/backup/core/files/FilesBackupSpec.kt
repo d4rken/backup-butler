@@ -11,9 +11,9 @@ import eu.darken.bb.common.files.core.APath
 @Keep
 @JsonClass(generateAdapter = true)
 data class FilesBackupSpec(
-        val path: APath,
-        val label: String,
-        override val revisionLimit: Int = 3
+    val path: APath,
+    val label: String,
+    override val revisionLimit: Int = 3
 ) : BackupSpec {
 
     override var specId: BackupSpec.Id

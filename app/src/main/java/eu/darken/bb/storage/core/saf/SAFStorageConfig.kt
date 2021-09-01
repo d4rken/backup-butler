@@ -9,9 +9,9 @@ import eu.darken.bb.storage.core.Storage
 @Keep
 @JsonClass(generateAdapter = true)
 data class SAFStorageConfig(
-        override val label: String = "",
-        override val storageId: Storage.Id,
-        override val strategy: Storage.Strategy = SimpleStrategy()
+    override val label: String = "",
+    override val storageId: Storage.Id,
+    override val strategy: Storage.Strategy = SimpleStrategy()
 ) : Storage.Config {
 
     override var storageType: Storage.Type

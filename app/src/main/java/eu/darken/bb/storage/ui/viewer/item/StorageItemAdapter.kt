@@ -12,8 +12,7 @@ import eu.darken.bb.common.lists.*
 import java.text.DateFormat
 import javax.inject.Inject
 
-class StorageItemAdapter @Inject constructor()
-    : ModularAdapter<StorageItemAdapter.VH>(), DataAdapter<BackupSpec.Info> {
+class StorageItemAdapter @Inject constructor() : ModularAdapter<StorageItemAdapter.VH>(), DataAdapter<BackupSpec.Info> {
 
     override val data = mutableListOf<BackupSpec.Info>()
 
@@ -24,8 +23,8 @@ class StorageItemAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent), BindableVH<BackupSpec.Info> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent),
+        BindableVH<BackupSpec.Info> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -46,8 +45,8 @@ class StorageItemAdapter @Inject constructor()
 
             val versionCount = getQuantityString(R.plurals.x_versions, item.backups.size)
             val lastBackupText = getString(
-                    R.string.general_last_backup_time_x,
-                    formatter.format(item.backups.maxBy { it.createdAt }!!.createdAt)
+                R.string.general_last_backup_time_x,
+                formatter.format(item.backups.maxBy { it.createdAt }!!.createdAt)
             )
             @SuppressLint("SetTextI18n")
             statusText.text = "$versionCount; $lastBackupText"

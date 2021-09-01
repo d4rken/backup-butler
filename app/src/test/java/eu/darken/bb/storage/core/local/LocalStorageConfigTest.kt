@@ -14,8 +14,8 @@ class LocalStorageConfigTest {
     fun `test direct serialization`() {
         val testID = Storage.Id()
         val original = LocalStorageConfig(
-                label = "testlabel",
-                storageId = testID
+            label = "testlabel",
+            storageId = testID
         )
 
         val moshi = AppModule().moshi()
@@ -40,8 +40,8 @@ class LocalStorageConfigTest {
     fun `test polymorph serialization`() {
         val testID = Storage.Id()
         val original = LocalStorageConfig(
-                label = "testlabel",
-                storageId = testID
+            label = "testlabel",
+            storageId = testID
         )
 
         val moshi = AppModule().moshi()
@@ -77,8 +77,8 @@ class LocalStorageConfigTest {
     @Test
     fun `force typing`() {
         val original = LocalStorageConfig(
-                label = "testlabel",
-                storageId = Storage.Id()
+            label = "testlabel",
+            storageId = Storage.Id()
         )
 
         val moshi = AppModule().moshi()

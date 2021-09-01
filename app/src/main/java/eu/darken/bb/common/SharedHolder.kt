@@ -12,8 +12,8 @@ import java.io.IOException
 
 @Suppress("ProtectedInFinal")
 open class SharedHolder<T> constructor(
-        private val tag: String,
-        private val sourcer: (ResourceEmitter<T>) -> Unit
+    private val tag: String,
+    private val sourcer: (ResourceEmitter<T>) -> Unit
 ) {
     protected var activeTokens = CompositeDisposable().apply { dispose() }
     protected var childsWeKeepAlive = CompositeDisposable().apply { dispose() }
@@ -24,61 +24,61 @@ open class SharedHolder<T> constructor(
         get() = !activeTokens.isDisposed
 
     private val resourceHolder: Observable<T> = Observable
-            .create<T> { internalEmitter ->
-                val resourceEmitter = object : ResourceEmitter<T> {
-                    override fun onAvailable(t: T) {
-                        internalEmitter.onNext(t)
-                    }
-
-                    override fun onEnd() {
-                        internalEmitter.onComplete()
-                    }
-
-                    override fun isDisposed(): Boolean {
-                        return internalEmitter.isDisposed
-                    }
-
-                    override fun onError(t: Throwable) {
-                        internalEmitter.tryOnError(t)
-                    }
-
-                    override fun setCancellable(c: () -> Unit) {
-                        internalEmitter.setCancellable { c() }
-                    }
+        .create<T> { internalEmitter ->
+            val resourceEmitter = object : ResourceEmitter<T> {
+                override fun onAvailable(t: T) {
+                    internalEmitter.onNext(t)
                 }
-                try {
-                    sourcer(resourceEmitter)
-                } catch (e: Throwable) {
-                    internalEmitter.tryOnError(e)
-                    return@create
+
+                override fun onEnd() {
+                    internalEmitter.onComplete()
+                }
+
+                override fun isDisposed(): Boolean {
+                    return internalEmitter.isDisposed
+                }
+
+                override fun onError(t: Throwable) {
+                    internalEmitter.tryOnError(t)
+                }
+
+                override fun setCancellable(c: () -> Unit) {
+                    internalEmitter.setCancellable { c() }
                 }
             }
-            .subscribeOn(Schedulers.io())
-            .doOnSubscribe {
-                Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
-                require(activeTokens.isDisposed) { "Previous active tokens were not disposed!" }
-                activeTokens.dispose()
-                activeTokens = CompositeDisposable()
-
-                require(childsWeKeepAlive.isDisposed) { "Previous child tokens were not disposed!" }
-                childsWeKeepAlive.dispose()
-                childResources.clear()
-                parentsThatKeepUsAlive.clear()
-                childsWeKeepAlive = CompositeDisposable()
+            try {
+                sourcer(resourceEmitter)
+            } catch (e: Throwable) {
+                internalEmitter.tryOnError(e)
+                return@create
             }
-            .doFinally {
-                Timber.tag(tag).v("resourceHolder.doFinally()")
-                activeTokens.dispose()
-                childsWeKeepAlive.dispose()
+        }
+        .subscribeOn(Schedulers.io())
+        .doOnSubscribe {
+            Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
+            require(activeTokens.isDisposed) { "Previous active tokens were not disposed!" }
+            activeTokens.dispose()
+            activeTokens = CompositeDisposable()
 
-                childResources.clear()
-                parentsThatKeepUsAlive.clear()
-            }
-            .doOnError { Timber.tag(tag).v("resourceHolder.onError(): %s", it) }
-            .doOnComplete { Timber.tag(tag).v("resourceHolder.onComplete()") }
-            .doOnNext { Timber.tag(tag).v("resourceHolder.onNext(): %s", it) }
-            .replay(1)
-            .refCount()
+            require(childsWeKeepAlive.isDisposed) { "Previous child tokens were not disposed!" }
+            childsWeKeepAlive.dispose()
+            childResources.clear()
+            parentsThatKeepUsAlive.clear()
+            childsWeKeepAlive = CompositeDisposable()
+        }
+        .doFinally {
+            Timber.tag(tag).v("resourceHolder.doFinally()")
+            activeTokens.dispose()
+            childsWeKeepAlive.dispose()
+
+            childResources.clear()
+            parentsThatKeepUsAlive.clear()
+        }
+        .doOnError { Timber.tag(tag).v("resourceHolder.onError(): %s", it) }
+        .doOnComplete { Timber.tag(tag).v("resourceHolder.onComplete()") }
+        .doOnNext { Timber.tag(tag).v("resourceHolder.onNext(): %s", it) }
+        .replay(1)
+        .refCount()
 
     @Throws(IOException::class)
     fun get(): Resource<T> {
@@ -173,8 +173,8 @@ open class SharedHolder<T> constructor(
     }
 
     data class Resource<T>(
-            private val _item: T,
-            private val keepAlive: Disposable
+        private val _item: T,
+        private val keepAlive: Disposable
     ) : Closeable, AutoCloseable {
         val item: T
             get() {

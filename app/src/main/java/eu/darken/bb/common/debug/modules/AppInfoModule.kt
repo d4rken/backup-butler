@@ -10,24 +10,24 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class AppInfoModule @AssistedInject constructor(
-        @Assisted val host: DebugModuleHost,
-        private val backupButler: BackupButler,
-        private val installId: InstallId
+    @Assisted val host: DebugModuleHost,
+    private val backupButler: BackupButler,
+    private val installId: InstallId
 ) : DebugModule {
     private var previousOptions: DebugOptions = DebugOptions.default()
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-                .doOnNext { previousOptions = it }
-                .subscribe {
-                    Timber.tag(TAG).i("Install ID: %s", installId.installId)
-                    Timber.tag(TAG).i("App Info: %s", backupButler.appInfo)
-                    Timber.tag(TAG).d("APK Checksum MD5: %s", backupButler.checksumApkMd5)
-                    Timber.tag(TAG).d("APK Signatures: %s", backupButler.signatures.map { it.hashCode() })
-                    Timber.tag(TAG).i("Update history: %s", backupButler.updateHistory)
-                }
+            .observeOn(Schedulers.io())
+            .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
+            .doOnNext { previousOptions = it }
+            .subscribe {
+                Timber.tag(TAG).i("Install ID: %s", installId.installId)
+                Timber.tag(TAG).i("App Info: %s", backupButler.appInfo)
+                Timber.tag(TAG).d("APK Checksum MD5: %s", backupButler.checksumApkMd5)
+                Timber.tag(TAG).d("APK Signatures: %s", backupButler.signatures.map { it.hashCode() })
+                Timber.tag(TAG).i("Update history: %s", backupButler.updateHistory)
+            }
     }
 
     @AssistedInject.Factory

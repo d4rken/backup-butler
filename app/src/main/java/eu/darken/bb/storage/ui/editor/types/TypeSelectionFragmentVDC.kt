@@ -14,32 +14,32 @@ import eu.darken.bb.storage.core.StorageBuilder
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class TypeSelectionFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        private val builder: StorageBuilder,
-        @AppContext private val context: Context
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    private val builder: StorageBuilder,
+    @AppContext private val context: Context
 ) : SmartVDC() {
 
     val state = builder.getSupportedStorageTypes()
-            .map { types ->
-                State(
-                        supportedTypes = types.toList()
-                )
-            }
-            .toLiveData()
+        .map { types ->
+            State(
+                supportedTypes = types.toList()
+            )
+        }
+        .toLiveData()
 
     val navigationEvent = SingleLiveEvent<Pair<Storage.Type, Storage.Id>>()
 
     fun createType(type: Storage.Type) {
         builder.update(storageId) { it!!.copy(storageType = type) }
-                .subscribeOn(Schedulers.io())
-                .doFinally { navigationEvent.postValue(type to storageId) }
-                .subscribe()
+            .subscribeOn(Schedulers.io())
+            .doFinally { navigationEvent.postValue(type to storageId) }
+            .subscribe()
     }
 
     data class State(
-            val supportedTypes: List<Storage.Type>,
-            val isWorking: Boolean = false
+        val supportedTypes: List<Storage.Type>,
+        val isWorking: Boolean = false
     )
 
     @AssistedInject.Factory

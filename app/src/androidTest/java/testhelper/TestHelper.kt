@@ -31,7 +31,8 @@ object TestHelper {
 
     fun rotateOrientation(testRule: ActivityTestRule<out Activity>) {
         when (testRule.activity.resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> testRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            Configuration.ORIENTATION_LANDSCAPE -> testRule.activity.requestedOrientation =
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             else -> testRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
     }

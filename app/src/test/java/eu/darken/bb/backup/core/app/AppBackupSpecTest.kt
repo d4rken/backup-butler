@@ -14,11 +14,11 @@ import testhelper.toFormattedJson
 class AppBackupSpecTest {
 
     val original = AppBackupSpec(
-            packageName = "test.package",
-            backupApk = true,
-            backupData = true,
-            backupCache = false,
-            extraPaths = setOf(RawPath.build("testraw", "path"))
+        packageName = "test.package",
+        backupApk = true,
+        backupData = true,
+        backupCache = false,
+        extraPaths = setOf(RawPath.build("testraw", "path"))
     )
 
     @Test

@@ -13,8 +13,8 @@ import eu.darken.bb.task.core.results.TaskResult
 import javax.inject.Inject
 
 
-class TaskListAdapter @Inject constructor()
-    : ModularAdapter<TaskListAdapter.BackupVH>(), DataAdapter<TaskListFragmentVDC.TaskState> {
+class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.BackupVH>(),
+    DataAdapter<TaskListFragmentVDC.TaskState> {
 
     override val data = mutableListOf<TaskListFragmentVDC.TaskState>()
 
@@ -25,8 +25,8 @@ class TaskListAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class BackupVH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.task_list_adapter_line, parent), BindableVH<TaskListFragmentVDC.TaskState> {
+    class BackupVH(parent: ViewGroup) : ModularAdapter.VH(R.layout.task_list_adapter_line, parent),
+        BindableVH<TaskListFragmentVDC.TaskState> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView

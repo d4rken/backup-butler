@@ -16,17 +16,17 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 class StorageEditorActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        private val storageBuilder: StorageBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
     private val storageObs = storageBuilder.storage(storageId)
-            .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.io())
 
     private val editorObs = storageObs
-            .filter { it.editor != null }
-            .map { it.editor!! }
+        .filter { it.editor != null }
+        .map { it.editor!! }
 
 
     val finishEvent = SingleLiveEvent<Any>()
@@ -44,26 +44,26 @@ class StorageEditorActivityVDC @AssistedInject constructor(
 
     init {
         editorObs
-                .flatMap { it.editorData }
-                .subscribe { data ->
-                    stater.update { it.copy(isExisting = data.existingStorage) }
-                }
-                .withScopeVDC(this)
+            .flatMap { it.editorData }
+            .subscribe { data ->
+                stater.update { it.copy(isExisting = data.existingStorage) }
+            }
+            .withScopeVDC(this)
     }
 
     fun dismiss() {
         storageBuilder.remove(storageId)
-                .subscribeOn(Schedulers.io())
-                .subscribe { _ ->
-                    finishEvent.postValue(Any())
-                }
+            .subscribeOn(Schedulers.io())
+            .subscribe { _ ->
+                finishEvent.postValue(Any())
+            }
     }
 
     data class State(
-            val storageId: Storage.Id,
-            val storageType: Storage.Type?,
-            val isExisting: Boolean = false,
-            val stepFlow: StepFlow
+        val storageId: Storage.Id,
+        val storageType: Storage.Type?,
+        val isExisting: Boolean = false,
+        val stepFlow: StepFlow
     )
 
     enum class StepFlow(@IdRes val start: Int) {

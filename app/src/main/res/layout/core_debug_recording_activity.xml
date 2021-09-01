@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    style="@style/MyCardView"
+<com.google.android.material.card.MaterialCardView style="@style/MyCardView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,7 +26,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText"/>
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/recording_path"
@@ -41,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/label_path"
-            tools:text="/storage/emulated/0/Android/data/eu.thedarken.sdm/cache/log_files/some_log_file_123124.log"/>
+            tools:text="/storage/emulated/0/Android/data/eu.thedarken.sdm/cache/log_files/some_log_file_123124.log" />
 
         <TextView
             android:id="@+id/label_size"
@@ -55,7 +54,7 @@
             app:layout_constraintEnd_toStartOf="@+id/label_compressed_size"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recording_path"/>
+            app:layout_constraintTop_toBottomOf="@+id/recording_path" />
 
         <TextView
             android:id="@+id/recording_size"
@@ -67,7 +66,7 @@
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="@+id/label_size"
             app:layout_constraintTop_toBottomOf="@+id/label_size"
-            tools:text="72 MB"/>
+            tools:text="72 MB" />
 
         <TextView
             android:id="@+id/label_compressed_size"
@@ -80,7 +79,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/label_size"
-            app:layout_constraintTop_toBottomOf="@+id/recording_path"/>
+            app:layout_constraintTop_toBottomOf="@+id/recording_path" />
 
         <TextView
             android:id="@+id/recording_size_compressed"
@@ -90,7 +89,7 @@
             app:layout_constraintEnd_toEndOf="@+id/label_compressed_size"
             app:layout_constraintStart_toEndOf="@+id/recording_size"
             app:layout_constraintTop_toBottomOf="@+id/label_compressed_size"
-            tools:text="745 KB"/>
+            tools:text="745 KB" />
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/loading_indicator"
@@ -100,7 +99,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/share"
             app:layout_constraintEnd_toEndOf="@+id/share"
             app:layout_constraintStart_toStartOf="@+id/share"
-            app:layout_constraintTop_toTopOf="@+id/share"/>
+            app:layout_constraintTop_toTopOf="@+id/share" />
 
         <Button
             android:id="@+id/share"
@@ -114,7 +113,7 @@
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recording_size_compressed"/>
+            app:layout_constraintTop_toBottomOf="@+id/recording_size_compressed" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -8,7 +8,7 @@ import kotlinx.android.parcel.IgnoredOnParcel
 
 @JsonClass(generateAdapter = true)
 data class Permissions(
-        val mode: Int
+    val mode: Int
 ) : Parcelable {
     @IgnoredOnParcel @Transient val octal: String = mode.toOctal()
 

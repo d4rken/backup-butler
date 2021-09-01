@@ -10,15 +10,15 @@ import java.util.*
 @Keep
 @Entity(tableName = "task_results")
 data class StoredResult(
-        @PrimaryKey
-        val id: TaskResult.Id,
-        val taskId: Task.Id,
-        val label: String,
-        val taskType: Task.Type,
-        val state: TaskResult.State,
-        val startedAt: Date,
-        val duration: Long,
-        val primary: String?,
-        val secondary: String?,
-        val extra: String?
+    @PrimaryKey
+    val id: TaskResult.Id,
+    val taskId: Task.Id,
+    val label: String,
+    val taskType: Task.Type,
+    val state: TaskResult.State,
+    val startedAt: Date,
+    val duration: Long,
+    val primary: String?,
+    val secondary: String?,
+    val extra: String?
 )

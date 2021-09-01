@@ -15,8 +15,8 @@ class SAFStorageConfigTest {
     fun `test direct serialization`() {
         val testID = Storage.Id()
         val original = SAFStorageConfig(
-                label = "testlabel",
-                storageId = testID
+            label = "testlabel",
+            storageId = testID
         )
 
         val moshi = AppModule().moshi()
@@ -40,8 +40,8 @@ class SAFStorageConfigTest {
     fun `test poly serialization`() {
         val testID = Storage.Id()
         val original = SAFStorageConfig(
-                label = "testlabel",
-                storageId = testID
+            label = "testlabel",
+            storageId = testID
         )
 
         val moshi = AppModule().moshi()
@@ -76,8 +76,8 @@ class SAFStorageConfigTest {
     @Test
     fun `force typing`() {
         val original = SAFStorageConfig(
-                label = "testlabel",
-                storageId = Storage.Id()
+            label = "testlabel",
+            storageId = Storage.Id()
         )
 
         val moshi = AppModule().moshi()

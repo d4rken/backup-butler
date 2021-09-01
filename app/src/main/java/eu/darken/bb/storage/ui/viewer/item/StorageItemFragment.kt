@@ -81,7 +81,12 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
 
         vdc.deletionState.observe2(this) { deletionState ->
             if (deletionState.backupSpec != null) {
-                loadingOverlay.setPrimaryText(getString(R.string.progress_deleting_x_label, deletionState.backupSpec.getLabel(requireContext())))
+                loadingOverlay.setPrimaryText(
+                    getString(
+                        R.string.progress_deleting_x_label,
+                        deletionState.backupSpec.getLabel(requireContext())
+                    )
+                )
             } else {
                 loadingOverlay.setPrimaryText(null)
             }
@@ -101,9 +106,9 @@ class StorageItemFragment : SmartFragment(), AutoInject, HasSupportFragmentInjec
         vdc.processorEvent.observe2(this) { isActive ->
             if (isVisible && isActive && snackbar == null) {
                 snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.general_show_action) {
-                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
-                        }
+                    .setAction(R.string.general_show_action) {
+                        startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                    }
                 snackbar?.show()
             } else if (!isActive && snackbar != null) {
                 snackbar?.dismiss()

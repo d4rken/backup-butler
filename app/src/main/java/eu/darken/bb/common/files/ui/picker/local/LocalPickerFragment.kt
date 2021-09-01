@@ -89,11 +89,15 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
             sharedVM.postResult(it)
         }
         vdc.missingPermissionEvent.observe2(this) {
-            Snackbar.make(requireView(), R.string.storage_additional_permission_required_msg, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.general_grant_action) {
-                        vdc.grantPermission()
-                    }
-                    .show()
+            Snackbar.make(
+                requireView(),
+                R.string.storage_additional_permission_required_msg,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.general_grant_action) {
+                    vdc.grantPermission()
+                }
+                .show()
         }
         vdc.requestPermissionEvent.observe2(this) {
             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -103,15 +107,15 @@ class LocalPickerFragment : SmartFragment(), AutoInject {
             val alertLayout = layoutInflater.inflate(R.layout.view_alertdialog_edittext, null)
             val input = alertLayout.findViewById<EditText>(R.id.input_text)
             val dialog = AlertDialog.Builder(requireContext())
-                    .setView(alertLayout)
-                    .setTitle(R.string.general_create_dir)
-                    .setPositiveButton(R.string.general_create_action) { _, _ ->
-                        vdc.createDir(input.text.toString())
-                    }
-                    .setNegativeButton(R.string.general_cancel_action) { _, _ ->
+                .setView(alertLayout)
+                .setTitle(R.string.general_create_dir)
+                .setPositiveButton(R.string.general_create_action) { _, _ ->
+                    vdc.createDir(input.text.toString())
+                }
+                .setNegativeButton(R.string.general_cancel_action) { _, _ ->
 
-                    }
-                    .create()
+                }
+                .create()
 
             dialog.setOnShowListener {
                 val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)

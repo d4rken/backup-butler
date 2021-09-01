@@ -28,11 +28,11 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
-        @AppContext override val context: Context,
-        private val apkInstaller: APKInstaller,
-        private val javaRootClient: JavaRootClient,
-        private val pkgOps: PkgOps,
-        restoreHandlers: @JvmSuppressWildcards Set<RestoreHandler>
+    @AppContext override val context: Context,
+    private val apkInstaller: APKInstaller,
+    private val javaRootClient: JavaRootClient,
+    private val pkgOps: PkgOps,
+    restoreHandlers: @JvmSuppressWildcards Set<RestoreHandler>
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -67,10 +67,10 @@ class AppRestoreEndpoint @Inject constructor(
 
         if (config.restoreApk) {
             val request = APKInstaller.Request(
-                    packageName = wrap.packageName,
-                    baseApk = wrap.baseApk,
-                    splitApks = wrap.splitApks.toList(),
-                    useRoot = rootAvailable
+                packageName = wrap.packageName,
+                baseApk = wrap.baseApk,
+                splitApks = wrap.splitApks.toList(),
+                useRoot = rootAvailable
             )
 
             val installResult = apkInstaller.forwardProgressTo(this).withScopeThis {
@@ -93,7 +93,11 @@ class AppRestoreEndpoint @Inject constructor(
         pkgOps.forceStop(appInfo.packageName)
 
         if (config.restoreData) {
-            listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
+            listOf(
+                DataType.DATA_PRIVATE_PRIMARY,
+                DataType.DATA_PUBLIC_PRIMARY,
+                DataType.DATA_PUBLIC_SECONDARY
+            ).forEach { type ->
                 restoreType(type, config, spec, appInfo, wrap, logListener)
             }
 
@@ -103,7 +107,11 @@ class AppRestoreEndpoint @Inject constructor(
         }
 
         if (config.restoreCache) {
-            listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
+            listOf(
+                DataType.CACHE_PRIVATE_PRIMARY,
+                DataType.CACHE_PUBLIC_PRIMARY,
+                DataType.CACHE_PUBLIC_SECONDARY
+            ).forEach { type ->
                 restoreType(type, config, spec, appInfo, wrap, logListener)
             }
 
@@ -114,12 +122,12 @@ class AppRestoreEndpoint @Inject constructor(
     }
 
     private fun restoreType(
-            type: DataType,
-            config: AppRestoreConfig,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            builder: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        config: AppRestoreConfig,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        builder: AppBackupWrap,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         val handler = restoreHandlers.first {
             it.isResponsible(type, config, spec)

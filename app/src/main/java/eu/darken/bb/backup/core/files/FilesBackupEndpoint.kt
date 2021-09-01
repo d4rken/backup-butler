@@ -25,9 +25,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class FilesBackupEndpoint @Inject constructor(
-        @AppContext override val context: Context,
-        private val mmDataRepo: MMDataRepo,
-        private val gatewaySwitch: GatewaySwitch
+    @AppContext override val context: Context,
+    private val mmDataRepo: MMDataRepo,
+    private val gatewaySwitch: GatewaySwitch
 ) : Backup.Endpoint, Progress.Client, HasContext, SharedHolder.HasKeepAlive<Any> {
 
     private val progressPub = HotData(Progress.Data())
@@ -51,13 +51,17 @@ class FilesBackupEndpoint @Inject constructor(
         return builder.createUnit()
     }
 
-    private fun backupFile(spec: FilesBackupSpec, gatewaySwitch: GatewaySwitch, logListener: ((LogEvent) -> Unit)?): FilesBackupWrap {
+    private fun backupFile(
+        spec: FilesBackupSpec,
+        gatewaySwitch: GatewaySwitch,
+        logListener: ((LogEvent) -> Unit)?
+    ): FilesBackupWrap {
         val builder = FilesBackupWrap(spec, Backup.Id())
         val pathToBackup = spec.path
         val items: List<APath> = gatewaySwitch.keepAlive.get().use {
             pathToBackup.walk(gatewaySwitch)
-                    .filterNot { it == pathToBackup }
-                    .toList()
+                .filterNot { it == pathToBackup }
+                .toList()
         }
 
         updateProgressCount(Progress.Count.Counter(0, items.size))
@@ -67,11 +71,11 @@ class FilesBackupEndpoint @Inject constructor(
             updateProgressSecondary(item.path)
 
             val refRequest = MMRef.Request(
-                    backupId = builder.backupId,
-                    source = GenericRefSource(
-                            gateway = gatewaySwitch,
-                            path = item
-                    )
+                backupId = builder.backupId,
+                source = GenericRefSource(
+                    gateway = gatewaySwitch,
+                    path = item
+                )
             )
             val ref = mmDataRepo.create(refRequest)
             filesInUnit.add(ref)

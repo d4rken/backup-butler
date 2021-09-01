@@ -13,11 +13,11 @@ class SimpleBackupTaskTest {
     @Test
     fun `test serialization`() {
         val original = SimpleBackupTask(
-                taskId = Task.Id(),
-                label = "BackupTaskName",
-                isOneTimeTask = false,
-                sources = setOf(Generator.Id()),
-                destinations = setOf(Storage.Id())
+            taskId = Task.Id(),
+            label = "BackupTaskName",
+            isOneTimeTask = false,
+            sources = setOf(Generator.Id()),
+            destinations = setOf(Storage.Id())
         )
 
         val expectedOutput = """{

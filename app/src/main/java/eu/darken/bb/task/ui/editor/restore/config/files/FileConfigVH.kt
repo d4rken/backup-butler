@@ -13,8 +13,8 @@ import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.task.ui.editor.restore.config.ConfigUIWrap
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigAdapter
 
-class FileConfigVH(parent: ViewGroup)
-    : RestoreConfigAdapter.BaseVH(R.layout.task_editor_restore_configs_adapter_line_files, parent) {
+class FileConfigVH(parent: ViewGroup) :
+    RestoreConfigAdapter.BaseVH(R.layout.task_editor_restore_configs_adapter_line_files, parent) {
 
     @BindView(R.id.option_replace_existing_files) lateinit var optionReplaceExisting: SwitchPreferenceView
     @BindView(R.id.option_path) lateinit var optionPathContainer: ViewGroup
@@ -40,8 +40,10 @@ class FileConfigVH(parent: ViewGroup)
 
             if (!item.configWrap.isPermissionGranted) {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorError))
-                optionPathInfo.text = getString(R.string.general_error_cant_access_msg, item.configWrap.currentPath?.userReadablePath(context)
-                        ?: "?")
+                optionPathInfo.text = getString(
+                    R.string.general_error_cant_access_msg, item.configWrap.currentPath?.userReadablePath(context)
+                        ?: "?"
+                )
             } else {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
                 optionPathInfo.text = ""

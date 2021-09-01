@@ -18,59 +18,59 @@ import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class StoragePickerFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val storageBuilder: StorageBuilder,
-        storageManager: StorageManager
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val storageBuilder: StorageBuilder,
+    storageManager: StorageManager
 ) : SmartVDC() {
     private val editorObs = taskBuilder.task(taskId)
-            .subscribeOn(Schedulers.io())
-            .filter { it.editor != null }
-            .map { it.editor as SimpleBackupTaskEditor }
+        .subscribeOn(Schedulers.io())
+        .filter { it.editor != null }
+        .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
 
     val storageData = storageManager.infos()
-            .subscribeOn(Schedulers.io())
-            .takeUntil { optInfos -> optInfos.all { it.isFinished } }
-            .flatMap { all ->
-                editorData
-                        .map { it.destinations }.map { alreadyAdded ->
-                            return@map all.filter { !alreadyAdded.contains(it.storageId) }
-                        }
-                        .map { infos ->
-                            StorageState(
-                                    storages = infos,
-                                    allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
-                                    isLoading = false
-                            )
-                        }
-            }
-            .startWithItem(StorageState())
-            .toLiveData()
+        .subscribeOn(Schedulers.io())
+        .takeUntil { optInfos -> optInfos.all { it.isFinished } }
+        .flatMap { all ->
+            editorData
+                .map { it.destinations }.map { alreadyAdded ->
+                    return@map all.filter { !alreadyAdded.contains(it.storageId) }
+                }
+                .map { infos ->
+                    StorageState(
+                        storages = infos,
+                        allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
+                        isLoading = false
+                    )
+                }
+        }
+        .startWithItem(StorageState())
+        .toLiveData()
 
     val finishEvent = SingleLiveEvent<Any>()
 
     fun createStorage() {
         storageBuilder.startEditor()
-                .subscribeOn(Schedulers.io())
-                .subscribe()
+            .subscribeOn(Schedulers.io())
+            .subscribe()
     }
 
     fun selectStorage(item: Storage.InfoOpt) {
         taskBuilder.task(taskId).subscribeOn(Schedulers.io())
-                .latest()
-                .map { it.editor as SimpleBackupTaskEditor }
-                .subscribe { editor ->
-                    editor.addDestination(item.storageId)
-                }
+            .latest()
+            .map { it.editor as SimpleBackupTaskEditor }
+            .subscribe { editor ->
+                editor.addDestination(item.storageId)
+            }
         finishEvent.postValue(Any())
     }
 
     data class StorageState(
-            val storages: List<Storage.InfoOpt> = emptyList(),
-            val allExistingAdded: Boolean = false,
-            val isLoading: Boolean = true
+        val storages: List<Storage.InfoOpt> = emptyList(),
+        val allExistingAdded: Boolean = false,
+        val isLoading: Boolean = true
     )
 
     @AssistedInject.Factory

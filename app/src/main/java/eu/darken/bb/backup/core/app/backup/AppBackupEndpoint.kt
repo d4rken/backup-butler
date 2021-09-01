@@ -29,13 +29,13 @@ import javax.inject.Inject
 
 
 class AppBackupEndpoint @Inject constructor(
-        @AppContext override val context: Context,
-        private val pkgOps: PkgOps,
-        private val mmDataRepo: MMDataRepo,
-        private val apkExporter: APKExporter,
-        private val gatewaySwitch: GatewaySwitch,
-        private val javaRootClient: JavaRootClient,
-        backupHandlers: @JvmSuppressWildcards Set<BackupHandler>
+    @AppContext override val context: Context,
+    private val pkgOps: PkgOps,
+    private val mmDataRepo: MMDataRepo,
+    private val apkExporter: APKExporter,
+    private val gatewaySwitch: GatewaySwitch,
+    private val javaRootClient: JavaRootClient,
+    backupHandlers: @JvmSuppressWildcards Set<BackupHandler>
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
     private val progressPub = HotData(Progress.Data())
@@ -60,14 +60,16 @@ class AppBackupEndpoint @Inject constructor(
             val apkData = apkExporter.getAPKFile(spec.packageName)
             updateProgressSecondary(apkData.mainSource.path)
 
-            val baseApkRef: MMRef = mmDataRepo.create(MMRef.Request(
+            val baseApkRef: MMRef = mmDataRepo.create(
+                MMRef.Request(
                     backupId = builder.backupId,
                     source = GenericRefSource(
-                            gateway = gatewaySwitch,
-                            label = getString(DataType.APK_BASE.labelRes),
-                            path = apkData.mainSource
+                        gateway = gatewaySwitch,
+                        label = getString(DataType.APK_BASE.labelRes),
+                        path = apkData.mainSource
                     )
-            ))
+                )
+            )
 
             builder.baseApk = baseApkRef
             logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, apkData.mainSource.path))
@@ -75,13 +77,16 @@ class AppBackupEndpoint @Inject constructor(
             val splitApkRefs = mutableListOf<MMRef>()
             apkData.splitSources.forEach { splitApk ->
                 updateProgressSecondary(splitApk.path)
-                val splitRef: MMRef = mmDataRepo.create(MMRef.Request(
+                val splitRef: MMRef = mmDataRepo.create(
+                    MMRef.Request(
                         backupId = builder.backupId,
                         source = GenericRefSource(
-                                gateway = gatewaySwitch,
-                                label = getString(DataType.APK_SPLIT.labelRes),
-                                path = splitApk)
-                ))
+                            gateway = gatewaySwitch,
+                            label = getString(DataType.APK_SPLIT.labelRes),
+                            path = splitApk
+                        )
+                    )
+                )
                 splitApkRefs.add(splitRef)
                 logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, splitApk.path))
             }
@@ -100,7 +105,11 @@ class AppBackupEndpoint @Inject constructor(
         // TODO root stuff, only when enabled?
 
         if (spec.backupData) {
-            listOf(DataType.DATA_PRIVATE_PRIMARY, DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY).forEach { type ->
+            listOf(
+                DataType.DATA_PRIVATE_PRIMARY,
+                DataType.DATA_PUBLIC_PRIMARY,
+                DataType.DATA_PUBLIC_SECONDARY
+            ).forEach { type ->
                 backupType(type, builder.backupId, spec, appInfo, builder, logListener)
             }
 
@@ -110,7 +119,11 @@ class AppBackupEndpoint @Inject constructor(
         }
 
         if (spec.backupCache) {
-            listOf(DataType.CACHE_PRIVATE_PRIMARY, DataType.CACHE_PUBLIC_PRIMARY, DataType.CACHE_PUBLIC_SECONDARY).forEach { type ->
+            listOf(
+                DataType.CACHE_PRIVATE_PRIMARY,
+                DataType.CACHE_PUBLIC_PRIMARY,
+                DataType.CACHE_PUBLIC_SECONDARY
+            ).forEach { type ->
                 backupType(type, builder.backupId, spec, appInfo, builder, logListener)
             }
 
@@ -128,19 +141,19 @@ class AppBackupEndpoint @Inject constructor(
     }
 
     private fun backupType(
-            type: DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            builder: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        builder: AppBackupWrap,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         val handler = backupHandlers.first {
             it.isResponsible(
-                    type = type,
-                    config = spec,
-                    appInfo = appInfo,
-                    target = null
+                type = type,
+                config = spec,
+                appInfo = appInfo,
+                target = null
             )
         }
 
@@ -150,31 +163,31 @@ class AppBackupEndpoint @Inject constructor(
 
         handler.forwardProgressTo(this).withScopeThis {
             handler.backup(
-                    type = type,
-                    backupId = backupId,
-                    spec = spec,
-                    appInfo = appInfo,
-                    wrap = builder,
-                    target = null,
-                    logListener = logListener
+                type = type,
+                backupId = backupId,
+                spec = spec,
+                appInfo = appInfo,
+                wrap = builder,
+                target = null,
+                logListener = logListener
             )
         }
     }
 
     private fun backupExtra(
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            builder: AppBackupWrap,
-            target: APath,
-            logListener: ((LogEvent) -> Unit)?
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        builder: AppBackupWrap,
+        target: APath,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         val handler = backupHandlers.first {
             it.isResponsible(
-                    type = DataType.EXTRA_PATHS,
-                    config = spec,
-                    appInfo = appInfo,
-                    target = null
+                type = DataType.EXTRA_PATHS,
+                config = spec,
+                appInfo = appInfo,
+                target = null
             )
         }
 
@@ -184,13 +197,13 @@ class AppBackupEndpoint @Inject constructor(
 
         handler.forwardProgressTo(this).withScopeThis {
             handler.backup(
-                    type = DataType.EXTRA_PATHS,
-                    backupId = backupId,
-                    spec = spec,
-                    appInfo = appInfo,
-                    wrap = builder,
-                    target = target,
-                    logListener = logListener
+                type = DataType.EXTRA_PATHS,
+                backupId = backupId,
+                spec = spec,
+                appInfo = appInfo,
+                wrap = builder,
+                target = target,
+                logListener = logListener
             )
         }
     }

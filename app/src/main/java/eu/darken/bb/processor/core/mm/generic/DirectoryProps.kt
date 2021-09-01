@@ -12,11 +12,11 @@ import java.util.*
 @Keep
 @JsonClass(generateAdapter = true)
 data class DirectoryProps(
-        override val label: String? = null,
-        override val originalPath: APath?,
-        override val modifiedAt: Date,
-        override val ownership: Ownership?,
-        override val permissions: Permissions?
+    override val label: String? = null,
+    override val originalPath: APath?,
+    override val modifiedAt: Date,
+    override val ownership: Ownership?,
+    override val permissions: Permissions?
 ) : Props, Props.HasModifiedDate, Props.HasPermissions, Props.HasOwner {
     init {
         require(label != null || originalPath != null) { "Provide name or path!" }

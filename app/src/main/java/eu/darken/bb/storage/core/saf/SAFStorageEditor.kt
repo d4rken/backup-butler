@@ -23,10 +23,10 @@ import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(
-        @Assisted initialStorageId: Storage.Id,
-        @AppContext private val context: Context,
-        moshi: Moshi,
-        private val safGateway: SAFGateway
+    @Assisted initialStorageId: Storage.Id,
+    @AppContext private val context: Context,
+    moshi: Moshi,
+    private val safGateway: SAFGateway
 ) : StorageEditor {
 
     private val editorDataPub = HotData(Data(storageId = initialStorageId))
@@ -38,119 +38,120 @@ class SAFStorageEditor @AssistedInject constructor(
 
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
-    fun updatePath(_path: SAFPath, importExisting: Boolean, isNewlyPersisted: Boolean? = null): Single<SAFPath> = Single.fromCallable {
-        check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
+    fun updatePath(_path: SAFPath, importExisting: Boolean, isNewlyPersisted: Boolean? = null): Single<SAFPath> =
+        Single.fromCallable {
+            check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-        check(_path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
-        check(_path.isDirectory(safGateway)) { "Target is not a directory!" }
+            check(_path.canWrite(safGateway)) { "Got permissions, but can't write to the path." }
+            check(_path.isDirectory(safGateway)) { "Target is not a directory!" }
 
-        val isStorageRoot = safGateway.isStorageRoot(_path)
-        if (isStorageRoot && ApiHelper.hasAndroid11()) {
-            throw IllegalStoragePathException(_path, R.string.storage_saf_error_cant_pick_root)
-        }
+            val isStorageRoot = safGateway.isStorageRoot(_path)
+            if (isStorageRoot && ApiHelper.hasAndroid11()) {
+                throw IllegalStoragePathException(_path, R.string.storage_saf_error_cant_pick_root)
+            }
 
-        val tweakedPath: SAFPath = if (isStorageRoot) {
-            _path.child("BackupButler")
-        } else {
-            _path
-        }
+            val tweakedPath: SAFPath = if (isStorageRoot) {
+                _path.child("BackupButler")
+            } else {
+                _path
+            }
 
-        if (tweakedPath.child(STORAGE_CONFIG).exists(safGateway)) {
-            if (!importExisting) throw ExistingStorageException(tweakedPath)
+            if (tweakedPath.child(STORAGE_CONFIG).exists(safGateway)) {
+                if (!importExisting) throw ExistingStorageException(tweakedPath)
 
-            load(tweakedPath).blockingGet()
-        } else {
-            editorDataPub.update {
-                it.copy(
+                load(tweakedPath).blockingGet()
+            } else {
+                editorDataPub.update {
+                    it.copy(
                         label = if (it.label.isEmpty()) tweakedPath.userReadableName(context) else it.label,
                         refPath = tweakedPath,
                         pathIsNewlyPersisted = isNewlyPersisted ?: it.pathIsNewlyPersisted
-                )
+                    )
+                }
             }
-        }
 
-        return@fromCallable tweakedPath
-    }
+            return@fromCallable tweakedPath
+        }
 
     override fun isValid(): Observable<Boolean> = editorData.map {
         it.refPath != null && it.label.isNotEmpty()
     }
 
     override fun load(ref: Storage.Ref): Single<SAFStorageConfig> = Single.just(ref)
-            .map { (it as SAFStorageRef).path }
-            .flatMap { load(it) }
+        .map { (it as SAFStorageRef).path }
+        .flatMap { load(it) }
 
     private fun load(path: SAFPath): Single<SAFStorageConfig> = Single.just(path)
-            .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)) }
-            .doOnSuccess { config ->
-                originalRefPath = path
+        .map { configAdapter.fromSAFFile(safGateway, it.child(STORAGE_CONFIG)) }
+        .doOnSuccess { config ->
+            originalRefPath = path
 
-                editorDataPub.update {
-                    it.copy(
-                            refPath = path,
-                            existingStorage = true,
-                            storageId = config.storageId,
-                            label = config.label
-                    )
-                }
+            editorDataPub.update {
+                it.copy(
+                    refPath = path,
+                    existingStorage = true,
+                    storageId = config.storageId,
+                    label = config.label
+                )
             }
+        }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = editorDataPub
-            .updateRx { data ->
-                data.refPath as SAFPath
+        .updateRx { data ->
+            data.refPath as SAFPath
 
-                if (data.refPath != originalRefPath) {
-                    originalRefPath?.let { safGateway.releasePermission(it) }
-                }
-
-                require(safGateway.hasPermission(data.refPath)) { "No permission persisted for ${data.refPath}?!" }
-
-                data.copy(
-                        pathIsNewlyPersisted = false
-                )
+            if (data.refPath != originalRefPath) {
+                originalRefPath?.let { safGateway.releasePermission(it) }
             }
-            .doOnSubscribe { Timber.tag(TAG).v("save()") }
-            .map { (_, data) ->
-                data.refPath as SAFPath
 
-                val ref = SAFStorageRef(
-                        storageId = data.storageId,
-                        path = data.refPath
-                )
-                val config = SAFStorageConfig(
-                        storageId = data.storageId,
-                        label = data.label
-                )
+            require(safGateway.hasPermission(data.refPath)) { "No permission persisted for ${data.refPath}?!" }
 
-                val configFile = ref.path.child(STORAGE_CONFIG)
-                configAdapter.toSAFFile(config, safGateway, configFile)
+            data.copy(
+                pathIsNewlyPersisted = false
+            )
+        }
+        .doOnSubscribe { Timber.tag(TAG).v("save()") }
+        .map { (_, data) ->
+            data.refPath as SAFPath
 
-                return@map Pair(ref, config)
-            }
-            .flatMap { release().andThen(Single.just(it)) }
+            val ref = SAFStorageRef(
+                storageId = data.storageId,
+                path = data.refPath
+            )
+            val config = SAFStorageConfig(
+                storageId = data.storageId,
+                label = data.label
+            )
+
+            val configFile = ref.path.child(STORAGE_CONFIG)
+            configAdapter.toSAFFile(config, safGateway, configFile)
+
+            return@map Pair(ref, config)
+        }
+        .flatMap { release().andThen(Single.just(it)) }
 
 
     override fun abort(): Completable = editorDataPub.latest
-            .doOnSubscribe { Timber.tag(TAG).v("abort()") }
-            .doOnSuccess { data ->
-                if (data.refPath != null && data.pathIsNewlyPersisted) {
-                    if (safGateway.releasePermission(data.refPath)) {
-                        Timber.d("Released SAF permission because it was only acquired for this editor: %s", data.refPath)
-                    }
+        .doOnSubscribe { Timber.tag(TAG).v("abort()") }
+        .doOnSuccess { data ->
+            if (data.refPath != null && data.pathIsNewlyPersisted) {
+                if (safGateway.releasePermission(data.refPath)) {
+                    Timber.d("Released SAF permission because it was only acquired for this editor: %s", data.refPath)
                 }
             }
-            .flatMapCompletable { release() }
+        }
+        .flatMapCompletable { release() }
 
     private fun release(): Completable = Completable
-            .fromCallable { editorDataPub.close() }
-            .doOnSubscribe { Timber.tag(TAG).v("release()") }
+        .fromCallable { editorDataPub.close() }
+        .doOnSubscribe { Timber.tag(TAG).v("release()") }
 
     data class Data(
-            override val storageId: Storage.Id,
-            override val label: String = "",
-            override val existingStorage: Boolean = false,
-            override val refPath: SAFPath? = null,
-            val pathIsNewlyPersisted: Boolean = false
+        override val storageId: Storage.Id,
+        override val label: String = "",
+        override val existingStorage: Boolean = false,
+        override val refPath: SAFPath? = null,
+        val pathIsNewlyPersisted: Boolean = false
     ) : StorageEditor.Data
 
     @AssistedInject.Factory

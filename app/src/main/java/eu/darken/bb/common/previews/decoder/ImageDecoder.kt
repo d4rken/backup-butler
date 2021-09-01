@@ -20,8 +20,8 @@ import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
 
 class ImageDecoder(
-        val context: Context,
-        glide: Glide
+    val context: Context,
+    glide: Glide
 ) : ResourceDecoder<FileData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 

@@ -18,19 +18,24 @@ import javax.inject.Inject
 
 
 class SmartFileModelLoader constructor(
-        val generalSettings: GeneralSettings
+    val generalSettings: GeneralSettings
 ) : ModelLoader<FilePreviewRequest, FileData> {
 
-    override fun buildLoadData(preview: FilePreviewRequest, width: Int, height: Int, options: Options): ModelLoader.LoadData<FileData>? {
+    override fun buildLoadData(
+        preview: FilePreviewRequest,
+        width: Int,
+        height: Int,
+        options: Options
+    ): ModelLoader.LoadData<FileData>? {
         return ModelLoader.LoadData(ObjectKey(preview), FileFetcher(generalSettings, preview, options))
     }
 
     override fun handles(file: FilePreviewRequest): Boolean = true
 
     private class FileFetcher(
-            val generalSettings: GeneralSettings,
-            val preview: FilePreviewRequest,
-            val options: Options
+        val generalSettings: GeneralSettings,
+        val preview: FilePreviewRequest,
+        val options: Options
     ) : DataFetcher<FileData> {
         private var bitMapFactoryOptions: BitmapFactory.Options? = null
 
@@ -86,7 +91,7 @@ class SmartFileModelLoader constructor(
 
     @PerApp
     class Factory @Inject constructor(
-            val generalSettingsLazy: Lazy<GeneralSettings>
+        val generalSettingsLazy: Lazy<GeneralSettings>
     ) : ModelLoaderFactory<FilePreviewRequest, FileData> {
 
         override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<FilePreviewRequest, FileData> {
@@ -102,6 +107,7 @@ class SmartFileModelLoader constructor(
         internal val TAG = App.logTag("Preview", "SmartFileModelLoader")
         internal val EXTENSIONS_IMAGE = arrayOf(".png", ".jpg", ".jpeg", ".bmp")
         internal val EXTENSIONS_MUSIC = arrayOf(".wav", ".mp3", ".wma", ".raw", ".aac", ".flac", ".m4a", ".ogg")
-        internal val EXTENSIONS_VIDEO = arrayOf(".webm", ".3gp", ".avi", ".mkv", ".mpg", ".mpeg", ".3pg", ".flv", ".m4v", ".wmv", ".mp4")
+        internal val EXTENSIONS_VIDEO =
+            arrayOf(".webm", ".3gp", ".avi", ".mkv", ".mpg", ".mpeg", ".3pg", ".flv", ".m4v", ".wmv", ".mp4")
     }
 }

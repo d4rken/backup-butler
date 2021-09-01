@@ -23,11 +23,11 @@ import timber.log.Timber
 import java.io.File
 
 class LocalStorageEditor @AssistedInject constructor(
-        @Assisted initialStorageId: Storage.Id,
-        moshi: Moshi,
-        private val runtimePermissionTool: RuntimePermissionTool,
-        private val localGateway: LocalGateway,
-        private val userManager: UserManagerBB
+    @Assisted initialStorageId: Storage.Id,
+    moshi: Moshi,
+    private val runtimePermissionTool: RuntimePermissionTool,
+    private val localGateway: LocalGateway,
+    private val userManager: UserManagerBB
 ) : StorageEditor {
 
     private val editorDataPub = HotData(Data(storageId = initialStorageId))
@@ -38,36 +38,36 @@ class LocalStorageEditor @AssistedInject constructor(
     fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
 
     fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single
-            .fromCallable {
-                check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
+        .fromCallable {
+            check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-                check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
+            check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
 
-                check(_path.asFile().canWrite()) { "Can't write to path." }
-                check(_path.asFile().isDirectory) { "Target is not a directory!" }
+            check(_path.asFile().canWrite()) { "Can't write to path." }
+            check(_path.asFile().isDirectory) { "Target is not a directory!" }
 
-                return@fromCallable if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
-                    _path.child("BackupButler")
-                } else {
-                    _path
+            return@fromCallable if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
+                _path.child("BackupButler")
+            } else {
+                _path
+            }
+        }
+        .flatMap { tweakedPath ->
+            val configFile = tweakedPath.child(STORAGE_CONFIG)
+            val nextAction = if (configFile.exists(localGateway)) {
+                if (!importExisting) throw ExistingStorageException(tweakedPath)
+
+                load(tweakedPath)
+            } else {
+                editorDataPub.updateRx {
+                    it.copy(
+                        refPath = tweakedPath,
+                        label = if (it.label.isEmpty()) tweakedPath.name else it.label
+                    )
                 }
             }
-            .flatMap { tweakedPath ->
-                val configFile = tweakedPath.child(STORAGE_CONFIG)
-                val nextAction = if (configFile.exists(localGateway)) {
-                    if (!importExisting) throw ExistingStorageException(tweakedPath)
-
-                    load(tweakedPath)
-                } else {
-                    editorDataPub.updateRx {
-                        it.copy(
-                                refPath = tweakedPath,
-                                label = if (it.label.isEmpty()) tweakedPath.name else it.label
-                        )
-                    }
-                }
-                nextAction.ignoreElement().toSingleDefault(tweakedPath)
-            }
+            nextAction.ignoreElement().toSingleDefault(tweakedPath)
+        }
 
     fun isPermissionGranted(): Boolean {
         return runtimePermissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -80,58 +80,58 @@ class LocalStorageEditor @AssistedInject constructor(
     }
 
     override fun load(ref: Storage.Ref): Single<LocalStorageConfig> = Single.just(ref)
-            .map { (it as LocalStorageRef).path }
-            .flatMap { load(it) }
+        .map { (it as LocalStorageRef).path }
+        .flatMap { load(it) }
 
     private fun load(path: LocalPath): Single<LocalStorageConfig> = Single.just(path)
-            .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
-            .doOnSuccess { config ->
+        .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
+        .doOnSuccess { config ->
 
-                editorDataPub.update {
-                    it.copy(
-                            refPath = path,
-                            existingStorage = true,
-                            storageId = config.storageId,
-                            label = config.label
-                    )
-                }
+            editorDataPub.update {
+                it.copy(
+                    refPath = path,
+                    existingStorage = true,
+                    storageId = config.storageId,
+                    label = config.label
+                )
             }
+        }
 
     override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single
-            .fromCallable {
-                val data = editorDataPub.snapshot
-                val ref = LocalStorageRef(
-                        storageId = data.storageId,
-                        path = data.refPath!!
-                )
-                val config = LocalStorageConfig(
-                        storageId = data.storageId,
-                        label = data.label
-                )
+        .fromCallable {
+            val data = editorDataPub.snapshot
+            val ref = LocalStorageRef(
+                storageId = data.storageId,
+                path = data.refPath!!
+            )
+            val config = LocalStorageConfig(
+                storageId = data.storageId,
+                label = data.label
+            )
 
-                configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
+            configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
 
-                return@fromCallable Pair(ref, config)
-            }
-            .doOnSubscribe { Timber.tag(TAG).v("save()") }
-            .flatMap { release().andThen(Single.just(it)) }
+            return@fromCallable Pair(ref, config)
+        }
+        .doOnSubscribe { Timber.tag(TAG).v("save()") }
+        .flatMap { release().andThen(Single.just(it)) }
 
     override fun abort(): Completable = Completable
-            .fromCallable { editorDataPub.close() }
-            .doOnSubscribe { Timber.tag(TAG).v("abort()") }
+        .fromCallable { editorDataPub.close() }
+        .doOnSubscribe { Timber.tag(TAG).v("abort()") }
 
     private fun release(): Completable = Completable
-            .fromCallable { editorDataPub.close() }
-            .doOnSubscribe { Timber.tag(TAG).v("release()") }
+        .fromCallable { editorDataPub.close() }
+        .doOnSubscribe { Timber.tag(TAG).v("release()") }
 
     @AssistedInject.Factory
     interface Factory : StorageEditor.Factory<LocalStorageEditor>
 
     data class Data(
-            override val storageId: Storage.Id,
-            override val label: String = "",
-            override val existingStorage: Boolean = false,
-            override val refPath: LocalPath? = null
+        override val storageId: Storage.Id,
+        override val label: String = "",
+        override val existingStorage: Boolean = false,
+        override val refPath: LocalPath? = null
     ) : StorageEditor.Data
 
     companion object {

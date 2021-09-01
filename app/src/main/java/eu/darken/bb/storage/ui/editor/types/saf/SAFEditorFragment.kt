@@ -80,9 +80,9 @@ class SAFEditorFragment : SmartFragment(), AutoInject {
 
         vdc.errorEvent.observe2(this) { error ->
             val snackbar = Snackbar.make(
-                    view,
-                    error.tryLocalizedErrorMessage(requireContext()),
-                    Snackbar.LENGTH_LONG
+                view,
+                error.tryLocalizedErrorMessage(requireContext()),
+                Snackbar.LENGTH_LONG
             )
             if (error is ExistingStorageException) {
                 snackbar.setAction(R.string.general_import_action) {
@@ -114,7 +114,8 @@ class SAFEditorFragment : SmartFragment(), AutoInject {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        menu.findItem(R.id.action_create).title =
+            getString(if (existing) R.string.general_save_action else R.string.general_create_action)
         return super.onPrepareOptionsMenu(menu)
     }
 

@@ -9,8 +9,8 @@ import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 
 class DebugFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @AppContext private val context: Context
+    @Assisted private val handle: SavedStateHandle,
+    @AppContext private val context: Context
 ) : SmartVDC() {
 
 

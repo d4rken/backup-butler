@@ -10,14 +10,14 @@ import javax.inject.Inject
 
 @PerApp
 class RequirementsManager @Inject constructor(
-        @AppContext private val context: Context,
-        private val deviceEnvironment: DeviceEnvironment
+    @AppContext private val context: Context,
+    private val deviceEnvironment: DeviceEnvironment
 ) {
 
     fun reqsFor(taskType: Task.Type, taskId: Task.Id? = null): Single<List<Requirement>> = Single.fromCallable {
 
         listOf(
-                PermissionRequirement.createStorageReq(context)
+            PermissionRequirement.createStorageReq(context)
         )
     }
 

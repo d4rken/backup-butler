@@ -16,8 +16,7 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 
-class BackupAdapter @Inject constructor()
-    : ModularAdapter<BackupAdapter.VH>(), DataAdapter<Backup.InfoOpt> {
+class BackupAdapter @Inject constructor() : ModularAdapter<BackupAdapter.VH>(), DataAdapter<Backup.InfoOpt> {
 
     override val data = mutableListOf<Backup.InfoOpt>()
 
@@ -28,8 +27,8 @@ class BackupAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.task_editor_restore_sources_adapter_line_backup, parent), BindableVH<Backup.InfoOpt> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.task_editor_restore_sources_adapter_line_backup, parent),
+        BindableVH<Backup.InfoOpt> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView

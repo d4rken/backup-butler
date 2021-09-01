@@ -11,8 +11,9 @@ import eu.darken.bb.common.ui.ConfirmableActionAdapterVH
 import javax.inject.Inject
 
 @PerChildFragment
-class ActionsAdapter @Inject constructor()
-    : ModularAdapter<ActionsAdapter.VH>(), DataAdapter<Confirmable<GeneratorsAction>> {
+class ActionsAdapter @Inject constructor() :
+    ModularAdapter<ActionsAdapter.VH>(),
+    DataAdapter<Confirmable<GeneratorsAction>> {
 
     override val data = mutableListOf<Confirmable<GeneratorsAction>>()
 

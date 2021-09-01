@@ -13,15 +13,15 @@ import javax.inject.Inject
 
 @Reusable
 class FilesSpecGenerator @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) : Generator {
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config
         val specs = mutableListOf<BackupSpec>()
 
         val app = FilesBackupSpec(
-                label = config.path.path,
-                path = config.path
+            label = config.path.path,
+            path = config.path
         )
         specs.add(app)
 
@@ -31,9 +31,9 @@ class FilesSpecGenerator @Inject constructor(
     @Keep
     @JsonClass(generateAdapter = true)
     data class Config(
-            override val generatorId: Generator.Id,
-            override val label: String,
-            val path: APath
+        override val generatorId: Generator.Id,
+        override val label: String,
+        val path: APath
     ) : Generator.Config {
 
         override fun getDescription(context: Context): String {

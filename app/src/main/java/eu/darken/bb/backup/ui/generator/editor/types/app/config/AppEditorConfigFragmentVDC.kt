@@ -16,17 +16,17 @@ import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class AppEditorConfigFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val generatorId: Generator.Id,
-        private val builder: GeneratorBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val generatorId: Generator.Id,
+    private val builder: GeneratorBuilder
 ) : SmartVDC() {
 
     private val stater = Stater(State())
     val state = stater.liveData
 
     private val editorObs = builder.generator(generatorId)
-            .filter { it.editor != null }
-            .map { it.editor as AppSpecGeneratorEditor }
+        .filter { it.editor != null }
+        .map { it.editor as AppSpecGeneratorEditor }
 
     private val editorDataObs = editorObs.switchMap { it.editorData }
 
@@ -36,37 +36,37 @@ class AppEditorConfigFragmentVDC @AssistedInject constructor(
 
     init {
         editorDataObs
-                .subscribe { editorData ->
-                    stater.update { state ->
-                        state.copy(
-                                label = editorData.label,
-                                isWorking = false,
-                                isExisting = editorData.isExistingGenerator,
-                                autoInclude = editorData.autoInclude,
-                                includeUserApps = editorData.includeUserApps,
-                                includeSystemApps = editorData.includeSystemApps,
-                                packagesIncluded = editorData.packagesIncluded,
-                                packagesExcluded = editorData.packagesExcluded,
-                                backupApk = editorData.backupApk,
-                                backupData = editorData.backupData,
-                                backupCache = editorData.backupCache,
-                                extraPaths = editorData.extraPaths
-                        )
-                    }
+            .subscribe { editorData ->
+                stater.update { state ->
+                    state.copy(
+                        label = editorData.label,
+                        isWorking = false,
+                        isExisting = editorData.isExistingGenerator,
+                        autoInclude = editorData.autoInclude,
+                        includeUserApps = editorData.includeUserApps,
+                        includeSystemApps = editorData.includeSystemApps,
+                        packagesIncluded = editorData.packagesIncluded,
+                        packagesExcluded = editorData.packagesExcluded,
+                        backupApk = editorData.backupApk,
+                        backupData = editorData.backupData,
+                        backupCache = editorData.backupCache,
+                        extraPaths = editorData.extraPaths
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
 
         editorObs
-                .flatMap { it.isValid() }
-                .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
-                .withScopeVDC(this)
+            .flatMap { it.isValid() }
+            .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
+            .withScopeVDC(this)
 
         editorObs
-                .flatMap { it.editorData }
-                .subscribe { data ->
-                    stater.update { it.copy(isExisting = data.isExistingGenerator) }
-                }
-                .withScopeVDC(this)
+            .flatMap { it.editorData }
+            .subscribe { data ->
+                stater.update { it.copy(isExisting = data.isExistingGenerator) }
+            }
+            .withScopeVDC(this)
     }
 
     fun updateLabel(label: String) {
@@ -99,27 +99,27 @@ class AppEditorConfigFragmentVDC @AssistedInject constructor(
 
     fun saveConfig() {
         builder.save(generatorId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .doFinally { finishEvent.postValue(Any()) }
-                .subscribe()
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .doFinally { finishEvent.postValue(Any()) }
+            .subscribe()
     }
 
     data class State(
-            val label: String = "",
-            val includedPackages: List<String> = emptyList(),
-            val isWorking: Boolean = false,
-            val isValid: Boolean = false,
-            val isExisting: Boolean = false,
-            val autoInclude: Boolean = false,
-            val includeUserApps: Boolean = false,
-            val includeSystemApps: Boolean = false,
-            val packagesIncluded: Collection<String> = listOf(),
-            val packagesExcluded: Collection<String> = listOf(),
-            val backupApk: Boolean = false,
-            val backupData: Boolean = false,
-            val backupCache: Boolean = false,
-            val extraPaths: Map<String, Collection<APath>> = emptyMap()
+        val label: String = "",
+        val includedPackages: List<String> = emptyList(),
+        val isWorking: Boolean = false,
+        val isValid: Boolean = false,
+        val isExisting: Boolean = false,
+        val autoInclude: Boolean = false,
+        val includeUserApps: Boolean = false,
+        val includeSystemApps: Boolean = false,
+        val packagesIncluded: Collection<String> = listOf(),
+        val packagesExcluded: Collection<String> = listOf(),
+        val backupApk: Boolean = false,
+        val backupData: Boolean = false,
+        val backupCache: Boolean = false,
+        val extraPaths: Map<String, Collection<APath>> = emptyMap()
     )
 
     @AssistedInject.Factory

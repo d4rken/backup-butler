@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 @TargetApi(Build.VERSION_CODES.N)
 class ACSDebugModule @AssistedInject constructor(
-        @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost
 ) : DebugModule {
 
     companion object {
@@ -25,11 +25,11 @@ class ACSDebugModule @AssistedInject constructor(
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { BuildConfig.DEBUG }
-                .filter { ApiHelper.hasAndroidN() }
-                .subscribe { options ->
-                    //                    if (options.level == Log.VERBOSE && crashHandler == null) {
+            .observeOn(Schedulers.io())
+            .filter { BuildConfig.DEBUG }
+            .filter { ApiHelper.hasAndroidN() }
+            .subscribe { options ->
+                //                    if (options.level == Log.VERBOSE && crashHandler == null) {
 //                        origHandler = Thread.getDefaultUncaughtExceptionHandler()
 //                        crashHandler = Thread.UncaughtExceptionHandler { t, e ->
 //                            Timber.tag(TAG).e(e, "Disabling ACCService to guard against exception")
@@ -42,7 +42,7 @@ class ACSDebugModule @AssistedInject constructor(
 //                        Thread.setDefaultUncaughtExceptionHandler(origHandler)
 //                        Timber.tag(TAG).d("Disabled ACCService exception guard")
 //                    }
-                }
+            }
     }
 
     @AssistedInject.Factory

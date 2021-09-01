@@ -10,23 +10,23 @@ import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 
 class GeneralSettingsFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        private val bbDebug: BBDebug
+    @Assisted private val handle: SavedStateHandle,
+    private val bbDebug: BBDebug
 ) : SmartVDC() {
     private val stater = Stater(State())
     val state = stater.liveData
 
     init {
         bbDebug.observeOptions()
-                .subscribe { options ->
-                    stater.update {
-                        it.copy(
-                                isRecording = options.isRecording,
-                                recordingPath = options.recorderPath ?: ""
-                        )
-                    }
+            .subscribe { options ->
+                stater.update {
+                    it.copy(
+                        isRecording = options.isRecording,
+                        recordingPath = options.recorderPath ?: ""
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
     }
 
     fun startDebugLog() {
@@ -34,8 +34,8 @@ class GeneralSettingsFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val isRecording: Boolean = false,
-            val recordingPath: String = ""
+        val isRecording: Boolean = false,
+        val recordingPath: String = ""
     )
 
     @AssistedInject.Factory

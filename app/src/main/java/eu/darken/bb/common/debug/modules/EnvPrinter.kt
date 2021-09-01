@@ -14,7 +14,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class EnvPrinter @AssistedInject constructor(
-        @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost
 ) : DebugModule {
     companion object {
         private val TAG = App.logTag("Debug", "EnvPrinter")
@@ -24,17 +24,17 @@ class EnvPrinter @AssistedInject constructor(
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-                .doOnNext { previousOptions = it }
-                .flatMapSingle { Cmd.builder("printenv").submit(RxCmdShell.builder().build()) }
-                .subscribe(
-                        { result ->
-                            Timber.tag(TAG).d("Environment variables:")
-                            for (s in result.output) Timber.tag(TAG).d(s)
-                        },
-                        { e -> Timber.tag(TAG).e(e, "Failed to get environment variables") }
-                )
+            .observeOn(Schedulers.io())
+            .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
+            .doOnNext { previousOptions = it }
+            .flatMapSingle { Cmd.builder("printenv").submit(RxCmdShell.builder().build()) }
+            .subscribe(
+                { result ->
+                    Timber.tag(TAG).d("Environment variables:")
+                    for (s in result.output) Timber.tag(TAG).d(s)
+                },
+                { e -> Timber.tag(TAG).e(e, "Failed to get environment variables") }
+            )
     }
 
     @AssistedInject.Factory

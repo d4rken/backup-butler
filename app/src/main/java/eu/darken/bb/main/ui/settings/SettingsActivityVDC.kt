@@ -8,7 +8,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 
 
 class SettingsActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+    @Assisted private val handle: SavedStateHandle
 ) : SmartVDC() {
 
     @AssistedInject.Factory

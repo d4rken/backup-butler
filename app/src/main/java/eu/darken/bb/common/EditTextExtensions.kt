@@ -19,5 +19,6 @@ fun EditText.setTextIfDifferentAndNotFocused(newText: String) {
 }
 
 fun EditText.userTextChangeEvents(): Observable<TextViewTextChangeEvent> {
-    return textChangeEvents().skipInitialValue().throttleLatest(250, TimeUnit.MILLISECONDS).filter { it.view.hasFocus() }
+    return textChangeEvents().skipInitialValue().throttleLatest(250, TimeUnit.MILLISECONDS)
+        .filter { it.view.hasFocus() }
 }

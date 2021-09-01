@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @PerApp
 class UserSettings @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) : Settings() {
 
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {

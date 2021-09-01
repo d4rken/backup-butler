@@ -19,8 +19,8 @@ import javax.inject.Inject
 
 @PerApp
 class SAFGateway @Inject constructor(
-        @AppContext private val context: Context,
-        private val contentResolver: ContentResolver
+    @AppContext private val context: Context,
+    private val contentResolver: ContentResolver
 ) : APathGateway<SAFPath, SAFPathLookup> {
 
     override val keepAlive = SharedHolder.createKeepAlive("${TAG}:SharedResource")
@@ -96,18 +96,19 @@ class SAFGateway @Inject constructor(
                 require(segName == currentRoot.name) { "Unexpected name change: Wanted $segName, but got ${currentRoot.name}" }
             }
         }
-        Timber.tag(TAG).v("createDocumentFile(mimeType=$mimeType, treeUri=$treeUri, crumbs=${segments.toList()}): ${currentRoot.uri}")
+        Timber.tag(TAG)
+            .v("createDocumentFile(mimeType=$mimeType, treeUri=$treeUri, crumbs=${segments.toList()}): ${currentRoot.uri}")
         return currentRoot
     }
 
     @Throws(IOException::class)
     override fun listFiles(path: SAFPath): List<SAFPath> = try {
         findDocFile(path)!!
-                .listFiles()
-                .map {
-                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-                    path.child(name)
-                }
+            .listFiles()
+            .map {
+                val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                path.child(name)
+            }
     } catch (e: Exception) {
         Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
         throw ReadException(path, cause = e)
@@ -168,12 +169,12 @@ class SAFGateway @Inject constructor(
 
     override fun lookupFiles(path: SAFPath): List<SAFPathLookup> = try {
         findDocFile(path)!!
-                .listFiles()
-                .map {
-                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-                    path.child(name)
-                }
-                .map { lookup(it) }
+            .listFiles()
+            .map {
+                val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                path.child(name)
+            }
+            .map { lookup(it) }
     } catch (e: Exception) {
         Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
         throw ReadException(path, cause = e)

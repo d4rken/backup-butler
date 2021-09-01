@@ -28,9 +28,9 @@ import javax.inject.Inject
 
 @Reusable
 class PrivateDefaultBackupHandler @Inject constructor(
-        @AppContext context: Context,
-        private val gatewaySwitch: GatewaySwitch,
-        private val mmDataRepo: MMDataRepo
+    @AppContext context: Context,
+    private val gatewaySwitch: GatewaySwitch,
+    private val mmDataRepo: MMDataRepo
 ) : BaseBackupHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -39,7 +39,12 @@ class PrivateDefaultBackupHandler @Inject constructor(
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
-    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo, target: APath?): Boolean {
+    override fun isResponsible(
+        type: DataType,
+        config: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        target: APath?
+    ): Boolean {
         when (type) {
             DataType.DATA_PRIVATE_PRIMARY,
             DataType.CACHE_PRIVATE_PRIMARY -> {
@@ -51,13 +56,13 @@ class PrivateDefaultBackupHandler @Inject constructor(
     }
 
     override fun backup(
-            type: DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            wrap: AppBackupWrap,
-            target: APath?,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        wrap: AppBackupWrap,
+        target: APath?,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
@@ -73,18 +78,20 @@ class PrivateDefaultBackupHandler @Inject constructor(
             val result = doBackup(type, backupId, spec, appInfo, logListener)
             wrap.putDataType(type, result)
         } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "backup(type=%s, backupId=%s, spec=%s, appInfo=%s) failed",
-                    type, backupId, spec, appInfo)
+            Timber.tag(TAG).e(
+                e, "backup(type=%s, backupId=%s, spec=%s, appInfo=%s) failed",
+                type, backupId, spec, appInfo
+            )
             throw e
         }
     }
 
     private fun doBackup(
-            type: DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         updateProgressSecondary(appInfo.dataDir)
 
@@ -106,9 +113,9 @@ class PrivateDefaultBackupHandler @Inject constructor(
             targets.forEach { target ->
                 updateProgressSecondary(PathAString(target))
                 target.walk(gatewaySwitch)
-                        .filterNot { it == target }
-                        .map { it.lookup(gatewaySwitch) }
-                        .forEach { items.add(it) }
+                    .filterNot { it == target }
+                    .map { it.lookup(gatewaySwitch) }
+                    .forEach { items.add(it) }
             }
         }
 
@@ -117,15 +124,17 @@ class PrivateDefaultBackupHandler @Inject constructor(
             logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, it))
         }
 
-        val ref = mmDataRepo.create(MMRef.Request(
+        val ref = mmDataRepo.create(
+            MMRef.Request(
                 backupId = backupId,
                 source = ArchiveRefSource(
-                        gatewaySwitch,
-                        getString(type.labelRes),
-                        privDir,
-                        items
+                    gatewaySwitch,
+                    getString(type.labelRes),
+                    privDir,
+                    items
                 )
-        ))
+            )
+        )
         return listOf(ref)
     }
 

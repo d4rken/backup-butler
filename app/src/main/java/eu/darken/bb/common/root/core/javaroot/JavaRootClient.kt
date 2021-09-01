@@ -18,14 +18,14 @@ import javax.inject.Inject
 
 @PerApp
 class JavaRootClient @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) : SharedHolder<JavaRootClient.Connection>(
-        TAG, connectionSourcer(context)
+    TAG, connectionSourcer(context)
 ) {
 
     data class Connection(
-            val ipc: JavaRootConnection,
-            val clientModules: List<ClientModule>
+        val ipc: JavaRootConnection,
+        val clientModules: List<ClientModule>
     ) {
         inline fun <reified T> getModule(): T {
             return clientModules.single { it is T } as T
@@ -63,13 +63,15 @@ class JavaRootClient @Inject constructor(
                 override fun onConnect(ipc: JavaRootConnection) {
                     Timber.tag(TAG).d("onConnect(ipc=%s)", ipc)
 
-                    emitter.onAvailable(Connection(
+                    emitter.onAvailable(
+                        Connection(
                             ipc = ipc,
                             clientModules = listOf(
-                                    FileOpsClient(ipc.fileOps),
-                                    PkgOpsClient(ipc.pkgOps)
+                                FileOpsClient(ipc.fileOps),
+                                PkgOpsClient(ipc.pkgOps)
                             )
-                    ))
+                        )
+                    )
                 }
 
                 override fun onDisconnect(ipc: JavaRootConnection) {

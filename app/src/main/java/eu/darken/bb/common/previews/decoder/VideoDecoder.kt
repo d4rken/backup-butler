@@ -22,8 +22,8 @@ import java.io.IOException
 
 
 class VideoDecoder(
-        private val context: Context,
-        glide: Glide
+    private val context: Context,
+    glide: Glide
 ) : ResourceDecoder<FileData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 

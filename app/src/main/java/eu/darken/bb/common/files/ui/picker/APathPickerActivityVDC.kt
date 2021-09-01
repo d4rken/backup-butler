@@ -17,9 +17,9 @@ import timber.log.Timber
 
 
 class APathPickerActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val options: APathPicker.Options,
-        val safGateway: SAFGateway
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val options: APathPicker.Options,
+    val safGateway: SAFGateway
 ) : SmartVDC() {
 
     val launchSAFEvents = SingleLiveEvent<Intent>()
@@ -73,9 +73,9 @@ class APathPickerActivityVDC @AssistedInject constructor(
                 takenPermissions.add(path)
             }
             val result = APathPicker.Result(
-                    options,
-                    selection = setOf(path),
-                    persistedPermissions = takenPermissions
+                options,
+                selection = setOf(path),
+                persistedPermissions = takenPermissions
             )
             resultEvents.postValue(result to true)
         } else {

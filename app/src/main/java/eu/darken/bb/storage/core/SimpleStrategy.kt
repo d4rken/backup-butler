@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 @Keep
 @JsonClass(generateAdapter = true)
 data class SimpleStrategy(
-        override val type: Storage.Strategy.Type = Storage.Strategy.Type.SIMPLE
+    override val type: Storage.Strategy.Type = Storage.Strategy.Type.SIMPLE
 ) : Storage.Strategy {
 
     init {

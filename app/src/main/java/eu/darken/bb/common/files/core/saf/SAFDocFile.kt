@@ -24,9 +24,9 @@ import java.util.*
 
 @RequiresApi(21)
 internal data class SAFDocFile(
-        private val context: Context,
-        private val resolver: ContentResolver,
-        val uri: Uri
+    private val context: Context,
+    private val resolver: ContentResolver,
+    val uri: Uri
 ) {
 
     val name: String?
@@ -50,7 +50,11 @@ internal data class SAFDocFile(
     val writable: Boolean
         get() {
             // Ignore if grant doesn't allow write
-            if (context.checkCallingOrSelfUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+            if (context.checkCallingOrSelfUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 return false
             }
 
@@ -79,7 +83,11 @@ internal data class SAFDocFile(
     val readable: Boolean
         get() {
             // Ignore if grant doesn't allow read
-            if (context.checkCallingOrSelfUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+            if (context.checkCallingOrSelfUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 return false
             }
 
@@ -110,18 +118,19 @@ internal data class SAFDocFile(
     // https://commonsware.com/blog/2019/11/23/scoped-storage-stories-documentscontract.html
     @SuppressLint("Recycle")
     fun findFile(name: String): SAFDocFile? {
-        val childrenUri: Uri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri))
+        val childrenUri: Uri =
+            DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri))
 
         val foundUris = resolver.query(
-                childrenUri,
-                arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME),
-                "${DocumentsContract.Document.COLUMN_DISPLAY_NAME}=?",
-                arrayOf(name),
-                null
+            childrenUri,
+            arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+            "${DocumentsContract.Document.COLUMN_DISPLAY_NAME}=?",
+            arrayOf(name),
+            null
         )?.useQuietly { cursor ->
             cursor.asSequence()
-                    .map { Pair(it.getString(0), it.getString(1)) }
-                    .toList()
+                .map { Pair(it.getString(0), it.getString(1)) }
+                .toList()
         }
 
         requireNotNull(foundUris) { "Unable to query for $name in $uri" }
@@ -136,11 +145,11 @@ internal data class SAFDocFile(
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri))
 
         val foundUris = resolver.query(
-                childrenUri,
-                arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID),
-                null,
-                null,
-                null
+            childrenUri,
+            arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID),
+            null,
+            null,
+            null
         )?.useQuietly { cursor ->
             cursor.asSequence().map { DocumentsContract.buildDocumentUriUsingTree(uri, it.getString(0)) }.toList()
         }
@@ -160,7 +169,8 @@ internal data class SAFDocFile(
         val updated: Int = resolver.update(uri, updateValues, null, null)
         updated == 1
     } catch (e: Exception) {
-        Timber.tag(SAFGateway.TAG).w("setLastModified(lastModified=%s) failed on %s, due to %s", lastModified, this, e.toString())
+        Timber.tag(SAFGateway.TAG)
+            .w("setLastModified(lastModified=%s) failed on %s, due to %s", lastModified, this, e.toString())
         false
     }
 
@@ -243,7 +253,11 @@ internal data class SAFDocFile(
             if (DocumentsContract.isDocumentUri(context, treeUri)) {
                 documentId = DocumentsContract.getDocumentId(treeUri)
             }
-            return SAFDocFile(context, contentResolver, DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId))
+            return SAFDocFile(
+                context,
+                contentResolver,
+                DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+            )
         }
     }
 }

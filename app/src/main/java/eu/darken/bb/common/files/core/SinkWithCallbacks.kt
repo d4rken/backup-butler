@@ -5,8 +5,8 @@ import okio.Sink
 import okio.Timeout
 
 class SinkWithCallbacks(
-        private val wrappedSink: Sink,
-        private val onPostClosed: () -> Unit
+    private val wrappedSink: Sink,
+    private val onPostClosed: () -> Unit
 ) : Sink {
     override fun flush() = wrappedSink.flush()
 

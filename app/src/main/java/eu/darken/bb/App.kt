@@ -54,8 +54,8 @@ open class App
     }
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.INFO)
-            .build()
+        .setMinimumLoggingLevel(android.util.Log.INFO)
+        .build()
 
     override fun activityInjector(): AndroidInjector<Activity> = activityInjector
 

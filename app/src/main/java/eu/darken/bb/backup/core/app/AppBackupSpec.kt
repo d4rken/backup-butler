@@ -12,13 +12,13 @@ import eu.darken.bb.common.tryGetAppLabel
 @Keep
 @JsonClass(generateAdapter = true)
 data class AppBackupSpec(
-        val packageName: String,
-        override val specId: BackupSpec.Id = BackupSpec.Id("pkg-$packageName"),
-        override val revisionLimit: Int = 3,
-        val backupApk: Boolean,
-        val backupData: Boolean,
-        val backupCache: Boolean,
-        val extraPaths: Set<APath> = setOf(LocalPath.build("/storage/emulated/0/Download"))
+    val packageName: String,
+    override val specId: BackupSpec.Id = BackupSpec.Id("pkg-$packageName"),
+    override val revisionLimit: Int = 3,
+    val backupApk: Boolean,
+    val backupData: Boolean,
+    val backupCache: Boolean,
+    val extraPaths: Set<APath> = setOf(LocalPath.build("/storage/emulated/0/Download"))
 ) : BackupSpec {
 
     override fun getLabel(context: Context): String = context.packageManager.tryGetAppLabel(packageName)

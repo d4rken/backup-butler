@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @Reusable
 class EmailTool @Inject constructor(
-        @AppContext val context: Context
+    @AppContext val context: Context
 ) {
 
     fun build(email: Email, offerChooser: Boolean = false): Intent {
@@ -26,8 +26,8 @@ class EmailTool @Inject constructor(
     }
 
     data class Email(
-            val receipients: List<String>,
-            val subject: String,
-            val body: String
+        val receipients: List<String>,
+        val subject: String,
+        val body: String
     )
 }

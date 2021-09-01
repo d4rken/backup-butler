@@ -12,8 +12,8 @@ class RestoreConfigRepo @Inject constructor(
 ) {
     fun getDefaultConfigs(): Single<Set<Restore.Config>> = Single.fromCallable {
         setOf(
-                AppRestoreConfig(),
-                FilesRestoreConfig()
+            AppRestoreConfig(),
+            FilesRestoreConfig()
         )
     }
 }

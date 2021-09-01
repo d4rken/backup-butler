@@ -7,7 +7,8 @@ import eu.darken.bb.App
 import timber.log.Timber
 
 abstract class SmartActivity : AppCompatActivity() {
-    internal val tag: String = App.logTag("Activity", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
+    internal val tag: String =
+        App.logTag("Activity", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.tag(tag).v("onCreate(savedInstanceState=$savedInstanceState)")

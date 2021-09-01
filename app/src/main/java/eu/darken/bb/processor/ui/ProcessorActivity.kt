@@ -32,9 +32,9 @@ class ProcessorActivity
 
         if (savedInstanceState == null) {
             supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.content_frame, ProgressFragment())
-                    .commit()
+                .beginTransaction()
+                .replace(R.id.content_frame, ProgressFragment())
+                .commit()
         }
     }
 

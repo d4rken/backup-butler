@@ -23,8 +23,8 @@ fun LocalPath.crumbsTo(child: LocalPath): Array<String> {
     val parentPath = this.path
     val pure = childPath.replaceFirst(parentPath, "")
     return pure.split(java.io.File.separatorChar)
-            .filter { it.isNotEmpty() }
-            .toTypedArray()
+        .filter { it.isNotEmpty() }
+        .toTypedArray()
 }
 
 fun LocalPath.toCrumbs(): List<LocalPath> {
@@ -51,9 +51,9 @@ internal fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
 }
 
 fun LocalPath.performLookup(
-        ipcFunnel: IPCFunnel? = null,
-        libcoreTool: LibcoreTool? = null,
-        shellSession: RxCmdShell.Session? = null
+    ipcFunnel: IPCFunnel? = null,
+    libcoreTool: LibcoreTool? = null,
+    shellSession: RxCmdShell.Session? = null
 ): LocalPathLookup {
     val fstat = try {
         Os.lstat(file.path)
@@ -90,12 +90,12 @@ fun LocalPath.performLookup(
     }
 
     return LocalPathLookup(
-            fileType = file.getAPathFileType(),
-            lookedUp = this,
-            size = file.length(),
-            modifiedAt = Date(file.lastModified()),
-            ownership = ownership,
-            permissions = fstat?.let { Permissions(it.st_mode) },
-            target = file.readLink()?.let { LocalPath.build(it) }
+        fileType = file.getAPathFileType(),
+        lookedUp = this,
+        size = file.length(),
+        modifiedAt = Date(file.lastModified()),
+        ownership = ownership,
+        permissions = fstat?.let { Permissions(it.st_mode) },
+        target = file.readLink()?.let { LocalPath.build(it) }
     )
 }

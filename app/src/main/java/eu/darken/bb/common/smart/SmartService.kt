@@ -9,7 +9,8 @@ import timber.log.Timber
 
 
 abstract class SmartService : Service() {
-    private val tag: String = App.logTag("Service", this.javaClass.simpleName + "(" + Integer.toHexString(this.hashCode()) + ")")
+    private val tag: String =
+        App.logTag("Service", this.javaClass.simpleName + "(" + Integer.toHexString(this.hashCode()) + ")")
 
     override fun onCreate() {
         Timber.tag(tag).d("onCreate()")

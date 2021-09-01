@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="?android:colorBackground"
-              android:gravity="center_vertical"
-              android:minWidth="320dp"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:gravity="center_vertical"
+    android:minWidth="320dp"
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             app:lottie_autoPlay="true"
             app:lottie_colorFilter="?colorOnBackground"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/anim_loading_box"/>
+            app:lottie_rawRes="@raw/anim_loading_box" />
 
         <TextView
             android:id="@+id/task_label"
@@ -47,7 +47,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/process_progress_animation"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"/>
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/generator_label"
@@ -65,7 +65,7 @@
             app:layout_constraintStart_toEndOf="@+id/process_progress_animation"
             app:layout_constraintTop_toBottomOf="@+id/task_label"
             app:layout_constraintVertical_chainStyle="packed"
-            tools:text="All apps"/>
+            tools:text="All apps" />
 
         <TextView
             android:id="@+id/backupspec_label"
@@ -84,7 +84,7 @@
             app:layout_constraintStart_toEndOf="@+id/process_progress_animation"
             app:layout_constraintTop_toBottomOf="@+id/generator_label"
             app:layout_constraintVertical_chainStyle="packed"
-            tools:text="SD Maid"/>
+            tools:text="SD Maid" />
 
         <TextView
             android:id="@+id/process_progress_counter"
@@ -97,7 +97,7 @@
             tools:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="100%"/>
+            tools:text="100%" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -117,7 +117,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             tools:ignore="ContentDescription"
-            tools:src="@mipmap/ic_launcher"/>
+            tools:src="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/progress_primary"
@@ -133,7 +133,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Primary progress lorem ipsum strawberry cake"/>
+            tools:text="Primary progress lorem ipsum strawberry cake" />
 
         <TextView
             android:id="@+id/progress_secondary"
@@ -148,7 +148,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/progress_primary"
-            tools:text="Secondary strawberry cake progress lorem ipsum "/>
+            tools:text="Secondary strawberry cake progress lorem ipsum " />
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -164,7 +164,7 @@
             app:layout_constraintEnd_toStartOf="@+id/progress_counter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/progress_secondary"
-            app:layout_goneMarginEnd="16dp"/>
+            app:layout_goneMarginEnd="16dp" />
 
         <TextView
             android:id="@+id/progress_counter"
@@ -177,6 +177,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/progress_bar"
             tools:text="100%"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

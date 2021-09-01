@@ -7,7 +7,7 @@ import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 
 class SchedulerSettingsFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+    @Assisted private val handle: SavedStateHandle
 ) : SmartVDC() {
 
     @AssistedInject.Factory

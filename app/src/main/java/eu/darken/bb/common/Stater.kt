@@ -20,18 +20,18 @@ class Stater<T> : HotData<T> {
     }
 
     val liveData: LiveData<T> = data
-            .doOnSubscribe {
-                synchronized(liveDeps) {
-                    liveDeps.forEach { liveDepCompDis.add(it.invoke()) }
-                }
+        .doOnSubscribe {
+            synchronized(liveDeps) {
+                liveDeps.forEach { liveDepCompDis.add(it.invoke()) }
             }
-            .doFinally {
-                synchronized(liveDeps) {
-                    liveDepCompDis.dispose()
-                    liveDepCompDis = CompositeDisposable()
-                }
+        }
+        .doFinally {
+            synchronized(liveDeps) {
+                liveDepCompDis.dispose()
+                liveDepCompDis = CompositeDisposable()
             }
-            .toLiveData()
+        }
+        .toLiveData()
 
 }
 

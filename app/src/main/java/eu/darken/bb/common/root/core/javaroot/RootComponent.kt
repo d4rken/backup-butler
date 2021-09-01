@@ -7,9 +7,11 @@ import eu.darken.bb.common.dagger.PerApp
 
 
 @PerApp
-@Component(modules = [
-    RootModule::class
-])
+@Component(
+    modules = [
+        RootModule::class
+    ]
+)
 interface RootComponent {
 
     fun inject(main: JavaRootHost)

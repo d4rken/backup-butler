@@ -8,7 +8,7 @@ import eu.darken.bb.common.vdc.VDC
 
 
 class SimpleActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+    @Assisted private val handle: SavedStateHandle
 ) : VDC() {
 
     data class State(val ready: Boolean)

@@ -17,11 +17,11 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 class FilesSpecGeneratorEditor @AssistedInject constructor(
-        @Assisted private val generatorId: Generator.Id,
-        @AppContext private val context: Context,
-        moshi: Moshi,
-        private val pathTool: GatewaySwitch,
-        private val safGateway: SAFGateway
+    @Assisted private val generatorId: Generator.Id,
+    @AppContext private val context: Context,
+    moshi: Moshi,
+    private val pathTool: GatewaySwitch,
+    private val safGateway: SAFGateway
 ) : GeneratorEditor {
 
     private val editorDataPub = HotData(Data(generatorId = generatorId))
@@ -30,20 +30,20 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     private var originalPath: APath? = null
 
     override fun load(config: Generator.Config): Completable = Single.just(config as FilesSpecGenerator.Config)
-            .flatMap { genSpec ->
-                require(generatorId == genSpec.generatorId) { "IDs don't match" }
+        .flatMap { genSpec ->
+            require(generatorId == genSpec.generatorId) { "IDs don't match" }
 
-                originalPath = genSpec.path
+            originalPath = genSpec.path
 
-                editorDataPub.updateRx {
-                    it.copy(
-                            label = genSpec.label,
-                            isExistingGenerator = true,
-                            path = genSpec.path
-                    )
-                }
+            editorDataPub.updateRx {
+                it.copy(
+                    label = genSpec.label,
+                    isExistingGenerator = true,
+                    path = genSpec.path
+                )
             }
-            .ignoreElement()
+        }
+        .ignoreElement()
 
     override fun save(): Single<out Generator.Config> = Single.fromCallable {
         val data = editorDataPub.snapshot
@@ -57,9 +57,9 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         }
 
         FilesSpecGenerator.Config(
-                generatorId = data.generatorId,
-                label = data.label,
-                path = data.path!!
+            generatorId = data.generatorId,
+            label = data.label,
+            path = data.path!!
         )
     }
 
@@ -70,24 +70,24 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     }
 
     fun updateLabel(label: String): Completable = editorDataPub
-            .updateRx { it.copy(label = label) }
-            .ignoreElement()
+        .updateRx { it.copy(label = label) }
+        .ignoreElement()
 
     fun updatePath(path: APath): Completable = Completable
-            .fromCallable { require(pathTool.canRead(path)) { "Can't read $path" } }
-            .andThen(editorDataPub.updateRx {
-                it.copy(
-                        path = path,
-                        label = if (it.label == "") path.userReadablePath(context) else it.label
-                )
-            })
-            .ignoreElement()
+        .fromCallable { require(pathTool.canRead(path)) { "Can't read $path" } }
+        .andThen(editorDataPub.updateRx {
+            it.copy(
+                path = path,
+                label = if (it.label == "") path.userReadablePath(context) else it.label
+            )
+        })
+        .ignoreElement()
 
     data class Data(
-            override val generatorId: Generator.Id,
-            override val label: String = "",
-            override val isExistingGenerator: Boolean = false,
-            val path: APath? = null
+        override val generatorId: Generator.Id,
+        override val label: String = "",
+        override val isExistingGenerator: Boolean = false,
+        val path: APath? = null
     ) : GeneratorEditor.Data
 
     @AssistedInject.Factory

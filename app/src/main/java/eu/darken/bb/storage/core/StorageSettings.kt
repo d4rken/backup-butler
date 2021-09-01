@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @PerApp
 class StorageSettings @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) : Settings() {
 
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)

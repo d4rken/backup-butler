@@ -15,24 +15,25 @@ import eu.darken.bb.DaggerAppComponent
 object AppInjector {
     fun init(app: App) {
         DaggerAppComponent.factory()
-                .create(app)
-                .inject(app)
+            .create(app)
+            .inject(app)
         app
-                .registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-                    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = handleActivity(activity)
+            .registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) =
+                    handleActivity(activity)
 
-                    override fun onActivityStarted(activity: Activity) = Unit
+                override fun onActivityStarted(activity: Activity) = Unit
 
-                    override fun onActivityResumed(activity: Activity) = Unit
+                override fun onActivityResumed(activity: Activity) = Unit
 
-                    override fun onActivityPaused(activity: Activity) = Unit
+                override fun onActivityPaused(activity: Activity) = Unit
 
-                    override fun onActivityStopped(activity: Activity) = Unit
+                override fun onActivityStopped(activity: Activity) = Unit
 
-                    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 
-                    override fun onActivityDestroyed(activity: Activity) = Unit
-                })
+                override fun onActivityDestroyed(activity: Activity) = Unit
+            })
     }
 
     private fun handleActivity(activity: Activity) {
@@ -41,14 +42,14 @@ object AppInjector {
         }
         if (activity is FragmentActivity) {
             activity.supportFragmentManager
-                    .registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
-                        override fun onFragmentPreAttached(fm: FragmentManager, f: Fragment, context: Context) {
-                            if (f is AutoInject) {
-                                AndroidSupportInjection.inject(f)
-                            }
-                            super.onFragmentPreAttached(fm, f, context)
+                .registerFragmentLifecycleCallbacks(object : FragmentManager.FragmentLifecycleCallbacks() {
+                    override fun onFragmentPreAttached(fm: FragmentManager, f: Fragment, context: Context) {
+                        if (f is AutoInject) {
+                            AndroidSupportInjection.inject(f)
                         }
-                    }, true)
+                        super.onFragmentPreAttached(fm, f, context)
+                    }
+                }, true)
         }
     }
 }

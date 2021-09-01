@@ -17,8 +17,8 @@ import javax.inject.Inject
 @Suppress("DEPRECATION")
 @PerApp
 class BackupButler @Inject constructor(
-        @AppContext val context: Context,
-        private val packageManager: PackageManager
+    @AppContext val context: Context,
+    private val packageManager: PackageManager
 ) {
     private val selfHealthPrefs = context.getSharedPreferences("selfhealth", Context.MODE_PRIVATE)
 
@@ -26,15 +26,16 @@ class BackupButler @Inject constructor(
     val appInfo: AppInfo by lazy {
         val pkgInfo = packageManager.getPackageInfo(context.packageName, 0)
         AppInfo(
-                versionCode = pkgInfo.versionCode.toLong(),
-                versionName = pkgInfo.versionName,
-                buildState = when {
-                    BuildConfig.DEBUG -> BuildState.DEV
-                    BuildConfig.BETA -> BuildState.BETA
-                    else -> BuildState.PRODUCTION
-                },
-                gitSha = BuildConfig.GITSHA,
-                buildTime = BuildConfig.BUILD_TYPE)
+            versionCode = pkgInfo.versionCode.toLong(),
+            versionName = pkgInfo.versionName,
+            buildState = when {
+                BuildConfig.DEBUG -> BuildState.DEV
+                BuildConfig.BETA -> BuildState.BETA
+                else -> BuildState.PRODUCTION
+            },
+            gitSha = BuildConfig.GITSHA,
+            buildTime = BuildConfig.BUILD_TYPE
+        )
     }
 
     val checksumApkMd5: String by lazy<String> {
@@ -73,11 +74,11 @@ class BackupButler @Inject constructor(
     }
 
     data class AppInfo(
-            val versionCode: Long,
-            val versionName: String,
-            val buildState: BuildState,
-            val gitSha: String,
-            val buildTime: String
+        val versionCode: Long,
+        val versionName: String,
+        val buildState: BuildState,
+        val gitSha: String,
+        val buildTime: String
     ) {
 
         val fullVersionString = "$versionName ($versionCode) [$gitSha]"

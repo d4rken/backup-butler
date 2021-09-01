@@ -6,8 +6,8 @@ import eu.darken.bb.common.files.core.APath
 
 
 data class LogEvent(
-        val type: Type,
-        val description: AString
+    val type: Type,
+    val description: AString
 ) {
 
     constructor(type: Type, path: APath)

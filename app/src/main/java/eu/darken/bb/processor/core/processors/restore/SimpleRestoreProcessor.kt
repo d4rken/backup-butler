@@ -22,12 +22,12 @@ import timber.log.Timber
 import javax.inject.Provider
 
 class SimpleRestoreProcessor @AssistedInject constructor(
-        @Assisted progressParent: Progress.Client,
-        @AppContext context: Context,
-        private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
-        private val restoreConfigRepo: RestoreConfigRepo,
-        private val storageManager: StorageManager,
-        private val mmDataRepo: MMDataRepo
+    @Assisted progressParent: Progress.Client,
+    @AppContext context: Context,
+    private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
+    private val restoreConfigRepo: RestoreConfigRepo,
+    private val storageManager: StorageManager,
+    private val mmDataRepo: MMDataRepo
 ) : SimpleBaseProcessor(context, progressParent) {
 
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)
@@ -75,10 +75,10 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     }
 
     private fun restoreBackup(
-            task: SimpleRestoreTask,
-            endpointCache: MutableMap<Backup.Type, Restore.Endpoint>,
-            target: Backup.Target,
-            subResultBuilder: SimpleResult.SubResult.Builder
+        task: SimpleRestoreTask,
+        endpointCache: MutableMap<Backup.Type, Restore.Endpoint>,
+        target: Backup.Target,
+        subResultBuilder: SimpleResult.SubResult.Builder
     ) {
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 

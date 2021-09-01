@@ -16,10 +16,10 @@ class ArchivePropsTest {
         val moshi = AppModule().moshi()
 
         val original = ArchiveProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                archiveType = "archive",
-                compressionType = "compression"
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            archiveType = "archive",
+            compressionType = "compression"
         )
 
         val adapter = moshi.adapter(Props::class.java)
@@ -45,10 +45,10 @@ class ArchivePropsTest {
         val moshi = AppModule().moshi()
 
         val original = ArchiveProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                archiveType = "archive",
-                compressionType = "compression"
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            archiveType = "archive",
+            compressionType = "compression"
         )
 
         val adapter = moshi.adapter(ArchiveProps::class.java)
@@ -73,11 +73,11 @@ class ArchivePropsTest {
     fun `archive props should have either label or original path`() {
         shouldThrow<IllegalArgumentException> {
             ArchiveProps(
-                    label = null,
-                    originalPath = null,
-                    modifiedAt = Date(),
-                    compressionType = "compression",
-                    archiveType = "archive"
+                label = null,
+                originalPath = null,
+                modifiedAt = Date(),
+                compressionType = "compression",
+                archiveType = "archive"
             )
         }
     }

@@ -3,9 +3,9 @@ package eu.darken.bb.common.lists
 import android.view.ViewGroup
 
 class TypedVHCreator<HolderT> constructor(
-        private val viewType: Int = 0,
-        private val typeResolver: (Int) -> Boolean,
-        private val factory: (ViewGroup) -> HolderT
+    private val viewType: Int = 0,
+    private val typeResolver: (Int) -> Boolean,
+    private val factory: (ViewGroup) -> HolderT
 ) : ModularAdapter.TypeModule, ModularAdapter.CreatorModule<HolderT> where HolderT : ModularAdapter.VH {
 
     override fun onGetItemType(adapter: ModularAdapter<*>, pos: Int): Int {

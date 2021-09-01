@@ -13,9 +13,9 @@ import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class GeneratorTypeFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val generatorId: Generator.Id,
-        private val builder: GeneratorBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val generatorId: Generator.Id,
+    private val builder: GeneratorBuilder
 ) : SmartVDC() {
 
     private val builderObs = builder.generator(generatorId)
@@ -23,24 +23,24 @@ class GeneratorTypeFragmentVDC @AssistedInject constructor(
     val navigationEvent = SingleLiveEvent<Pair<Backup.Type, Generator.Id>>()
 
     val state = builder.getSupportedBackupTypes()
-            .map { types ->
-                State(
-                        supportedTypes = types.toList()
-                )
-            }
-            .toLiveData()
+        .map { types ->
+            State(
+                supportedTypes = types.toList()
+            )
+        }
+        .toLiveData()
 
 
     fun createType(type: Backup.Type) {
         builder.update(generatorId) { it!!.copy(generatorType = type) }
-                .subscribeOn(Schedulers.io())
-                .doFinally { navigationEvent.postValue(type to generatorId) }
-                .subscribe()
+            .subscribeOn(Schedulers.io())
+            .doFinally { navigationEvent.postValue(type to generatorId) }
+            .subscribe()
     }
 
     data class State(
-            val supportedTypes: List<Backup.Type>,
-            val isWorking: Boolean = false
+        val supportedTypes: List<Backup.Type>,
+        val isWorking: Boolean = false
     )
 
 

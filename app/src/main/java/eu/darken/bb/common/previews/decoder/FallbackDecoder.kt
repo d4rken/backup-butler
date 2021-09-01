@@ -19,8 +19,8 @@ import java.io.IOException
 
 
 class FallbackDecoder(
-        val context: Context,
-        glide: Glide
+    val context: Context,
+    glide: Glide
 ) : ResourceDecoder<FileData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 

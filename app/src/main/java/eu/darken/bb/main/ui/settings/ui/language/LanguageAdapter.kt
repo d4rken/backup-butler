@@ -12,8 +12,7 @@ import eu.darken.bb.main.core.LanguageEnforcer.Language
 import javax.inject.Inject
 
 
-class LanguageAdapter @Inject constructor()
-    : ModularAdapter<LanguageAdapter.BackupVH>(), DataAdapter<Language> {
+class LanguageAdapter @Inject constructor() : ModularAdapter<LanguageAdapter.BackupVH>(), DataAdapter<Language> {
 
     override val data = mutableListOf<Language>()
     override fun getItemCount(): Int = data.size
@@ -34,8 +33,8 @@ class LanguageAdapter @Inject constructor()
         update(data)
     }
 
-    class BackupVH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.settings_ui_language_adapter_line, parent), BindableVH<Language> {
+    class BackupVH(parent: ViewGroup) : ModularAdapter.VH(R.layout.settings_ui_language_adapter_line, parent),
+        BindableVH<Language> {
 
         @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.label) lateinit var label: TextView

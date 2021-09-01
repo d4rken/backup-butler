@@ -5,6 +5,7 @@ import androidx.annotation.CallSuper
 
 abstract class ModularAdapter<VH : ModularAdapter.VH> : BaseAdapter<VH>() {
     val modules = mutableListOf<Module>()
+
     @CallSuper
     override fun getItemViewType(position: Int): Int {
         modules.filterIsInstance<TypeModule>().forEach {

@@ -23,9 +23,9 @@ import eu.darken.bb.common.tryLocalizedErrorMessage
 
 @Suppress("ProtectedInFinal")
 class LoadingOverlayView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        @AttrRes defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    @AttrRes defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     @BindView(R.id.animation) protected lateinit var animation: LottieAnimationView
@@ -81,8 +81,8 @@ class LoadingOverlayView @JvmOverloads constructor(
     }
 
     data class Mode(
-            @RawRes val animationRes: Int,
-            @StringRes val defaultPrimary: Int
+        @RawRes val animationRes: Int,
+        @StringRes val defaultPrimary: Int
     ) {
         companion object {
             val LOADING = Mode(R.raw.anim_loading_box, R.string.progress_loading_label)

@@ -35,10 +35,10 @@ import javax.inject.Inject
 
 @Reusable
 class PublicDefaultRestoreHandler @Inject constructor(
-        @AppContext context: Context,
-        private val gateway: GatewaySwitch,
-        private val pkgOps: PkgOps,
-        private val userManager: UserManagerBB
+    @AppContext context: Context,
+    private val gateway: GatewaySwitch,
+    private val pkgOps: PkgOps,
+    private val userManager: UserManagerBB
 ) : BaseRestoreHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -71,11 +71,11 @@ class PublicDefaultRestoreHandler @Inject constructor(
     }
 
     override fun restore(
-            type: DataType,
-            appInfo: ApplicationInfo,
-            config: AppRestoreConfig,
-            wrap: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        appInfo: ApplicationInfo,
+        config: AppRestoreConfig,
+        wrap: AppBackupWrap,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
@@ -115,19 +115,20 @@ class PublicDefaultRestoreHandler @Inject constructor(
                 restorePath(type, appInfo, config, basePath, archive, logListener)
                 updateProgressCount(Progress.Count.Percent(index + 1, toRestore.size))
             } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
+                Timber.tag(TAG)
+                    .e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
                 throw e
             }
         }
     }
 
     private fun restorePath(
-            type: DataType,
-            appInfo: ApplicationInfo,
-            config: AppRestoreConfig,
-            basePath: APath,
-            archive: MMRef,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        appInfo: ApplicationInfo,
+        config: AppRestoreConfig,
+        basePath: APath,
+        archive: MMRef,
+        logListener: ((LogEvent) -> Unit)?
     ) {
 
         val directoryTimeStamps = mutableMapOf<APath, Date>()
@@ -141,7 +142,8 @@ class PublicDefaultRestoreHandler @Inject constructor(
             val restoreTarget = LocalPath.build(basePath as LocalPath, itemProps.originalPath!!.path)
 
             if (!config.overwriteExisting && restoreTarget.exists(gateway)) {
-                Timber.tag(PrivateDefaultRestoreHandler.TAG).d("Overwriting existing files is disabled, skipping past: %s", restoreTarget)
+                Timber.tag(PrivateDefaultRestoreHandler.TAG)
+                    .d("Overwriting existing files is disabled, skipping past: %s", restoreTarget)
                 continue
             }
 

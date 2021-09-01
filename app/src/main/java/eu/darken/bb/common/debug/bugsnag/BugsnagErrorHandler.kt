@@ -16,11 +16,11 @@ import javax.inject.Inject
 
 @PerApp
 class BugsnagErrorHandler @Inject constructor(
-        private val bbEnv: BBEnv,
-        private val installId: InstallId,
-        private val bugsnagTree: BugsnagTree,
-        private val backupButler: BackupButler,
-        private val generalSettings: GeneralSettings
+    private val bbEnv: BBEnv,
+    private val installId: InstallId,
+    private val bugsnagTree: BugsnagTree,
+    private val backupButler: BackupButler,
+    private val generalSettings: GeneralSettings
 ) : OnErrorCallback {
 
     override fun onError(event: Event): Boolean {

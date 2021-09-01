@@ -18,10 +18,10 @@ class DirectoryPropsTest {
         val moshi = AppModule().moshi()
 
         val original = DirectoryProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                permissions = Permissions(16888)
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            permissions = Permissions(16888)
         )
 
         val adapter = moshi.adapter(Props::class.java)
@@ -52,10 +52,10 @@ class DirectoryPropsTest {
         val moshi = AppModule().moshi()
 
         val original = DirectoryProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                permissions = Permissions(16888)
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            permissions = Permissions(16888)
         )
 
         val adapter = moshi.adapter(DirectoryProps::class.java)
@@ -84,11 +84,11 @@ class DirectoryPropsTest {
     fun `directory props should have either label or original path`() {
         shouldThrow<IllegalArgumentException> {
             DirectoryProps(
-                    label = null,
-                    originalPath = null,
-                    modifiedAt = Date(),
-                    ownership = Ownership(123, 456),
-                    permissions = Permissions(16888)
+                label = null,
+                originalPath = null,
+                modifiedAt = Date(),
+                ownership = Ownership(123, 456),
+                permissions = Permissions(16888)
             )
         }
     }

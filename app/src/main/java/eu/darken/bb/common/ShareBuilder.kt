@@ -15,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 class ShareBuilder @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) {
     private var useChooser: Boolean = false
     private var chooserTitle: String? = null

@@ -15,7 +15,7 @@ import javax.inject.Inject
  */
 @PerApp
 class IPCFunnel @Inject constructor(
-        @AppContext context: Context
+    @AppContext context: Context
 ) {
     private val funnelLock = Semaphore(1)
     private val packageManager: PackageManager = context.packageManager

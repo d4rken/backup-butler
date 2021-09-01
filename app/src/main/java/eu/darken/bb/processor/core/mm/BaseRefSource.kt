@@ -40,25 +40,25 @@ abstract class BaseRefSource : MMRef.RefSource {
         fun APathLookup<APath>.toProps(label: String? = null): Props {
             return when (fileType.toMMRefType()) {
                 MMRef.Type.FILE -> FileProps(
-                        label = label,
-                        originalPath = lookedUp,
-                        modifiedAt = modifiedAt,
-                        ownership = ownership,
-                        permissions = permissions
+                    label = label,
+                    originalPath = lookedUp,
+                    modifiedAt = modifiedAt,
+                    ownership = ownership,
+                    permissions = permissions
                 )
                 MMRef.Type.DIRECTORY -> DirectoryProps(
-                        label = label,
-                        originalPath = lookedUp,
-                        modifiedAt = modifiedAt,
-                        ownership = ownership,
-                        permissions = permissions
+                    label = label,
+                    originalPath = lookedUp,
+                    modifiedAt = modifiedAt,
+                    ownership = ownership,
+                    permissions = permissions
                 )
                 MMRef.Type.SYMLINK -> SymlinkProps(
-                        label = label,
-                        originalPath = lookedUp,
-                        modifiedAt = modifiedAt,
-                        ownership = ownership,
-                        symlinkTarget = target!!
+                    label = label,
+                    originalPath = lookedUp,
+                    modifiedAt = modifiedAt,
+                    ownership = ownership,
+                    symlinkTarget = target!!
                 )
                 MMRef.Type.ARCHIVE -> throw UnsupportedOperationException("Pathlookups can't be direct archives.")
             }

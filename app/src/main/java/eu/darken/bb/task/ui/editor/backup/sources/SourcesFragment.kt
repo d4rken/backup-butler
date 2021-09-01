@@ -60,15 +60,15 @@ class SourcesFragment : SmartFragment(), AutoInject {
 
         fab.clicksDebounced().subscribe {
             findNavController().navigate(
-                    R.id.nav_action_show_picker,
-                    StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
+                R.id.nav_action_show_picker,
+                StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
             )
         }
 
         setupBar.buttonPositiveSecondary.clicksDebounced().subscribe {
             findNavController().navigate(
-                    R.id.nav_action_next,
-                    DestinationsFragmentArgs(taskId = navArgs.taskId).toBundle()
+                R.id.nav_action_next,
+                DestinationsFragmentArgs(taskId = navArgs.taskId).toBundle()
             )
         }
         super.onViewCreated(view, savedInstanceState)

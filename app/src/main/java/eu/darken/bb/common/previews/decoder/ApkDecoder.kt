@@ -23,10 +23,10 @@ import timber.log.Timber
 
 
 class ApkDecoder constructor(
-        val context: Context,
-        glide: Glide,
-        val pkgOpsLazy: Lazy<PkgOps>,
-        val gatewaySwitch: GatewaySwitch
+    val context: Context,
+    glide: Glide,
+    val pkgOpsLazy: Lazy<PkgOps>,
+    val gatewaySwitch: GatewaySwitch
 ) : ResourceDecoder<FileData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 

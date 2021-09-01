@@ -11,12 +11,12 @@ class SimpleRestoreTaskTest {
     @Test
     fun `test serialization`() {
         val original = SimpleRestoreTask(
-                taskId = Task.Id(),
-                label = "BackupTaskName",
-                isOneTimeTask = false,
-                customConfigs = emptyMap(),
-                defaultConfigs = emptyMap(),
-                backupTargets = emptySet()
+            taskId = Task.Id(),
+            label = "BackupTaskName",
+            isOneTimeTask = false,
+            customConfigs = emptyMap(),
+            defaultConfigs = emptyMap(),
+            backupTargets = emptySet()
         )
 
         val expectedOutput = """{

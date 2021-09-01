@@ -18,10 +18,10 @@ class FilePropsTest {
         val moshi = AppModule().moshi()
 
         val original = FileProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                permissions = Permissions(16888)
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            permissions = Permissions(16888)
         )
 
         val adapter = moshi.adapter(Props::class.java)
@@ -53,10 +53,10 @@ class FilePropsTest {
         val moshi = AppModule().moshi()
 
         val original = FileProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                permissions = Permissions(16888)
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            permissions = Permissions(16888)
         )
 
         val adapter = moshi.adapter(FileProps::class.java)
@@ -87,11 +87,11 @@ class FilePropsTest {
     fun `file props should have either label or original path`() {
         shouldThrow<IllegalArgumentException> {
             FileProps(
-                    label = null,
-                    originalPath = null,
-                    modifiedAt = Date(),
-                    ownership = Ownership(123, 456),
-                    permissions = Permissions(16888)
+                label = null,
+                originalPath = null,
+                modifiedAt = Date(),
+                ownership = Ownership(123, 456),
+                permissions = Permissions(16888)
             )
         }
     }

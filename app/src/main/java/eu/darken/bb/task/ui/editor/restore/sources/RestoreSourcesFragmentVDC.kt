@@ -20,18 +20,18 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class RestoreSourcesFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
     private val editorObs = taskBuilder.task(taskId)
-            .subscribeOn(Schedulers.io())
-            .filter { it.editor != null }
-            .map { it.editor as SimpleRestoreTaskEditor }
-            .replayingShare()
+        .subscribeOn(Schedulers.io())
+        .filter { it.editor != null }
+        .map { it.editor as SimpleRestoreTaskEditor }
+        .replayingShare()
 
     private val editorData = editorObs.flatMap { it.editorData }
-            .replayingShare()
+        .replayingShare()
 
     private val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
 
@@ -45,30 +45,30 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
 
     init {
         editorData
-                .subscribe { data ->
-                    if (data.backupTargets.isEmpty()) {
-                        finishEvent.postValue(Any())
-                    } else {
-                        summaryStater.update { oldState ->
-                            oldState.copy(
-                                    sourceBackups = data.backupTargets.toList(),
-                                    workIds = oldState.clearWorkId()
-                            )
-                        }
-                    }
-                }
-                .withScopeVDC(this)
-
-        editor.backupInfos
-                .subscribe { backupInfos ->
-                    backupsStater.update { oldState ->
+            .subscribe { data ->
+                if (data.backupTargets.isEmpty()) {
+                    finishEvent.postValue(Any())
+                } else {
+                    summaryStater.update { oldState ->
                         oldState.copy(
-                                backups = backupInfos.toList(),
-                                workIds = oldState.clearWorkId()
+                            sourceBackups = data.backupTargets.toList(),
+                            workIds = oldState.clearWorkId()
                         )
                     }
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
+
+        editor.backupInfos
+            .subscribe { backupInfos ->
+                backupsStater.update { oldState ->
+                    oldState.copy(
+                        backups = backupInfos.toList(),
+                        workIds = oldState.clearWorkId()
+                    )
+                }
+            }
+            .withScopeVDC(this)
     }
 
     fun exclude(infoOpt: Backup.InfoOpt) {
@@ -77,14 +77,14 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
     }
 
     data class CountState(
-            val sourceBackups: List<Backup.Target> = emptyList(),
-            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
+        val sourceBackups: List<Backup.Target> = emptyList(),
+        override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
 
     data class BackupsState(
-            val backups: List<Backup.InfoOpt> = emptyList(),
-            override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
+        val backups: List<Backup.InfoOpt> = emptyList(),
+        override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
     companion object {

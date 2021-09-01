@@ -52,9 +52,15 @@ class StoragePickerFragment : SmartFragment(), AutoInject {
             adapter.update(state.storages)
 
             if (state.allExistingAdded) {
-                storageListWrapper.setEmptyState(R.drawable.ic_emoji_happy, R.string.task_editor_backup_destination_picker_alladded_desc)
+                storageListWrapper.setEmptyState(
+                    R.drawable.ic_emoji_happy,
+                    R.string.task_editor_backup_destination_picker_alladded_desc
+                )
             } else {
-                storageListWrapper.setEmptyState(R.drawable.ic_emoji_neutral, R.string.task_editor_backup_destination_picker_empty_desc)
+                storageListWrapper.setEmptyState(
+                    R.drawable.ic_emoji_neutral,
+                    R.string.task_editor_backup_destination_picker_empty_desc
+                )
             }
 
             storageListWrapper.updateLoadingState(state.isLoading)

@@ -9,8 +9,8 @@ import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.task.ui.editor.restore.config.ConfigUIWrap
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigAdapter
 
-class AppConfigVH(parent: ViewGroup)
-    : RestoreConfigAdapter.BaseVH(R.layout.task_editor_restore_configs_adapter_line_app, parent) {
+class AppConfigVH(parent: ViewGroup) :
+    RestoreConfigAdapter.BaseVH(R.layout.task_editor_restore_configs_adapter_line_app, parent) {
 
     @BindView(R.id.option_skip_existing_apps) lateinit var optionSkipExisting: SwitchPreferenceView
     @BindView(R.id.option_restore_apk) lateinit var optionRestoreApk: SwitchPreferenceView

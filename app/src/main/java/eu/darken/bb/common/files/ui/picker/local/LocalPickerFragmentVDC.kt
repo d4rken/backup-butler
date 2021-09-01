@@ -25,10 +25,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
 
 class LocalPickerFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val options: APathPicker.Options,
-        private val localGateway: LocalGateway,
-        permissionTool: RuntimePermissionTool
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val options: APathPicker.Options,
+    private val localGateway: LocalGateway,
+    permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
     private val startPath = options.startPath as? LocalPath ?: fallbackPath
@@ -40,8 +40,8 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
     private val stater = Stater {
         State(
-                currentPath = startPath,
-                currentCrumbs = startPath.toCrumbs()
+            currentPath = startPath,
+            currentCrumbs = startPath.toCrumbs()
         )
     }
     val state = stater.liveData
@@ -80,34 +80,34 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
             if (holderToken == null) holderToken = localGateway.keepAlive.get()
             val listing = localGateway.lookupFiles(path, mode = mode)
-                    .sortedBy { it.name.toLowerCase(Locale.ROOT) }
-                    .filter { !options.onlyDirs || it.isDirectory }
+                .sortedBy { it.name.toLowerCase(Locale.ROOT) }
+                .filter { !options.onlyDirs || it.isDirectory }
 
             Triple(path, crumbs, listing)
         }
 
         Observable.just(unwrapped)
-                .map { path -> doCd(path) }
-                .onErrorReturn {
-                    errorEvents.postValue(it)
-                    doCd(fallbackPath)
+            .map { path -> doCd(path) }
+            .onErrorReturn {
+                errorEvents.postValue(it)
+                doCd(fallbackPath)
+            }
+            .onErrorReturn {
+                errorEvents.postValue(it)
+                Triple(fallbackPath, fallbackPath.toCrumbs(), emptyList())
+            }
+            .subscribeOn(Schedulers.io())
+            .subscribe({ (path, crumbs, listing) ->
+                stater.update { state ->
+                    state.copy(
+                        currentPath = path,
+                        currentListing = listing,
+                        currentCrumbs = crumbs
+                    )
                 }
-                .onErrorReturn {
-                    errorEvents.postValue(it)
-                    Triple(fallbackPath, fallbackPath.toCrumbs(), emptyList())
-                }
-                .subscribeOn(Schedulers.io())
-                .subscribe({ (path, crumbs, listing) ->
-                    stater.update { state ->
-                        state.copy(
-                                currentPath = path,
-                                currentListing = listing,
-                                currentCrumbs = crumbs
-                        )
-                    }
-                }, {
-                    errorEvents.postValue(it)
-                })
+            }, {
+                errorEvents.postValue(it)
+            })
     }
 
     fun createDirRequest() {
@@ -117,27 +117,27 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
     fun createDir(name: String) {
         stater.data.take(1)
-                .map {
-                    val current = it.currentPath
-                    val child = current.child(name) as LocalPath
-                    if (localGateway.createDir(child, mode = mode)) {
-                        child
-                    } else {
-                        throw WriteException(child)
-                    }
+            .map {
+                val current = it.currentPath
+                val child = current.child(name) as LocalPath
+                if (localGateway.createDir(child, mode = mode)) {
+                    child
+                } else {
+                    throw WriteException(child)
                 }
-                .subscribe({
-                    selectItem(it)
-                }, {
-                    errorEvents.postValue(it)
-                })
+            }
+            .subscribe({
+                selectItem(it)
+            }, {
+                errorEvents.postValue(it)
+            })
     }
 
     fun finishSelection() {
         val selected = setOf(stater.snapshot.currentPath)
         val result = APathPicker.Result(
-                options = options,
-                selection = selected
+            options = options,
+            selection = selected
         )
         resultEvents.postValue(result)
     }
@@ -157,10 +157,10 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val currentPath: APath,
-            val currentCrumbs: List<APath>,
-            val currentListing: List<APathLookup<*>>? = null,
-            val allowCreateDir: Boolean = false
+        val currentPath: APath,
+        val currentCrumbs: List<APath>,
+        val currentListing: List<APathLookup<*>>? = null,
+        val allowCreateDir: Boolean = false
     )
 
     @AssistedInject.Factory

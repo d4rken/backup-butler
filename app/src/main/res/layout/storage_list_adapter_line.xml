@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    style="@style/ThreeLineListItemContainer"
+<androidx.constraintlayout.widget.ConstraintLayout style="@style/ThreeLineListItemContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -20,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Local storage"/>
+        tools:text="Local storage" />
 
     <ImageView
         android:id="@+id/type_icon"
@@ -30,7 +29,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
-        tools:src="@drawable/ic_sd_storage"/>
+        tools:src="@drawable/ic_sd_storage" />
 
     <TextView
         android:id="@+id/label"
@@ -44,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="@+id/type_label"
         app:layout_constraintStart_toStartOf="@+id/type_label"
         app:layout_constraintTop_toBottomOf="@+id/type_label"
-        tools:text="/storage/emulated/0/BackupButler/backups/mybackup"/>
+        tools:text="/storage/emulated/0/BackupButler/backups/mybackup" />
 
     <TextView
         android:id="@+id/repo_status"

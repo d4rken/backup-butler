@@ -105,11 +105,12 @@ class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
     }
 
     companion object {
-        fun newInstance(storageId: Storage.Id, backupSpecId: BackupSpec.Id): BottomSheetDialogFragment = ItemActionDialog().apply {
-            arguments = Bundle().apply {
-                putStorageId(storageId)
-                putBackupSpecId(backupSpecId)
+        fun newInstance(storageId: Storage.Id, backupSpecId: BackupSpec.Id): BottomSheetDialogFragment =
+            ItemActionDialog().apply {
+                arguments = Bundle().apply {
+                    putStorageId(storageId)
+                    putBackupSpecId(backupSpecId)
+                }
             }
-        }
     }
 }

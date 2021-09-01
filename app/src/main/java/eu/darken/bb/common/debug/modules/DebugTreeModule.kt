@@ -9,27 +9,27 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
 class DebugTreeModule @AssistedInject constructor(
-        @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost
 ) : DebugModule {
 
     private var debugTree: Timber.DebugTree? = null
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .subscribe { options ->
-                    if (options.level == Log.VERBOSE && debugTree == null) {
-                        debugTree = Timber.DebugTree()
-                        debugTree?.let {
-                            Timber.plant(it)
-                        }
-                    } else if (options.level != Log.VERBOSE && debugTree != null) {
-                        debugTree?.let {
-                            Timber.uproot(it)
-                            debugTree = null
-                        }
+            .observeOn(Schedulers.io())
+            .subscribe { options ->
+                if (options.level == Log.VERBOSE && debugTree == null) {
+                    debugTree = Timber.DebugTree()
+                    debugTree?.let {
+                        Timber.plant(it)
+                    }
+                } else if (options.level != Log.VERBOSE && debugTree != null) {
+                    debugTree?.let {
+                        Timber.uproot(it)
+                        debugTree = null
                     }
                 }
+            }
     }
 
     @AssistedInject.Factory

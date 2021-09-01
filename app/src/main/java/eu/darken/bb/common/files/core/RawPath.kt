@@ -9,7 +9,7 @@ import java.io.File
 @Parcelize @Keep
 @JsonClass(generateAdapter = true)
 data class RawPath(
-        override val path: String
+    override val path: String
 ) : APath {
 
     override var pathType: APath.PathType

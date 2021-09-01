@@ -21,9 +21,9 @@ import timber.log.Timber
 
 
 class AppIconDecoder(
-        val context: Context,
-        glide: Glide,
-        val pkgOpsLazy: Lazy<PkgOps>
+    val context: Context,
+    glide: Glide,
+    val pkgOpsLazy: Lazy<PkgOps>
 ) : ResourceDecoder<AppIconData, Bitmap> {
     private val bitmapPool: BitmapPool = glide.bitmapPool
 

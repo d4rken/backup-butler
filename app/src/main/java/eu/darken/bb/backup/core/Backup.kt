@@ -28,9 +28,9 @@ interface Backup {
     }
 
     data class Unit(
-            val spec: BackupSpec,
-            val metaData: MetaData,
-            val data: Map<String, Collection<MMRef>>
+        val spec: BackupSpec,
+        val metaData: MetaData,
+        val data: Map<String, Collection<MMRef>>
     ) {
         @Transient val specId = spec.specId
         @Transient val backupId = metaData.backupId
@@ -45,7 +45,8 @@ interface Backup {
         fun getItemLabeling(spec: BackupSpec, props: Props): Pair<AString, AString>
 
         companion object {
-            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> = MyPolymorphicJsonAdapterFactory.of(MetaData::class.java, "backupType")
+            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> =
+                MyPolymorphicJsonAdapterFactory.of(MetaData::class.java, "backupType")
                     .withSubtype(AppBackupMetaData::class.java, Type.APP.name)
                     .withSubtype(FilesBackupMetaData::class.java, Type.FILES.name)
                     .skipLabelSerialization()
@@ -54,9 +55,9 @@ interface Backup {
 
     @Keep
     enum class Type constructor(
-            @DrawableRes val iconRes: Int,
-            @StringRes val labelRes: Int,
-            @StringRes val descriptionRes: Int
+        @DrawableRes val iconRes: Int,
+        @StringRes val labelRes: Int,
+        @StringRes val descriptionRes: Int
     ) {
         APP(R.drawable.ic_apps, R.string.backup_type_app_label, R.string.backup_type_app_desc),
         FILES(R.drawable.ic_folder_onsurface, R.string.backup_type_files_label, R.string.backup_type_files_desc);
@@ -78,16 +79,16 @@ interface Backup {
     @Keep
     @JsonClass(generateAdapter = true)
     data class Target(
-            val storageId: Storage.Id,
-            val backupSpecId: BackupSpec.Id,
-            val backupId: Id,
-            val backupType: Type
+        val storageId: Storage.Id,
+        val backupSpecId: BackupSpec.Id,
+        val backupId: Id,
+        val backupType: Type
     )
 
     data class Info(
-            val storageId: Storage.Id,
-            val spec: BackupSpec,
-            val metaData: MetaData
+        val storageId: Storage.Id,
+        val spec: BackupSpec,
+        val metaData: MetaData
     ) {
         @Transient val backupId: Id = metaData.backupId
         @Transient val specId: BackupSpec.Id = spec.specId
@@ -96,21 +97,21 @@ interface Backup {
     }
 
     data class InfoOpt(
-            val storageId: Storage.Id,
-            val specId: BackupSpec.Id,
-            val backupId: Id,
-            override val info: Info? = null,
-            override val error: Throwable? = null
+        val storageId: Storage.Id,
+        val specId: BackupSpec.Id,
+        val backupId: Id,
+        override val info: Info? = null,
+        override val error: Throwable? = null
     ) : OptInfo<Info> {
         constructor(info: Info)
                 : this(info.storageId, info.specId, info.backupId, info)
     }
 
     data class ContentInfo(
-            val storageId: Storage.Id,
-            val spec: BackupSpec,
-            val metaData: MetaData,
-            val items: Collection<Entry>
+        val storageId: Storage.Id,
+        val spec: BackupSpec,
+        val metaData: MetaData,
+        val items: Collection<Entry>
     ) {
         @Transient val backupId: Id = metaData.backupId
         @Transient val specId: BackupSpec.Id = spec.specId
@@ -121,9 +122,9 @@ interface Backup {
         }
 
         data class PropsEntry(
-                val spec: BackupSpec,
-                val metaData: MetaData,
-                val props: Props
+            val spec: BackupSpec,
+            val metaData: MetaData,
+            val props: Props
         ) : Entry {
 
             override val labeling: Pair<AString, AString> by lazy { metaData.getItemLabeling(spec, props) }
@@ -132,10 +133,10 @@ interface Backup {
     }
 
     data class ContentOpt(
-            val storageId: Storage.Id,
-            val specId: BackupSpec.Id,
-            val backupId: Id,
-            override val info: ContentInfo?,
-            override val error: Throwable?
+        val storageId: Storage.Id,
+        val specId: BackupSpec.Id,
+        val backupId: Id,
+        override val info: ContentInfo?,
+        override val error: Throwable?
     ) : OptInfo<ContentInfo>
 }

@@ -17,17 +17,17 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 
 
 class GeneratorEditorActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val generatorId: Generator.Id,
-        private val generatorBuilder: GeneratorBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val generatorId: Generator.Id,
+    private val generatorBuilder: GeneratorBuilder
 ) : SmartVDC() {
 
     private val generatorObs = generatorBuilder.generator(generatorId)
-            .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.io())
 
     private val editorObs = generatorObs
-            .filter { it.editor != null }
-            .map { it.editor!! }
+        .filter { it.editor != null }
+        .map { it.editor!! }
 
     private val stater = Stater {
         val data = generatorObs.blockingFirst()
@@ -44,30 +44,30 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
 
     init {
         editorObs
-                .flatMap { it.editorData }
-                .subscribe { data ->
-                    stater.update {
-                        it.copy(
-                                isExisting = data.isExistingGenerator
-                        )
-                    }
+            .flatMap { it.editorData }
+            .subscribe { data ->
+                stater.update {
+                    it.copy(
+                        isExisting = data.isExistingGenerator
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
     }
 
     fun dismiss() {
         generatorBuilder.remove(generatorId)
-                .subscribeOn(Schedulers.io())
-                .subscribe { _ ->
-                    finishEvent.postValue(Any())
-                }
+            .subscribeOn(Schedulers.io())
+            .subscribe { _ ->
+                finishEvent.postValue(Any())
+            }
     }
 
     data class State(
-            val generatorId: Generator.Id,
-            val generatorType: Backup.Type?,
-            val isExisting: Boolean = false,
-            val stepFlow: StepFlow
+        val generatorId: Generator.Id,
+        val generatorType: Backup.Type?,
+        val isExisting: Boolean = false,
+        val stepFlow: StepFlow
     )
 
     enum class StepFlow(@IdRes val start: Int) {

@@ -10,8 +10,8 @@ import eu.darken.bb.R
 import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.ModularAdapter
 
-abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup)
-    : ModularAdapter.VH(R.layout.view_action_adapter_line, parent), BindableVH<Confirmable<T>> {
+abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup) :
+    ModularAdapter.VH(R.layout.view_action_adapter_line, parent), BindableVH<Confirmable<T>> {
     @BindView(R.id.icon) lateinit var icon: ImageView
     @BindView(R.id.name) lateinit var label: TextView
     @BindView(R.id.description) lateinit var description: TextView
@@ -51,9 +51,9 @@ abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup)
 }
 
 data class Confirmable<T>(
-        val data: T,
-        val requiredLvl: Int = 0,
-        var currentLvl: Int = 0
+    val data: T,
+    val requiredLvl: Int = 0,
+    var currentLvl: Int = 0
 ) {
 
     fun guardedAction(action: (T) -> Unit) {

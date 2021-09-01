@@ -33,9 +33,9 @@ import javax.inject.Inject
 
 @PerApp
 class APKInstaller @Inject constructor(
-        @AppContext private val context: Context,
-        private val javaRootClient: JavaRootClient,
-        private val pkgOps: PkgOps
+    @AppContext private val context: Context,
+    private val javaRootClient: JavaRootClient,
+    private val pkgOps: PkgOps
 ) : Progress.Client, Progress.Host, SharedHolder.HasKeepAlive<Any> {
 
     private val progressPub = HotData(Progress.Data())
@@ -48,21 +48,21 @@ class APKInstaller @Inject constructor(
     private val installMap = mutableMapOf<String, OnGoingInstall>()
 
     data class OnGoingInstall(
-            val semaphore: Semaphore,
-            val rootInstall: Boolean = false,
-            val installResult: InstallEvent? = null
+        val semaphore: Semaphore,
+        val rootInstall: Boolean = false,
+        val installResult: InstallEvent? = null
     )
 
     data class Request(
-            val packageName: String,
-            val baseApk: MMRef,
-            val splitApks: List<MMRef>,
-            val useRoot: Boolean
+        val packageName: String,
+        val baseApk: MMRef,
+        val splitApks: List<MMRef>,
+        val useRoot: Boolean
     )
 
     data class Result(
-            val success: Boolean,
-            val error: Exception? = null
+        val success: Boolean,
+        val error: Exception? = null
     )
 
     fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
@@ -81,19 +81,21 @@ class APKInstaller @Inject constructor(
 
         val apkInputs = mutableListOf<DetailedInputSource>()
         try {
-            apkInputs.add(DetailedInputSourceWrap(
+            apkInputs.add(
+                DetailedInputSourceWrap(
                     request.baseApk.props.originalPath as LocalPath,
                     request.baseApk.source.open()
-            ))
+                )
+            )
 
             request.splitApks
-                    .map {
-                        DetailedInputSourceWrap(
-                                it.props.originalPath as LocalPath,
-                                it.source.open()
-                        )
-                    }
-                    .forEach { apkInputs.add(it) }
+                .map {
+                    DetailedInputSourceWrap(
+                        it.props.originalPath as LocalPath,
+                        it.source.open()
+                    )
+                }
+                .forEach { apkInputs.add(it) }
 
             val remoteRequest = object : RemoteInstallRequest.Stub() {
                 override fun getPackageName(): String = request.packageName

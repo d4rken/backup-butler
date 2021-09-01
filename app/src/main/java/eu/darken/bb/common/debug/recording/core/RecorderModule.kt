@@ -18,36 +18,36 @@ import timber.log.Timber
 import java.io.File
 
 class RecorderModule @AssistedInject constructor(
-        @Assisted private val host: DebugModuleHost,
-        @AppContext private val context: Context
+    @Assisted private val host: DebugModuleHost,
+    @AppContext private val context: Context
 ) : DebugModule {
 
     private var recorder: Recorder? = null
 
     init {
         host.observeOptions().subscribeOn(Schedulers.io())
-                .subscribe { options ->
-                    if (recorder == null && options.isRecording) {
-                        recorder = Recorder()
+            .subscribe { options ->
+                if (recorder == null && options.isRecording) {
+                    recorder = Recorder()
 
-                        var path = options.recorderPath
-                        if (path == null) path = createRecordingFilePath()
+                    var path = options.recorderPath
+                    if (path == null) path = createRecordingFilePath()
 
-                        recorder!!.start(File(path))
-                        host.getSettings().edit().putString(KEY_RECORDER_PATH, path).apply()
-                        host.submit { it.copy(recorderPath = path, level = Log.VERBOSE) }
+                    recorder!!.start(File(path))
+                    host.getSettings().edit().putString(KEY_RECORDER_PATH, path).apply()
+                    host.submit { it.copy(recorderPath = path, level = Log.VERBOSE) }
 
-                        context.startServiceCompat(Intent(context, RecorderService::class.java))
-                    } else if (recorder != null && !options.isRecording) {
-                        recorder!!.stop()
-                        recorder = null
-                        val intent = RecorderActivity.getLaunchIntent(context, options.recorderPath!!)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
-                        host.getSettings().edit().remove(KEY_RECORDER_PATH).apply()
-                        host.submit { it.copy(recorderPath = null) }
-                    }
+                    context.startServiceCompat(Intent(context, RecorderService::class.java))
+                } else if (recorder != null && !options.isRecording) {
+                    recorder!!.stop()
+                    recorder = null
+                    val intent = RecorderActivity.getLaunchIntent(context, options.recorderPath!!)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                    host.getSettings().edit().remove(KEY_RECORDER_PATH).apply()
+                    host.submit { it.copy(recorderPath = null) }
                 }
+            }
 
         var recorderPath: String? = null
         if (host.getSettings().contains(KEY_RECORDER_PATH)) {
@@ -58,7 +58,10 @@ class RecorderModule @AssistedInject constructor(
             val triggerFile = try {
                 File(context.getExternalFilesDir(null), FORCE_FILE)
             } catch (e: Exception) {
-                File(Environment.getExternalStorageDirectory(), "/Android/data/${BuildConfig.APPLICATION_ID}/files/$FORCE_FILE")
+                File(
+                    Environment.getExternalStorageDirectory(),
+                    "/Android/data/${BuildConfig.APPLICATION_ID}/files/$FORCE_FILE"
+                )
             }
             if (triggerFile.exists()) {
                 if (!triggerFile.delete()) Timber.tag(TAG).w("Failed to consume trigger file")
@@ -72,7 +75,10 @@ class RecorderModule @AssistedInject constructor(
     }
 
     private fun createRecordingFilePath(): String {
-        return File(File(context.externalCacheDir, "logfiles"), "bb_logfile_" + System.currentTimeMillis() + ".txt").path
+        return File(
+            File(context.externalCacheDir, "logfiles"),
+            "bb_logfile_" + System.currentTimeMillis() + ".txt"
+        ).path
     }
 
     @AssistedInject.Factory

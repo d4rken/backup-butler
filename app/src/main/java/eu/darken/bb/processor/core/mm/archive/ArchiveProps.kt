@@ -10,11 +10,11 @@ import java.util.*
 @Keep
 @JsonClass(generateAdapter = true)
 data class ArchiveProps(
-        override val label: String? = null,
-        override val originalPath: APath?,
-        override val modifiedAt: Date = Date(),
-        val archiveType: String,
-        val compressionType: String
+    override val label: String? = null,
+    override val originalPath: APath?,
+    override val modifiedAt: Date = Date(),
+    val archiveType: String,
+    val compressionType: String
 ) : Props, Props.HasModifiedDate {
     init {
         require(label != null || originalPath != null) { "Provide name or path!" }

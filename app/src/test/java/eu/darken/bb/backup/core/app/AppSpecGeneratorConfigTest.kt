@@ -11,17 +11,17 @@ import testhelper.toFormattedJson
 class AppSpecGeneratorConfigTest {
 
     val original = AppSpecGenerator.Config(
-            generatorId = Generator.Id(),
-            label = "AppSpecLabel",
-            autoInclude = true,
-            includeUserApps = true,
-            includeSystemApps = false,
-            packagesIncluded = setOf("included.pkg"),
-            packagesExcluded = setOf("excluded.pkg"),
-            backupApk = true,
-            backupData = true,
-            backupCache = false,
-            extraPaths = mapOf("test" to setOf(RawPath.build("rawpath")))
+        generatorId = Generator.Id(),
+        label = "AppSpecLabel",
+        autoInclude = true,
+        includeUserApps = true,
+        includeSystemApps = false,
+        packagesIncluded = setOf("included.pkg"),
+        packagesExcluded = setOf("excluded.pkg"),
+        backupApk = true,
+        backupData = true,
+        backupCache = false,
+        extraPaths = mapOf("test" to setOf(RawPath.build("rawpath")))
     )
 
     @Test

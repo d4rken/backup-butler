@@ -25,7 +25,8 @@ interface Generator {
         fun getDescription(context: Context): String
 
         companion object {
-            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> = MyPolymorphicJsonAdapterFactory.of(Config::class.java, "generatorType")
+            val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> =
+                MyPolymorphicJsonAdapterFactory.of(Config::class.java, "generatorType")
                     .withSubtype(AppSpecGenerator.Config::class.java, Backup.Type.APP.name)
                     .withSubtype(FilesSpecGenerator.Config::class.java, Backup.Type.FILES.name)
                     .skipLabelSerialization()

@@ -1,5 +1,5 @@
 package eu.darken.bb.common.user
 
 data class UserHandleBB(
-        val userId: Int = 0
+    val userId: Int = 0
 )

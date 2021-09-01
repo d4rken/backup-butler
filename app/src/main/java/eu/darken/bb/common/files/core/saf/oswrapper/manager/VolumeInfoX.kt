@@ -139,6 +139,7 @@ data class VolumeInfoX internal constructor(private val volumeInfoObject: Any) {
         const val STATE_UNMOUNTABLE = 6
         const val STATE_REMOVED = 7
         const val STATE_BAD_REMOVAL = 8
+
         /**
          * Real volume representing internal emulated storage
          */
@@ -147,7 +148,8 @@ data class VolumeInfoX internal constructor(private val volumeInfoObject: Any) {
         @SuppressLint("PrivateApi") @Throws(ReflectiveOperationException::class)
         fun getEnvironmentForState(state: Int): String {
             val volumeInfoClass = Class.forName("android.os.storage.VolumeInfo")
-            val methodGetEnvironmentForState = volumeInfoClass.getMethod("getEnvironmentForState", Int::class.javaPrimitiveType)
+            val methodGetEnvironmentForState =
+                volumeInfoClass.getMethod("getEnvironmentForState", Int::class.javaPrimitiveType)
             return methodGetEnvironmentForState.invoke(null, state) as String
         }
     }

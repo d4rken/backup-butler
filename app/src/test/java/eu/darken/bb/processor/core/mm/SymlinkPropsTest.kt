@@ -18,10 +18,10 @@ class SymlinkPropsTest {
         val moshi = AppModule().moshi()
 
         val original = SymlinkProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                symlinkTarget = RawPath.build("target")
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            symlinkTarget = RawPath.build("target")
         )
 
         val adapter = moshi.adapter(Props::class.java)
@@ -52,10 +52,10 @@ class SymlinkPropsTest {
         val moshi = AppModule().moshi()
 
         val original = SymlinkProps(
-                originalPath = RawPath.build("originalpath"),
-                modifiedAt = Date(0),
-                ownership = Ownership(123, 456),
-                symlinkTarget = RawPath.build("target")
+            originalPath = RawPath.build("originalpath"),
+            modifiedAt = Date(0),
+            ownership = Ownership(123, 456),
+            symlinkTarget = RawPath.build("target")
         )
 
         val adapter = moshi.adapter(SymlinkProps::class.java)
@@ -85,11 +85,11 @@ class SymlinkPropsTest {
     fun `symlink props should have either label or original path`() {
         shouldThrow<IllegalArgumentException> {
             SymlinkProps(
-                    label = null,
-                    originalPath = null,
-                    modifiedAt = Date(),
-                    ownership = Ownership(123, 456),
-                    symlinkTarget = LocalPath.build("sym/link/target")
+                label = null,
+                originalPath = null,
+                modifiedAt = Date(),
+                ownership = Ownership(123, 456),
+                symlinkTarget = LocalPath.build("sym/link/target")
             )
         }
     }

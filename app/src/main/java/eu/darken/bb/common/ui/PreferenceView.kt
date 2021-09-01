@@ -15,7 +15,7 @@ import eu.darken.bb.R
 
 
 open class PreferenceView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
     @BindView(R.id.icon) protected lateinit var iconView: ImageView
     @BindView(R.id.title) protected lateinit var titleView: TextView

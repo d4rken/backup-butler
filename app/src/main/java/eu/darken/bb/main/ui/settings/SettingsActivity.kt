@@ -34,9 +34,9 @@ class SettingsActivity
         if (savedInstanceState == null) {
             title = getString(R.string.settings_label)
             supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.content_frame, IndexFragment())
-                    .commit()
+                .beginTransaction()
+                .replace(R.id.content_frame, IndexFragment())
+                .commit()
         } else {
             title = savedInstanceState.getCharSequence(TITLE_TAG)
         }
@@ -66,17 +66,17 @@ class SettingsActivity
         // Instantiate the new Fragment
         val args = pref.extras
         val fragment = supportFragmentManager.fragmentFactory.instantiate(
-                classLoader,
-                pref.fragment
+            classLoader,
+            pref.fragment
         ).apply {
             arguments = args
             setTargetFragment(caller, 0)
         }
         // Replace the existing Fragment with the new Fragment
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .addToBackStack(null)
-                .commit()
+            .replace(R.id.content_frame, fragment)
+            .addToBackStack(null)
+            .commit()
         title = pref.title
         return true
     }

@@ -13,8 +13,8 @@ import javax.inject.Inject
 
 @PerApp
 class GatewaySwitch @Inject constructor(
-        private val safGateway: SAFGateway,
-        private val localGateway: LocalGateway
+    private val safGateway: SAFGateway,
+    private val localGateway: LocalGateway
 ) : APathGateway<APath, APathLookup<APath>> {
 
     fun <T : APath> getGateway(path: T): APathGateway<T, APathLookup<T>> {

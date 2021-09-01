@@ -5,8 +5,8 @@ import androidx.annotation.StringRes
 import eu.darken.bb.R
 
 enum class ItemAction constructor(
-        @DrawableRes val iconRes: Int,
-        @StringRes val labelRes: Int
+    @DrawableRes val iconRes: Int,
+    @StringRes val labelRes: Int
 ) {
     VIEW(R.drawable.ic_eye, R.string.general_view_action),
     RESTORE(R.drawable.ic_restore_onprimary, R.string.general_restore_action),

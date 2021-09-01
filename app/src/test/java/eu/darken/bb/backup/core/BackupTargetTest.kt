@@ -10,10 +10,10 @@ class BackupTargetTest {
     @Test
     fun `test serialization`() {
         val orig = Backup.Target(
-                storageId = Storage.Id(),
-                backupSpecId = BackupSpec.Id("strawberry"),
-                backupId = Backup.Id(),
-                backupType = Backup.Type.FILES
+            storageId = Storage.Id(),
+            backupSpecId = BackupSpec.Id("strawberry"),
+            backupId = Backup.Id(),
+            backupType = Backup.Type.FILES
         )
 
         val adapter = AppModule().moshi().adapter(Backup.Target::class.java)
@@ -35,10 +35,10 @@ class BackupTargetTest {
     fun `sets should disalllow duplicate targets`() {
         val set = mutableSetOf<Backup.Target>()
         val orig = Backup.Target(
-                storageId = Storage.Id(),
-                backupSpecId = BackupSpec.Id("strawberry"),
-                backupId = Backup.Id(),
-                backupType = Backup.Type.FILES
+            storageId = Storage.Id(),
+            backupSpecId = BackupSpec.Id("strawberry"),
+            backupId = Backup.Id(),
+            backupType = Backup.Type.FILES
         )
         set.add(orig)
         set.add(orig)

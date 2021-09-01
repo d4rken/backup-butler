@@ -10,7 +10,7 @@ import eu.darken.bb.R
 
 
 class SwitchPreferenceView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : PreferenceView(context, attrs, defStyleAttr) {
     private lateinit var toggle: SwitchCompat
 

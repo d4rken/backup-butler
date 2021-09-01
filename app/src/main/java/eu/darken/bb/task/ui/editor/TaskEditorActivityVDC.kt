@@ -22,17 +22,17 @@ import kotlinx.android.parcel.Parcelize
 
 
 class TaskEditorActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val reqMan: RequirementsManager
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val reqMan: RequirementsManager
 ) : SmartVDC() {
     private val taskObs = taskBuilder.task(taskId)
-            .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.io())
 
     private val editorObs = taskObs
-            .filter { it.editor != null }
-            .map { it.editor!! }
+        .filter { it.editor != null }
+        .map { it.editor!! }
 
     private val editorDataObs = editorObs.flatMap { it.editorData }
 
@@ -41,8 +41,8 @@ class TaskEditorActivityVDC @AssistedInject constructor(
     private val stater: Stater<State> = Stater {
         val data = taskObs.blockingFirst()
         val isReqReady = reqMan.reqsFor(data.taskType)
-                .map { reqs -> reqs.all { it.satisfied } }
-                .blockingGet()
+            .map { reqs -> reqs.all { it.satisfied } }
+            .blockingGet()
         val steps = when (data.taskType) {
             Task.Type.BACKUP_SIMPLE -> StepFlow.BACKUP_SIMPLE
             Task.Type.RESTORE_SIMPLE -> {
@@ -60,63 +60,63 @@ class TaskEditorActivityVDC @AssistedInject constructor(
 
     init {
         taskObs
-                .switchMapSingle { reqMan.reqsFor(it.taskType) }
-                .map { reqs -> reqs.all { it.satisfied } }
-                .subscribe { isReady ->
-                    stater.update { it.copy(requiresSetup = !isReady) }
-                }
-                .withScopeVDC(this)
+            .switchMapSingle { reqMan.reqsFor(it.taskType) }
+            .map { reqs -> reqs.all { it.satisfied } }
+            .subscribe { isReady ->
+                stater.update { it.copy(requiresSetup = !isReady) }
+            }
+            .withScopeVDC(this)
 
         stater.data
-                .subscribe { handle.set("state", it) }
-                .withScopeVDC(this)
+            .subscribe { handle.set("state", it) }
+            .withScopeVDC(this)
 
         editorObs
-                .flatMap { it.isValid() }
-                .swallowInterruptExceptions()
-                .subscribe { isValid ->
-                    stater.update { it.copy(isValid = isValid) }
-                }
-                .withScopeVDC(this)
+            .flatMap { it.isValid() }
+            .swallowInterruptExceptions()
+            .subscribe { isValid ->
+                stater.update { it.copy(isValid = isValid) }
+            }
+            .withScopeVDC(this)
 
         editorObs
-                .flatMap { it.editorData }
-                .subscribe { data ->
-                    stater.update {
-                        it.copy(
-                                isExistingTask = data.isExistingTask,
-                                isLoading = false,
-                                isOneTimeTask = data.isOneTimeTask
-                        )
-                    }
+            .flatMap { it.editorData }
+            .subscribe { data ->
+                stater.update {
+                    it.copy(
+                        isExistingTask = data.isExistingTask,
+                        isLoading = false,
+                        isOneTimeTask = data.isOneTimeTask
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
     }
 
     fun dismiss() {
         taskBuilder.remove(taskId)
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe {
-                    stater.update {
-                        it.copy(isLoading = true)
-                    }
+            .subscribeOn(Schedulers.io())
+            .doOnSubscribe {
+                stater.update {
+                    it.copy(isLoading = true)
                 }
-                .subscribe { _ ->
-                    finishEvent.postValue(true)
-                }
+            }
+            .subscribe { _ ->
+                finishEvent.postValue(true)
+            }
     }
 
 
     @Keep @Parcelize
     data class State(
-            val taskId: Task.Id,
-            val taskType: Task.Type,
-            val stepFlow: StepFlow,
-            val isValid: Boolean = false,
-            val isExistingTask: Boolean = false,
-            val isLoading: Boolean = true,
-            val isOneTimeTask: Boolean = true,
-            val requiresSetup: Boolean = true
+        val taskId: Task.Id,
+        val taskType: Task.Type,
+        val stepFlow: StepFlow,
+        val isValid: Boolean = false,
+        val isExistingTask: Boolean = false,
+        val isLoading: Boolean = true,
+        val isOneTimeTask: Boolean = true,
+        val requiresSetup: Boolean = true
     ) : Parcelable
 
     enum class StepFlow(@IdRes val start: Int) {

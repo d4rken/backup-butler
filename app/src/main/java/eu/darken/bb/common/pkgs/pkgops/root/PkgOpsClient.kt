@@ -8,7 +8,7 @@ import timber.log.Timber
 import java.io.IOException
 
 class PkgOpsClient(
-        private val connection: PkgOpsConnection
+    private val connection: PkgOpsConnection
 ) : ClientModule {
 
     fun install(request: RemoteInstallRequest) = try {

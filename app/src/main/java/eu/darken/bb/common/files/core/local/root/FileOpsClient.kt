@@ -13,7 +13,7 @@ import java.io.IOException
 import java.util.*
 
 class FileOpsClient(
-        private val fileOpsConnection: FileOpsConnection
+    private val fileOpsConnection: FileOpsConnection
 ) : ClientModule {
     fun lookUp(path: LocalPath): LocalPathLookup = try {
         fileOpsConnection.lookUp(path)

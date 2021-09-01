@@ -29,11 +29,11 @@ import javax.inject.Inject
 
 @Reusable
 class PublicDefaultBackupHandler @Inject constructor(
-        @AppContext context: Context,
-        private val gatewaySwitch: GatewaySwitch,
-        private val mmDataRepo: MMDataRepo,
-        private val pkgOps: PkgOps,
-        private val userManagerBB: UserManagerBB
+    @AppContext context: Context,
+    private val gatewaySwitch: GatewaySwitch,
+    private val mmDataRepo: MMDataRepo,
+    private val pkgOps: PkgOps,
+    private val userManagerBB: UserManagerBB
 ) : BaseBackupHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -42,7 +42,12 @@ class PublicDefaultBackupHandler @Inject constructor(
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
 
-    override fun isResponsible(type: DataType, config: AppBackupSpec, appInfo: ApplicationInfo, target: APath?): Boolean {
+    override fun isResponsible(
+        type: DataType,
+        config: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        target: APath?
+    ): Boolean {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY,
             DataType.DATA_PUBLIC_SECONDARY -> {
@@ -66,13 +71,13 @@ class PublicDefaultBackupHandler @Inject constructor(
     }
 
     override fun backup(
-            type: DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            builder: AppBackupWrap,
-            target: APath?,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        builder: AppBackupWrap,
+        target: APath?,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             DataType.DATA_PUBLIC_PRIMARY, DataType.DATA_PUBLIC_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_data)
@@ -91,20 +96,21 @@ class PublicDefaultBackupHandler @Inject constructor(
             val result = doBackup(type, backupId, spec, appInfo, logListener)
             builder.putDataType(type, result)
         } catch (e: Exception) {
-            Timber.tag(TAG).e(e,
-                    "backup(type=%s, backupId=%s, spec=%s, appInfo=%s) failed",
-                    type, backupId, spec, appInfo
+            Timber.tag(TAG).e(
+                e,
+                "backup(type=%s, backupId=%s, spec=%s, appInfo=%s) failed",
+                type, backupId, spec, appInfo
             )
             throw e
         }
     }
 
     private fun doBackup(
-            type: DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         val currentUser = userManagerBB.currentUser
         val targetPairs = mutableListOf<Pair<APath, Collection<APath>>>()
@@ -171,24 +177,26 @@ class PublicDefaultBackupHandler @Inject constructor(
 
                 gatewaySwitch.keepAlive.get().use {
                     target.walk(gatewaySwitch)
-                            .filterNot { it == target }
-                            .map { it.lookup(gatewaySwitch) }
-                            .forEach { collectedSubDirContent.add(it) }
+                        .filterNot { it == target }
+                        .map { it.lookup(gatewaySwitch) }
+                        .forEach { collectedSubDirContent.add(it) }
                 }
             }
             collectedSubDirContent.forEach {
                 Timber.tag(TAG).d("Adding to backup: %s", it)
                 logListener?.invoke(LogEvent(LogEvent.Type.BACKUPPED, it))
             }
-            val mmRef = mmDataRepo.create(MMRef.Request(
+            val mmRef = mmDataRepo.create(
+                MMRef.Request(
                     backupId = backupId,
                     source = ArchiveRefSource(
-                            gateway = gatewaySwitch,
-                            label = getString(type.labelRes),
-                            archivePath = storageBase,
-                            targets = collectedSubDirContent
+                        gateway = gatewaySwitch,
+                        label = getString(type.labelRes),
+                        archivePath = storageBase,
+                        targets = collectedSubDirContent
                     )
-            ))
+                )
+            )
             refs.add(mmRef)
         }
 

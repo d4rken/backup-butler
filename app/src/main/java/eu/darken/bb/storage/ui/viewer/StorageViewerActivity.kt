@@ -41,11 +41,11 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private val graph by lazy { navController.navInflater.inflate(R.navigation.storage_viewer) }
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()
-                .setFallbackOnNavigateUpListener {
-                    finish()
-                    true
-                }
-                .build()
+            .setFallbackOnNavigateUpListener {
+                finish()
+                true
+            }
+            .build()
     }
 
 

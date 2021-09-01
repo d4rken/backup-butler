@@ -61,7 +61,7 @@ fun <T : Progress.Client> T.updateProgressCount(count: Progress.Count) {
 
 fun <T : Progress.Host> T.forwardProgressTo(client: Progress.Client): Disposable {
     return progress
-            .subscribeOn(Schedulers.io())
-            .doFinally { client.updateProgress { Progress.Data() } }
-            .subscribe { pro -> client.updateProgress { pro } }
+        .subscribeOn(Schedulers.io())
+        .doFinally { client.updateProgress { Progress.Data() } }
+        .subscribe { pro -> client.updateProgress { pro } }
 }

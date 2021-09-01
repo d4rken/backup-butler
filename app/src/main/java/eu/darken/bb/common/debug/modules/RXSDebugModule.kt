@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class RXSDebugModule @AssistedInject constructor(
-        @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost
 ) : DebugModule {
     companion object {
         internal val TAG = App.logTag("Debug", "RXSDebug")
@@ -32,16 +32,20 @@ class RXSDebugModule @AssistedInject constructor(
             process?.let { processSet.add(it) }
             totalShellLaunchCount.incrementAndGet()
 
-            Timber.tag(TAG).d("Start %s, now %d (total: %d) processes: %s",
-                    process, processSet.size, totalShellLaunchCount.get(), processSet)
+            Timber.tag(TAG).d(
+                "Start %s, now %d (total: %d) processes: %s",
+                process, processSet.size, totalShellLaunchCount.get(), processSet
+            )
             sem.release()
         }
 
         override fun onProcessEnd(process: Process?) {
             sem.tryAcquire(500, TimeUnit.MILLISECONDS)
             process?.let { processSet.remove(it) }
-            Timber.tag(TAG).d("Stop %s, now %d (total: %d) processes: %s",
-                    process, processSet.size, totalShellLaunchCount.get(), processSet)
+            Timber.tag(TAG).d(
+                "Stop %s, now %d (total: %d) processes: %s",
+                process, processSet.size, totalShellLaunchCount.get(), processSet
+            )
             sem.release()
         }
     }
@@ -50,14 +54,14 @@ class RXSDebugModule @AssistedInject constructor(
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { !previousOptions.compareIgnorePath(it) }
-                .doOnNext { previousOptions = it }
-                .subscribe { options ->
-                    RXSDebug.setDebug(options.level == Log.VERBOSE && options.isRecording)
-                    if (options.level == Log.VERBOSE) RXSDebug.addCallback(processCallback)
-                    else RXSDebug.removeCallback(processCallback)
-                }
+            .observeOn(Schedulers.io())
+            .filter { !previousOptions.compareIgnorePath(it) }
+            .doOnNext { previousOptions = it }
+            .subscribe { options ->
+                RXSDebug.setDebug(options.level == Log.VERBOSE && options.isRecording)
+                if (options.level == Log.VERBOSE) RXSDebug.addCallback(processCallback)
+                else RXSDebug.removeCallback(processCallback)
+            }
     }
 
 

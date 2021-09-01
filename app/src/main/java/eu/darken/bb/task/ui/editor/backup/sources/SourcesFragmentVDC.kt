@@ -15,14 +15,14 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 
 class SourcesFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val generatorRepo: GeneratorRepo
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val generatorRepo: GeneratorRepo
 ) : SmartVDC() {
     private val editorObs = taskBuilder.task(taskId)
-            .filter { it.editor != null }
-            .map { it.editor as SimpleBackupTaskEditor }
+        .filter { it.editor != null }
+        .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
 
     private val editor: SimpleBackupTaskEditor by lazy { editorObs.blockingFirst() }
@@ -32,14 +32,14 @@ class SourcesFragmentVDC @AssistedInject constructor(
 
     init {
         editorData
-                .subscribe { data ->
-                    val configs = data.sources.map { id ->
-                        val config = generatorRepo.get(id).blockingGet2()
-                        GeneratorConfigOpt(id, config)
-                    }
-                    stater.update { it.copy(sources = configs) }
+            .subscribe { data ->
+                val configs = data.sources.map { id ->
+                    val config = generatorRepo.get(id).blockingGet2()
+                    GeneratorConfigOpt(id, config)
                 }
-                .withScopeVDC(this)
+                stater.update { it.copy(sources = configs) }
+            }
+            .withScopeVDC(this)
     }
 
     fun removeSource(source: GeneratorConfigOpt) {
@@ -47,7 +47,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val sources: List<GeneratorConfigOpt> = emptyList()
+        val sources: List<GeneratorConfigOpt> = emptyList()
     )
 
     @AssistedInject.Factory

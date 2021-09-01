@@ -8,7 +8,7 @@ import eu.darken.bb.common.vdc.VDC
 
 
 class OnboardingActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle
+    @Assisted private val handle: SavedStateHandle
 ) : VDC() {
 
     @AssistedInject.Factory

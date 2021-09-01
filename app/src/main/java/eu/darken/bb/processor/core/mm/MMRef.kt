@@ -8,9 +8,9 @@ import okio.Source
 import java.util.*
 
 data class MMRef(
-        val refId: Id,
-        val backupId: Backup.Id,
-        val source: RefSource
+    val refId: Id,
+    val backupId: Backup.Id,
+    val source: RefSource
 ) {
 
     val props: Props
@@ -40,8 +40,8 @@ data class MMRef(
 
 
     data class Request(
-            val backupId: Backup.Id,
-            val source: RefSource
+        val backupId: Backup.Id,
+        val source: RefSource
     )
 
 }

@@ -22,11 +22,11 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class StorageActionDialogVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val storageId: Storage.Id,
-        private val storageManager: StorageManager,
-        private val storageBuilder: StorageBuilder,
-        private val taskBuilder: TaskBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val storageId: Storage.Id,
+    private val storageManager: StorageManager,
+    private val storageBuilder: StorageBuilder,
+    private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
 
     private val stater = Stater(State(isLoadingData = true))
@@ -36,39 +36,39 @@ class StorageActionDialogVDC @AssistedInject constructor(
 
     init {
         storageManager.infos(listOf(storageId))
-                .subscribeOn(Schedulers.io())
-                .map { it.single() }
-                .takeUntil { info -> info.isFinished }
-                .subscribe { infoOpt ->
-                    val allowedActions = mutableSetOf<Confirmable<StorageAction>>().apply {
-                        if (infoOpt.info?.status != null) {
-                            add(Confirmable(VIEW))
-                            add(Confirmable(RESTORE))
-                        }
-
-                        if (infoOpt.info?.config != null) {
-                            add(Confirmable(EDIT))
-                        }
-                        if (infoOpt.info?.status?.isReadOnly == false) {
-                            add(Confirmable(DELETE, requiredLvl = 2))
-                        }
-
-                        add(Confirmable(DETACH, requiredLvl = 1))
+            .subscribeOn(Schedulers.io())
+            .map { it.single() }
+            .takeUntil { info -> info.isFinished }
+            .subscribe { infoOpt ->
+                val allowedActions = mutableSetOf<Confirmable<StorageAction>>().apply {
+                    if (infoOpt.info?.status != null) {
+                        add(Confirmable(VIEW))
+                        add(Confirmable(RESTORE))
                     }
 
-                    stater.update {
-                        it.copy(
-                                storageInfo = infoOpt?.info,
-                                allowedActions = allowedActions.toList(),
-                                isLoadingData = !infoOpt.isFinished
-                        )
+                    if (infoOpt.info?.config != null) {
+                        add(Confirmable(EDIT))
+                    }
+                    if (infoOpt.info?.status?.isReadOnly == false) {
+                        add(Confirmable(DELETE, requiredLvl = 2))
                     }
 
-                    if (infoOpt.anyError != null) {
-                        errorEvent.postValue(infoOpt.error)
-                    }
+                    add(Confirmable(DETACH, requiredLvl = 1))
                 }
-                .withScopeVDC(this)
+
+                stater.update {
+                    it.copy(
+                        storageInfo = infoOpt?.info,
+                        allowedActions = allowedActions.toList(),
+                        isLoadingData = !infoOpt.isFinished
+                    )
+                }
+
+                if (infoOpt.anyError != null) {
+                    errorEvent.postValue(infoOpt.error)
+                }
+            }
+            .withScopeVDC(this)
     }
 
     fun storageAction(action: StorageAction) {
@@ -77,69 +77,69 @@ class StorageActionDialogVDC @AssistedInject constructor(
         when (action) {
             VIEW -> {
                 storageManager.startViewer(storageId)
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp ->
-                            stater.update { it.copy(currentOperation = disp) }
-                        }
-                        .doOnError { Bugs.track(it) }
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                        .subscribe(
-                                { closeDialogEvent.postValue(Any()) },
-                                { errorEvent.postValue(it) }
-                        )
-                        .withScopeVDC(this)
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp ->
+                        stater.update { it.copy(currentOperation = disp) }
+                    }
+                    .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                    .subscribe(
+                        { closeDialogEvent.postValue(Any()) },
+                        { errorEvent.postValue(it) }
+                    )
+                    .withScopeVDC(this)
             }
             EDIT -> {
                 storageBuilder.load(storageId)
-                        .subscribeOn(Schedulers.io())
-                        .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
-                        .doOnError { Bugs.track(it) }
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                        .subscribe(
-                                { closeDialogEvent.postValue(Any()) },
-                                { errorEvent.postValue(it) }
-                        )
-                        .withScopeVDC(this)
+                    .subscribeOn(Schedulers.io())
+                    .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
+                    .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                    .subscribe(
+                        { closeDialogEvent.postValue(Any()) },
+                        { errorEvent.postValue(it) }
+                    )
+                    .withScopeVDC(this)
             }
             RESTORE -> {
                 taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
-                        .subscribeOn(Schedulers.io())
-                        .flatMap { data ->
-                            (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
-                        }
-                        .flatMapCompletable { taskBuilder.startEditor(it) }
-                        .doOnError { Bugs.track(it) }
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                        .subscribe(
-                                { closeDialogEvent.postValue(Any()) },
-                                { errorEvent.postValue(it) }
-                        )
-                        .withScopeVDC(this)
+                    .subscribeOn(Schedulers.io())
+                    .flatMap { data ->
+                        (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
+                    }
+                    .flatMapCompletable { taskBuilder.startEditor(it) }
+                    .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                    .subscribe(
+                        { closeDialogEvent.postValue(Any()) },
+                        { errorEvent.postValue(it) }
+                    )
+                    .withScopeVDC(this)
             }
             DETACH -> {
                 storageManager.detach(storageId, wipe = false)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError { Bugs.track(it) }
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                        .subscribe(
-                                { closeDialogEvent.postValue(Any()) },
-                                { errorEvent.postValue(it) }
-                        )
+                    .subscribeOn(Schedulers.io())
+                    .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                    .subscribe(
+                        { closeDialogEvent.postValue(Any()) },
+                        { errorEvent.postValue(it) }
+                    )
             }
             DELETE -> {
                 storageManager.detach(storageId, wipe = true)
-                        .subscribeOn(Schedulers.io())
-                        .doOnError { Bugs.track(it) }
-                        .doFinally { stater.update { it.copy(currentOperation = null) } }
-                        .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                        .subscribe(
-                                { closeDialogEvent.postValue(Any()) },
-                                { errorEvent.postValue(it) }
-                        )
+                    .subscribeOn(Schedulers.io())
+                    .doOnError { Bugs.track(it) }
+                    .doFinally { stater.update { it.copy(currentOperation = null) } }
+                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
+                    .subscribe(
+                        { closeDialogEvent.postValue(Any()) },
+                        { errorEvent.postValue(it) }
+                    )
             }
         }
     }
@@ -149,11 +149,11 @@ class StorageActionDialogVDC @AssistedInject constructor(
     }
 
     data class State(
-            val storageInfo: Storage.Info? = null,
-            val allowedActions: List<Confirmable<StorageAction>> = listOf(),
-            val isCancelable: Boolean = false,
-            val isLoadingData: Boolean = false,
-            val currentOperation: Disposable? = null
+        val storageInfo: Storage.Info? = null,
+        val allowedActions: List<Confirmable<StorageAction>> = listOf(),
+        val isCancelable: Boolean = false,
+        val isLoadingData: Boolean = false,
+        val currentOperation: Disposable? = null
     ) {
         val isWorking: Boolean
             get() = currentOperation != null

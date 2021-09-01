@@ -22,7 +22,9 @@ fun Intent.getBackupSpecIds(): Collection<BackupSpec.Id>? = getParcelableArrayLi
 
 fun Bundle.putBackupSpecId(id: BackupSpec.Id) = apply { putParcelable(BACKUPSPECID_KEY, id) }
 fun Bundle.getBackupSpecId(): BackupSpec.Id? = getParcelable(BACKUPSPECID_KEY) as BackupSpec.Id?
-fun Bundle.putBackupSpecIds(ids: Collection<BackupSpec.Id>) = apply { putParcelableArrayList(BACKUPSPECID_KEY, ArrayList(ids)) }
+fun Bundle.putBackupSpecIds(ids: Collection<BackupSpec.Id>) =
+    apply { putParcelableArrayList(BACKUPSPECID_KEY, ArrayList(ids)) }
+
 fun Bundle.getBackupSpecIds(): Collection<BackupSpec.Id>? = getParcelableArrayList(BACKUPSPECID_KEY)
 
 
@@ -37,5 +39,7 @@ fun Intent.getBackupIds(): Collection<Backup.Id>? = getParcelableArrayListExtra(
 
 fun Bundle.putBackupId(id: Backup.Id) = apply { putParcelable(BackupExtensions.BACKUPID_KEY, id) }
 fun Bundle.getBackupId(): Backup.Id? = getParcelable(BackupExtensions.BACKUPID_KEY) as Backup.Id?
-fun Bundle.putBackupIds(ids: Collection<Backup.Id>) = apply { putParcelableArrayList(BackupExtensions.BACKUPID_KEY, ArrayList(ids)) }
+fun Bundle.putBackupIds(ids: Collection<Backup.Id>) =
+    apply { putParcelableArrayList(BackupExtensions.BACKUPID_KEY, ArrayList(ids)) }
+
 fun Bundle.getBackupIds(): Collection<Backup.Id>? = getParcelableArrayList(BackupExtensions.BACKUPID_KEY)

@@ -42,11 +42,11 @@ class DebugFragment : SmartFragment(), AutoInject {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         librootJavaTest.clicksDebounced().subscribe {
             Single.fromCallable { javaRootClient.runSessionAction { it.ipc.checkBase() } }
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { result ->
-                        Timber.tag(TAG).d("checkBase(): %s", result)
-                        librootJavaOutput.text = result
-                    }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { result ->
+                    Timber.tag(TAG).d("checkBase(): %s", result)
+                    librootJavaOutput.text = result
+                }
         }
 
         super.onViewCreated(view, savedInstanceState)

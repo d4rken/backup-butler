@@ -42,15 +42,19 @@ fun Activity.ensureContentView(@LayoutRes layoutRes: Int): Boolean {
 }
 
 fun AppCompatActivity.showFragment(
-        fragmentClass: KClass<out Fragment>,
-        tag: String = fragmentClass.qualifiedName!!,
-        @IdRes targetLayout: Int = R.id.fragment_frame,
-        arguments: Bundle? = null,
-        backStackPrevious: Boolean = false) {
+    fragmentClass: KClass<out Fragment>,
+    tag: String = fragmentClass.qualifiedName!!,
+    @IdRes targetLayout: Int = R.id.fragment_frame,
+    arguments: Bundle? = null,
+    backStackPrevious: Boolean = false
+) {
 
     var fragment = supportFragmentManager.findFragmentByTag(tag)
     if (fragment == null) {
-        fragment = supportFragmentManager.fragmentFactory.instantiate(this.javaClass.classLoader!!, fragmentClass.qualifiedName!!)
+        fragment = supportFragmentManager.fragmentFactory.instantiate(
+            this.javaClass.classLoader!!,
+            fragmentClass.qualifiedName!!
+        )
     }
 
     fragment.arguments = arguments

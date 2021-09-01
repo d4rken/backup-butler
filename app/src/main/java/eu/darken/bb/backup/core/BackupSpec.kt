@@ -32,12 +32,13 @@ interface BackupSpec {
     }
 
     data class Target(
-            val storageId: Storage.Id,
-            val backupSpecId: Id
+        val storageId: Storage.Id,
+        val backupSpecId: Id
     )
 
     companion object {
-        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<BackupSpec> = MyPolymorphicJsonAdapterFactory.of(BackupSpec::class.java, "backupType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<BackupSpec> =
+            MyPolymorphicJsonAdapterFactory.of(BackupSpec::class.java, "backupType")
                 .withSubtype(AppBackupSpec::class.java, Backup.Type.APP.name)
                 .withSubtype(FilesBackupSpec::class.java, Backup.Type.FILES.name)
                 .skipLabelSerialization()
@@ -53,10 +54,10 @@ interface BackupSpec {
     }
 
     data class InfoOpt(
-            val storageId: Storage.Id,
-            val specId: Id,
-            override val info: Info? = null,
-            override val error: Throwable? = null
+        val storageId: Storage.Id,
+        val specId: Id,
+        override val info: Info? = null,
+        override val error: Throwable? = null
     ) : OptInfo<Info> {
         constructor(info: Info)
                 : this(info.storageId, info.specId, info)

@@ -13,8 +13,8 @@ import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 
 class TypesPickerFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val options: APathPicker.Options
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val options: APathPicker.Options
 ) : SmartVDC() {
 
     private val stater = Stater {
@@ -36,7 +36,7 @@ class TypesPickerFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val allowedTypes: List<Storage.Type>
+        val allowedTypes: List<Storage.Type>
     )
 
     @AssistedInject.Factory

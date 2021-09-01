@@ -42,12 +42,12 @@ import java.util.concurrent.TimeUnit
 
 
 class SAFStorage @AssistedInject constructor(
-        @Assisted storageRef: Storage.Ref,
-        @Assisted storageConfig: Storage.Config,
-        @AppContext override val context: Context,
-        moshi: Moshi,
-        private val safGateway: SAFGateway,
-        private val mmDataRepo: MMDataRepo
+    @Assisted storageRef: Storage.Ref,
+    @Assisted storageConfig: Storage.Config,
+    @AppContext override val context: Context,
+    moshi: Moshi,
+    private val safGateway: SAFGateway,
+    private val mmDataRepo: MMDataRepo
 ) : Storage, HasContext, Progress.Client {
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
@@ -64,23 +64,23 @@ class SAFStorage @AssistedInject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
-            .create<List<SAFPath>> {
-                try {
-                    if (dataDir.exists(safGateway)) {
-                        it.onNext(dataDir.listFiles(safGateway))
-                    } else {
-                        it.onNext(emptyList())
-                    }
-                    it.onComplete()
-                } catch (e: IOException) {
-                    it.tryOnError(e)
+        .create<List<SAFPath>> {
+            try {
+                if (dataDir.exists(safGateway)) {
+                    it.onNext(dataDir.listFiles(safGateway))
+                } else {
+                    it.onNext(emptyList())
                 }
+                it.onComplete()
+            } catch (e: IOException) {
+                it.tryOnError(e)
             }
-            .subscribeOn(Schedulers.io())
-            .onErrorReturnItem(emptyList())
-            .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
-            .filterUnchanged { old, new -> old != null && old == new }
-            .replayingShare()
+        }
+        .subscribeOn(Schedulers.io())
+        .onErrorReturnItem(emptyList())
+        .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
+        .filterUnchanged { old, new -> old != null && old == new }
+        .replayingShare()
 
     init {
         Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
@@ -93,86 +93,88 @@ class SAFStorage @AssistedInject constructor(
 
     override fun info(): Observable<Storage.Info> = infoObs
     private val infoObs: Observable<Storage.Info> = Observable
-            .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
-            .flatMap { info ->
-                specInfos().map { contents ->
-                    var status: Storage.Info.Status? = null
-                    try {
-                        status = Storage.Info.Status(
-                                itemCount = contents.size,
-                                totalSize = 0,
-                                isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway)
-                        )
-                    } catch (e: Exception) {
-                        Timber.tag(TAG).w(e)
-                    }
-                    info.copy(status = status)
-                }.startWithItem(info)
-            }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
-            .doFinally { Timber.tag(TAG).d("info().doFinally()") }
-            .onErrorMixLast { last, error ->
-                // startWith
-                last!!.copy(error = error)
-            }
-            .replayingShare()
+        .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
+        .flatMap { info ->
+            specInfos().map { contents ->
+                var status: Storage.Info.Status? = null
+                try {
+                    status = Storage.Info.Status(
+                        itemCount = contents.size,
+                        totalSize = 0,
+                        isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway)
+                    )
+                } catch (e: Exception) {
+                    Timber.tag(TAG).w(e)
+                }
+                info.copy(status = status)
+            }.startWithItem(info)
+        }
+        .doOnError { Timber.tag(TAG).e(it) }
+        .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
+        .doFinally { Timber.tag(TAG).d("info().doFinally()") }
+        .onErrorMixLast { last, error ->
+            // startWith
+            last!!.copy(error = error)
+        }
+        .replayingShare()
 
     override fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info> = specInfos()
-            .map { specInfos ->
-                val item = specInfos.find { it.backupSpec.specId == specId }
-                requireNotNull(item) { "Can't find backup item for specId $specId" }
-            }
+        .map { specInfos ->
+            val item = specInfos.find { it.backupSpec.specId == specId }
+            requireNotNull(item) { "Can't find backup item for specId $specId" }
+        }
 
     override fun specInfos(): Observable<Collection<BackupSpec.Info>> = itemObs
     private val itemObs: Observable<Collection<BackupSpec.Info>> = dataDirEvents
-            .map { files ->
-                val content = mutableListOf<BackupSpec.Info>()
+        .map { files ->
+            val content = mutableListOf<BackupSpec.Info>()
 
-                for (backupDir in files) {
-                    if (backupDir.isFile(safGateway)) {
-                        Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
-                        continue
-                    }
-
-                    val backupConfig = try {
-                        readSpec(BackupSpec.Id(backupDir.name))
-                    } catch (e: Throwable) {
-                        if (e is InterruptedIOException) throw e
-                        Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
-                        continue
-                    }
-
-                    val metaDatas = getMetaDatas(backupConfig.specId)
-                    if (metaDatas.isEmpty()) {
-                        Timber.tag(TAG).w("Dir without backups? %s", backupDir)
-                        continue
-                    }
-
-                    val ref = SAFStorageSpecInfo(
-                            storageId = storageConfig.storageId,
-                            path = backupDir,
-                            backupSpec = backupConfig,
-                            backups = metaDatas
-                    )
-                    content.add(ref)
+            for (backupDir in files) {
+                if (backupDir.isFile(safGateway)) {
+                    Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
+                    continue
                 }
-                return@map content.toList() as Collection<BackupSpec.Info>
-            }
-            .doOnError {
-                if (it is InterruptedIOException) {
-                    Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")
-                } else {
-                    Timber.tag(TAG).e(it, "specInfos().doOnError()")
-                }
-            }
-            .doOnSubscribe { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
-            .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
 
-    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = backupContent(specId, backupId)
+                val backupConfig = try {
+                    readSpec(BackupSpec.Id(backupDir.name))
+                } catch (e: Throwable) {
+                    if (e is InterruptedIOException) throw e
+                    Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
+                    continue
+                }
+
+                val metaDatas = getMetaDatas(backupConfig.specId)
+                if (metaDatas.isEmpty()) {
+                    Timber.tag(TAG).w("Dir without backups? %s", backupDir)
+                    continue
+                }
+
+                val ref = SAFStorageSpecInfo(
+                    storageId = storageConfig.storageId,
+                    path = backupDir,
+                    backupSpec = backupConfig,
+                    backups = metaDatas
+                )
+                content.add(ref)
+            }
+            return@map content.toList() as Collection<BackupSpec.Info>
+        }
+        .doOnError {
+            if (it is InterruptedIOException) {
+                Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")
+            } else {
+                Timber.tag(TAG).e(it, "specInfos().doOnError()")
+            }
+        }
+        .doOnSubscribe { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
+        .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
+
+    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> =
+        backupContent(specId, backupId)
             .map { Backup.Info(it.storageId, it.spec, it.metaData) }
 
-    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> = specInfo(specId)
+    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> =
+        specInfo(specId)
             .flatMap { item ->
                 item as SAFStorageSpecInfo
                 val backupDir = getSpecDir(item.specId).requireExists(safGateway)
@@ -181,26 +183,26 @@ class SAFStorage @AssistedInject constructor(
                 val backupSpec = readSpec(item.specId)
 
                 return@flatMap Observable.fromCallable { backupDir.listFiles(safGateway) }
-                        .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-                        .map {
-                            return@map versionDir.listFiles(safGateway)
-                                    .filter { it.name.endsWith(PROP_EXT) }
-                                    .map { file ->
-                                        val props = propsAdapter.fromSAFFile(safGateway, file)
-                                        checkNotNull(props) { "Can't read props from $file" }
-                                        Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
-                                    }
-                                    .toList()
-                        }
-                        .onErrorReturnItem(emptyList())
-                        .map {
-                            return@map Backup.ContentInfo(
-                                    storageId = storageId,
-                                    spec = backupSpec,
-                                    metaData = metaData,
-                                    items = it
-                            )
-                        }
+                    .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+                    .map {
+                        return@map versionDir.listFiles(safGateway)
+                            .filter { it.name.endsWith(PROP_EXT) }
+                            .map { file ->
+                                val props = propsAdapter.fromSAFFile(safGateway, file)
+                                checkNotNull(props) { "Can't read props from $file" }
+                                Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
+                            }
+                            .toList()
+                    }
+                    .onErrorReturnItem(emptyList())
+                    .map {
+                        return@map Backup.ContentInfo(
+                            storageId = storageId,
+                            spec = backupSpec,
+                            metaData = metaData,
+                            items = it
+                        )
+                    }
             }
             .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
             .doOnError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
@@ -245,9 +247,9 @@ class SAFStorage @AssistedInject constructor(
         updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
-                spec = item.backupSpec,
-                metaData = metaData,
-                data = dataMap
+            spec = item.backupSpec,
+            metaData = metaData,
+            data = dataMap
         )
     }
 
@@ -305,46 +307,46 @@ class SAFStorage @AssistedInject constructor(
 
         updateProgressPrimary(R.string.progress_writing_backup_metadata)
         val info = Backup.Info(
-                storageId = storageId,
-                spec = backup.spec,
-                metaData = backup.metaData
+            storageId = storageId,
+            spec = backup.spec,
+            metaData = backup.metaData
         )
         Timber.tag(TAG).d("New backup created: %s", info)
         return info
     }
 
     override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = specInfo(specId)
-            .latest()
-            .map { specInfo ->
-                specInfo as SAFStorageSpecInfo
-                if (backupId != null) {
-                    val versionDir = getVersionDir(specId, backupId)
-                    versionDir.deleteAll(safGateway)
-                } else {
-                    val backupDir = getSpecDir(specId)
-                    backupDir.deleteAll(safGateway)
-                }
-
-                val newMetaData = if (backupId != null) {
-                    // Not a complete deletion
-                    getMetaDatas(specId)
-                } else {
-                    emptySet()
-                }
-                return@map specInfo.copy(backups = newMetaData)
+        .latest()
+        .map { specInfo ->
+            specInfo as SAFStorageSpecInfo
+            if (backupId != null) {
+                val versionDir = getVersionDir(specId, backupId)
+                versionDir.deleteAll(safGateway)
+            } else {
+                val backupDir = getSpecDir(specId)
+                backupDir.deleteAll(safGateway)
             }
+
+            val newMetaData = if (backupId != null) {
+                // Not a complete deletion
+                getMetaDatas(specId)
+            } else {
+                emptySet()
+            }
+            return@map specInfo.copy(backups = newMetaData)
+        }
 
     override fun detach(wipe: Boolean): Completable = Completable
-            .fromCallable {
-                if (wipe) {
-                    Timber.tag(TAG).i("Wiping %s", storageRef.path)
-                    storageRef.path.deleteAll(safGateway)
-                }
-                safGateway.releasePermission(storageRef.path)
-                // TODO dispose resources
+        .fromCallable {
+            if (wipe) {
+                Timber.tag(TAG).i("Wiping %s", storageRef.path)
+                storageRef.path.deleteAll(safGateway)
             }
-            .doOnSubscribe { Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
-            .doFinally { Timber.w("detach(wipe=%b).dofinally%s", wipe, storageRef) }
+            safGateway.releasePermission(storageRef.path)
+            // TODO dispose resources
+        }
+        .doOnSubscribe { Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
+        .doFinally { Timber.w("detach(wipe=%b).dofinally%s", wipe, storageRef) }
 
     private fun getSpecDir(specId: BackupSpec.Id): SAFPath = dataDir.child(specId.value)
 
@@ -363,7 +365,8 @@ class SAFStorage @AssistedInject constructor(
         specAdapter.toSAFFile(spec, safGateway, specFile)
     }
 
-    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath = getSpecDir(specId).child(backupId.idString)
+    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath =
+        getSpecDir(specId).child(backupId.idString)
 
     private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()

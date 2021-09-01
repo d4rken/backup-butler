@@ -5,9 +5,9 @@ import io.reactivex.rxjava3.functions.Function
 import java.util.concurrent.TimeUnit
 
 class RetryWithDelay(
-        private val maxRetries: Int = -1,
-        private val delay: Long,
-        private val timeUnit: TimeUnit = TimeUnit.MILLISECONDS
+    private val maxRetries: Int = -1,
+    private val delay: Long,
+    private val timeUnit: TimeUnit = TimeUnit.MILLISECONDS
 ) : Function<Observable<out Throwable>, Observable<*>> {
     private var retryCount = 0
 

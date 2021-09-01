@@ -16,10 +16,10 @@ import eu.darken.bb.common.files.core.RawPath
 import java.io.File
 
 class BreadCrumbBar<ItemT> @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        @AttrRes defStyleAttr: Int = 0,
-        @StyleRes defStyleRes: Int = R.style.BreadCrumbBarStyle
+    context: Context,
+    attrs: AttributeSet? = null,
+    @AttrRes defStyleAttr: Int = 0,
+    @StyleRes defStyleRes: Int = R.style.BreadCrumbBarStyle
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     @BindView(R.id.path_container) lateinit var currentPathLayout: LinearLayout
@@ -41,7 +41,12 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
         ButterKnife.bind(this)
         if (isInEditMode) {
 
-            setCrumbs(listOf(*RawPath.build("/this/is/darkens/test").path.split(File.separator.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) as List<ItemT>)
+            setCrumbs(
+                listOf(
+                    *RawPath.build("/this/is/darkens/test").path.split(File.separator.toRegex())
+                        .dropLastWhile { it.isEmpty() }.toTypedArray()
+                ) as List<ItemT>
+            )
         } else
             scrollView.isSmoothScrollingEnabled = true
 
@@ -67,7 +72,11 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
                 Toast.makeText(context, crumb.toString(), Toast.LENGTH_SHORT).show()
                 true
             }
-            val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1f
+            )
 
             if (crumbs[crumbs.size - 1] == crumb) {
                 name.setTextColor(ContextCompat.getColor(context, R.color.colorSecondary))

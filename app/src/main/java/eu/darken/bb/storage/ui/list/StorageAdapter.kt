@@ -16,8 +16,7 @@ import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
-class StorageAdapter @Inject constructor()
-    : ModularAdapter<StorageAdapter.VH>(), DataAdapter<Storage.InfoOpt> {
+class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>(), DataAdapter<Storage.InfoOpt> {
 
     override val data = mutableListOf<Storage.InfoOpt>()
 
@@ -29,8 +28,8 @@ class StorageAdapter @Inject constructor()
     override fun getItemCount(): Int = data.size
 
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent), BindableVH<Storage.InfoOpt> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent),
+        BindableVH<Storage.InfoOpt> {
 
         @BindView(R.id.type_label) lateinit var typeLabel: TextView
         @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
@@ -73,7 +72,12 @@ class StorageAdapter @Inject constructor()
                 info.status != null -> {
                     statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
                     @SuppressLint("SetTextI18n")
-                    statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${Formatter.formatFileSize(context, info.status.totalSize)}"
+                    statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${
+                        Formatter.formatFileSize(
+                            context,
+                            info.status.totalSize
+                        )
+                    }"
                     if (info.status.isReadOnly) statusText.append("; " + getString(R.string.general_read_only_label))
                 }
                 else -> {

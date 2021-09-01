@@ -17,18 +17,18 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Observables
 
 class OverviewFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        private val butler: BackupButler,
-        private val upgradeControl: UpgradeControl,
-        @AppContext private val context: Context
+    @Assisted private val handle: SavedStateHandle,
+    private val butler: BackupButler,
+    private val upgradeControl: UpgradeControl,
+    @AppContext private val context: Context
 ) : SmartVDC() {
 
     val appState: LiveData<AppState> = Observables
-            .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)
-            .map { (appInfo, upgradeData) ->
-                return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
-            }
-            .toLiveData()
+        .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)
+        .map { (appInfo, upgradeData) ->
+            return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
+        }
+        .toLiveData()
 
     private val updateStater = Stater(UpdateState())
     val updateState = updateStater.liveData
@@ -42,12 +42,12 @@ class OverviewFragmentVDC @AssistedInject constructor(
     }
 
     data class AppState(
-            val appInfo: BackupButler.AppInfo,
-            val upgradeData: UpgradeData
+        val appInfo: BackupButler.AppInfo,
+        val upgradeData: UpgradeData
     )
 
     data class UpdateState(
-            val available: Boolean = false
+        val available: Boolean = false
     )
 
     @AssistedInject.Factory

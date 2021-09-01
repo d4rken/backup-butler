@@ -19,21 +19,21 @@ import javax.inject.Inject
 
 @Reusable
 class StorageManager @Inject constructor(
-        @AppContext private val context: Context,
-        private val refRepo: StorageRefRepo,
-        private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>,
-        private val storageEditors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
+    @AppContext private val context: Context,
+    private val refRepo: StorageRefRepo,
+    private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>,
+    private val storageEditors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
 ) {
 
     private val repoCache = mutableMapOf<Storage.Id, Storage>()
 
     init {
         refRepo.modifiedIds.subscribeOn(Schedulers.io())
-                .subscribe {
-                    synchronized(repoCache) {
-                        repoCache.remove(it)
-                    }
+            .subscribe {
+                synchronized(repoCache) {
+                    repoCache.remove(it)
                 }
+            }
     }
 
     // TODO shouldn't this return StorageInfoOpt due to checking via Storage.Id
@@ -45,50 +45,50 @@ class StorageManager @Inject constructor(
 //            .map { infos -> infos.map { info -> info.info!! } }
 
     fun infos(wantedIds: Collection<Storage.Id>? = null): Observable<Collection<Storage.InfoOpt>> = Observable
-            .fromCallable {
-                if (wantedIds == null) return@fromCallable refRepo.references
+        .fromCallable {
+            if (wantedIds == null) return@fromCallable refRepo.references
 
-                return@fromCallable Observable.just(wantedIds)
-                        .flatMapIterable { x -> x }
-                        .flatMapSingle { id ->
-                            refRepo.get(id).map { Pair<Storage.Id, Storage.Ref?>(id, it) }
-                                    .switchIfEmpty(Single.just(Pair<Storage.Id, Storage.Ref?>(id, null)))
-                        }
-                        .toList()
-                        .map { it.toMap() }
-                        .toObservable()
-            }
-            .switchMap { it }
-            .switchMap { refMap ->
-                if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<Storage.InfoOpt>())
-
-                val statusObs = refMap.map { (id, ref) ->
-                    if (ref != null) {
-                        info(ref)
-                                .subscribeOn(Schedulers.io())
-                                .map { Storage.InfoOpt(id, it) }
-                    } else {
-                        Observable.just(Storage.InfoOpt(id))
-                    }
+            return@fromCallable Observable.just(wantedIds)
+                .flatMapIterable { x -> x }
+                .flatMapSingle { id ->
+                    refRepo.get(id).map { Pair<Storage.Id, Storage.Ref?>(id, it) }
+                        .switchIfEmpty(Single.just(Pair<Storage.Id, Storage.Ref?>(id, null)))
                 }
-                return@switchMap Observable.combineLatest<Storage.InfoOpt, List<Storage.InfoOpt>>(statusObs) {
-                    @Suppress("UNCHECKED_CAST")
-                    it.asList() as List<Storage.InfoOpt>
+                .toList()
+                .map { it.toMap() }
+                .toObservable()
+        }
+        .switchMap { it }
+        .switchMap { refMap ->
+            if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<Storage.InfoOpt>())
+
+            val statusObs = refMap.map { (id, ref) ->
+                if (ref != null) {
+                    info(ref)
+                        .subscribeOn(Schedulers.io())
+                        .map { Storage.InfoOpt(id, it) }
+                } else {
+                    Observable.just(Storage.InfoOpt(id))
                 }
             }
+            return@switchMap Observable.combineLatest<Storage.InfoOpt, List<Storage.InfoOpt>>(statusObs) {
+                @Suppress("UNCHECKED_CAST")
+                it.asList() as List<Storage.InfoOpt>
+            }
+        }
 
     private fun info(ref: Storage.Ref): Observable<Storage.Info> = getStorage(ref)
-            .switchMap { it.info().startWithItem(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .startWithItem(Storage.Info(ref.storageId, ref.storageType))
-            .onErrorMixLast { last, error ->
-                // because we have startWith
-                last!!.copy(error = error)
-            }
+        .switchMap { it.info().startWithItem(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
+        .doOnError { Timber.tag(TAG).e(it) }
+        .startWithItem(Storage.Info(ref.storageId, ref.storageType))
+        .onErrorMixLast { last, error ->
+            // because we have startWith
+            last!!.copy(error = error)
+        }
 
     fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
-            .singleOrError(IllegalArgumentException("Can't find storage for $id"))
-            .flatMapObservable { getStorage(it) }
+        .singleOrError(IllegalArgumentException("Can't find storage for $id"))
+        .flatMapObservable { getStorage(it) }
 
     private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
         synchronized(repoCache) {
@@ -107,26 +107,26 @@ class StorageManager @Inject constructor(
     }
 
     fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = Single
-            .fromCallable {
-                val storage = try {
-                    getStorage(id).blockingFirst()
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e, "Failed to get storage for detach.")
-                    null
-                }
-                try {
-                    storage?.detach(wipe)?.blockingAwait()
-                } catch (e: Exception) {
-                    Timber.tag(TAG).e(e, "Failed to execute detach on storage.")
-                }
-                synchronized(repoCache) {
-                    val removed = repoCache.remove(id)
-                    Timber.tag(TAG).d("Evicted from cache: %s", removed)
-                }
-                val ref = refRepo.remove(id).blockingGet()
-                ref.notNullValue()
+        .fromCallable {
+            val storage = try {
+                getStorage(id).blockingFirst()
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Failed to get storage for detach.")
+                null
             }
-            .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
+            try {
+                storage?.detach(wipe)?.blockingAwait()
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Failed to execute detach on storage.")
+            }
+            synchronized(repoCache) {
+                val removed = repoCache.remove(id)
+                Timber.tag(TAG).d("Evicted from cache: %s", removed)
+            }
+            val ref = refRepo.remove(id).blockingGet()
+            ref.notNullValue()
+        }
+        .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
 
     fun startViewer(storageId: Storage.Id): Completable = Completable.fromCallable {
         val intent = Intent(context, StorageViewerActivity::class.java)

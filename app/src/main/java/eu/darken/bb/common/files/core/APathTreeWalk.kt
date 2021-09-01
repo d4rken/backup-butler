@@ -13,13 +13,13 @@ import java.util.*
  * If the file path given does not exist, walker iterates nothing, i.e. it's equivalent to an empty sequence.
  */
 class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> private constructor(
-        private val gateway: GT,
-        private val start: PT,
-        private val direction: FileWalkDirection = FileWalkDirection.TOP_DOWN,
-        private val onEnter: ((PT) -> Boolean)? = null,
-        private val onLeave: ((PT) -> Unit)? = null,
-        private val onFail: ((f: PT, e: IOException) -> Unit)? = null,
-        private val maxDepth: Int = Int.MAX_VALUE
+    private val gateway: GT,
+    private val start: PT,
+    private val direction: FileWalkDirection = FileWalkDirection.TOP_DOWN,
+    private val onEnter: ((PT) -> Boolean)? = null,
+    private val onLeave: ((PT) -> Unit)? = null,
+    private val onFail: ((f: PT, e: IOException) -> Unit)? = null,
+    private val maxDepth: Int = Int.MAX_VALUE
 ) : Sequence<PT> {
 
     constructor(gateway: GT, start: PT, direction: FileWalkDirection = FileWalkDirection.TOP_DOWN)
@@ -182,14 +182,30 @@ class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> priv
      * If the [function] returns `false` the directory is not entered and neither it nor its files are visited.
      */
     fun onEnter(function: (PT) -> Boolean): APathTreeWalk<PT, *> {
-        return APathTreeWalk(gateway, start, direction, onEnter = function, onLeave = onLeave, onFail = onFail, maxDepth = maxDepth)
+        return APathTreeWalk(
+            gateway,
+            start,
+            direction,
+            onEnter = function,
+            onLeave = onLeave,
+            onFail = onFail,
+            maxDepth = maxDepth
+        )
     }
 
     /**
      * Sets a callback [function], that is called on any left directory after its files are visited and after it is visited itself.
      */
     fun onLeave(function: (PT) -> Unit): APathTreeWalk<PT, *> {
-        return APathTreeWalk(gateway, start, direction, onEnter = onEnter, onLeave = function, onFail = onFail, maxDepth = maxDepth)
+        return APathTreeWalk(
+            gateway,
+            start,
+            direction,
+            onEnter = onEnter,
+            onLeave = function,
+            onFail = onFail,
+            maxDepth = maxDepth
+        )
     }
 
     /**
@@ -198,7 +214,15 @@ class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> priv
      * [onEnter] and [onLeave] callback functions are called even in this case.
      */
     fun onFail(function: (PT, IOException) -> Unit): APathTreeWalk<PT, *> {
-        return APathTreeWalk(gateway, start, direction, onEnter = onEnter, onLeave = onLeave, onFail = function, maxDepth = maxDepth)
+        return APathTreeWalk(
+            gateway,
+            start,
+            direction,
+            onEnter = onEnter,
+            onLeave = onLeave,
+            onFail = function,
+            maxDepth = maxDepth
+        )
     }
 
     /**

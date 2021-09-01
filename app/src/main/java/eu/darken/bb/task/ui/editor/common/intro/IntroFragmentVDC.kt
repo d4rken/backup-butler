@@ -10,16 +10,16 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 
 class IntroFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder
 ) : VDC() {
     private val editorObs = taskBuilder.task(taskId)
-            .filter { it.editor != null }
-            .map { it.editor!! }
+        .filter { it.editor != null }
+        .map { it.editor!! }
 
     val state = editorObs.flatMap { it.editorData }
-            .toLiveData()
+        .toLiveData()
 
     fun updateTaskName(name: CharSequence) {
         editorObs.blockingFirst().updateLabel(name.toString())

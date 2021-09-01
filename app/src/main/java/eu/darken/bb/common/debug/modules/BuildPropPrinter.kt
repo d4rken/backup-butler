@@ -19,39 +19,43 @@ import java.io.FileReader
 import java.util.*
 
 class BuildPropPrinter @AssistedInject constructor(
-        @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost
 ) : DebugModule {
 
     private var previousOptions: DebugOptions = DebugOptions.default()
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-                .doOnNext { previousOptions = it }
-                .subscribe {
-                    if (!ApiHelper.hasOreo()) {
-                        for (info in getSystemBuildProp()) {
-                            if (info.first!!.contains("ro.product") || info.first!!.contains("ro.build") || info.first!!.contains("ro.semc")) {
-                                Timber.tag(TAG).d("%s=%s", info.first, info.second)
-                            }
+            .observeOn(Schedulers.io())
+            .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
+            .doOnNext { previousOptions = it }
+            .subscribe {
+                if (!ApiHelper.hasOreo()) {
+                    for (info in getSystemBuildProp()) {
+                        if (info.first!!.contains("ro.product") || info.first!!.contains("ro.build") || info.first!!.contains(
+                                "ro.semc"
+                            )
+                        ) {
+                            Timber.tag(TAG).d("%s=%s", info.first, info.second)
                         }
-                    } else {
-                        Timber.tag(TAG).d("Fingerprint: %s", Build.FINGERPRINT)
-                        Timber.tag(TAG).d("ro.build.version.codename=%s", Build.VERSION.CODENAME)
-                        Timber.tag(TAG).d("ro.build.version.incremental=%s", Build.VERSION.INCREMENTAL)
-                        if (ApiHelper.hasMarshmallow()) Timber.tag(TAG).d("ro.build.version.base_os=%s", Build.VERSION.BASE_OS)
-                        Timber.tag(TAG).d("ro.build.version.release=%s", Build.VERSION.RELEASE)
-                        Timber.tag(TAG).d("ro.build.display.id=%s", Build.DISPLAY)
-                        Timber.tag(TAG).d("ro.product.name=%s", Build.PRODUCT)
-                        Timber.tag(TAG).d("ro.product.device=%s", Build.DEVICE)
-                        Timber.tag(TAG).d("ro.product.board=%s", Build.BOARD)
-                        Timber.tag(TAG).d("ro.product.manufacturer=%s", Build.MANUFACTURER)
-                        Timber.tag(TAG).d("ro.product.brand=%s", Build.BRAND)
-                        Timber.tag(TAG).d("ro.product.model=%s", Build.MODEL)
-                        Timber.tag(TAG).d("ro.bootloader=%s", Build.BOOTLOADER)
                     }
+                } else {
+                    Timber.tag(TAG).d("Fingerprint: %s", Build.FINGERPRINT)
+                    Timber.tag(TAG).d("ro.build.version.codename=%s", Build.VERSION.CODENAME)
+                    Timber.tag(TAG).d("ro.build.version.incremental=%s", Build.VERSION.INCREMENTAL)
+                    if (ApiHelper.hasMarshmallow()) Timber.tag(TAG)
+                        .d("ro.build.version.base_os=%s", Build.VERSION.BASE_OS)
+                    Timber.tag(TAG).d("ro.build.version.release=%s", Build.VERSION.RELEASE)
+                    Timber.tag(TAG).d("ro.build.display.id=%s", Build.DISPLAY)
+                    Timber.tag(TAG).d("ro.product.name=%s", Build.PRODUCT)
+                    Timber.tag(TAG).d("ro.product.device=%s", Build.DEVICE)
+                    Timber.tag(TAG).d("ro.product.board=%s", Build.BOARD)
+                    Timber.tag(TAG).d("ro.product.manufacturer=%s", Build.MANUFACTURER)
+                    Timber.tag(TAG).d("ro.product.brand=%s", Build.BRAND)
+                    Timber.tag(TAG).d("ro.product.model=%s", Build.MODEL)
+                    Timber.tag(TAG).d("ro.bootloader=%s", Build.BOOTLOADER)
                 }
+            }
     }
 
     private fun getSystemBuildProp(): List<Pair<String, String>> {

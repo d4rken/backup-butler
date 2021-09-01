@@ -17,8 +17,7 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 
-class APathLookupAdapter @Inject constructor()
-    : ModularAdapter<APathLookupAdapter.VH>(), DataAdapter<APathLookup<*>> {
+class APathLookupAdapter @Inject constructor() : ModularAdapter<APathLookupAdapter.VH>(), DataAdapter<APathLookup<*>> {
 
     override val data = mutableListOf<APathLookup<*>>()
 
@@ -29,8 +28,8 @@ class APathLookupAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.pathpicker_local_adapter_line, parent), BindableVH<APathLookup<*>> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.pathpicker_local_adapter_line, parent),
+        BindableVH<APathLookup<*>> {
         @BindView(R.id.preview_container) lateinit var previewContainer: PreviewView
         @BindView(R.id.name) lateinit var label: TextView
         @BindView(R.id.last_modified) lateinit var lastModified: TextView
@@ -49,8 +48,8 @@ class APathLookupAdapter @Inject constructor()
             size.setInvisible(item.isDirectory)
 
             GlideApp.with(context)
-                    .load(FilePreviewRequest(item, context))
-                    .into(previewContainer)
+                .load(FilePreviewRequest(item, context))
+                .into(previewContainer)
         }
 
     }

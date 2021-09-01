@@ -14,7 +14,7 @@ import eu.darken.bb.R
 
 
 class SetupBarView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     @BindView(R.id.action_negative_primary) lateinit var buttonNegativePrimary: Button

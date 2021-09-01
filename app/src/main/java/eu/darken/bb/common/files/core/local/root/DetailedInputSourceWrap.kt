@@ -5,9 +5,9 @@ import eu.darken.bb.common.files.core.remoteInputStream
 import okio.Source
 
 data class DetailedInputSourceWrap(
-        val path: LocalPath,
-        val input: Source,
-        val length: Long = -1
+    val path: LocalPath,
+    val input: Source,
+    val length: Long = -1
 ) : DetailedInputSource.Stub() {
 
     override fun path(): LocalPath = path

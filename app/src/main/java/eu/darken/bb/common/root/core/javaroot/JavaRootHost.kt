@@ -73,8 +73,8 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
 
         // Grab a (limited) context
         component = DaggerRootComponent.builder()
-                .application(RootJava.getSystemContext())
-                .build()
+            .application(RootJava.getSystemContext())
+            .build()
         component.inject(this)
 
 
@@ -110,11 +110,11 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
          * @return Script
          */
         fun getLaunchScript(
-                context: Context,
-                clazz: KClass<*> = JavaRootHost::class,
-                params: Array<String>? = null,
-                libs: Array<String>? = null,
-                processName: String? = context.packageName + ":javaroothost"
+            context: Context,
+            clazz: KClass<*> = JavaRootHost::class,
+            params: Array<String>? = null,
+            libs: Array<String>? = null,
+            processName: String? = context.packageName + ":javaroothost"
         ): List<String> {
             // Add some of our parameters to whatever has been passed in
             // Doing it this way is an example of separating parameters you need every time from

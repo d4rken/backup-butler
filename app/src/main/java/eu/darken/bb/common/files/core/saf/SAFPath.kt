@@ -15,8 +15,8 @@ import java.io.IOException
 @Keep @Parcelize
 @JsonClass(generateAdapter = true)
 data class SAFPath(
-        internal val treeRoot: Uri,
-        internal val crumbs: List<String>
+    internal val treeRoot: Uri,
+    internal val crumbs: List<String>
 ) : APath {
 
     init {

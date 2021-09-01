@@ -18,10 +18,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class GeneratorsActionDialogVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val generatorId: Generator.Id,
-        private val generatorBuilder: GeneratorBuilder,
-        private val generatorRepo: GeneratorRepo
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val generatorId: Generator.Id,
+    private val generatorBuilder: GeneratorBuilder,
+    private val generatorRepo: GeneratorRepo
 ) : SmartVDC() {
 
     private val stateUpdater = Stater(State(loading = true))
@@ -29,51 +29,51 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
 
     init {
         generatorRepo.get(generatorId)
-                .subscribeOn(Schedulers.io())
-                .subscribeNullable { config ->
-                    val actions = listOf(
-                            Confirmable(EDIT),
-                            Confirmable(DELETE, requiredLvl = 1)
-                    )
-                    stateUpdater.update {
-                        if (config == null) {
-                            it.copy(loading = true, finished = true)
-                        } else {
-                            it.copy(
-                                    config = config,
-                                    loading = false,
-                                    allowedActions = actions
-                            )
-                        }
+            .subscribeOn(Schedulers.io())
+            .subscribeNullable { config ->
+                val actions = listOf(
+                    Confirmable(EDIT),
+                    Confirmable(DELETE, requiredLvl = 1)
+                )
+                stateUpdater.update {
+                    if (config == null) {
+                        it.copy(loading = true, finished = true)
+                    } else {
+                        it.copy(
+                            config = config,
+                            loading = false,
+                            allowedActions = actions
+                        )
                     }
                 }
+            }
     }
 
     fun generatorAction(action: GeneratorsAction) {
         when (action) {
             EDIT -> {
                 generatorBuilder.startEditor(generatorId)
-                        .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .subscribe()
+                    .subscribeOn(Schedulers.io())
+                    .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                    .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                    .subscribe()
             }
             DELETE -> {
                 Single.timer(200, TimeUnit.MILLISECONDS)
-                        .flatMap { generatorRepo.remove(generatorId) }
-                        .subscribeOn(Schedulers.io())
-                        .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                        .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                        .subscribe()
+                    .flatMap { generatorRepo.remove(generatorId) }
+                    .subscribeOn(Schedulers.io())
+                    .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
+                    .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
+                    .subscribe()
             }
         }
     }
 
     data class State(
-            val loading: Boolean = true,
-            val finished: Boolean = false,
-            val config: Generator.Config? = null,
-            val allowedActions: List<Confirmable<GeneratorsAction>> = listOf()
+        val loading: Boolean = true,
+        val finished: Boolean = false,
+        val config: Generator.Config? = null,
+        val allowedActions: List<Confirmable<GeneratorsAction>> = listOf()
     )
 
     @AssistedInject.Factory

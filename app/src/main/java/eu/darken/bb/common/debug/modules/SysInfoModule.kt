@@ -18,27 +18,27 @@ import timber.log.Timber
 
 @SuppressLint("NewApi")
 class SysInfoModule @AssistedInject constructor(
-        @Assisted host: DebugModuleHost,
-        @AppContext context: Context
+    @Assisted host: DebugModuleHost,
+    @AppContext context: Context
 ) : DebugModule {
     private var previousOptions: DebugOptions = DebugOptions.default()
 
     init {
         host.observeOptions()
-                .observeOn(Schedulers.io())
-                .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-                .doOnNext { previousOptions = it }
-                .subscribe {
-                    if (ApiHelper.hasAndroidN()) {
-                        val appLocales = context.resources.configuration.locales
-                        val deviceLocales = Resources.getSystem().configuration.locales
-                        Timber.tag(TAG).d("App locales: %s, Device locales: %s", appLocales, deviceLocales)
-                    } else {
-                        val appLocale = context.resources.configuration.locale
-                        val deviceLocale = Resources.getSystem().configuration.locale
-                        Timber.tag(TAG).d("App locales: %s, Device locales: %s", appLocale, deviceLocale)
-                    }
+            .observeOn(Schedulers.io())
+            .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
+            .doOnNext { previousOptions = it }
+            .subscribe {
+                if (ApiHelper.hasAndroidN()) {
+                    val appLocales = context.resources.configuration.locales
+                    val deviceLocales = Resources.getSystem().configuration.locales
+                    Timber.tag(TAG).d("App locales: %s, Device locales: %s", appLocales, deviceLocales)
+                } else {
+                    val appLocale = context.resources.configuration.locale
+                    val deviceLocale = Resources.getSystem().configuration.locale
+                    Timber.tag(TAG).d("App locales: %s, Device locales: %s", appLocale, deviceLocale)
                 }
+            }
     }
 
     companion object {

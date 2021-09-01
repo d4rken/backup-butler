@@ -107,8 +107,8 @@ class AppEditorConfigFragment : SmartFragment(), AutoInject {
 
     private fun navigatePreview(mode: PreviewMode) {
         val args = AppEditorPreviewFragmentArgs(
-                generatorId = navArgs.generatorId,
-                previewMode = mode
+            generatorId = navArgs.generatorId,
+            previewMode = mode
         )
         findNavController().navigate(R.id.action_appEditorConfigFragment_to_appEditorPreviewFragment, args.toBundle())
     }
@@ -120,7 +120,8 @@ class AppEditorConfigFragment : SmartFragment(), AutoInject {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        menu.findItem(R.id.action_create).title =
+            getString(if (existing) R.string.general_save_action else R.string.general_create_action)
         return super.onPrepareOptionsMenu(menu)
     }
 

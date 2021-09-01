@@ -6,8 +6,8 @@ import eu.darken.bb.common.lists.HasStableId
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 
 abstract class ConfigUIWrap(
-        private val configWrap: SimpleRestoreTaskEditor.ConfigWrap,
-        private val configCallback: (Restore.Config, Backup.Id?) -> Unit
+    private val configWrap: SimpleRestoreTaskEditor.ConfigWrap,
+    private val configCallback: (Restore.Config, Backup.Id?) -> Unit
 ) : HasStableId {
 
     val isCustomConfig: Boolean = configWrap.isCustomConfig

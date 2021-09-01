@@ -6,5 +6,5 @@ import eu.darken.bb.common.ui.PreviewView
 
 fun <T> GlideRequest<T>.into(previewView: PreviewView): ViewTarget<ImageView, T> {
     return listener(PlaceHolderRequestListener(previewView.image, previewView.placeHolder))
-            .into(previewView.image)
+        .into(previewView.image)
 }

@@ -16,21 +16,23 @@ import eu.darken.bb.workers.WorkerBinder
 
 
 @PerApp
-@Component(modules = [
-    AndroidSupportInjectionModule::class,
-    AssistedInjectModule::class,
-    AndroidModule::class,
-    ServiceBinder::class,
-    ReceiverBinder::class,
-    ActivityBinder::class,
-    AppModule::class,
-    DebugModuleModule::class,
-    WorkerBinder::class,
-    StorageTypeModule::class,
-    BackupTypeModule::class,
-    TaskTypeModule::class,
-    ProcessorModule::class
-])
+@Component(
+    modules = [
+        AndroidSupportInjectionModule::class,
+        AssistedInjectModule::class,
+        AndroidModule::class,
+        ServiceBinder::class,
+        ReceiverBinder::class,
+        ActivityBinder::class,
+        AppModule::class,
+        DebugModuleModule::class,
+        WorkerBinder::class,
+        StorageTypeModule::class,
+        BackupTypeModule::class,
+        TaskTypeModule::class,
+        ProcessorModule::class
+    ]
+)
 interface AppComponent : AndroidInjector<App> {
 
     fun inject(main: MainActivity)

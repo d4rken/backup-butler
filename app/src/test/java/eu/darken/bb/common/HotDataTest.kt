@@ -66,8 +66,8 @@ class HotDataTest {
     fun `test updating`() {
         val testSched = TestScheduler()
         val hotData = HotData(
-                initialValue = { "strawberry" },
-                scheduler = testSched
+            initialValue = { "strawberry" },
+            scheduler = testSched
         )
         testSched.triggerActions()
         hotData.snapshot shouldBe "strawberry"
@@ -83,8 +83,8 @@ class HotDataTest {
     fun `test rx updating`() {
         val testSched = TestScheduler()
         val hotData = HotData(
-                initialValue = { "strawberry" },
-                scheduler = testSched
+            initialValue = { "strawberry" },
+            scheduler = testSched
         )
         testSched.triggerActions()
         hotData.snapshot shouldBe "strawberry"
@@ -101,8 +101,8 @@ class HotDataTest {
     fun `test rx update failing`() {
         val testSched = TestScheduler()
         val hotData = HotData(
-                initialValue = { "strawberry" },
-                scheduler = testSched
+            initialValue = { "strawberry" },
+            scheduler = testSched
         )
         testSched.triggerActions()
         hotData.snapshot shouldBe "strawberry"

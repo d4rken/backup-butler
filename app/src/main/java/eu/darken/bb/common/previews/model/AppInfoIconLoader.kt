@@ -19,7 +19,12 @@ import javax.inject.Inject
 
 class AppInfoIconLoader : ModelLoader<AppPreviewRequest, AppIconData> {
 
-    override fun buildLoadData(app: AppPreviewRequest, width: Int, height: Int, options: Options): ModelLoader.LoadData<AppIconData>? {
+    override fun buildLoadData(
+        app: AppPreviewRequest,
+        width: Int,
+        height: Int,
+        options: Options
+    ): ModelLoader.LoadData<AppIconData>? {
         return ModelLoader.LoadData(ObjectKey(app), AppDataFetcher(app))
     }
 
@@ -47,7 +52,8 @@ class AppInfoIconLoader : ModelLoader<AppPreviewRequest, AppIconData> {
     }
 
     @PerApp
-    class Factory @Inject constructor(@AppContext val context: Context) : ModelLoaderFactory<AppPreviewRequest, AppIconData> {
+    class Factory @Inject constructor(@AppContext val context: Context) :
+        ModelLoaderFactory<AppPreviewRequest, AppIconData> {
 
         override fun build(multiModelLoaderFactory: MultiModelLoaderFactory): ModelLoader<AppPreviewRequest, AppIconData> {
             return AppInfoIconLoader()

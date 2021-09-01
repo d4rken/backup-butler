@@ -60,8 +60,8 @@ class RequirementsFragment : SmartFragment(), AutoInject {
                     Task.Type.RESTORE_SIMPLE -> R.id.action_permissionFragment_to_restoreSourcesFragment
                 }
                 findNavController().navigate(
-                        nextStep,
-                        SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
+                    nextStep,
+                    SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
                 )
             }
         }

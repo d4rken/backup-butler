@@ -29,7 +29,8 @@ class AndroidModule {
 
     @Provides
     @PerApp
-    fun preferences(@AppContext context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    fun preferences(@AppContext context: Context): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
     @PerApp
@@ -41,11 +42,13 @@ class AndroidModule {
 
     @Provides
     @PerApp
-    fun audioManager(@AppContext context: Context): AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    fun audioManager(@AppContext context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     @Provides
     @PerApp
-    fun notificationManager(@AppContext context: Context): NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    fun notificationManager(@AppContext context: Context): NotificationManager =
+        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     @Provides
     @PerApp

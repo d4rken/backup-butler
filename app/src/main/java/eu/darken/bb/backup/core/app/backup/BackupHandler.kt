@@ -14,20 +14,20 @@ interface BackupHandler : Progress.Client, Progress.Host, SharedHolder.HasKeepAl
     val priority: Int
 
     fun isResponsible(
-            type: AppBackupWrap.DataType,
-            config: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            target: APath?
+        type: AppBackupWrap.DataType,
+        config: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        target: APath?
     ): Boolean
 
     fun backup(
-            type: AppBackupWrap.DataType,
-            backupId: Backup.Id,
-            spec: AppBackupSpec,
-            appInfo: ApplicationInfo,
-            wrap: AppBackupWrap,
-            target: APath?,
-            logListener: ((LogEvent) -> Unit)?
+        type: AppBackupWrap.DataType,
+        backupId: Backup.Id,
+        spec: AppBackupSpec,
+        appInfo: ApplicationInfo,
+        wrap: AppBackupWrap,
+        target: APath?,
+        logListener: ((LogEvent) -> Unit)?
     )
 
 }

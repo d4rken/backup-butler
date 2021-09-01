@@ -42,11 +42,11 @@ class APathPickerActivity : SmartActivity(), HasSupportFragmentInjector {
     private val graph by lazy { navController.navInflater.inflate(R.navigation.picker_nav) }
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()
-                .setFallbackOnNavigateUpListener {
-                    finish()
-                    true
-                }
-                .build()
+            .setFallbackOnNavigateUpListener {
+                finish()
+                true
+            }
+            .build()
     }
 
     private val sharedVM by lazy { ViewModelProvider(this).get(SharedPickerVM::class.java) }

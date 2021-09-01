@@ -33,7 +33,8 @@ interface Props {
     }
 
     companion object {
-        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Props> = MyPolymorphicJsonAdapterFactory.of(Props::class.java, "dataType")
+        val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Props> =
+            MyPolymorphicJsonAdapterFactory.of(Props::class.java, "dataType")
                 .withSubtype(FileProps::class.java, MMRef.Type.FILE.name)
                 .withSubtype(SymlinkProps::class.java, MMRef.Type.SYMLINK.name)
                 .withSubtype(DirectoryProps::class.java, MMRef.Type.DIRECTORY.name)

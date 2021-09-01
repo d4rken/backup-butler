@@ -11,8 +11,8 @@ import eu.darken.bb.R
 
 
 class PlaceHolderRequestListener<T> @JvmOverloads constructor(
-        private val imageHolder: ImageView,
-        private val placeHolder: View? = null
+    private val imageHolder: ImageView,
+    private val placeHolder: View? = null
 ) : RequestListener<T> {
 
     init {
@@ -31,7 +31,13 @@ class PlaceHolderRequestListener<T> @JvmOverloads constructor(
         return true
     }
 
-    override fun onResourceReady(resource: T, model: Any, target: Target<T>, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+    override fun onResourceReady(
+        resource: T,
+        model: Any,
+        target: Target<T>,
+        dataSource: DataSource,
+        isFirstResource: Boolean
+    ): Boolean {
         this.imageHolder.visibility = View.VISIBLE
         if (placeHolder != null) placeHolder.visibility = View.GONE
         if (resource is Animatable) {

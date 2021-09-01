@@ -11,8 +11,8 @@ import eu.darken.bb.common.ui.setGone
 import javax.inject.Inject
 
 
-class ContentEntryAdapter @Inject constructor()
-    : ModularAdapter<ContentEntryAdapter.VH>(), DataAdapter<Backup.ContentInfo.Entry> {
+class ContentEntryAdapter @Inject constructor() : ModularAdapter<ContentEntryAdapter.VH>(),
+    DataAdapter<Backup.ContentInfo.Entry> {
 
     override val data = mutableListOf<Backup.ContentInfo.Entry>()
 
@@ -23,8 +23,8 @@ class ContentEntryAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup)
-        : ModularAdapter.VH(R.layout.storage_viewer_item_content_entry_adapter_line, parent), BindableVH<Backup.ContentInfo.Entry> {
+    class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_viewer_item_content_entry_adapter_line, parent),
+        BindableVH<Backup.ContentInfo.Entry> {
         //        @BindView(R.id.icon) lateinit var icon: ImageView
         @BindView(R.id.caption) lateinit var captionView: TextView
         @BindView(R.id.description) lateinit var descriptionView: TextView

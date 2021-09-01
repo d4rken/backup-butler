@@ -5,8 +5,8 @@ import okio.Source
 import okio.Timeout
 
 class SourceWithCallbacks(
-        private val wrappedSource: Source,
-        private val onPostClosed: () -> Unit
+    private val wrappedSource: Source,
+    private val onPostClosed: () -> Unit
 ) : Source {
     override fun read(sink: Buffer, byteCount: Long): Long = wrappedSource.read(sink, byteCount)
 

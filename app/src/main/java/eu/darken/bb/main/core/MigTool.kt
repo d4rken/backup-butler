@@ -15,23 +15,23 @@ object MigTool {
     }
 
     class StringAct(
-            oldKey: String,
-            newKey: String,
-            defaultValue: String? = null
+        oldKey: String,
+        newKey: String,
+        defaultValue: String? = null
     ) : Act(MigTool.Type.STRING, oldKey, MigTool.Type.STRING, newKey, defaultValue)
 
     class BoolAct(
-            oldKey: String,
-            newKey: String,
-            defaultValue: Boolean = false
+        oldKey: String,
+        newKey: String,
+        defaultValue: Boolean = false
     ) : Act(MigTool.Type.BOOLEAN, oldKey, MigTool.Type.BOOLEAN, newKey, defaultValue)
 
     open class Act(
-            val oldType: Type,
-            val oldKey: String,
-            val newType: Type,
-            val newKey: String,
-            val defaultValue: Any? = null
+        val oldType: Type,
+        val oldKey: String,
+        val newType: Type,
+        val newKey: String,
+        val defaultValue: Any? = null
     )
 
     @JvmStatic fun act(oldType: Type, oldKey: String, newType: Type, newKey: String): Act {
@@ -40,7 +40,15 @@ object MigTool {
 
     @JvmStatic fun migrate(oldPrefs: SharedPreferences, newPrefs: SharedPreferences, act: Act) {
         if (!oldPrefs.contains(act.oldKey)) return
-        Timber.tag(TAG).i("Migrating {%s}%s(%s) to {%s}%s(%s)", act.oldType, act.oldKey, oldPrefs, act.newType, act.newKey, newPrefs)
+        Timber.tag(TAG).i(
+            "Migrating {%s}%s(%s) to {%s}%s(%s)",
+            act.oldType,
+            act.oldKey,
+            oldPrefs,
+            act.newType,
+            act.newKey,
+            newPrefs
+        )
 
         if (act.oldType == MigTool.Type.STRING && act.newType == MigTool.Type.STRING) {
             val defaultValue = if (act is StringAct) act.defaultValue as? String else null

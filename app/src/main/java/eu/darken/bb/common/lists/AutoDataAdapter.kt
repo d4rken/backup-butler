@@ -8,10 +8,10 @@ interface AutoDataAdapter<T : HasStableId> {
 }
 
 fun <X, T : HasStableId> X.update(
-        newData: List<T>?,
-        notify: Boolean = true,
-        compareItem: (T, T) -> Boolean = { i1, i2 -> i1 == i2 },
-        compareContent: (T, T) -> Boolean = { i1, i2 -> i1 == i2 }
+    newData: List<T>?,
+    notify: Boolean = true,
+    compareItem: (T, T) -> Boolean = { i1, i2 -> i1 == i2 },
+    compareContent: (T, T) -> Boolean = { i1, i2 -> i1 == i2 }
 ) where X : AutoDataAdapter<T>, X : RecyclerView.Adapter<*> {
 
     val oldData = data.toList()

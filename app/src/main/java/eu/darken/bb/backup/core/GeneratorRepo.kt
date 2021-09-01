@@ -20,9 +20,9 @@ import javax.inject.Inject
 
 @PerApp
 class GeneratorRepo @Inject constructor(
-        @AppContext context: Context,
-        moshi: Moshi,
-        private val pathTool: GatewaySwitch
+    @AppContext context: Context,
+    moshi: Moshi,
+    private val pathTool: GatewaySwitch
 ) {
     private val configAdapter = moshi.adapter(Generator.Config::class.java)
     private val preferences: SharedPreferences = context.getSharedPreferences("backup_generators", Context.MODE_PRIVATE)
@@ -40,7 +40,7 @@ class GeneratorRepo @Inject constructor(
     }
 
     fun get(id: Generator.Id): Maybe<Generator.Config> = configs.latest()
-            .flatMapMaybe { Maybe.fromCallable { it[id] } }
+        .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     // Puts the spec into storage, returns the previous value
     @Synchronized fun put(config: Generator.Config): Single<Opt<Generator.Config>> = Single.fromCallable {

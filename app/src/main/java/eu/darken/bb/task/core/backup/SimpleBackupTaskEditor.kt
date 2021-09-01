@@ -14,32 +14,32 @@ import io.reactivex.rxjava3.core.Single
 
 
 class SimpleBackupTaskEditor @AssistedInject constructor(
-        @Assisted private val taskId: Task.Id
+    @Assisted private val taskId: Task.Id
 ) : TaskEditor {
     private val editorDataPub = HotData(Data(taskId = taskId))
     override val editorData = editorDataPub.data
 
     override fun load(task: Task): Completable = Single.just(task as SimpleBackupTask)
-            .flatMap { simpleTask ->
-                require(taskId == simpleTask.taskId) { "IDs don't match" }
-                editorDataPub.updateRx {
-                    it.copy(
-                            label = simpleTask.label,
-                            isExistingTask = true,
-                            sources = simpleTask.sources,
-                            destinations = simpleTask.destinations
-                    )
-                }
+        .flatMap { simpleTask ->
+            require(taskId == simpleTask.taskId) { "IDs don't match" }
+            editorDataPub.updateRx {
+                it.copy(
+                    label = simpleTask.label,
+                    isExistingTask = true,
+                    sources = simpleTask.sources,
+                    destinations = simpleTask.destinations
+                )
             }
-            .ignoreElement()
+        }
+        .ignoreElement()
 
     override fun save(): Single<out Task> = Single.fromCallable {
         val data = editorDataPub.snapshot
         SimpleBackupTask(
-                taskId = data.taskId,
-                label = data.label,
-                sources = data.sources,
-                destinations = data.destinations
+            taskId = data.taskId,
+            label = data.label,
+            sources = data.sources,
+            destinations = data.destinations
         )
     }
 
@@ -78,12 +78,12 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
     }
 
     data class Data(
-            override val taskId: Task.Id,
-            override val label: String = "",
-            override val isExistingTask: Boolean = false,
-            override val isOneTimeTask: Boolean = false,
-            val sources: Set<Generator.Id> = emptySet(),
-            val destinations: Set<Storage.Id> = emptySet()
+        override val taskId: Task.Id,
+        override val label: String = "",
+        override val isExistingTask: Boolean = false,
+        override val isOneTimeTask: Boolean = false,
+        val sources: Set<Generator.Id> = emptySet(),
+        val destinations: Set<Storage.Id> = emptySet()
     ) : TaskEditor.Data
 
     companion object {

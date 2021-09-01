@@ -14,9 +14,9 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 class FileOpsHost @Inject constructor(
-        private val sharedShell: SharedShell,
-        private val libcoreTool: LibcoreTool,
-        private val ipcFunnel: IPCFunnel
+    private val sharedShell: SharedShell,
+    private val libcoreTool: LibcoreTool,
+    private val ipcFunnel: IPCFunnel
 ) : FileOpsConnection.Stub() {
 
     override fun lookUp(path: LocalPath): LocalPathLookup = try {

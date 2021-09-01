@@ -47,8 +47,8 @@ class AppBackupWrap
     }
 
     enum class DataType(
-            val key: String,
-            @StringRes val labelRes: Int
+        val key: String,
+        @StringRes val labelRes: Int
     ) {
         APK_BASE("APK_BASE", R.string.app_apk_base_label),
         APK_SPLIT("APK_SPLIT", R.string.app_apk_split_label),

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    style="@style/ThreeLineListItemContainer"
+<androidx.constraintlayout.widget.ConstraintLayout style="@style/ThreeLineListItemContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/type_label"
         tools:ignore="HardcodedText"
-        tools:src="@drawable/ic_backup"/>
+        tools:src="@drawable/ic_backup" />
 
 
     <TextView
@@ -32,7 +31,7 @@
         app:layout_constraintEnd_toStartOf="@+id/status_icon"
         app:layout_constraintStart_toEndOf="@+id/type_icon"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Lorem ipsum task name"/>
+        tools:text="Lorem ipsum task name" />
 
     <TextView
         android:id="@+id/task_label"
@@ -45,7 +44,7 @@
         app:layout_constraintEnd_toStartOf="@+id/status_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/type_label"
-        tools:text="Backup task"/>
+        tools:text="Backup task" />
 
     <ImageView
         android:id="@+id/status_icon"
@@ -57,7 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="HardcodedText"
-        tools:src="@drawable/ic_error_outline"/>
+        tools:src="@drawable/ic_error_outline" />
 
     <TextView
         android:id="@+id/primary"
@@ -72,6 +71,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/task_label"
         app:layout_constraintTop_toBottomOf="@+id/task_label"
-        tools:text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."/>
+        tools:text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua." />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

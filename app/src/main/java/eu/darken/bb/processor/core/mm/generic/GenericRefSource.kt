@@ -11,18 +11,18 @@ import okio.Source
 import timber.log.Timber
 
 class GenericRefSource(
-        private val sourceGenerator: (Props) -> Source,
-        propGenerator: () -> Props
+    private val sourceGenerator: (Props) -> Source,
+    propGenerator: () -> Props
 ) : BaseRefSource() {
 
     constructor(
-            gateway: GatewaySwitch,
-            path: APath,
-            label: String? = null,
-            providedProps: Props? = null
+        gateway: GatewaySwitch,
+        path: APath,
+        label: String? = null,
+        providedProps: Props? = null
     ) : this(
-            sourceGenerator = { path.read(gateway) },
-            propGenerator = { providedProps ?: path.lookup(gateway).toProps(label) }
+        sourceGenerator = { path.read(gateway) },
+        propGenerator = { providedProps ?: path.lookup(gateway).toProps(label) }
     )
 
     override val props: Props by lazy { propGenerator() }

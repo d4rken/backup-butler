@@ -24,8 +24,8 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
 
     abstract fun onBindBaseVH(holder: T, position: Int)
 
-    abstract class VH(@LayoutRes layoutRes: Int, parent: ViewGroup)
-        : RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)) {
+    abstract class VH(@LayoutRes layoutRes: Int, parent: ViewGroup) :
+        RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)) {
 
         val context: Context = parent.context
 
@@ -36,10 +36,10 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
         fun getString(@StringRes stringRes: Int, vararg args: Any): String = context.getString(stringRes, *args)
 
         fun getQuantityString(@PluralsRes pluralRes: Int, quantity: Int, vararg args: Any): String =
-                context.resources.getQuantityString(pluralRes, quantity, *args)
+            context.resources.getQuantityString(pluralRes, quantity, *args)
 
         fun getQuantityString(@PluralsRes pluralRes: Int, quantity: Int): String =
-                context.resources.getQuantityString(pluralRes, quantity, quantity)
+            context.resources.getQuantityString(pluralRes, quantity, quantity)
 
     }
 }

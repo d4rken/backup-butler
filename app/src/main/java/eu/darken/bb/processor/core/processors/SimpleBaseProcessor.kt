@@ -16,8 +16,8 @@ import eu.darken.bb.task.core.results.TaskResult
 import timber.log.Timber
 
 abstract class SimpleBaseProcessor constructor(
-        val context: Context,
-        val progressParent: Progress.Client
+    val context: Context,
+    val progressParent: Progress.Client
 ) : Processor, Progress.Client, SharedHolder.HasKeepAlive<Any> {
 
     val progressChild = object : Progress.Client {

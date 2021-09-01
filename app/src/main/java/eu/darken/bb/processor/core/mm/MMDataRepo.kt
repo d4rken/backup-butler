@@ -16,8 +16,8 @@ import kotlin.concurrent.thread
 
 @PerApp
 class MMDataRepo @Inject constructor(
-        @CachePath private val cachePath: File,
-        moshi: Moshi
+    @CachePath private val cachePath: File,
+    moshi: Moshi
 ) {
 
     private val tmpDir: File = File(cachePath, CACHEDIR)
@@ -41,9 +41,9 @@ class MMDataRepo @Inject constructor(
         val refId = MMRef.Id()
 
         val ref = MMRef(
-                refId = refId,
-                backupId = request.backupId,
-                source = request.source
+            refId = refId,
+            backupId = request.backupId,
+            source = request.source
         )
 
         refMap.getOrPut(request.backupId, { mutableListOf() }).add(ref)

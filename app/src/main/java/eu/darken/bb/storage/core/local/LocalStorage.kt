@@ -44,12 +44,12 @@ import java.util.concurrent.TimeUnit
 
 
 class LocalStorage @AssistedInject constructor(
-        @Assisted storageRef: Storage.Ref,
-        @Assisted storageConfig: Storage.Config,
-        @AppContext override val context: Context,
-        moshi: Moshi,
-        private val mmDataRepo: MMDataRepo,
-        private val localGateway: LocalGateway
+    @Assisted storageRef: Storage.Ref,
+    @Assisted storageConfig: Storage.Config,
+    @AppContext override val context: Context,
+    moshi: Moshi,
+    private val mmDataRepo: MMDataRepo,
+    private val localGateway: LocalGateway
 ) : Storage, HasContext, Progress.Client {
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
@@ -66,12 +66,12 @@ class LocalStorage @AssistedInject constructor(
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
     private val dataDirEvents = Observable
-            .fromCallable { dataDir.listFilesThrowing() }
-            .subscribeOn(Schedulers.io())
-            .onErrorReturnItem(emptyList())
-            .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
-            .filterUnchanged { old, new -> old.toList() != new.toList() }
-            .replayingShare()
+        .fromCallable { dataDir.listFilesThrowing() }
+        .subscribeOn(Schedulers.io())
+        .onErrorReturnItem(emptyList())
+        .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
+        .filterUnchanged { old, new -> old.toList() != new.toList() }
+        .replayingShare()
 
     init {
         Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
@@ -82,82 +82,84 @@ class LocalStorage @AssistedInject constructor(
 
     override fun info(): Observable<Storage.Info> = infoObs
     private val infoObs: Observable<Storage.Info> = Observable
-            .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
-            .flatMap { info ->
-                specInfos().map { contents ->
-                    var status: Storage.Info.Status? = null
-                    try {
-                        status = Storage.Info.Status(
-                                itemCount = contents.size,
-                                totalSize = 0,
-                                isReadOnly = dataDir.exists() && !dataDir.canWrite()
-                        )
-                    } catch (e: Exception) {
-                        Timber.tag(TAG).w(e)
-                    }
+        .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
+        .flatMap { info ->
+            specInfos().map { contents ->
+                var status: Storage.Info.Status? = null
+                try {
+                    status = Storage.Info.Status(
+                        itemCount = contents.size,
+                        totalSize = 0,
+                        isReadOnly = dataDir.exists() && !dataDir.canWrite()
+                    )
+                } catch (e: Exception) {
+                    Timber.tag(TAG).w(e)
+                }
 
-                    info.copy(status = status)
-                }.startWithItem(info)
-            }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
-            .doFinally { Timber.tag(TAG).d("info().doFinally()") }
-            .onErrorMixLast { last, error ->
-                // startWith
-                last!!.copy(error = error)
-            }
-            .replayingShare()
+                info.copy(status = status)
+            }.startWithItem(info)
+        }
+        .doOnError { Timber.tag(TAG).e(it) }
+        .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
+        .doFinally { Timber.tag(TAG).d("info().doFinally()") }
+        .onErrorMixLast { last, error ->
+            // startWith
+            last!!.copy(error = error)
+        }
+        .replayingShare()
 
     override fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info> = specInfos()
-            .map { specInfos ->
-                val item = specInfos.find { it.backupSpec.specId == specId }
-                requireNotNull(item) { "Can't find backup item for specId $specId" }
-            }
+        .map { specInfos ->
+            val item = specInfos.find { it.backupSpec.specId == specId }
+            requireNotNull(item) { "Can't find backup item for specId $specId" }
+        }
 
     override fun specInfos(): Observable<Collection<BackupSpec.Info>> = itemObs
     private val itemObs: Observable<Collection<BackupSpec.Info>> = dataDirEvents
-            .map { files ->
-                val content = mutableListOf<BackupSpec.Info>()
+        .map { files ->
+            val content = mutableListOf<BackupSpec.Info>()
 
-                for (backupDir in files) {
-                    if (backupDir.isFile) {
-                        Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
-                        continue
-                    }
-
-                    val backupConfig = try {
-                        readSpec(BackupSpec.Id(backupDir.name))
-                    } catch (e: Throwable) {
-                        if (e is InterruptedIOException) throw e
-                        Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
-                        continue
-                    }
-
-                    val metaDatas = getMetaDatas(backupConfig.specId)
-                    if (metaDatas.isEmpty()) {
-                        Timber.tag(TAG).w("Dir without backups? %s", backupDir)
-                        continue
-                    }
-
-                    val ref = LocalStorageSpecInfo(
-                            storageId = storageConfig.storageId,
-                            path = backupDir.asSFile(),
-                            backupSpec = backupConfig,
-                            backups = metaDatas
-                    )
-                    content.add(ref)
+            for (backupDir in files) {
+                if (backupDir.isFile) {
+                    Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
+                    continue
                 }
-                return@map content.toList() as Collection<BackupSpec.Info>
-            }
-            .doOnError { Timber.tag(TAG).e(it) }
-            .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
-            .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
-            .replayingShare()
 
-    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> = backupContent(specId, backupId)
+                val backupConfig = try {
+                    readSpec(BackupSpec.Id(backupDir.name))
+                } catch (e: Throwable) {
+                    if (e is InterruptedIOException) throw e
+                    Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
+                    continue
+                }
+
+                val metaDatas = getMetaDatas(backupConfig.specId)
+                if (metaDatas.isEmpty()) {
+                    Timber.tag(TAG).w("Dir without backups? %s", backupDir)
+                    continue
+                }
+
+                val ref = LocalStorageSpecInfo(
+                    storageId = storageConfig.storageId,
+                    path = backupDir.asSFile(),
+                    backupSpec = backupConfig,
+                    backups = metaDatas
+                )
+                content.add(ref)
+            }
+            return@map content.toList() as Collection<BackupSpec.Info>
+        }
+        .doOnError { Timber.tag(TAG).e(it) }
+        .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
+        .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
+        .replayingShare()
+
+    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> =
+        backupContent(specId, backupId)
             .map { Backup.Info(it.storageId, it.spec, it.metaData) }
 
-    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> = specInfo(specId)
+    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> =
+        specInfo(specId)
             .flatMap { item ->
                 item as LocalStorageSpecInfo
                 val backupDir = item.path.asFile().requireExists()
@@ -166,26 +168,26 @@ class LocalStorage @AssistedInject constructor(
                 val metaData = readBackupMeta(item.specId, backupId)
 
                 return@flatMap Observable.fromCallable { backupDir.listFilesThrowing() }
-                        .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-                        .filterUnchanged()
-                        .map {
-                            return@map versionDir.listFilesThrowing()
-                                    .filter { it.path.endsWith(PROP_EXT) }
-                                    .map { file ->
-                                        val props = file.source().use { mmDataRepo.readProps(it) }
-                                        Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
-                                    }
-                                    .toList()
-                        }
-                        .onErrorReturnItem(emptyList())
-                        .map {
-                            return@map Backup.ContentInfo(
-                                    storageId = storageId,
-                                    spec = backupSpec,
-                                    metaData = metaData,
-                                    items = it
-                            )
-                        }
+                    .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+                    .filterUnchanged()
+                    .map {
+                        return@map versionDir.listFilesThrowing()
+                            .filter { it.path.endsWith(PROP_EXT) }
+                            .map { file ->
+                                val props = file.source().use { mmDataRepo.readProps(it) }
+                                Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
+                            }
+                            .toList()
+                    }
+                    .onErrorReturnItem(emptyList())
+                    .map {
+                        return@map Backup.ContentInfo(
+                            storageId = storageId,
+                            spec = backupSpec,
+                            metaData = metaData,
+                            items = it
+                        )
+                    }
             }
             .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
             .doOnError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
@@ -230,9 +232,9 @@ class LocalStorage @AssistedInject constructor(
         updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
-                spec = item.backupSpec,
-                metaData = metaData,
-                data = dataMap
+            spec = item.backupSpec,
+            metaData = metaData,
+            data = dataMap
         )
     }
 
@@ -290,50 +292,51 @@ class LocalStorage @AssistedInject constructor(
         updateProgressPrimary(R.string.progress_writing_backup_metadata)
         writeBackupMeta(backup.specId, backup.backupId, backup.metaData)
         val info = Backup.Info(
-                storageId = storageId,
-                spec = backup.spec,
-                metaData = backup.metaData
+            storageId = storageId,
+            spec = backup.spec,
+            metaData = backup.metaData
         )
         Timber.tag(TAG).d("New backup created: %s", info)
         return info
     }
 
     override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = specInfo(specId)
-            .latest()
-            .map { specInfo ->
-                specInfo as LocalStorageSpecInfo
-                if (backupId != null) {
-                    val versionDir = getVersionDir(specId, backupId)
-                    versionDir.deleteAll()
-                } else {
-                    val backupDir = getSpecDir(specId)
-                    backupDir.deleteAll()
-                }
-                val newMetaData = if (backupId != null) {
-                    // Not a complete deletion
-                    getMetaDatas(specId)
-                } else {
-                    emptySet()
-                }
-                return@map specInfo.copy(backups = newMetaData)
+        .latest()
+        .map { specInfo ->
+            specInfo as LocalStorageSpecInfo
+            if (backupId != null) {
+                val versionDir = getVersionDir(specId, backupId)
+                versionDir.deleteAll()
+            } else {
+                val backupDir = getSpecDir(specId)
+                backupDir.deleteAll()
             }
+            val newMetaData = if (backupId != null) {
+                // Not a complete deletion
+                getMetaDatas(specId)
+            } else {
+                emptySet()
+            }
+            return@map specInfo.copy(backups = newMetaData)
+        }
 
     override fun detach(wipe: Boolean): Completable = Completable
-            .fromCallable {
-                if (wipe) {
-                    Timber.tag(TAG).i("Wiping %s", storageRef.path)
-                    // let's not use the gateway here as there is currently no reason to run this with root.
-                    storageRef.path.asFile().deleteAll()
-                }
-                // TODO dispose resources, i.e. observables.
+        .fromCallable {
+            if (wipe) {
+                Timber.tag(TAG).i("Wiping %s", storageRef.path)
+                // let's not use the gateway here as there is currently no reason to run this with root.
+                storageRef.path.asFile().deleteAll()
             }
-            .doOnSubscribe { Timber.tag(TAG).d("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
-            .doFinally { Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef) }
+            // TODO dispose resources, i.e. observables.
+        }
+        .doOnSubscribe { Timber.tag(TAG).d("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
+        .doFinally { Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef) }
 
 
     private fun getSpecDir(specId: BackupSpec.Id): File = File(dataDir, specId.value)
 
-    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): File = File(getSpecDir(specId), backupId.idString)
+    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): File =
+        File(getSpecDir(specId), backupId.idString)
 
     private fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()

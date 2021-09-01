@@ -19,26 +19,26 @@ import java.io.File
 import javax.inject.Provider
 
 class RecorderActivityVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val recordedPath: String,
-        @AppContext private val context: Context,
-        private val shareBuilderProvider: Provider<ShareBuilder>
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val recordedPath: String,
+    @AppContext private val context: Context,
+    private val shareBuilderProvider: Provider<ShareBuilder>
 ) : VDC() {
 
     private val pathCache = Observable.just(recordedPath)
     private val resultCacheObs = pathCache
-            .observeOn(Schedulers.io())
-            .map { path -> Pair(path, File(path).length()) }
-            .cache()
+        .observeOn(Schedulers.io())
+        .map { path -> Pair(path, File(path).length()) }
+        .cache()
 
     private val resultCacheCompressedObs = resultCacheObs
-            .observeOn(Schedulers.io())
-            .map { uncompressed ->
-                val zipped = "${uncompressed.first}.zip"
-                Zipper().zip(arrayOf(uncompressed.first), zipped)
-                Pair(zipped, File(zipped).length())
-            }
-            .cache()
+        .observeOn(Schedulers.io())
+        .map { uncompressed ->
+            val zipped = "${uncompressed.first}.zip"
+            Zipper().zip(arrayOf(uncompressed.first), zipped)
+            Pair(zipped, File(zipped).length())
+        }
+        .cache()
     private val stater = Stater(State())
 
     val state = stater.liveData
@@ -48,37 +48,37 @@ class RecorderActivityVDC @AssistedInject constructor(
             stater.update { it.copy(normalPath = path, normalSize = size) }
         }
         resultCacheCompressedObs
-                .subscribe(
-                        { (path, size) ->
-                            stater.update {
-                                it.copy(
-                                        compressedPath = path,
-                                        compressedSize = size,
-                                        loading = false
-                                )
-                            }
-                        },
-                        { error ->
-                            stater.update { it.copy(error = error) }
-                        }
-                )
+            .subscribe(
+                { (path, size) ->
+                    stater.update {
+                        it.copy(
+                            compressedPath = path,
+                            compressedSize = size,
+                            loading = false
+                        )
+                    }
+                },
+                { error ->
+                    stater.update { it.copy(error = error) }
+                }
+            )
 
     }
 
     fun share() {
         resultCacheCompressedObs
-                .subscribe {
-                    shareBuilderProvider.get().file(RawPath.build(it.first)).start()
-                }
+            .subscribe {
+                shareBuilderProvider.get().file(RawPath.build(it.first)).start()
+            }
     }
 
     data class State(
-            val normalPath: String? = null,
-            val normalSize: Long = -1L,
-            val compressedPath: String? = null,
-            val compressedSize: Long = -1L,
-            val error: Throwable? = null,
-            val loading: Boolean = true
+        val normalPath: String? = null,
+        val normalSize: Long = -1L,
+        val compressedPath: String? = null,
+        val compressedSize: Long = -1L,
+        val error: Throwable? = null,
+        val loading: Boolean = true
     )
 
     @AssistedInject.Factory

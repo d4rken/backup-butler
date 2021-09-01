@@ -4,10 +4,10 @@ import android.content.Context
 import eu.darken.bb.R
 
 data class OpStatus(
-        var success: Int = 0,
-        var skipped: Int = 0,
-        var failed: Int = 0,
-        var forceDisplay: Boolean = false
+    var success: Int = 0,
+    var skipped: Int = 0,
+    var failed: Int = 0,
+    var forceDisplay: Boolean = false
 ) {
 
     fun toDisplayString(context: Context): String {

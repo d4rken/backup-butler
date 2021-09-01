@@ -27,11 +27,11 @@ class InstallerReceiver : BroadcastReceiver() {
         val sessionId = intent.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -1)
 
         val event = InstallEvent(
-                code = code,
-                statusMessage = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
-                packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME),
-                sessionId = if (sessionId == -1) null else sessionId,
-                userAction = intent.getParcelableExtra(Intent.EXTRA_INTENT)
+            code = code,
+            statusMessage = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
+            packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME),
+            sessionId = if (sessionId == -1) null else sessionId,
+            userAction = intent.getParcelableExtra(Intent.EXTRA_INTENT)
         )
 
         Timber.tag(TAG).d("Processing event %s", event)
@@ -39,11 +39,11 @@ class InstallerReceiver : BroadcastReceiver() {
     }
 
     data class InstallEvent(
-            val code: Code,
-            val statusMessage: String?,
-            val packageName: String?,
-            val sessionId: Int?,
-            val userAction: Intent?
+        val code: Code,
+        val statusMessage: String?,
+        val packageName: String?,
+        val sessionId: Int?,
+        val userAction: Intent?
     ) {
         enum class Code {
             SUCCESS, ERROR, USER_ACTION

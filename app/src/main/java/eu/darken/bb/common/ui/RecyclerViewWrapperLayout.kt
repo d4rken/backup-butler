@@ -18,7 +18,7 @@ import timber.log.Timber
 
 @Suppress("ProtectedInFinal")
 class RecyclerViewWrapperLayout @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     @BindView(R.id.empty_container) protected lateinit var emptyContainer: ViewGroup
@@ -83,7 +83,8 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.RecyclerViewWrapperLayout)
 
             val loadingShow = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoading, false)
-            val consumeFirstLoading = typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingUntilFirstChange, false)
+            val consumeFirstLoading =
+                typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingUntilFirstChange, false)
 
             val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
             if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
@@ -106,9 +107,9 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             }
 
             state = State(
-                    hasExplanation = explanationText != null,
-                    isLoading = loadingShow,
-                    consumeFirstLoading = consumeFirstLoading
+                hasExplanation = explanationText != null,
+                isLoading = loadingShow,
+                consumeFirstLoading = consumeFirstLoading
             )
         } finally {
             typedArray.recycle()
@@ -148,12 +149,12 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     }
 
     data class State(
-            val isPreFirstData: Boolean = true,
-            val isPreFirstChange: Boolean = true,
-            val isLoading: Boolean,
-            val consumeFirstLoading: Boolean,
-            val hasExplanation: Boolean,
-            val dataCount: Int = 0
+        val isPreFirstData: Boolean = true,
+        val isPreFirstChange: Boolean = true,
+        val isLoading: Boolean,
+        val consumeFirstLoading: Boolean,
+        val hasExplanation: Boolean,
+        val dataCount: Int = 0
     )
 
 }

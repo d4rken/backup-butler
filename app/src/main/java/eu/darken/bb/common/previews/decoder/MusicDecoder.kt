@@ -16,8 +16,8 @@ import java.io.IOException
 
 
 class MusicDecoder(
-        private val context: Context,
-        glide: Glide
+    private val context: Context,
+    glide: Glide
 ) : ResourceDecoder<FileData, Bitmap> {
     private val mBitmapPool: BitmapPool = glide.bitmapPool
 

@@ -9,14 +9,14 @@ import java.util.*
 @Keep
 @Entity(tableName = "task_subresults")
 data class StoredSubResult(
-        @PrimaryKey
-        val id: TaskResult.SubResult.Id,
-        val resultId: TaskResult.Id,
-        val startedAt: Date,
-        val duration: Long,
-        val label: String,
-        val state: TaskResult.State,
-        val primary: String?,
-        val secondary: String?,
-        val extra: String?
+    @PrimaryKey
+    val id: TaskResult.SubResult.Id,
+    val resultId: TaskResult.Id,
+    val startedAt: Date,
+    val duration: Long,
+    val label: String,
+    val state: TaskResult.State,
+    val primary: String?,
+    val secondary: String?,
+    val extra: String?
 )

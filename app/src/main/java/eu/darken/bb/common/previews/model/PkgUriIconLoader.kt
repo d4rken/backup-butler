@@ -20,7 +20,12 @@ import javax.inject.Inject
 
 class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, AppIconData> {
 
-    override fun buildLoadData(request: PkgUriPreviewRequest, width: Int, height: Int, options: Options): ModelLoader.LoadData<AppIconData>? {
+    override fun buildLoadData(
+        request: PkgUriPreviewRequest,
+        width: Int,
+        height: Int,
+        options: Options
+    ): ModelLoader.LoadData<AppIconData>? {
         return ModelLoader.LoadData(ObjectKey(request), AppDataFetcher(pkgOps, request))
     }
 
@@ -28,7 +33,8 @@ class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, A
         return request.uri.scheme == UriHelper.APP_SCHEME
     }
 
-    private class AppDataFetcher constructor(val pkgOps: PkgOps, val request: PkgUriPreviewRequest) : DataFetcher<AppIconData> {
+    private class AppDataFetcher constructor(val pkgOps: PkgOps, val request: PkgUriPreviewRequest) :
+        DataFetcher<AppIconData> {
 
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in AppIconData>) {
             val pkgName = request.uri.host
@@ -52,7 +58,8 @@ class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, A
     }
 
     @PerApp
-    class Factory @Inject constructor(val pkgOpsLazy: Lazy<PkgOps>) : ModelLoaderFactory<PkgUriPreviewRequest, AppIconData> {
+    class Factory @Inject constructor(val pkgOpsLazy: Lazy<PkgOps>) :
+        ModelLoaderFactory<PkgUriPreviewRequest, AppIconData> {
 
         override fun build(multiModelLoaderFactory: MultiModelLoaderFactory): ModelLoader<PkgUriPreviewRequest, AppIconData> {
             return PkgUriIconLoader(pkgOpsLazy.get())

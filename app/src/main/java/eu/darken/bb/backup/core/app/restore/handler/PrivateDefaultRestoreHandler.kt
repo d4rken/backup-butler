@@ -34,9 +34,9 @@ import javax.inject.Inject
 
 @Reusable
 class PrivateDefaultRestoreHandler @Inject constructor(
-        @AppContext context: Context,
-        private val gateway: GatewaySwitch,
-        private val pkgOps: PkgOps
+    @AppContext context: Context,
+    private val gateway: GatewaySwitch,
+    private val pkgOps: PkgOps
 ) : BaseRestoreHandler(context) {
 
     private val progressPub = HotData(Progress.Data())
@@ -56,11 +56,11 @@ class PrivateDefaultRestoreHandler @Inject constructor(
     }
 
     override fun restore(
-            type: DataType,
-            appInfo: ApplicationInfo,
-            config: AppRestoreConfig,
-            wrap: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)?
+        type: DataType,
+        appInfo: ApplicationInfo,
+        config: AppRestoreConfig,
+        wrap: AppBackupWrap,
+        logListener: ((LogEvent) -> Unit)?
     ) {
         when (type) {
             DataType.DATA_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_restoring_app_data)
@@ -80,18 +80,19 @@ class PrivateDefaultRestoreHandler @Inject constructor(
                 doRestore(appInfo, config, type, archive, logListener)
                 updateProgressCount(Progress.Count.Percent(index + 1, toRestore.size))
             } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
+                Timber.tag(TAG)
+                    .e(e, "restore(pkg=%s, config=%s, toRestore=%s) failed", appInfo.packageName, config, toRestore)
                 throw e
             }
         }
     }
 
     private fun doRestore(
-            appInfo: ApplicationInfo,
-            config: AppRestoreConfig,
-            type: DataType,
-            archive: MMRef,
-            logListener: ((LogEvent) -> Unit)?
+        appInfo: ApplicationInfo,
+        config: AppRestoreConfig,
+        type: DataType,
+        archive: MMRef,
+        logListener: ((LogEvent) -> Unit)?
     ) {
 
         val directoryTimeStamps = mutableMapOf<APath, Date>()

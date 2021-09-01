@@ -14,10 +14,10 @@ import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
 
 class SchedulesFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        private val butler: BackupButler,
-        private val upgradeControl: UpgradeControl,
-        @AppContext private val context: Context
+    @Assisted private val handle: SavedStateHandle,
+    private val butler: BackupButler,
+    private val upgradeControl: UpgradeControl,
+    @AppContext private val context: Context
 ) : SmartVDC() {
 
 
@@ -26,8 +26,8 @@ class SchedulesFragmentVDC @AssistedInject constructor(
     }
 
     data class AppState(
-            val appInfo: BackupButler.AppInfo,
-            val upgradeData: UpgradeData
+        val appInfo: BackupButler.AppInfo,
+        val upgradeData: UpgradeData
     )
 
     @AssistedInject.Factory

@@ -59,10 +59,16 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
         vdc.summaryState.observe2(this) { state ->
             countTypes.setTextQuantity(R.plurals.task_editor_restore_x_backups_types_desc, state.backupTypes.size)
 
-            countCustomConfigs.setTextQuantity(R.plurals.task_editor_restore_x_items_custom_config_desc, state.customConfigCount)
+            countCustomConfigs.setTextQuantity(
+                R.plurals.task_editor_restore_x_items_custom_config_desc,
+                state.customConfigCount
+            )
             countCustomConfigs.setGone(state.customConfigCount == 0)
 
-            countConfigIssues.setTextQuantity(R.plurals.task_editor_restore_x_configs_have_issues, state.configsWithIssues)
+            countConfigIssues.setTextQuantity(
+                R.plurals.task_editor_restore_x_configs_have_issues,
+                state.configsWithIssues
+            )
             countConfigIssues.setGone(state.configsWithIssues == 0)
 
             setupBar.buttonPositivePrimary.setGone(state.configsWithIssues != 0)
@@ -73,33 +79,34 @@ class RestoreConfigFragment : SmartFragment(), AutoInject {
 
         vdc.configState.observe2(this) { state ->
             val defaultItems = state.defaultConfigs
-                    .map {
-                        when (it) {
-                            is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
-                                vdc.updateConfig(config, id)
-                            }
-                            is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,
-                                    configCallback = { config, id -> vdc.updateConfig(config, id) },
-                                    pathAction = null
-                            )
-                            else -> throw IllegalStateException("Unknown config type: $it")
+                .map {
+                    when (it) {
+                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                            vdc.updateConfig(config, id)
                         }
-
+                        is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(
+                            it,
+                            configCallback = { config, id -> vdc.updateConfig(config, id) },
+                            pathAction = null
+                        )
+                        else -> throw IllegalStateException("Unknown config type: $it")
                     }
+
+                }
             val customItems = state.customConfigs
-                    .map {
-                        when (it) {
-                            is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
-                                vdc.updateConfig(config, id)
-                            }
-                            is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,
-                                    configCallback = { config, id -> vdc.updateConfig(config, id) },
-                                    pathAction = { config, id -> vdc.pathAction(config, id!!) }
-                            )
-                            else -> throw IllegalStateException("Unknown config type: $it")
+                .map {
+                    when (it) {
+                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                            vdc.updateConfig(config, id)
                         }
-
+                        is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,
+                            configCallback = { config, id -> vdc.updateConfig(config, id) },
+                            pathAction = { config, id -> vdc.pathAction(config, id!!) }
+                        )
+                        else -> throw IllegalStateException("Unknown config type: $it")
                     }
+
+                }
             val adapterData = defaultItems.plus(customItems)
             adapter.update(adapterData)
 

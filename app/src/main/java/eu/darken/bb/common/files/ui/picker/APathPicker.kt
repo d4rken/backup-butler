@@ -18,19 +18,19 @@ object APathPicker {
 
     @Keep @Parcelize
     data class Options(
-            val startPath: APath? = null,
-            val selectionLimit: Int = 1,
-            val allowedTypes: Set<APath.PathType> = emptySet(),
-            val onlyDirs: Boolean = true,
-            val payload: Bundle = Bundle()
+        val startPath: APath? = null,
+        val selectionLimit: Int = 1,
+        val allowedTypes: Set<APath.PathType> = emptySet(),
+        val onlyDirs: Boolean = true,
+        val payload: Bundle = Bundle()
     ) : Parcelable {
         @IgnoredOnParcel @Transient val type: APath.PathType? = startPath?.pathType
 
     }
 
     fun createIntent(
-            context: Context,
-            options: Options
+        context: Context,
+        options: Options
     ): Intent {
         val intent = Intent(context, APathPickerActivity::class.java)
         val bundle = APathPickerActivityArgs(options = options).toBundle()
@@ -39,11 +39,11 @@ object APathPicker {
 
     @Keep @Parcelize
     data class Result(
-            val options: Options,
-            val error: Throwable? = null,
-            val selection: Set<APath>? = null,
-            val persistedPermissions: Set<SAFPath>? = null,
-            val payload: Bundle = Bundle()
+        val options: Options,
+        val error: Throwable? = null,
+        val selection: Set<APath>? = null,
+        val persistedPermissions: Set<SAFPath>? = null,
+        val payload: Bundle = Bundle()
     ) : Parcelable {
 
         @IgnoredOnParcel val isCanceled: Boolean = error == null && selection == null
@@ -66,7 +66,8 @@ object APathPicker {
             val result = fromActivityResult(data)
             if (!result.isCanceled) callback(result)
         } else if (resultCode == Activity.RESULT_OK) {
-            Toast.makeText(fragment.requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
+            Toast.makeText(fragment.requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

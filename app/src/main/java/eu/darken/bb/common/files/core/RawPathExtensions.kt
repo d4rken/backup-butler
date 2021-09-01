@@ -6,6 +6,6 @@ fun RawPath.crumbsTo(child: RawPath): Array<String> {
     val parentPath = this.path
     val pure = childPath.replaceFirst(parentPath, "")
     return pure.split(java.io.File.separatorChar)
-            .filter { it.isNotEmpty() }
-            .toTypedArray()
+        .filter { it.isNotEmpty() }
+        .toTypedArray()
 }

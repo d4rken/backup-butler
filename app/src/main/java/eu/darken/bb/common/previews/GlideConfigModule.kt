@@ -22,9 +22,11 @@ import javax.inject.Inject
 class GlideConfigModule : AppGlideModule() {
 
     override fun applyOptions(context: Context, builder: GlideBuilder) {
-        builder.setDefaultRequestOptions(RequestOptions
+        builder.setDefaultRequestOptions(
+            RequestOptions
                 .diskCacheStrategyOf(DiskCacheStrategy.NONE)
-                .priority(Priority.LOW))
+                .priority(Priority.LOW)
+        )
     }
 
     @Inject lateinit var pkgOpsLazy: Lazy<PkgOps>

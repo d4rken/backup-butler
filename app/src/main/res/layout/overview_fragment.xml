@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.core.widget.NestedScrollView
-    android:id="@+id/scrollview"
+<androidx.core.widget.NestedScrollView android:id="@+id/scrollview"
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -42,7 +41,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/card_update_latest_version"
@@ -53,7 +52,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/card_update_label"
                     app:layout_constraintTop_toBottomOf="@+id/card_update_label"
-                    tools:text="v0.0.1"/>
+                    tools:text="v0.0.1" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/card_update_action_changelog"
@@ -67,7 +66,7 @@
                     android:textColor="?colorOnPrimarySurface"
                     app:layout_constraintBottom_toBottomOf="@+id/card_update_action_update"
                     app:layout_constraintEnd_toStartOf="@+id/card_update_action_update"
-                    app:layout_constraintTop_toTopOf="@+id/card_update_action_update"/>
+                    app:layout_constraintTop_toTopOf="@+id/card_update_action_update" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/card_update_action_update"
@@ -82,7 +81,7 @@
                     android:textColor="?colorOnPrimarySurface"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/card_update_latest_version"/>
+                    app:layout_constraintTop_toBottomOf="@+id/card_update_latest_version" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -106,7 +105,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"/>
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/card_appinfos_version"
@@ -117,7 +116,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/card_appinfos_version_label"
-                    tools:text="v0.0.1"/>
+                    tools:text="v0.0.1" />
 
                 <TextView
                     android:id="@+id/card_appinfos_upgrades_label"
@@ -128,7 +127,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/card_appinfos_version"/>
+                    app:layout_constraintTop_toBottomOf="@+id/card_appinfos_version" />
 
                 <TextView
                     android:id="@+id/card_appinfos_upgrades"
@@ -139,7 +138,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/card_appinfos_upgrades_label"
-                    tools:text="Pro version (Subscription until 00.00.0000)"/>
+                    tools:text="Pro version (Subscription until 00.00.0000)" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

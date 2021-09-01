@@ -29,13 +29,13 @@ import javax.inject.Inject
 
 @PerApp
 class BBDebug @Inject constructor(
-        @AppContext private val context: Context,
-        moduleFactories: Set<@JvmSuppressWildcards DebugModule.Factory<out DebugModule>>,
-        private val generalSettings: GeneralSettings,
-        private val installId: InstallId,
-        private val errorHandlerSrc: Lazy<BugsnagErrorHandler>,
-        private val noopHandlerSrc: Lazy<NOPBugsnagErrorHandler>,
-        private val bugsnagTreeSrc: Lazy<BugsnagTree>
+    @AppContext private val context: Context,
+    moduleFactories: Set<@JvmSuppressWildcards DebugModule.Factory<out DebugModule>>,
+    private val generalSettings: GeneralSettings,
+    private val installId: InstallId,
+    private val errorHandlerSrc: Lazy<BugsnagErrorHandler>,
+    private val noopHandlerSrc: Lazy<NOPBugsnagErrorHandler>,
+    private val bugsnagTreeSrc: Lazy<BugsnagTree>
 ) : DebugModuleHost {
 
     private var preferences: SharedPreferences = context.getSharedPreferences("debug_settings", Context.MODE_PRIVATE)
@@ -49,8 +49,8 @@ class BBDebug @Inject constructor(
 
         if (BuildConfig.DEBUG) {
             val builder = StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
+                .detectAll()
+                .penaltyLog()
 
             @SuppressLint("NewApi")
             if (ApiHelper.hasMarshmallow()) builder.penaltyDeathOnCleartextNetwork()
@@ -59,12 +59,14 @@ class BBDebug @Inject constructor(
 
             StrictMode.setVmPolicy(builder.build())
 
-            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .penaltyLog()
                     .permitDiskReads()
                     .permitDiskWrites()
-                    .build())
+                    .build()
+            )
 
             submit { it.copy(level = Log.VERBOSE) }
         }

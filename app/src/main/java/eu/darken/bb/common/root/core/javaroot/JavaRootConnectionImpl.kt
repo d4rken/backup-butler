@@ -14,9 +14,9 @@ import javax.inject.Inject
 
 @PerApp
 class JavaRootConnectionImpl @Inject constructor(
-        private val context: Context,
-        private val fileOpsHost: Lazy<FileOpsHost>,
-        private val pkgOpsHost: Lazy<PkgOpsHost>
+    private val context: Context,
+    private val fileOpsHost: Lazy<FileOpsHost>,
+    private val pkgOpsHost: Lazy<PkgOpsHost>
 ) : JavaRootConnection.Stub() {
 
     override fun checkBase(): String {

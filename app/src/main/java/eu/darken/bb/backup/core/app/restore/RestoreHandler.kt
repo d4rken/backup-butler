@@ -15,10 +15,10 @@ interface RestoreHandler : Progress.Client, Progress.Host, SharedHolder.HasKeepA
     fun isResponsible(type: AppBackupWrap.DataType, config: AppRestoreConfig, spec: AppBackupSpec): Boolean
 
     fun restore(
-            type: AppBackupWrap.DataType,
-            appInfo: ApplicationInfo,
-            config: AppRestoreConfig,
-            wrap: AppBackupWrap,
-            logListener: ((LogEvent) -> Unit)? = null
+        type: AppBackupWrap.DataType,
+        appInfo: ApplicationInfo,
+        config: AppRestoreConfig,
+        wrap: AppBackupWrap,
+        logListener: ((LogEvent) -> Unit)? = null
     )
 }

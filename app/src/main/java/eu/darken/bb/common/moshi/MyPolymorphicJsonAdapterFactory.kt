@@ -9,13 +9,13 @@ import java.lang.reflect.Type
 import java.util.*
 
 class MyPolymorphicJsonAdapterFactory<T> internal constructor(
-        val baseType: Class<T>,
-        val labelKey: String,
-        val labels: List<String>,
-        val subtypes: List<Type>,
-        val defaultValue: T?,
-        val defaultValueSet: Boolean,
-        val dontSerializeLabelKey: Boolean = false
+    val baseType: Class<T>,
+    val labelKey: String,
+    val labels: List<String>,
+    val subtypes: List<Type>,
+    val defaultValue: T?,
+    val defaultValueSet: Boolean,
+    val dontSerializeLabelKey: Boolean = false
 ) : JsonAdapter.Factory {
 
     /**
@@ -31,22 +31,24 @@ class MyPolymorphicJsonAdapterFactory<T> internal constructor(
         newLabels.add(label)
         val newSubtypes = ArrayList(subtypes)
         newSubtypes.add(subtype)
-        return MyPolymorphicJsonAdapterFactory(baseType,
-                labelKey,
-                newLabels,
-                newSubtypes,
-                defaultValue,
-                defaultValueSet)
+        return MyPolymorphicJsonAdapterFactory(
+            baseType,
+            labelKey,
+            newLabels,
+            newSubtypes,
+            defaultValue,
+            defaultValueSet
+        )
     }
 
     fun skipLabelSerialization(): MyPolymorphicJsonAdapterFactory<T> = MyPolymorphicJsonAdapterFactory(
-            baseType,
-            labelKey,
-            labels,
-            subtypes,
-            defaultValue,
-            defaultValueSet,
-            true
+        baseType,
+        labelKey,
+        labels,
+        subtypes,
+        defaultValue,
+        defaultValueSet,
+        true
     )
 
     /**
@@ -54,12 +56,12 @@ class MyPolymorphicJsonAdapterFactory<T> internal constructor(
      * labels. The default value should be immutable.
      */
     fun withDefaultValue(defaultValue: T?): MyPolymorphicJsonAdapterFactory<T> = MyPolymorphicJsonAdapterFactory(
-            baseType,
-            labelKey,
-            labels,
-            subtypes,
-            defaultValue,
-            true
+        baseType,
+        labelKey,
+        labels,
+        subtypes,
+        defaultValue,
+        true
     )
 
     override fun create(type: Type, annotations: Set<Annotation>, moshi: Moshi): JsonAdapter<*>? {
@@ -75,28 +77,30 @@ class MyPolymorphicJsonAdapterFactory<T> internal constructor(
             i++
         }
 
-        return PolymorphicJsonAdapter(labelKey,
-                labels,
-                subtypes,
-                jsonAdapters,
-                defaultValue,
-                defaultValueSet,
-                dontSerializeLabelKey
+        return PolymorphicJsonAdapter(
+            labelKey,
+            labels,
+            subtypes,
+            jsonAdapters,
+            defaultValue,
+            defaultValueSet,
+            dontSerializeLabelKey
         ).nullSafe()
     }
 
     internal class PolymorphicJsonAdapter(
-            val labelKey: String,
-            val labels: List<String>,
-            val subtypes: List<Type>,
-            val jsonAdapters: List<JsonAdapter<Any>>,
-            val defaultValue: Any?,
-            val defaultValueSet: Boolean,
-            val dontSerializeLabelKey: Boolean
+        val labelKey: String,
+        val labels: List<String>,
+        val subtypes: List<Type>,
+        val jsonAdapters: List<JsonAdapter<Any>>,
+        val defaultValue: Any?,
+        val defaultValueSet: Boolean,
+        val dontSerializeLabelKey: Boolean
     ) : JsonAdapter<Any>() {
 
         /** Single-element options containing the label's key only.  */
         val labelKeyOptions: JsonReader.Options = JsonReader.Options.of(labelKey)
+
         /** Corresponds to subtypes.  */
         val labelOptions: JsonReader.Options = JsonReader.Options.of(*labels.toTypedArray())
 
@@ -129,13 +133,15 @@ class MyPolymorphicJsonAdapterFactory<T> internal constructor(
 
                 val labelIndex = reader.selectString(labelOptions)
                 if (labelIndex == -1 && !defaultValueSet) {
-                    throw JsonDataException("Expected one of "
-                            + labels
-                            + " for key '"
-                            + labelKey
-                            + "' but found '"
-                            + reader.nextString()
-                            + "'. Register a subtype for this label.")
+                    throw JsonDataException(
+                        "Expected one of "
+                                + labels
+                                + " for key '"
+                                + labelKey
+                                + "' but found '"
+                                + reader.nextString()
+                                + "'. Register a subtype for this label."
+                    )
                 }
                 return labelIndex
             }
@@ -183,11 +189,12 @@ class MyPolymorphicJsonAdapterFactory<T> internal constructor(
             if (baseType == null) throw NullPointerException("baseType == null")
             if (labelKey == null) throw NullPointerException("labelKey == null")
             return MyPolymorphicJsonAdapterFactory(
-                    baseType,
-                    labelKey,
-                    emptyList(),
-                    emptyList(), null,
-                    false)
+                baseType,
+                labelKey,
+                emptyList(),
+                emptyList(), null,
+                false
+            )
         }
     }
 }

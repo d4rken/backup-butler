@@ -28,17 +28,17 @@ import kotlinx.coroutines.rx3.awaitFirst
 import timber.log.Timber
 
 class RestoreConfigFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val safGateway: SAFGateway,
-        private val processorControl: ProcessorControl
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val safGateway: SAFGateway,
+    private val processorControl: ProcessorControl
 ) : SmartVDC() {
 
     private val editorObs = taskBuilder.task(taskId)
-            .subscribeOn(Schedulers.io())
-            .filter { it.editor != null }
-            .map { it.editor as SimpleRestoreTaskEditor }
+        .subscribeOn(Schedulers.io())
+        .filter { it.editor != null }
+        .map { it.editor as SimpleRestoreTaskEditor }
 
     private val dataObs = editorObs.flatMap { it.editorData }
     private val customConfigs = editorObs.flatMap { it.customConfigs }
@@ -57,48 +57,48 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
 
     init {
         dataObs
-                .subscribe { data ->
-                    val customCount = data.customConfigs
-                            .filterNot { data.defaultConfigs.values.contains(it.value) }
-                            .size
+            .subscribe { data ->
+                val customCount = data.customConfigs
+                    .filterNot { data.defaultConfigs.values.contains(it.value) }
+                    .size
 
-                    val wrappedDefaults = data.defaultConfigs.values
-                            .sortedBy { it.restoreType }
-                            .map {
-                                when (it.restoreType) {
-                                    Backup.Type.FILES -> SimpleRestoreTaskEditor.FilesConfigWrap(it as FilesRestoreConfig)
-                                    Backup.Type.APP -> SimpleRestoreTaskEditor.AppsConfigWrap(it as AppRestoreConfig)
-                                }
-                            }
-                            .toList()
+                val wrappedDefaults = data.defaultConfigs.values
+                    .sortedBy { it.restoreType }
+                    .map {
+                        when (it.restoreType) {
+                            Backup.Type.FILES -> SimpleRestoreTaskEditor.FilesConfigWrap(it as FilesRestoreConfig)
+                            Backup.Type.APP -> SimpleRestoreTaskEditor.AppsConfigWrap(it as AppRestoreConfig)
+                        }
+                    }
+                    .toList()
 
-                    summaryStater.update { state ->
-                        state.copy(
-                                backupTypes = data.defaultConfigs.values.map { it.restoreType },
-                                customConfigCount = customCount,
-                                isLoading = false
-                        )
-                    }
-                    configStater.update { state ->
-                        state.copy(
-                                defaultConfigs = wrappedDefaults
-                        )
-                    }
+                summaryStater.update { state ->
+                    state.copy(
+                        backupTypes = data.defaultConfigs.values.map { it.restoreType },
+                        customConfigCount = customCount,
+                        isLoading = false
+                    )
                 }
-                .withScopeVDC(this)
+                configStater.update { state ->
+                    state.copy(
+                        defaultConfigs = wrappedDefaults
+                    )
+                }
+            }
+            .withScopeVDC(this)
 
         customConfigs
-                .subscribe { customConfigs ->
-                    val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
-                    summaryStater.update { it.copy(configsWithIssues = issueCount) }
-                    configStater.update { state ->
-                        state.copy(
-                                customConfigs = customConfigs.sortedBy { it.backupInfoOpt!!.backupId.idString }.toList(),
-                                isLoading = false
-                        )
-                    }
+            .subscribe { customConfigs ->
+                val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
+                summaryStater.update { it.copy(configsWithIssues = issueCount) }
+                configStater.update { state ->
+                    state.copy(
+                        customConfigs = customConfigs.sortedBy { it.backupInfoOpt!!.backupId.idString }.toList(),
+                        isLoading = false
+                    )
                 }
-                .withScopeVDC(this)
+            }
+            .withScopeVDC(this)
     }
 
     fun updateConfig(config: Restore.Config, target: Backup.Id? = null) {
@@ -115,8 +115,8 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
         Timber.tag(TAG).d("updatePath(generator=%s, target=%s)", configWrapper, target)
         openPickerEvent.postValue(APathPicker.Options(
-                startPath = configWrapper.currentPath,
-                payload = Bundle().apply { putParcelable("backupId", target) }
+            startPath = configWrapper.currentPath,
+            payload = Bundle().apply { putParcelable("backupId", target) }
         ))
     }
 
@@ -130,22 +130,22 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
         result.options.payload.classLoader = this.javaClass.classLoader
         val backupId: Backup.Id = result.options.payload.getParcelable("backupId")!!
         editorObs.firstOrError()
-                .flatMap { it.updatePath(backupId, result.selection!!.first()) }
-                .subscribe()
+            .flatMap { it.updatePath(backupId, result.selection!!.first()) }
+            .subscribe()
     }
 
     private fun save(execute: Boolean) {
         editorObs.latest()
-                .flatMap { it.updateOneTime(execute) }
-                .flatMap { taskBuilder.save(taskId) }
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe {
-                    configStater.update { it.copy(isWorking = true) }
-                }
-                .subscribe { savedTask ->
-                    if (execute) processorControl.submit(savedTask)
-                    finishEvent.postValue(Any())
-                }
+            .flatMap { it.updateOneTime(execute) }
+            .flatMap { taskBuilder.save(taskId) }
+            .subscribeOn(Schedulers.io())
+            .doOnSubscribe {
+                configStater.update { it.copy(isWorking = true) }
+            }
+            .subscribe { savedTask ->
+                if (execute) processorControl.submit(savedTask)
+                finishEvent.postValue(Any())
+            }
     }
 
     fun runTask() {
@@ -157,17 +157,17 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
     }
 
     data class SummaryState(
-            val backupTypes: List<Backup.Type> = emptyList(),
-            val customConfigCount: Int = 0,
-            val configsWithIssues: Int = 0,
-            val isLoading: Boolean = true
+        val backupTypes: List<Backup.Type> = emptyList(),
+        val customConfigCount: Int = 0,
+        val configsWithIssues: Int = 0,
+        val isLoading: Boolean = true
     )
 
     data class ConfigState(
-            val defaultConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
-            val customConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
-            val isLoading: Boolean = true,
-            val isWorking: Boolean = false
+        val defaultConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
+        val customConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
+        val isLoading: Boolean = true,
+        val isWorking: Boolean = false
     )
 
     @AssistedInject.Factory

@@ -6,20 +6,20 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Ownership(
-        val userId: Long,
-        val groupId: Long,
-        val userName: String? = null,
-        val groupName: String? = null
+    val userId: Long,
+    val groupId: Long,
+    val userName: String? = null,
+    val groupName: String? = null
 ) : Parcelable {
 
     constructor(userId: Int, groupId: Int, userName: String? = null, groupName: String? = null)
             : this(userId.toLong(), groupId.toLong(), userName, groupName)
 
     constructor(parcel: Parcel) : this(
-            parcel.readLong(),
-            parcel.readLong(),
-            parcel.readString(),
-            parcel.readString()
+        parcel.readLong(),
+        parcel.readLong(),
+        parcel.readString(),
+        parcel.readString()
     )
 
     init {

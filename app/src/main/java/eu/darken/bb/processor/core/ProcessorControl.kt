@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @PerApp
 class ProcessorControl @Inject constructor(
-        @AppContext private val context: Context
+    @AppContext private val context: Context
 ) {
     private val progressHostPub = HotData<Opt<Progress.Host>>(Opt())
     val progressHost = progressHostPub.data

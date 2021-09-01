@@ -15,10 +15,10 @@ import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class RequirementsFragmentVDC @AssistedInject constructor(
-        @Assisted private val handle: SavedStateHandle,
-        @Assisted private val taskId: Task.Id,
-        private val taskBuilder: TaskBuilder,
-        private val reqMan: RequirementsManager
+    @Assisted private val handle: SavedStateHandle,
+    @Assisted private val taskId: Task.Id,
+    private val taskBuilder: TaskBuilder,
+    private val reqMan: RequirementsManager
 ) : SmartVDC() {
 
     private val builderData = taskBuilder.task(taskId).subscribeOn(Schedulers.io())
@@ -43,11 +43,11 @@ class RequirementsFragmentVDC @AssistedInject constructor(
 
     private fun updateRequirements() {
         builderData
-                .switchMapSingle { reqMan.reqsFor(it.taskType, taskId) }
-                .map { reqs -> reqs.filterNot { it.satisfied } }
-                .flatMapSingle { newReqs -> stater.updateRx { it.copy(requirements = newReqs) } }
-                .subscribe()
-                .withScopeVDC(this)
+            .switchMapSingle { reqMan.reqsFor(it.taskType, taskId) }
+            .map { reqs -> reqs.filterNot { it.satisfied } }
+            .flatMapSingle { newReqs -> stater.updateRx { it.copy(requirements = newReqs) } }
+            .subscribe()
+            .withScopeVDC(this)
     }
 
     fun onPermissionResult(granted: Boolean) {
@@ -56,8 +56,8 @@ class RequirementsFragmentVDC @AssistedInject constructor(
     }
 
     data class State(
-            val requirements: List<Requirement> = emptyList(),
-            val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
+        val requirements: List<Requirement> = emptyList(),
+        val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
     )
 
     @AssistedInject.Factory

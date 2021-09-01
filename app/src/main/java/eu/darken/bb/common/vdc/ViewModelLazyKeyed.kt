@@ -43,10 +43,10 @@ import kotlin.reflect.KClass
  * returned [ViewModelProvider.Factory] will be used for creation of [VM]
  */
 class ViewModelLazyKeyed<VM : ViewModel>(
-        private val viewModelClass: KClass<VM>,
-        private val keyProducer: (() -> String)? = null,
-        private val storeProducer: () -> ViewModelStore,
-        private val factoryProducer: () -> ViewModelProvider.Factory
+    private val viewModelClass: KClass<VM>,
+    private val keyProducer: (() -> String)? = null,
+    private val storeProducer: () -> ViewModelStore,
+    private val factoryProducer: () -> ViewModelProvider.Factory
 ) : Lazy<VM> {
     private var cached: VM? = null
 
@@ -57,7 +57,10 @@ class ViewModelLazyKeyed<VM : ViewModel>(
                 val factory = factoryProducer()
                 val store = storeProducer()
                 val key = keyProducer?.invoke() ?: "androidx.lifecycle.ViewModelProvider.DefaultKey"
-                ViewModelProvider(store, factory).get(key + ":" + viewModelClass.java.canonicalName, viewModelClass.java).also {
+                ViewModelProvider(store, factory).get(
+                    key + ":" + viewModelClass.java.canonicalName,
+                    viewModelClass.java
+                ).also {
                     cached = it
                 }
             } else {
@@ -96,9 +99,9 @@ class ViewModelLazyKeyed<VM : ViewModel>(
  */
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.viewModelsKeyed(
-        noinline keyProducer: (() -> String)? = null,
-        noinline ownerProducer: () -> ViewModelStoreOwner = { this },
-        noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline keyProducer: (() -> String)? = null,
+    noinline ownerProducer: () -> ViewModelStoreOwner = { this },
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ) = createViewModelLazyKeyed(VM::class, keyProducer, { ownerProducer().viewModelStore }, factoryProducer)
 
 /**
@@ -117,8 +120,8 @@ inline fun <reified VM : ViewModel> Fragment.viewModelsKeyed(
  */
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.activityViewModelsKeyed(
-        noinline keyProducer: (() -> String)? = null,
-        noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline keyProducer: (() -> String)? = null,
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ) = createViewModelLazyKeyed(VM::class, keyProducer, { requireActivity().viewModelStore }, factoryProducer)
 
 /**
@@ -127,14 +130,14 @@ inline fun <reified VM : ViewModel> Fragment.activityViewModelsKeyed(
  */
 @MainThread
 fun <VM : ViewModel> Fragment.createViewModelLazyKeyed(
-        viewModelClass: KClass<VM>,
-        keyProducer: (() -> String)? = null,
-        storeProducer: () -> ViewModelStore,
-        factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    viewModelClass: KClass<VM>,
+    keyProducer: (() -> String)? = null,
+    storeProducer: () -> ViewModelStore,
+    factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: {
         val application = activity?.application ?: throw IllegalStateException(
-                "ViewModel can be accessed only when Fragment is attached"
+            "ViewModel can be accessed only when Fragment is attached"
         )
         ViewModelProvider.AndroidViewModelFactory.getInstance(application)
     }
@@ -157,12 +160,12 @@ fun <VM : ViewModel> Fragment.createViewModelLazyKeyed(
  */
 @MainThread
 inline fun <reified VM : ViewModel> ComponentActivity.viewModelsKeyed(
-        noinline keyProducer: (() -> String)? = null,
-        noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline keyProducer: (() -> String)? = null,
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: {
         val application = application ?: throw IllegalArgumentException(
-                "ViewModel can be accessed only when Activity is attached"
+            "ViewModel can be accessed only when Activity is attached"
         )
         ViewModelProvider.AndroidViewModelFactory.getInstance(application)
     }

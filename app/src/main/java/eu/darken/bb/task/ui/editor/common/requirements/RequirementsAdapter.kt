@@ -12,8 +12,8 @@ import eu.darken.bb.task.core.common.requirements.Requirement
 import javax.inject.Inject
 
 
-class RequirementsAdapter @Inject constructor()
-    : ModularAdapter<RequirementsAdapter.BaseVH>(), DataAdapter<Requirement> {
+class RequirementsAdapter @Inject constructor() : ModularAdapter<RequirementsAdapter.BaseVH>(),
+    DataAdapter<Requirement> {
 
     override val data = mutableListOf<Requirement>()
 
@@ -24,11 +24,10 @@ class RequirementsAdapter @Inject constructor()
 
     override fun getItemCount(): Int = data.size
 
-    abstract class BaseVH(@LayoutRes layoutId: Int, parent: ViewGroup)
-        : ModularAdapter.VH(layoutId, parent), BindableVH<Requirement>
+    abstract class BaseVH(@LayoutRes layoutId: Int, parent: ViewGroup) : ModularAdapter.VH(layoutId, parent),
+        BindableVH<Requirement>
 
-    class PermissionVH(parent: ViewGroup)
-        : BaseVH(R.layout.task_editor_requirement_adapter_line, parent) {
+    class PermissionVH(parent: ViewGroup) : BaseVH(R.layout.task_editor_requirement_adapter_line, parent) {
 
         @BindView(R.id.label) lateinit var labelText: TextView
         @BindView(R.id.description) lateinit var descriptionText: TextView

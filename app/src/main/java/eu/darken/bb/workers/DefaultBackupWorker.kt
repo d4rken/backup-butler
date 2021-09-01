@@ -11,8 +11,8 @@ import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
 class DefaultBackupWorker @AssistedInject constructor(
-        @Assisted private val context: Context,
-        @Assisted private val workerParams: WorkerParameters
+    @Assisted private val context: Context,
+    @Assisted private val workerParams: WorkerParameters
 ) : RxWorker(context, workerParams) {
     companion object {
         val TAG: String = App.logTag("Worker", "DefaultBackup")
@@ -22,12 +22,12 @@ class DefaultBackupWorker @AssistedInject constructor(
         Timber.tag(TAG).i("createWork(): %s", this)
 
         return Single
-                .create<Task> {
+            .create<Task> {
 
-                }
-                .map {
-                    Result.success()
-                }
+            }
+            .map {
+                Result.success()
+            }
     }
 
     private fun doWork() {

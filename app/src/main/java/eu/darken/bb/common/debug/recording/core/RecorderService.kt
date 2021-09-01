@@ -37,7 +37,11 @@ class RecorderService : Service() {
         AndroidInjection.inject(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NOTIF_CHANID_DEBUG, getString(R.string.general_bugreporting_label), NotificationManager.IMPORTANCE_MIN)
+            val channel = NotificationChannel(
+                NOTIF_CHANID_DEBUG,
+                getString(R.string.general_bugreporting_label),
+                NotificationManager.IMPORTANCE_MIN
+            )
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -49,27 +53,27 @@ class RecorderService : Service() {
         val stopPi = PendingIntent.getService(this, 0, stopIntent, 0)
 
         builder = NotificationCompat.Builder(this, NOTIF_CHANID_DEBUG)
-                .setChannelId(NOTIF_CHANID_DEBUG)
-                .setContentIntent(openPi)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSmallIcon(R.drawable.ic_bug_report)
-                .setContentText("Idle")
-                .setContentTitle("Debug log is recording...")
-                .addAction(NotificationCompat.Action.Builder(0, getString(R.string.general_done_action), stopPi).build())
+            .setChannelId(NOTIF_CHANID_DEBUG)
+            .setContentIntent(openPi)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSmallIcon(R.drawable.ic_bug_report)
+            .setContentText("Idle")
+            .setContentTitle("Debug log is recording...")
+            .addAction(NotificationCompat.Action.Builder(0, getString(R.string.general_done_action), stopPi).build())
 
         startForeground(NOTIFICATION_ID, builder.build())
 
         subscription = bbDebug.observeOptions()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    if (it.isRecording) {
-                        builder.setContentText(it.recorderPath)
-                        notificationManager.notify(NOTIFICATION_ID, builder.build())
-                    } else {
-                        stopForeground(true)
-                        stopSelf()
-                    }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if (it.isRecording) {
+                    builder.setContentText(it.recorderPath)
+                    notificationManager.notify(NOTIFICATION_ID, builder.build())
+                } else {
+                    stopForeground(true)
+                    stopSelf()
                 }
+            }
         super.onCreate()
     }
 

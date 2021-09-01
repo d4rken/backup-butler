@@ -15,7 +15,7 @@ class AppBackupMetaDataTest {
     @Test
     fun `test serialization`() {
         val original = AppBackupMetaData(
-                backupId = Backup.Id()
+            backupId = Backup.Id()
         )
 
         val moshi = AppModule().moshi()
@@ -56,7 +56,7 @@ class AppBackupMetaDataTest {
     @Test
     fun `force typing`() {
         val original = FilesBackupMetaData(
-                backupId = Backup.Id()
+            backupId = Backup.Id()
         )
 
         val moshi = AppModule().moshi()

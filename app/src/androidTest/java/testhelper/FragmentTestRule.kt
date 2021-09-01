@@ -3,7 +3,8 @@ package testhelper
 import androidx.test.rule.ActivityTestRule
 import junit.framework.Assert
 
-class FragmentTestRule<FragmentT : androidx.fragment.app.Fragment>(private val fragmentClass: Class<FragmentT>) : ActivityTestRule<FragmentTestActivity>(FragmentTestActivity::class.java, true, false) {
+class FragmentTestRule<FragmentT : androidx.fragment.app.Fragment>(private val fragmentClass: Class<FragmentT>) :
+    ActivityTestRule<FragmentTestActivity>(FragmentTestActivity::class.java, true, false) {
     lateinit var fragment: FragmentT
     lateinit var manualInjector: ManualInjector<androidx.fragment.app.Fragment>
 
@@ -24,13 +25,22 @@ class FragmentTestRule<FragmentT : androidx.fragment.app.Fragment>(private val f
                 transaction.commitNow()
             } catch (e: InstantiationException) {
                 Assert.fail(
-                        String.format("%s: Could not insert %s into TestActivity: %s",
-                                javaClass.simpleName,
-                                fragmentClass.simpleName,
-                                e.message)
+                    String.format(
+                        "%s: Could not insert %s into TestActivity: %s",
+                        javaClass.simpleName,
+                        fragmentClass.simpleName,
+                        e.message
+                    )
                 )
             } catch (e: IllegalAccessException) {
-                Assert.fail(String.format("%s: Could not insert %s into TestActivity: %s", javaClass.simpleName, fragmentClass.simpleName, e.message))
+                Assert.fail(
+                    String.format(
+                        "%s: Could not insert %s into TestActivity: %s",
+                        javaClass.simpleName,
+                        fragmentClass.simpleName,
+                        e.message
+                    )
+                )
             }
         }
     }

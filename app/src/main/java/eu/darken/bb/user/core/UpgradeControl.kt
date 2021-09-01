@@ -22,28 +22,28 @@ class UpgradeControl @Inject constructor(
 
     private lateinit var cascChecks: CompositeDisposable
     private val upgradeDataPub: Subject<UpgradeData> = BehaviorSubject.createDefault(
-            UpgradeData(
-                    state = UpgradeData.State.PRO,
-                    features = listOf(UpgradeData.Feature.BACKUP)
-            )
+        UpgradeData(
+            state = UpgradeData.State.PRO,
+            features = listOf(UpgradeData.Feature.BACKUP)
+        )
     )
 
     val upgradeData: Observable<out UpgradeData> = upgradeDataPub
-            .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
-            .doOnSubscribe {
-                Timber.tag(TAG).d("upgradeData.doOnSubscribe")
-                cascChecks = CompositeDisposable()
+        .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+        .doOnSubscribe {
+            Timber.tag(TAG).d("upgradeData.doOnSubscribe")
+            cascChecks = CompositeDisposable()
 
-            }
-            .doOnNext { Timber.tag(TAG).d("upgradeData.onNext()   : %s", it) }
-            .doFinally {
-                Timber.tag(TAG).d("upgradeData.doFinally")
-                cascChecks.dispose()
-            }
-            .throttleLast(250, TimeUnit.MILLISECONDS)
-            .doOnNext { Timber.tag(TAG).i("upgradeData.onNext()[t]: %s", it) }
-            .replayingShare()
-            .doOnSubscribe { Timber.tag(TAG).v("Client sub: %s", Thread.currentThread()) }
-            .doOnDispose { Timber.tag(TAG).v("Client disp") }
+        }
+        .doOnNext { Timber.tag(TAG).d("upgradeData.onNext()   : %s", it) }
+        .doFinally {
+            Timber.tag(TAG).d("upgradeData.doFinally")
+            cascChecks.dispose()
+        }
+        .throttleLast(250, TimeUnit.MILLISECONDS)
+        .doOnNext { Timber.tag(TAG).i("upgradeData.onNext()[t]: %s", it) }
+        .replayingShare()
+        .doOnSubscribe { Timber.tag(TAG).v("Client sub: %s", Thread.currentThread()) }
+        .doOnDispose { Timber.tag(TAG).v("Client disp") }
 
 }

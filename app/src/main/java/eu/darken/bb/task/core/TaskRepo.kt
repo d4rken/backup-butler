@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 @PerApp
 class TaskRepo @Inject constructor(
-        @AppContext context: Context,
-        val moshi: Moshi
+    @AppContext context: Context,
+    val moshi: Moshi
 ) {
     private val taskAdapter = moshi.adapter(Task::class.java)
     private val preferences: SharedPreferences = context.getSharedPreferences("task_repo", Context.MODE_PRIVATE)
@@ -39,35 +39,35 @@ class TaskRepo @Inject constructor(
     init {
         // TODO use database instead of preferences
         internalData.data
-                .subscribeOn(Schedulers.io())
-                .subscribe { data ->
-                    preferences.edit().clear().apply()
-                    data.values.forEach {
-                        preferences.edit().putString("${it.taskId}", taskAdapter.toJson(it)).apply()
-                    }
+            .subscribeOn(Schedulers.io())
+            .subscribe { data ->
+                preferences.edit().clear().apply()
+                data.values.forEach {
+                    preferences.edit().putString("${it.taskId}", taskAdapter.toJson(it)).apply()
                 }
+            }
     }
 
     fun get(id: Task.Id): Maybe<Task> = tasks.latest()
-            .flatMapMaybe { Maybe.fromCallable { it[id] } }
+        .flatMapMaybe { Maybe.fromCallable { it[id] } }
 
     // Puts the task into storage, returns the previous value
     fun put(task: Task): Single<Opt<Task>> = internalData
-            .updateRx { data ->
-                data.toMutableMap().apply { put(task.taskId, task) }
-            }
-            .map { it.oldValue[task.taskId].opt() }
-            .doOnSuccess { Timber.d("put(task=%s) -> old=%s", task, it.value) }
+        .updateRx { data ->
+            data.toMutableMap().apply { put(task.taskId, task) }
+        }
+        .map { it.oldValue[task.taskId].opt() }
+        .doOnSuccess { Timber.d("put(task=%s) -> old=%s", task, it.value) }
 
     fun remove(taskId: Task.Id): Single<Opt<Task>> = internalData
-            .updateRx { data ->
-                data.toMutableMap().apply { remove(taskId) }
-            }
-            .map { it.oldValue[taskId].opt() }
-            .doOnSuccess {
-                Timber.d("remove(taskId=%s) -> old=%s", taskId, it.value)
-                if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant Task: %s", taskId)
-            }
+        .updateRx { data ->
+            data.toMutableMap().apply { remove(taskId) }
+        }
+        .map { it.oldValue[taskId].opt() }
+        .doOnSuccess {
+            Timber.d("remove(taskId=%s) -> old=%s", taskId, it.value)
+            if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant Task: %s", taskId)
+        }
 
     companion object {
         val TAG = App.logTag("Task", "Repo")

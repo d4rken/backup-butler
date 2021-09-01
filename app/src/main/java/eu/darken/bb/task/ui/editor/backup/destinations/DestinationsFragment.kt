@@ -61,8 +61,8 @@ class DestinationsFragment : SmartFragment(), AutoInject {
 
         fab.clicksDebounced().subscribe {
             findNavController().navigate(
-                    R.id.nav_action_show_picker,
-                    StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
+                R.id.nav_action_show_picker,
+                StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
             )
         }
 

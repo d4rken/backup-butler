@@ -24,8 +24,8 @@ abstract class BackupWrap<ConfigT : BackupSpec> {
     abstract fun buildMeta(backupId: Backup.Id): Backup.MetaData
 
     fun createUnit(): Backup.Unit = Backup.Unit(
-            spec = backupConfig,
-            metaData = buildMeta(backupId),
-            data = data.toMap()
+        spec = backupConfig,
+        metaData = buildMeta(backupId),
+        data = data.toMap()
     )
 }
