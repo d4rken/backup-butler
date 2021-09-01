@@ -123,7 +123,6 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin.core}"
     implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin.core}"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
