@@ -44,8 +44,8 @@ class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> priv
 
         init {
             when (gateway.lookup(start).fileType) {
-                APath.FileType.DIRECTORY -> state.push(directoryState(start))
-                APath.FileType.FILE -> state.push(SingleFileState(start))
+                FileType.DIRECTORY -> state.push(directoryState(start))
+                FileType.FILE -> state.push(SingleFileState(start))
                 else -> done()
             }
         }
@@ -74,7 +74,7 @@ class APathTreeWalk<PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> priv
             } else {
                 val lookup = gateway.lookup(file)
                 // Check that file/directory matches the filter
-                if (file == topState.root || lookup.fileType != APath.FileType.DIRECTORY || state.size >= maxDepth) {
+                if (file == topState.root || lookup.fileType != FileType.DIRECTORY || state.size >= maxDepth) {
                     // Proceed to a root directory or a simple file
                     file
                 } else {

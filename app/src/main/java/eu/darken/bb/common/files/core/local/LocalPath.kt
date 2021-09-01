@@ -6,6 +6,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.FileType
 import java.io.File
 import java.io.IOException
 
@@ -51,10 +52,10 @@ data class LocalPath(
     fun exists(gateway: LocalGateway): Boolean = gateway.exists(this)
 
     @Throws(IOException::class)
-    fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.FILE
+    fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
 
     @Throws(IOException::class)
-    fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.DIRECTORY
+    fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "LocalPath(file=$file)"
 

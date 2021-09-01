@@ -2,6 +2,7 @@ package eu.darken.bb.common.files.core.local
 
 import android.system.Os
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.FileType
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import timber.log.Timber
@@ -135,11 +136,11 @@ fun File.canOpenRead(): Boolean = try {
 
 fun File.canReadExecute(): Boolean = canRead() && canExecute()
 
-fun File.getAPathFileType(): APath.FileType = when {
+fun File.getAPathFileType(): FileType = when {
     // Order matters!
-    isSymbolicLink() -> APath.FileType.SYMBOLIC_LINK
-    isDirectory -> APath.FileType.DIRECTORY
-    else -> APath.FileType.FILE
+    isSymbolicLink() -> FileType.SYMBOLIC_LINK
+    isDirectory -> FileType.DIRECTORY
+    else -> FileType.FILE
 }
 
 fun File.toLocalPath(): LocalPath = LocalPath.build(this)

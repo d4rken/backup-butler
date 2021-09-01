@@ -35,11 +35,11 @@ fun <PT : APath, GT : APathGateway<PT, out APathLookup<PT>>> PT.walk(
     return APathTreeWalk(gateway, this, direction)
 }
 
-fun APath.FileType.toMMRefType(): MMRef.Type {
+fun FileType.toMMRefType(): MMRef.Type {
     return when (this) {
-        APath.FileType.DIRECTORY -> MMRef.Type.DIRECTORY
-        APath.FileType.FILE -> MMRef.Type.FILE
-        APath.FileType.SYMBOLIC_LINK -> MMRef.Type.SYMLINK
+        FileType.DIRECTORY -> MMRef.Type.DIRECTORY
+        FileType.FILE -> MMRef.Type.FILE
+        FileType.SYMBOLIC_LINK -> MMRef.Type.SYMLINK
     }
 }
 
@@ -68,7 +68,7 @@ fun <T : APath> T.requireNotExists(gateway: APathGateway<T, out APathLookup<T>>)
 
 fun <T : APath> T.createFileIfNecessary(gateway: APathGateway<T, out APathLookup<T>>): T {
     if (exists(gateway)) {
-        if (gateway.lookup(this).fileType == APath.FileType.FILE) {
+        if (gateway.lookup(this).fileType == FileType.FILE) {
             Timber.v("File already exists, not creating: %s", this)
             return this
         } else {

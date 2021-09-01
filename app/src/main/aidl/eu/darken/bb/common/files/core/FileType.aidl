@@ -1,5 +1,5 @@
-package eu.darken.bb.common.file.core;
+package eu.darken.bb.common.files.core;
 
-import eu.darken.bb.common.file.core.APath.FileType;
+import eu.darken.bb.common.files.core.FileType;
 
 parcelable FileType;

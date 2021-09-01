@@ -7,6 +7,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.FileType
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 import java.io.IOException
@@ -75,10 +76,10 @@ data class SAFPath(
     fun exists(gateway: SAFGateway): Boolean = gateway.exists(this)
 
     @Throws(IOException::class)
-    fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.FILE
+    fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
 
     @Throws(IOException::class)
-    fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == APath.FileType.DIRECTORY
+    fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "SAFFile(treeRoot=$treeRoot, crumbs=$crumbs)"
 

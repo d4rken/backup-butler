@@ -10,14 +10,14 @@ import org.robolectric.annotation.Config
 import testhelper.EmptyApp
 
 @RunWith(AndroidJUnit4::class)
-@Config(application = EmptyApp::class)
+@Config(sdk = [29], application = EmptyApp::class)
 class SAFGatewayTest {
 
     @Test
     fun `test storage root detection`() {
         val safGateway = SAFGateway(
-                mockk(),
-                mockk()
+            mockk(),
+            mockk()
         )
         val nonRoot = Uri.parse("content://com.android.externalstorage.documents/tree/primary%3Asafstor")
         safGateway.isStorageRoot(SAFPath.build(nonRoot)) shouldBe false

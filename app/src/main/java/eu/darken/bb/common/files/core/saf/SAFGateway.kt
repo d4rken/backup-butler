@@ -145,20 +145,20 @@ class SAFGateway @Inject constructor(
     override fun lookup(path: SAFPath): SAFPathLookup {
         return try {
             val file = findDocFile(path)!!
-            val fileType: APath.FileType = when {
-                file.isDirectory -> APath.FileType.DIRECTORY
-                else -> APath.FileType.FILE
+            val fileType: FileType = when {
+                file.isDirectory -> FileType.DIRECTORY
+                else -> FileType.FILE
             }
             val fstat = file.fstat()
 
             SAFPathLookup(
-                    lookedUp = path,
-                    fileType = fileType,
-                    modifiedAt = file.lastModified,
-                    ownership = fstat?.let { Ownership(it.st_uid.toLong(), it.st_gid.toLong()) },
-                    permissions = fstat?.let { Permissions(it.st_mode) },
-                    size = file.length,
-                    target = null
+                lookedUp = path,
+                fileType = fileType,
+                modifiedAt = file.lastModified,
+                ownership = fstat?.let { Ownership(it.st_uid.toLong(), it.st_gid.toLong()) },
+                permissions = fstat?.let { Permissions(it.st_mode) },
+                size = file.length,
+                target = null
             )
         } catch (e: Exception) {
             Timber.tag(TAG).w("lookup(%s) failed.", path)

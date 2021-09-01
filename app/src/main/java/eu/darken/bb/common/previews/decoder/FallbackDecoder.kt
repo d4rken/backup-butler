@@ -13,7 +13,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableDecoderCompat
 import com.bumptech.glide.request.target.Target
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.FileType
 import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
 
@@ -33,9 +33,9 @@ class FallbackDecoder(
     override fun decode(source: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
         val file = source.file
         val drawableRes: Int = when (file.fileType) {
-            APath.FileType.DIRECTORY -> R.drawable.ic_folder_onsurface
-            APath.FileType.SYMBOLIC_LINK -> R.drawable.ic_file_link_onsurface
-            APath.FileType.FILE -> R.drawable.ic_file_onsurface
+            FileType.DIRECTORY -> R.drawable.ic_folder_onsurface
+            FileType.SYMBOLIC_LINK -> R.drawable.ic_file_link_onsurface
+            FileType.FILE -> R.drawable.ic_file_onsurface
         }
 
         // FIXME theme could leak?

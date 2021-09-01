@@ -7,7 +7,7 @@ import java.util.*
 @Keep
 interface APathLookup<out T> : APath {
     val lookedUp: T
-    val fileType: APath.FileType
+    val fileType: FileType
     val size: Long
     val modifiedAt: Date
     val ownership: Ownership?
@@ -15,6 +15,6 @@ interface APathLookup<out T> : APath {
     val target: APath?
 
     @IgnoredOnParcel val isDirectory: Boolean
-        get() = fileType == APath.FileType.DIRECTORY
+        get() = fileType == FileType.DIRECTORY
 
 }

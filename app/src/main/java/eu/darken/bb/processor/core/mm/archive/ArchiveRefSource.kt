@@ -126,11 +126,17 @@ open class ArchiveRefSource(
                             requireNotNull(relativePath) { "Relative path is null for $p and $props" }
 
                             val entry: TarArchiveEntry = when (p.fileType) {
-                                APath.FileType.DIRECTORY -> TarArchiveEntry(relativePath + File.separator, TarArchiveEntry.LF_DIR)
-                                APath.FileType.SYMBOLIC_LINK -> TarArchiveEntry(relativePath, TarArchiveEntry.LF_SYMLINK).apply {
+                                FileType.DIRECTORY -> TarArchiveEntry(
+                                    relativePath + File.separator,
+                                    TarArchiveEntry.LF_DIR
+                                )
+                                FileType.SYMBOLIC_LINK -> TarArchiveEntry(
+                                    relativePath,
+                                    TarArchiveEntry.LF_SYMLINK
+                                ).apply {
                                     linkName = p.target!!.path
                                 }
-                                APath.FileType.FILE -> TarArchiveEntry(relativePath, TarArchiveEntry.LF_NORMAL).apply {
+                                FileType.FILE -> TarArchiveEntry(relativePath, TarArchiveEntry.LF_NORMAL).apply {
                                     size = p.size
                                 }
                             }
@@ -143,8 +149,8 @@ open class ArchiveRefSource(
                             }
 
                             p.ownership?.let {
-                                entry.setUserId(it.userId)
-                                entry.setGroupId(it.groupId)
+                                entry.userId = it.userId
+                                entry.groupId = it.groupId
                                 entry.userName = it.userName ?: ""
                                 entry.groupName = it.groupName ?: ""
                             }
@@ -155,7 +161,7 @@ open class ArchiveRefSource(
                                 Timber.tag(TAG).e(e, "Failed to write archive entry: ${entry.toHumanReadableString()}")
                                 throw e
                             }
-                            if (p.fileType == APath.FileType.FILE) {
+                            if (p.fileType == FileType.FILE) {
                                 gateway.read(p.lookedUp).use {
                                     it.buffer().inputStream().copyTo(out)
                                 }
