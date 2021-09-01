@@ -4,8 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.util.Log
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.dagger.AppContext
@@ -45,6 +46,6 @@ class SysInfoModule @AssistedInject constructor(
         private val TAG = App.logTag("Debug", "SysInfoModule")
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : DebugModule.Factory<SysInfoModule>
 }

@@ -2,8 +2,9 @@ package eu.darken.bb.backup.ui.generator.editor
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
@@ -76,7 +77,7 @@ class GeneratorEditorActivityVDC @AssistedInject constructor(
         APP(R.id.appEditorConfigFragment);
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<GeneratorEditorActivityVDC> {
         fun create(handle: SavedStateHandle, generatorId: Generator.Id): GeneratorEditorActivityVDC
     }

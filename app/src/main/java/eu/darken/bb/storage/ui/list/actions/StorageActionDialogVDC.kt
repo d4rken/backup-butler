@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.ui.list.actions
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -58,7 +59,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
 
                 stater.update {
                     it.copy(
-                        storageInfo = infoOpt?.info,
+                        storageInfo = infoOpt.info,
                         allowedActions = allowedActions.toList(),
                         isLoadingData = !infoOpt.isFinished
                     )
@@ -159,7 +160,7 @@ class StorageActionDialogVDC @AssistedInject constructor(
             get() = currentOperation != null
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<IntroFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageActionDialogVDC
     }

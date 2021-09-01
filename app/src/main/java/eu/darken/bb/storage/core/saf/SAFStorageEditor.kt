@@ -1,9 +1,10 @@
 package eu.darken.bb.storage.core.saf
 
 import android.content.Context
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.ApiHelper
@@ -154,7 +155,7 @@ class SAFStorageEditor @AssistedInject constructor(
         val pathIsNewlyPersisted: Boolean = false
     ) : StorageEditor.Data
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : StorageEditor.Factory<SAFStorageEditor>
 
     companion object {

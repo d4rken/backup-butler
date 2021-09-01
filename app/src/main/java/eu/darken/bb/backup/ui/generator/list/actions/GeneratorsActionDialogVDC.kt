@@ -1,8 +1,9 @@
 package eu.darken.bb.backup.ui.generator.list.actions
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
@@ -76,7 +77,7 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
         val allowedActions: List<Confirmable<GeneratorsAction>> = listOf()
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<GeneratorsActionDialogVDC> {
         fun create(handle: SavedStateHandle, generatorId: Generator.Id): GeneratorsActionDialogVDC
     }

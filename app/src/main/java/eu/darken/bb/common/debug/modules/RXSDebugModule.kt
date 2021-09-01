@@ -1,8 +1,9 @@
 package eu.darken.bb.common.debug.modules
 
 import android.util.Log
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
@@ -65,6 +66,6 @@ class RXSDebugModule @AssistedInject constructor(
     }
 
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : DebugModule.Factory<RXSDebugModule>
 }

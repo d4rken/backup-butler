@@ -1,9 +1,10 @@
 package eu.darken.bb.storage.core.local
 
 import android.Manifest
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
@@ -124,7 +125,7 @@ class LocalStorageEditor @AssistedInject constructor(
         .fromCallable { editorDataPub.close() }
         .doOnSubscribe { Timber.tag(TAG).v("release()") }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : StorageEditor.Factory<LocalStorageEditor>
 
     data class Data(

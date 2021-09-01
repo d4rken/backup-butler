@@ -1,8 +1,9 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app.config
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
@@ -122,7 +123,7 @@ class AppEditorConfigFragmentVDC @AssistedInject constructor(
         val extraPaths: Map<String, Collection<APath>> = emptyMap()
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<AppEditorConfigFragmentVDC> {
         fun create(handle: SavedStateHandle, generatorId: Generator.Id): AppEditorConfigFragmentVDC
     }

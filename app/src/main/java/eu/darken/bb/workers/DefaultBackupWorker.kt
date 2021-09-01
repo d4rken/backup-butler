@@ -3,8 +3,9 @@ package eu.darken.bb.workers
 import android.content.Context
 import androidx.work.WorkerParameters
 import androidx.work.rxjava3.RxWorker
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Single
@@ -38,7 +39,7 @@ class DefaultBackupWorker @AssistedInject constructor(
         super.onStopped()
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : ChildWorkerFactory
 }
 

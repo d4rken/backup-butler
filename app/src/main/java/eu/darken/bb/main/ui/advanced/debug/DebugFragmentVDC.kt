@@ -2,8 +2,9 @@ package eu.darken.bb.main.ui.advanced.debug
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
@@ -14,6 +15,6 @@ class DebugFragmentVDC @AssistedInject constructor(
 ) : SmartVDC() {
 
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<DebugFragmentVDC>
 }

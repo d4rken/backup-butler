@@ -2,9 +2,10 @@ package eu.darken.bb.storage.core.local
 
 import android.content.Context
 import com.jakewharton.rx3.replayingShare
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -147,7 +148,7 @@ class LocalStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content.toList() as Collection<BackupSpec.Info>
+            return@map content.toList()
         }
         .doOnError { Timber.tag(TAG).e(it) }
         .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
@@ -384,7 +385,7 @@ class LocalStorage @AssistedInject constructor(
 
     override fun toString(): String = "LocalStorage(storageRef=$storageRef)"
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : Storage.Factory<LocalStorage>
 
     companion object {

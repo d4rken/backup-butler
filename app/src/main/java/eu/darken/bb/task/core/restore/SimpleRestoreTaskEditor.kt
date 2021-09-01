@@ -1,8 +1,9 @@
 package eu.darken.bb.task.core.restore
 
 import com.jakewharton.rx3.replayingShare
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.*
 import eu.darken.bb.backup.core.app.AppRestoreConfig
@@ -327,7 +328,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : TaskEditor.Factory<SimpleRestoreTaskEditor>
 
 }

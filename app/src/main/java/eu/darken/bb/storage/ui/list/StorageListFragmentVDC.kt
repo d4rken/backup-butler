@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.ui.list
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
@@ -60,7 +61,7 @@ class StorageListFragmentVDC @AssistedInject constructor(
         val isLoading: Boolean = true
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<StorageListFragmentVDC>
 
     companion object {

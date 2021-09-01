@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.Bugs
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
@@ -130,7 +131,7 @@ class ItemActionDialogVDC @AssistedInject constructor(
             get() = currentOp != null || allowedActions == null
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<IntroFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ItemActionDialogVDC
     }

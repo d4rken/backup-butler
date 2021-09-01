@@ -4,7 +4,6 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import eu.darken.bb.backup.core.BackupTypeModule
-import eu.darken.bb.common.dagger.AssistedInjectModule
 import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.DebugModuleModule
 import eu.darken.bb.common.previews.GlideConfigModule
@@ -19,7 +18,6 @@ import eu.darken.bb.workers.WorkerBinder
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
-        AssistedInjectModule::class,
         AndroidModule::class,
         ServiceBinder::class,
         ReceiverBinder::class,

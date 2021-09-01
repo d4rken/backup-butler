@@ -2,8 +2,9 @@ package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
@@ -100,7 +101,7 @@ class ContentPageFragmentVDC @AssistedInject constructor(
         val error: Throwable? = null
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<ContentPageFragmentVDC> {
         fun create(
             handle: SavedStateHandle,

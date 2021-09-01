@@ -1,9 +1,10 @@
 package eu.darken.bb.backup.core.files
 
 import android.content.Context
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.squareup.moshi.Moshi
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
@@ -90,7 +91,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         val path: APath? = null
     ) : GeneratorEditor.Data
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : GeneratorEditor.Factory<FilesSpecGeneratorEditor>
 
 }

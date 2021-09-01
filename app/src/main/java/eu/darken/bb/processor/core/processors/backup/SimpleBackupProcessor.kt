@@ -1,8 +1,9 @@
 package eu.darken.bb.processor.core.processors.backup
 
 import android.content.Context
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
@@ -104,7 +105,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         super.onCleanup()
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : Processor.Factory<SimpleBackupProcessor>
 
     companion object {

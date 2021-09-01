@@ -1,8 +1,9 @@
 package eu.darken.bb.task.ui.editor.backup.sources
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.Stater
@@ -50,7 +51,7 @@ class SourcesFragmentVDC @AssistedInject constructor(
         val sources: List<GeneratorConfigOpt> = emptyList()
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<SourcesFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): SourcesFragmentVDC
     }

@@ -1,8 +1,9 @@
 package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -83,7 +84,7 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         val isWorking: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<DestinationsFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): DestinationsFragmentVDC
     }

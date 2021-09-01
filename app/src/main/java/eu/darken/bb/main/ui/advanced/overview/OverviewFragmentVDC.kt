@@ -3,8 +3,9 @@ package eu.darken.bb.main.ui.advanced.overview
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.dagger.AppContext
@@ -50,6 +51,6 @@ class OverviewFragmentVDC @AssistedInject constructor(
         val available: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<OverviewFragmentVDC>
 }

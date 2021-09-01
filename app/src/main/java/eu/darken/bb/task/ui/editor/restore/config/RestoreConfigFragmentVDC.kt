@@ -2,8 +2,9 @@ package eu.darken.bb.task.ui.editor.restore.config
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
@@ -170,7 +171,7 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
         val isWorking: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<RestoreConfigFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): RestoreConfigFragmentVDC
     }

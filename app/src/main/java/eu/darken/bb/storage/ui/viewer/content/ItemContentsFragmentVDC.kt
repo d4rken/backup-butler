@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.ui.viewer.content
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
@@ -53,7 +54,7 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
         val error: Throwable? = null
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<ItemContentsFragmentVDC> {
         fun create(
             handle: SavedStateHandle,

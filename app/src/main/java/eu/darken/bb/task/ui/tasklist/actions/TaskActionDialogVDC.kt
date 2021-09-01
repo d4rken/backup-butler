@@ -1,8 +1,9 @@
 package eu.darken.bb.task.ui.tasklist.actions
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.ui.Confirmable
@@ -91,7 +92,7 @@ class TaskActionDialogVDC @AssistedInject constructor(
         val allowedActions: List<Confirmable<TaskAction>> = listOf()
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<IntroFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): TaskActionDialogVDC
     }

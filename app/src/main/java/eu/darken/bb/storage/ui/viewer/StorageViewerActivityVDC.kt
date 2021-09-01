@@ -1,8 +1,9 @@
 package eu.darken.bb.storage.ui.viewer
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
@@ -51,7 +52,7 @@ class StorageViewerActivityVDC @AssistedInject constructor(
         val loading: Boolean = true
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<StorageViewerActivityVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageViewerActivityVDC
     }

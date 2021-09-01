@@ -1,7 +1,8 @@
 package eu.darken.bb.backup.core.app
 
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
@@ -90,7 +91,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         val extraPaths: Map<String, Set<APath>> = emptyMap()
     ) : GeneratorEditor.Data
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : GeneratorEditor.Factory<AppSpecGeneratorEditor>
 
 }

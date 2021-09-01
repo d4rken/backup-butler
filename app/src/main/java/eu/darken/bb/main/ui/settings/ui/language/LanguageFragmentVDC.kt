@@ -2,8 +2,9 @@ package eu.darken.bb.main.ui.settings.ui.language
 
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
@@ -43,6 +44,6 @@ class LanguageFragmentVDC @AssistedInject constructor(
         val current: LanguageEnforcer.Language
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<LanguageFragmentVDC>
 }

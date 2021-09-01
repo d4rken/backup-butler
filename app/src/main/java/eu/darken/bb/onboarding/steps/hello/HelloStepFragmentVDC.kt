@@ -2,8 +2,9 @@ package eu.darken.bb.onboarding.steps.hello
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.VDC
 
@@ -15,6 +16,6 @@ class HelloStepFragmentVDC @AssistedInject constructor(
 
     data class State(val emoji: String)
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<HelloStepFragmentVDC>
 }

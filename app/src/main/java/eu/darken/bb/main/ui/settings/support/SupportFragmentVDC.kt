@@ -3,8 +3,9 @@ package eu.darken.bb.main.ui.settings.support
 import android.content.Intent
 import android.os.Build
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.EmailTool
 import eu.darken.bb.common.SingleLiveEvent
@@ -54,7 +55,7 @@ class SupportFragmentVDC @AssistedInject constructor(
         clipboardEvent.postValue(installId.installId.toString())
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<SupportFragmentVDC>
 
 }

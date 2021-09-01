@@ -1,8 +1,9 @@
 package eu.darken.bb.common.files.ui.picker.types
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -39,7 +40,7 @@ class TypesPickerFragmentVDC @AssistedInject constructor(
         val allowedTypes: List<Storage.Type>
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<TypesPickerFragmentVDC> {
         fun create(handle: SavedStateHandle, options: APathPicker.Options): TypesPickerFragmentVDC
     }

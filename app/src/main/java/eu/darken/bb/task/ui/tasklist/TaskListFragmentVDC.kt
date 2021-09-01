@@ -1,8 +1,9 @@
 package eu.darken.bb.task.ui.tasklist
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -96,7 +97,7 @@ class TaskListFragmentVDC @AssistedInject constructor(
         val taskId: Task.Id
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<TaskListFragmentVDC>
 
 

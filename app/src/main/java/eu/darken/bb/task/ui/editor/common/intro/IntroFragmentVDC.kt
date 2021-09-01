@@ -1,8 +1,9 @@
 package eu.darken.bb.task.ui.editor.common.intro
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.VDCFactory
@@ -25,7 +26,7 @@ class IntroFragmentVDC @AssistedInject constructor(
         editorObs.blockingFirst().updateLabel(name.toString())
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<IntroFragmentVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): IntroFragmentVDC
     }

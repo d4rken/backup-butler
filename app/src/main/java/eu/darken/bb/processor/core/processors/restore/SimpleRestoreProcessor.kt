@@ -1,8 +1,9 @@
 package eu.darken.bb.processor.core.processors.restore
 
 import android.content.Context
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -120,7 +121,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         mmDataRepo.release(backupUnit.backupId)
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : Processor.Factory<SimpleRestoreProcessor>
 
     companion object {

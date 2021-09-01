@@ -2,8 +2,9 @@ package eu.darken.bb.storage.ui.viewer.item
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
@@ -139,7 +140,7 @@ class StorageItemFragmentVDC @AssistedInject constructor(
         val allowDelete: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<StorageItemFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageItemFragmentVDC
     }

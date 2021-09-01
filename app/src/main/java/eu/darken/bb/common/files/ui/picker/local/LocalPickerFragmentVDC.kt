@@ -3,8 +3,9 @@ package eu.darken.bb.common.files.ui.picker.local
 import android.Manifest
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.SharedHolder
@@ -80,7 +81,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
 
             if (holderToken == null) holderToken = localGateway.keepAlive.get()
             val listing = localGateway.lookupFiles(path, mode = mode)
-                .sortedBy { it.name.toLowerCase(Locale.ROOT) }
+                .sortedBy { it.name.lowercase(Locale.ROOT) }
                 .filter { !options.onlyDirs || it.isDirectory }
 
             Triple(path, crumbs, listing)
@@ -163,7 +164,7 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         val allowCreateDir: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<LocalPickerFragmentVDC> {
         fun create(handle: SavedStateHandle, options: APathPicker.Options): LocalPickerFragmentVDC
     }

@@ -4,8 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Environment
 import android.util.Log
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.dagger.AppContext
@@ -81,7 +82,7 @@ class RecorderModule @AssistedInject constructor(
         ).path
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : DebugModule.Factory<RecorderModule>
 
     companion object {

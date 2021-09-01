@@ -2,8 +2,9 @@ package eu.darken.bb.storage.ui.editor
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -72,7 +73,7 @@ class StorageEditorActivityVDC @AssistedInject constructor(
         SAF(R.id.safEditorFragment);
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<StorageEditorActivityVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageEditorActivityVDC
     }

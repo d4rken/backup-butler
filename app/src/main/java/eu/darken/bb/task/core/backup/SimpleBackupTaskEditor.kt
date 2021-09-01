@@ -1,7 +1,8 @@
 package eu.darken.bb.task.core.backup
 
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.HotData
@@ -90,6 +91,6 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : TaskEditor.Factory<SimpleBackupTaskEditor>
 }

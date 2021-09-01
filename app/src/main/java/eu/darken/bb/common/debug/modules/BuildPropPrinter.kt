@@ -3,8 +3,9 @@ package eu.darken.bb.common.debug.modules
 import android.os.Build
 import android.util.Log
 import androidx.core.util.Pair
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
@@ -86,6 +87,6 @@ class BuildPropPrinter @AssistedInject constructor(
         val TAG = App.logTag("Debug", "BuildProp")
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : DebugModule.Factory<BuildPropPrinter>
 }

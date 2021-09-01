@@ -3,8 +3,9 @@ package eu.darken.bb.schedule.ui.list
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.vdc.SavedStateVDCFactory
@@ -30,6 +31,6 @@ class SchedulesFragmentVDC @AssistedInject constructor(
         val upgradeData: UpgradeData
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<SchedulesFragmentVDC>
 }

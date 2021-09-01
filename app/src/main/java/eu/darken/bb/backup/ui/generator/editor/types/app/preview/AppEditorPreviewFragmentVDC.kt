@@ -1,8 +1,9 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
@@ -152,7 +153,7 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
         val pkgName = pkg.packageName
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<AppEditorPreviewFragmentVDC> {
         fun create(
             handle: SavedStateHandle,

@@ -1,8 +1,9 @@
 package eu.darken.bb.processor.ui.progress
 
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.progress.Progress
@@ -50,6 +51,6 @@ class ProgressFragmentVDC @AssistedInject constructor(
         val actionProgress: Progress.Data? = null
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : SavedStateVDCFactory<ProgressFragmentVDC>
 }

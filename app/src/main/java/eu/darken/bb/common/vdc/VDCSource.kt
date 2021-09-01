@@ -5,8 +5,9 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
 class VDCSource @AssistedInject constructor(
     private val creators: @JvmSuppressWildcards Map<Class<out VDC>, VDCFactory<out VDC>>,
@@ -35,7 +36,7 @@ class VDCSource @AssistedInject constructor(
         return vm ?: throw IllegalStateException("VDCFactory $factory didn't return a VDC")
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory {
         fun create(
             savedStateOwner: SavedStateRegistryOwner,

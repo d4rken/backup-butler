@@ -2,8 +2,9 @@ package eu.darken.bb.storage.ui.editor.types.local
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -139,7 +140,7 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         val isValid: Boolean = false
     )
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<LocalEditorFragmentVDC> {
         fun create(handle: SavedStateHandle, storageId: Storage.Id): LocalEditorFragmentVDC
     }

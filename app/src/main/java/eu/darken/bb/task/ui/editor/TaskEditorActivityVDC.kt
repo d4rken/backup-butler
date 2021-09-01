@@ -4,8 +4,9 @@ import android.os.Parcelable
 import androidx.annotation.IdRes
 import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -125,7 +126,7 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         RESTORE_SIMPLE_SINGLE(R.id.restoreConfigFragment);
     }
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<TaskEditorActivityVDC> {
         fun create(handle: SavedStateHandle, taskId: Task.Id): TaskEditorActivityVDC
     }

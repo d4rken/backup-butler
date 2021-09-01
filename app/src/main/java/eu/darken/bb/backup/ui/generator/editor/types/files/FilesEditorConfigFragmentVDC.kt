@@ -2,8 +2,9 @@ package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
@@ -122,7 +123,7 @@ class FilesEditorConfigFragmentVDC @AssistedInject constructor(
         override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
 
-    @AssistedInject.Factory
+    @AssistedFactory
     interface Factory : VDCFactory<FilesEditorConfigFragmentVDC> {
         fun create(handle: SavedStateHandle, generatorId: Generator.Id): FilesEditorConfigFragmentVDC
     }
