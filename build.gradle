@@ -25,13 +25,12 @@ buildscript {
             ],
             'dagger'     : '2.38.1',
             'butterknife': '10.1.0',
-            'rxjava'     : '3.0.4',
-            'rxkotlin'   : '3.0.0',
+            'rxjava'     : '3.0.10',
+            'rxkotlin'   : '3.0.1',
             'rxandroid'  : '3.0.0',
             'rxbindings' : '4.0.0',
             'timber'     : '4.7.1',
             'rxshell'    : '3.0.0',
-            'moshi'      : '1.9.1',
             'androidx'   : [
                     'navigation': '2.3.5'
             ],
