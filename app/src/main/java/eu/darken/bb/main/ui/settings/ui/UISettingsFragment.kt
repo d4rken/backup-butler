@@ -4,15 +4,16 @@ import android.content.SharedPreferences
 import androidx.annotation.Keep
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import javax.inject.Inject
 
 @Keep
-class UISettingsFragment : SmartPreferenceFragment(), AutoInject {
+@AndroidEntryPoint
+class UISettingsFragment : SmartPreferenceFragment() {
 
     @Inject lateinit var uiSettings: UISettings
 

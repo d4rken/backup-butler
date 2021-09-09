@@ -2,6 +2,7 @@ package eu.darken.bb.backup.core.app.restore
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -13,7 +14,6 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -28,7 +28,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AppRestoreEndpoint @Inject constructor(
-    @AppContext override val context: Context,
+    @ApplicationContext override val context: Context,
     private val apkInstaller: APKInstaller,
     private val javaRootClient: JavaRootClient,
     private val pkgOps: PkgOps,

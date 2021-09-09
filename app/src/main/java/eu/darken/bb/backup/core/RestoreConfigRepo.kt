@@ -2,11 +2,11 @@ package eu.darken.bb.backup.core
 
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
-import eu.darken.bb.common.dagger.PerApp
 import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class RestoreConfigRepo @Inject constructor(
 
 ) {

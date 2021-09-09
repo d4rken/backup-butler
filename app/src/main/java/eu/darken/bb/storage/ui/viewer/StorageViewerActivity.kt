@@ -5,7 +5,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.navArgs
@@ -13,9 +12,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.ButterKnife
-import dagger.android.AndroidInjection
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
@@ -24,12 +21,13 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
+@AndroidEntryPoint
+class StorageViewerActivity : AppCompatActivity() {
 
     val navArgs by navArgs<StorageViewerActivityArgs>()
 
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
@@ -50,7 +48,6 @@ class StorageViewerActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.storage_viewer_activity)

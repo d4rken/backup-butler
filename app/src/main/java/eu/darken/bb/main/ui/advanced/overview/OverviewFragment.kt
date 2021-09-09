@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
@@ -19,8 +19,8 @@ import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.user.core.UpgradeData
 import javax.inject.Inject
 
-
-class OverviewFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class OverviewFragment : SmartFragment() {
     companion object {
         fun newInstance(): Fragment = OverviewFragment()
     }

@@ -6,12 +6,12 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.copyToAutoClose
@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 class LocalStorage @AssistedInject constructor(
     @Assisted storageRef: Storage.Ref,
     @Assisted storageConfig: Storage.Config,
-    @AppContext override val context: Context,
+    @ApplicationContext override val context: Context,
     moshi: Moshi,
     private val mmDataRepo: MMDataRepo,
     private val localGateway: LocalGateway

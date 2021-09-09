@@ -9,11 +9,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragmentArgs
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -24,8 +24,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-
-class GeneratorTypeFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class GeneratorTypeFragment : SmartFragment() {
 
     val navArgs by navArgs<GeneratorTypeFragmentArgs>()
 

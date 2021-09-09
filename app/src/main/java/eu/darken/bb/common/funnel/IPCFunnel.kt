@@ -2,20 +2,20 @@ package eu.darken.bb.common.funnel
 
 import android.content.Context
 import android.content.pm.PackageManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Tries to reduce the chance that we hit the IPC buffer limit.
  * Hitting the buffer limit can result in crashes or more grave incomplete results.
  */
-@PerApp
+@Singleton
 class IPCFunnel @Inject constructor(
-    @AppContext context: Context
+    @ApplicationContext context: Context
 ) {
     private val funnelLock = Semaphore(1)
     private val packageManager: PackageManager = context.packageManager

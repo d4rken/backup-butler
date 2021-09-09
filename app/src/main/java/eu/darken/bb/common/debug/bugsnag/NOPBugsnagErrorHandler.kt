@@ -3,12 +3,11 @@ package eu.darken.bb.common.debug.bugsnag
 
 import com.bugsnag.android.Event
 import com.bugsnag.android.OnErrorCallback
-import eu.darken.bb.common.dagger.PerApp
-
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class NOPBugsnagErrorHandler @Inject constructor() : OnErrorCallback {
 
     override fun onError(event: Event): Boolean {

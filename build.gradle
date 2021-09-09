@@ -38,6 +38,7 @@ buildscript {
 
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -47,6 +48,8 @@ buildscript {
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.6.1.0'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}"
         classpath 'com.bugsnag:bugsnag-android-gradle-plugin:7.0.0'
+
+        classpath "com.google.dagger:hilt-android-gradle-plugin:${versions.dagger}"
     }
 }
 

@@ -2,7 +2,6 @@ package eu.darken.bb.common.files.core.local
 
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
@@ -19,8 +18,9 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class LocalGateway @Inject constructor(
     private val javaRootClient: JavaRootClient,
     private val deviceEnvironment: DeviceEnvironment,

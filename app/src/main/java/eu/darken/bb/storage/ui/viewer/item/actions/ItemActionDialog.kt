@@ -12,10 +12,10 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.putBackupSpecId
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -33,7 +33,8 @@ import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentArgs
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
-class ItemActionDialog : BottomSheetDialogFragment(), AutoInject {
+@AndroidEntryPoint
+class ItemActionDialog : BottomSheetDialogFragment() {
 
     val navArgs by navArgs<ItemActionDialogArgs>()
 

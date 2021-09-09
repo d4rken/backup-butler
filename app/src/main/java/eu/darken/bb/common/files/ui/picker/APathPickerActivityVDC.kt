@@ -4,21 +4,20 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import timber.log.Timber
+import javax.inject.Inject
 
-
-class APathPickerActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class APathPickerActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val options: APathPicker.Options,
     val safGateway: SAFGateway
 ) : SmartVDC() {
@@ -97,11 +96,6 @@ class APathPickerActivityVDC @AssistedInject constructor(
 
     fun onResult(result: APathPicker.Result) {
         resultEvents.postValue(result to true)
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<APathPickerActivityVDC> {
-        fun create(handle: SavedStateHandle, options: APathPicker.Options): APathPickerActivityVDC
     }
 
     companion object {

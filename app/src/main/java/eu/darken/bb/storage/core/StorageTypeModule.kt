@@ -3,12 +3,15 @@ package eu.darken.bb.storage.core
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import eu.darken.bb.storage.core.local.LocalStorage
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import eu.darken.bb.storage.core.saf.SAFStorage
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
 
+@InstallIn(SingletonComponent::class)
 @Module
 abstract class StorageTypeModule {
 

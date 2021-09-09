@@ -2,17 +2,13 @@ package eu.darken.bb.backup.ui.generator.list
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding4.view.clicks
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -23,9 +19,12 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
-class GeneratorsFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
+@AndroidEntryPoint
+class GeneratorsFragment : SmartFragment() {
 
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
+
     @Inject lateinit var vdcSource: VDCSource.Factory
 
     private val vdc: GeneratorsFragmentVDC by vdcs { vdcSource }
@@ -34,7 +33,6 @@ class GeneratorsFragment : SmartFragment(), AutoInject, HasSupportFragmentInject
     @BindView(R.id.generator_list) lateinit var generatorList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     init {
         layoutRes = R.layout.generator_list_fragment

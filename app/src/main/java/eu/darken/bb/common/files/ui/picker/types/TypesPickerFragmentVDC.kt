@@ -2,19 +2,19 @@ package eu.darken.bb.common.files.ui.picker.types
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
+import javax.inject.Inject
 
-class TypesPickerFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class TypesPickerFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val options: APathPicker.Options
 ) : SmartVDC() {
 
@@ -39,11 +39,6 @@ class TypesPickerFragmentVDC @AssistedInject constructor(
     data class State(
         val allowedTypes: List<Storage.Type>
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<TypesPickerFragmentVDC> {
-        fun create(handle: SavedStateHandle, options: APathPicker.Options): TypesPickerFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Picker", "Types", "VDC")

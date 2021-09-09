@@ -4,12 +4,12 @@ import android.content.Context
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
@@ -24,7 +24,7 @@ import javax.inject.Provider
 
 class SimpleRestoreProcessor @AssistedInject constructor(
     @Assisted progressParent: Progress.Client,
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
     private val restoreConfigRepo: RestoreConfigRepo,
     private val storageManager: StorageManager,

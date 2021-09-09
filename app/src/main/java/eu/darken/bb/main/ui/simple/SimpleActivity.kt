@@ -5,22 +5,19 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import butterknife.ButterKnife
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.ui.settings.SettingsActivity
 import javax.inject.Inject
 
+@AndroidEntryPoint
+class SimpleActivity : AppCompatActivity() {
 
-class SimpleActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject {
-
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
+//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: SimpleActivityVDC by vdcs { vdcSource }

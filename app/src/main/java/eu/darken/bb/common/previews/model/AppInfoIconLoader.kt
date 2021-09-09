@@ -1,7 +1,6 @@
 package eu.darken.bb.common.previews.model
 
 import android.content.Context
-
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Options
@@ -10,11 +9,11 @@ import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.previews.AppPreviewRequest
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 class AppInfoIconLoader : ModelLoader<AppPreviewRequest, AppIconData> {
@@ -51,8 +50,8 @@ class AppInfoIconLoader : ModelLoader<AppPreviewRequest, AppIconData> {
         override fun getDataSource(): DataSource = DataSource.LOCAL
     }
 
-    @PerApp
-    class Factory @Inject constructor(@AppContext val context: Context) :
+    @Singleton
+    class Factory @Inject constructor(@ApplicationContext val context: Context) :
         ModelLoaderFactory<AppPreviewRequest, AppIconData> {
 
         override fun build(multiModelLoaderFactory: MultiModelLoaderFactory): ModelLoader<AppPreviewRequest, AppIconData> {

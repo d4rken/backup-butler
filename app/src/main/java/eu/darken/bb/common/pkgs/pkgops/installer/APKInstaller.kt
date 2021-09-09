@@ -2,13 +2,12 @@ package eu.darken.bb.common.pkgs.pkgops.installer
 
 import android.content.Context
 import android.content.Intent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
@@ -30,10 +29,11 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class APKInstaller @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val javaRootClient: JavaRootClient,
     private val pkgOps: PkgOps
 ) : Progress.Client, Progress.Host, SharedHolder.HasKeepAlive<Any> {

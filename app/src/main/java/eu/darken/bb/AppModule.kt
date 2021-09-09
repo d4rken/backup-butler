@@ -5,12 +5,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.Restore
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.moshi.*
 import eu.darken.bb.processor.core.mm.CachePath
@@ -18,13 +19,14 @@ import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import java.util.*
+import javax.inject.Singleton
 
-
+@InstallIn(SingletonComponent::class)
 @Module
 class AppModule {
 
     @Provides
-    @PerApp
+    @Singleton
     fun moshi(): Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
         .add(BackupSpec.MOSHI_FACTORY)
@@ -50,7 +52,7 @@ class AppModule {
         .build()
 
     @Provides
-    @PerApp
+    @Singleton
     @CachePath
-    fun mmCachePath(@AppContext context: Context) = context.cacheDir
+    fun mmCachePath(@ApplicationContext context: Context) = context.cacheDir
 }

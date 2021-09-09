@@ -3,6 +3,7 @@ package eu.darken.bb.backup.core.app.backup.handler
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -11,7 +12,6 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
 import eu.darken.bb.common.*
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.Progress
@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 @Reusable
 class PublicDefaultBackupHandler @Inject constructor(
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     private val gatewaySwitch: GatewaySwitch,
     private val mmDataRepo: MMDataRepo,
     private val pkgOps: PkgOps,

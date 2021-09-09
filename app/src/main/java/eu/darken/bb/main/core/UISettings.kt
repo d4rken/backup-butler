@@ -5,16 +5,16 @@ import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class UISettings @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : Settings() {
 
     enum class Theme(

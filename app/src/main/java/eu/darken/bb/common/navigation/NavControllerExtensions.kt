@@ -3,6 +3,7 @@ package eu.darken.bb.common.navigation
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 
 fun NavController.navigateIfNotThere(@IdRes resId: Int, args: Bundle? = null) {
     if (currentDestination?.id == resId) return
@@ -14,4 +15,8 @@ fun NavController.isGraphSet(): Boolean = try {
     true
 } catch (e: IllegalStateException) {
     false
+}
+
+fun NavController.doNavigate(direction: NavDirections) {
+    currentDestination?.getAction(direction.actionId)?.let { navigate(direction) }
 }

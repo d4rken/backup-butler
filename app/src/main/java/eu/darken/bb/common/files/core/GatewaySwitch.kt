@@ -2,7 +2,6 @@ package eu.darken.bb.common.files.core
 
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -10,8 +9,9 @@ import okio.Sink
 import okio.Source
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class GatewaySwitch @Inject constructor(
     private val safGateway: SAFGateway,
     private val localGateway: LocalGateway

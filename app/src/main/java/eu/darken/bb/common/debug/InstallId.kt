@@ -1,12 +1,12 @@
 package eu.darken.bb.common.debug
 
 import eu.darken.bb.common.BBEnv
-import eu.darken.bb.common.dagger.PerApp
 import java.io.File
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class InstallId @Inject constructor(
     bbEnv: BBEnv
 ) {

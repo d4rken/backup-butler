@@ -9,14 +9,13 @@ import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Configuration
 import com.uber.rxdogtag.RxDogTag
 import dagger.Lazy
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.Bugs
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.timber.BugsnagTree
@@ -26,10 +25,11 @@ import io.reactivex.rxjava3.exceptions.UndeliverableException
 import timber.log.Timber
 import java.io.InterruptedIOException
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class BBDebug @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     moduleFactories: Set<@JvmSuppressWildcards DebugModule.Factory<out DebugModule>>,
     private val generalSettings: GeneralSettings,
     private val installId: InstallId,

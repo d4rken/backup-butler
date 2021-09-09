@@ -6,9 +6,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
@@ -19,13 +19,12 @@ import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 import javax.inject.Inject
 
-
-class DebugFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class DebugFragment : SmartFragment() {
     companion object {
         fun newInstance(): Fragment = DebugFragment()
         val TAG = App.logTag("Debug", "Fragment")
     }
-
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: DebugFragmentVDC by vdcs { vdcSource }

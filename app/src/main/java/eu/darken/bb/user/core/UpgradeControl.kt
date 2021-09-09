@@ -2,7 +2,6 @@ package eu.darken.bb.user.core
 
 import com.jakewharton.rx3.replayingShare
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.PerApp
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -11,8 +10,9 @@ import io.reactivex.rxjava3.subjects.Subject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class UpgradeControl @Inject constructor(
 
 ) {

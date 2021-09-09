@@ -7,13 +7,13 @@ import android.content.res.Resources
 import android.os.Bundle
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
-@PerApp
+@Singleton
 class LanguageEnforcer @Inject constructor(
     private val application: Application,
     private val uiSettings: UISettings

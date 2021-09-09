@@ -5,15 +5,15 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
-
-class StartFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class StartFragment : SmartFragment() {
     companion object {
         fun newInstance(): Fragment = StartFragment()
     }

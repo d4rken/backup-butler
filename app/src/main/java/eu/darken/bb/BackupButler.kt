@@ -6,18 +6,18 @@ import android.content.pm.PackageManager
 import android.content.pm.Signature
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.CheckSummer
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 
 @SuppressLint("PackageManagerGetSignatures")
 @Suppress("DEPRECATION")
-@PerApp
+@Singleton
 class BackupButler @Inject constructor(
-    @AppContext val context: Context,
+    @ApplicationContext val context: Context,
     private val packageManager: PackageManager
 ) {
     private val selfHealthPrefs = context.getSharedPreferences("selfhealth", Context.MODE_PRIVATE)

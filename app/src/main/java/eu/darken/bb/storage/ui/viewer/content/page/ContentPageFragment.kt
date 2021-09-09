@@ -1,5 +1,6 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
+
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -9,10 +10,10 @@ import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.getBackupId
 import eu.darken.bb.backup.core.getBackupSpecId
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -26,8 +27,8 @@ import eu.darken.bb.storage.core.getStorageId
 import java.text.DateFormat
 import javax.inject.Inject
 
-
-class ContentPageFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class ContentPageFragment : SmartFragment() {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
 

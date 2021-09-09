@@ -3,12 +3,12 @@ package eu.darken.bb.common
 import android.content.Context
 import android.content.Intent
 import dagger.Reusable
-import eu.darken.bb.common.dagger.AppContext
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 @Reusable
 class EmailTool @Inject constructor(
-    @AppContext val context: Context
+    @ApplicationContext val context: Context
 ) {
 
     fun build(email: Email, offerChooser: Boolean = false): Intent {

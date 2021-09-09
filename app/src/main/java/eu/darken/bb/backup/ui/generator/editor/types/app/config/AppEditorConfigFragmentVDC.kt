@@ -1,26 +1,27 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app.config
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class AppEditorConfigFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
-    @Assisted private val generatorId: Generator.Id,
+@HiltViewModel
+class AppEditorConfigFragmentVDC @Inject constructor(
+    handle: SavedStateHandle,
     private val builder: GeneratorBuilder
 ) : SmartVDC() {
+
+    private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
+    private val generatorId = navArgs.value.generatorId
 
     private val stater = Stater(State())
     val state = stater.liveData
@@ -122,11 +123,6 @@ class AppEditorConfigFragmentVDC @AssistedInject constructor(
         val backupCache: Boolean = false,
         val extraPaths: Map<String, Collection<APath>> = emptyMap()
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<AppEditorConfigFragmentVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): AppEditorConfigFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Generator", "App", "Editor", "Config", "VDC")

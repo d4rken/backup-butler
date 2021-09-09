@@ -1,23 +1,25 @@
 package eu.darken.bb.backup.ui.generator.editor.types
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class GeneratorTypeFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
-    @Assisted private val generatorId: Generator.Id,
+@HiltViewModel
+class GeneratorTypeFragmentVDC @Inject constructor(
+    handle: SavedStateHandle,
     private val builder: GeneratorBuilder
 ) : SmartVDC() {
+
+    private val navArgs = handle.navArgs<GeneratorTypeFragmentArgs>()
+    private val generatorId = navArgs.value.generatorId
 
     private val builderObs = builder.generator(generatorId)
 
@@ -43,10 +45,4 @@ class GeneratorTypeFragmentVDC @AssistedInject constructor(
         val supportedTypes: List<Backup.Type>,
         val isWorking: Boolean = false
     )
-
-
-    @AssistedFactory
-    interface Factory : VDCFactory<GeneratorTypeFragmentVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): GeneratorTypeFragmentVDC
-    }
 }

@@ -3,11 +3,10 @@ package eu.darken.bb.task.core
 import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
 import eu.darken.bb.common.rx.latest
 import io.reactivex.rxjava3.core.Maybe
@@ -15,10 +14,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class TaskRepo @Inject constructor(
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     val moshi: Moshi
 ) {
     private val taskAdapter = moshi.adapter(Task::class.java)

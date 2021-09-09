@@ -9,8 +9,8 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.jakewharton.rxbinding4.view.longClicks
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
@@ -26,8 +26,8 @@ import eu.darken.bb.task.ui.editor.restore.config.app.AppConfigUIWrap
 import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
 import javax.inject.Inject
 
-
-class RestoreConfigFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class RestoreConfigFragment : SmartFragment() {
 
     val navArgs by navArgs<RestoreConfigFragmentArgs>()
 

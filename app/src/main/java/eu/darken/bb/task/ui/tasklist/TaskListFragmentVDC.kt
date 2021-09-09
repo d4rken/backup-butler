@@ -1,14 +1,11 @@
 package eu.darken.bb.task.ui.tasklist
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
@@ -19,9 +16,11 @@ import eu.darken.bb.task.core.results.TaskResultRepo
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class TaskListFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class TaskListFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     private val taskRepo: TaskRepo,
     private val taskBuilder: TaskBuilder,
     processorControl: ProcessorControl,
@@ -96,10 +95,6 @@ class TaskListFragmentVDC @AssistedInject constructor(
     data class EditActions(
         val taskId: Task.Id
     )
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<TaskListFragmentVDC>
-
 
     companion object {
         val TAG = App.logTag("Task", "TaskList", "VDC")

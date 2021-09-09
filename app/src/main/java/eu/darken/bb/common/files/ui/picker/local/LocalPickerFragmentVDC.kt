@@ -4,8 +4,7 @@ import android.Manifest
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.SharedHolder
@@ -20,13 +19,14 @@ import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
+import javax.inject.Inject
 
-class LocalPickerFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class LocalPickerFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val options: APathPicker.Options,
     private val localGateway: LocalGateway,
     permissionTool: RuntimePermissionTool
@@ -163,11 +163,6 @@ class LocalPickerFragmentVDC @AssistedInject constructor(
         val currentListing: List<APathLookup<*>>? = null,
         val allowCreateDir: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<LocalPickerFragmentVDC> {
-        fun create(handle: SavedStateHandle, options: APathPicker.Options): LocalPickerFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Picker", "Local", "VDC")

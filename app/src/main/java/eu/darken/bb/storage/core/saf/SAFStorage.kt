@@ -6,12 +6,12 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 class SAFStorage @AssistedInject constructor(
     @Assisted storageRef: Storage.Ref,
     @Assisted storageConfig: Storage.Config,
-    @AppContext override val context: Context,
+    @ApplicationContext override val context: Context,
     moshi: Moshi,
     private val safGateway: SAFGateway,
     private val mmDataRepo: MMDataRepo

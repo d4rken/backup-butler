@@ -1,14 +1,15 @@
 package eu.darken.bb.task.ui.settings
 
 import androidx.annotation.Keep
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.task.core.TaskSettings
 import javax.inject.Inject
 
+@AndroidEntryPoint
 @Keep
-class TaskSettingsFragment : SmartPreferenceFragment(), AutoInject {
+class TaskSettingsFragment : SmartPreferenceFragment() {
 
     @Inject lateinit var taskSettings: TaskSettings
 

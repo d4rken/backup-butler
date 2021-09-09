@@ -5,16 +5,16 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
+import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.concurrent.withLock
 
-@PerApp
+@Singleton
 class ClipboardHelper @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val clipboard: ClipboardManager by lazy {
         return@lazy if (Looper.getMainLooper() == Looper.myLooper()) {

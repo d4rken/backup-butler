@@ -3,10 +3,13 @@ package eu.darken.bb.task.core
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 
+@InstallIn(SingletonComponent::class)
 @Module
 abstract class TaskTypeModule {
 

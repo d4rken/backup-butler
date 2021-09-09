@@ -15,8 +15,8 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
 import eu.darken.bb.common.lists.ClickModule
@@ -34,8 +34,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import java.io.File
 import javax.inject.Inject
 
-
-class LocalPickerFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class LocalPickerFragment : SmartFragment() {
 
     val navArgs by navArgs<LocalPickerFragmentArgs>()
 

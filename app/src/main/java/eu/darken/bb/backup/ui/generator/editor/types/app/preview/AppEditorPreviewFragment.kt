@@ -6,8 +6,8 @@ import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.getCountString
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -21,8 +21,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-
-class AppEditorPreviewFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class AppEditorPreviewFragment : SmartFragment() {
 
     val args by navArgs<AppEditorPreviewFragmentArgs>()
 

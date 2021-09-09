@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -16,8 +16,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
-
-class LanguageFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class LanguageFragment : SmartFragment() {
 
     @BindView(R.id.language_list) lateinit var languageList: RecyclerView
     @BindView(R.id.language_list_wrapper) lateinit var languageListWrapper: RecyclerViewWrapperLayout

@@ -8,8 +8,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
@@ -23,8 +23,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-
-class FilesEditorConfigFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class FilesEditorConfigFragment : SmartFragment() {
 
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 

@@ -11,7 +11,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import dagger.Lazy
-import eu.darken.bb.App
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.decoder.*
@@ -36,7 +39,7 @@ class GlideConfigModule : AppGlideModule() {
     @Inject lateinit var gatewaySwitch: GatewaySwitch
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        (context.applicationContext as App).appComponent.inject(this)
+        EntryPointAccessors.fromApplication(context, GlideEntryPoint::class.java).inject(this)
 
         registry.append(PkgUriPreviewRequest::class.java, AppIconData::class.java, pkgUriIconLoaderFactory)
         registry.append(AppPreviewRequest::class.java, AppIconData::class.java, appInfoIconLoaderFactory)
@@ -51,4 +54,10 @@ class GlideConfigModule : AppGlideModule() {
     }
 
     override fun isManifestParsingEnabled(): Boolean = false
+
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface GlideEntryPoint {
+        fun inject(glide: GlideConfigModule)
+    }
 }

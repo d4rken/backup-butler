@@ -5,6 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'de.mannodermaus.android-junit5'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'com.bugsnag.android.gradle'
+apply plugin: 'dagger.hilt.android.plugin'
 
 def gitSha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 def buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("GMT+1"))
@@ -170,7 +171,7 @@ dependencies {
     implementation 'org.apache.commons:commons-compress:1.19'
 
     // ROOM
-    def room_version = "2.3.0"
+    def room_version = "2.4.0-alpha04"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -178,11 +179,20 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     //Dagger
-    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     implementation "com.google.dagger:dagger:${versions.dagger}"
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
-    implementation "com.google.dagger:dagger-android-support:${versions.dagger}"
+
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
+
+    implementation "com.google.dagger:hilt-android:${versions.dagger}"
+    kapt "com.google.dagger:hilt-android-compiler:${versions.dagger}"
+
+    testImplementation "com.google.dagger:hilt-android-testing:${versions.dagger}"
+    kaptTest "com.google.dagger:hilt-android-compiler:${versions.dagger}"
+
+    androidTestImplementation "com.google.dagger:hilt-android-testing:${versions.dagger}"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:${versions.dagger}"
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'

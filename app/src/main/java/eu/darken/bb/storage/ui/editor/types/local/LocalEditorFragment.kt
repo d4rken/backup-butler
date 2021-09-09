@@ -11,8 +11,8 @@ import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
@@ -28,8 +28,8 @@ import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
-
-class LocalEditorFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class LocalEditorFragment : SmartFragment() {
 
     val navArgs by navArgs<LocalEditorFragmentArgs>()
 

@@ -7,9 +7,9 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
@@ -20,7 +20,7 @@ import timber.log.Timber
 @SuppressLint("NewApi")
 class SysInfoModule @AssistedInject constructor(
     @Assisted host: DebugModuleHost,
-    @AppContext context: Context
+    @ApplicationContext context: Context
 ) : DebugModule {
     private var previousOptions: DebugOptions = DebugOptions.default()
 

@@ -3,8 +3,7 @@ package eu.darken.bb.storage.ui.viewer.content.page
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
@@ -12,7 +11,6 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
@@ -20,9 +18,11 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class ContentPageFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class ContentPageFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     @Assisted private val backupSpecId: BackupSpec.Id,
     @Assisted private val backupId: Backup.Id,
@@ -100,16 +100,6 @@ class ContentPageFragmentVDC @AssistedInject constructor(
         val showRestoreAction: Boolean = false,
         val error: Throwable? = null
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<ContentPageFragmentVDC> {
-        fun create(
-            handle: SavedStateHandle,
-            storageId: Storage.Id,
-            backupSpecId: BackupSpec.Id,
-            backupId: Backup.Id
-        ): ContentPageFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Storage", "Details", "Page", "VDC")

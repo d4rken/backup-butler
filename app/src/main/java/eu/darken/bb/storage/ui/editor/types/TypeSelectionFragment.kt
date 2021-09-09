@@ -9,8 +9,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -24,8 +24,8 @@ import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentArgs
 import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
 import javax.inject.Inject
 
-
-class TypeSelectionFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class TypeSelectionFragment : SmartFragment() {
 
     val navArgs by navArgs<TypeSelectionFragmentArgs>()
 

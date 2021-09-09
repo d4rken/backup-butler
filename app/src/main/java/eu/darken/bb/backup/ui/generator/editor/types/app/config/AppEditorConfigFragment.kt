@@ -7,10 +7,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import com.jakewharton.rxbinding4.widget.editorActions
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.getCountString
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
@@ -25,8 +25,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-
-class AppEditorConfigFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class AppEditorConfigFragment : SmartFragment() {
 
     val navArgs by navArgs<AppEditorConfigFragmentArgs>()
 

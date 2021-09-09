@@ -6,13 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.airbnb.lottie.LottieAnimationView
-import dagger.android.DispatchingAndroidInjector
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
@@ -21,10 +19,10 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
+@AndroidEntryPoint
+class ProgressFragment : SmartFragment() {
 
-class ProgressFragment : SmartFragment(), AutoInject {
-
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    //    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: ProgressFragmentVDC by vdcs { vdcSource }
 

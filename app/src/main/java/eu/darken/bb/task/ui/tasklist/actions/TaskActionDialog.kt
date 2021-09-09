@@ -11,8 +11,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -26,7 +26,8 @@ import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
-class TaskActionDialog : BottomSheetDialogFragment(), AutoInject {
+@AndroidEntryPoint
+class TaskActionDialog : BottomSheetDialogFragment() {
     private var unbinder: Unbinder? = null
 
     @Inject lateinit var taskRepo: TaskRepo

@@ -3,20 +3,19 @@ package eu.darken.bb.main.ui.settings.support
 import android.content.Intent
 import android.os.Build
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.EmailTool
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.InstallId
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class SupportFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class SupportFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     val installId: InstallId,
     val backupButler: BackupButler,
     val emailTool: EmailTool
@@ -54,8 +53,4 @@ class SupportFragmentVDC @AssistedInject constructor(
     fun copyInstallID() {
         clipboardEvent.postValue(installId.installId.toString())
     }
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<SupportFragmentVDC>
-
 }

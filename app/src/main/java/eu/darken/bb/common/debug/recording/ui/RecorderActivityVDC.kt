@@ -4,25 +4,24 @@ package eu.darken.bb.common.debug.recording.ui
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.ShareBuilder
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.Zipper
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.RawPath
 import eu.darken.bb.common.vdc.VDC
-import eu.darken.bb.common.vdc.VDCFactory
-import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
+import javax.inject.Inject
 import javax.inject.Provider
 
-class RecorderActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class RecorderActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val recordedPath: String,
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val shareBuilderProvider: Provider<ShareBuilder>
 ) : VDC() {
 
@@ -81,10 +80,4 @@ class RecorderActivityVDC @AssistedInject constructor(
         val error: Throwable? = null,
         val loading: Boolean = true
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, recordedPath: String): RecorderActivityVDC
-    }
-
 }

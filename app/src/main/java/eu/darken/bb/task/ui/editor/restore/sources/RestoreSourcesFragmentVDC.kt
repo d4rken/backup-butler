@@ -3,8 +3,7 @@ package eu.darken.bb.task.ui.editor.restore.sources
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.SingleLiveEvent
@@ -13,15 +12,16 @@ import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class RestoreSourcesFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class RestoreSourcesFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
@@ -90,10 +90,5 @@ class RestoreSourcesFragmentVDC @AssistedInject constructor(
 
     companion object {
         val TAG = App.logTag("Task", "Restore", "Simple", "Sources", "VDC")
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<RestoreSourcesFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): RestoreSourcesFragmentVDC
     }
 }

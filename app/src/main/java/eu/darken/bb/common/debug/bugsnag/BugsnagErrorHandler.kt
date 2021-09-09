@@ -8,13 +8,13 @@ import eu.darken.bb.BackupButler
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.BBEnv
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.debug.InstallId
 import eu.darken.bb.common.debug.timber.BugsnagTree
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class BugsnagErrorHandler @Inject constructor(
     private val bbEnv: BBEnv,
     private val installId: InstallId,

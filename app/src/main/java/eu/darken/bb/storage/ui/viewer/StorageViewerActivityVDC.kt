@@ -1,24 +1,24 @@
 package eu.darken.bb.storage.ui.viewer
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-
-class StorageViewerActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
+@HiltViewModel
+class StorageViewerActivityVDC @Inject constructor(
+    handle: SavedStateHandle,
     storageManager: StorageManager
 ) : SmartVDC() {
+    private val navArgs = handle.navArgs<StorageViewerActivityArgs>()
+    private val storageId = navArgs.value.storageId
 
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishActivity = SingleLiveEvent<Boolean>()
@@ -51,9 +51,4 @@ class StorageViewerActivityVDC @AssistedInject constructor(
         val storageType: Storage.Type? = null,
         val loading: Boolean = true
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<StorageViewerActivityVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageViewerActivityVDC
-    }
 }

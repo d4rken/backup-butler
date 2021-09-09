@@ -2,6 +2,7 @@ package eu.darken.bb.common.pkgs.pkgops.root
 
 import android.app.ActivityManager
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 
 class PkgOpsHost @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val sharedShell: SharedShell,
     private val libcoreTool: LibcoreTool
 ) : PkgOpsConnection.Stub() {

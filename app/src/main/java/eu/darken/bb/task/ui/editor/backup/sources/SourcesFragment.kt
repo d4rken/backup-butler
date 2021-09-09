@@ -7,9 +7,9 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorAdapter
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -25,8 +25,8 @@ import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragm
 import javax.inject.Inject
 import javax.inject.Provider
 
-
-class SourcesFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class SourcesFragment : SmartFragment() {
 
     val navArgs by navArgs<SourcesFragmentArgs>()
 

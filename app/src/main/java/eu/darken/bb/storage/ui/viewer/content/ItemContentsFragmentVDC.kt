@@ -2,21 +2,21 @@ package eu.darken.bb.storage.ui.viewer.content
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class ItemContentsFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class ItemContentsFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     @Assisted private val backupSpecId: BackupSpec.Id,
     private val storageManager: StorageManager
@@ -53,13 +53,4 @@ class ItemContentsFragmentVDC @AssistedInject constructor(
         val loading: Boolean = true,
         val error: Throwable? = null
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<ItemContentsFragmentVDC> {
-        fun create(
-            handle: SavedStateHandle,
-            storageId: Storage.Id,
-            backupSpecId: BackupSpec.Id
-        ): ItemContentsFragmentVDC
-    }
 }

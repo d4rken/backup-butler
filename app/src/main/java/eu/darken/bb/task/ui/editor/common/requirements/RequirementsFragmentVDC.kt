@@ -2,21 +2,21 @@ package eu.darken.bb.task.ui.editor.common.requirements
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.Requirement
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class RequirementsFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class RequirementsFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val reqMan: RequirementsManager
@@ -60,9 +60,4 @@ class RequirementsFragmentVDC @AssistedInject constructor(
         val requirements: List<Requirement> = emptyList(),
         val taskType: Task.Type = Task.Type.BACKUP_SIMPLE
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<RequirementsFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): RequirementsFragmentVDC
-    }
 }

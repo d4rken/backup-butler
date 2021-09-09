@@ -5,10 +5,10 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.saf.SAFGateway
@@ -19,7 +19,7 @@ import io.reactivex.rxjava3.core.Single
 
 class FilesSpecGeneratorEditor @AssistedInject constructor(
     @Assisted private val generatorId: Generator.Id,
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     moshi: Moshi,
     private val pathTool: GatewaySwitch,
     private val safGateway: SAFGateway

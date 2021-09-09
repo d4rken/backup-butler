@@ -3,16 +3,12 @@ package eu.darken.bb.storage.ui.list
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -28,11 +24,11 @@ import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
 
+@AndroidEntryPoint
+class StorageListFragment : SmartFragment() {
 
-class StorageListFragment : SmartFragment(), AutoInject, HasSupportFragmentInjector {
-
-    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
+//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageListFragmentVDC by vdcs { vdcSource }

@@ -1,17 +1,18 @@
 package eu.darken.bb.main.ui.settings.acks
 
 import androidx.annotation.Keep
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcs
-import eu.darken.bb.main.ui.settings.debug.GeneralSettingsFragmentVDC
+import eu.darken.bb.main.ui.settings.general.GeneralSettingsFragmentVDC
 import javax.inject.Inject
 
 @Keep
-class AcknowledgementsFragment : SmartPreferenceFragment(), AutoInject {
+@AndroidEntryPoint
+class AcknowledgementsFragment : SmartPreferenceFragment() {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: GeneralSettingsFragmentVDC by vdcs { vdcSource }

@@ -2,20 +2,20 @@ package eu.darken.bb.processor.core
 
 import android.content.Context
 import android.content.Intent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.opt
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.service.ProcessorService
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class ProcessorControl @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val progressHostPub = HotData<Opt<Progress.Host>>(Opt())
     val progressHost = progressHostPub.data

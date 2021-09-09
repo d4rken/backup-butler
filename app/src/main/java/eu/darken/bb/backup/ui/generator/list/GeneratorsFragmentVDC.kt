@@ -2,22 +2,21 @@ package eu.darken.bb.backup.ui.generator.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class GeneratorsFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class GeneratorsFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     private val generatorRepo: GeneratorRepo,
     private val generatorBuilder: GeneratorBuilder
 ) : SmartVDC() {
@@ -65,9 +64,6 @@ class GeneratorsFragmentVDC @AssistedInject constructor(
         val allowEdit: Boolean = false,
         val allowDelete: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<GeneratorsFragmentVDC>
 
     companion object {
         val TAG = App.logTag("Backup", "GeneratorList", "VDC")

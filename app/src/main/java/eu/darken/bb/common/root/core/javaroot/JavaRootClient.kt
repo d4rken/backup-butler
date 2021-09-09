@@ -1,10 +1,9 @@
 package eu.darken.bb.common.root.core.javaroot
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.root.ClientModule
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
@@ -15,10 +14,11 @@ import eu.darken.rxshell.cmd.RxCmdShell
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class JavaRootClient @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : SharedHolder<JavaRootClient.Connection>(
     TAG, connectionSourcer(context)
 ) {

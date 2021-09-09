@@ -3,12 +3,11 @@ package eu.darken.bb.storage.ui.editor.types.saf
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -16,17 +15,18 @@ import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class SAFEditorFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class SAFEditorFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val builder: StorageBuilder,
     private val safGateway: SAFGateway
 ) : SmartVDC() {
@@ -124,11 +124,6 @@ class SAFEditorFragmentVDC @AssistedInject constructor(
         val isExisting: Boolean = false,
         val isValid: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<SAFEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): SAFEditorFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Storage", "SAF", "Editor", "VDC")

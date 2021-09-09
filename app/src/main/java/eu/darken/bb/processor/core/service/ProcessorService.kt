@@ -3,7 +3,7 @@ package eu.darken.bb.processor.core.service
 import android.app.IntentService
 import android.content.Context
 import android.content.Intent
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.HasContext
@@ -24,6 +24,7 @@ import timber.log.Timber
 import java.lang.Thread.sleep
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, HasContext {
 
     companion object {
@@ -48,7 +49,6 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
     override val progress: Observable<Progress.Data> = progressUpdater.data
 
     override fun onCreate() {
-        AndroidInjection.inject(this)
         super.onCreate()
         updateProgressPrimary(R.string.progress_preparing_label)
         notifications.start(this)

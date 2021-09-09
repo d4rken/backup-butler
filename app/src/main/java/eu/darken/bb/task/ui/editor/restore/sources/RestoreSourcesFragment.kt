@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
@@ -25,8 +25,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragmentArgs
 import javax.inject.Inject
 
-
-class RestoreSourcesFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class RestoreSourcesFragment : SmartFragment() {
 
     val navArgs by navArgs<RestoreSourcesFragmentArgs>()
 

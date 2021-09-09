@@ -3,13 +3,13 @@ package eu.darken.bb.common.debug.timber
 import android.util.Log
 import com.bugsnag.android.Event
 import eu.darken.bb.BuildConfig
-import eu.darken.bb.common.dagger.PerApp
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
-@PerApp
+@Singleton
 class BugsnagTree @Inject constructor() : Timber.Tree() {
     // Adding one to the initial size accounts for the add before remove.
     private val buffer: Deque<String> = ArrayDeque(BUFFER_SIZE + 1)

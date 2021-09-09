@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -20,8 +20,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionAdapter
 import javax.inject.Inject
 
-
-class TypesPickerFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class TypesPickerFragment : SmartFragment() {
 
     val navArgs by navArgs<TypesPickerFragmentArgs>()
 

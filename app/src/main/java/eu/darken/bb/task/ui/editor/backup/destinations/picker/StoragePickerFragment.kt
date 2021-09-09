@@ -7,8 +7,8 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -23,8 +23,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
-
-class StoragePickerFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class StoragePickerFragment : SmartFragment() {
 
     val navArgs by navArgs<StoragePickerFragmentArgs>()
 

@@ -2,8 +2,7 @@ package eu.darken.bb.backup.ui.generator.list.actions
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
@@ -13,13 +12,14 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class GeneratorsActionDialogVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class GeneratorsActionDialogVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val generatorId: Generator.Id,
     private val generatorBuilder: GeneratorBuilder,
     private val generatorRepo: GeneratorRepo
@@ -76,9 +76,4 @@ class GeneratorsActionDialogVDC @AssistedInject constructor(
         val config: Generator.Config? = null,
         val allowedActions: List<Confirmable<GeneratorsAction>> = listOf()
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<GeneratorsActionDialogVDC> {
-        fun create(handle: SavedStateHandle, generatorId: Generator.Id): GeneratorsActionDialogVDC
-    }
 }

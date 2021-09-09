@@ -3,8 +3,8 @@ package eu.darken.bb.storage.core
 import android.content.Context
 import android.content.Intent
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.blockingGetUnWrapped
 import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @Reusable
 class StorageManager @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val refRepo: StorageRefRepo,
     private val storageFactories: @JvmSuppressWildcards Map<Storage.Type, Storage.Factory<out Storage>>,
     private val storageEditors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>

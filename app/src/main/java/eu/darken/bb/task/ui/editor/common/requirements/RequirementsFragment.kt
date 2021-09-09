@@ -9,8 +9,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -25,8 +25,8 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 import javax.inject.Inject
 
-
-class RequirementsFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class RequirementsFragment : SmartFragment() {
 
     val navArgs by navArgs<RequirementsFragmentArgs>()
 

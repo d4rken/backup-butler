@@ -1,21 +1,20 @@
 package eu.darken.bb.processor.ui.progress
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ProgressFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class ProgressFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     backupServiceControl: ProcessorControl
 ) : SmartVDC() {
     private val progressHostObs = backupServiceControl.progressHost
@@ -50,7 +49,4 @@ class ProgressFragmentVDC @AssistedInject constructor(
         val taskProgress: Progress.Data = Progress.Data(),
         val actionProgress: Progress.Data? = null
     )
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<ProgressFragmentVDC>
 }

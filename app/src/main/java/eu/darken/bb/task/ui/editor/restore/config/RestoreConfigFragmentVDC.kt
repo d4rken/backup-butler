@@ -3,8 +3,7 @@ package eu.darken.bb.task.ui.editor.restore.config
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
@@ -17,7 +16,6 @@ import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -27,9 +25,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.awaitFirst
 import timber.log.Timber
+import javax.inject.Inject
 
-class RestoreConfigFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class RestoreConfigFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val safGateway: SAFGateway,
@@ -170,11 +170,6 @@ class RestoreConfigFragmentVDC @AssistedInject constructor(
         val isLoading: Boolean = true,
         val isWorking: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<RestoreConfigFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): RestoreConfigFragmentVDC
-    }
 
     companion object {
         internal val TAG = App.logTag("Task", "Restore", "Config", "VDC")

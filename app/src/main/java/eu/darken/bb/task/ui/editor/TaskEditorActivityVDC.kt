@@ -5,25 +5,24 @@ import androidx.annotation.IdRes
 import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.swallowInterruptExceptions
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.parcel.Parcelize
+import javax.inject.Inject
 
-
-class TaskEditorActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class TaskEditorActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val reqMan: RequirementsManager
@@ -124,10 +123,5 @@ class TaskEditorActivityVDC @AssistedInject constructor(
         BACKUP_SIMPLE(R.id.introFragment),
         RESTORE_SIMPLE(R.id.restoreSourcesFragment),
         RESTORE_SIMPLE_SINGLE(R.id.restoreConfigFragment);
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<TaskEditorActivityVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): TaskEditorActivityVDC
     }
 }

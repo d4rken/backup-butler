@@ -2,11 +2,13 @@ package eu.darken.bb.common.debug
 
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import eu.darken.bb.common.debug.modules.*
 import eu.darken.bb.common.debug.recording.core.RecorderModule
 
-
+@InstallIn(SingletonComponent::class)
 @Module
 abstract class DebugModuleModule {
 

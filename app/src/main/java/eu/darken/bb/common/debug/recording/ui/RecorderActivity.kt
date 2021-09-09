@@ -11,9 +11,9 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.tryLocalizedErrorMessage
@@ -22,8 +22,8 @@ import eu.darken.bb.common.vdc.VDCSource
 import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
-class RecorderActivity
-    : SmartActivity(), AutoInject {
+@AndroidEntryPoint
+class RecorderActivity : SmartActivity() {
 
     @BindView(R.id.recording_path) lateinit var recordingPath: TextView
     @BindView(R.id.recording_size) lateinit var recordingSize: TextView

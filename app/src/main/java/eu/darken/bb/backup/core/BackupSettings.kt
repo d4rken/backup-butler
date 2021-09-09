@@ -3,16 +3,16 @@ package eu.darken.bb.backup.core
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.main.core.PreferenceStoreMapper
 import eu.darken.bb.main.core.Settings
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class BackupSettings @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : Settings() {
 
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {

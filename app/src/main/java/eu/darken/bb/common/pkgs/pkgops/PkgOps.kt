@@ -7,7 +7,6 @@ import android.os.Process
 import android.os.TransactionTooLargeException
 import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.funnel.IPCFunnel
@@ -20,8 +19,9 @@ import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.user.UserHandleBB
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class PkgOps @Inject constructor(
     private val javaRootClient: JavaRootClient,
     private val ipcFunnel: IPCFunnel,
@@ -102,7 +102,7 @@ class PkgOps @Inject constructor(
 
     fun getLabel(packageName: String): String? = ipcFunnel.queryPM { pm ->
         try {
-            pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES)?.loadLabel(pm).toString()
+            pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm).toString()
         } catch (e: PackageManager.NameNotFoundException) {
             Timber.tag(TAG).w(e)
             null

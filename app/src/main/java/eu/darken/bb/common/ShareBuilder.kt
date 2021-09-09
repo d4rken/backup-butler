@@ -5,9 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.asFile
 import timber.log.Timber
@@ -15,7 +15,7 @@ import java.util.*
 import javax.inject.Inject
 
 class ShareBuilder @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private var useChooser: Boolean = false
     private var chooserTitle: String? = null

@@ -3,8 +3,7 @@ package eu.darken.bb.storage.ui.editor.types.local
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -17,15 +16,16 @@ import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class LocalEditorFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class LocalEditorFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     private val builder: StorageBuilder
 ) : SmartVDC() {
@@ -139,11 +139,6 @@ class LocalEditorFragmentVDC @AssistedInject constructor(
         val isExisting: Boolean = false,
         val isValid: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<LocalEditorFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): LocalEditorFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Storage", "Local", "Editor", "VDC")

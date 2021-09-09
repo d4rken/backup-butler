@@ -10,8 +10,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
@@ -27,7 +27,8 @@ import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
-class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
+@AndroidEntryPoint
+class StorageActionDialog : BottomSheetDialogFragment() {
     private var unbinder: Unbinder? = null
 
     @Inject lateinit var taskRepo: TaskRepo
@@ -36,7 +37,7 @@ class StorageActionDialog : BottomSheetDialogFragment(), AutoInject {
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: StorageActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
         factory as StorageActionDialogVDC.Factory
-        factory.create(handle, arguments!!.getStorageId()!!)
+        factory.create(handle, requireArguments().getStorageId()!!)
     })
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView

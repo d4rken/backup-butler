@@ -4,14 +4,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
 import timber.log.Timber
 import javax.inject.Inject
 
 @Reusable
 class RuntimePermissionTool @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) {
 
     fun hasPermission(vararg permssions: String): Boolean {

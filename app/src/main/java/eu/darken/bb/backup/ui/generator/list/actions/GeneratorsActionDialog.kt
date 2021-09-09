@@ -12,9 +12,9 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -25,7 +25,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
-class GeneratorsActionDialog : BottomSheetDialogFragment(), AutoInject {
+@AndroidEntryPoint
+class GeneratorsActionDialog : BottomSheetDialogFragment() {
     val navArgs by navArgs<GeneratorsActionDialogArgs>()
 
     @Inject lateinit var vdcSource: VDCSource.Factory

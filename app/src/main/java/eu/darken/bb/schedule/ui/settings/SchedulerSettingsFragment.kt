@@ -1,14 +1,15 @@
 package eu.darken.bb.schedule.ui.settings
 
 import androidx.annotation.Keep
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.schedule.core.SchedulerSettings
 import javax.inject.Inject
 
 @Keep
-class SchedulerSettingsFragment : SmartPreferenceFragment(), AutoInject {
+@AndroidEntryPoint
+class SchedulerSettingsFragment : SmartPreferenceFragment() {
 
     @Inject lateinit var schedulerSettings: SchedulerSettings
 

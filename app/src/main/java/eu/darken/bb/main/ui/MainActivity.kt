@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var uiSettings: UISettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        App.instance.appComponent.inject(this)
+        App.instance.appSubComponent.inject(this)
         super.onCreate(savedInstanceState)
 
         if (uiSettings.showOnboarding) {

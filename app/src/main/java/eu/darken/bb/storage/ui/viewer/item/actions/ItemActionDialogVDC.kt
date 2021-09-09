@@ -2,8 +2,7 @@ package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
@@ -14,17 +13,17 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class ItemActionDialogVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class ItemActionDialogVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     @Assisted private val backupSpecId: BackupSpec.Id,
     private val taskBuilder: TaskBuilder,
@@ -129,10 +128,5 @@ class ItemActionDialogVDC @AssistedInject constructor(
     ) {
         val isWorking: Boolean
             get() = currentOp != null || allowedActions == null
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id, backupSpecId: BackupSpec.Id): ItemActionDialogVDC
     }
 }

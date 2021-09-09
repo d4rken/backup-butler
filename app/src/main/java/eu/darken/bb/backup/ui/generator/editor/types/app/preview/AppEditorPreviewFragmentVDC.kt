@@ -2,8 +2,7 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
@@ -14,10 +13,11 @@ import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
+import javax.inject.Inject
 
-class AppEditorPreviewFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class AppEditorPreviewFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val generatorId: Generator.Id,
     @Assisted private val previewMode: PreviewMode,
     private val builder: GeneratorBuilder,
@@ -151,15 +151,6 @@ class AppEditorPreviewFragmentVDC @AssistedInject constructor(
         val mode: PreviewMode
     ) {
         val pkgName = pkg.packageName
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<AppEditorPreviewFragmentVDC> {
-        fun create(
-            handle: SavedStateHandle,
-            generatorId: Generator.Id,
-            previewMode: PreviewMode
-        ): AppEditorPreviewFragmentVDC
     }
 
     companion object {

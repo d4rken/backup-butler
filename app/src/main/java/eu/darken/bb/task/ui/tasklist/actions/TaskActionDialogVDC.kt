@@ -2,28 +2,27 @@ package eu.darken.bb.task.ui.tasklist.actions
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.ui.editor.common.intro.IntroFragmentVDC
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class TaskActionDialogVDC @AssistedInject constructor(
+@HiltViewModel
+class TaskActionDialogVDC @Inject constructor(
     private val taskRepo: TaskRepo,
     private val taskBuilder: TaskBuilder,
     private val processorControl: ProcessorControl,
-    @Assisted private val handle: SavedStateHandle,
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id
 ) : SmartVDC() {
 
@@ -92,8 +91,4 @@ class TaskActionDialogVDC @AssistedInject constructor(
         val allowedActions: List<Confirmable<TaskAction>> = listOf()
     )
 
-    @AssistedFactory
-    interface Factory : VDCFactory<IntroFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): TaskActionDialogVDC
-    }
 }

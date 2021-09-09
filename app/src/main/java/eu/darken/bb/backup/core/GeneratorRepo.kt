@@ -3,11 +3,10 @@ package eu.darken.bb.backup.core
 import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.Opt
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.opt
 import eu.darken.bb.common.rx.latest
@@ -17,10 +16,11 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class GeneratorRepo @Inject constructor(
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     moshi: Moshi,
     private val pathTool: GatewaySwitch
 ) {

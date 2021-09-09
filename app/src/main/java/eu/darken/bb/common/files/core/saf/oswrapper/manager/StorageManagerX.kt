@@ -6,16 +6,16 @@ import android.os.Build
 import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper.hasAndroidN
-import eu.darken.bb.common.dagger.AppContext
 import java.io.File
 import java.lang.reflect.Method
 import java.util.*
 import javax.inject.Inject
 
 @Reusable
-class StorageManagerX @Inject constructor(@AppContext context: Context) {
+class StorageManagerX @Inject constructor(@ApplicationContext context: Context) {
 
     private val storageManager: StorageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
     private var _getVolumeList: Method? = null

@@ -3,11 +3,14 @@ package eu.darken.bb.processor.core
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import eu.darken.bb.processor.core.processors.backup.SimpleBackupProcessor
 import eu.darken.bb.processor.core.processors.restore.SimpleRestoreProcessor
 import eu.darken.bb.task.core.Task
 
+@InstallIn(SingletonComponent::class)
 @Module
 abstract class ProcessorModule {
     @Binds

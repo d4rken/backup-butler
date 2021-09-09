@@ -5,10 +5,10 @@ import android.view.View
 import androidx.annotation.Keep
 import androidx.preference.Preference
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.R
 import eu.darken.bb.common.ClipboardHelper
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import eu.darken.bb.common.vdc.VDCSource
@@ -16,7 +16,8 @@ import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
 @Keep
-class SupportFragment : SmartPreferenceFragment(), AutoInject {
+@AndroidEntryPoint
+class SupportFragment : SmartPreferenceFragment() {
 
     @Inject lateinit var vdcSource: VDCSource.Factory
     private val vdc: SupportFragmentVDC by vdcs { vdcSource }

@@ -1,16 +1,16 @@
 package eu.darken.bb.task.core.common.requirements
 
 import android.content.Context
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class RequirementsManager @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val deviceEnvironment: DeviceEnvironment
 ) {
 

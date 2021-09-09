@@ -1,17 +1,11 @@
 package eu.darken.bb.processor.ui
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.vdc.SmartVDC
+import javax.inject.Inject
 
-
-class ProcessorActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle
-) : SmartVDC() {
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<ProcessorActivityVDC>
-}
+@HiltViewModel
+class ProcessorActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle
+) : SmartVDC()

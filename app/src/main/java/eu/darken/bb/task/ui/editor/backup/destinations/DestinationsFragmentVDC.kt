@@ -2,14 +2,12 @@ package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
@@ -17,9 +15,11 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class DestinationsFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class DestinationsFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val storageManager: StorageManager,
@@ -83,11 +83,6 @@ class DestinationsFragmentVDC @AssistedInject constructor(
         val destinations: List<Storage.InfoOpt> = emptyList(),
         val isWorking: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<DestinationsFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): DestinationsFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Task", "Editor", "Destinations", "VDC")

@@ -8,9 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.ui.ProcessorActivity
 import io.reactivex.rxjava3.disposables.Disposable
@@ -18,7 +18,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class ProcessorNotifications @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val notificationManager: NotificationManager
 ) {
 

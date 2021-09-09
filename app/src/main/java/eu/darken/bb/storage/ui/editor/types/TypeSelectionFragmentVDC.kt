@@ -3,22 +3,22 @@ package eu.darken.bb.storage.ui.editor.types
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class TypeSelectionFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class TypeSelectionFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     private val builder: StorageBuilder,
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : SmartVDC() {
 
     val state = builder.getSupportedStorageTypes()
@@ -42,9 +42,4 @@ class TypeSelectionFragmentVDC @AssistedInject constructor(
         val supportedTypes: List<Storage.Type>,
         val isWorking: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<TypeSelectionFragmentVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): TypeSelectionFragmentVDC
-    }
 }

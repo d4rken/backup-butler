@@ -12,9 +12,9 @@ import com.bumptech.glide.signature.ObjectKey
 import dagger.Lazy
 import eu.darken.bb.App
 import eu.darken.bb.GeneralSettings
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.previews.FilePreviewRequest
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 class SmartFileModelLoader constructor(
@@ -89,7 +89,7 @@ class SmartFileModelLoader constructor(
         }
     }
 
-    @PerApp
+    @Singleton
     class Factory @Inject constructor(
         val generalSettingsLazy: Lazy<GeneralSettings>
     ) : ModelLoaderFactory<FilePreviewRequest, FileData> {

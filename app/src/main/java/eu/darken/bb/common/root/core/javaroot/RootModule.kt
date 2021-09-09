@@ -1,26 +1,19 @@
 package eu.darken.bb.common.root.core.javaroot
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import eu.darken.bb.common.shell.SharedShell
+import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class RootModule {
 
     @Provides
-    @PerApp
+    @Singleton
     fun sharedShell(): SharedShell {
         return SharedShell(JavaRootHost.TAG)
     }
-
-    @Provides
-    @PerApp
-    @AppContext
-    fun rootContext(context: Context): Context {
-        return context
-    }
-
 }

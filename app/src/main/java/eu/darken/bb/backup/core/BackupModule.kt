@@ -3,6 +3,8 @@ package eu.darken.bb.backup.core
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
 import dagger.multibindings.IntoMap
 import eu.darken.bb.backup.core.app.backup.AppBackupEndpoint
 import eu.darken.bb.backup.core.app.backup.BackupHandlerModule
@@ -12,6 +14,7 @@ import eu.darken.bb.backup.core.files.FilesBackupEndpoint
 import eu.darken.bb.backup.core.files.FilesRestoreEndpoint
 
 @Module(includes = [RestoreHandlerModule::class, BackupHandlerModule::class])
+@InstallIn(ServiceComponent::class)
 abstract class BackupModule {
     @Binds
     @IntoMap

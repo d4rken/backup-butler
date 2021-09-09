@@ -2,6 +2,7 @@ package eu.darken.bb.backup.core.app.backup
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -11,7 +12,6 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.*
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 
 class AppBackupEndpoint @Inject constructor(
-    @AppContext override val context: Context,
+    @ApplicationContext override val context: Context,
     private val pkgOps: PkgOps,
     private val mmDataRepo: MMDataRepo,
     private val apkExporter: APKExporter,

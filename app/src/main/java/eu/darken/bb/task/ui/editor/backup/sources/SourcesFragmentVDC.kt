@@ -2,21 +2,21 @@ package eu.darken.bb.task.ui.editor.backup.sources
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
+import javax.inject.Inject
 
-class SourcesFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class SourcesFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val generatorRepo: GeneratorRepo
@@ -50,9 +50,4 @@ class SourcesFragmentVDC @AssistedInject constructor(
     data class State(
         val sources: List<GeneratorConfigOpt> = emptyList()
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<SourcesFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): SourcesFragmentVDC
-    }
 }

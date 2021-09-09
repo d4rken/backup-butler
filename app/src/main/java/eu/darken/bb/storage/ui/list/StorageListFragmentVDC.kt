@@ -1,14 +1,11 @@
 package eu.darken.bb.storage.ui.list
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
@@ -16,9 +13,11 @@ import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
-class StorageListFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class StorageListFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     private val storageManager: StorageManager,
     private val storageBuilder: StorageBuilder,
     processorControl: ProcessorControl
@@ -60,9 +59,6 @@ class StorageListFragmentVDC @AssistedInject constructor(
         val storages: List<Storage.InfoOpt> = emptyList(),
         val isLoading: Boolean = true
     )
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<StorageListFragmentVDC>
 
     companion object {
         val TAG = App.logTag("Storage", "StorageList", "VDC")

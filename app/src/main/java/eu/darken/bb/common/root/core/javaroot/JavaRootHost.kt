@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import dagger.Lazy
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.SharedHolder
@@ -145,4 +148,9 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
         }
     }
 
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface JavaRootHostEntryPoint {
+        fun inject(host: JavaRootHost)
+    }
 }

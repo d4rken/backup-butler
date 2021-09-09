@@ -11,11 +11,11 @@ import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import dagger.Lazy
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.PkgUriPreviewRequest
 import eu.darken.bb.common.previews.UriHelper
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, AppIconData> {
@@ -57,7 +57,7 @@ class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, A
         override fun getDataSource(): DataSource = DataSource.LOCAL
     }
 
-    @PerApp
+    @Singleton
     class Factory @Inject constructor(val pkgOpsLazy: Lazy<PkgOps>) :
         ModelLoaderFactory<PkgUriPreviewRequest, AppIconData> {
 

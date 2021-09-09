@@ -4,11 +4,11 @@ import android.content.Context
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.common.rx.withScopeThis
@@ -25,7 +25,7 @@ import javax.inject.Provider
 
 class SimpleBackupProcessor @AssistedInject constructor(
     @Assisted progressParent: Progress.Client,
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     private val backupEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Backup.Endpoint>>,
     private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
     private val mmDataRepo: MMDataRepo,

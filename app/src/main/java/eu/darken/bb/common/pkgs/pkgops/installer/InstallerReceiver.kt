@@ -4,19 +4,19 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent.Code
 import timber.log.Timber
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class InstallerReceiver : BroadcastReceiver() {
 
     @Inject lateinit var installer: APKInstaller
 
     override fun onReceive(context: Context, intent: Intent) {
         Timber.tag(TAG).d("onReceive(context=%s, intent=%s", context, intent)
-        AndroidInjection.inject(this, context)
 
         val code = when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
             PackageInstaller.STATUS_SUCCESS -> Code.SUCCESS

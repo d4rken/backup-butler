@@ -1,6 +1,7 @@
 package eu.darken.bb.backup.core.files
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -8,7 +9,6 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
@@ -25,7 +25,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class FilesRestoreEndpoint @Inject constructor(
-    @AppContext override val context: Context,
+    @ApplicationContext override val context: Context,
     private val gateway: GatewaySwitch
 ) : Restore.Endpoint, Progress.Client, HasContext {
 

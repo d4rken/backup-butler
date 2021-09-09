@@ -2,14 +2,12 @@ package eu.darken.bb.task.ui.editor.backup.destinations.picker
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -17,9 +15,11 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-class StoragePickerFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class StoragePickerFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val storageBuilder: StorageBuilder,
@@ -73,11 +73,6 @@ class StoragePickerFragmentVDC @AssistedInject constructor(
         val allExistingAdded: Boolean = false,
         val isLoading: Boolean = true
     )
-
-    @AssistedFactory
-    interface Factory : VDCFactory<StoragePickerFragmentVDC> {
-        fun create(handle: SavedStateHandle, taskId: Task.Id): StoragePickerFragmentVDC
-    }
 
     companion object {
         val TAG = App.logTag("Task", "Editor", "Destinations", "Picker", "VDC")

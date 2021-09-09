@@ -3,25 +3,24 @@ package eu.darken.bb.main.ui.advanced.overview
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.rx.toLiveData
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Observables
+import javax.inject.Inject
 
-class OverviewFragmentVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class OverviewFragmentVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     private val butler: BackupButler,
     private val upgradeControl: UpgradeControl,
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : SmartVDC() {
 
     val appState: LiveData<AppState> = Observables
@@ -50,7 +49,4 @@ class OverviewFragmentVDC @AssistedInject constructor(
     data class UpdateState(
         val available: Boolean = false
     )
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<OverviewFragmentVDC>
 }

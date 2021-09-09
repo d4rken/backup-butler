@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.APath
 import javax.inject.Inject
 
 @Reusable
 class FilesSpecGenerator @Inject constructor(
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : Generator {
     override fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config

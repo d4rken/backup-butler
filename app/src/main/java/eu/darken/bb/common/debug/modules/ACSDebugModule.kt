@@ -48,5 +48,4 @@ class ACSDebugModule @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory : DebugModule.Factory<ACSDebugModule>
-
 }

@@ -4,19 +4,19 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.ContextCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.files.core.saf.oswrapper.manager.StorageManagerX
 import eu.darken.bb.common.files.core.saf.oswrapper.manager.StorageVolumeX
 import eu.darken.bb.common.user.UserHandleBB
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class DeviceEnvironment @Inject constructor(
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     private val storageManagerX: StorageManagerX
 ) {
 

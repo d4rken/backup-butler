@@ -5,8 +5,8 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
@@ -16,7 +16,7 @@ import timber.log.Timber
 
 class UriPermissions @AssistedInject constructor(
     @Assisted host: DebugModuleHost,
-    @AppContext private val context: Context
+    @ApplicationContext private val context: Context
 ) : DebugModule {
     companion object {
         private val TAG = App.logTag("Debug", "UriPermissions")

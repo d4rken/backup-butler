@@ -5,11 +5,11 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -25,7 +25,7 @@ import timber.log.Timber
 
 class SAFStorageEditor @AssistedInject constructor(
     @Assisted initialStorageId: Storage.Id,
-    @AppContext private val context: Context,
+    @ApplicationContext private val context: Context,
     moshi: Moshi,
     private val safGateway: SAFGateway
 ) : StorageEditor {

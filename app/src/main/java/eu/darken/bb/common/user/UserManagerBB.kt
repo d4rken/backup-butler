@@ -1,9 +1,9 @@
 package eu.darken.bb.common.user
 
-import eu.darken.bb.common.dagger.PerApp
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@PerApp
+@Singleton
 class UserManagerBB @Inject constructor() {
 
     val currentUser: UserHandleBB

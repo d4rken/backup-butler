@@ -8,7 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
@@ -18,6 +18,8 @@ import io.reactivex.rxjava3.disposables.Disposable
 import timber.log.Timber
 import javax.inject.Inject
 
+
+@AndroidEntryPoint
 class RecorderService : Service() {
     companion object {
         private val TAG = App.logTag("Debug", "RecorderService")
@@ -34,8 +36,6 @@ class RecorderService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
-        AndroidInjection.inject(this)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIF_CHANID_DEBUG,

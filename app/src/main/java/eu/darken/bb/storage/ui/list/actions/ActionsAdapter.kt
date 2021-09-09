@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.ui.list.actions
 
 import android.view.ViewGroup
-import eu.darken.bb.common.dagger.PerChildFragment
 import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.common.lists.DataBinderModule
 import eu.darken.bb.common.lists.ModularAdapter
@@ -10,7 +9,7 @@ import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.ui.ConfirmableActionAdapterVH
 import javax.inject.Inject
 
-@PerChildFragment
+//@PerChildFragment
 class ActionsAdapter @Inject constructor() :
     ModularAdapter<ActionsAdapter.VH>(),
     DataAdapter<Confirmable<StorageAction>> {

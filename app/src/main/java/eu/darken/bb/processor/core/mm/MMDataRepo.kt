@@ -3,7 +3,6 @@ package eu.darken.bb.processor.core.mm
 import com.squareup.moshi.Moshi
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.dagger.PerApp
 import eu.darken.bb.common.files.core.local.listFilesThrowing
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
@@ -12,9 +11,10 @@ import okio.Source
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.concurrent.thread
 
-@PerApp
+@Singleton
 class MMDataRepo @Inject constructor(
     @CachePath private val cachePath: File,
     moshi: Moshi

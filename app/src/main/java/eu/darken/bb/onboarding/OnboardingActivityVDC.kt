@@ -1,17 +1,11 @@
 package eu.darken.bb.onboarding
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import eu.darken.bb.common.vdc.SavedStateVDCFactory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.vdc.VDC
+import javax.inject.Inject
 
-
-class OnboardingActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle
-) : VDC() {
-
-    @AssistedFactory
-    interface Factory : SavedStateVDCFactory<OnboardingActivityVDC>
-}
+@HiltViewModel
+class OnboardingActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle
+) : VDC()

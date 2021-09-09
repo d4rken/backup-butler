@@ -3,6 +3,7 @@ package eu.darken.bb.backup.core.app.restore.handler
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupSpec
@@ -13,7 +14,6 @@ import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
-import eu.darken.bb.common.dagger.AppContext
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 @Reusable
 class PublicDefaultRestoreHandler @Inject constructor(
-    @AppContext context: Context,
+    @ApplicationContext context: Context,
     private val gateway: GatewaySwitch,
     private val pkgOps: PkgOps,
     private val userManager: UserManagerBB

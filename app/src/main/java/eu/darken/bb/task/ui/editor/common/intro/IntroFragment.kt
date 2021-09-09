@@ -6,8 +6,8 @@ import android.widget.EditText
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.dagger.AutoInject
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferent
@@ -19,8 +19,8 @@ import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 import javax.inject.Inject
 
-
-class IntroFragment : SmartFragment(), AutoInject {
+@AndroidEntryPoint
+class IntroFragment : SmartFragment() {
 
     val navArgs by navArgs<IntroFragmentArgs>()
 

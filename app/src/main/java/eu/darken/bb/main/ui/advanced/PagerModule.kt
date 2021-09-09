@@ -2,6 +2,8 @@ package eu.darken.bb.main.ui.advanced
 
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorsFragment
 import eu.darken.bb.main.ui.advanced.overview.OverviewFragment
@@ -10,6 +12,7 @@ import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
 
 @Module
+@InstallIn(ActivityComponent::class)
 class PagerModule {
 
     @Provides

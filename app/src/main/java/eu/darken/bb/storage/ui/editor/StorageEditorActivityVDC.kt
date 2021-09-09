@@ -3,21 +3,20 @@ package eu.darken.bb.storage.ui.editor
 import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.common.vdc.VDCFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
-
-class StorageEditorActivityVDC @AssistedInject constructor(
-    @Assisted private val handle: SavedStateHandle,
+@HiltViewModel
+class StorageEditorActivityVDC @Inject constructor(
+    private val handle: SavedStateHandle,
     @Assisted private val storageId: Storage.Id,
     private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
@@ -71,10 +70,5 @@ class StorageEditorActivityVDC @AssistedInject constructor(
         SELECTION(R.id.typeSelectionFragment),
         LOCAL(R.id.localEditorFragment),
         SAF(R.id.safEditorFragment);
-    }
-
-    @AssistedFactory
-    interface Factory : VDCFactory<StorageEditorActivityVDC> {
-        fun create(handle: SavedStateHandle, storageId: Storage.Id): StorageEditorActivityVDC
     }
 }
