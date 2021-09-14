@@ -158,7 +158,7 @@ class SAFStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content.toList()
+            return@map content as Collection<BackupSpec.Info>
         }
         .doOnError {
             if (it is InterruptedIOException) {

@@ -148,7 +148,7 @@ class LocalStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content.toList()
+            return@map content as Collection<BackupSpec.Info>
         }
         .doOnError { Timber.tag(TAG).e(it) }
         .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
