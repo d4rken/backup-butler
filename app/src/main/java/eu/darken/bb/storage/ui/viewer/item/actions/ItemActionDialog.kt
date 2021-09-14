@@ -14,8 +14,6 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.backup.core.putBackupSpecId
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -24,8 +22,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentArgs
 import eu.darken.bb.task.core.TaskRepo
@@ -94,15 +90,5 @@ class ItemActionDialog : BottomSheetDialogFragment() {
         vdc.errorEvents.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    companion object {
-        fun newInstance(storageId: Storage.Id, backupSpecId: BackupSpec.Id): BottomSheetDialogFragment =
-            ItemActionDialog().apply {
-                arguments = Bundle().apply {
-                    putStorageId(storageId)
-                    putBackupSpecId(backupSpecId)
-                }
-            }
     }
 }

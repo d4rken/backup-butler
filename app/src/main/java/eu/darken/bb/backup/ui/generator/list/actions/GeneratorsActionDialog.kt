@@ -15,7 +15,6 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
@@ -64,11 +63,5 @@ class GeneratorsActionDialog : BottomSheetDialogFragment() {
             if (state.finished) dismissAllowingStateLoss()
         }
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    companion object {
-        fun newInstance(generatorId: Generator.Id): BottomSheetDialogFragment = GeneratorsActionDialog().apply {
-            arguments = GeneratorsActionDialogArgs(generatorId = generatorId).toBundle()
-        }
     }
 }

@@ -3,11 +3,11 @@ package eu.darken.bb.task.ui.tasklist.actions
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.subscribeNullable
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.task.core.BackupTaskExtensions
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
@@ -24,8 +24,9 @@ class TaskActionDialogVDC @Inject constructor(
     private val processorControl: ProcessorControl,
     handle: SavedStateHandle,
 ) : SmartVDC() {
-    // TODO use safe args?
-    private val taskId: Task.Id = handle.get(BackupTaskExtensions.TASKID_KEY)!!
+
+    private val navArgs by handle.navArgs<TaskActionDialogArgs>()
+    private val taskId: Task.Id = navArgs.taskId
     private val stateUpdater = Stater(State(loading = true))
     val state = stateUpdater.liveData
 

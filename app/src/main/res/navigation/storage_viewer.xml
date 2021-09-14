@@ -8,8 +8,8 @@
     <fragment
         android:id="@+id/storageItemFragment"
         android:name="eu.darken.bb.storage.ui.viewer.item.StorageItemFragment"
-        tools:layout="@layout/storage_viewer_itemlist_fragment"
-        android:label="@string/storage_tab_label">
+        android:label="@string/storage_tab_label"
+        tools:layout="@layout/storage_viewer_itemlist_fragment">
         <argument
             android:name="storageId"
             app:argType="eu.darken.bb.storage.core.Storage$Id" />
@@ -58,4 +58,21 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </dialog>
+    <fragment
+        android:id="@+id/contentPageFragment"
+        android:name="eu.darken.bb.storage.ui.viewer.content.page.ContentPageFragment"
+        android:label="ContentPageFragment"
+        tools:layout="@layout/storage_viewer_item_content_adapter_page">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        <argument
+            android:name="specId"
+            app:argType="eu.darken.bb.backup.core.BackupSpec$Id" />
+        <argument
+            android:name="backupId"
+            app:argType="eu.darken.bb.backup.core.Backup$Id" />
+    </fragment>
+
+
 </navigation>

@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
@@ -24,7 +23,6 @@ import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.processor.ui.ProcessorActivity
-import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialogArgs
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -74,12 +72,13 @@ class StorageItemFragment : SmartFragment() {
             } else {
                 loadingOverlay.setPrimaryText(null)
             }
-
         }
 
         vdc.contentActionEvent.observe2(this) {
-            val args = ItemActionDialogArgs(storageId = it.storageId, specId = it.backupSpecId)
-            findNavController().navigate(R.id.action_storageItemFragment_to_storageItemActionDialog, args.toBundle())
+            StorageItemFragmentDirections.actionStorageItemFragmentToStorageItemActionDialog(
+                storageId = it.storageId,
+                specId = it.backupSpecId,
+            ).navigateTo()
         }
 
         vdc.finishEvent.observe2(this) { finishActivity() }

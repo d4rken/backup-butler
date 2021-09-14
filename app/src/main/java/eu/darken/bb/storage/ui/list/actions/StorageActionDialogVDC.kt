@@ -5,12 +5,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
-import eu.darken.bb.storage.core.StorageExtensions
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.task.core.Task
@@ -27,8 +27,9 @@ class StorageActionDialogVDC @Inject constructor(
     private val storageBuilder: StorageBuilder,
     private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
-    // TODO can we use nav/safe args here?
-    private val storageId: Storage.Id = handle.get(StorageExtensions.STORAGEID_KEY)!!
+
+    private val navArgs by handle.navArgs<StorageActionDialogArgs>()
+    private val storageId: Storage.Id = navArgs.storageId
     private val stater = Stater(State(isLoadingData = true))
     val state = stater.liveData
     val closeDialogEvent = SingleLiveEvent<Any>()

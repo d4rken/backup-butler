@@ -15,10 +15,10 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.processor.ui.ProcessorActivity
-import eu.darken.bb.task.ui.tasklist.actions.TaskActionDialog
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,8 +48,7 @@ class TaskListFragment : SmartFragment() {
         fab.clicks().subscribe { vdc.newTask() }
 
         vdc.editTaskEvent.observe2(this) {
-            val bs = TaskActionDialog.newInstance(it.taskId)
-            bs.show(childFragmentManager, it.taskId.toString())
+            doNavigate(TaskListFragmentDirections.actionTaskListFragmentToTaskActionDialog(it.taskId))
         }
 
         var snackbar: Snackbar? = null

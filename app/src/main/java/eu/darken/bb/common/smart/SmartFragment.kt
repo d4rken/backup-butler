@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavDirections
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import eu.darken.bb.App
+import eu.darken.bb.common.navigation.doNavigate
 import timber.log.Timber
 import java.util.*
 
@@ -93,4 +95,8 @@ abstract class SmartFragment : Fragment() {
     }
 
     fun finishActivity() = requireActivity().finish()
+
+    fun NavDirections.navigateTo() {
+        doNavigate(this)
+    }
 }

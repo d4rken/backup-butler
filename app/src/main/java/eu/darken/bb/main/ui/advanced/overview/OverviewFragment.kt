@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,9 +17,6 @@ import eu.darken.bb.user.core.UpgradeData
 
 @AndroidEntryPoint
 class OverviewFragment : SmartFragment() {
-    companion object {
-        fun newInstance(): Fragment = OverviewFragment()
-    }
 
     @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
     @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView

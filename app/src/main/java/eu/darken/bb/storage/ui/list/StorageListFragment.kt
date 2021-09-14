@@ -14,13 +14,13 @@ import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.processor.ui.ProcessorActivity
-import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,8 +56,7 @@ class StorageListFragment : SmartFragment() {
         fab.clicksDebounced().subscribe { vdc.createStorage() }
 
         vdc.editTaskEvent.observe2(this) {
-            val bs = StorageActionDialog.newInstance(it)
-            bs.show(childFragmentManager, it.toString())
+            doNavigate(StorageListFragmentDirections.actionStorageListFragmentToStorageActionDialog(it))
         }
 
         var snackbar: Snackbar? = null

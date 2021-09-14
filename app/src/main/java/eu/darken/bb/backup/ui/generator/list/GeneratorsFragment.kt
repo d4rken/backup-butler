@@ -9,11 +9,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog
 import eu.darken.bb.common.lists.ClickModule
 import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import javax.inject.Inject
@@ -44,8 +44,7 @@ class GeneratorsFragment : SmartFragment() {
         fab.clicks().subscribe { vdc.newGenerator() }
 
         vdc.editTaskEvent.observe2(this) {
-            val bs = GeneratorsActionDialog.newInstance(it.generatorId)
-            bs.show(childFragmentManager, it.generatorId.toString())
+            doNavigate(GeneratorsFragmentDirections.actionGeneratorsFragmentToGeneratorsActionDialog(it.generatorId))
         }
 
         super.onViewCreated(view, savedInstanceState)

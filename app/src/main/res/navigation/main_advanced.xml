@@ -1,5 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_advanced">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_advanced"
+    app:startDestination="@id/storageActionDialog">
+
+    <fragment
+        android:id="@+id/storageListFragment"
+        android:name="eu.darken.bb.storage.ui.list.StorageListFragment"
+        android:label="StorageListFragment"
+        tools:layout="@layout/storage_list_fragment">
+        <action
+            android:id="@+id/action_storageListFragment_to_storageActionDialog"
+            app:destination="@id/storageActionDialog" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/storageActionDialog"
+        android:name="eu.darken.bb.storage.ui.list.actions.StorageActionDialog"
+        android:label="StorageActionDialog"
+        tools:layout="@layout/storage_list_action_dialog">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </dialog>
+    <dialog
+        android:id="@+id/taskActionDialog"
+        android:name="eu.darken.bb.task.ui.tasklist.actions.TaskActionDialog"
+        android:label="TaskActionDialog"
+        tools:layout="@layout/task_list_action_dialog">
+        <argument
+            android:name="taskId"
+            app:argType="eu.darken.bb.task.core.Task$Id" />
+    </dialog>
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="eu.darken.bb.task.ui.tasklist.TaskListFragment"
+        android:label="TaskListFragment"
+        tools:layout="@layout/task_list_fragment">
+        <action
+            android:id="@+id/action_taskListFragment_to_taskActionDialog"
+            app:destination="@id/taskActionDialog" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/generatorsFragment"
+        tools:layout="@layout/task_editor_backup_generators_fragment"
+        android:name="eu.darken.bb.backup.ui.generator.list.GeneratorsFragment"
+        android:label="GeneratorsFragment">
+        <action
+            android:id="@+id/action_generatorsFragment_to_generatorsActionDialog"
+            app:destination="@id/generatorsActionDialog" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/generatorsActionDialog"
+        android:name="eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog"
+        android:label="@string/backup_generator_label"
+        tools:layout="@layout/generator_list_action_dialog">
+        <argument
+            android:name="generatorId"
+            app:argType="eu.darken.bb.backup.core.Generator$Id" />
+    </fragment>
 
 </navigation>

@@ -20,8 +20,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
@@ -77,11 +75,5 @@ class StorageActionDialog : BottomSheetDialogFragment() {
         vdc.errorEvent.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    companion object {
-        fun newInstance(storageId: Storage.Id): BottomSheetDialogFragment = StorageActionDialog().apply {
-            arguments = Bundle().putStorageId(storageId)
-        }
     }
 }

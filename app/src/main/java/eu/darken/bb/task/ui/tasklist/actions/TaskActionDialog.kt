@@ -19,9 +19,7 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -64,11 +62,5 @@ class TaskActionDialog : BottomSheetDialogFragment() {
         }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    companion object {
-        fun newInstance(taskId: Task.Id): BottomSheetDialogFragment = TaskActionDialog().apply {
-            arguments = Bundle().putTaskId(taskId)
-        }
     }
 }
