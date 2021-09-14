@@ -16,7 +16,7 @@ import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.user.core.UpgradeData
 
 @AndroidEntryPoint
-class OverviewFragment : SmartFragment() {
+class OverviewFragment : SmartFragment(R.layout.overview_fragment) {
 
     @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
     @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
@@ -26,10 +26,6 @@ class OverviewFragment : SmartFragment() {
     @BindView(R.id.card_update_action_update) lateinit var updateAction: Button
 
     private val vdc: OverviewFragmentVDC by viewModels()
-
-    init {
-        layoutRes = R.layout.overview_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.appState.observe2(this) {

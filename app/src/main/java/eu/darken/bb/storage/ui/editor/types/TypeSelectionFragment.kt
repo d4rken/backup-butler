@@ -23,16 +23,12 @@ import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TypeSelectionFragment : SmartFragment() {
+class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselection_fragment) {
 
     private val vdc: TypeSelectionFragmentVDC by viewModels()
     @Inject lateinit var adapter: TypeSelectionAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-
-    init {
-        layoutRes = R.layout.storage_editor_typeselection_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter)

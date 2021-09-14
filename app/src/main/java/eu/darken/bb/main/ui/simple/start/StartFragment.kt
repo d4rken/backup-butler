@@ -10,7 +10,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartFragment
 
 @AndroidEntryPoint
-class StartFragment : SmartFragment() {
+class StartFragment : SmartFragment(R.layout.start_fragment) {
     @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
     @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
 
@@ -19,9 +19,4 @@ class StartFragment : SmartFragment() {
     @BindView(R.id.card_update_action_update) lateinit var updateAction: Button
 
     private val vdc: StartFragmentVDC by viewModels()
-
-    init {
-        layoutRes = R.layout.start_fragment
-    }
-
 }

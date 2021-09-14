@@ -26,7 +26,7 @@ import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StorageItemFragment : SmartFragment() {
+class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragment) {
 
     private val vdc: StorageItemFragmentVDC by viewModels()
     @Inject lateinit var adapter: StorageItemAdapter
@@ -37,7 +37,6 @@ class StorageItemFragment : SmartFragment() {
     private var showOptionDeleteAll = false
 
     init {
-        layoutRes = R.layout.storage_viewer_itemlist_fragment
         setHasOptionsMenu(true)
     }
 

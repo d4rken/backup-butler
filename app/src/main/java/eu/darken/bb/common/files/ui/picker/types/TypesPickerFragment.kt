@@ -20,7 +20,7 @@ import eu.darken.bb.storage.ui.editor.types.TypeSelectionAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TypesPickerFragment : SmartFragment() {
+class TypesPickerFragment : SmartFragment(R.layout.pathpicker_types_fragment) {
 
     val navArgs by navArgs<TypesPickerFragmentArgs>()
 
@@ -29,10 +29,6 @@ class TypesPickerFragment : SmartFragment() {
     @BindView(R.id.picktype_list) lateinit var typeList: RecyclerView
 
     @Inject lateinit var adapter: TypeSelectionAdapter
-
-    init {
-        layoutRes = R.layout.pathpicker_types_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.selectType(adapter.data[i]) })

@@ -25,7 +25,7 @@ import eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragmentArgs
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RestoreSourcesFragment : SmartFragment() {
+class RestoreSourcesFragment : SmartFragment(R.layout.task_editor_restore_sources_fragment) {
 
     val navArgs by navArgs<RestoreSourcesFragmentArgs>()
 
@@ -39,10 +39,6 @@ class RestoreSourcesFragment : SmartFragment() {
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay_backuplist) lateinit var loadingOverlayBackupList: LoadingOverlayView
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
-
-    init {
-        layoutRes = R.layout.task_editor_restore_sources_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter, dividers = false)

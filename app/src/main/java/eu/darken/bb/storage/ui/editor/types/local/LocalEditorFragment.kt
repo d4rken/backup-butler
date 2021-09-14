@@ -27,7 +27,7 @@ import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LocalEditorFragment : SmartFragment() {
+class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment) {
     private val vdc: LocalEditorFragmentVDC by viewModels()
     @Inject lateinit var adapter: StorageAdapter
 
@@ -46,7 +46,6 @@ class LocalEditorFragment : SmartFragment() {
     private var existing: Boolean = false
 
     init {
-        layoutRes = R.layout.storage_editor_local_fragment
         setHasOptionsMenu(true)
     }
 

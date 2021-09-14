@@ -25,7 +25,7 @@ import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RequirementsFragment : SmartFragment() {
+class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fragment) {
 
     val navArgs by navArgs<RequirementsFragmentArgs>()
 
@@ -36,10 +36,6 @@ class RequirementsFragment : SmartFragment() {
     @BindView(R.id.requirements_list) lateinit var requirementsList: RecyclerView
 
     @Inject lateinit var adapter: RequirementsAdapter
-
-    init {
-        layoutRes = R.layout.task_editor_requirements_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         requirementsList.isNestedScrollingEnabled = false

@@ -34,7 +34,7 @@ import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LocalPickerFragment : SmartFragment() {
+class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
 
     val navArgs by navArgs<LocalPickerFragmentArgs>()
 
@@ -50,7 +50,6 @@ class LocalPickerFragment : SmartFragment() {
     private var allowCreateDir = false
 
     init {
-        layoutRes = R.layout.pathpicker_local_fragment
         setHasOptionsMenu(true)
     }
 

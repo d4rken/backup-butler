@@ -24,7 +24,7 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ContentPageFragment : SmartFragment() {
+class ContentPageFragment : SmartFragment(R.layout.storage_viewer_item_content_adapter_page) {
 
     private val vdc: ContentPageFragmentVDC by viewModels()
     @Inject lateinit var adapter: ContentEntryAdapter
@@ -38,7 +38,6 @@ class ContentPageFragment : SmartFragment() {
     private var showRestoreAction = false
 
     init {
-        layoutRes = R.layout.storage_viewer_item_content_adapter_page
         setHasOptionsMenu(true)
     }
 

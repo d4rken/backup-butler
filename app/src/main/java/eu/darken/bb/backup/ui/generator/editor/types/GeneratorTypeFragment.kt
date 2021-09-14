@@ -24,7 +24,7 @@ import eu.darken.bb.common.smart.SmartFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorTypeFragment : SmartFragment() {
+class GeneratorTypeFragment : SmartFragment(R.layout.generator_editor_typeselection_fragment) {
 
     val navArgs by navArgs<GeneratorTypeFragmentArgs>()
 
@@ -32,10 +32,6 @@ class GeneratorTypeFragment : SmartFragment() {
     @Inject lateinit var adapter: GeneratorTypeAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-
-    init {
-        layoutRes = R.layout.generator_editor_typeselection_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter)

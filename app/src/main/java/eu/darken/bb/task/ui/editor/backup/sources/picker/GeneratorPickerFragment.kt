@@ -22,7 +22,7 @@ import eu.darken.bb.common.ui.setInvisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorPickerFragment : SmartFragment() {
+class GeneratorPickerFragment : SmartFragment(R.layout.task_editor_backup_generators_picker_fragment) {
 
     private val vdc: GeneratorPickerFragmentVDC by viewModels()
 
@@ -30,10 +30,6 @@ class GeneratorPickerFragment : SmartFragment() {
     @BindView(R.id.storage_list_wrapper) lateinit var generatorListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.storage_list) lateinit var generatorList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-
-    init {
-        layoutRes = R.layout.task_editor_backup_generators_picker_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         generatorList.setupDefaults(adapter)

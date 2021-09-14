@@ -21,7 +21,7 @@ import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AppEditorPreviewFragment : SmartFragment() {
+class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_preview_fragment) {
 
     val args by navArgs<AppEditorPreviewFragmentArgs>()
 
@@ -32,10 +32,6 @@ class AppEditorPreviewFragment : SmartFragment() {
     @BindView(R.id.pkg_preview_list) lateinit var pkgPreviewList: RecyclerView
     @BindView(R.id.info_mode) lateinit var infoMode: TextView
     @BindView(R.id.info_items) lateinit var infoItems: TextView
-
-    init {
-        layoutRes = R.layout.generator_editor_app_preview_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         pkgPreviewList.setupDefaults(adapter)

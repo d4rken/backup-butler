@@ -22,7 +22,7 @@ import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 
 @AndroidEntryPoint
-class FilesEditorConfigFragment : SmartFragment() {
+class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment) {
 
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
@@ -39,7 +39,6 @@ class FilesEditorConfigFragment : SmartFragment() {
     private var existing: Boolean = false
 
     init {
-        layoutRes = R.layout.generator_editor_file_fragment
         setHasOptionsMenu(true)
     }
 

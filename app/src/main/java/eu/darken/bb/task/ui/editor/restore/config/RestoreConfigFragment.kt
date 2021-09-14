@@ -25,7 +25,7 @@ import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RestoreConfigFragment : SmartFragment() {
+class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs_fragment) {
 
     private val vdc: RestoreConfigFragmentVDC by viewModels()
 
@@ -40,10 +40,6 @@ class RestoreConfigFragment : SmartFragment() {
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
     @BindView(R.id.loading_overlay_backuplist) lateinit var loadingOverlayBackupList: LoadingOverlayView
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
-
-    init {
-        layoutRes = R.layout.task_editor_restore_configs_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter, dividers = false)

@@ -18,7 +18,7 @@ import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.tryTextElseHide
 
 @AndroidEntryPoint
-class ProgressFragment : SmartFragment() {
+class ProgressFragment : SmartFragment(R.layout.processor_progress_fragment) {
 
     private val vdc: ProgressFragmentVDC by viewModels()
 
@@ -34,10 +34,6 @@ class ProgressFragment : SmartFragment() {
     @BindView(R.id.progress_secondary) lateinit var progressSecondary: TextView
     @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
     @BindView(R.id.progress_counter) lateinit var progressCounter: TextView
-
-    init {
-        layoutRes = R.layout.processor_progress_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe(this, Observer { state ->

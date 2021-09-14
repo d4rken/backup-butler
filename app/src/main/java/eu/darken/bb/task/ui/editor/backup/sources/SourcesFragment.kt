@@ -25,7 +25,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @AndroidEntryPoint
-class SourcesFragment : SmartFragment() {
+class SourcesFragment : SmartFragment(R.layout.task_editor_backup_generators_fragment) {
 
     val navArgs by navArgs<SourcesFragmentArgs>()
 
@@ -37,10 +37,6 @@ class SourcesFragment : SmartFragment() {
 
     @Inject lateinit var adapter: GeneratorAdapter
     @Inject lateinit var pickerAdapterProvider: Provider<GeneratorAdapter>
-
-    init {
-        layoutRes = R.layout.task_editor_backup_generators_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sourcesList.setupDefaults(adapter)

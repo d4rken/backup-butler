@@ -18,18 +18,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DebugFragment : SmartFragment() {
+class DebugFragment : SmartFragment(R.layout.debug_fragment) {
     private val vdc: DebugFragmentVDC by viewModels()
-
-    init {
-        layoutRes = R.layout.debug_fragment
-    }
 
     @Inject lateinit var javaRootClient: JavaRootClient
 
     @BindView(R.id.librootjava_start) lateinit var librootJavaTest: Button
     @BindView(R.id.librootjava_output) lateinit var librootJavaOutput: TextView
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         librootJavaTest.clicksDebounced().subscribe {
             Single.fromCallable { javaRootClient.runSessionAction { it.ipc.checkBase() } }

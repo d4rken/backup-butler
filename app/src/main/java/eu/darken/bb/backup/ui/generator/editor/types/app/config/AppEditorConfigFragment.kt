@@ -24,7 +24,7 @@ import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 
 @AndroidEntryPoint
-class AppEditorConfigFragment : SmartFragment() {
+class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_config_fragment) {
 
     val navArgs by navArgs<AppEditorConfigFragmentArgs>()
 
@@ -51,7 +51,6 @@ class AppEditorConfigFragment : SmartFragment() {
     private var existing: Boolean = false
 
     init {
-        layoutRes = R.layout.generator_editor_app_config_fragment
         setHasOptionsMenu(true)
     }
 

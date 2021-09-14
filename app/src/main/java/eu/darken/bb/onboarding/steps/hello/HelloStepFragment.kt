@@ -15,7 +15,7 @@ import eu.darken.bb.main.ui.MainActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HelloStepFragment : SmartFragment() {
+class HelloStepFragment : SmartFragment(R.layout.onboarding_hello_step_fragment) {
 
     private val vdc: HelloStepFragmentVDC by viewModels()
 
@@ -23,10 +23,6 @@ class HelloStepFragment : SmartFragment() {
     @BindView(R.id.action_start_advancedmode) lateinit var actionStartAdvanced: Button
 
     @Inject lateinit var uiSettings: UISettings
-
-    init {
-        layoutRes = R.layout.onboarding_hello_step_fragment
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

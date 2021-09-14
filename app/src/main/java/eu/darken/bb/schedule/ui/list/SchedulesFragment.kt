@@ -6,12 +6,8 @@ import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartFragment
 
 @AndroidEntryPoint
-class SchedulesFragment : SmartFragment() {
+class SchedulesFragment : SmartFragment(R.layout.schedule_list_fragment) {
 
     private val vdc: SchedulesFragmentVDC by viewModels()
-
-    init {
-        layoutRes = R.layout.schedule_list_fragment
-    }
 
 }

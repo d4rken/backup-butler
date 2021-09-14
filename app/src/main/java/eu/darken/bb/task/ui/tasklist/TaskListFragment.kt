@@ -22,18 +22,13 @@ import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskListFragment : SmartFragment() {
+class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
 
     private val vdc: TaskListFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: TaskListAdapter
     @BindView(R.id.tasks_list) lateinit var tasksList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-
-
-    init {
-        layoutRes = R.layout.task_list_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         tasksList.setupDefaults(adapter)

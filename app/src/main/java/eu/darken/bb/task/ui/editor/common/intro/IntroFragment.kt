@@ -18,7 +18,7 @@ import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 
 @AndroidEntryPoint
-class IntroFragment : SmartFragment() {
+class IntroFragment : SmartFragment(R.layout.task_editor_intro_fragment) {
 
     val navArgs by navArgs<IntroFragmentArgs>()
 
@@ -26,10 +26,6 @@ class IntroFragment : SmartFragment() {
 
     @BindView(R.id.name_input) lateinit var nameInput: EditText
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
-
-    init {
-        layoutRes = R.layout.task_editor_intro_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(this) {

@@ -23,7 +23,7 @@ import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragm
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DestinationsFragment : SmartFragment() {
+class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment) {
 
     val navArgs by navArgs<DestinationsFragmentArgs>()
 
@@ -34,10 +34,6 @@ class DestinationsFragment : SmartFragment() {
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView
 
     @Inject lateinit var adapter: StorageAdapter
-
-    init {
-        layoutRes = R.layout.task_editor_backup_storages_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         destinationsList.setupDefaults(adapter)

@@ -24,7 +24,7 @@ import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StorageListFragment : SmartFragment() {
+class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
 
     private val vdc: StorageListFragmentVDC by viewModels()
 
@@ -32,11 +32,6 @@ class StorageListFragment : SmartFragment() {
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
     @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-
-
-    init {
-        layoutRes = R.layout.storage_list_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         storageList.setupDefaults(adapter)

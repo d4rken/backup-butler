@@ -16,7 +16,7 @@ import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LanguageFragment : SmartFragment() {
+class LanguageFragment : SmartFragment(R.layout.settings_ui_language_fragment) {
 
     @BindView(R.id.language_list) lateinit var languageList: RecyclerView
     @BindView(R.id.language_list_wrapper) lateinit var languageListWrapper: RecyclerViewWrapperLayout
@@ -24,10 +24,6 @@ class LanguageFragment : SmartFragment() {
     private val vdc: LanguageFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: LanguageAdapter
-
-    init {
-        layoutRes = R.layout.settings_ui_language_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         languageList.setupDefaults(adapter)

@@ -22,7 +22,7 @@ import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 
 @AndroidEntryPoint
-class ItemContentsFragment : SmartFragment() {
+class ItemContentsFragment : SmartFragment(R.layout.storage_viewer_itemcontent_fragment) {
 
     val navArgs by navArgs<ItemContentsFragmentArgs>()
     private val vdc: ItemContentsFragmentVDC by viewModels()
@@ -33,10 +33,6 @@ class ItemContentsFragment : SmartFragment() {
     @BindView(R.id.viewpager_container) lateinit var viewPagerContainer: ViewGroup
     @BindView(R.id.viewpager) lateinit var viewPager: ViewPager2
     @BindView(R.id.tablayout) lateinit var tabLayout: TabLayout
-
-    init {
-        layoutRes = R.layout.storage_viewer_itemcontent_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewPager.adapter = pagerAdapter

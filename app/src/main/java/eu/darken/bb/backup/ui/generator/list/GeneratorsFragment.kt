@@ -19,18 +19,13 @@ import eu.darken.bb.common.smart.SmartFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorsFragment : SmartFragment() {
+class GeneratorsFragment : SmartFragment(R.layout.generator_list_fragment) {
 
     private val vdc: GeneratorsFragmentVDC by viewModels()
     @Inject lateinit var adapter: GeneratorAdapter
 
     @BindView(R.id.generator_list) lateinit var generatorList: RecyclerView
     @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-
-
-    init {
-        layoutRes = R.layout.generator_list_fragment
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         generatorList.setupDefaults(adapter)
