@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -20,8 +21,6 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
@@ -29,14 +28,8 @@ import javax.inject.Inject
 class GeneratorsActionDialog : BottomSheetDialogFragment() {
     val navArgs by navArgs<GeneratorsActionDialogArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: GeneratorsActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as GeneratorsActionDialogVDC.Factory
-        factory.create(handle, navArgs.generatorId)
-    })
-
+    private val vdc: GeneratorsActionDialogVDC by viewModels()
     @Inject lateinit var taskRepo: TaskRepo
-
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView

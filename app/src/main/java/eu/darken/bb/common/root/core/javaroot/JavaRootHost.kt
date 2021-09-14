@@ -6,6 +6,7 @@ import android.util.Log
 import dagger.Lazy
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
@@ -31,7 +32,6 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
     private val keepAliveToken: SharedHolder.Resource<*>
 
     private val pathToAPK: String
-    private val component: RootComponent
 
     @Inject lateinit var sharedShell: SharedShell
     @Inject lateinit var connection: Lazy<JavaRootConnectionImpl>
@@ -75,10 +75,9 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
         }
 
         // Grab a (limited) context
-        component = DaggerRootComponent.builder()
-            .application(RootJava.getSystemContext())
-            .build()
-        component.inject(this)
+        EntryPointAccessors
+            .fromApplication(RootJava.getSystemContext(), JavaRootHostEntryPoint::class.java)
+            .inject(this)
 
 
         Timber.tag(TAG).d("Running on threadId=%d", Thread.currentThread().id)

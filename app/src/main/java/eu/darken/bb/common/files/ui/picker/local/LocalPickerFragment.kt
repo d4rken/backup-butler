@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
@@ -29,8 +30,6 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.BreadCrumbBar
 import eu.darken.bb.common.userTextChangeEvents
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import java.io.File
 import javax.inject.Inject
 
@@ -39,11 +38,7 @@ class LocalPickerFragment : SmartFragment() {
 
     val navArgs by navArgs<LocalPickerFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: LocalPickerFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as LocalPickerFragmentVDC.Factory
-        factory.create(handle, navArgs.options)
-    })
+    private val vdc: LocalPickerFragmentVDC by viewModels()
 
     @BindView(R.id.breadcrumb_bar) lateinit var breadCrumbBar: BreadCrumbBar<APath>
     @BindView(R.id.files_list) lateinit var filesList: RecyclerView

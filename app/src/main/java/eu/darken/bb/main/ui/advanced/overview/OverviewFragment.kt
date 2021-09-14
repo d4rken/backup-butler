@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -14,10 +14,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.user.core.UpgradeData
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class OverviewFragment : SmartFragment() {
@@ -32,8 +29,7 @@ class OverviewFragment : SmartFragment() {
     @BindView(R.id.card_update_action_changelog) lateinit var changelogAction: Button
     @BindView(R.id.card_update_action_update) lateinit var updateAction: Button
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: OverviewFragmentVDC by vdcs { vdcSource }
+    private val vdc: OverviewFragmentVDC by viewModels()
 
     init {
         layoutRes = R.layout.overview_fragment
@@ -50,9 +46,9 @@ class OverviewFragment : SmartFragment() {
             }
         }
 
-        vdc.updateState.observe(this, Observer { updateState ->
+        vdc.updateState.observe2(this) { updateState ->
             updateCard.setGone(!updateState.available)
-        })
+        }
         changelogAction.clicksDebounced().subscribe { vdc.onChangelog() }
         updateAction.clicksDebounced().subscribe { vdc.onUpdate() }
 

@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.viewer
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
@@ -17,23 +18,13 @@ import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.tryLocalizedErrorMessage
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class StorageViewerActivity : AppCompatActivity() {
 
     val navArgs by navArgs<StorageViewerActivityArgs>()
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: StorageViewerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageViewerActivityVDC.Factory
-        factory.create(handle, navArgs.storageId)
-    })
+    val vdc: StorageViewerActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.storage_viewer) }

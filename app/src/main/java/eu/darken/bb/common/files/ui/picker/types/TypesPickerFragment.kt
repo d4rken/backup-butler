@@ -2,6 +2,7 @@ package eu.darken.bb.common.files.ui.picker.types
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
@@ -15,8 +16,6 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionAdapter
 import javax.inject.Inject
 
@@ -25,11 +24,7 @@ class TypesPickerFragment : SmartFragment() {
 
     val navArgs by navArgs<TypesPickerFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: TypesPickerFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as TypesPickerFragmentVDC.Factory
-        factory.create(handle, navArgs.options)
-    })
+    private val vdc: TypesPickerFragmentVDC by viewModels()
 
     @BindView(R.id.picktype_list) lateinit var typeList: RecyclerView
 

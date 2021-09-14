@@ -2,7 +2,6 @@ package eu.darken.bb.task.ui.editor.restore.config
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
@@ -13,6 +12,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -29,12 +29,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RestoreConfigFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val safGateway: SAFGateway,
     private val processorControl: ProcessorControl
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<RestoreConfigFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
         .subscribeOn(Schedulers.io())

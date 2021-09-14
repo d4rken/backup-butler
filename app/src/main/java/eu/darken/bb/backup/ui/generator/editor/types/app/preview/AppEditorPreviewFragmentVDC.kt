@@ -1,13 +1,13 @@
 package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -18,12 +18,12 @@ import javax.inject.Inject
 @HiltViewModel
 class AppEditorPreviewFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    @Assisted private val generatorId: Generator.Id,
-    @Assisted private val previewMode: PreviewMode,
     private val builder: GeneratorBuilder,
     private val pkgOps: PkgOps
 ) : SmartVDC() {
-
+    private val navArgs = handle.navArgs<AppEditorPreviewFragmentArgs>().value
+    private val generatorId: Generator.Id = navArgs.generatorId
+    private val previewMode: PreviewMode = navArgs.previewMode
     private val stater = Stater(State(previewMode = previewMode))
     val state = stater.liveData
 

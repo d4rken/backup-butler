@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GeneratorTypeFragmentVDC @Inject constructor(
-    handle: SavedStateHandle,
+    private val handle: SavedStateHandle,
     private val builder: GeneratorBuilder
 ) : SmartVDC() {
 

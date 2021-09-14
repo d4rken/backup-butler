@@ -1,13 +1,13 @@
 package eu.darken.bb.task.ui.editor.backup.sources.picker
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
@@ -19,12 +19,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GeneratorPickerFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val generatorBuilder: GeneratorBuilder,
     generatorRepo: GeneratorRepo
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<GeneratorPickerFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
         .subscribeOn(Schedulers.io())

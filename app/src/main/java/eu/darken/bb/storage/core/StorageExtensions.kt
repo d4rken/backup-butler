@@ -21,6 +21,7 @@ fun Intent.getStorageIds(): Collection<Storage.Id>? = getParcelableArrayListExtr
 
 fun Bundle.putStorageId(id: Storage.Id) = apply { putParcelable(StorageExtensions.STORAGEID_KEY, id) }
 fun Bundle.getStorageId(): Storage.Id? = getParcelable(StorageExtensions.STORAGEID_KEY) as Storage.Id?
+
 fun Bundle.putStorageIds(ids: Collection<Storage.Id>) =
     apply { putParcelableArrayList(StorageExtensions.STORAGEID_KEY, ArrayList(ids)) }
 

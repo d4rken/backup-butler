@@ -150,8 +150,8 @@ open class ArchiveRefSource(
                             }
 
                             p.ownership?.let {
-                                entry.userId = it.userId
-                                entry.groupId = it.groupId
+                                entry.userId = it.userId.toInt() // TODO hmmmm
+                                entry.groupId = it.groupId.toInt() // TODO hmmm
                                 entry.userName = it.userName ?: ""
                                 entry.groupName = it.groupName ?: ""
                             }

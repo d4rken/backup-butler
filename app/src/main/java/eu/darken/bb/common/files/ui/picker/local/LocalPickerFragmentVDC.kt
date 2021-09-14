@@ -3,7 +3,6 @@ package eu.darken.bb.common.files.ui.picker.local
 import android.Manifest
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.RuntimePermissionTool
@@ -18,6 +17,7 @@ import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -26,11 +26,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocalPickerFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val options: APathPicker.Options,
+    handle: SavedStateHandle,
     private val localGateway: LocalGateway,
     permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
+    private val options: APathPicker.Options = handle.navArgs<LocalPickerFragmentArgs>().value.options
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
     private val startPath = options.startPath as? LocalPath ?: fallbackPath
 

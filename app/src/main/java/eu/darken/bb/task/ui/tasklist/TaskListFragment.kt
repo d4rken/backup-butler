@@ -3,6 +3,7 @@ package eu.darken.bb.task.ui.tasklist
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -16,8 +17,6 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.task.ui.tasklist.actions.TaskActionDialog
 import javax.inject.Inject
@@ -25,11 +24,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TaskListFragment : SmartFragment() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: TaskListFragmentVDC by vdcs { vdcSource }
+    private val vdc: TaskListFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: TaskListAdapter
     @BindView(R.id.tasks_list) lateinit var tasksList: RecyclerView

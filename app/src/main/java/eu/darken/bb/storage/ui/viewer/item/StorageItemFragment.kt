@@ -6,8 +6,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
@@ -23,8 +23,6 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialogArgs
 import javax.inject.Inject
@@ -32,17 +30,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class StorageItemFragment : SmartFragment() {
 
-    val navArgs by navArgs<StorageItemFragmentArgs>()
-
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StorageItemFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageItemFragmentVDC.Factory
-        factory.create(handle, navArgs.storageId)
-    })
-
+    private val vdc: StorageItemFragmentVDC by viewModels()
     @Inject lateinit var adapter: StorageItemAdapter
 
     @BindView(R.id.storage_item_list) lateinit var recyclerView: RecyclerView

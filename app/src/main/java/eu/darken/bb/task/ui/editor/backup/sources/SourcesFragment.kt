@@ -2,6 +2,7 @@ package eu.darken.bb.task.ui.editor.backup.sources
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
@@ -18,8 +19,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentArgs
 import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentArgs
 import javax.inject.Inject
@@ -30,11 +29,7 @@ class SourcesFragment : SmartFragment() {
 
     val navArgs by navArgs<SourcesFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: SourcesFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as SourcesFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: SourcesFragmentVDC by viewModels()
 
     @BindView(R.id.list_sources) lateinit var sourcesList: RecyclerView
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView

@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.annotation.IdRes
 import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
@@ -12,6 +11,7 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.swallowInterruptExceptions
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.task.core.BackupTaskExtensions
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
@@ -23,10 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskEditorActivityVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val reqMan: RequirementsManager
 ) : SmartVDC() {
+
+    private val taskId: Task.Id = handle.get(BackupTaskExtensions.TASKID_KEY)!!
     private val taskObs = taskBuilder.task(taskId)
         .subscribeOn(Schedulers.io())
 

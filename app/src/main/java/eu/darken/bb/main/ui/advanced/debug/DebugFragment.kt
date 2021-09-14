@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
@@ -12,8 +13,6 @@ import eu.darken.bb.R
 import eu.darken.bb.common.root.core.javaroot.JavaRootClient
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
@@ -26,8 +25,7 @@ class DebugFragment : SmartFragment() {
         val TAG = App.logTag("Debug", "Fragment")
     }
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: DebugFragmentVDC by vdcs { vdcSource }
+    private val vdc: DebugFragmentVDC by viewModels()
 
     init {
         layoutRes = R.layout.debug_fragment

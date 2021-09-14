@@ -3,8 +3,8 @@ package eu.darken.bb.storage.ui.editor.types
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.RecyclerView
@@ -17,8 +17,6 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentArgs
 import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
@@ -27,14 +25,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TypeSelectionFragment : SmartFragment() {
 
-    val navArgs by navArgs<TypeSelectionFragmentArgs>()
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: TypeSelectionFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as TypeSelectionFragmentVDC.Factory
-        factory.create(handle, navArgs.storageId)
-    })
-
+    private val vdc: TypeSelectionFragmentVDC by viewModels()
     @Inject lateinit var adapter: TypeSelectionAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView

@@ -2,7 +2,6 @@ package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
@@ -14,6 +13,7 @@ import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -22,11 +22,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FilesEditorConfigFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val generatorId: Generator.Id,
+    handle: SavedStateHandle,
     private val builder: GeneratorBuilder
 ) : SmartVDC() {
 
+    private val generatorId: Generator.Id = handle.navArgs<FilesEditorConfigFragmentArgs>().value.generatorId
     private val stater = Stater(State())
     val state = stater.liveData
 

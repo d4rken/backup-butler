@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.navigation.fragment.navArgs
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.jakewharton.rxbinding4.view.longClicks
@@ -19,8 +19,6 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.*
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.restore.config.app.AppConfigUIWrap
 import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
@@ -29,13 +27,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RestoreConfigFragment : SmartFragment() {
 
-    val navArgs by navArgs<RestoreConfigFragmentArgs>()
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: RestoreConfigFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as RestoreConfigFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: RestoreConfigFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: RestoreConfigAdapter
 

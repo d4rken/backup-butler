@@ -2,8 +2,8 @@ package eu.darken.bb.task.ui.editor.backup.sources.picker
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -19,20 +19,12 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class GeneratorPickerFragment : SmartFragment() {
 
-    val navArgs by navArgs<GeneratorPickerFragmentArgs>()
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: GeneratorPickerFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as GeneratorPickerFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: GeneratorPickerFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: GeneratorAdapter
     @BindView(R.id.storage_list_wrapper) lateinit var generatorListWrapper: RecyclerViewWrapperLayout

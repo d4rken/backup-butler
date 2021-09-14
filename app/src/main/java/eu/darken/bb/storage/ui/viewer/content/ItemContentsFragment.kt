@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
@@ -19,24 +20,12 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ItemContentsFragment : SmartFragment() {
 
     val navArgs by navArgs<ItemContentsFragmentArgs>()
-
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-
-    private val vdc: ItemContentsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as ItemContentsFragmentVDC.Factory
-        factory.create(handle, navArgs.storageId, navArgs.specId)
-    })
+    private val vdc: ItemContentsFragmentVDC by viewModels()
 
     private val pagerAdapter by lazy { VersionPagerAdapter(this, navArgs.storageId, navArgs.specId) }
 

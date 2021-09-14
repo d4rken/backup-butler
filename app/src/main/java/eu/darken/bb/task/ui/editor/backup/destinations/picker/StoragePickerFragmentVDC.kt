@@ -1,10 +1,10 @@
 package eu.darken.bb.task.ui.editor.backup.destinations.picker
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
@@ -20,11 +20,13 @@ import javax.inject.Inject
 @HiltViewModel
 class StoragePickerFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
     private val taskBuilder: TaskBuilder,
     private val storageBuilder: StorageBuilder,
     storageManager: StorageManager
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<StoragePickerFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
+
     private val editorObs = taskBuilder.task(taskId)
         .subscribeOn(Schedulers.io())
         .filter { it.editor != null }

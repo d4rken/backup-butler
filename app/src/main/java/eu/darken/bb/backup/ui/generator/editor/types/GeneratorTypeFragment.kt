@@ -3,6 +3,7 @@ package eu.darken.bb.backup.ui.generator.editor.types
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
@@ -20,8 +21,6 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,12 +28,7 @@ class GeneratorTypeFragment : SmartFragment() {
 
     val navArgs by navArgs<GeneratorTypeFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: GeneratorTypeFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as GeneratorTypeFragmentVDC.Factory
-        factory.create(handle, navArgs.generatorId)
-    })
-
+    private val vdc: GeneratorTypeFragmentVDC by viewModels()
     @Inject lateinit var adapter: GeneratorTypeAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView

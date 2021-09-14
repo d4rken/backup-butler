@@ -2,11 +2,11 @@ package eu.darken.bb.storage.ui.editor
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -16,11 +16,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StorageEditorActivityVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
+    handle: SavedStateHandle,
     private val storageBuilder: StorageBuilder
 ) : SmartVDC() {
 
+    private val navArgs = handle.navArgs<StorageEditorActivityArgs>()
+    private val storageId: Storage.Id = navArgs.value.storageId
     private val storageObs = storageBuilder.storage(storageId)
         .subscribeOn(Schedulers.io())
 

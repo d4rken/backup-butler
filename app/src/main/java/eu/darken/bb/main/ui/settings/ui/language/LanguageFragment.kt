@@ -2,6 +2,7 @@ package eu.darken.bb.main.ui.settings.ui.language
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,8 +13,6 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -22,8 +21,7 @@ class LanguageFragment : SmartFragment() {
     @BindView(R.id.language_list) lateinit var languageList: RecyclerView
     @BindView(R.id.language_list_wrapper) lateinit var languageListWrapper: RecyclerViewWrapperLayout
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: LanguageFragmentVDC by vdcs { vdcSource }
+    private val vdc: LanguageFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: LanguageAdapter
 

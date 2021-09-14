@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -19,10 +20,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.getStorageId
 import eu.darken.bb.storage.core.putStorageId
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
@@ -33,12 +31,7 @@ class StorageActionDialog : BottomSheetDialogFragment() {
 
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StorageActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageActionDialogVDC.Factory
-        factory.create(handle, requireArguments().getStorageId()!!)
-    })
+    private val vdc: StorageActionDialogVDC by viewModels()
 
     @BindView(R.id.type_label) lateinit var typeLabel: TextView
     @BindView(R.id.storage_label) lateinit var storageLabel: TextView

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.navArgs
@@ -18,23 +19,12 @@ import eu.darken.bb.common.files.ui.picker.types.TypesPickerFragmentArgs
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class APathPickerActivity : SmartActivity() {
-
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
     val navArgs by navArgs<APathPickerActivityArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: APathPickerActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as APathPickerActivityVDC.Factory
-        factory.create(handle, navArgs.options)
-    })
+    private val vdc: APathPickerActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.picker_nav) }

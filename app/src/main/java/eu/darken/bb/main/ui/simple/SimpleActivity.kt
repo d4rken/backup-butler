@@ -4,23 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.ui.settings.SettingsActivity
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SimpleActivity : AppCompatActivity() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: SimpleActivityVDC by vdcs { vdcSource }
+    private val vdc: SimpleActivityVDC by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Base)

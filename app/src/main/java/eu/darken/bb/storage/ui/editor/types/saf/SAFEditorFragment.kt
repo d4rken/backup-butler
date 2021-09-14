@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import android.widget.TextView
-import androidx.navigation.fragment.navArgs
+import androidx.fragment.app.viewModels
 import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
@@ -19,8 +19,6 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
@@ -28,14 +26,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SAFEditorFragment : SmartFragment() {
 
-    val navArgs by navArgs<SAFEditorFragmentArgs>()
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: SAFEditorFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as SAFEditorFragmentVDC.Factory
-        factory.create(handle, navArgs.storageId)
-    })
-
+    private val vdc: SAFEditorFragmentVDC by viewModels()
     @Inject lateinit var adapter: StorageAdapter
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText

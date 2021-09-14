@@ -2,12 +2,12 @@ package eu.darken.bb.storage.ui.viewer.item
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -21,11 +21,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StorageItemFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
+    handle: SavedStateHandle,
     processorControl: ProcessorControl,
     storageManager: StorageManager
 ) : SmartVDC() {
+
+    private val navArgs by handle.navArgs<StorageItemFragmentArgs>()
+    private val storageId: Storage.Id = navArgs.storageId
 
     private val storageObs = storageManager.getStorage(storageId)
         .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())

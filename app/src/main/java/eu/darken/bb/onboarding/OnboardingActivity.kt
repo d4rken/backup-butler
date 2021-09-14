@@ -1,23 +1,17 @@
 package eu.darken.bb.onboarding
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class OnboardingActivity : AppCompatActivity() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: OnboardingActivityVDC by vdcs { vdcSource }
+    private val vdc: OnboardingActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 

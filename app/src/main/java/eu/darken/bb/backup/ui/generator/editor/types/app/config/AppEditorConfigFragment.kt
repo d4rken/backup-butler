@@ -3,6 +3,7 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.config
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
@@ -21,20 +22,13 @@ import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AppEditorConfigFragment : SmartFragment() {
 
     val navArgs by navArgs<AppEditorConfigFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: AppEditorConfigFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as AppEditorConfigFragmentVDC.Factory
-        factory.create(handle, navArgs.generatorId)
-    })
+    private val vdc: AppEditorConfigFragmentVDC by viewModels()
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import butterknife.BindView
@@ -13,8 +14,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.advanced.debug.DebugFragment
 import eu.darken.bb.main.ui.settings.SettingsActivity
@@ -23,11 +22,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AdvancedActivity : AppCompatActivity() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: AdvancedActivityVDC by vdcs { vdcSource }
+    private val vdc: AdvancedActivityVDC by viewModels()
 
     @BindView(R.id.viewpager) lateinit var viewPager: ViewPager2
     @BindView(R.id.tablayout) lateinit var tabLayout: TabLayout

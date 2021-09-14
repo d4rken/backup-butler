@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.R
@@ -10,6 +9,7 @@ import eu.darken.bb.common.CAString
 import eu.darken.bb.common.Operation
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
@@ -23,12 +23,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ItemActionDialogVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
-    @Assisted private val backupSpecId: BackupSpec.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     storageManager: StorageManager
 ) : SmartVDC() {
+
+    private val navArgs by handle.navArgs<ItemActionDialogArgs>()
+    private val storageId: Storage.Id = navArgs.storageId
+    private val backupSpecId: BackupSpec.Id = navArgs.specId
 
     private val storageObs = storageManager.getStorage(storageId)
         .subscribeOn(Schedulers.io())

@@ -46,7 +46,7 @@ class StorageItemAdapter @Inject constructor() : ModularAdapter<StorageItemAdapt
             val versionCount = getQuantityString(R.plurals.x_versions, item.backups.size)
             val lastBackupText = getString(
                 R.string.general_last_backup_time_x,
-                formatter.format(item.backups.maxBy { it.createdAt }!!.createdAt)
+                formatter.format(item.backups.maxByOrNull { it.createdAt }!!.createdAt)
             )
             @SuppressLint("SetTextI18n")
             statusText.text = "$versionCount; $lastBackupText"

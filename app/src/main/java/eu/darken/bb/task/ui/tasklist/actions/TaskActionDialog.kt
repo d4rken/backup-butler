@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -18,11 +19,8 @@ import eu.darken.bb.common.lists.ModularAdapter
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.core.getTaskId
 import eu.darken.bb.task.core.putTaskId
 import javax.inject.Inject
 
@@ -33,11 +31,7 @@ class TaskActionDialog : BottomSheetDialogFragment() {
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: TaskActionDialogVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as TaskActionDialogVDC.Factory
-        factory.create(handle, arguments!!.getTaskId()!!)
-    })
+    private val vdc: TaskActionDialogVDC by viewModels()
 
     @BindView(R.id.task_type_label) lateinit var taskTypeLabel: TextView
     @BindView(R.id.task_name) lateinit var taskName: TextView

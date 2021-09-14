@@ -2,6 +2,7 @@ package eu.darken.bb.backup.ui.generator.list
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -15,19 +16,12 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class GeneratorsFragment : SmartFragment() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-
-    private val vdc: GeneratorsFragmentVDC by vdcs { vdcSource }
+    private val vdc: GeneratorsFragmentVDC by viewModels()
     @Inject lateinit var adapter: GeneratorAdapter
 
     @BindView(R.id.generator_list) lateinit var generatorList: RecyclerView

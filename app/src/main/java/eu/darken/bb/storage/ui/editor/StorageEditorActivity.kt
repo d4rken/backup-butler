@@ -3,10 +3,10 @@ package eu.darken.bb.storage.ui.editor
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
-import androidx.navigation.navArgs
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import butterknife.ButterKnife
@@ -14,23 +14,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class StorageEditorActivity : AppCompatActivity() {
 
-    val navArgs by navArgs<StorageEditorActivityArgs>()
-
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StorageEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StorageEditorActivityVDC.Factory
-        factory.create(handle, navArgs.storageId)
-    })
+    private val vdc: StorageEditorActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 

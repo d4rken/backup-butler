@@ -2,16 +2,17 @@ package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.BackupExtensions
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.storage.core.StorageExtensions
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -22,13 +23,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ContentPageFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
-    @Assisted private val backupSpecId: BackupSpec.Id,
-    @Assisted private val backupId: Backup.Id,
+    handle: SavedStateHandle,
     private val storageManager: StorageManager,
     private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
+    // TODO use nav/safe args?
+    private val storageId: Storage.Id = handle.get(StorageExtensions.STORAGEID_KEY)!!
+    private val backupSpecId: BackupSpec.Id = handle.get(BackupExtensions.BACKUPSPECID_KEY)!!
+    private val backupId: Backup.Id = handle.get(BackupExtensions.BACKUPID_KEY)!!
 
     private val storageObs = storageManager.getStorage(storageId)
         .subscribeOn(Schedulers.io())

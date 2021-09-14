@@ -3,6 +3,7 @@ package eu.darken.bb.backup.ui.generator.editor
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.navigation.navArgs
@@ -14,23 +15,13 @@ import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class GeneratorEditorActivity : SmartActivity() {
 
     val navArgs by navArgs<GeneratorEditorActivityArgs>()
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: GeneratorEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as GeneratorEditorActivityVDC.Factory
-        factory.create(handle, navArgs.generatorId)
-    })
+    private val vdc: GeneratorEditorActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 

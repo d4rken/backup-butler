@@ -1,11 +1,11 @@
 package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -19,12 +19,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DestinationsFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val storageManager: StorageManager,
     private val processorControl: ProcessorControl
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<DestinationsFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
         .filter { it.editor != null }

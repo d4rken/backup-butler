@@ -3,6 +3,7 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -17,8 +18,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -26,11 +25,7 @@ class AppEditorPreviewFragment : SmartFragment() {
 
     val args by navArgs<AppEditorPreviewFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: AppEditorPreviewFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as AppEditorPreviewFragmentVDC.Factory
-        factory.create(handle, args.generatorId, args.previewMode)
-    })
+    private val vdc: AppEditorPreviewFragmentVDC by viewModels()
     @Inject lateinit var adapter: PkgsPreviewAdapter
 
     @BindView(R.id.pkg_preview_list_wrapper) lateinit var pkgPreviewListWrapper: RecyclerViewWrapperLayout

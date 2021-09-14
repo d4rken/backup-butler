@@ -1,11 +1,8 @@
 package eu.darken.bb.common.debug.recording.ui
 
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.ShareBuilder
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.Zipper
@@ -19,12 +16,11 @@ import javax.inject.Provider
 
 @HiltViewModel
 class RecorderActivityVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val recordedPath: String,
-    @ApplicationContext private val context: Context,
+    handle: SavedStateHandle,
     private val shareBuilderProvider: Provider<ShareBuilder>
 ) : VDC() {
 
+    private val recordedPath = handle.get<String>(RecorderActivity.RECORD_PATH)!!
     private val pathCache = Observable.just(recordedPath)
     private val resultCacheObs = pathCache
         .observeOn(Schedulers.io())

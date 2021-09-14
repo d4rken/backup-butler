@@ -2,8 +2,8 @@ package eu.darken.bb.task.ui.editor.backup.destinations.picker
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,21 +18,13 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class StoragePickerFragment : SmartFragment() {
 
-    val navArgs by navArgs<StoragePickerFragmentArgs>()
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StoragePickerFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as StoragePickerFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: StoragePickerFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: StorageAdapter
     @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout

@@ -1,24 +1,17 @@
 package eu.darken.bb.processor.ui
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.progress.ProgressFragment
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProcessorActivity : AppCompatActivity() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-
-    private val vdc: ProcessorActivityVDC by vdcs { vdcSource }
+    private val vdc: ProcessorActivityVDC by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

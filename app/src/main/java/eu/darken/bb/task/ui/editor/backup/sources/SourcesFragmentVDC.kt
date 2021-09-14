@@ -1,11 +1,11 @@
 package eu.darken.bb.task.ui.editor.backup.sources
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -16,11 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SourcesFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val generatorRepo: GeneratorRepo
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<SourcesFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
+
     private val editorObs = taskBuilder.task(taskId)
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }

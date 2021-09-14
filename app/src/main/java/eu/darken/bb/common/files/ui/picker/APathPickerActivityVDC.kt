@@ -3,13 +3,13 @@ package eu.darken.bb.common.files.ui.picker
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import timber.log.Timber
@@ -17,11 +17,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class APathPickerActivityVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val options: APathPicker.Options,
+    handle: SavedStateHandle,
     val safGateway: SAFGateway
 ) : SmartVDC() {
 
+    private val options: APathPicker.Options = handle.navArgs<APathPickerActivityArgs>().value.options
     val launchSAFEvents = SingleLiveEvent<Intent>()
     val launchLocalEvents = SingleLiveEvent<APathPicker.Options>()
     val launchTypesEvents = SingleLiveEvent<APathPicker.Options>()

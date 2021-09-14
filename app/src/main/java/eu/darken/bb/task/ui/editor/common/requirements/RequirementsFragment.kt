@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
@@ -19,8 +20,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
 import javax.inject.Inject
@@ -30,11 +29,7 @@ class RequirementsFragment : SmartFragment() {
 
     val navArgs by navArgs<RequirementsFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: RequirementsFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as RequirementsFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: RequirementsFragmentVDC by viewModels()
 
     @BindView(R.id.explanation_more_action) lateinit var requirementsMoreAction: Button
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView

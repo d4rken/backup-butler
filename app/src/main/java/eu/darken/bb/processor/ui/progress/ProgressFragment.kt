@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import com.airbnb.lottie.LottieAnimationView
@@ -15,16 +16,11 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.tryTextElseHide
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ProgressFragment : SmartFragment() {
 
-    //    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: ProgressFragmentVDC by vdcs { vdcSource }
+    private val vdc: ProgressFragmentVDC by viewModels()
 
     @BindView(R.id.process_progress_animation) lateinit var processProgressAnimation: LottieAnimationView
     @BindView(R.id.task_label) lateinit var taskName: TextView

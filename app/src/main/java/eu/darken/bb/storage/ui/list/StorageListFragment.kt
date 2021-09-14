@@ -3,6 +3,7 @@ package eu.darken.bb.storage.ui.list
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,8 +19,6 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.storage.ui.list.actions.StorageActionDialog
 import javax.inject.Inject
@@ -27,11 +26,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class StorageListFragment : SmartFragment() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): AndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: StorageListFragmentVDC by vdcs { vdcSource }
+    private val vdc: StorageListFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: StorageAdapter
     @BindView(R.id.storage_list) lateinit var storageList: RecyclerView

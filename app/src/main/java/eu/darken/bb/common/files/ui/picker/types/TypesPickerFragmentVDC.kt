@@ -1,23 +1,23 @@
 package eu.darken.bb.common.files.ui.picker.types
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 @HiltViewModel
 class TypesPickerFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val options: APathPicker.Options
+    handle: SavedStateHandle
 ) : SmartVDC() {
 
+    private val options: APathPicker.Options = handle.navArgs<TypesPickerFragmentArgs>().value.options
     private val stater = Stater {
         val types = options.allowedTypes.map {
             when (it) {

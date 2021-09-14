@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,20 +20,13 @@ import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class FilesEditorConfigFragment : SmartFragment() {
 
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    val vdc: FilesEditorConfigFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as FilesEditorConfigFragmentVDC.Factory
-        factory.create(handle, navArgs.generatorId)
-    })
+    private val vdc: FilesEditorConfigFragmentVDC by viewModels()
 
     @BindView(R.id.name_input) lateinit var labelInput: EditText
     @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup

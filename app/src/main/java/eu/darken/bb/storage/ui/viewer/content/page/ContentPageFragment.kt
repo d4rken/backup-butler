@@ -7,13 +7,12 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.getBackupId
-import eu.darken.bb.backup.core.getBackupSpecId
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -21,27 +20,13 @@ import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import eu.darken.bb.storage.core.getStorageId
 import java.text.DateFormat
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ContentPageFragment : SmartFragment() {
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-
-    private val vdc: ContentPageFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as ContentPageFragmentVDC.Factory
-        factory.create(
-            handle,
-            requireArguments().getStorageId()!!,
-            requireArguments().getBackupSpecId()!!,
-            requireArguments().getBackupId()!!
-        )
-    })
-
+    private val vdc: ContentPageFragmentVDC by viewModels()
     @Inject lateinit var adapter: ContentEntryAdapter
 
     @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView

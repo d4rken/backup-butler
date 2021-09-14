@@ -3,6 +3,7 @@ package eu.darken.bb.task.ui.editor
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
@@ -14,23 +15,12 @@ import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.getTaskId
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class TaskEditorActivity : SmartActivity() {
 
-//    @Inject lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-//    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> = dispatchingAndroidInjector
-
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: TaskEditorActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as TaskEditorActivityVDC.Factory
-        factory.create(handle, intent.getTaskId()!!)
-    })
+    private val vdc: TaskEditorActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 

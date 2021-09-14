@@ -2,7 +2,6 @@ package eu.darken.bb.task.ui.editor.restore.sources
 
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
@@ -10,6 +9,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.task.core.Task
@@ -21,10 +21,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RestoreSourcesFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder
 ) : SmartVDC() {
+
+    private val navArgs by handle.navArgs<RestoreSourcesFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
+
     private val editorObs = taskBuilder.task(taskId)
         .subscribeOn(Schedulers.io())
         .filter { it.editor != null }

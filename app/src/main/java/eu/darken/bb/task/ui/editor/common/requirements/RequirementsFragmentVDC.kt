@@ -1,10 +1,10 @@
 package eu.darken.bb.task.ui.editor.common.requirements
 
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.task.core.Task
@@ -16,12 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RequirementsFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val taskId: Task.Id,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val reqMan: RequirementsManager
 ) : SmartVDC() {
 
+    private val navArgs by handle.navArgs<RequirementsFragmentArgs>()
+    private val taskId: Task.Id = navArgs.taskId
     private val builderData = taskBuilder.task(taskId).subscribeOn(Schedulers.io())
 
     val stater = Stater(State())

@@ -4,22 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import androidx.fragment.app.viewModels
 import butterknife.BindView
-import dagger.android.support.AndroidSupportInjection
+import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.MainActivity
 import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class HelloStepFragment : SmartFragment() {
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: HelloStepFragmentVDC by vdcs { vdcSource }
+    private val vdc: HelloStepFragmentVDC by viewModels()
 
     @BindView(R.id.action_start_simplemode) lateinit var actionStartSimple: Button
     @BindView(R.id.action_start_advancedmode) lateinit var actionStartAdvanced: Button
@@ -31,7 +29,6 @@ class HelloStepFragment : SmartFragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidSupportInjection.inject(this)
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }

@@ -1,10 +1,7 @@
 package eu.darken.bb.storage.ui.editor.types.saf
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -13,6 +10,7 @@ import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.getRootCause
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -24,13 +22,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SAFEditorFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
-    @ApplicationContext private val context: Context,
+    handle: SavedStateHandle,
     private val builder: StorageBuilder,
     private val safGateway: SAFGateway
 ) : SmartVDC() {
 
+    private val navArgs by handle.navArgs<SAFEditorFragmentArgs>()
+    private val storageId: Storage.Id = navArgs.storageId
     private val stater = Stater(State())
     val state = stater.liveData
 

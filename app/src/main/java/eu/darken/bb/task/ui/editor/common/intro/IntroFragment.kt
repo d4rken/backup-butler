@@ -3,6 +3,7 @@ package eu.darken.bb.task.ui.editor.common.intro
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import butterknife.BindView
@@ -14,21 +15,14 @@ import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.SetupBarView
 import eu.darken.bb.common.userTextChangeEvents
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
 import eu.darken.bb.task.ui.editor.backup.sources.SourcesFragmentArgs
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class IntroFragment : SmartFragment() {
 
     val navArgs by navArgs<IntroFragmentArgs>()
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: IntroFragmentVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as IntroFragmentVDC.Factory
-        factory.create(handle, navArgs.taskId)
-    })
+    private val vdc: IntroFragmentVDC by viewModels()
 
     @BindView(R.id.name_input) lateinit var nameInput: EditText
     @BindView(R.id.setupbar) lateinit var setupBar: SetupBarView

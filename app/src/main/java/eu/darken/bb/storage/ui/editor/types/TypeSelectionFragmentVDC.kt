@@ -1,11 +1,9 @@
 package eu.darken.bb.storage.ui.editor.types
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -15,11 +13,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TypeSelectionFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
-    @Assisted private val storageId: Storage.Id,
+    handle: SavedStateHandle,
     private val builder: StorageBuilder,
-    @ApplicationContext private val context: Context
 ) : SmartVDC() {
+    private val navArgs by handle.navArgs<TypeSelectionFragmentArgs>()
+    private val storageId: Storage.Id = navArgs.storageId
 
     val state = builder.getSupportedStorageTypes()
         .map { types ->

@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -18,9 +19,6 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcsAssisted
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class RecorderActivity : SmartActivity() {
@@ -31,11 +29,7 @@ class RecorderActivity : SmartActivity() {
     @BindView(R.id.loading_indicator) lateinit var loadingIndicator: ProgressBar
     @BindView(R.id.share) lateinit var share: Button
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: RecorderActivityVDC by vdcsAssisted({ vdcSource }, { factory, handle ->
-        factory as RecorderActivityVDC.Factory
-        factory.create(handle, intent.getStringExtra(RECORD_PATH)!!)
-    })
+    private val vdc: RecorderActivityVDC by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,11 +1,10 @@
 package eu.darken.bb.user.ui.settings
 
 import androidx.annotation.Keep
+import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartPreferenceFragment
-import eu.darken.bb.common.vdc.VDCSource
-import eu.darken.bb.common.vdc.vdcs
 import eu.darken.bb.user.core.UserSettings
 import javax.inject.Inject
 
@@ -13,9 +12,7 @@ import javax.inject.Inject
 @Keep
 class UserSettingsFragment : SmartPreferenceFragment() {
 
-    @Inject lateinit var vdcSource: VDCSource.Factory
-    private val vdc: UserSettingsFragmentVDC by vdcs { vdcSource }
-
+    private val vdc: UserSettingsFragmentVDC by viewModels()
     @Inject lateinit var userSettings: UserSettings
 
     override val settings: UserSettings by lazy { userSettings }
