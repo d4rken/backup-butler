@@ -2,61 +2,44 @@ package eu.darken.bb.main.ui.settings.ui.language
 
 import android.graphics.Typeface
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.*
-import eu.darken.bb.main.core.LanguageEnforcer.Language
+import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.DataAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
+import eu.darken.bb.databinding.SettingsUiLanguageAdapterLineBinding
 import javax.inject.Inject
 
 
-class LanguageAdapter @Inject constructor() : ModularAdapter<LanguageAdapter.BackupVH>(), DataAdapter<Language> {
+class LanguageAdapter @Inject constructor() : ModularAdapter<LanguageAdapter.BackupVH>(), DataAdapter<LanguageItem> {
 
-    override val data = mutableListOf<Language>()
+    override val data = mutableListOf<LanguageItem>()
     override fun getItemCount(): Int = data.size
 
-    var currentLanguage: Language? = null
-
     init {
-        modules.add(DataBinderModule<Language, BackupVH>(data) { _, vh, pos ->
-            val item = data[pos]
-            val isSelected = item == currentLanguage
-            vh.bind(item, isSelected)
-        })
-        modules.add(SimpleVHCreator { BackupVH(it) })
-    }
-
-    fun update(data: List<Language>, current: Language) {
-        currentLanguage = current
-        update(data)
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { BackupVH(it) })
     }
 
     class BackupVH(parent: ViewGroup) : ModularAdapter.VH(R.layout.settings_ui_language_adapter_line, parent),
-        BindableVH<Language> {
+        BindableVH<LanguageItem, SettingsUiLanguageAdapterLineBinding> {
 
-        @BindView(R.id.icon) lateinit var icon: ImageView
-        @BindView(R.id.label) lateinit var label: TextView
-        @BindView(R.id.description) lateinit var description: TextView
-
-        init {
-            ButterKnife.bind(this, itemView)
+        override val viewBinding: Lazy<SettingsUiLanguageAdapterLineBinding> = lazy {
+            SettingsUiLanguageAdapterLineBinding.bind(itemView)
         }
 
-        override fun bind(item: Language) {
-            throw NotImplementedError()
-        }
-
-        fun bind(item: Language, isSelected: Boolean) {
-            label.text = item.localeFormatted
-            if (isSelected) {
+        override val onBindData: SettingsUiLanguageAdapterLineBinding.(
+            item: LanguageItem,
+            payloads: List<Any>
+        ) -> Unit = { item, _ ->
+            label.text = item.language.localeFormatted
+            if (item.isSelected) {
                 label.typeface = Typeface.DEFAULT_BOLD
             } else {
                 label.typeface = Typeface.DEFAULT
             }
-            description.text = item.translatorsFormatted
+            description.text = item.language.translatorsFormatted
         }
-
     }
 }

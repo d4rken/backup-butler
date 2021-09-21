@@ -1,29 +1,24 @@
 package eu.darken.bb.common.ui
 
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.DrawableRes
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.databinding.ViewActionAdapterLineBinding
 
 abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup) :
-    ModularAdapter.VH(R.layout.view_action_adapter_line, parent), BindableVH<Confirmable<T>> {
-    @BindView(R.id.icon) lateinit var icon: ImageView
-    @BindView(R.id.name) lateinit var label: TextView
-    @BindView(R.id.description) lateinit var description: TextView
+    ModularAdapter.VH(R.layout.view_action_adapter_line, parent),
+    BindableVH<Confirmable<T>, ViewActionAdapterLineBinding> {
 
-    init {
-        ButterKnife.bind(this, itemView)
-    }
-
-    override fun bind(item: Confirmable<T>) {
+    override val viewBinding = lazy { ViewActionAdapterLineBinding.bind(itemView) }
+    override val onBindData: ViewActionAdapterLineBinding.(
+        item: Confirmable<T>,
+        payloads: List<Any>
+    ) -> Unit = { item, _ ->
         val data = item.data
         icon.setImageResource(getIcon(data))
-        label.text = getLabel(data)
+        name.text = getLabel(data)
         when {
             item.currentLvl > 1 -> {
                 description.setText(R.string.general_confirmation_confirmation_label)

@@ -3,16 +3,15 @@ package eu.darken.bb.storage.ui.list
 import android.annotation.SuppressLint
 import android.text.format.Formatter
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.airbnb.lottie.LottieAnimationView
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.*
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.databinding.StorageListAdapterLineBinding
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
@@ -21,36 +20,33 @@ class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>()
     override val data = mutableListOf<Storage.InfoOpt>()
 
     init {
-        modules.add(DataBinderModule<Storage.InfoOpt, VH>(data))
-        modules.add(SimpleVHCreator { VH(it) })
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
 
     class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_list_adapter_line, parent),
-        BindableVH<Storage.InfoOpt> {
+        BindableVH<Storage.InfoOpt, StorageListAdapterLineBinding> {
 
-        @BindView(R.id.type_label) lateinit var typeLabel: TextView
-        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
-        @BindView(R.id.label) lateinit var labelText: TextView
-        @BindView(R.id.repo_status) lateinit var statusText: TextView
-        @BindView(R.id.loading_animation) lateinit var loadingAnimation: LottieAnimationView
-
-        init {
-            ButterKnife.bind(this, itemView)
+        override val viewBinding: Lazy<StorageListAdapterLineBinding> = lazy {
+            StorageListAdapterLineBinding.bind(itemView)
         }
 
-        override fun bind(item: Storage.InfoOpt) {
+        override val onBindData: StorageListAdapterLineBinding.(
+            item: Storage.InfoOpt,
+            payloads: List<Any>
+        ) -> Unit = onBindData@{ item, _ ->
             if (item.info == null) {
                 typeLabel.setText(R.string.general_unknown_label)
                 typeIcon.setColorFilter(getColor(R.color.colorError))
                 typeIcon.setImageResource(R.drawable.ic_error_outline)
 
-                labelText.text = "?"
+                label.text = "?"
 
-                statusText.text = getString(R.string.general_error_cant_access_msg, item.storageId)
-                return
+                repoStatus.text = getString(R.string.general_error_cant_access_msg, item.storageId)
+                return@onBindData
             }
 
             val info = item.info
@@ -59,30 +55,30 @@ class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>()
             typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
 
             when {
-                info.config != null && info.isFinished -> labelText.text = info.config.label
-                info.isFinished -> labelText.setText(R.string.general_error_label)
-                else -> labelText.setText(R.string.progress_loading_label)
+                info.config != null && info.isFinished -> label.text = info.config.label
+                info.isFinished -> label.setText(R.string.general_error_label)
+                else -> label.setText(R.string.progress_loading_label)
             }
 
             when {
                 info.error != null -> {
-                    statusText.setTextColor(getColor(R.color.colorError))
-                    statusText.text = info.error.tryLocalizedErrorMessage(context)
+                    label.setTextColor(getColor(R.color.colorError))
+                    label.text = info.error.tryLocalizedErrorMessage(context)
                 }
                 info.status != null -> {
-                    statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
+                    repoStatus.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
                     @SuppressLint("SetTextI18n")
-                    statusText.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${
+                    repoStatus.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${
                         Formatter.formatFileSize(
                             context,
                             info.status.totalSize
                         )
                     }"
-                    if (info.status.isReadOnly) statusText.append("; " + getString(R.string.general_read_only_label))
+                    if (info.status.isReadOnly) repoStatus.append("; " + getString(R.string.general_read_only_label))
                 }
                 else -> {
-                    statusText.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
-                    statusText.text = null
+                    repoStatus.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
+                    repoStatus.text = null
                 }
             }
 

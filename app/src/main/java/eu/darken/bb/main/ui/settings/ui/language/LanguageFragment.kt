@@ -7,9 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
@@ -28,12 +29,12 @@ class LanguageFragment : SmartFragment(R.layout.settings_ui_language_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         languageList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int ->
-            vdc.selectLanguage(adapter.data[i], resources)
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int ->
+            vdc.selectLanguage(adapter.data[i].language, resources)
         }
         )
         vdc.state.observe2(this) { state ->
-            adapter.update(state.languages, state.current)
+            adapter.update(state.languages)
         }
         vdc.finishEvent.observe2(this) {
             requireActivity().onBackPressedDispatcher.onBackPressed()

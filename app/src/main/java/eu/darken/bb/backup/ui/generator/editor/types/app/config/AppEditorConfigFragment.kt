@@ -2,26 +2,20 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.config
 
 import android.os.Bundle
 import android.view.*
-import android.widget.EditText
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import butterknife.BindView
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
-import eu.darken.bb.common.getCountString
-import eu.darken.bb.common.observe2
+import eu.darken.bb.common.*
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.PreferenceView
-import eu.darken.bb.common.ui.SwitchPreferenceView
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.databinding.GeneratorEditorAppConfigFragmentBinding
 
 @AndroidEntryPoint
 class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_config_fragment) {
@@ -29,24 +23,7 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     val navArgs by navArgs<AppEditorConfigFragmentArgs>()
 
     private val vdc: AppEditorConfigFragmentVDC by viewModels()
-
-    @BindView(R.id.name_input) lateinit var labelInput: EditText
-    @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
-    @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
-
-    @BindView(R.id.options_container) lateinit var optionsContainer: ViewGroup
-    @BindView(R.id.options_progress) lateinit var optionsProgress: View
-
-    @BindView(R.id.core_settings_autoinclude) lateinit var optionAutoInclude: SwitchPreferenceView
-    @BindView(R.id.core_settings_includeuser) lateinit var optionIncludeUser: SwitchPreferenceView
-    @BindView(R.id.core_settings_includesystem) lateinit var optionIncludeSystem: SwitchPreferenceView
-    @BindView(R.id.core_settings_included_packages) lateinit var optionIncludedApps: PreferenceView
-    @BindView(R.id.core_settings_excluded_packages) lateinit var optionExcludedAPps: PreferenceView
-
-    @BindView(R.id.options_backupapk) lateinit var optionBackupApk: SwitchPreferenceView
-    @BindView(R.id.options_backupdata) lateinit var optionBackupData: SwitchPreferenceView
-    @BindView(R.id.options_backupcache) lateinit var optionBackupCache: SwitchPreferenceView
-
+    private val ui: GeneratorEditorAppConfigFragmentBinding by viewBinding()
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
 
@@ -56,42 +33,44 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(this) { state ->
-            labelInput.setTextIfDifferentAndNotFocused(state.label)
+            ui.nameInput.setTextIfDifferentAndNotFocused(state.label)
 
-            optionAutoInclude.isChecked = state.autoInclude
-            optionIncludeUser.isChecked = state.includeUserApps
-            optionIncludeSystem.isChecked = state.includeSystemApps
+            ui.coreSettingsAutoinclude.isChecked = state.autoInclude
+            ui.coreSettingsIncludeuser.isChecked = state.includeUserApps
+            ui.coreSettingsIncludesystem.isChecked = state.includeSystemApps
 
-            optionIncludedApps.description = resources.getCountString(R.plurals.x_items, state.packagesIncluded.size)
-            optionExcludedAPps.description = resources.getCountString(R.plurals.x_items, state.packagesExcluded.size)
+            ui.coreSettingsIncludedPackages.description =
+                resources.getCountString(R.plurals.x_items, state.packagesIncluded.size)
+            ui.coreSettingsExcludedPackages.description =
+                resources.getCountString(R.plurals.x_items, state.packagesExcluded.size)
 
-            optionBackupApk.isChecked = state.backupApk
-            optionBackupData.isChecked = state.backupData
-            optionBackupCache.isChecked = state.backupCache
+            ui.optionsBackupapk.isChecked = state.backupApk
+            ui.optionsBackupdata.isChecked = state.backupData
+            ui.optionsBackupcache.isChecked = state.backupCache
 
-            coreSettingsContainer.setInvisible(state.isWorking)
-            coreSettingsProgress.setGone(!state.isWorking)
-            optionsContainer.setInvisible(state.isWorking)
-            optionsProgress.setGone(!state.isWorking)
+            ui.coreSettingsContainer.setInvisible(state.isWorking)
+            ui.coreSettingsProgress.setGone(!state.isWorking)
+            ui.optionsContainer.setInvisible(state.isWorking)
+            ui.optionsProgress.setGone(!state.isWorking)
 
             allowCreate = state.isValid
             existing = state.isExisting
             invalidateOptionsMenu()
         }
 
-        optionAutoInclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
-        optionIncludeUser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
-        optionIncludeSystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
+        ui.coreSettingsAutoinclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
+        ui.coreSettingsIncludeuser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
+        ui.coreSettingsIncludesystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
 
-        optionIncludedApps.clicksDebounced().subscribe { navigatePreview(PreviewMode.INCLUDE) }
-        optionExcludedAPps.clicksDebounced().subscribe { navigatePreview(PreviewMode.EXCLUDE) }
+        ui.coreSettingsIncludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.INCLUDE) }
+        ui.coreSettingsExcludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.EXCLUDE) }
 
-        optionBackupApk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
-        optionBackupData.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
-        optionBackupCache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
+        ui.optionsBackupapk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
+        ui.optionsBackupdata.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
+        ui.optionsBackupcache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
 
-        labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-        labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
+        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
+        ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
 
         vdc.finishEvent.observe2(this) { requireActivity().finish() }
 

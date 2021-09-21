@@ -2,9 +2,9 @@ package eu.darken.bb.storage.ui.list.actions
 
 import android.view.ViewGroup
 import eu.darken.bb.common.lists.DataAdapter
-import eu.darken.bb.common.lists.DataBinderModule
-import eu.darken.bb.common.lists.ModularAdapter
-import eu.darken.bb.common.lists.SimpleVHCreator
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.ui.ConfirmableActionAdapterVH
 import javax.inject.Inject
@@ -19,8 +19,8 @@ class ActionsAdapter @Inject constructor() :
     override fun getItemCount(): Int = data.size
 
     init {
-        modules.add(DataBinderModule<Confirmable<StorageAction>, VH>(data))
-        modules.add(SimpleVHCreator { VH(it) })
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     class VH(parent: ViewGroup) : ConfirmableActionAdapterVH<StorageAction>(parent) {

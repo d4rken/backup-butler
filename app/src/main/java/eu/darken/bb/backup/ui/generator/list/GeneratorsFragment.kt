@@ -9,8 +9,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
@@ -30,7 +30,7 @@ class GeneratorsFragment : SmartFragment(R.layout.generator_list_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         generatorList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editGenerator(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editGenerator(adapter.data[i]) })
 
         vdc.viewState.observe2(this) {
             adapter.update(it.generators)

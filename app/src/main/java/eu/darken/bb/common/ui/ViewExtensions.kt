@@ -4,6 +4,7 @@ import android.content.res.TypedArray
 import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.annotation.StyleableRes
 import eu.darken.bb.R
 
@@ -34,3 +35,5 @@ fun TypedArray.getDrawableRes(@StyleableRes styleRes: Int): Int? {
 
     return getResourceId(styleRes, 0)
 }
+
+fun View.getString(@StringRes stringRes: Int) = resources.getString(stringRes)

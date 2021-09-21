@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -33,7 +33,7 @@ class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselectio
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 
         vdc.state.observe2(this) {
             adapter.update(it.supportedTypes)

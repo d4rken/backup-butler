@@ -4,24 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StorageViewerContentlistActionDialogBinding
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
 import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentArgs
 import eu.darken.bb.task.core.TaskRepo
@@ -38,14 +36,7 @@ class ItemActionDialog : BottomSheetDialogFragment() {
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
-    @BindView(R.id.type_label) lateinit var typeLabel: TextView
-    @BindView(R.id.storage_label) lateinit var storageLabel: TextView
-
-    @BindView(R.id.info_container) lateinit var infoContainer: ViewGroup
-    @BindView(R.id.info_container_loading) lateinit var infoContainerLoading: View
-
-    @BindView(R.id.actionlist) lateinit var actionList: RecyclerView
-    @BindView(R.id.actionlist_loading) lateinit var actionListLoading: LoadingOverlayView
+    private val ui: StorageViewerContentlistActionDialogBinding by viewBinding()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.storage_viewer_contentlist_action_dialog, container, false)
@@ -54,29 +45,29 @@ class ItemActionDialog : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        actionList.setupDefaults(actionsAdapter)
+        ui.actionlist.setupDefaults(actionsAdapter)
 
-        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, pos: Int ->
+        actionsAdapter.modules.add(ClickMod { _: ModularAdapter.VH, pos: Int ->
             actionsAdapter.data[pos].guardedAction { vdc.storageAction(it) }
             actionsAdapter.notifyItemChanged(pos)
         })
 
         vdc.state.observe2(this) { state ->
             if (state.info != null) {
-                typeLabel.text = getString(state.info.backupSpec.backupType.labelRes)
-                storageLabel.text = state.info.backupSpec.getLabel(requireContext())
+                ui.typeLabel.text = getString(state.info.backupSpec.backupType.labelRes)
+                ui.storageLabel.text = state.info.backupSpec.getLabel(requireContext())
             } else {
-                typeLabel.setText(R.string.general_unknown_label)
-                storageLabel.setText(R.string.progress_loading_label)
+                ui.typeLabel.setText(R.string.general_unknown_label)
+                ui.storageLabel.setText(R.string.progress_loading_label)
             }
-            infoContainerLoading.setInvisible(state.info != null)
+            ui.infoContainerLoading.setInvisible(state.info != null)
 
             actionsAdapter.update(state.allowedActions)
 
-            actionList.setInvisible(state.isWorking)
-            actionListLoading.setInvisible(!state.isWorking)
+            ui.actionlist.setInvisible(state.isWorking)
+            ui.actionlistLoading.setInvisible(!state.isWorking)
             if (state.currentOp != null) {
-                actionListLoading.setPrimaryText(state.currentOp.label.get(requireContext()))
+                ui.actionlistLoading.setPrimaryText(state.currentOp.label.get(requireContext()))
             }
         }
 

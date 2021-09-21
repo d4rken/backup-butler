@@ -1,13 +1,15 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
 import android.view.ViewGroup
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.lists.*
+import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.DataAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
 import eu.darken.bb.common.ui.setGone
+import eu.darken.bb.databinding.StorageViewerItemContentEntryAdapterLineBinding
 import javax.inject.Inject
 
 
@@ -17,28 +19,27 @@ class ContentEntryAdapter @Inject constructor() : ModularAdapter<ContentEntryAda
     override val data = mutableListOf<Backup.ContentInfo.Entry>()
 
     init {
-        modules.add(DataBinderModule<Backup.ContentInfo.Entry, VH>(data))
-        modules.add(SimpleVHCreator { VH(it) })
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_viewer_item_content_entry_adapter_line, parent),
-        BindableVH<Backup.ContentInfo.Entry> {
-        //        @BindView(R.id.icon) lateinit var icon: ImageView
-        @BindView(R.id.caption) lateinit var captionView: TextView
-        @BindView(R.id.description) lateinit var descriptionView: TextView
+        BindableVH<Backup.ContentInfo.Entry, StorageViewerItemContentEntryAdapterLineBinding> {
 
-        init {
-            ButterKnife.bind(this, itemView)
+        override val viewBinding: Lazy<StorageViewerItemContentEntryAdapterLineBinding> = lazy {
+            StorageViewerItemContentEntryAdapterLineBinding.bind(itemView)
         }
 
-        override fun bind(item: Backup.ContentInfo.Entry) {
-            val (caption, description) = item.labeling
-            captionView.text = caption.get(context)
-            captionView.setGone(caption.isEmpty(context))
-            descriptionView.text = description.get(context)
+        override val onBindData: StorageViewerItemContentEntryAdapterLineBinding.(
+            item: Backup.ContentInfo.Entry,
+            payloads: List<Any>
+        ) -> Unit = { item, _ ->
+            val (cap, desc) = item.labeling
+            caption.text = cap.get(context)
+            caption.setGone(cap.isEmpty(context))
+            description.text = desc.get(context)
         }
-
     }
 }

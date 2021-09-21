@@ -1,22 +1,29 @@
 package eu.darken.bb.main.ui.simple.start
 
+import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.viewModels
-import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StartFragmentBinding
 
 @AndroidEntryPoint
 class StartFragment : SmartFragment(R.layout.start_fragment) {
-    @BindView(R.id.card_appinfos_version) lateinit var appVersion: TextView
-    @BindView(R.id.card_appinfos_upgrades) lateinit var upgradeInfos: TextView
-
-    @BindView(R.id.card_update) lateinit var updateCard: View
-    @BindView(R.id.card_update_action_changelog) lateinit var changelogAction: Button
-    @BindView(R.id.card_update_action_update) lateinit var updateAction: Button
 
     private val vdc: StartFragmentVDC by viewModels()
+    private val binding: StartFragmentBinding by viewBinding()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.apply {
+//            appVersion
+//            upgradeInfos
+//
+//            updateCard
+//            changelogAction
+//            updateAction
+        }
+        super.onViewCreated(view, savedInstanceState)
+    }
 }

@@ -10,8 +10,8 @@ import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -31,7 +31,7 @@ class TypesPickerFragment : SmartFragment(R.layout.pathpicker_types_fragment) {
     @Inject lateinit var adapter: TypeSelectionAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.selectType(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectType(adapter.data[i]) })
         typeList.setupDefaults(adapter)
 
         vdc.state.observe2(this) {

@@ -1,11 +1,12 @@
-package eu.darken.bb.common.lists
+package eu.darken.bb.common.lists.modular.mods
 
 import android.view.ViewGroup
+import eu.darken.bb.common.lists.modular.ModularAdapter
 
-class SimpleVHCreator<HolderT> constructor(
+class SimpleVHCreatorMod<HolderT> constructor(
     private val viewType: Int = 0,
     private val factory: (ViewGroup) -> HolderT
-) : ModularAdapter.CreatorModule<HolderT> where HolderT : ModularAdapter.VH {
+) : ModularAdapter.Module.Creator<HolderT> where HolderT : ModularAdapter.VH {
 
     override fun onCreateModularVH(adapter: ModularAdapter<HolderT>, parent: ViewGroup, viewType: Int): HolderT? {
         if (this.viewType != viewType) return null

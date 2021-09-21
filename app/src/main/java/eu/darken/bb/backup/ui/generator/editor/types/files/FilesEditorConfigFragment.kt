@@ -2,24 +2,20 @@ package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.*
 import eu.darken.bb.common.files.ui.picker.APathPicker
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.toastError
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.databinding.GeneratorEditorFileFragmentBinding
 
 @AndroidEntryPoint
 class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment) {
@@ -27,13 +23,7 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
     private val vdc: FilesEditorConfigFragmentVDC by viewModels()
-
-    @BindView(R.id.name_input) lateinit var labelInput: EditText
-    @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
-    @BindView(R.id.core_settings_loadingoverlay) lateinit var coreSettingsLoadingOverlay: LoadingOverlayView
-
-    @BindView(R.id.path_display) lateinit var pathDisplay: TextView
-    @BindView(R.id.path_select_button) lateinit var pathButton: Button
+    private val ui: GeneratorEditorFileFragmentBinding by viewBinding()
 
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
@@ -44,21 +34,21 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(this) { state ->
-            labelInput.setTextIfDifferentAndNotFocused(state.label)
-            pathDisplay.text = state.path?.userReadablePath(requireContext())
+            ui.nameInput.setTextIfDifferentAndNotFocused(state.label)
+            ui.pathDisplay.text = state.path?.userReadablePath(requireContext())
 
-            pathButton.setText(if (state.path == null) R.string.general_select_action else R.string.general_change_action)
+            ui.pathSelectAction.setText(if (state.path == null) R.string.general_select_action else R.string.general_change_action)
 
-            coreSettingsContainer.setInvisible(state.isWorking)
-            coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
+            ui.coreSettingsContainer.setInvisible(state.isWorking)
+            ui.coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
 
             allowCreate = state.isValid
             existing = state.isExisting
             invalidateOptionsMenu()
         }
 
-        labelInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-        pathButton.clicksDebounced().subscribe { vdc.showPicker() }
+        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
+        ui.pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
 
         vdc.pickerEvent.observe2(this) {
             val intent = APathPicker.createIntent(requireContext(), it)

@@ -10,8 +10,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
@@ -36,7 +36,7 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         storageList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
         vdc.storageData.observe2(this) { state ->
             adapter.update(state.storages)

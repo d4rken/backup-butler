@@ -4,24 +4,18 @@ import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.fragment.app.viewModels
-import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.*
 import eu.darken.bb.common.files.ui.picker.APathPicker
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
-import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
@@ -29,18 +23,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment) {
     private val vdc: LocalEditorFragmentVDC by viewModels()
+    private val ui: StorageEditorLocalFragmentBinding by viewBinding()
     @Inject lateinit var adapter: StorageAdapter
-
-    @BindView(R.id.name_input) lateinit var labelInput: EditText
-
-    @BindView(R.id.path_display) lateinit var pathDisplay: TextView
-    @BindView(R.id.path_button) lateinit var pathSelect: TextView
-
-    @BindView(R.id.core_settings_container) lateinit var coreSettingsContainer: ViewGroup
-    @BindView(R.id.core_settings_progress) lateinit var coreSettingsProgress: View
-
-    @BindView(R.id.permission_card) lateinit var permissionCard: View
-    @BindView(R.id.permission_grant_button) lateinit var permissionGrant: Button
 
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
@@ -51,29 +35,29 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(this) { state ->
-            labelInput.setTextIfDifferent(state.label)
+            ui.nameInput.setTextIfDifferent(state.label)
 
-            pathDisplay.text = state.path
-            pathSelect.isEnabled = !state.isExisting
+            ui.pathDisplay.text = state.path
+            ui.pathButton.isEnabled = !state.isExisting
 
-            coreSettingsContainer.setInvisible(state.isWorking)
-            coreSettingsProgress.setInvisible(!state.isWorking)
-            permissionCard.setGone(state.isPermissionGranted)
+            ui.coreSettingsContainer.setInvisible(state.isWorking)
+            ui.coreSettingsProgress.setInvisible(!state.isWorking)
+            ui.permissionCard.setGone(state.isPermissionGranted)
 
             allowCreate = state.isValid
             existing = state.isExisting
             requireActivity().invalidateOptionsMenu()
         }
 
-        pathSelect.clicksDebounced().subscribe { vdc.selectPath() }
+        ui.pathButton.clicksDebounced().subscribe { vdc.selectPath() }
 
         vdc.pickerEvent.observe2(this) {
             val intent = APathPicker.createIntent(requireContext(), it)
             startActivityForResult(intent, 47)
         }
 
-        labelInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
-        labelInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { labelInput.clearFocus() }
+        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
+        ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
 
         vdc.errorEvent.observe2(this) { error ->
             val snackbar = Snackbar.make(
@@ -89,7 +73,7 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
             snackbar.show()
         }
 
-        permissionGrant.clicksDebounced().subscribe { vdc.onGrantPermission() }
+        ui.permissionGrantButton.clicksDebounced().subscribe { vdc.onGrantPermission() }
 
         vdc.requestPermissionEvent.observe2(this) {
             requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)

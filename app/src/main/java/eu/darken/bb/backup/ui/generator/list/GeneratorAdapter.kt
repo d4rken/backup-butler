@@ -1,13 +1,14 @@
 package eu.darken.bb.backup.ui.generator.list
 
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
-import eu.darken.bb.common.lists.*
+import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.DataAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
+import eu.darken.bb.databinding.GeneratorListAdapterLineBinding
 import javax.inject.Inject
 
 
@@ -16,24 +17,20 @@ class GeneratorAdapter @Inject constructor() : ModularAdapter<GeneratorAdapter.V
     override val data = mutableListOf<GeneratorConfigOpt>()
 
     init {
-        modules.add(DataBinderModule<GeneratorConfigOpt, VH>(data))
-        modules.add(SimpleVHCreator { VH(it) })
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.generator_list_adapter_line, parent),
-        BindableVH<GeneratorConfigOpt> {
-        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
-        @BindView(R.id.type_label) lateinit var typeLabel: TextView
-        @BindView(R.id.label) lateinit var label: TextView
-        @BindView(R.id.description) lateinit var description: TextView
+        BindableVH<GeneratorConfigOpt, GeneratorListAdapterLineBinding> {
 
-        init {
-            ButterKnife.bind(this, itemView)
-        }
-
-        override fun bind(item: GeneratorConfigOpt) {
+        override val viewBinding = lazy { GeneratorListAdapterLineBinding.bind(itemView) }
+        override val onBindData: GeneratorListAdapterLineBinding.(
+            item: GeneratorConfigOpt,
+            payloads: List<Any>
+        ) -> Unit = { item, _ ->
             if (item.config != null) {
                 val config = item.config
 
@@ -52,6 +49,5 @@ class GeneratorAdapter @Inject constructor() : ModularAdapter<GeneratorAdapter.V
                 typeIcon.setImageResource(R.drawable.ic_error_outline)
             }
         }
-
     }
 }

@@ -2,13 +2,14 @@ package eu.darken.bb.storage.ui.viewer.item
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.lists.*
+import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.DataAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.DataBinderMod
+import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
+import eu.darken.bb.databinding.StorageViewerContentlistAdapterLineBinding
 import java.text.DateFormat
 import javax.inject.Inject
 
@@ -17,31 +18,29 @@ class StorageItemAdapter @Inject constructor() : ModularAdapter<StorageItemAdapt
     override val data = mutableListOf<BackupSpec.Info>()
 
     init {
-        modules.add(DataBinderModule<BackupSpec.Info, VH>(data))
-        modules.add(SimpleVHCreator { VH(it) })
+        modules.add(DataBinderMod(data))
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.storage_viewer_contentlist_adapter_line, parent),
-        BindableVH<BackupSpec.Info> {
-
-        @BindView(R.id.type_label) lateinit var typeLabel: TextView
-        @BindView(R.id.type_icon) lateinit var typeIcon: ImageView
-        @BindView(R.id.label) lateinit var labelText: TextView
-        @BindView(R.id.repo_status) lateinit var statusText: TextView
+        BindableVH<BackupSpec.Info, StorageViewerContentlistAdapterLineBinding> {
 
         private val formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
-        init {
-            ButterKnife.bind(this, itemView)
+        override val viewBinding: Lazy<StorageViewerContentlistAdapterLineBinding> = lazy {
+            StorageViewerContentlistAdapterLineBinding.bind(itemView)
         }
 
-        override fun bind(item: BackupSpec.Info) {
+        override val onBindData: StorageViewerContentlistAdapterLineBinding.(
+            item: BackupSpec.Info,
+            payloads: List<Any>
+        ) -> Unit = { item, _ ->
             typeLabel.setText(item.backupSpec.backupType.labelRes)
             typeIcon.setImageResource(item.backupSpec.backupType.iconRes)
 
-            labelText.text = item.backupSpec.getLabel(context)
+            label.text = item.backupSpec.getLabel(context)
 
             val versionCount = getQuantityString(R.plurals.x_versions, item.backups.size)
             val lastBackupText = getString(
@@ -49,7 +48,7 @@ class StorageItemAdapter @Inject constructor() : ModularAdapter<StorageItemAdapt
                 formatter.format(item.backups.maxByOrNull { it.createdAt }!!.createdAt)
             )
             @SuppressLint("SetTextI18n")
-            statusText.text = "$versionCount; $lastBackupText"
+            repoStatus.text = "$versionCount; $lastBackupText"
         }
     }
 

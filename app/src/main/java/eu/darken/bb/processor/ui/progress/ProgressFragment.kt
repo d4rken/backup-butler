@@ -2,52 +2,36 @@ package eu.darken.bb.processor.ui.progress
 
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import butterknife.BindView
-import com.airbnb.lottie.LottieAnimationView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.tryTextElseHide
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.ProcessorProgressFragmentBinding
 
 @AndroidEntryPoint
 class ProgressFragment : SmartFragment(R.layout.processor_progress_fragment) {
 
     private val vdc: ProgressFragmentVDC by viewModels()
-
-    @BindView(R.id.process_progress_animation) lateinit var processProgressAnimation: LottieAnimationView
-    @BindView(R.id.task_label) lateinit var taskName: TextView
-    @BindView(R.id.generator_label) lateinit var generatorLabel: TextView
-    @BindView(R.id.backupspec_label) lateinit var backupSpecLabel: TextView
-    @BindView(R.id.process_progress_counter) lateinit var processProgressCounter: TextView
-
-    @BindView(R.id.child_progress_container) lateinit var progressContainer: ViewGroup
-    @BindView(R.id.progress_icon) lateinit var progressIcon: ImageView
-    @BindView(R.id.progress_primary) lateinit var progressPrimary: TextView
-    @BindView(R.id.progress_secondary) lateinit var progressSecondary: TextView
-    @BindView(R.id.progress_bar) lateinit var progressBar: ProgressBar
-    @BindView(R.id.progress_counter) lateinit var progressCounter: TextView
+    private val ui: ProcessorProgressFragmentBinding by viewBinding()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.state.observe(this, Observer { state ->
-            taskName.text = when {
+        vdc.state.observe2(this, ui) { state ->
+            taskLabel.text = when {
                 state.taskProgress.primary.get(requireContext()).isNotEmpty() -> state.taskProgress.primary.get(
                     requireContext()
                 )
                 else -> getString(R.string.progress_loading_label)
             }
             generatorLabel.tryTextElseHide(state.taskProgress.secondary.get(requireContext()))
-            backupSpecLabel.tryTextElseHide(state.taskProgress.tertiary.get(requireContext()), View.GONE)
+            backupspecLabel.tryTextElseHide(state.taskProgress.tertiary.get(requireContext()), View.GONE)
             processProgressCounter.tryTextElseHide(state.taskProgress.count.displayValue(requireContext()))
 
-            progressContainer.setGone(state.actionProgress == null)
+            childProgressContainer.setGone(state.actionProgress == null)
             progressIcon.setGone(state.actionProgress == null)
             progressPrimary.setGone(state.actionProgress == null)
             progressSecondary.setGone(state.actionProgress == null)
@@ -73,10 +57,10 @@ class ProgressFragment : SmartFragment(R.layout.processor_progress_fragment) {
                     }
                 }
             }
-        })
-        vdc.finishEvent.observe(this, Observer {
+        }
+        vdc.finishEvent.observe2(this) {
             activity?.finish()
-        })
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 }

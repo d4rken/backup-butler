@@ -33,7 +33,7 @@
                     android:paddingTop="16dp">
 
                     <eu.darken.bb.common.ui.LoadingOverlayView
-                        android:id="@+id/core_settings_loadingoverlay"
+                        android:id="@+id/core_settings_loading_overlay"
                         style="@style/LoadingOverlayViewStyle"
                         android:visibility="invisible"
                         tools:visibility="visible" />
@@ -80,7 +80,7 @@
                             tools:text="/storage/emulated/0/DCIM" />
 
                         <Button
-                            android:id="@+id/path_select_button"
+                            android:id="@+id/path_select_action"
                             style="@style/Widget.MaterialComponents.Button"
                             android:layout_width="wrap_content"
                             android:layout_gravity="end"

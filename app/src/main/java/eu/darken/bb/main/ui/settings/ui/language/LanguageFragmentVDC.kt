@@ -25,10 +25,8 @@ class LanguageFragmentVDC @Inject constructor(
                 .filter { it.isTranslated }
         }
         .map { languages ->
-            State(
-                current = languageEnforcer.lookup(languageEnforcer.currentLocale),
-                languages = languages
-            )
+            val current = languageEnforcer.lookup(languageEnforcer.currentLocale)
+            State(languages = languages.map { LanguageItem(it, it == current) })
         }
         .toLiveData()
     val finishEvent = SingleLiveEvent<Any>()
@@ -39,7 +37,6 @@ class LanguageFragmentVDC @Inject constructor(
     }
 
     data class State(
-        val languages: List<LanguageEnforcer.Language>,
-        val current: LanguageEnforcer.Language
+        val languages: List<LanguageItem>,
     )
 }

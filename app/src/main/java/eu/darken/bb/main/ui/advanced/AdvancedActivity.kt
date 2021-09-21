@@ -38,6 +38,7 @@ class AdvancedActivity : AppCompatActivity() {
         setContentView(R.layout.main_advanced_activity)
         ButterKnife.bind(this)
 
+
         var pages = pagerPages
         if (uiSettings.showDebugPage) {
             pages = pages.plus(PagerAdapter.Page(DebugFragment::class, R.string.debug_label))
@@ -47,9 +48,9 @@ class AdvancedActivity : AppCompatActivity() {
         viewPager.adapter = pagerAdapter
 
         tabLayout.tabMode = TabLayout.MODE_SCROLLABLE
-        TabLayoutMediator(tabLayout, viewPager, TabLayoutMediator.TabConfigurationStrategy { tab, position ->
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.setText(pagerAdapter.pages[position].titleRes)
-        }).attach()
+        }.attach()
 
         vdc.onGo()
     }

@@ -12,8 +12,8 @@ import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -43,7 +43,7 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
             requireActivityActionBar().title = state.storageLabel

@@ -1,6 +1,7 @@
 package eu.darken.bb.common.lists
 
 import android.content.Context
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.*
@@ -19,15 +20,28 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
 
     @CallSuper
     final override fun onBindViewHolder(holder: T, position: Int) {
-        onBindBaseVH(holder, position)
+        onBindBaseVH(holder, position, mutableListOf())
     }
 
-    abstract fun onBindBaseVH(holder: T, position: Int)
+    @CallSuper
+    final override fun onBindViewHolder(holder: T, position: Int, payloads: MutableList<Any>) {
+        onBindBaseVH(holder, position, payloads)
+    }
 
-    abstract class VH(@LayoutRes layoutRes: Int, parent: ViewGroup) :
-        RecyclerView.ViewHolder(LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)) {
+    abstract fun onBindBaseVH(holder: T, position: Int, payloads: MutableList<Any> = mutableListOf())
 
-        val context: Context = parent.context
+    abstract class VH(@LayoutRes layoutRes: Int, private val parent: ViewGroup) : RecyclerView.ViewHolder(
+        LayoutInflater.from(parent.context).inflate(layoutRes, parent, false)
+    ) {
+
+        val context: Context
+            get() = parent.context
+
+        val resources: Resources
+            get() = context.resources
+
+        val layoutInflater: LayoutInflater
+            get() = LayoutInflater.from(context)
 
         fun getColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(context, colorRes)
 
@@ -40,6 +54,5 @@ abstract class BaseAdapter<T : BaseAdapter.VH> : RecyclerView.Adapter<T>() {
 
         fun getQuantityString(@PluralsRes pluralRes: Int, quantity: Int): String =
             context.resources.getQuantityString(pluralRes, quantity, quantity)
-
     }
 }

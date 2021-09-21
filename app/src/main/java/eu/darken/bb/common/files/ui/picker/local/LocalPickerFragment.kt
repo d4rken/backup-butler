@@ -20,8 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -63,7 +63,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
 
         filesList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.selectItem(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectItem(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
             breadCrumbBar.setCrumbs(state.currentCrumbs)

@@ -4,20 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.TaskListFragmentBinding
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
@@ -25,22 +24,19 @@ import javax.inject.Inject
 class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
 
     private val vdc: TaskListFragmentVDC by viewModels()
-
+    private val ui: TaskListFragmentBinding by viewBinding()
     @Inject lateinit var adapter: TaskListAdapter
-    @BindView(R.id.tasks_list) lateinit var tasksList: RecyclerView
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        tasksList.setupDefaults(adapter)
+        ui.tasksList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
-
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.tasks)
         }
 
-        fab.clicks().subscribe { vdc.newTask() }
+        ui.fab.clicks().subscribe { vdc.newTask() }
 
         vdc.editTaskEvent.observe2(this) {
             doNavigate(TaskListFragmentDirections.actionTaskListFragmentToTaskActionDialog(it.taskId))
@@ -50,7 +46,7 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
         vdc.processorEvent.observe2(this) { isActive ->
             if (isVisible && isActive && snackbar == null) {
                 snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                    .setAnchorView(fab)
+                    .setAnchorView(ui.fab)
                     .setAction(R.string.general_show_action) {
                         startActivity(Intent(requireContext(), ProcessorActivity::class.java))
                     }

@@ -14,8 +14,8 @@ import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -45,7 +45,7 @@ class TaskActionDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView.setupDefaults(actionsAdapter)
 
-        actionsAdapter.modules.add(ClickModule { _: ModularAdapter.VH, pos: Int ->
+        actionsAdapter.modules.add(ClickMod { _: ModularAdapter.VH, pos: Int ->
             actionsAdapter.data[pos].guardedAction { vdc.taskAction(it) }
             actionsAdapter.notifyItemChanged(pos)
         })

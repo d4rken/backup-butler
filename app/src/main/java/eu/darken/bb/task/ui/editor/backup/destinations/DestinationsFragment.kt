@@ -10,8 +10,8 @@ import butterknife.BindView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -38,7 +38,7 @@ class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         destinationsList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
 
         setupBar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.executeTask() }
         setupBar.buttonPositiveSecondary.clicksDebounced().subscribe { vdc.saveTask() }

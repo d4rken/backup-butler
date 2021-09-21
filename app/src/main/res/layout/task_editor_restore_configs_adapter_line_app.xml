@@ -1,102 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<eu.darken.bb.task.ui.editor.restore.config.RestoreConfigContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    style="@style/MyCardView"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:id="@+id/container"
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/options_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:id="@+id/header_container"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/card_title"
-                style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/task_editor_restore_app_config_options_label"
-                app:layout_constraintBottom_toTopOf="@+id/card_subtitle"
-                app:layout_constraintEnd_toStartOf="@+id/header_toggle"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/card_subtitle"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/header_toggle"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/card_title"
-                tools:text="Default" />
-
-            <ImageView
-                android:id="@+id/header_toggle"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/ic_expand_more"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="Expand options container"
-                tools:ignore="HardcodedText" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <LinearLayout
-            android:id="@+id/options_container"
+        <eu.darken.bb.common.ui.SwitchPreferenceView
+            android:id="@+id/option_skip_existing_apps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            app:pvDescription="@string/task_editor_restore_app_config_skip_existing_apps_desc"
+            app:pvIcon="@drawable/ic_check_circle"
+            app:pvTitle="@string/task_editor_restore_app_config_skip_existing_apps_label" />
 
-            <eu.darken.bb.common.ui.SwitchPreferenceView
-                android:id="@+id/option_skip_existing_apps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:pvDescription="@string/task_editor_restore_app_config_skip_existing_apps_desc"
-                app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/task_editor_restore_app_config_skip_existing_apps_label" />
+        <eu.darken.bb.common.ui.SwitchPreferenceView
+            android:id="@+id/option_restore_apk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:pvDescription="@string/task_editor_restore_app_config_restore_apk_desc"
+            app:pvIcon="@drawable/ic_check_circle"
+            app:pvTitle="@string/task_editor_restore_app_config_restore_apk_label" />
 
-            <eu.darken.bb.common.ui.SwitchPreferenceView
-                android:id="@+id/option_restore_apk"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:pvDescription="@string/task_editor_restore_app_config_restore_apk_desc"
-                app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/task_editor_restore_app_config_restore_apk_label" />
+        <eu.darken.bb.common.ui.SwitchPreferenceView
+            android:id="@+id/option_restore_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:pvDescription="@string/task_editor_restore_app_config_restore_data_desc"
+            app:pvIcon="@drawable/ic_check_circle"
+            app:pvTitle="@string/task_editor_restore_app_config_restore_data_label" />
 
-            <eu.darken.bb.common.ui.SwitchPreferenceView
-                android:id="@+id/option_restore_data"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:pvDescription="@string/task_editor_restore_app_config_restore_data_desc"
-                app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/task_editor_restore_app_config_restore_data_label" />
-
-            <eu.darken.bb.common.ui.SwitchPreferenceView
-                android:id="@+id/option_restore_cache"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:pvDescription="@string/task_editor_restore_app_config_restore_cache_desc"
-                app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/task_editor_restore_app_config_restore_cache_label" />
-        </LinearLayout>
+        <eu.darken.bb.common.ui.SwitchPreferenceView
+            android:id="@+id/option_restore_cache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:pvDescription="@string/task_editor_restore_app_config_restore_cache_desc"
+            app:pvIcon="@drawable/ic_check_circle"
+            app:pvTitle="@string/task_editor_restore_app_config_restore_cache_label" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</eu.darken.bb.task.ui.editor.restore.config.RestoreConfigContainerView>

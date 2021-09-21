@@ -1,144 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<eu.darken.bb.task.ui.editor.restore.config.RestoreConfigContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/MyCardView"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:id="@+id/container"
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:id="@+id/options_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/card_title">
+
+        <eu.darken.bb.common.ui.SwitchPreferenceView
+            android:id="@+id/option_replace_existing_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:pvDescription="@string/task_editor_restore_files_config_replace_existing_files_desc"
+            app:pvIcon="@drawable/ic_check_circle"
+            app:pvTitle="@string/task_editor_restore_files_config_replace_existing_files_label" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/header_container"
+            android:id="@+id/option_path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/card_title"
+                android:id="@+id/option_path_label"
                 style="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/task_editor_restore_config_file_options_label"
-                app:layout_constraintBottom_toTopOf="@+id/card_subtitle"
-                app:layout_constraintEnd_toStartOf="@+id/header_toggle"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/task_editor_restore_file_config_restoration_path"
+                app:layout_constraintBottom_toTopOf="@+id/option_path_display"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/card_subtitle"
+                android:id="@+id/option_path_display"
                 style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/header_toggle"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/card_title"
-                tools:text="Default" />
-
-            <ImageView
-                android:id="@+id/header_toggle"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="Expand options container"
-                android:src="@drawable/ic_expand_more"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="HardcodedText" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/option_path_label"
+                tools:text="/storage/emulated/0/BackupButler" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <LinearLayout
-            android:id="@+id/options_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/card_title">
-
-            <eu.darken.bb.common.ui.SwitchPreferenceView
-                android:id="@+id/option_replace_existing_files"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/option_path_info"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:pvDescription="@string/task_editor_restore_files_config_replace_existing_files_desc"
-                app:pvIcon="@drawable/ic_check_circle"
-                app:pvTitle="@string/task_editor_restore_files_config_replace_existing_files_label" />
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/option_path_action"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/option_path_display"
+                app:layout_constraintTop_toBottomOf="@+id/option_path_display"
+                tools:text="Unable to read/write to this path. Please grant access."
+                tools:textColor="@color/colorError" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/option_path"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/option_path_action"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/general_change_action"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/option_path_display"
+                tools:text="@string/general_grant_action" />
 
-                <TextView
-                    android:id="@+id/option_path_label"
-                    style="@style/TextAppearance.MaterialComponents.Subtitle2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/task_editor_restore_file_config_restoration_path"
-                    app:layout_constraintBottom_toTopOf="@+id/option_path_display"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/option_path_display"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/option_path_label"
-                    tools:text="/storage/emulated/0/BackupButler" />
-
-                <TextView
-                    android:id="@+id/option_path_info"
-                    style="@style/TextAppearance.MaterialComponents.Caption"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/option_path_action"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="@+id/option_path_display"
-                    app:layout_constraintTop_toBottomOf="@+id/option_path_display"
-                    tools:text="Unable to read/write to this path. Please grant access."
-                    tools:textColor="@color/colorError" />
-
-                <Button
-                    android:id="@+id/option_path_action"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/general_change_action"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/option_path_display"
-                    tools:text="@string/general_grant_action" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</eu.darken.bb.task.ui.editor.restore.config.RestoreConfigContainerView>

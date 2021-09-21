@@ -11,8 +11,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorAdapter
-import eu.darken.bb.common.lists.ClickModule
-import eu.darken.bb.common.lists.ModularAdapter
+import eu.darken.bb.common.lists.modular.ModularAdapter
+import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -41,7 +41,7 @@ class SourcesFragment : SmartFragment(R.layout.task_editor_backup_generators_fra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         sourcesList.setupDefaults(adapter)
 
-        adapter.modules.add(ClickModule { _: ModularAdapter.VH, i: Int -> vdc.removeSource(adapter.data[i]) })
+        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.removeSource(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
             adapter.update(state.sources)
