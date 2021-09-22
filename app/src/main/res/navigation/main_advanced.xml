@@ -3,7 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_advanced"
-    app:startDestination="@id/storageActionDialog">
+    app:startDestination="@id/advancedModeFragment">
+
+    <fragment
+        android:id="@+id/advancedModeFragment"
+        android:name="eu.darken.bb.main.ui.advanced.AdvancedModeFragment"
+        android:label="AdvancedModeFragment"
+        tools:layout="@layout/main_advanced_mode_fragment" />
 
     <fragment
         android:id="@+id/storageListFragment"
@@ -45,9 +51,9 @@
 
     <fragment
         android:id="@+id/generatorsFragment"
-        tools:layout="@layout/task_editor_backup_generators_fragment"
         android:name="eu.darken.bb.backup.ui.generator.list.GeneratorsFragment"
-        android:label="GeneratorsFragment">
+        android:label="GeneratorsFragment"
+        tools:layout="@layout/task_editor_backup_generators_fragment">
         <action
             android:id="@+id/action_generatorsFragment_to_generatorsActionDialog"
             app:destination="@id/generatorsActionDialog" />

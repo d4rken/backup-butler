@@ -8,8 +8,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
@@ -21,6 +19,8 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.GeneratorEditorTypeselectionFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,12 +29,11 @@ class GeneratorTypeFragment : SmartFragment(R.layout.generator_editor_typeselect
     val navArgs by navArgs<GeneratorTypeFragmentArgs>()
 
     private val vdc: GeneratorTypeFragmentVDC by viewModels()
+    private val binding: GeneratorEditorTypeselectionFragmentBinding by viewBinding()
     @Inject lateinit var adapter: GeneratorTypeAdapter
 
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.setupDefaults(adapter)
+        binding.recyclerview.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 

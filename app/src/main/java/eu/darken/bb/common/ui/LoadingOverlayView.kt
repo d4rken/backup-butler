@@ -5,21 +5,17 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.databinding.LoadingOverlayViewBinding
 
 @Suppress("ProtectedInFinal")
 class LoadingOverlayView @JvmOverloads constructor(
@@ -28,25 +24,23 @@ class LoadingOverlayView @JvmOverloads constructor(
     @AttrRes defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    @BindView(R.id.animation) protected lateinit var animation: LottieAnimationView
-    @BindView(R.id.primary_text) protected lateinit var primaryText: TextView
-    @BindView(R.id.cancel_button) protected lateinit var cancelButton: Button
+    private val binding: LoadingOverlayViewBinding
 
     init {
         View.inflate(context, R.layout.loading_overlay_view, this)
-        ButterKnife.bind(this)
+        binding = LoadingOverlayViewBinding.bind(this)
 
         setMode(Mode.LOADING)
     }
 
     fun setMode(mode: Mode) {
-        animation.setAnimation(mode.animationRes)
-        animation.addValueCallback(KeyPath("**"), LottieProperty.COLOR_FILTER) {
+        binding.animation.setAnimation(mode.animationRes)
+        binding.animation.addValueCallback(KeyPath("**"), LottieProperty.COLOR_FILTER) {
             PorterDuffColorFilter(context.getColorForAttr(R.attr.colorOnBackground), PorterDuff.Mode.SRC_ATOP)
         }
-        animation.repeatCount = LottieDrawable.INFINITE
-        animation.playAnimation()
-        primaryText.setText(mode.defaultPrimary)
+        binding.animation.repeatCount = LottieDrawable.INFINITE
+        binding.animation.playAnimation()
+        binding.primaryText.setText(mode.defaultPrimary)
     }
 
     fun setPrimaryText(@StringRes stringRes: Int) {
@@ -55,10 +49,10 @@ class LoadingOverlayView @JvmOverloads constructor(
 
     fun setPrimaryText(primary: String?) {
         if (primary == null) {
-            primaryText.setText(R.string.progress_loading_label)
+            binding.primaryText.setText(R.string.progress_loading_label)
             return
         }
-        primaryText.text = primary
+        binding.primaryText.text = primary
     }
 
     fun updateWith(error: Throwable?) {
@@ -67,17 +61,17 @@ class LoadingOverlayView @JvmOverloads constructor(
             return
         }
         setMode(Mode.ERROR)
-        primaryText.text = error.tryLocalizedErrorMessage(context)
+        binding.primaryText.text = error.tryLocalizedErrorMessage(context)
     }
 
     var isCancelable: Boolean = false
         set(value) {
             field = value
-            cancelButton.setGone(!value)
+            binding.cancelButton.setGone(!value)
         }
 
     fun setOnCancelListener(function: ((View) -> Unit)?) {
-        cancelButton.setOnClickListener(function)
+        binding.cancelButton.setOnClickListener(function)
     }
 
     data class Mode(
