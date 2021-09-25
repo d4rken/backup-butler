@@ -17,8 +17,9 @@ import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
+import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
-import eu.darken.bb.common.debug.timber.BugsnagTree
+import eu.darken.bb.common.debug.logging.Logging
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.exceptions.UndeliverableException
@@ -35,7 +36,7 @@ class BBDebug @Inject constructor(
     private val installId: InstallId,
     private val errorHandlerSrc: Lazy<BugsnagErrorHandler>,
     private val noopHandlerSrc: Lazy<NOPBugsnagErrorHandler>,
-    private val bugsnagTreeSrc: Lazy<BugsnagTree>
+    private val bugsnagTreeSrc: Lazy<BugsnagLogger>
 ) : DebugModuleHost {
 
     private var preferences: SharedPreferences = context.getSharedPreferences("debug_settings", Context.MODE_PRIVATE)
@@ -109,7 +110,7 @@ class BBDebug @Inject constructor(
             autoTrackSessions = generalSettings.isBugTrackingEnabled
 
             if (generalSettings.isBugTrackingEnabled) {
-                Timber.plant(bugsnagTreeSrc.get())
+                Logging.install(bugsnagTreeSrc.get())
                 addOnError(errorHandlerSrc.get())
                 Timber.tag(App.TAG).i("Bugsnag setup done!")
             } else {

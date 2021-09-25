@@ -9,7 +9,6 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.BBEnv
 import eu.darken.bb.common.debug.InstallId
-import eu.darken.bb.common.debug.timber.BugsnagTree
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +17,7 @@ import javax.inject.Singleton
 class BugsnagErrorHandler @Inject constructor(
     private val bbEnv: BBEnv,
     private val installId: InstallId,
-    private val bugsnagTree: BugsnagTree,
+    private val bugsnagLogger: BugsnagLogger,
     private val backupButler: BackupButler,
     private val generalSettings: GeneralSettings
 ) : OnErrorCallback {
@@ -26,7 +25,7 @@ class BugsnagErrorHandler @Inject constructor(
     override fun onError(event: Event): Boolean {
         Timber.tag(TAG).v(event.originalError, "Handling error: %s", event)
 
-        bugsnagTree.injectLog(event)
+        bugsnagLogger.injectLog(event)
 
         event.addMetadata(TAB_APP, "checksumMD5", backupButler.checksumApkMd5)
 

@@ -5,6 +5,8 @@ import androidx.work.Configuration
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
 import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.common.debug.logging.LogCatLogger
+import eu.darken.bb.common.debug.logging.Logging
 import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
@@ -24,7 +26,7 @@ open class App : Application(), Configuration.Provider {
         super.onCreate()
 
         if (BuildConfig.DEBUG || BuildConfig.BETA) {
-            Timber.plant(Timber.DebugTree())
+            Logging.install(LogCatLogger())
         }
 
         bbDebug.get()

@@ -1,4 +1,4 @@
-package eu.darken.bb.common.debug.timber
+package eu.darken.bb.common.debug.logging
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -11,7 +11,7 @@ import java.io.OutputStreamWriter
 
 
 @SuppressLint("LogNotTimber")
-class FileLoggerTree(private val logFile: File) : Timber.Tree() {
+class FileLogger(private val logFile: File) : Logging.Logger {
     private var logWriter: OutputStreamWriter? = null
 
     @SuppressLint("SetWorldReadable")
@@ -55,10 +55,10 @@ class FileLoggerTree(private val logFile: File) : Timber.Tree() {
         }
     }
 
-    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+    override fun log(priority: Logging.Priority, tag: String, message: String, metaData: Map<String, Any>?) {
         logWriter?.let {
             try {
-                it.write("${System.currentTimeMillis()}  ${priorityToString(priority)}/$tag: $message\n")
+                it.write("${System.currentTimeMillis()}  ${priority.shortLabel}/$tag: $message\n")
                 it.flush()
             } catch (e: IOException) {
                 Timber.tag(TAG).e(e)
@@ -71,20 +71,10 @@ class FileLoggerTree(private val logFile: File) : Timber.Tree() {
         }
     }
 
-    override fun toString(): String {
-        return "FileLoggerTree(file=$logFile)"
-    }
+    override fun toString(): String = "FileLoggerTree(file=$logFile)"
 
     companion object {
         private val TAG = App.logTag("FileLoggerTree")
-        private fun priorityToString(priority: Int): String = when (priority) {
-            Log.ERROR -> "E"
-            Log.WARN -> "W"
-            Log.INFO -> "I"
-            Log.DEBUG -> "D"
-            Log.VERBOSE -> "V"
-            else -> priority.toString()
-        }
     }
 }
 

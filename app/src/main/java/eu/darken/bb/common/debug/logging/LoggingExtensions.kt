@@ -1,4 +1,4 @@
-package eu.darken.bb.common.debug.timber
+package eu.darken.bb.common.debug.logging
 
 import android.util.Log
 import timber.log.Timber
