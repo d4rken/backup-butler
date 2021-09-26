@@ -7,8 +7,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.ModularAdapter
@@ -17,6 +15,8 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StorageEditorTypeselectionFragmentBinding
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentArgs
 import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
@@ -26,12 +26,11 @@ import javax.inject.Inject
 class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselection_fragment) {
 
     private val vdc: TypeSelectionFragmentVDC by viewModels()
+    private val ui: StorageEditorTypeselectionFragmentBinding by viewBinding()
     @Inject lateinit var adapter: TypeSelectionAdapter
 
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.setupDefaults(adapter)
+        ui.recyclerview.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 

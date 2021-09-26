@@ -4,9 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -18,8 +15,9 @@ import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StorageListFragmentBinding
 import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
@@ -28,18 +26,16 @@ import javax.inject.Inject
 class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
 
     private val vdc: StorageListFragmentVDC by viewModels()
+    private val ui: StorageListFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: StorageAdapter
-    @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
-    @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        storageList.setupDefaults(adapter)
+        ui.storageList.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
-        vdc.storageData.observe2(this) { state ->
+        vdc.storageData.observe2(this, ui) { state ->
             adapter.update(state.storages)
 
             storageListWrapper.updateLoadingState(state.isLoading)
@@ -49,7 +45,7 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
             requireActivity().invalidateOptionsMenu()
         }
 
-        fab.clicksDebounced().subscribe { vdc.createStorage() }
+        ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
 
         vdc.editStorageEvent.observe2(this) {
             doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageActionDialog(it))
@@ -59,7 +55,7 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
         vdc.processorEvent.observe2(this) { isActive ->
             if (isVisible && isActive && snackbar == null) {
                 snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                    .setAnchorView(fab)
+                    .setAnchorView(ui.fab)
                     .setAction(R.string.general_show_action) {
                         startActivity(Intent(requireContext(), ProcessorActivity::class.java))
                     }

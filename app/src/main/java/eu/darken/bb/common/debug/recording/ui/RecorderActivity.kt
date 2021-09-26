@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
-import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
 import eu.darken.bb.R
@@ -29,9 +27,8 @@ class RecorderActivity : SmartActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.core_debug_recording_activity)
-        ButterKnife.bind(this)
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe(this) { state ->
             ui.loadingIndicator.setInvisible(!state.loading)
             ui.share.setInvisible(state.loading)
 
@@ -47,7 +44,7 @@ class RecorderActivity : SmartActivity() {
             if (state.error != null) {
                 Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
             }
-        })
+        }
 
         ui.share.clicksDebounced().subscribe { vdc.share() }
     }

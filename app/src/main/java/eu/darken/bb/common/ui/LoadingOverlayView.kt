@@ -24,12 +24,9 @@ class LoadingOverlayView @JvmOverloads constructor(
     @AttrRes defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val binding: LoadingOverlayViewBinding
+    private val binding = LoadingOverlayViewBinding.inflate(layoutInflator, this)
 
     init {
-        View.inflate(context, R.layout.loading_overlay_view, this)
-        binding = LoadingOverlayViewBinding.bind(this)
-
         setMode(Mode.LOADING)
     }
 

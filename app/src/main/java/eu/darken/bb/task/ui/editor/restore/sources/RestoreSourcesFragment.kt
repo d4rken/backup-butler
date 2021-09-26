@@ -30,9 +30,9 @@ class RestoreSourcesFragment : SmartFragment(R.layout.task_editor_restore_source
     val navArgs by navArgs<RestoreSourcesFragmentArgs>()
 
     private val vdc: RestoreSourcesFragmentVDC by viewModels()
-    @Inject lateinit var adapter: BackupAdapter
-
     private val ui: TaskEditorRestoreSourcesFragmentBinding by viewBinding()
+
+    @Inject lateinit var adapter: BackupAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(adapter, dividers = false)

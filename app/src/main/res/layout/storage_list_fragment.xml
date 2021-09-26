@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
-        android:id="@id/storage_list_wrapper"
+        android:id="@+id/storage_list_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:rvwExplanationText="@string/storage_quick_explanation_desc"

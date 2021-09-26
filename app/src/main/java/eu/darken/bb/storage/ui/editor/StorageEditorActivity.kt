@@ -9,25 +9,25 @@ import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActionBar
+import eu.darken.bb.databinding.StorageEditorActivityBinding
 
 @AndroidEntryPoint
 class StorageEditorActivity : AppCompatActivity() {
 
     private val vdc: StorageEditorActivityVDC by viewModels()
-
+    private lateinit var ui: StorageEditorActivityBinding
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.storage_editor_activity)
-        ButterKnife.bind(this)
+        ui = StorageEditorActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         vdc.state.observe2(this) { state ->
             if (!navController.isGraphSet()) {

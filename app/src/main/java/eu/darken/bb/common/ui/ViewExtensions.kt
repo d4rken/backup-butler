@@ -1,6 +1,7 @@
 package eu.darken.bb.common.ui
 
 import android.content.res.TypedArray
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -37,3 +38,6 @@ fun TypedArray.getDrawableRes(@StyleableRes styleRes: Int): Int? {
 }
 
 fun View.getString(@StringRes stringRes: Int) = resources.getString(stringRes)
+
+val View.layoutInflator: LayoutInflater
+    get() = LayoutInflater.from(context)

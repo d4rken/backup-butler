@@ -91,6 +91,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <eu.darken.bb.common.ui.LoadingOverlayView
+        android:id="@+id/loading_overlay"
         style="@style/LoadingOverlayViewStyle"
         android:visibility="invisible"
         tools:visibility="visible" />

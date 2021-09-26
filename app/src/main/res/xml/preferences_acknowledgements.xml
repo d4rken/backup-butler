@@ -20,15 +20,6 @@
                 android:data="https://github.com/bugsnag/bugsnag-android" />
         </Preference>
         <Preference
-            android:key="license.butterknife"
-            android:summary="View 'injection' library for Android. (APACHE 2.0)"
-            android:title="Butter Knife"
-            app:iconSpaceReserved="false">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/JakeWharton/butterknife" />
-        </Preference>
-        <Preference
             android:key="license.timber"
             android:summary="A logger with a small, extensible API which provides utility on top of Android's normal Log class. (APACHE 2.0)"
             android:title="Timber"

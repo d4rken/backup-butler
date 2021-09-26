@@ -6,11 +6,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.setupDefaults
@@ -18,8 +15,9 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StorageViewerItemContentAdapterPageBinding
 import java.text.DateFormat
 import javax.inject.Inject
 
@@ -27,12 +25,9 @@ import javax.inject.Inject
 class ContentPageFragment : SmartFragment(R.layout.storage_viewer_item_content_adapter_page) {
 
     private val vdc: ContentPageFragmentVDC by viewModels()
+    private val ui: StorageViewerItemContentAdapterPageBinding by viewBinding()
     @Inject lateinit var adapter: ContentEntryAdapter
 
-    @BindView(R.id.recyclerview) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.creation_date_value) lateinit var creationDateValue: TextView
-    @BindView(R.id.loading_overlay_infos) lateinit var loadingOverlayInfos: LoadingOverlayView
-    @BindView(R.id.loading_overlay_files) lateinit var loadingOverlayFiles: LoadingOverlayView
     private val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
 
     private var showRestoreAction = false
@@ -45,16 +40,16 @@ class ContentPageFragment : SmartFragment(R.layout.storage_viewer_item_content_a
         requireActivityActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back)
         requireActivityActionBar().setDisplayHomeAsUpEnabled(true)
 
-        recyclerView.setupDefaults(adapter)
+        ui.recyclerview.setupDefaults(adapter)
 
-        vdc.state.observe2(this) { state ->
+        vdc.state.observe2(this, ui) { state ->
             if (state.metaData != null) {
                 creationDateValue.text = dateFormatter.format(state.metaData.createdAt)
             }
             loadingOverlayInfos.setInvisible(!state.isLoadingInfos)
 
             adapter.update(state.items)
-            recyclerView.setInvisible(state.isLoadingItems)
+            recyclerview.setInvisible(state.isLoadingItems)
             loadingOverlayFiles.setInvisible(!state.isLoadingItems)
 
             loadingOverlayFiles.updateWith(state.error)

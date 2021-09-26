@@ -7,7 +7,6 @@ import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.v
@@ -15,20 +14,21 @@ import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActionBar
 import eu.darken.bb.common.smart.SmartActivity
+import eu.darken.bb.databinding.TaskEditorBackupActivityBinding
 import eu.darken.bb.task.core.Task
 
 @AndroidEntryPoint
 class TaskEditorActivity : SmartActivity() {
 
     private val vdc: TaskEditorActivityVDC by viewModels()
-
+    private lateinit var ui: TaskEditorBackupActivityBinding
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.task_editor_backup_activity)
-        ButterKnife.bind(this)
+        ui = TaskEditorBackupActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         vdc.state.observe2(this) { state ->
             if (!navController.isGraphSet()) {

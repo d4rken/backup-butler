@@ -7,7 +7,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
-        android:id="@+id/storage_list_wrapper"
+        android:id="@+id/generator_list_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,7 +18,7 @@
         app:rvwLoadingUntilFirstChange="true">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/storage_list"
+            android:id="@+id/generator_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

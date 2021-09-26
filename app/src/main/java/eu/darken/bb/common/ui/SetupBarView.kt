@@ -3,46 +3,49 @@ package eu.darken.bb.common.ui
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
+import eu.darken.bb.databinding.ViewSetupbarBinding
 
 
 class SetupBarView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    @BindView(R.id.action_negative_primary) lateinit var buttonNegativePrimary: Button
-    @BindView(R.id.action_negative_secondary) lateinit var buttonNegativeSecondary: Button
-    @BindView(R.id.action_positive_primary) lateinit var buttonPositivePrimary: Button
-    @BindView(R.id.action_positive_secondary) lateinit var buttonPositiveSecondary: Button
+    private var ui = ViewSetupbarBinding.inflate(layoutInflator, this, true)
+    val buttonPositivePrimary = ui.actionPositivePrimary
+    val buttonPositiveSecondary = ui.actionPositiveSecondary
+    val buttonNegativePrimary = ui.actionNegativePrimary
+    val buttonNegativeSecondary = ui.actionNegativeSecondary
 
     init {
-        View.inflate(getContext(), R.layout.view_setupbar, this)
-        ButterKnife.bind(this)
-
         setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary))
 
         lateinit var typedArray: TypedArray
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.SetupBarView)
+            ui.apply {
+                actionPositivePrimary.text =
+                    typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositivePrimaryLabel)
+                actionPositivePrimary.setGone(actionPositivePrimary.text.isNullOrEmpty())
 
-            buttonPositivePrimary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositivePrimaryLabel)
-            buttonPositivePrimary.setGone(buttonPositivePrimary.text.isNullOrEmpty())
+                actionPositiveSecondary.text =
+                    typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositiveSecondaryLabel)
+                actionPositiveSecondary.setGone(actionPositiveSecondary.text.isNullOrEmpty())
 
-            buttonPositiveSecondary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositiveSecondaryLabel)
-            buttonPositiveSecondary.setGone(buttonPositiveSecondary.text.isNullOrEmpty())
+                actionNegativeSecondary.text =
+                    typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativeSecondaryLabel)
+                actionNegativeSecondary.setGone(actionNegativeSecondary.text.isNullOrEmpty())
 
-            buttonNegativeSecondary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativeSecondaryLabel)
-            buttonNegativeSecondary.setGone(buttonNegativeSecondary.text.isNullOrEmpty())
+                actionNegativePrimary.text =
+                    typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativePrimaryLabel)
+                actionNegativePrimary.setGone(actionNegativePrimary.text.isNullOrEmpty())
+            }
 
-            buttonNegativePrimary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativePrimaryLabel)
-            buttonNegativePrimary.setGone(buttonNegativePrimary.text.isNullOrEmpty())
         } finally {
             typedArray.recycle()
         }

@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -26,16 +24,15 @@ class GeneratorsActionDialog : BottomSheetDialogFragment() {
     val navArgs by navArgs<GeneratorsActionDialogArgs>()
 
     private val vdc: GeneratorsActionDialogVDC by viewModels()
+    private lateinit var binding: GeneratorListActionDialogBinding
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
     private val ui: GeneratorListActionDialogBinding by viewBinding()
-    private var unbinder: Unbinder? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.generator_list_action_dialog, container, false)
-        unbinder = ButterKnife.bind(this, layout)
-        return layout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = GeneratorListActionDialogBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

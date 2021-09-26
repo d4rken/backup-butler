@@ -2,28 +2,29 @@ package eu.darken.bb.common.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
 import eu.darken.bb.common.ClipboardHelper
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.RawPath
+import eu.darken.bb.databinding.BrowsingbarBreadcrumbbarViewBinding
 import java.io.File
 
-class BreadCrumbBar<ItemT> @JvmOverloads constructor(
+class BreadCrumbBar<ItemT : APath> @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = R.style.BreadCrumbBarStyle
 ) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    @BindView(R.id.path_container) lateinit var currentPathLayout: LinearLayout
-    @BindView(R.id.path_container_scrollview) lateinit var scrollView: HorizontalScrollView
+    private val ui = BrowsingbarBreadcrumbbarViewBinding.inflate(layoutInflator, this)
 
     private val crumbs = mutableListOf<ItemT>()
     var crumbListener: ((ItemT) -> Unit)? = null
@@ -32,23 +33,15 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
     val currentCrumb: ItemT?
         get() = if (crumbs.isEmpty()) null else crumbs[crumbs.size - 1]
 
-    init {
-        val inflater = LayoutInflater.from(context)
-        inflater.inflate(R.layout.browsingbar_breadcrumbbar_view, this)
-    }
-
     override fun onFinishInflate() {
-        ButterKnife.bind(this)
         if (isInEditMode) {
-
             setCrumbs(
                 listOf(
                     *RawPath.build("/this/is/darkens/test").path.split(File.separator.toRegex())
                         .dropLastWhile { it.isEmpty() }.toTypedArray()
                 ) as List<ItemT>
             )
-        } else
-            scrollView.isSmoothScrollingEnabled = true
+        } else ui.pathContainerScrollview.isSmoothScrollingEnabled = true
 
         super.onFinishInflate()
     }
@@ -60,9 +53,9 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
     }
 
     private fun updateBar() {
-        currentPathLayout.removeAllViews()
+        ui.pathContainer.removeAllViews()
         for (crumb in crumbs) {
-            val item = LayoutInflater.from(context).inflate(R.layout.browsingbar_crumb_view, currentPathLayout, false)
+            val item = layoutInflator.inflate(R.layout.browsingbar_crumb_view, ui.pathContainer, false)
 
             val name = item.findViewById<TextView>(R.id.crumb_name)
             name.text = crumbNamer?.invoke(crumb) ?: crumb.toString()
@@ -84,14 +77,14 @@ class BreadCrumbBar<ItemT> @JvmOverloads constructor(
 
             item.layoutParams = layoutParams
             item.setOnClickListener { crumbListener?.invoke(crumb) }
-            currentPathLayout.addView(item)
+            ui.pathContainer.addView(item)
         }
-        scrollView.requestLayout()
+        ui.pathContainerScrollview.requestLayout()
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
-        scrollView.fullScroll(View.FOCUS_RIGHT)
+        ui.pathContainerScrollview.fullScroll(View.FOCUS_RIGHT)
     }
 
     //    public static List<SDMFile> makeCrumbs(@NonNull SDMFile bread) {

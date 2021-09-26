@@ -9,23 +9,14 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import eu.darken.bb.App
 import eu.darken.bb.common.debug.logging.v
 import eu.darken.bb.common.navigation.doNavigate
-import java.util.*
 
 
 abstract class SmartFragment(@LayoutRes val layoutRes: Int) : Fragment(layoutRes) {
     internal val tag: String =
         App.logTag("Fragment", "${this.javaClass.simpleName}(${Integer.toHexString(hashCode())})")
-
-    private val unbinders = HashSet<Unbinder>()
-
-    fun addUnbinder(unbinder: Unbinder) {
-        unbinders.add(unbinder)
-    }
 
     override fun onAttach(context: Context) {
         v(tag) { "onAttach(context=$context)" }
@@ -39,11 +30,7 @@ abstract class SmartFragment(@LayoutRes val layoutRes: Int) : Fragment(layoutRes
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         v(tag) { "onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState" }
-        return layoutRes.let {
-            val layout = inflater.inflate(it, container, false)
-            addUnbinder(ButterKnife.bind(this, layout))
-            layout
-        }
+        return layoutRes.let { inflater.inflate(it, container, false) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,9 +56,6 @@ abstract class SmartFragment(@LayoutRes val layoutRes: Int) : Fragment(layoutRes
     override fun onDestroyView() {
         v(tag) { "onDestroyView()" }
         super.onDestroyView()
-
-        for (u in unbinders) u.unbind()
-        unbinders.clear()
     }
 
     override fun onDetach() {

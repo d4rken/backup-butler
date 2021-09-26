@@ -24,7 +24,6 @@ buildscript {
                     'coroutines': '1.5.1'
             ],
             'dagger'     : '2.38.1',
-            'butterknife': '10.1.0',
             'rxjava'     : '3.0.10',
             'rxkotlin'   : '3.0.1',
             'rxandroid'  : '3.0.0',

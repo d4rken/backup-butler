@@ -7,8 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -20,8 +18,9 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
-import eu.darken.bb.common.ui.LoadingOverlayView
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.StorageViewerItemlistFragmentBinding
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
@@ -29,10 +28,9 @@ import javax.inject.Inject
 class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragment) {
 
     private val vdc: StorageItemFragmentVDC by viewModels()
+    private val ui: StorageViewerItemlistFragmentBinding by viewBinding()
     @Inject lateinit var adapter: StorageItemAdapter
 
-    @BindView(R.id.storage_item_list) lateinit var recyclerView: RecyclerView
-    @BindView(R.id.loading_overlay) lateinit var loadingOverlay: LoadingOverlayView
 
     private var showOptionDeleteAll = false
 
@@ -41,11 +39,11 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView.setupDefaults(adapter)
+        ui.storageItemList.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
-        vdc.state.observe2(this) { state ->
+        vdc.state.observe2(this, ui) { state ->
             requireActivityActionBar().title = state.storageLabel
             if (state.storageType != null) {
                 requireActivityActionBar().setSubtitle(state.storageType.labelRes)
@@ -53,14 +51,14 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
 
             adapter.update(state.specInfos)
 
-            recyclerView.setInvisible(state.isWorking)
+            storageItemList.setInvisible(state.isWorking)
             loadingOverlay.setInvisible(!state.isWorking)
 
             showOptionDeleteAll = state.allowDeleteAll && !state.isWorking
             invalidateOptionsMenu()
         }
 
-        vdc.deletionState.observe2(this) { deletionState ->
+        vdc.deletionState.observe2(this, ui) { deletionState ->
             if (deletionState.backupSpec != null) {
                 loadingOverlay.setPrimaryText(
                     getString(

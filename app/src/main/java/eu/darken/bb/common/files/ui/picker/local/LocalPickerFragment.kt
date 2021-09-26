@@ -7,14 +7,11 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -30,6 +27,8 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.BreadCrumbBar
 import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.PathpickerLocalFragmentBinding
 import java.io.File
 import javax.inject.Inject
 
@@ -37,12 +36,8 @@ import javax.inject.Inject
 class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
 
     val navArgs by navArgs<LocalPickerFragmentArgs>()
-
     private val vdc: LocalPickerFragmentVDC by viewModels()
-
-    @BindView(R.id.breadcrumb_bar) lateinit var breadCrumbBar: BreadCrumbBar<APath>
-    @BindView(R.id.files_list) lateinit var filesList: RecyclerView
-    @BindView(R.id.select_action) lateinit var selectAction: Button
+    private val ui: PathpickerLocalFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: APathLookupAdapter
     private val sharedVM by lazy { ViewModelProvider(requireActivity()).get(SharedPickerVM::class.java) }
@@ -54,19 +49,17 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        breadCrumbBar.crumbNamer = {
-            if (it.name.isEmpty()) File.separator else it.name
-        }
-        breadCrumbBar.crumbListener = {
-            vdc.selectItem(it)
+        (ui.breadcrumbBar as BreadCrumbBar<APath>).apply {
+            crumbNamer = { if (it.name.isEmpty()) File.separator else it.name }
+            crumbListener = { vdc.selectItem(it) }
         }
 
-        filesList.setupDefaults(adapter)
+        ui.filesList.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectItem(adapter.data[i]) })
 
         vdc.state.observe2(this) { state ->
-            breadCrumbBar.setCrumbs(state.currentCrumbs)
+            ui.breadcrumbBar.setCrumbs(state.currentCrumbs)
             adapter.update(state.currentListing)
 
             allowCreateDir = state.allowCreateDir
@@ -77,7 +70,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
             Snackbar.make(requireView(), error.tryLocalizedErrorMessage(requireContext()), Snackbar.LENGTH_LONG).show()
         }
 
-        selectAction.clicksDebounced().subscribe { vdc.finishSelection() }
+        ui.selectAction.clicksDebounced().subscribe { vdc.finishSelection() }
 
         vdc.resultEvents.observe2(this) {
             sharedVM.postResult(it)

@@ -3,17 +3,12 @@ package eu.darken.bb.common.ui
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
-import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import butterknife.ButterKnife
 import eu.darken.bb.R
+import eu.darken.bb.databinding.ViewRecyclerviewWrapperLayoutBinding
 import timber.log.Timber
 
 @Suppress("ProtectedInFinal")
@@ -21,13 +16,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    @BindView(R.id.empty_container) protected lateinit var emptyContainer: ViewGroup
-    @BindView(R.id.empty_icon) protected lateinit var emptyIconView: ImageView
-    @BindView(R.id.empty_text) protected lateinit var emptyTextView: TextView
-    @BindView(R.id.explanation_container) protected lateinit var explanationContainer: ViewGroup
-    @BindView(R.id.explanation_icon) protected lateinit var explanationIconView: ImageView
-    @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
-    @BindView(R.id.loading_overlay) protected lateinit var loadingOverlayView: LoadingOverlayView
+    private val ui = ViewRecyclerviewWrapperLayoutBinding.inflate(layoutInflator, this)
 
     protected val recyclerView: RecyclerView by lazy {
         for (i in 0 until childCount) {
@@ -64,20 +53,17 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
 
     var explanationBehavior: (State) -> Boolean = {
         it.hasExplanation && it.isPreFirstData
-                && !it.isLoading
-                && it.dataCount == 0
+            && !it.isLoading
+            && it.dataCount == 0
     }
 
     var emptyBehavior: (State) -> Boolean = {
         (!it.hasExplanation || !it.isPreFirstData)
-                && !it.isLoading
-                && it.dataCount == 0
+            && !it.isLoading
+            && it.dataCount == 0
     }
 
     init {
-        View.inflate(getContext(), R.layout.view_recyclerview_wrapper_layout, this)
-        ButterKnife.bind(this)
-
         lateinit var typedArray: TypedArray
         try {
             typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.RecyclerViewWrapperLayout)
@@ -86,23 +72,24 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             val consumeFirstLoading =
                 typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingUntilFirstChange, false)
 
+
             val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
-            if (explanationIcon != null) explanationIconView.setImageResource(explanationIcon)
+            if (explanationIcon != null) ui.explanationIcon.setImageResource(explanationIcon)
 
             val explanationText = typedArray.getStringOrRef(R.styleable.RecyclerViewWrapperLayout_rvwExplanationText)
-            if (explanationText != null) explanationTextView.text = explanationText
+            if (explanationText != null) ui.explanationText.text = explanationText
 
             val emptyIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwEmptyIcon)
-            if (emptyIcon != null) emptyIconView.setImageResource(emptyIcon)
+            if (emptyIcon != null) ui.emptyIcon.setImageResource(emptyIcon)
 
             val emptyText = typedArray.getStringOrRef(R.styleable.RecyclerViewWrapperLayout_rvwEmptyText)
             if (emptyText != null) {
-                emptyTextView.text = emptyText
+                ui.emptyText.text = emptyText
             } else {
                 if ((0..5).random() == 0) {
-                    emptyTextView.setText(R.string.empty_list_easter_msg)
+                    ui.emptyText.setText(R.string.empty_list_easter_msg)
                 } else {
-                    emptyTextView.setText(R.string.empty_list_msg)
+                    ui.emptyText.setText(R.string.empty_list_msg)
                 }
             }
 
@@ -133,14 +120,14 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     }
 
     protected fun updateStates() {
-        loadingOverlayView.setInvisible(!loadingBehavior(state))
-        explanationContainer.setInvisible(!explanationBehavior(state))
-        emptyContainer.setInvisible(!emptyBehavior(state))
+        ui.loadingOverlay.setInvisible(!loadingBehavior(state))
+        ui.explanationContainer.setInvisible(!explanationBehavior(state))
+        ui.emptyContainer.setInvisible(!emptyBehavior(state))
     }
 
     fun setEmptyState(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
-        if (iconRes != null) emptyIconView.setImageResource(iconRes)
-        if (stringRes != null) emptyTextView.setText(stringRes)
+        if (iconRes != null) ui.emptyIcon.setImageResource(iconRes)
+        if (stringRes != null) ui.emptyText.setText(stringRes)
     }
 
     fun updateLoadingState(isLoading: Boolean) {

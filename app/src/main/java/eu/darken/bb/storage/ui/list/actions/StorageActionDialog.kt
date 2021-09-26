@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import butterknife.ButterKnife
-import butterknife.Unbinder
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -16,25 +14,21 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class StorageActionDialog : BottomSheetDialogFragment() {
-    private var unbinder: Unbinder? = null
 
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
     private val vdc: StorageActionDialogVDC by viewModels()
+    private lateinit var ui: StorageListActionDialogBinding
 
-    private val ui: StorageListActionDialogBinding by viewBinding()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.storage_list_action_dialog, container, false)
-        unbinder = ButterKnife.bind(this, layout)
-        return layout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        ui = StorageListActionDialogBinding.inflate(inflater, container, false)
+        return ui.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -9,17 +9,18 @@ import androidx.navigation.findNavController
 import androidx.navigation.navArgs
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import butterknife.ButterKnife
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
+import eu.darken.bb.databinding.GeneratorEditorActivityBinding
 
 @AndroidEntryPoint
 class GeneratorEditorActivity : SmartActivity() {
 
     val navArgs by navArgs<GeneratorEditorActivityArgs>()
+    private val binding by lazy { GeneratorEditorActivityBinding.inflate(layoutInflater) }
 
     private val vdc: GeneratorEditorActivityVDC by viewModels()
 
@@ -29,7 +30,6 @@ class GeneratorEditorActivity : SmartActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.generator_editor_activity)
-        ButterKnife.bind(this)
 
         vdc.state.observe2(this) { state ->
             supportActionBar?.subtitle = if (state.isExisting) getString(R.string.backup_edit_source_label)

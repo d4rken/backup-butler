@@ -2,26 +2,20 @@ package eu.darken.bb.common.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageView
-import butterknife.BindView
-import butterknife.ButterKnife
-import eu.darken.bb.R
+import eu.darken.bb.databinding.ViewPreviewBinding
 
 
 class PreviewView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    @BindView(R.id.preview_image) lateinit var image: ImageView
-    @BindView(R.id.preview_placeholder) lateinit var placeHolder: ImageView
+    private val ui = ViewPreviewBinding.inflate(layoutInflator, this)
+    val image = ui.previewImage
+    val placeHolder = ui.previewPlaceholder
 
     init {
-        View.inflate(getContext(), R.layout.view_preview, this)
-        ButterKnife.bind(this)
-
 //        lateinit var typedArray: TypedArray
 //        try {
 //            typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.SetupBarView)

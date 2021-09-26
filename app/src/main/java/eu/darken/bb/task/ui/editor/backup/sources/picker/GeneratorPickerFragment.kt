@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorAdapter
@@ -17,26 +14,25 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.TaskEditorBackupGeneratorsPickerFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class GeneratorPickerFragment : SmartFragment(R.layout.task_editor_backup_generators_picker_fragment) {
 
     private val vdc: GeneratorPickerFragmentVDC by viewModels()
+    private val ui: TaskEditorBackupGeneratorsPickerFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: GeneratorAdapter
-    @BindView(R.id.storage_list_wrapper) lateinit var generatorListWrapper: RecyclerViewWrapperLayout
-    @BindView(R.id.storage_list) lateinit var generatorList: RecyclerView
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        generatorList.setupDefaults(adapter)
+        ui.generatorList.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectGenerator(adapter.data[i]) })
 
-        vdc.generatorData.observe2(this) { state ->
+        vdc.generatorData.observe2(this, ui) { state ->
             adapter.update(state.generatorData)
 
             if (state.allExistingAdded) {
@@ -61,7 +57,7 @@ class GeneratorPickerFragment : SmartFragment(R.layout.task_editor_backup_genera
             findNavController().popBackStack()
         }
 
-        fab.clicksDebounced().subscribe { vdc.createGenerator() }
+        ui.fab.clicksDebounced().subscribe { vdc.createGenerator() }
 
         super.onViewCreated(view, savedInstanceState)
     }

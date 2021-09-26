@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.ModularAdapter
@@ -16,8 +13,9 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.RecyclerViewWrapperLayout
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.TaskEditorBackupStoragesPickerFragmentBinding
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
@@ -25,18 +23,16 @@ import javax.inject.Inject
 class StoragePickerFragment : SmartFragment(R.layout.task_editor_backup_storages_picker_fragment) {
 
     private val vdc: StoragePickerFragmentVDC by viewModels()
+    private val ui: TaskEditorBackupStoragesPickerFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: StorageAdapter
-    @BindView(R.id.storage_list_wrapper) lateinit var storageListWrapper: RecyclerViewWrapperLayout
-    @BindView(R.id.storage_list) lateinit var storageList: RecyclerView
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        storageList.setupDefaults(adapter)
+        ui.storageList.setupDefaults(adapter)
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectStorage(adapter.data[i]) })
 
-        vdc.storageData.observe2(this) { state ->
+        vdc.storageData.observe2(this, ui) { state ->
             adapter.update(state.storages)
 
             if (state.allExistingAdded) {
@@ -61,7 +57,7 @@ class StoragePickerFragment : SmartFragment(R.layout.task_editor_backup_storages
             findNavController().popBackStack()
         }
 
-        fab.clicksDebounced().subscribe { vdc.createStorage() }
+        ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
         super.onViewCreated(view, savedInstanceState)
     }
 }

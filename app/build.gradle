@@ -93,7 +93,6 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
             proguardFiles proguardRulesRelease
-            javaCompileOptions.annotationProcessorOptions.arguments['butterknife.debuggable'] = 'false'
         }
         applicationVariants.all { variant ->
             if (variant.buildType.name == "debug") {
@@ -239,10 +238,6 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
     implementation "com.uber.rxdogtag:rxdogtag:0.2.0"
     implementation 'com.bugsnag:bugsnag-android:5.9.2'
-
-    //Butterknife
-    implementation "com.jakewharton:butterknife:${versions.butterknife}"
-    kapt "com.jakewharton:butterknife-compiler:${versions.butterknife}"
 
     /**
      * Unit testing

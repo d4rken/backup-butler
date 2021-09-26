@@ -6,10 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import eu.darken.bb.R
-import eu.darken.bb.common.ui.getString
-import eu.darken.bb.common.ui.setGone
-import eu.darken.bb.common.ui.toggleGone
-import eu.darken.bb.common.ui.updateExpander
+import eu.darken.bb.common.ui.*
 import eu.darken.bb.databinding.TaskEditorRestoreConfigsContainerViewBinding
 
 class RestoreConfigContainerView @JvmOverloads constructor(
@@ -18,14 +15,8 @@ class RestoreConfigContainerView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val binding: TaskEditorRestoreConfigsContainerViewBinding by lazy {
-        TaskEditorRestoreConfigsContainerViewBinding.bind(this)
-    }
+    private val binding = TaskEditorRestoreConfigsContainerViewBinding.inflate(layoutInflator, this, true)
     val subTitle by lazy { binding.cardSubtitle }
-
-    init {
-        inflate(context, R.layout.task_editor_restore_configs_container_view, this)
-    }
 
     override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams) {
         if (child.id == R.id.header_container) {
