@@ -41,7 +41,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="BottomSheetTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="BottomSheetTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>

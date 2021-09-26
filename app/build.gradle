@@ -135,48 +135,48 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 
     // Support libs
-    implementation 'androidx.annotation:annotation:1.1.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.2.0-alpha01'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.5.0-alpha03'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc01'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-rc01'
-    implementation 'androidx.lifecycle:lifecycle-reactivestreams:2.2.0-rc01'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:1.0.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-beta01'
+    implementation 'androidx.lifecycle:lifecycle-reactivestreams-ktx:2.4.0-beta01'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-savedstate:2.4.0-beta01'
     implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
 
-    implementation 'androidx.activity:activity-ktx:1.1.0-rc01'
-    implementation 'androidx.fragment:fragment-ktx:1.2.0-rc01'
-    implementation 'androidx.viewpager2:viewpager2:1.0.0-rc01'
-    implementation 'androidx.recyclerview:recyclerview-selection:1.0.0'
-    implementation 'androidx.preference:preference-ktx:1.1.0'
+    implementation 'androidx.activity:activity-ktx:1.4.0-alpha02'
+    implementation 'androidx.fragment:fragment-ktx:1.4.0-alpha09'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
 
-    implementation "androidx.fragment:fragment:1.2.0-rc01"
+    implementation "androidx.fragment:fragment-ktx:1.4.0-alpha09"
 
     implementation "androidx.navigation:navigation-fragment-ktx:${versions.androidx.navigation}"
     implementation "androidx.navigation:navigation-ui-ktx:${versions.androidx.navigation}"
 
-    implementation 'com.airbnb.android:lottie:3.1.0'
+    implementation 'com.airbnb.android:lottie:3.5.0'
 
-    def work_version = "2.4.0-rc01"
+    def work_version = "2.6.0"
     implementation "androidx.work:work-runtime:${work_version}"
     implementation "androidx.work:work-rxjava3:${work_version}"
     testImplementation "androidx.work:work-testing:${work_version}"
 
     // Network
-    implementation("com.squareup.okio:okio:2.4.1")
+    implementation("com.squareup.okio:okio:2.10.0")
 
     // Serialization
     implementation "com.squareup.moshi:moshi:1.12.0"
     implementation "com.squareup.moshi:moshi-adapters:1.9.2"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:1.12.0"
 
-    implementation 'org.apache.commons:commons-compress:1.19'
+    implementation 'org.apache.commons:commons-compress:1.20'
 
     // ROOM
     def room_version = "2.4.0-alpha04"
@@ -236,7 +236,7 @@ dependencies {
     // Debug
     implementation "com.jakewharton.timber:timber:${versions.timber}"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
-    implementation "com.uber.rxdogtag:rxdogtag:0.2.0"
+    implementation "com.uber.rxdogtag:rxdogtag:0.3.0"
     implementation 'com.bugsnag:bugsnag-android:5.9.2'
 
     /**

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -19,9 +20,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="Local storage" />
 
         <TextView
@@ -34,11 +35,11 @@
             android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:singleLine="true"
-            app:layout_constraintVertical_chainStyle="packed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/loading_indicator"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/type_label"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="Lorem ipsum dolorum si amet" />
 
         <com.airbnb.lottie.LottieAnimationView
@@ -63,18 +64,18 @@
 
         <eu.darken.bb.common.ui.LoadingOverlayView
             android:id="@+id/working_overlay"
-            tools:visibility="visible"
+            style="@style/LoadingOverlayViewStyle"
             android:visibility="gone"
-            style="@style/LoadingOverlayViewStyle" />
+            tools:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
             android:layout_width="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible"
             android:layout_height="match_parent"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
     </FrameLayout>
 </LinearLayout>
