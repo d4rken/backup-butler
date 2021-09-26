@@ -17,6 +17,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskListFragmentBinding
+import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
@@ -39,7 +40,7 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
         ui.fab.clicks().subscribe { vdc.newTask() }
 
         vdc.editTaskEvent.observe2(this) {
-            doNavigate(TaskListFragmentDirections.actionTaskListFragmentToTaskActionDialog(it.taskId))
+            doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskActionDialog(it.taskId))
         }
 
         var snackbar: Snackbar? = null

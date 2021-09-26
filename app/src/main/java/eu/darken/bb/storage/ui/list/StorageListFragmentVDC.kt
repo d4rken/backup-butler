@@ -34,7 +34,7 @@ class StorageListFragmentVDC @Inject constructor(
         .startWithItem(StorageState())
         .toLiveData()
 
-    val editTaskEvent = SingleLiveEvent<Storage.Id>()
+    val editStorageEvent = SingleLiveEvent<Storage.Id>()
 
     val processorEvent = SingleLiveEvent<Boolean>()
 
@@ -52,7 +52,7 @@ class StorageListFragmentVDC @Inject constructor(
 
     fun editStorage(item: Storage.InfoOpt) {
         Timber.tag(TAG).d("editStorage(%s)", item)
-        editTaskEvent.postValue(item.storageId)
+        editStorageEvent.postValue(item.storageId)
     }
 
     data class StorageState(

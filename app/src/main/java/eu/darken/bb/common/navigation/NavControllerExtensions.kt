@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import eu.darken.bb.common.debug.timber.v
+import eu.darken.bb.common.debug.logging.v
 
 fun NavController.navigateIfNotThere(@IdRes resId: Int, args: Bundle? = null) {
     if (currentDestination?.id == resId) return

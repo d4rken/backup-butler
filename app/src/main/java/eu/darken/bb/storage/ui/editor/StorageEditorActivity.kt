@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
+import eu.darken.bb.common.requireActionBar
 
 @AndroidEntryPoint
 class StorageEditorActivity : AppCompatActivity() {
@@ -29,13 +30,19 @@ class StorageEditorActivity : AppCompatActivity() {
         ButterKnife.bind(this)
 
         vdc.state.observe2(this) { state ->
-            supportActionBar?.subtitle = if (state.isExisting) getString(R.string.storage_edit_action)
-            else getString(R.string.storage_create_action)
-
             if (!navController.isGraphSet()) {
                 val graph = navController.navInflater.inflate(R.navigation.storage_editor)
                 graph.startDestination = state.stepFlow.start
                 navController.setGraph(graph, bundleOf("storageId" to state.storageId))
+                navController.addOnDestinationChangedListener { controller, destination, arguments ->
+                    requireActionBar().apply {
+                        title = when {
+                            state.isExisting -> getString(R.string.storage_edit_action)
+                            else -> getString(R.string.storage_create_action)
+                        }
+                        subtitle = destination.label
+                    }
+                }
 
                 setupActionBarWithNavController(navController)
             }

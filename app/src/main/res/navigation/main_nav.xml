@@ -2,23 +2,40 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_advanced"
-    app:startDestination="@id/advancedModeFragment">
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/initFragment">
+
+    <fragment
+        android:id="@+id/initFragment"
+        android:name="eu.darken.bb.main.ui.InitFragment"
+        android:label="InitFragment"
+        tools:layout="@layout/init_fragment">
+        <action
+            android:id="@+id/action_initFragment_to_advancedModeFragment"
+            app:destination="@id/advancedModeFragment"
+            app:popUpTo="@+id/main_nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_initFragment_to_simpleModeFragment"
+            app:destination="@id/simpleModeFragment"
+            app:popUpTo="@+id/main_nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/advancedModeFragment"
         android:name="eu.darken.bb.main.ui.advanced.AdvancedModeFragment"
         android:label="AdvancedModeFragment"
-        tools:layout="@layout/main_advanced_mode_fragment" />
-
-    <fragment
-        android:id="@+id/storageListFragment"
-        android:name="eu.darken.bb.storage.ui.list.StorageListFragment"
-        android:label="StorageListFragment"
-        tools:layout="@layout/storage_list_fragment">
+        tools:layout="@layout/main_advanced_mode_fragment">
         <action
-            android:id="@+id/action_storageListFragment_to_storageActionDialog"
+            android:id="@+id/action_advancedModeFragment_to_storageActionDialog"
             app:destination="@id/storageActionDialog" />
+        <action
+            android:id="@+id/action_advancedModeFragment_to_generatorsActionDialog"
+            app:destination="@id/generatorsActionDialog" />
+        <action
+            android:id="@+id/action_advancedModeFragment_to_taskActionDialog"
+            app:destination="@id/taskActionDialog" />
     </fragment>
 
     <dialog
@@ -39,27 +56,7 @@
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
     </dialog>
-    <fragment
-        android:id="@+id/taskListFragment"
-        android:name="eu.darken.bb.task.ui.tasklist.TaskListFragment"
-        android:label="TaskListFragment"
-        tools:layout="@layout/task_list_fragment">
-        <action
-            android:id="@+id/action_taskListFragment_to_taskActionDialog"
-            app:destination="@id/taskActionDialog" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/generatorsFragment"
-        android:name="eu.darken.bb.backup.ui.generator.list.GeneratorsFragment"
-        android:label="GeneratorsFragment"
-        tools:layout="@layout/task_editor_backup_generators_fragment">
-        <action
-            android:id="@+id/action_generatorsFragment_to_generatorsActionDialog"
-            app:destination="@id/generatorsActionDialog" />
-    </fragment>
-
-    <fragment
+    <dialog
         android:id="@+id/generatorsActionDialog"
         android:name="eu.darken.bb.backup.ui.generator.list.actions.GeneratorsActionDialog"
         android:label="@string/backup_generator_label"
@@ -67,6 +64,12 @@
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
-    </fragment>
+    </dialog>
+
+    <fragment
+        android:id="@+id/simpleModeFragment"
+        android:name="eu.darken.bb.main.ui.simple.SimpleModeFragment"
+        android:label="SimpleModeFragment"
+        tools:layout="@layout/main_simple_mode_fragment" />
 
 </navigation>

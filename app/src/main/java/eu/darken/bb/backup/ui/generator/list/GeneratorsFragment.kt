@@ -16,6 +16,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -39,7 +40,7 @@ class GeneratorsFragment : SmartFragment(R.layout.generator_list_fragment) {
         fab.clicks().subscribe { vdc.newGenerator() }
 
         vdc.editTaskEvent.observe2(this) {
-            doNavigate(GeneratorsFragmentDirections.actionGeneratorsFragmentToGeneratorsActionDialog(it.generatorId))
+            doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToGeneratorsActionDialog(it.generatorId))
         }
 
         super.onViewCreated(view, savedInstanceState)

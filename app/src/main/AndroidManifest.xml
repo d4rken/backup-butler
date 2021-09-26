@@ -27,7 +27,6 @@
         <activity
             android:name=".main.ui.MainActivity"
             android:label="@string/app_name"
-            android:noHistory="true"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,13 +37,8 @@
         </activity>
         <activity android:name=".onboarding.OnboardingActivity" />
         <activity
-            android:name="eu.darken.bb.main.ui.simple.SimpleActivity"
-            android:theme="@style/AppTheme.Base" />
-        <activity
-            android:name="eu.darken.bb.main.ui.advanced.AdvancedActivity"
-            android:theme="@style/AppTheme.Base" />
-        <activity
             android:name=".task.ui.editor.TaskEditorActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppTheme.Base" />
         <activity
             android:name=".storage.ui.editor.StorageEditorActivity"

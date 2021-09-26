@@ -12,7 +12,7 @@ import androidx.navigation.NavDirections
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import eu.darken.bb.App
-import eu.darken.bb.common.debug.timber.v
+import eu.darken.bb.common.debug.logging.v
 import eu.darken.bb.common.navigation.doNavigate
 import java.util.*
 

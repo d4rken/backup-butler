@@ -61,8 +61,6 @@ class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fra
             AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
         }
 
-
-
         vdc.runTimePermissionEvent.observe2(this) { req ->
             requestPermissions(arrayOf(req.permission), 1)
         }

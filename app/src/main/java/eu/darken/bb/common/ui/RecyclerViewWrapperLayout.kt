@@ -29,7 +29,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     @BindView(R.id.explanation_text) protected lateinit var explanationTextView: TextView
     @BindView(R.id.loading_overlay) protected lateinit var loadingOverlayView: LoadingOverlayView
 
-    protected val recyclerView: RecyclerView by lazy<RecyclerView> {
+    protected val recyclerView: RecyclerView by lazy {
         for (i in 0 until childCount) {
             val child = getChildAt(i)
             if (child is RecyclerView) return@lazy child

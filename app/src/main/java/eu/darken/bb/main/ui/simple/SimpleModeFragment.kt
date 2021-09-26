@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced
+package eu.darken.bb.main.ui.simple
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,27 +7,20 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.MainAdvancedModeFragmentBinding
-import eu.darken.bb.main.core.UISettings
-import eu.darken.bb.main.ui.advanced.debug.DebugFragment
+import eu.darken.bb.databinding.StartFragmentBinding
 import eu.darken.bb.main.ui.settings.SettingsActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AdvancedModeFragment : SmartFragment(R.layout.main_advanced_mode_fragment) {
-    private val vdc: AdvancedModeFragmentVDC by viewModels()
-    private val binding: MainAdvancedModeFragmentBinding by viewBinding()
+class SimpleModeFragment : SmartFragment(R.layout.main_simple_mode_fragment) {
 
-    @Inject lateinit var uiSettings: UISettings
-    @Inject lateinit var pagerPages: List<PagerAdapter.Page>
-    private lateinit var pagerAdapter: PagerAdapter
+    private val vdc: SimpleModeFragmentVDC by viewModels()
+    private val binding: StartFragmentBinding by viewBinding()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
@@ -35,24 +28,16 @@ class AdvancedModeFragment : SmartFragment(R.layout.main_advanced_mode_fragment)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        requireActivityActionBar().subtitle = getString(R.string.startmode_advanced_label)
-
-        var pages = pagerPages
-        if (uiSettings.showDebugPage) {
-            pages = pages.plus(PagerAdapter.Page(DebugFragment::class, R.string.debug_label))
-        }
-        pagerAdapter = PagerAdapter(requireActivity(), pages)
+//        requireActivityActionBar().subtitle = getString(R.string.startmode_simple_label)
 
         binding.apply {
-            viewpager.adapter = pagerAdapter
-            tablayout.tabMode = TabLayout.MODE_SCROLLABLE
-            TabLayoutMediator(tablayout, viewpager) { tab, position ->
-                tab.setText(pagerAdapter.pages[position].titleRes)
-            }.attach()
-
+//            appVersion
+//            upgradeInfos
+//
+//            updateCard
+//            changelogAction
+//            updateAction
         }
-
-        vdc.onGo()
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -72,5 +57,4 @@ class AdvancedModeFragment : SmartFragment(R.layout.main_advanced_mode_fragment)
             else -> super.onOptionsItemSelected(item)
         }
     }
-
 }
