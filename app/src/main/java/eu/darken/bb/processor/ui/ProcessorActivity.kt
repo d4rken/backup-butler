@@ -12,13 +12,14 @@ import eu.darken.bb.processor.ui.progress.ProgressFragment
 class ProcessorActivity : AppCompatActivity() {
 
     private val vdc: ProcessorActivityVDC by viewModels()
-    private val binding by lazy { ProcessorActivityBinding.inflate(layoutInflater) }
-
+    private lateinit var ui: ProcessorActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.processor_activity)
+        ui = ProcessorActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
+
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()

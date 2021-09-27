@@ -10,7 +10,6 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.stored.StoredLogEvent
 import eu.darken.bb.task.core.results.stored.StoredResult
 import eu.darken.bb.task.core.results.stored.StoredSubResult
-import hu.akarnokd.rxjava3.bridge.RxJavaBridge
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -91,14 +90,14 @@ class TaskResultRepo @Inject constructor(
         }
         .flatMap { (result, subResults, logEvents) ->
             Timber.tag(TAG).d("Inserting result.")
-            database.storedResultDao().insertResult(result).`as`(RxJavaBridge.toV3Single())
+            database.storedResultDao().insertResult(result)
                 .flatMap {
                     Timber.tag(TAG).d("Inserting subresults.")
-                    database.storedResultDao().insertSubResults(subResults).`as`(RxJavaBridge.toV3Single())
+                    database.storedResultDao().insertSubResults(subResults)
                 }
                 .flatMap {
                     Timber.tag(TAG).d("Inserting log events.")
-                    database.storedResultDao().insertLogEvents(logEvents).`as`(RxJavaBridge.toV3Single())
+                    database.storedResultDao().insertLogEvents(logEvents)
                 }
         }
         .ignoreElement()
@@ -107,7 +106,7 @@ class TaskResultRepo @Inject constructor(
         .doOnComplete { Timber.tag(TAG).d("Result saved: %s", result) }
 
     fun getLatestTaskResultGlimse(taskIds: List<Task.Id>): Observable<List<GlimpsedTaskResult>> =
-        database.storedResultDao().getLatestTaskResults(taskIds).`as`(RxJavaBridge.toV3Observable())
+        database.storedResultDao().getLatestTaskResults(taskIds)
             .map { storedResults ->
                 storedResults.map {
                     GlimpsedTaskResult(
@@ -130,12 +129,11 @@ class TaskResultRepo @Inject constructor(
             .onErrorReturn { emptyList() }
 
     fun getTaskResult(taskId: Task.Id): Single<SimpleResult> =
-        database.storedResultDao().getTaskResult(taskId).`as`(RxJavaBridge.toV3Single())
+        database.storedResultDao().getTaskResult(taskId)
             .flatMap { storedResult ->
-                database.storedResultDao().getSubTaskResults(storedResult.id).`as`(RxJavaBridge.toV3Single())
+                database.storedResultDao().getSubTaskResults(storedResult.id)
                     .flatMap { storedSubResults ->
                         database.storedResultDao().getLogEvents(storedSubResults.map { it.id })
-                            .`as`(RxJavaBridge.toV3Single())
                             .map { storedLogEvents ->
                                 val subResults = storedSubResults.map { storedSubResult ->
                                     val logEvents = storedLogEvents.filter { it.subResultId == storedSubResult.id }

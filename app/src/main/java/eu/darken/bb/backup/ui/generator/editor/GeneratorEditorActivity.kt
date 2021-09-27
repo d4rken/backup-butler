@@ -20,7 +20,7 @@ import eu.darken.bb.databinding.GeneratorEditorActivityBinding
 class GeneratorEditorActivity : SmartActivity() {
 
     val navArgs by navArgs<GeneratorEditorActivityArgs>()
-    private val binding by lazy { GeneratorEditorActivityBinding.inflate(layoutInflater) }
+    private lateinit var ui: GeneratorEditorActivityBinding
 
     private val vdc: GeneratorEditorActivityVDC by viewModels()
 
@@ -29,7 +29,8 @@ class GeneratorEditorActivity : SmartActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.generator_editor_activity)
+        ui = GeneratorEditorActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         vdc.state.observe2(this) { state ->
             supportActionBar?.subtitle = if (state.isExisting) getString(R.string.backup_edit_source_label)

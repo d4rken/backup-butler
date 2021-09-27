@@ -7,9 +7,9 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.stored.StoredLogEvent
 import eu.darken.bb.task.core.results.stored.StoredResult
 import eu.darken.bb.task.core.results.stored.StoredSubResult
-import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface StoredResultDao {

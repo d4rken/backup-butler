@@ -4,7 +4,15 @@
     <PreferenceCategory
         android:title="@string/general_thank_you_label"
         app:iconSpaceReserved="false">
-
+        <Preference
+            android:key="thanks.maxpatchs"
+            android:summary="Thanks for the lovely icons."
+            android:title="Max Patchs"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://twitter.com/maxpatchs" />
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -71,7 +79,7 @@
             app:iconSpaceReserved="false">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="https://github.com/castorflex/SmoothProgressBar" />
+                android:data="https://github.com/matomo-org/matomo-sdk-android" />
         </Preference>
         <Preference
             android:key="license.libsuperuser"

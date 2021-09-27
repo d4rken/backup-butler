@@ -286,4 +286,17 @@
     <string name="permission_write_storage_label">Storage Access Permission</string>
     <string name="permission_write_storage_desc">Write access to public storage, e.g. your built-in and/or removable sdcard. Necessary to read backups and restore app data.</string>
     <string name="storage_saf_error_cant_pick_root">Can\'t use the storage root since Android 11. Create or pick a subfolder.</string>
+    <string name="onboarding_cost_subtitle">What does it cost?</string>
+    <string name="onboarding_cost_restore_title">Restoring backups</string>
+    <string name="onboarding_cost_restore_description">It\'s your data. You can always restore your backups for free.</string>
+    <string name="onboarding_cost_backup_title">Creating backups</string>
+    <string name="onboarding_cost_backup_description">You need an active subscription to create new backups.</string>
+    <string name="onboarding_cost_subscription_title">Subscription? Purchase?</string>
+    <string name="onboarding_cost_subscription_description">A good backup is reliable. A subscription allows me to prioritize you instead of chasing new users. To spend time on support and improve compatibility with different Android versions and devices.</string>
+    <string name="onboarding_cost_busfactor_title">Open source</string>
+    <string name="onboarding_cost_busfactor_description">Backup Butler is open-source. When I get hit by a bus, someone else can take over to ensure your backups can be restored on new devices.</string>
+    <string name="onboarding_cost_dontworry_description">Exploring the app is free. Don\'t worry.</string>
+    <string name="startmode_switch_action">Switch UI mode</string>
+    <string name="bugreporting_report_action">Report a bug</string>
+    <string name="bugreporting_record_debuglog_action">Record debug log</string>
 </resources>

@@ -11,11 +11,6 @@
             android:data="https://bb.darken.eu/wiki" />
     </Preference>
     <Preference
-        android:icon="@drawable/ic_email_onsurface"
-        android:key="support.email.darken"
-        android:summary="@string/email_developer_desc"
-        android:title="@string/email_developer_label" />
-    <Preference
         android:icon="@drawable/ic_github_onsurface"
         android:summary="@string/issue_tracker_desc"
         android:title="@string/issue_tracker_label">
@@ -47,6 +42,11 @@
             android:action="android.intent.action.VIEW"
             android:data="https://bb.darken.eu/xda" />
     </Preference>
+    <Preference
+        android:icon="@drawable/ic_email_onsurface"
+        android:key="support.email.darken"
+        android:summary="@string/email_developer_desc"
+        android:title="@string/email_developer_label" />
 
     <PreferenceCategory app:title="@string/category_other_label">
         <Preference

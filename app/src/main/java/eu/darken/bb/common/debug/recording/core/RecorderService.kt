@@ -36,6 +36,8 @@ class RecorderService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
+        super.onCreate()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 NOTIF_CHANID_DEBUG,
@@ -74,7 +76,6 @@ class RecorderService : Service() {
                     stopSelf()
                 }
             }
-        super.onCreate()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

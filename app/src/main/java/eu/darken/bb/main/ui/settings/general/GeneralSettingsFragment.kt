@@ -2,11 +2,11 @@ package eu.darken.bb.main.ui.settings.general
 
 import androidx.annotation.Keep
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.preference.Preference
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.R
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import javax.inject.Inject
 
@@ -30,13 +30,13 @@ class GeneralSettingsFragment : SmartPreferenceFragment() {
             true
         }
 
-        vdc.state.observe(this, Observer { state ->
+        vdc.state.observe2(this) { state ->
             recordPref.summary = when {
                 !state.isRecording -> getString(R.string.debug_record_log_desc)
                 else -> state.recordingPath
             }
             recordPref.isEnabled = !state.isRecording
-        })
+        }
 
         super.onPreferencesCreated()
     }

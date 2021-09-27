@@ -1,5 +1,10 @@
 <resources>
 
+    <style name="Toolbar" parent="@style/Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:layout_height">?actionBarSize</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
     <style name="DefaultListItemContainer">
         <item name="android:layout_width">match_parent</item>
         <!--<item name="android:focusable">true</item>-->

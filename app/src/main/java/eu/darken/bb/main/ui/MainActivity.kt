@@ -12,14 +12,14 @@ import eu.darken.bb.databinding.MainActivityBinding
 class MainActivity : AppCompatActivity() {
 
     private val vdc: MainActivityVDC by viewModels()
-    private lateinit var binding: MainActivityBinding
+    private lateinit var ui: MainActivityBinding
     private val navController by lazy { supportFragmentManager.findNavController(R.id.nav_host) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme_Base)
+        setTheme(R.style.AppThemeNoActionBar)
         super.onCreate(savedInstanceState)
 
-        val binding = MainActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        ui = MainActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
     }
 }

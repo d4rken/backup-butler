@@ -24,10 +24,10 @@ class StorageViewerActivity : AppCompatActivity() {
     val navArgs by navArgs<StorageViewerActivityArgs>()
 
     val vdc: StorageViewerActivityVDC by viewModels()
+    private lateinit var ui: StorageViewerActivityBinding
 
     private val navController by lazy { findNavController(R.id.nav_host_fragment) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.storage_viewer) }
-    private lateinit var ui: StorageViewerActivityBinding
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()
             .setFallbackOnNavigateUpListener {
@@ -36,7 +36,6 @@ class StorageViewerActivity : AppCompatActivity() {
             }
             .build()
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +54,7 @@ class StorageViewerActivity : AppCompatActivity() {
             }
         }
 
-        vdc.finishActivity.observe(this) { finish() }
+        vdc.finishActivity.observe2(this) { finish() }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {

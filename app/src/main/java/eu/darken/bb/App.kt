@@ -34,7 +34,7 @@ open class App : Application(), Configuration.Provider {
         // Sets theme mode
         uiSettings.theme = uiSettings.theme
 
-        setTheme(R.style.AppTheme_Base)
+        setTheme(R.style.AppThemeSplash)
 
         Timber.tag(TAG).d("onCreate() done!")
         instance = this

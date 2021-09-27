@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme.Base" parent="Theme.MaterialComponents.DayNight.DarkActionBar.Bridge">
+    <style name="AppThemeBase" parent="Theme.MaterialComponents.DayNight.DarkActionBar.Bridge">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
@@ -15,19 +15,27 @@
 
         <item name="colorOnError">@color/colorOnError</item>
 
-        <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
+        <item name="bottomSheetDialogTheme">@style/AppThemeBottomSheet</item>
+        <item name="toolbarStyle">@style/Toolbar</item>
     </style>
 
-    <style name="AppTheme.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-    </style>
-
-    <style name="AppTheme.Base.NoActionBar" parent="AppTheme.Base">
+    <style name="AppThemeNoActionBar" parent="AppThemeBase">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.Floating" parent="AppTheme.Base.NoActionBar">
+    <style name="AppThemeActionBar" parent="AppThemeBase">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
+    <style name="AppThemeSplash" parent="AppThemeNoActionBar">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppThemeFloating" parent="AppThemeBase">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -36,12 +44,12 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
-    <style name="AppTheme.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+    <style name="AppThemeDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="BottomSheetTheme" parent="Theme.Design.BottomSheetDialog">
+    <style name="AppThemeBottomSheet" parent="Theme.MaterialComponents.BottomSheetDialog">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
@@ -52,6 +60,7 @@
 
         <item name="colorAccent">@color/colorSecondary</item>
 
-        <item name="android:colorBackground">@color/colorPrimary</item>
+        <!--        <item name="android:colorBackground">@color/colorPrimary</item>-->
+        <item name="android:backgroundTint">@color/colorPrimary</item>
     </style>
 </resources>

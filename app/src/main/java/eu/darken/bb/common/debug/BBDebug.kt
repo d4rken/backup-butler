@@ -7,7 +7,6 @@ import android.os.StrictMode
 import android.util.Log
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Configuration
-import com.uber.rxdogtag.RxDogTag
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
@@ -20,9 +19,10 @@ import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.logging.Logging
-import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.exceptions.UndeliverableException
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import rxdogtag2.RxDogTag
 import timber.log.Timber
 import java.io.InterruptedIOException
 import javax.inject.Inject
@@ -84,7 +84,7 @@ class BBDebug @Inject constructor(
                         if (BuildConfig.DEBUG) {
                             // On debug builds we want to crash to be aware of this error
                             val currentThread = Thread.currentThread()
-                            currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
+                            currentThread.uncaughtExceptionHandler!!.uncaughtException(currentThread, error)
                         } else {
                             Bugs.track(error)
                         }
@@ -93,7 +93,7 @@ class BBDebug @Inject constructor(
             } else {
                 Timber.tag(TAG).e(error, "Unexpected uncaught error")
                 val currentThread = Thread.currentThread()
-                currentThread.uncaughtExceptionHandler.uncaughtException(currentThread, error)
+                currentThread.uncaughtExceptionHandler!!.uncaughtException(currentThread, error)
             }
         }
 

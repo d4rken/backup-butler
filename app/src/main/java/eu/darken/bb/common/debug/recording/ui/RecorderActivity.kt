@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.App
-import eu.darken.bb.R
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.tryLocalizedErrorMessage
@@ -18,17 +18,16 @@ import eu.darken.bb.databinding.CoreDebugRecordingActivityBinding
 @AndroidEntryPoint
 class RecorderActivity : SmartActivity() {
 
-    private val ui: CoreDebugRecordingActivityBinding by lazy {
-        CoreDebugRecordingActivityBinding.inflate(layoutInflater)
-    }
+    private lateinit var ui: CoreDebugRecordingActivityBinding
     private val vdc: RecorderActivityVDC by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.core_debug_recording_activity)
+        ui = CoreDebugRecordingActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
-        vdc.state.observe(this) { state ->
+        vdc.state.observe2(this) { state ->
             ui.loadingIndicator.setInvisible(!state.loading)
             ui.share.setInvisible(state.loading)
 

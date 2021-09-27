@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/title"
         style="@style/TextAppearance.AppCompat.Display1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/subtitle"
         style="@style/TextAppearance.AppCompat.Headline"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,10 +31,10 @@
         android:text="Your backup app."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/mode_simple_description"
         style="@style/TextAppearance.MaterialComponents.Body2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -42,13 +42,13 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:text="Guided creation of a general purpose backup task."
-        app:layout_constraintBottom_toTopOf="@+id/action_start_advancedmode"
+        app:layout_constraintBottom_toTopOf="@+id/mode_advanced_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/action_start_simplemode"
+        android:id="@+id/mode_simple_action"
         style="@style/TextAppearance.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,13 +56,13 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         android:text="@string/startmode_simple_label"
-        app:layout_constraintBottom_toTopOf="@+id/textView4"
+        app:layout_constraintBottom_toTopOf="@+id/mode_simple_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/mode_advanced_description"
         style="@style/TextAppearance.MaterialComponents.Body2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/action_start_advancedmode"
+        android:id="@+id/mode_advanced_action"
         style="@style/TextAppearance.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         android:text="@string/startmode_advanced_label"
-        app:layout_constraintBottom_toTopOf="@+id/textView5"
+        app:layout_constraintBottom_toTopOf="@+id/mode_advanced_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />

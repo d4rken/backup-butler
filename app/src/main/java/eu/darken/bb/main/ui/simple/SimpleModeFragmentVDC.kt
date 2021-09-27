@@ -1,44 +1,55 @@
 package eu.darken.bb.main.ui.simple
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.BackupButler
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.user.core.UpgradeControl
-import eu.darken.bb.user.core.UpgradeData
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Observables
+import eu.darken.bb.main.core.UISettings
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
 class SimpleModeFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val butler: BackupButler,
-    private val upgradeControl: UpgradeControl,
-    @ApplicationContext private val context: Context
+    private val reportABug: ReportABug,
+    private val uiSettings: UISettings,
+    private val bbDebug: BBDebug,
 ) : SmartVDC() {
 
-    val appState: LiveData<AppState> = Observables
-        .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)
-        .map { (appInfo, upgradeData) ->
-            return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
+    val navEvents = SingleLiveEvent<NavDirections>()
+    val state = Observable
+        .combineLatest(
+            bbDebug.observeOptions(),
+            uiSettings.showDebugPage.observable
+        ) { debug, showDebug ->
+            State(
+                showDebugStuff = showDebug || BBDebug.isDebug(),
+                isRecordingDebug = debug.isRecording
+            )
         }
+        .subscribeOn(Schedulers.computation())
         .toLiveData()
 
-    private val updateStater = Stater(UpdateState())
-    val updateState = updateStater.liveData
-
-    data class AppState(
-        val appInfo: BackupButler.AppInfo,
-        val upgradeData: UpgradeData
+    data class State(
+        val showDebugStuff: Boolean,
+        val isRecordingDebug: Boolean
     )
 
-    data class UpdateState(
-        val available: Boolean = false
-    )
+    fun switchToAdvancedMode() {
+        uiSettings.startMode = UISettings.StartMode.ADVANCED
+        navEvents.postValue(SimpleModeFragmentDirections.actionSimpleModeFragmentToAdvancedModeFragment())
+    }
+
+    fun reportBug() {
+        reportABug.reportABug()
+    }
+
+    fun recordDebugLog() {
+        bbDebug.setRecording(true)
+    }
 }

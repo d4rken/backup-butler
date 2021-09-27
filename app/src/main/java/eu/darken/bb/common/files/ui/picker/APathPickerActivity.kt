@@ -19,6 +19,7 @@ import eu.darken.bb.common.files.ui.picker.types.TypesPickerFragmentArgs
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
+import eu.darken.bb.databinding.PathpickerActivityBinding
 
 @AndroidEntryPoint
 class APathPickerActivity : SmartActivity() {
@@ -36,6 +37,7 @@ class APathPickerActivity : SmartActivity() {
             }
             .build()
     }
+    private lateinit var ui: PathpickerActivityBinding
 
     private val sharedVM by lazy { ViewModelProvider(this).get(SharedPickerVM::class.java) }
 
@@ -43,7 +45,8 @@ class APathPickerActivity : SmartActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.pathpicker_activity)
+        ui = PathpickerActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         sharedVM.typeEvent.observe2(this) { vdc.onTypePicked(it) }
         sharedVM.resultEvent.observe2(this) { vdc.onResult(it) }

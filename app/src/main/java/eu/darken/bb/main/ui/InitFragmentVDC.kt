@@ -1,13 +1,12 @@
 package eu.darken.bb.main.ui
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
-import io.reactivex.rxjava3.core.Observable
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,15 +16,16 @@ class InitFragmentVDC @Inject constructor(
     private val uiSettings: UISettings
 ) : SmartVDC() {
 
-    val launchConfig: LiveData<LaunchConfig> = Observable.just(
-        LaunchConfig(
-            startMode = uiSettings.startMode,
-            showOnboarding = uiSettings.showOnboarding
-        )
-    ).toLiveData()
+    val navEvents = SingleLiveEvent<NavDirections>()
 
-    data class LaunchConfig(
-        val startMode: UISettings.StartMode,
-        val showOnboarding: Boolean,
-    )
+
+    init {
+        when {
+            uiSettings.showOnboarding -> InitFragmentDirections.actionInitFragmentToHelloStepFragment()
+            uiSettings.startMode == UISettings.StartMode.SIMPLE -> InitFragmentDirections.actionInitFragmentToSimpleModeFragment()
+            uiSettings.startMode == UISettings.StartMode.ADVANCED -> InitFragmentDirections.actionInitFragmentToAdvancedModeFragment()
+            else -> throw IllegalStateException("Unexpected init conditions: $uiSettings")
+        }.run { navEvents.postValue(this) }
+    }
+
 }

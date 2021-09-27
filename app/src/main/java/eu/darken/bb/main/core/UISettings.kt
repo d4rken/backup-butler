@@ -8,6 +8,7 @@ import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.preference.createObservablePreference
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,6 +17,8 @@ import javax.inject.Singleton
 class UISettings @Inject constructor(
     @ApplicationContext private val context: Context
 ) : Settings() {
+
+    override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     enum class Theme(
         @StringRes val label: Int,
@@ -65,9 +68,10 @@ class UISettings @Inject constructor(
             preferences.edit().putString(PKEY_STARTMODE, value.identifier).apply()
         }
 
-    var showDebugPage: Boolean
-        get() = preferences.getBoolean(PKEY_DEBUGPAGE, false)
-        set(value) = preferences.edit().putBoolean(PKEY_DEBUGPAGE, value).apply()
+    val showDebugPage = preferences.createObservablePreference(
+        PKEY_DEBUGPAGE,
+        false
+    )
 
     var showOnboarding: Boolean
         get() = preferences.getBoolean(PKEY_ONBOARDING, true)
@@ -84,17 +88,16 @@ class UISettings @Inject constructor(
             preferences.edit().putString(PKEY_LANGUAGE, tag).apply()
         }
 
-    override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
         override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
-            PKEY_DEBUGPAGE -> showDebugPage
+            PKEY_DEBUGPAGE -> showDebugPage.value
             PKEY_ONBOARDING -> showOnboarding
             else -> super.getBoolean(key, defValue)
         }
 
         override fun putBoolean(key: String, value: Boolean) = when (key) {
-            PKEY_DEBUGPAGE -> showDebugPage = value
+            PKEY_DEBUGPAGE -> showDebugPage.update { value }
             PKEY_ONBOARDING -> showOnboarding = value
             else -> super.putBoolean(key, value)
         }

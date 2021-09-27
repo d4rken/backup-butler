@@ -13,12 +13,13 @@ import eu.darken.bb.databinding.SettingsActivityBinding
 class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     private val vdc: SettingsActivityVDC by viewModels()
-    private val binding by lazy { SettingsActivityBinding.inflate(layoutInflater) }
+    private lateinit var ui: SettingsActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.settings_activity)
+        ui = SettingsActivityBinding.inflate(layoutInflater)
+        setContentView(ui.root)
 
         if (savedInstanceState == null) {
             title = getString(R.string.settings_label)

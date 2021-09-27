@@ -20,6 +20,10 @@
             app:destination="@id/simpleModeFragment"
             app:popUpTo="@+id/main_nav_graph"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_initFragment_to_helloStepFragment"
+            app:destination="@id/helloStepFragment"
+            app:popUpTo="@+id/helloStepFragment" />
     </fragment>
 
     <fragment
@@ -36,6 +40,10 @@
         <action
             android:id="@+id/action_advancedModeFragment_to_taskActionDialog"
             app:destination="@id/taskActionDialog" />
+        <action
+            android:id="@+id/action_advancedModeFragment_to_simpleModeFragment"
+            app:popUpTo="@id/simpleModeFragment"
+            app:destination="@id/simpleModeFragment" />
     </fragment>
 
     <dialog
@@ -70,6 +78,40 @@
         android:id="@+id/simpleModeFragment"
         android:name="eu.darken.bb.main.ui.simple.SimpleModeFragment"
         android:label="SimpleModeFragment"
-        tools:layout="@layout/main_simple_mode_fragment" />
+        tools:layout="@layout/main_simple_mode_fragment">
+        <action
+            android:id="@+id/action_simpleModeFragment_to_advancedModeFragment"
+            app:popUpTo="@id/advancedModeFragment"
+            app:destination="@id/advancedModeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/helloStepFragment"
+        android:name="eu.darken.bb.main.ui.onboarding.hello.HelloStepFragment"
+        android:label="HelloStepFragment"
+        tools:layout="@layout/onboarding_step_hello_fragment">
+        <action
+            android:id="@+id/action_helloStepFragment_to_costStepFragment"
+            app:destination="@id/costStepFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/costStepFragment"
+        android:name="eu.darken.bb.main.ui.onboarding.cost.CostStepFragment"
+        android:label="CostStepFragment"
+        tools:layout="@layout/onboarding_step_cost_fragment">
+        <action
+            android:id="@+id/action_costStepFragment_to_modeStepFragment"
+            app:destination="@id/modeStepFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/modeStepFragment"
+        android:name="eu.darken.bb.main.ui.onboarding.mode.ModeStepFragment"
+        android:label="ModeStepFragment"
+        tools:layout="@layout/onboarding_step_mode_fragment">
+        <action
+            android:id="@+id/action_modeStepFragment_to_initFragment"
+            app:destination="@id/initFragment"
+            app:popUpTo="@+id/main_nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>
