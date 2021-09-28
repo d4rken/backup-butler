@@ -3,7 +3,7 @@ package eu.darken.bb.common.pkgs.pkgops.installer.routine
 import android.content.Context
 import android.content.pm.PackageInstaller
 import android.os.IBinder
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.inputStream
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallRoutine
@@ -43,6 +43,6 @@ class DefaultRoutine(private val context: Context, val rootMode: Boolean = false
     }
 
     companion object {
-        val TAG = App.logTag("Installer", "DefaultRoutine")
+        val TAG = logTag("Installer", "DefaultRoutine")
     }
 }

@@ -3,10 +3,10 @@ package eu.darken.bb.backup.core.app
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
@@ -60,7 +60,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
             extraPaths = data.extraPaths
         )
         val gens = appSpecGenerator.generate(config)
-        Timber.tag(App.logTag("###")).i("AppBackupSpecs: %s", gens)
+        Timber.tag(logTag("###")).i("AppBackupSpecs: %s", gens)
         return@fromCallable config
     }
 

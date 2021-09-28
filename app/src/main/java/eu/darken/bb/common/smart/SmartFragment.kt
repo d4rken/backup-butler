@@ -9,14 +9,14 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.debug.logging.v
 import eu.darken.bb.common.navigation.doNavigate
 
 
 abstract class SmartFragment(@LayoutRes val layoutRes: Int) : Fragment(layoutRes) {
     internal val tag: String =
-        App.logTag("Fragment", "${this.javaClass.simpleName}(${Integer.toHexString(hashCode())})")
+        logTag("Fragment", "${this.javaClass.simpleName}(${Integer.toHexString(hashCode())})")
 
     override fun onAttach(context: Context) {
         v(tag) { "onAttach(context=$context)" }

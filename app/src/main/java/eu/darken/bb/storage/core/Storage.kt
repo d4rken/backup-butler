@@ -21,8 +21,8 @@ import eu.darken.bb.storage.core.saf.SAFStorageRef
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 interface Storage : Progress.Host, SharedHolder.HasKeepAlive<Any> {

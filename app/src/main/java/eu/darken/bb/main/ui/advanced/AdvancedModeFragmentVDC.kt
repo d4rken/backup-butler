@@ -45,7 +45,7 @@ class AdvancedModeFragmentVDC @Inject constructor(
                 PagerAdapter.Page(SchedulesFragment::class, R.string.scheduler_tab_label)
             )
             val pages = if (debug.isDebug() || showDebug) {
-                basePages.plus(PagerAdapter.Page(DebugFragment::class, R.string.debug_label))
+                listOf(PagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)
             } else {
                 basePages
             }

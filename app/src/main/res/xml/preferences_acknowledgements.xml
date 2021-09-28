@@ -82,6 +82,24 @@
                 android:data="https://github.com/matomo-org/matomo-sdk-android" />
         </Preference>
         <Preference
+            android:key="license.vpnhotspot"
+            android:summary="Thanks to @Mygod for his work on librootkotlinx. (Apache 2.0)"
+            android:title="VPNHotspot"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/Mygod/VPNHotspot" />
+        </Preference>
+        <Preference
+            android:key="license.shizuku"
+            android:summary="Thanks to @RikkaApps for their work on ServiceStarter. (Apache 2.0)"
+            android:title="Shizuku"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/RikkaApps/Shizuku" />
+        </Preference>
+        <Preference
             android:key="license.libsuperuser"
             android:summary="Thanks to Chainfire&apos;s libsuperuser. (APACHE 2.0)"
             android:title="libsuperuser"

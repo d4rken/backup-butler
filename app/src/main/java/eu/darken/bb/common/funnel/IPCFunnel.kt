@@ -3,7 +3,7 @@ package eu.darken.bb.common.funnel
 import android.content.Context
 import android.content.pm.PackageManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import javax.inject.Inject
@@ -36,6 +36,6 @@ class IPCFunnel @Inject constructor(
     }
 
     companion object {
-        internal val TAG = App.logTag("IPCFunnel")
+        internal val TAG = logTag("IPCFunnel")
     }
 }

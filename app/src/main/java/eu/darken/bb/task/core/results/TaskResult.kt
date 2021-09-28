@@ -6,8 +6,8 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.IdType
 import eu.darken.bb.task.core.Task
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Keep

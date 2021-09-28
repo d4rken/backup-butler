@@ -3,7 +3,6 @@ package eu.darken.bb.backup.ui.generator.editor.types.files
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
@@ -11,6 +10,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.navigation.navArgs
@@ -124,6 +124,6 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     ) : WorkId.State
 
     companion object {
-        val TAG = App.logTag("Generator", "Files", "Editor", "VDC")
+        val TAG = logTag("Generator", "Files", "Editor", "VDC")
     }
 }

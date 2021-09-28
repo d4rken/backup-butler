@@ -8,12 +8,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
 import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
@@ -43,7 +43,7 @@ class SysInfoModule @AssistedInject constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("Debug", "SysInfoModule")
+        private val TAG = logTag("Debug", "SysInfoModule")
     }
 
     @AssistedFactory

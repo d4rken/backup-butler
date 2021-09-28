@@ -2,7 +2,7 @@ package eu.darken.bb.common
 
 import android.annotation.SuppressLint
 import com.jakewharton.rx3.replayingShare
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.SchedulersCustom
 import eu.darken.bb.common.rx.filterEqual
 import eu.darken.bb.common.rx.latest
@@ -178,7 +178,7 @@ open class HotData<T>(
     )
 
     companion object {
-        private val TAG = App.logTag("HotData")
+        private val TAG = logTag("HotData")
         fun createDefaultScheduler(name: String? = null) = SchedulersCustom.customScheduler(1, name)
     }
 }

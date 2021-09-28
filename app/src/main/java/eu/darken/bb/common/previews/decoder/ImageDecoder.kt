@@ -3,7 +3,6 @@ package eu.darken.bb.common.previews.decoder
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
@@ -11,12 +10,11 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.request.target.Target
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.previews.GlideUtil
 import eu.darken.bb.common.previews.model.FileData
-
 import java.io.IOException
 
 class ImageDecoder(
@@ -58,6 +56,6 @@ class ImageDecoder(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "ImageDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "ImageDecoder")
     }
 }

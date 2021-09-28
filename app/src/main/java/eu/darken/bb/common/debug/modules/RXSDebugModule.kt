@@ -4,11 +4,11 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
 import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.extra.RXSDebug
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
@@ -21,7 +21,7 @@ class RXSDebugModule @AssistedInject constructor(
     @Assisted host: DebugModuleHost
 ) : DebugModule {
     companion object {
-        internal val TAG = App.logTag("Debug", "RXSDebug")
+        internal val TAG = logTag("Debug", "RXSDebug")
     }
 
     internal val totalShellLaunchCount = AtomicLong()

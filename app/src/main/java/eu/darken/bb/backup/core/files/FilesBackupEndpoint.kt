@@ -2,13 +2,13 @@ package eu.darken.bb.backup.core.files
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.walk
@@ -89,6 +89,6 @@ class FilesBackupEndpoint @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Backup", "Files", "BackupEndpoint")
+        val TAG = logTag("Backup", "Files", "BackupEndpoint")
     }
 }

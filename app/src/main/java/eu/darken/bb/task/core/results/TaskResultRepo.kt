@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.Bugs
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.stored.StoredLogEvent
 import eu.darken.bb.task.core.results.stored.StoredResult
@@ -174,6 +174,6 @@ class TaskResultRepo @Inject constructor(
 
 
     companion object {
-        val TAG = App.logTag("Task", "Result", "Repo")
+        val TAG = logTag("Task", "Result", "Repo")
     }
 }

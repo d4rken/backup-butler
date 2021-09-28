@@ -5,8 +5,8 @@ import android.app.Application
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -118,7 +118,7 @@ class LanguageEnforcer @Inject constructor(
     }
 
     companion object {
-        internal val TAG = App.logTag("UI", "LanguageEnforcer")
+        internal val TAG = logTag("UI", "LanguageEnforcer")
 
     }
 }

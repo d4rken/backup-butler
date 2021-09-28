@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +28,7 @@ class CoreSettings @Inject constructor(
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     companion object {
-        internal val TAG = App.logTag("Core", "Settings")
+        internal val TAG = logTag("Core", "Settings")
         const val PREF_FILE = "settings_core"
     }
 }

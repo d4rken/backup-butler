@@ -3,12 +3,12 @@ package eu.darken.bb.common.debug.bugsnag
 
 import com.bugsnag.android.Event
 import com.bugsnag.android.OnErrorCallback
-import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.BBEnv
 import eu.darken.bb.common.debug.InstallId
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -63,7 +63,7 @@ class BugsnagErrorHandler @Inject constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("Bugsnag", "ErrorHandler")
+        private val TAG = logTag("Bugsnag", "ErrorHandler")
         private val TAB_APP = "app"
         private val TAB_DEVICE = "device"
         private val TAB_ROOTCONTEXT = "rootcontext"

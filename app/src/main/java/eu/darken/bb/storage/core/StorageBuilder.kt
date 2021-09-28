@@ -3,9 +3,9 @@ package eu.darken.bb.storage.core
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityArgs
 import io.reactivex.rxjava3.core.Completable
@@ -137,6 +137,6 @@ class StorageBuilder @Inject constructor(
 
 
     companion object {
-        val TAG = App.logTag("Storage", "Builder")
+        val TAG = logTag("Storage", "Builder")
     }
 }

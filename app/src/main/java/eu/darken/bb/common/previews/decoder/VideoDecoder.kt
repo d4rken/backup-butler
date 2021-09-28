@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
-
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
@@ -12,12 +11,11 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.load.resource.bitmap.VideoBitmapDecoder
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.previews.model.FileData
-
 import java.io.IOException
 
 
@@ -71,6 +69,6 @@ class VideoDecoder(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "VideoDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "VideoDecoder")
     }
 }

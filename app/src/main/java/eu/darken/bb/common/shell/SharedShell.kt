@@ -2,20 +2,19 @@ package eu.darken.bb.common.shell
 
 import eu.darken.bb.common.SharedHolder
 import eu.darken.rxshell.cmd.RxCmdShell
+import io.reactivex.rxjava3.core.Observable
 import timber.log.Timber
 
 class SharedShell constructor(tag: String) : SharedHolder.HasKeepAlive<RxCmdShell.Session> {
-
-    val aTag = "$tag:SharedShell"
-
-    val session = SharedHolder<RxCmdShell.Session>(aTag) { emitter ->
+    private val aTag = "$tag:SharedShell"
+    private val source = Observable.create<RxCmdShell.Session> { emitter ->
         Timber.tag(aTag).d("Initiating connection to host.")
 
         val session = try {
             RxCmdShell.builder().build().open().blockingGet()
         } catch (e: Exception) {
             emitter.onError(e)
-            return@SharedHolder
+            return@create
         }
 
         emitter.setCancellable {
@@ -23,19 +22,23 @@ class SharedShell constructor(tag: String) : SharedHolder.HasKeepAlive<RxCmdShel
             session.close().subscribe()
         }
 
-        emitter.onAvailable(session)
+        emitter.onNext(session)
 
-        try {
-            val end = session.waitFor().blockingGet()
-            if (end != 0) {
-                emitter.onError(IllegalStateException("SharedShell finished with exitcode $end"))
-            } else {
-                emitter.onEnd()
-            }
-        } catch (e: Exception) {
-            emitter.onError(e)
+        val end = try {
+            session.waitFor().blockingGet()
+        } catch (sessionError: Exception) {
+            emitter.tryOnError(IllegalStateException("SharedShell finished unexpectedly", sessionError))
+            return@create
+        }
+
+        if (end != 0) {
+            emitter.tryOnError(IllegalStateException("SharedShell finished with exitcode $end"))
+        } else {
+            emitter.onComplete()
         }
     }
+
+    val session = SharedHolder<RxCmdShell.Session>(aTag, source)
 
     override val keepAlive: SharedHolder<RxCmdShell.Session> = session
 

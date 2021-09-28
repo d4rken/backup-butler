@@ -7,9 +7,9 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.UnitConverter
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.getColorForAttr
 import timber.log.Timber
 import kotlin.math.absoluteValue
@@ -184,7 +184,7 @@ class ItemSwipeTool(vararg actions: SwipeAction) {
     }
 
     companion object {
-        internal val TAG = App.logTag("ItemSwipeTool")
+        internal val TAG = logTag("ItemSwipeTool")
     }
 
 }

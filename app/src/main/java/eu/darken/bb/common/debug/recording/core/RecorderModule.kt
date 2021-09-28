@@ -8,10 +8,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.startServiceCompat
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -86,7 +86,7 @@ class RecorderModule @AssistedInject constructor(
     interface Factory : DebugModule.Factory<RecorderModule>
 
     companion object {
-        internal val TAG = App.logTag("Debug", "RecorderModule")
+        internal val TAG = logTag("Debug", "RecorderModule")
         private const val KEY_RECORDER_PATH = "debug.recorder.path"
         private const val FORCE_FILE = "bb_force_debug_run"
     }

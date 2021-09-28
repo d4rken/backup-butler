@@ -5,8 +5,8 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.TransactionTooLargeException
-import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.funnel.IPCFunnel
@@ -15,7 +15,7 @@ import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.PkgPathInfo
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.user.UserHandleBB
 import timber.log.Timber
 import javax.inject.Inject
@@ -153,6 +153,6 @@ class PkgOps @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("PkgsOps")
+        val TAG = logTag("PkgsOps")
     }
 }

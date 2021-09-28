@@ -2,11 +2,11 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.preview
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.Pkg
@@ -154,6 +154,6 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Generator", "App", "Editor", "Preview", "VDC")
+        val TAG = logTag("Generator", "App", "Editor", "Preview", "VDC")
     }
 }

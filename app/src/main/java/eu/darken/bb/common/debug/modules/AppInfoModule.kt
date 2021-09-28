@@ -4,9 +4,9 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.debug.*
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 
@@ -35,6 +35,6 @@ class AppInfoModule @AssistedInject constructor(
     interface Factory : DebugModule.Factory<AppInfoModule>
 
     companion object {
-        internal val TAG = App.logTag("Debug", "AppInfo")
+        internal val TAG = logTag("Debug", "AppInfo")
     }
 }

@@ -1,10 +1,10 @@
 package eu.darken.bb.processor.core.processors
 
 import android.content.Context
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
@@ -64,6 +64,6 @@ abstract class SimpleBaseProcessor constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("Processor", "BaseProcessor")
+        private val TAG = logTag("Processor", "BaseProcessor")
     }
 }

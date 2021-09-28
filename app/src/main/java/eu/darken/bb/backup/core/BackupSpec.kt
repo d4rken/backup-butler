@@ -9,8 +9,8 @@ import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 @Keep
 interface BackupSpec {

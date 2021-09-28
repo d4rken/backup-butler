@@ -3,11 +3,11 @@ package eu.darken.bb.backup.core
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityArgs
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -145,6 +145,6 @@ class GeneratorBuilder @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Backup", "Generator", "Builder")
+        val TAG = logTag("Backup", "Generator", "Builder")
     }
 }

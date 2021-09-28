@@ -3,7 +3,7 @@ package eu.darken.bb.common.files.core.local
 import android.os.Parcel
 import android.os.Parcelable
 import eu.darken.bb.common.files.core.*
-import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.parcelize.IgnoredOnParcel
 import java.util.*
 
 data class LocalPathLookup(

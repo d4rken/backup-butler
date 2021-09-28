@@ -4,8 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -99,6 +99,6 @@ class APathPickerActivityVDC @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Picker", "Activity", "VDC")
+        val TAG = logTag("Picker", "Activity", "VDC")
     }
 }

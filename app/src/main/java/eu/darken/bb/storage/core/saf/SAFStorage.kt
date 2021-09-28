@@ -7,11 +7,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -394,7 +394,7 @@ class SAFStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<SAFStorage>
 
     companion object {
-        val TAG = App.logTag("Storage", "SAF")
+        val TAG = logTag("Storage", "SAF")
         private const val DATA_EXT = ".data"
         private const val PROP_EXT = ".prop.json"
         private const val SPEC_FILE = "spec.json"

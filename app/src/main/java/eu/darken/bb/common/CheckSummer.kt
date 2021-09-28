@@ -1,6 +1,6 @@
 package eu.darken.bb.common
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
@@ -9,7 +9,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 object CheckSummer {
-    internal val TAG = App.logTag("CheckSummer")
+    internal val TAG = logTag("CheckSummer")
     internal const val HEXES = "0123456789ABCDEF"
 
     enum class Type constructor(internal val algo: String) {

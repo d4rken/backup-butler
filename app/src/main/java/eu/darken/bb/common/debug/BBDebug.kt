@@ -19,6 +19,7 @@ import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.logging.Logging
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
@@ -137,7 +138,7 @@ class BBDebug @Inject constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("Debug")
+        private val TAG = logTag("Debug")
 
         fun isDebug() = BuildConfig.BETA || BuildConfig.DEBUG
     }

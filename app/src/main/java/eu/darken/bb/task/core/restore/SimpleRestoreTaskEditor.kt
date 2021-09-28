@@ -4,12 +4,12 @@ import com.jakewharton.rx3.replayingShare
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.*
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.rx.filterUnchanged
@@ -325,7 +325,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     }
 
     companion object {
-        internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")
+        internal val TAG = logTag("Task", "Restore", "Editor", "Simple")
     }
 
     @AssistedFactory

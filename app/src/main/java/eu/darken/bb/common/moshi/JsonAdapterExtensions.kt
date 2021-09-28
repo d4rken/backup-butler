@@ -3,7 +3,7 @@ package eu.darken.bb.common.moshi
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.local.tryMkFile
 import eu.darken.bb.common.files.core.saf.SAFGateway
@@ -14,7 +14,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InterruptedIOException
 
-val TAG: String = App.logTag("JsonAdapterExtensions")
+val TAG: String = logTag("JsonAdapterExtensions")
 
 fun <T> JsonAdapter<T>.into(value: T, output: Sink) {
     try {

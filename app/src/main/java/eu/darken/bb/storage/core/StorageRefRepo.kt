@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.opt
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
@@ -84,6 +84,6 @@ class StorageRefRepo @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Storage", "RefRepo")
+        val TAG = logTag("Storage", "RefRepo")
     }
 }

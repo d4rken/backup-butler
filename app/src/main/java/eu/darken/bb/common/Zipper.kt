@@ -1,6 +1,6 @@
 package eu.darken.bb.common
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -12,7 +12,7 @@ import java.util.zip.ZipOutputStream
 // https://stackoverflow.com/a/48598099/1251958
 class Zipper {
     companion object {
-        internal val TAG = App.logTag("Zipper")
+        internal val TAG = logTag("Zipper")
         const val BUFFER = 2048
     }
 

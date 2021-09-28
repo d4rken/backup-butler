@@ -11,8 +11,8 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.load.resource.drawable.DrawableDecoderCompat
 import com.bumptech.glide.request.target.Target
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.FileType
 import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
@@ -51,6 +51,6 @@ class FallbackDecoder(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "FallbackDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "FallbackDecoder")
     }
 }

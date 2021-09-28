@@ -6,7 +6,7 @@ import androidx.work.rxjava3.RxWorker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
@@ -16,7 +16,7 @@ class DefaultBackupWorker @AssistedInject constructor(
     @Assisted private val workerParams: WorkerParameters
 ) : RxWorker(context, workerParams) {
     companion object {
-        val TAG: String = App.logTag("Worker", "DefaultBackup")
+        val TAG: String = logTag("Worker", "DefaultBackup")
     }
 
     override fun createWork(): Single<Result> {

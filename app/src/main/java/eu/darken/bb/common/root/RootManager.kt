@@ -1,9 +1,9 @@
-package eu.darken.bb.common.root.core
+package eu.darken.bb.common.root
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.GeneralSettings
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.root.RootContext
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -18,7 +18,7 @@ class RootManager @Inject constructor(
     private val generalSettings: GeneralSettings
 ) {
     companion object {
-        internal val TAG = App.logTag("RootManager")
+        internal val TAG = logTag("RootManager")
     }
 
     val rootContext: Single<RootContext> = Single.just(generalSettings)

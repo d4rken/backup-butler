@@ -10,7 +10,7 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.previews.AppPreviewRequest
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -64,6 +64,6 @@ class AppInfoIconLoader : ModelLoader<AppPreviewRequest, AppIconData> {
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "PkgIconLoader")
+        internal val TAG = logTag("Preview", "PkgIconLoader")
     }
 }

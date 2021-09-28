@@ -3,12 +3,12 @@ package eu.darken.bb.common.smart
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 
 abstract class SmartActivity : AppCompatActivity() {
     internal val tag: String =
-        App.logTag("Activity", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
+        logTag("Activity", this.javaClass.simpleName + "(" + Integer.toHexString(hashCode()) + ")")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.tag(tag).v("onCreate(savedInstanceState=$savedInstanceState)")

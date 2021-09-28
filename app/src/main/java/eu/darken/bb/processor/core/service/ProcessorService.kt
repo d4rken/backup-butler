@@ -4,10 +4,10 @@ import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.rx.blockingGet2
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, HasContext {
 
     companion object {
-        val TAG = App.logTag("Processor", "Service")
+        val TAG = logTag("Processor", "Service")
     }
 
     init {

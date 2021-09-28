@@ -3,12 +3,12 @@ package eu.darken.bb.task.ui.editor.restore.sources
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -92,6 +92,6 @@ class RestoreSourcesFragmentVDC @Inject constructor(
     ) : WorkId.State
 
     companion object {
-        val TAG = App.logTag("Task", "Restore", "Simple", "Sources", "VDC")
+        val TAG = logTag("Task", "Restore", "Simple", "Sources", "VDC")
     }
 }

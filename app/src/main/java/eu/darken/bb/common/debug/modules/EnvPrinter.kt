@@ -4,11 +4,11 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
 import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -18,7 +18,7 @@ class EnvPrinter @AssistedInject constructor(
     @Assisted host: DebugModuleHost
 ) : DebugModule {
     companion object {
-        private val TAG = App.logTag("Debug", "EnvPrinter")
+        private val TAG = logTag("Debug", "EnvPrinter")
     }
 
     private var previousOptions: DebugOptions = DebugOptions.default()

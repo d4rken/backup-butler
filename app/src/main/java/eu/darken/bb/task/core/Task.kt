@@ -13,8 +13,8 @@ import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.backup.SimpleBackupTask
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Keep

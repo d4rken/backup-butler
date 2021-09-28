@@ -8,8 +8,8 @@ import eu.darken.bb.backup.core.app.AppSpecGenerator
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 interface Generator {

@@ -13,8 +13,8 @@ import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.load.resource.drawable.DrawableDecoderCompat
 import com.bumptech.glide.request.target.Target
 import dagger.Lazy
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.model.AppIconData
 import timber.log.Timber
@@ -52,6 +52,6 @@ class AppIconDecoder(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "AppDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "AppDecoder")
     }
 }

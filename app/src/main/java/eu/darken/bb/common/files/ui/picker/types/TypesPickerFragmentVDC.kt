@@ -2,9 +2,9 @@ package eu.darken.bb.common.files.ui.picker.types
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.navigation.navArgs
@@ -41,6 +41,6 @@ class TypesPickerFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Picker", "Types", "VDC")
+        val TAG = logTag("Picker", "Types", "VDC")
     }
 }

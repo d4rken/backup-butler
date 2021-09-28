@@ -3,9 +3,9 @@ package eu.darken.bb.task.core
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
@@ -129,6 +129,6 @@ class TaskBuilder @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Task", "Builder")
+        val TAG = logTag("Task", "Builder")
     }
 }

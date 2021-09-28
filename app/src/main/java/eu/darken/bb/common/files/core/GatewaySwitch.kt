@@ -1,7 +1,7 @@
 package eu.darken.bb.common.files.core
 
-import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -97,6 +97,6 @@ class GatewaySwitch @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("GatewaySwitch")
+        val TAG = logTag("GatewaySwitch")
     }
 }

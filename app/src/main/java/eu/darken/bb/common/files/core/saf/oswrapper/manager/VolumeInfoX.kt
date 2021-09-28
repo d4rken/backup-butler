@@ -3,7 +3,7 @@ package eu.darken.bb.common.files.core.saf.oswrapper.manager
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.os.Build
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.io.File
 import java.lang.reflect.Method
@@ -123,7 +123,7 @@ data class VolumeInfoX internal constructor(private val volumeInfoObject: Any) {
     }
 
     companion object {
-        private val TAG: String = App.logTag("VolumeInfoX")
+        private val TAG: String = logTag("VolumeInfoX")
 
         private const val TYPE_PUBLIC = 0
         private const val TYPE_PRIVATE = 1

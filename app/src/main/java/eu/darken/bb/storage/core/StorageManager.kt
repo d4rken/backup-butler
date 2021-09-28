@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.blockingGetUnWrapped
 import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
@@ -136,6 +136,6 @@ class StorageManager @Inject constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("Storage", "Manager")
+        private val TAG = logTag("Storage", "Manager")
     }
 }

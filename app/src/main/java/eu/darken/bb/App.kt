@@ -7,6 +7,7 @@ import dagger.hilt.android.HiltAndroidApp
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.LogCatLogger
 import eu.darken.bb.common.debug.logging.Logging
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
@@ -51,13 +52,5 @@ open class App : Application(), Configuration.Provider {
 
         lateinit var instance: App
 
-        fun logTag(vararg tags: String): String {
-            val sb = StringBuilder("BB:")
-            for (i in tags.indices) {
-                sb.append(tags[i])
-                if (i < tags.size - 1) sb.append(":")
-            }
-            return sb.toString()
-        }
     }
 }

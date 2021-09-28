@@ -2,7 +2,6 @@ package eu.darken.bb.common.debug.logging
 
 import android.annotation.SuppressLint
 import android.util.Log
-import eu.darken.bb.App
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -74,7 +73,7 @@ class FileLogger(private val logFile: File) : Logging.Logger {
     override fun toString(): String = "FileLoggerTree(file=$logFile)"
 
     companion object {
-        private val TAG = App.logTag("FileLoggerTree")
+        private val TAG = logTag("FileLoggerTree")
     }
 }
 

@@ -1,8 +1,8 @@
 package eu.darken.bb.common.files.core.saf
 
 import eu.darken.bb.common.files.core.*
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Parcelize

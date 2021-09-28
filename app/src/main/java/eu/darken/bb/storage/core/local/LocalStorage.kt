@@ -7,11 +7,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.copyToAutoClose
@@ -389,7 +389,7 @@ class LocalStorage @AssistedInject constructor(
     interface Factory : Storage.Factory<LocalStorage>
 
     companion object {
-        internal val TAG = App.logTag("Storage", "Local")
+        internal val TAG = logTag("Storage", "Local")
         private const val DATA_EXT = ".data"
         private const val PROP_EXT = ".prop.json"
         private const val SPEC_FILE = "spec.json"

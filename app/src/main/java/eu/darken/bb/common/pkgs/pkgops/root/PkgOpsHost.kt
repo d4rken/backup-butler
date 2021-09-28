@@ -3,10 +3,11 @@ package eu.darken.bb.common.pkgs.pkgops.root
 import android.app.ActivityManager
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
 import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
+import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
 import timber.log.Timber
 import java.lang.reflect.Method
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 class PkgOpsHost @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val sharedShell: SharedShell,
+    @RootProcessShell private val sharedShell: SharedShell,
     private val libcoreTool: LibcoreTool
 ) : PkgOpsConnection.Stub() {
     override fun install(request: RemoteInstallRequest): Int = try {
@@ -56,7 +57,7 @@ class PkgOpsHost @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "PkgOps", "Host")
+        val TAG = logTag("Root", "Java", "PkgOps", "Host")
     }
 
 

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.core.PreferenceStoreMapper
 import eu.darken.bb.main.core.Settings
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class UserSettings @Inject constructor(
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     companion object {
-        internal val TAG = App.logTag("User", "Settings")
+        internal val TAG = logTag("User", "Settings")
         const val PREF_FILE = "settings_user"
     }
 }

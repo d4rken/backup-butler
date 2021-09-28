@@ -6,10 +6,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.moshi.fromSAFFile
@@ -160,6 +160,6 @@ class SAFStorageEditor @AssistedInject constructor(
 
     companion object {
         const val STORAGE_CONFIG = "storage.data"
-        val TAG = App.logTag("Storage", "SAF", "Editor")
+        val TAG = logTag("Storage", "SAF", "Editor")
     }
 }

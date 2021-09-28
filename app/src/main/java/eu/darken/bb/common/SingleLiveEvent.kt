@@ -5,7 +5,7 @@ import androidx.annotation.Nullable
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -42,6 +42,6 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
     }
 
     companion object {
-        val TAG = App.logTag("SingleLiveEvent")
+        val TAG = logTag("SingleLiveEvent")
     }
 }

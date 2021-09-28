@@ -1,14 +1,14 @@
 package eu.darken.bb.common
 
 import android.webkit.MimeTypeMap
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.asFile
 import timber.log.Timber
 import java.util.*
 
 object MimeHelper {
-    internal val TAG = App.logTag("MimeHelper")
+    internal val TAG = logTag("MimeHelper")
     const val TYPE_UNSPECIFIC = "*/*"
 
     private val MIMES = HashMap<String, String>(1 + (66 / 0.75).toInt())

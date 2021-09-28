@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.opt
 import eu.darken.bb.common.rx.latest
 import io.reactivex.rxjava3.core.Maybe
@@ -70,6 +70,6 @@ class TaskRepo @Inject constructor(
         }
 
     companion object {
-        val TAG = App.logTag("Task", "Repo")
+        val TAG = logTag("Task", "Repo")
     }
 }

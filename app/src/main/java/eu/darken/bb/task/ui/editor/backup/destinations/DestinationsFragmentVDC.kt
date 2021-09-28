@@ -2,9 +2,9 @@ package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -86,6 +86,6 @@ class DestinationsFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Task", "Editor", "Destinations", "VDC")
+        val TAG = logTag("Task", "Editor", "Destinations", "VDC")
     }
 }

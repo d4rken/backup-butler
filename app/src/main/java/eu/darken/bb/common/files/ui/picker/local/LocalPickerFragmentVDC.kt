@@ -9,6 +9,7 @@ import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.APathLookup
 import eu.darken.bb.common.files.core.WriteException
@@ -165,7 +166,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Picker", "Local", "VDC")
+        val TAG = logTag("Picker", "Local", "VDC")
         const val ARG_MODE = "picker.local.mode"
     }
 }

@@ -3,7 +3,6 @@ package eu.darken.bb.backup.core.app.backup
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
@@ -12,12 +11,13 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.*
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.RootException
+import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.RootUnavailableException
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -100,7 +100,7 @@ class AppBackupEndpoint @Inject constructor(
             javaRootClient.keepAliveWith(this)
             true
         } catch (e: Exception) {
-            if (e.hasCause(RootException::class)) false else throw e
+            if (e.hasCause(RootUnavailableException::class)) false else throw e
         }
         // TODO root stuff, only when enabled?
 
@@ -211,6 +211,6 @@ class AppBackupEndpoint @Inject constructor(
     override fun toString(): String = "AppEndpoint()"
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "BackupEndpoint")
+        val TAG = logTag("Backup", "App", "BackupEndpoint")
     }
 }

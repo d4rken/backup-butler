@@ -3,9 +3,9 @@ package eu.darken.bb.task.core.backup
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
@@ -88,7 +88,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
     ) : TaskEditor.Data
 
     companion object {
-        internal val TAG = App.logTag("Task", "Restore", "Editor", "Simple")
+        internal val TAG = logTag("Task", "Restore", "Editor", "Simple")
     }
 
     @AssistedFactory

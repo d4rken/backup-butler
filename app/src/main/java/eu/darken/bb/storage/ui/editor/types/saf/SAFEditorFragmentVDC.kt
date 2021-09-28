@@ -2,9 +2,9 @@ package eu.darken.bb.storage.ui.editor.types.saf
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -124,6 +124,6 @@ class SAFEditorFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Storage", "SAF", "Editor", "VDC")
+        val TAG = logTag("Storage", "SAF", "Editor", "VDC")
     }
 }

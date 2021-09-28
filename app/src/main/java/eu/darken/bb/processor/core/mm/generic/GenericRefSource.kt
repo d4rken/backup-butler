@@ -1,6 +1,6 @@
 package eu.darken.bb.processor.core.mm.generic
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.lookup
@@ -33,6 +33,6 @@ class GenericRefSource(
     }
 
     companion object {
-        val TAG = App.logTag("MMDataRepo", "MMRef", "GenericRefSource")
+        val TAG = logTag("MMDataRepo", "MMRef", "GenericRefSource")
     }
 }

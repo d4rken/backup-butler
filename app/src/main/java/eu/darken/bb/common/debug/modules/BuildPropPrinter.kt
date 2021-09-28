@@ -6,12 +6,12 @@ import androidx.core.util.Pair
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugOptions
 import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.io.BufferedReader
@@ -84,7 +84,7 @@ class BuildPropPrinter @AssistedInject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Debug", "BuildProp")
+        val TAG = logTag("Debug", "BuildProp")
     }
 
     @AssistedFactory

@@ -1,8 +1,8 @@
 package eu.darken.bb.processor.core.mm
 
 import com.squareup.moshi.Moshi
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.listFilesThrowing
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
@@ -73,7 +73,7 @@ class MMDataRepo @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("MMDataRepo")
+        val TAG = logTag("MMDataRepo")
         const val CACHEDIR = "mmdatarepo"
     }
 }

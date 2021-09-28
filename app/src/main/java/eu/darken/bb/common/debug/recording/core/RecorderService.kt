@@ -9,9 +9,9 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.ui.MainActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RecorderService : Service() {
     companion object {
-        private val TAG = App.logTag("Debug", "RecorderService")
+        private val TAG = logTag("Debug", "RecorderService")
         private const val NOTIF_CHANID_DEBUG = "bb.notifchan.debug"
         private const val STOP_ACTION = "STOP_SERVICE"
         private const val NOTIFICATION_ID = 53

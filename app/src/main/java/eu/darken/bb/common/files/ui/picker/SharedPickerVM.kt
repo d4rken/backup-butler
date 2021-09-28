@@ -1,8 +1,8 @@
 package eu.darken.bb.common.files.ui.picker
 
 import androidx.lifecycle.ViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.core.Storage
 import timber.log.Timber
 
@@ -25,6 +25,6 @@ class SharedPickerVM
     }
 
     companion object {
-        private val TAG = App.logTag("Picker", "SharedPickerVM")
+        private val TAG = logTag("Picker", "SharedPickerVM")
     }
 }

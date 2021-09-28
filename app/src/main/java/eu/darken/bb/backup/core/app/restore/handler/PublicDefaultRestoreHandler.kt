@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
@@ -14,6 +13,7 @@ import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
 import eu.darken.bb.common.AString
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
@@ -205,6 +205,6 @@ class PublicDefaultRestoreHandler @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Restore", "PublicDefaultRestoreHandler")
+        val TAG = logTag("Backup", "App", "Restore", "PublicDefaultRestoreHandler")
     }
 }

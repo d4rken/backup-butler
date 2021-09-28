@@ -7,12 +7,12 @@ import android.graphics.Canvas
 import android.graphics.drawable.*
 import android.os.Build
 import androidx.core.graphics.BitmapCompat
-import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.debug.logging.logTag
 
 
 object GlideUtil {
-    val TAG = App.logTag("Preview", "GlideUtil")
+    val TAG = logTag("Preview", "GlideUtil")
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun getScaledBitmapFromDrawable(drawable: Drawable, width: Int, height: Int): Bitmap? {

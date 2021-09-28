@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.core.PreferenceStoreMapper
 import eu.darken.bb.main.core.Settings
 import javax.inject.Inject
@@ -30,6 +30,6 @@ class TaskSettings @Inject constructor(
     override val preferences: SharedPreferences = context.getSharedPreferences("settings_core", Context.MODE_PRIVATE)
 
     companion object {
-        internal val TAG = App.logTag("Backup", "Settings")
+        internal val TAG = logTag("Backup", "Settings")
     }
 }

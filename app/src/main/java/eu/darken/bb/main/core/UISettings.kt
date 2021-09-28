@@ -6,8 +6,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.preference.createObservablePreference
 import java.util.*
 import javax.inject.Inject
@@ -119,7 +119,7 @@ class UISettings @Inject constructor(
 
 
     companion object {
-        internal val TAG = App.logTag("UI", "Settings")
+        internal val TAG = logTag("UI", "Settings")
         private const val PREF_FILE = "settings_ui"
         const val PKEY_THEME = "ui.theme"
         const val PKEY_STARTMODE = "ui.startmode"

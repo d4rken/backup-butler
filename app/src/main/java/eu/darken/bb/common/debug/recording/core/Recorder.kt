@@ -1,8 +1,8 @@
 package eu.darken.bb.common.debug.recording.core
 
-import eu.darken.bb.App
 import eu.darken.bb.common.debug.logging.FileLogger
 import eu.darken.bb.common.debug.logging.Logging
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.io.File
 
@@ -36,7 +36,7 @@ class Recorder {
     fun isRecording(): Boolean = fileLogger != null
 
     companion object {
-        internal val TAG = App.logTag("Recorder")
+        internal val TAG = logTag("Recorder")
     }
 
 }

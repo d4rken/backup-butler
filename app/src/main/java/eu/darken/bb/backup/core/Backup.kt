@@ -18,8 +18,8 @@ import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.results.LogEvent
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 interface Backup {

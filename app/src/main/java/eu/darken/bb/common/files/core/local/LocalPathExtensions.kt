@@ -8,7 +8,7 @@ import eu.darken.bb.common.files.core.callbacks
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import eu.darken.rxshell.extra.CmdHelper

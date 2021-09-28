@@ -3,11 +3,11 @@ package eu.darken.bb.storage.ui.viewer.content.page
 import androidx.lifecycle.SavedStateHandle
 import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -103,6 +103,6 @@ class ContentPageFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Storage", "Details", "Page", "VDC")
+        val TAG = logTag("Storage", "Details", "Page", "VDC")
     }
 }

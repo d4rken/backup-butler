@@ -5,7 +5,7 @@ import android.net.Uri
 import android.os.Environment
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.files.core.saf.oswrapper.manager.StorageManagerX
@@ -77,7 +77,7 @@ class DeviceEnvironment @Inject constructor(
 
     companion object {
 
-        val TAG = App.logTag("DeviceEnvironment")
+        val TAG = logTag("DeviceEnvironment")
 
         internal fun buildUri(volume: StorageVolumeX): Uri {
             return Uri.parse("content://com.android.externalstorage.documents/tree/${Uri.encode(volume.uuid)}")

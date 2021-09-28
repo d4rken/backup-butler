@@ -11,9 +11,9 @@ import java.io.IOException
 
 
 @Suppress("ProtectedInFinal")
-open class SharedHolder<T> constructor(
+open class SharedHolder<T : Any> constructor(
     private val tag: String,
-    private val sourcer: (ResourceEmitter<T>) -> Unit
+    private val source: Observable<T>,
 ) {
     protected var activeTokens = CompositeDisposable().apply { dispose() }
     protected var childsWeKeepAlive = CompositeDisposable().apply { dispose() }
@@ -23,36 +23,7 @@ open class SharedHolder<T> constructor(
     val isAlive: Boolean
         get() = !activeTokens.isDisposed
 
-    private val resourceHolder: Observable<T> = Observable
-        .create<T> { internalEmitter ->
-            val resourceEmitter = object : ResourceEmitter<T> {
-                override fun onAvailable(t: T) {
-                    internalEmitter.onNext(t)
-                }
-
-                override fun onEnd() {
-                    internalEmitter.onComplete()
-                }
-
-                override fun isDisposed(): Boolean {
-                    return internalEmitter.isDisposed
-                }
-
-                override fun onError(t: Throwable) {
-                    internalEmitter.tryOnError(t)
-                }
-
-                override fun setCancellable(c: () -> Unit) {
-                    internalEmitter.setCancellable { c() }
-                }
-            }
-            try {
-                sourcer(resourceEmitter)
-            } catch (e: Throwable) {
-                internalEmitter.tryOnError(e)
-                return@create
-            }
-        }
+    private val resourceHolder: Observable<T> = source
         .subscribeOn(Schedulers.io())
         .doOnSubscribe {
             Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
@@ -185,19 +156,7 @@ open class SharedHolder<T> constructor(
         override fun close() = keepAlive.dispose()
     }
 
-    interface ResourceEmitter<T> {
-        fun onAvailable(t: T)
-
-        fun onEnd()
-
-        fun isDisposed(): Boolean
-
-        fun onError(t: Throwable)
-
-        fun setCancellable(c: () -> Unit)
-    }
-
-    interface HasKeepAlive<T> {
+    interface HasKeepAlive<T : Any> {
         val keepAlive: SharedHolder<T>
 
         fun keepAliveWith(parent: HasKeepAlive<*>) {
@@ -211,11 +170,10 @@ open class SharedHolder<T> constructor(
     }
 
     companion object {
-        fun createKeepAlive(tag: String): SharedHolder<Any> {
-            return SharedHolder(tag) {
-                it.onAvailable(Any())
-            }
-        }
+        fun createKeepAlive(tag: String): SharedHolder<Any> = SharedHolder(
+            tag,
+            Observable.create { it.onNext(Any()) }
+        )
     }
 
 }

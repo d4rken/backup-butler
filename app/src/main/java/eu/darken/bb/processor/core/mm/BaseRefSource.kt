@@ -1,6 +1,6 @@
 package eu.darken.bb.processor.core.mm
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.APathLookup
 import eu.darken.bb.common.files.core.toMMRefType
@@ -35,7 +35,7 @@ abstract class BaseRefSource : MMRef.RefSource {
     }
 
     companion object {
-        val TAG = App.logTag("MMDataRepo", "BaseRefSource")
+        val TAG = logTag("MMDataRepo", "BaseRefSource")
 
         fun APathLookup<APath>.toProps(label: String? = null): Props {
             return when (fileType.toMMRefType()) {

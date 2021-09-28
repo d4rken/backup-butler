@@ -1,12 +1,13 @@
 package eu.darken.bb.common.files.core.local.root
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.local.*
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
+import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
 import timber.log.Timber
 import java.io.FileInputStream
@@ -14,7 +15,7 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 class FileOpsHost @Inject constructor(
-    private val sharedShell: SharedShell,
+    @RootProcessShell private val sharedShell: SharedShell,
     private val libcoreTool: LibcoreTool,
     private val ipcFunnel: IPCFunnel
 ) : FileOpsConnection.Stub() {
@@ -134,6 +135,6 @@ class FileOpsHost @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "FileOps", "Host")
+        val TAG = logTag("Root", "Java", "FileOps", "Host")
     }
 }

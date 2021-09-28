@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import dagger.hilt.android.AndroidEntryPoint
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent.Code
 import timber.log.Timber
 import javax.inject.Inject
@@ -51,6 +51,6 @@ class InstallerReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        val TAG = App.logTag("Installer", "Receiver")
+        val TAG = logTag("Installer", "Receiver")
     }
 }

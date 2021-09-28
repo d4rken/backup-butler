@@ -12,7 +12,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.request.target.Target
 import dagger.Lazy
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.local.LocalPathLookup
@@ -70,6 +70,6 @@ class ApkDecoder constructor(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "ApkDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "ApkDecoder")
     }
 }

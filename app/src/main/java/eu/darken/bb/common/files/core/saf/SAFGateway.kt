@@ -7,8 +7,8 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import okio.*
 import timber.log.Timber
@@ -285,7 +285,7 @@ class SAFGateway @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("SAF", "Gateway")
+        val TAG = logTag("SAF", "Gateway")
 
         const val RW_FLAGSINT = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         private const val DIR_TYPE: String = DocumentsContract.Document.MIME_TYPE_DIR

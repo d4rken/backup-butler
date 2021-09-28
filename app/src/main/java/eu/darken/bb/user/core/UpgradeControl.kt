@@ -1,7 +1,7 @@
 package eu.darken.bb.user.core
 
 import com.jakewharton.rx3.replayingShare
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -17,7 +17,7 @@ class UpgradeControl @Inject constructor(
 
 ) {
     companion object {
-        val TAG = App.logTag("UpgradeControl")
+        val TAG = logTag("UpgradeControl")
     }
 
     private lateinit var cascChecks: CompositeDisposable

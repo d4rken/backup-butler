@@ -9,8 +9,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.ui.ProcessorActivity
 import io.reactivex.rxjava3.disposables.Disposable
@@ -23,7 +23,7 @@ class ProcessorNotifications @Inject constructor(
 ) {
 
     companion object {
-        val TAG = App.logTag("Processor", "Service", "Notifications")
+        val TAG = logTag("Processor", "Service", "Notifications")
         private const val NOTIFICATION_CHANNEL_ID = "notif.chan.process.progress"
         private const val NOTIFICATION_ID = 1
     }

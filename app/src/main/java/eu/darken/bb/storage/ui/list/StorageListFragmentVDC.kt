@@ -2,8 +2,8 @@ package eu.darken.bb.storage.ui.list
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -61,6 +61,6 @@ class StorageListFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Storage", "StorageList", "VDC")
+        val TAG = logTag("Storage", "StorageList", "VDC")
     }
 }

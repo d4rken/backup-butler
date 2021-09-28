@@ -5,10 +5,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.blockingGet2
 import eu.darken.bb.common.rx.withScopeThis
@@ -86,7 +86,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                         Timber.tag(TAG).i("Backup (%s) stored: %s", backupUnit.backupId, result)
                         subResultBuilder.sucessful()
                     } catch (e: Exception) {
-                        Timber.tag(TAG).e(e, "Error while saving backup to storage: %s", backupUnit, storage)
+                        Timber.tag(TAG).e(e, "Error while saving backup to storage: %s %s", backupUnit, storage)
                         subResultBuilder.error(context, e)
                     } finally {
                         subResultBuilder.addLogEvents(logEvents)
@@ -109,6 +109,6 @@ class SimpleBackupProcessor @AssistedInject constructor(
     interface Factory : Processor.Factory<SimpleBackupProcessor>
 
     companion object {
-        private val TAG = App.logTag("Processor", "Backup", "Simple")
+        private val TAG = logTag("Processor", "Backup", "Simple")
     }
 }

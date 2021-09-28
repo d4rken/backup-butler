@@ -10,8 +10,8 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import dagger.Lazy
-import eu.darken.bb.App
 import eu.darken.bb.GeneralSettings
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.previews.FilePreviewRequest
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -104,7 +104,7 @@ class SmartFileModelLoader constructor(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "SmartFileModelLoader")
+        internal val TAG = logTag("Preview", "SmartFileModelLoader")
         internal val EXTENSIONS_IMAGE = arrayOf(".png", ".jpg", ".jpeg", ".bmp")
         internal val EXTENSIONS_MUSIC = arrayOf(".wav", ".mp3", ".wma", ".raw", ".aac", ".flac", ".m4a", ".ogg")
         internal val EXTENSIONS_VIDEO =

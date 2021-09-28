@@ -7,8 +7,8 @@ import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper.hasAndroidN
+import eu.darken.bb.common.debug.logging.logTag
 import java.io.File
 import java.lang.reflect.Method
 import java.util.*
@@ -58,6 +58,6 @@ class StorageManagerX @Inject constructor(@ApplicationContext context: Context) 
     }
 
     companion object {
-        val TAG = App.logTag("StorageManagerX")
+        val TAG = logTag("StorageManagerX")
     }
 }

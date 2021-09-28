@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root.librootjava;
+package eu.darken.bb.common.root.core.javaroot;
 
 // This is the wrapper used internally by RootIPC(Receiver)
 

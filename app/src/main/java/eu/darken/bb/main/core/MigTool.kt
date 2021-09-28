@@ -2,13 +2,13 @@ package eu.darken.bb.main.core
 
 
 import android.content.SharedPreferences
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 
 import timber.log.Timber
 
 
 object MigTool {
-    internal val TAG = App.logTag("MigTool")
+    internal val TAG = logTag("MigTool")
 
     enum class Type {
         STRING, STRING_SET, BOOLEAN, INTEGER

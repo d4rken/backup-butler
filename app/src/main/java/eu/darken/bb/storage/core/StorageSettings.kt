@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.core.PreferenceStoreMapper
 import eu.darken.bb.main.core.Settings
 import javax.inject.Inject
@@ -38,7 +38,7 @@ class StorageSettings @Inject constructor(
 
 
     companion object {
-        internal val TAG = App.logTag("Storage", "Settings")
+        internal val TAG = logTag("Storage", "Settings")
         private const val PREF_FILE = "settings_storage"
     }
 }

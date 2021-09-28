@@ -3,9 +3,9 @@ package eu.darken.bb.storage.ui.editor.types.local
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -141,6 +141,6 @@ class LocalEditorFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Storage", "Local", "Editor", "VDC")
+        val TAG = logTag("Storage", "Local", "Editor", "VDC")
     }
 }

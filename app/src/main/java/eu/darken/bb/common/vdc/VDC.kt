@@ -2,11 +2,11 @@ package eu.darken.bb.common.vdc
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.ViewModel
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 
 abstract class VDC : ViewModel() {
-    val tag: String = App.logTag("VDC", javaClass.simpleName)
+    val tag: String = logTag("VDC", javaClass.simpleName)
 
     init {
         Timber.tag(tag).v("Initialized")

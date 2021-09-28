@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.toOctal
-import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.parcelize.IgnoredOnParcel
 
 @JsonClass(generateAdapter = true)
 data class Permissions(

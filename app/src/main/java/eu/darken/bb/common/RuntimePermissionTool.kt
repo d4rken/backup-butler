@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -22,6 +22,6 @@ class RuntimePermissionTool @Inject constructor(
     }
 
     companion object {
-        private val TAG = App.logTag("RuntimePermissionTool")
+        private val TAG = logTag("RuntimePermissionTool")
     }
 }

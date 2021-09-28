@@ -3,7 +3,6 @@ package eu.darken.bb.backup.core.app.restore
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
@@ -14,13 +13,14 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.APKInstaller
 import eu.darken.bb.common.progress.*
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.RootException
+import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.RootUnavailableException
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.task.core.results.LogEvent
 import io.reactivex.rxjava3.core.Observable
@@ -62,7 +62,7 @@ class AppRestoreEndpoint @Inject constructor(
             javaRootClient.keepAliveWith(this)
             true
         } catch (e: Exception) {
-            if (e.hasCause(RootException::class)) false else throw e
+            if (e.hasCause(RootUnavailableException::class)) false else throw e
         }
 
         if (config.restoreApk) {
@@ -145,7 +145,7 @@ class AppRestoreEndpoint @Inject constructor(
     override fun toString(): String = "AppEndpoint()"
 
     companion object {
-        val TAG = App.logTag("Backup", "App", "Restore")
+        val TAG = logTag("Backup", "App", "Restore")
     }
 
 }

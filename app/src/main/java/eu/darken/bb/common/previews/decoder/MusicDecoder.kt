@@ -9,8 +9,8 @@ import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
-import eu.darken.bb.App
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.previews.model.FileData
 import java.io.IOException
 
@@ -33,6 +33,6 @@ class MusicDecoder(
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "Decoder", "MusicDecoder")
+        internal val TAG = logTag("Preview", "Decoder", "MusicDecoder")
     }
 }

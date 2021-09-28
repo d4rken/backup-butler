@@ -1,6 +1,9 @@
 package eu.darken.bb.common.files.core.local.root
 
-import eu.darken.bb.App
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -12,8 +15,8 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.*
 
-class FileOpsClient(
-    private val fileOpsConnection: FileOpsConnection
+class FileOpsClient @AssistedInject constructor(
+    @Assisted private val fileOpsConnection: FileOpsConnection
 ) : ClientModule {
     fun lookUp(path: LocalPath): LocalPathLookup = try {
         fileOpsConnection.lookUp(path)
@@ -131,6 +134,11 @@ class FileOpsClient(
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "FileOps", "Client")
+        val TAG = logTag("Root", "Java", "FileOps", "Client")
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(connection: FileOpsConnection): FileOpsClient
     }
 }

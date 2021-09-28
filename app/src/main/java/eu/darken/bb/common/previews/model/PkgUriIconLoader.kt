@@ -10,7 +10,7 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
 import dagger.Lazy
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.PkgUriPreviewRequest
 import eu.darken.bb.common.previews.UriHelper
@@ -71,6 +71,6 @@ class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, A
     }
 
     companion object {
-        internal val TAG = App.logTag("Preview", "PackageNameUriLoader")
+        internal val TAG = logTag("Preview", "PackageNameUriLoader")
     }
 }

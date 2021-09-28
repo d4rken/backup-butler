@@ -5,9 +5,9 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.RuntimePermissionTool
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -137,6 +137,6 @@ class LocalStorageEditor @AssistedInject constructor(
 
     companion object {
         const val STORAGE_CONFIG = "storage.data"
-        val TAG = App.logTag("Storage", "Local", "Editor")
+        val TAG = logTag("Storage", "Local", "Editor")
     }
 }

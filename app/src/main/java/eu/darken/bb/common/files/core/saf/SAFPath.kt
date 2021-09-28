@@ -8,7 +8,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.FileType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.io.IOException
 

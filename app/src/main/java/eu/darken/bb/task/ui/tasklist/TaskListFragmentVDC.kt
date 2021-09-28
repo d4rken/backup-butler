@@ -2,9 +2,9 @@ package eu.darken.bb.task.ui.tasklist
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -97,6 +97,6 @@ class TaskListFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Task", "TaskList", "VDC")
+        val TAG = logTag("Task", "TaskList", "VDC")
     }
 }

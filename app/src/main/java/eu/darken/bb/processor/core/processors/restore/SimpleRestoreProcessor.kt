@@ -5,11 +5,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
@@ -125,6 +125,6 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     interface Factory : Processor.Factory<SimpleRestoreProcessor>
 
     companion object {
-        private val TAG = App.logTag("Processor", "Restore", "Simple")
+        private val TAG = logTag("Processor", "Restore", "Simple")
     }
 }

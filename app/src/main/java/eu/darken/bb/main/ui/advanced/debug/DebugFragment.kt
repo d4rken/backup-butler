@@ -2,18 +2,20 @@ package eu.darken.bb.main.ui.advanced.debug
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import eu.darken.bb.App
 import eu.darken.bb.R
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.DebugFragmentBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,16 +29,19 @@ class DebugFragment : SmartFragment(R.layout.debug_fragment) {
         binding.librootjavaStart.clicksDebounced().subscribe {
             Single.fromCallable { javaRootClient.runSessionAction { it.ipc.checkBase() } }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { result ->
-                    Timber.tag(TAG).d("checkBase(): %s", result)
+                .subscribe({ result ->
+                    log { "checkBase(): $result" }
                     binding.librootjavaOutput.text = result
-                }
+                }, { error ->
+                    log { "Root check failed: ${error.asLog()}" }
+                    Toast.makeText(requireContext(), error.toString(), Toast.LENGTH_LONG).show()
+                })
         }
 
         super.onViewCreated(view, savedInstanceState)
     }
 
     companion object {
-        val TAG = App.logTag("Debug", "Fragment")
+        val TAG = logTag("Debug", "Fragment")
     }
 }

@@ -1,11 +1,13 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'de.mannodermaus.android-junit5'
-apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: 'com.bugsnag.android.gradle'
-apply plugin: 'dagger.hilt.android.plugin'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'de.mannodermaus.android-junit5'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'com.bugsnag.android.gradle'
+    id 'dagger.hilt.android.plugin'
+}
 
 def gitSha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 def buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("GMT+1"))
@@ -111,9 +113,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    androidExtensions {
-        experimental = true
-    }
+
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             jvmTarget = '1.8'
@@ -132,6 +132,10 @@ android {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+    implementation project(':bb-common')
+    implementation project(':bb-root')
+
     implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin.core}"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
@@ -181,7 +185,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-adapters:1.9.2"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:1.12.0"
 
-    implementation 'org.apache.commons:commons-compress:1.20'
+    implementation 'org.apache.commons:commons-compress:1.21'
 
     // ROOM
     def room_version = "2.4.0-alpha04"
@@ -212,7 +216,6 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
 
     // Root
-    implementation project(':bb-root')
     implementation 'eu.chainfire:libsuperuser:+'
 
     // Rx

@@ -1,14 +1,14 @@
 package eu.darken.bb.common.files.core.local
 
-import eu.darken.bb.App
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
-import eu.darken.bb.common.root.core.javaroot.RootException
+import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.RootUnavailableException
 import eu.darken.bb.common.shell.SharedShell
 import eu.darken.bb.common.user.UserHandleBB
 import eu.darken.rxshell.cmd.RxCmdShell
@@ -189,7 +189,7 @@ class LocalGateway @Inject constructor(
                 try {
                     rootOps { it.canWrite(path) }
                 } catch (e: Exception) {
-                    if (e.hasCause(RootException::class)) false
+                    if (e.hasCause(RootUnavailableException::class)) false
                     else throw e
                 }
             }
@@ -215,7 +215,7 @@ class LocalGateway @Inject constructor(
                 try {
                     rootOps { it.canRead(path) }
                 } catch (e: Exception) {
-                    if (e.hasCause(RootException::class)) false
+                    if (e.hasCause(RootUnavailableException::class)) false
                     else throw e
                 }
             }
@@ -379,6 +379,6 @@ class LocalGateway @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Local", "Gateway")
+        val TAG = logTag("Local", "Gateway")
     }
 }

@@ -1,14 +1,17 @@
 package eu.darken.bb.common.pkgs.pkgops.root
 
-import eu.darken.bb.App
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.ClientModule
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
 import timber.log.Timber
 import java.io.IOException
 
-class PkgOpsClient(
-    private val connection: PkgOpsConnection
+class PkgOpsClient @AssistedInject constructor(
+    @Assisted private val connection: PkgOpsConnection
 ) : ClientModule {
 
     fun install(request: RemoteInstallRequest) = try {
@@ -50,6 +53,11 @@ class PkgOpsClient(
     }
 
     companion object {
-        val TAG = App.logTag("Root", "Java", "PkgOps", "Client")
+        val TAG = logTag("Root", "Java", "PkgOps", "Client")
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(connection: PkgOpsConnection): PkgOpsClient
     }
 }

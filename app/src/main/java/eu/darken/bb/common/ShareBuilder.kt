@@ -6,8 +6,8 @@ import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.asFile
 import timber.log.Timber
@@ -124,7 +124,7 @@ class ShareBuilder @Inject constructor(
     }
 
     companion object {
-        val TAG = App.logTag("Intents", "ShareBuilder")
+        val TAG = logTag("Intents", "ShareBuilder")
     }
 }
 

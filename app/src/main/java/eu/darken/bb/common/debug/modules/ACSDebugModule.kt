@@ -5,11 +5,11 @@ import android.os.Build
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 @TargetApi(Build.VERSION_CODES.N)
@@ -18,7 +18,7 @@ class ACSDebugModule @AssistedInject constructor(
 ) : DebugModule {
 
     companion object {
-        internal val TAG = App.logTag("Debug", "ACSDebugModule")
+        internal val TAG = logTag("Debug", "ACSDebugModule")
     }
 
     private var crashHandler: Thread.UncaughtExceptionHandler? = null

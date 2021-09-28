@@ -8,8 +8,8 @@ import android.os.Build
 import android.os.UserHandle
 import android.os.storage.StorageVolume
 import androidx.annotation.RequiresApi
-import eu.darken.bb.App
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 import java.io.File
 
@@ -130,6 +130,6 @@ data class StorageVolumeX internal constructor(private val volumeObj: Any) {
     }
 
     companion object {
-        val TAG: String = App.logTag("StorageVolumeX")
+        val TAG: String = logTag("StorageVolumeX")
     }
 }

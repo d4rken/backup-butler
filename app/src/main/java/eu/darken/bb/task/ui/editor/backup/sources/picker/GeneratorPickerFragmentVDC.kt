@@ -2,11 +2,11 @@ package eu.darken.bb.task.ui.editor.backup.sources.picker
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.toLiveData
@@ -77,6 +77,6 @@ class GeneratorPickerFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = App.logTag("Task", "Editor", "Sources", "Picker", "VDC")
+        val TAG = logTag("Task", "Editor", "Sources", "Picker", "VDC")
     }
 }

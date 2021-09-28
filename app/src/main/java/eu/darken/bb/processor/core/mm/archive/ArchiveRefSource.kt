@@ -1,6 +1,6 @@
 package eu.darken.bb.processor.core.mm.archive
 
-import eu.darken.bb.App
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.processor.core.mm.BaseRefSource
@@ -93,7 +93,7 @@ open class ArchiveRefSource(
     }
 
     companion object {
-        val TAG = App.logTag("MMDataRepo", "MMRef", "ArchiveRefSource")
+        val TAG = logTag("MMDataRepo", "MMRef", "ArchiveRefSource")
 
         internal fun genProps(label: String?, archivePath: APath): () -> ArchiveProps {
             return {

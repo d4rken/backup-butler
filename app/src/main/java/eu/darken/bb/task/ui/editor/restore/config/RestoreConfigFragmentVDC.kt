@@ -3,13 +3,13 @@ package eu.darken.bb.task.ui.editor.restore.config
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.App
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.navigation.navArgs
@@ -173,6 +173,6 @@ class RestoreConfigFragmentVDC @Inject constructor(
     )
 
     companion object {
-        internal val TAG = App.logTag("Task", "Restore", "Config", "VDC")
+        internal val TAG = logTag("Task", "Restore", "Config", "VDC")
     }
 }

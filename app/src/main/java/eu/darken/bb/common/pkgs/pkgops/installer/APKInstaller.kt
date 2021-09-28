@@ -3,11 +3,11 @@ package eu.darken.bb.common.pkgs.pkgops.installer
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.App
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
@@ -19,7 +19,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.common.root.core.javaroot.JavaRootClient
+import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.task.core.results.LogEvent
@@ -178,7 +178,7 @@ class APKInstaller @Inject constructor(
 
 
     companion object {
-        val TAG = App.logTag("Installer")
+        val TAG = logTag("Installer")
 
         internal fun createAction(packageName: String): String {
             return "${BuildConfig.APPLICATION_ID}.INSTALLER.CALLBACK:$packageName"

@@ -1,7 +1,7 @@
 package eu.darken.bb.common.files.core
 
 import androidx.annotation.Keep
-import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.parcelize.IgnoredOnParcel
 import java.util.*
 
 @Keep
