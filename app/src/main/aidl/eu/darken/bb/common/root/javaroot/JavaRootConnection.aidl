@@ -1,4 +1,4 @@
-package eu.darken.bb.common.root.core.javaroot;
+package eu.darken.bb.common.root.javaroot;
 
 import eu.darken.bb.common.files.core.local.root.FileOpsConnection;
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsConnection;

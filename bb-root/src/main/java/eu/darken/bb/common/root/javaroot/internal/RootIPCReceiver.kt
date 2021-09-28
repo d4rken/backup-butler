@@ -21,7 +21,6 @@ import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.root.javaroot.IRootIPC
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
