@@ -26,7 +26,7 @@ class DebugFragment : SmartFragment(R.layout.debug_fragment) {
             rootTestContainer.isInvisible = it.isWorking
             rootTestOutput.text = it.output
             rootTestOutput.setTextColor(
-                when (it.result) {
+                when (it.success) {
                     1 -> getCompatColor(R.color.colorSecondary)
                     -1 -> getCompatColor(R.color.colorError)
                     else -> getColorForAttr(R.attr.colorOnBackground)

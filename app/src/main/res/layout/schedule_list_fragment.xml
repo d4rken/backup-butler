@@ -8,12 +8,13 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         app:rvwLoading="true"
+        android:id="@+id/schedule_list_wrapper"
         app:rvwLoadingUntilFirstChange="true"
         android:layout_height="match_parent"
         app:rvwExplanationText="@string/scheduler_quick_explanation_desc">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/schedules_list"
+            android:id="@+id/schedule_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </eu.darken.bb.common.ui.RecyclerViewWrapperLayout>

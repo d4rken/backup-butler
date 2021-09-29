@@ -11,3 +11,8 @@ fun SavedStateHandle.ifFresh(action: () -> Unit): Boolean {
     }
     return fresh
 }
+
+fun SavedStateHandle.asLog(): String {
+    val valueMap = keys().map { it to get<Any>(it) }.joinToString { (key, value) -> "$key=$value" }
+    return "SavedStateHandle($this):\n$valueMap"
+}

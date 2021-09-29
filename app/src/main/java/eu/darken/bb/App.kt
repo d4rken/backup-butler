@@ -11,6 +11,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
+import eu.darken.rxshell.extra.RXSDebug
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,7 +28,10 @@ open class App : Application(), Configuration.Provider {
         super.onCreate()
 
         if (BuildConfig.DEBUG || BuildConfig.BETA) {
+            RXSDebug.setDebug(true)
             Logging.install(LogCatLogger())
+            // TODO remove aber migrating to Logging.kt wrapper
+            Timber.plant(Timber.DebugTree())
         }
 
         bbDebug.get()

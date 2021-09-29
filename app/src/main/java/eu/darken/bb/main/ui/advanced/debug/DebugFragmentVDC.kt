@@ -23,7 +23,7 @@ class DebugFragmentVDC @Inject constructor(
     data class RootCheckState(
         val isWorking: Boolean = false,
         val output: String = "",
-        val result: Int = 0,
+        val success: Int = 0,
     )
 
     val rootResult = MutableLiveData(RootCheckState())
@@ -35,10 +35,15 @@ class DebugFragmentVDC @Inject constructor(
             .doOnSubscribe { rootResult.postValue(RootCheckState(isWorking = true)) }
             .subscribe({ result ->
                 log { "performJavaRootCheck(): $result" }
-                rootResult.postValue(RootCheckState(output = result, result = 1))
+                rootResult.postValue(
+                    RootCheckState(
+                        output = result,
+                        success = 1
+                    )
+                )
             }, { error ->
                 log { "Java check failed: ${error.asLog()}" }
-                rootResult.postValue(RootCheckState(output = error.asLog(), result = -1))
+                rootResult.postValue(RootCheckState(output = error.asLog(), success = -1))
             })
             .withScopeVDC(this)
     }
@@ -47,13 +52,23 @@ class DebugFragmentVDC @Inject constructor(
         Cmd.builder("id")
             .submit(RxCmdShell.builder().root(true).build())
             .subscribeOn(Schedulers.io())
-            .doOnSubscribe { rootResult.postValue(RootCheckState(isWorking = true)) }
+            .doOnSubscribe {
+                rootResult.postValue(RootCheckState(isWorking = true))
+            }
             .subscribe({ result ->
                 log { "performShellRootCheck(): $result" }
-                rootResult.postValue(RootCheckState(output = result.merge().joinToString("\n"), result = 1))
+                rootResult.postValue(
+                    RootCheckState(
+                        output = result.merge().joinToString("\n"),
+                        success = when (result.exitCode) {
+                            Cmd.ExitCode.OK -> 1
+                            else -> -1
+                        }
+                    )
+                )
             }, { error ->
                 log { "Shell check failed: ${error.asLog()}" }
-                rootResult.postValue(RootCheckState(output = error.asLog(), result = -1))
+                rootResult.postValue(RootCheckState(output = error.asLog(), success = -1))
             })
             .withScopeVDC(this)
     }

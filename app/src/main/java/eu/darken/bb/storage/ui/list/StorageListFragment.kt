@@ -3,10 +3,12 @@ package eu.darken.bb.storage.ui.list
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -15,7 +17,6 @@ import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageListFragmentBinding
 import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
@@ -36,12 +37,10 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
         vdc.storageData.observe2(this, ui) { state ->
+            log { "Updating UI state with $state" }
             adapter.update(state.storages)
-
             storageListWrapper.updateLoadingState(state.isLoading)
-
-            fab.setInvisible(state.isLoading)
-
+            fab.isInvisible = state.isLoading
             requireActivity().invalidateOptionsMenu()
         }
 

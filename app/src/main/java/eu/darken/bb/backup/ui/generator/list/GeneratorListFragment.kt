@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -19,7 +20,7 @@ import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorsFragment : SmartFragment(R.layout.generator_list_fragment) {
+class GeneratorListFragment : SmartFragment(R.layout.generator_list_fragment) {
 
     private val vdc: GeneratorsFragmentVDC by viewModels()
     private val binding: GeneratorListFragmentBinding by viewBinding()
@@ -31,6 +32,7 @@ class GeneratorsFragment : SmartFragment(R.layout.generator_list_fragment) {
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editGenerator(adapter.data[i]) })
 
         vdc.viewState.observe2(this) {
+            log { "Updating UI state with $it" }
             adapter.update(it.generators)
         }
 

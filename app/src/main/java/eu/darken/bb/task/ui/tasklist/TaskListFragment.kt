@@ -8,6 +8,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -34,6 +35,7 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
         vdc.state.observe2(this) { state ->
+            log { "Updating UI state with $state" }
             adapter.update(state.tasks)
         }
 
