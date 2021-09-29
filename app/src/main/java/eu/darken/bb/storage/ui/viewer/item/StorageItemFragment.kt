@@ -44,9 +44,11 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
         vdc.state.observe2(this, ui) { state ->
-            requireActivityActionBar().title = state.storageLabel
-            if (state.storageType != null) {
-                requireActivityActionBar().setSubtitle(state.storageType.labelRes)
+            requireActivityActionBar().apply {
+                if (state.storageType != null) {
+                    title = getString(state.storageType.labelRes)
+                }
+                subtitle = state.storageLabel
             }
 
             adapter.update(state.specInfos)

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/generator_editor"
-    app:startDestination="@id/generatorTypeFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/generator_editor">
 
     <activity
         android:id="@+id/generatorEditorActivity"
-        android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity">
+        android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
+        tools:layout="@layout/generator_editor_activity">
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
@@ -15,25 +16,22 @@
     <fragment
         android:id="@+id/generatorTypeFragment"
         android:name="eu.darken.bb.backup.ui.generator.editor.types.GeneratorTypeFragment"
-        android:label="@string/general_select_type_label">
+        android:label="@string/general_select_type_label"
+        tools:layout="@layout/generator_editor_typeselection_fragment">
         <action
             android:id="@+id/action_generatorTypeFragment_to_appEditorFragment"
             app:destination="@id/appEditorConfigFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/generator_editor"
-            app:popUpToInclusive="true" />
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_generatorTypeFragment_to_filesEditorFragment"
             app:destination="@id/filesEditorFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/generator_editor"
-            app:popUpToInclusive="true" />
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
@@ -41,7 +39,8 @@
     <fragment
         android:id="@+id/appEditorConfigFragment"
         android:name="eu.darken.bb.backup.ui.generator.editor.types.app.config.AppEditorConfigFragment"
-        android:label="@string/backup_type_app_label">
+        android:label="@string/backup_type_app_label"
+        tools:layout="@layout/generator_editor_app_config_fragment">
         <action
             android:id="@+id/action_appEditorConfigFragment_to_appEditorPreviewFragment"
             app:destination="@id/appEditorPreviewFragment"
@@ -56,7 +55,8 @@
     <fragment
         android:id="@+id/filesEditorFragment"
         android:name="eu.darken.bb.backup.ui.generator.editor.types.files.FilesEditorConfigFragment"
-        android:label="@string/backup_type_files_label">
+        android:label="@string/backup_type_files_label"
+        tools:layout="@layout/generator_editor_file_fragment">
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
@@ -64,7 +64,8 @@
     <fragment
         android:id="@+id/appEditorPreviewFragment"
         android:name="eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragment"
-        android:label="@string/general_preview_action">
+        android:label="@string/general_preview_action"
+        tools:layout="@layout/generator_editor_app_preview_fragment">
         <argument
             android:name="previewMode"
             app:argType="eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode" />

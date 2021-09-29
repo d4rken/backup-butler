@@ -27,7 +27,7 @@ class APathPickerActivity : SmartActivity() {
 
     private val vdc: APathPickerActivityVDC by viewModels()
 
-    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+    private val navController by lazy { findNavController(R.id.nav_host) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.picker_nav) }
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()

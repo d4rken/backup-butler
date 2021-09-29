@@ -12,11 +12,13 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorRequirementsFragmentBinding
+import eu.darken.bb.task.core.Task
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,16 +38,17 @@ class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fra
         vdc.state.observe2(this, ui) { state ->
             adapter.update(state.requirements)
 
-//            ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
-//                val nextStep = when (state.taskType) {
-//                    Task.Type.BACKUP_SIMPLE -> R.id.action_permissionFragment_to_introFragment
-//                    Task.Type.RESTORE_SIMPLE -> R.id.action_permissionFragment_to_restoreSourcesFragment
-//                }
-//                findNavController().navigate(
-//                    nextStep,
-//                    SourcesFragmentArgs(taskId = navArgs.taskId).toBundle()
-//                )
-//            }
+            ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
+                val nextStep = when (state.taskType) {
+                    Task.Type.BACKUP_SIMPLE -> RequirementsFragmentDirections.actionPermissionFragmentToIntroFragment(
+                        taskId = navArgs.taskId
+                    )
+                    Task.Type.RESTORE_SIMPLE -> RequirementsFragmentDirections.actionPermissionFragmentToRestoreSourcesFragment(
+                        taskId = navArgs.taskId
+                    )
+                }
+                doNavigate(nextStep)
+            }
         }
 
         ui.explanationMoreAction.clicksDebounced().subscribe {

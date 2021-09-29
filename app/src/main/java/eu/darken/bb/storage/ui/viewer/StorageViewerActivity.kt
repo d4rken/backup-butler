@@ -26,7 +26,7 @@ class StorageViewerActivity : AppCompatActivity() {
     val vdc: StorageViewerActivityVDC by viewModels()
     private lateinit var ui: StorageViewerActivityBinding
 
-    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+    private val navController by lazy { findNavController(R.id.nav_host) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.storage_viewer) }
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()

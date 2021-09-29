@@ -38,8 +38,8 @@ class ItemContentsFragment : SmartFragment(R.layout.storage_viewer_itemcontent_f
 
         vdc.state.observe2(this, ui) { state ->
             requireActivityActionBar().apply {
-                title = state.backupSpec?.getLabel(requireContext()) ?: getString(R.string.progress_loading_label)
-                if (state.backupSpec != null) setSubtitle(state.backupSpec.backupType.labelRes)
+                if (state.backupSpec != null) title = getString(state.backupSpec.backupType.labelRes)
+                subtitle = state.backupSpec?.getLabel(requireContext()) ?: getString(R.string.progress_loading_label)
             }
 
             pagerAdapter.update(state.versions)

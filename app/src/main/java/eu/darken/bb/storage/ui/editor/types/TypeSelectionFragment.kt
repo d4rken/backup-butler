@@ -2,24 +2,19 @@ package eu.darken.bb.storage.ui.editor.types
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorTypeselectionFragmentBinding
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.ui.editor.types.local.LocalEditorFragmentArgs
-import eu.darken.bb.storage.ui.editor.types.saf.SAFEditorFragmentArgs
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -40,20 +35,14 @@ class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselectio
 
         vdc.navigationEvent.observe2(this) { (type, id) ->
             val nextStep = when (type) {
-                Storage.Type.LOCAL -> R.id.action_typeSelectionFragment_to_localEditorFragment
-                Storage.Type.SAF -> R.id.action_typeSelectionFragment_to_safEditorFragment
+                Storage.Type.LOCAL -> TypeSelectionFragmentDirections.actionTypeSelectionFragmentToLocalEditorFragment(
+                    storageId = id
+                )
+                Storage.Type.SAF -> TypeSelectionFragmentDirections.actionTypeSelectionFragmentToSafEditorFragment(
+                    storageId = id
+                )
             }
-            val args = when (type) {
-                Storage.Type.LOCAL -> LocalEditorFragmentArgs(storageId = id).toBundle()
-                Storage.Type.SAF -> SAFEditorFragmentArgs(storageId = id).toBundle()
-            }
-            val appbarConfig = AppBarConfiguration.Builder(R.id.localEditorFragment, R.id.safEditorFragment).build()
-            NavigationUI.setupActionBarWithNavController(
-                requireActivity() as AppCompatActivity,
-                findNavController(),
-                appbarConfig
-            )
-            findNavController().navigate(nextStep, args)
+            doNavigate(nextStep)
         }
 
         super.onViewCreated(view, savedInstanceState)

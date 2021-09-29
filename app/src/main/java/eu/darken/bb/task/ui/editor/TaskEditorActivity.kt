@@ -2,6 +2,7 @@ package eu.darken.bb.task.ui.editor
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
@@ -22,7 +23,7 @@ class TaskEditorActivity : SmartActivity() {
 
     private val vdc: TaskEditorActivityVDC by viewModels()
     private lateinit var ui: TaskEditorBackupActivityBinding
-    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+    private val navController by lazy { findNavController(R.id.nav_host) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +68,9 @@ class TaskEditorActivity : SmartActivity() {
 
         vdc.finishEvent.observe2(this) { finish() }
 
-//        onBackPressedDispatcher.addCallback {
-//            if (!navController.popBackStack()) finish()
-//        }
+        onBackPressedDispatcher.addCallback {
+            if (!navController.popBackStack()) finish()
+        }
     }
 
     override fun onDestroy() {

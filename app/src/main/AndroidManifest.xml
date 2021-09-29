@@ -62,7 +62,7 @@
 
         <activity
             android:name=".common.files.ui.picker.APathPickerActivity"
-            android:theme="@style/AppThemeSplash" />
+            android:theme="@style/AppThemeActionBar" />
 
         <service android:name=".processor.core.service.ProcessorService" />
 

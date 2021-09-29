@@ -30,7 +30,9 @@ class TypeSelectionFragmentVDC @Inject constructor(
     val navigationEvent = SingleLiveEvent<Pair<Storage.Type, Storage.Id>>()
 
     fun createType(type: Storage.Type) {
-        builder.update(storageId) { it!!.copy(storageType = type) }
+        builder
+            .update(storageId) { it!!.copy(storageType = type, editor = null) }
+            .flatMapMaybe { builder.load(it.value!!.storageId) }
             .subscribeOn(Schedulers.io())
             .doFinally { navigationEvent.postValue(type to storageId) }
             .subscribe()

@@ -1,5 +1,6 @@
 package eu.darken.bb.storage.ui.editor
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
@@ -7,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,7 +23,14 @@ class StorageEditorActivity : AppCompatActivity() {
 
     private val vdc: StorageEditorActivityVDC by viewModels()
     private lateinit var ui: StorageEditorActivityBinding
-    private val navController by lazy { findNavController(R.id.nav_host_fragment) }
+
+    private val navController by lazy { findNavController(R.id.nav_host) }
+    private val appBarConf = AppBarConfiguration.Builder().apply {
+        setFallbackOnNavigateUpListener {
+            finish()
+            true
+        }
+    }.build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +43,8 @@ class StorageEditorActivity : AppCompatActivity() {
                 val graph = navController.navInflater.inflate(R.navigation.storage_editor)
                 graph.startDestination = state.stepFlow.start
                 navController.setGraph(graph, bundleOf("storageId" to state.storageId))
+                setupActionBarWithNavController(navController)
+
                 navController.addOnDestinationChangedListener { controller, destination, arguments ->
                     requireActionBar().apply {
                         title = when {
@@ -41,10 +52,13 @@ class StorageEditorActivity : AppCompatActivity() {
                             else -> getString(R.string.storage_create_action)
                         }
                         subtitle = destination.label
+                        @SuppressLint("RestrictedApi")
+                        if (controller.backStack.size <= 2) {
+                            requireActionBar().setDisplayHomeAsUpEnabled(true)
+                            requireActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24)
+                        }
                     }
                 }
-
-                setupActionBarWithNavController(navController)
             }
         }
 
@@ -60,12 +74,12 @@ class StorageEditorActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return NavigationUI.navigateUp(navController, appBarConf) || super.onSupportNavigateUp()
     }
 
 }

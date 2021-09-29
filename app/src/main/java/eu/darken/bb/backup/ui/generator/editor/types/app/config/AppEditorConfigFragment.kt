@@ -8,7 +8,6 @@ import androidx.navigation.fragment.navArgs
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.ui.generator.editor.types.app.preview.AppEditorPreviewFragmentArgs
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.*
 import eu.darken.bb.common.rx.clicksDebounced
@@ -78,11 +77,12 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     }
 
     private fun navigatePreview(mode: PreviewMode) {
-        val args = AppEditorPreviewFragmentArgs(
-            generatorId = navArgs.generatorId,
-            previewMode = mode
+        findNavController().navigate(
+            AppEditorConfigFragmentDirections.actionAppEditorConfigFragmentToAppEditorPreviewFragment(
+                generatorId = navArgs.generatorId,
+                previewMode = mode,
+            )
         )
-        findNavController().navigate(R.id.action_appEditorConfigFragment_to_appEditorPreviewFragment, args.toBundle())
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
