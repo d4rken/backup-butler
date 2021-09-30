@@ -162,6 +162,36 @@ class HotDataTest : BaseTest() {
     }
 
     @Test
+    fun `test updating - error`() {
+        val thrownError = IOException()
+        val testSched = TestScheduler()
+        val hotData = HotData(debug = true, scheduler = testSched) { "strawberry" }
+        val testObs = hotData.data.test()
+
+        // Default handler just rethrows
+        hotData.update { throw thrownError }
+
+        testSched.triggerActions()
+        testObs.assertError { it is RuntimeException && it.cause == thrownError }
+    }
+
+    @Test
+    fun `test updating - custom error handler`() {
+        val thrownError = IOException()
+        var seenError: Throwable? = null
+        val testSched = TestScheduler()
+        val hotData = HotData(debug = true, scheduler = testSched) { "strawberry" }
+        val testObs = hotData.data.test()
+        hotData.update({ seenError = it }) {
+            throw thrownError
+        }
+
+        testSched.triggerActions()
+        testObs.assertValue("strawberry")
+        seenError shouldBe thrownError
+    }
+
+    @Test
     fun `test rx updating - one shot observers`() {
         val testSched = TestScheduler()
         val hotData = HotData(debug = true, scheduler = testSched) { "strawberry" }

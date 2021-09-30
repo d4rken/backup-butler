@@ -57,6 +57,7 @@ open class HotData<T : Any>(
                             ?: oldState.copy(actionId = action.id)
                     } catch (e: Exception) {
                         log(ll, WARN) { "UpdateAction $action failed: ${e.asLog()}" }
+                        action.errorHandler(e)
                         oldState
                     }
 
@@ -96,10 +97,6 @@ open class HotData<T : Any>(
         }
         .filterEqual { old, new -> old.dataId != new.dataId }
         .map { it.data }
-        .doOnNext { if (debug) log(ll, VERBOSE) { "data: doOnNext-preReplay: $it" } }
-        .doFinally { if (debug) log(ll) { "data: finally-preReplay" } }
-        .doOnNext { if (debug) log(ll, VERBOSE) { "data: doOnNext-postReplay: $it" } }
-        .doFinally { if (debug) log(ll, VERBOSE) { "data: finally-postReplay" } }
         .hide()
 
     val latest: Single<T>
@@ -114,14 +111,25 @@ open class HotData<T : Any>(
             return statePub.blockingFirst().data
         }
 
+
+    fun update(
+        errorHandler: (Throwable) -> Unit,
+        action: (T) -> T?
+    ) {
+        updateRx(
+            action = action,
+            errorHandler = errorHandler
+        ).subscribe()
+    }
+
     /**
      * When you return null, no data update will be triggered and the old value remains
      */
     fun update(action: (T) -> T?) {
-        updateRx(
-            action = action,
-            errorHandler = { throw RuntimeException("Unhandled update exception", it) }
-        ).subscribe()
+        update(
+            errorHandler = { throw RuntimeException("Unhandled update exception", it) },
+            action = action
+        )
     }
 
     /**
@@ -141,7 +149,6 @@ open class HotData<T : Any>(
     ): Single<Update<T>> = Single.create<Update<T>> { emitter ->
         val updateActionId = UUID.randomUUID()
         val wrap: (T) -> T? = { oldValue ->
-            try {
                 val newValue = action.invoke(oldValue)
 
                 val compDisp = CompositeDisposable()
@@ -167,10 +174,6 @@ open class HotData<T : Any>(
                 emitter.setDisposable(compDisp)
 
                 newValue
-            } catch (e: Throwable) {
-                emitter.tryOnError(e)
-                oldValue
-            }
         }
         updatePub.onNext(
             UpdateAction(
