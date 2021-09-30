@@ -2,13 +2,10 @@ package eu.darken.bb.common
 
 import androidx.lifecycle.LiveData
 import eu.darken.bb.common.rx.toLiveData
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
-class Stater<T> : HotData<T> {
-    constructor(startValue: T) : super(startValue)
-    constructor(startValueProvider: () -> T) : super(Single.fromCallable { startValueProvider.invoke() })
+class Stater<T : Any>(startValueProvider: () -> T) : HotData<T>(initial = startValueProvider) {
 
     private val liveDeps = mutableSetOf<() -> Disposable>()
     private var liveDepCompDis = CompositeDisposable()

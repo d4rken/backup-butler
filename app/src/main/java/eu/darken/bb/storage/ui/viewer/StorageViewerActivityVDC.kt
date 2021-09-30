@@ -23,7 +23,7 @@ class StorageViewerActivityVDC @Inject constructor(
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishActivity = SingleLiveEvent<Boolean>()
 
-    private val stater: Stater<State> = Stater(State(storageId = storageId))
+    private val stater: Stater<State> = Stater { State(storageId = storageId) }
     val state = stater.liveData
 
     init {

@@ -33,10 +33,10 @@ class StorageItemFragmentVDC @Inject constructor(
         .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
         .replayingShare()
 
-    private val stater: Stater<State> = Stater(State())
+    private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
 
-    private val deletionStater = Stater(DeletionState())
+    private val deletionStater = Stater { DeletionState() }
     val deletionState = deletionStater.liveData
 
     val finishEvent = SingleLiveEvent<Boolean>()

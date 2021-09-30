@@ -38,7 +38,7 @@ class ContentPageFragmentVDC @Inject constructor(
         .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
         .replayingShare()
 
-    private val stater: Stater<State> = Stater(State())
+    private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
 
     val finishEvent = SingleLiveEvent<Any>()

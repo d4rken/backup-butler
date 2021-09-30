@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.R
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.rx.swallowInterruptExceptions
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -55,11 +56,17 @@ class TaskEditorActivityVDC @Inject constructor(
                 }
             }
         }
-        State(stepFlow = steps, taskId = taskId, taskType = data.taskType, requiresSetup = !isReqReady)
+        State(
+            stepFlow = steps,
+            taskId = taskId,
+            taskType = data.taskType,
+            requiresSetup = !isReqReady,
+        )
     }
     val state = stater.liveData
 
     init {
+        stater.data.subscribe { log { "Stater: $it" } }
         taskObs
             .switchMapSingle { reqMan.reqsFor(it.taskType) }
             .map { reqs -> reqs.all { it.satisfied } }
@@ -84,6 +91,7 @@ class TaskEditorActivityVDC @Inject constructor(
             .flatMap { it.editorData }
             .subscribe { data ->
                 stater.update {
+                    log { "Updating isExisting" }
                     it.copy(
                         isExistingTask = data.isExistingTask,
                         isLoading = false,

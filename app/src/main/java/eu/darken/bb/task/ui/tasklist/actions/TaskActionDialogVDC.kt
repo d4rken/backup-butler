@@ -27,7 +27,7 @@ class TaskActionDialogVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<TaskActionDialogArgs>()
     private val taskId: Task.Id = navArgs.taskId
-    private val stateUpdater = Stater(State(loading = true))
+    private val stateUpdater = Stater { State(loading = true) }
     val state = stateUpdater.liveData
 
     init {

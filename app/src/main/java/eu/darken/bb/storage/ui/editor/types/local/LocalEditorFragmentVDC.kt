@@ -30,7 +30,7 @@ class LocalEditorFragmentVDC @Inject constructor(
 ) : SmartVDC() {
     private val navArgs by handle.navArgs<LocalEditorFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater(State(isPermissionGranted = true))
+    private val stater = Stater { State(isPermissionGranted = true) }
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)

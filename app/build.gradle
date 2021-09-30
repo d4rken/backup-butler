@@ -242,7 +242,7 @@ dependencies {
 
     // Debug
     implementation "com.jakewharton.timber:timber:${versions.timber}"
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
     implementation "com.uber.rxdogtag2:rxdogtag:2.1.0-SNAPSHOT"
     implementation 'com.bugsnag:bugsnag-android:5.9.2'
 

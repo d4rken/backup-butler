@@ -10,6 +10,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.v
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
@@ -32,7 +33,8 @@ class TaskEditorActivity : SmartActivity() {
         setContentView(ui.root)
 
         vdc.state.observe2(this) { state ->
-            if (!navController.isGraphSet()) {
+            log { "isLoading=${state.isLoading} isGraphSet=${navController.isGraphSet()}" }
+            if (!state.isLoading && !navController.isGraphSet()) {
                 v { "Setting up NavController" }
                 val graph = navController.navInflater.inflate(R.navigation.task_editor)
                 if (state.requiresSetup) {
@@ -42,13 +44,14 @@ class TaskEditorActivity : SmartActivity() {
                 }
                 navController.setGraph(graph, bundleOf("taskId" to state.taskId))
                 setupActionBarWithNavController(navController)
-
+                log { "Updating isGraphSet" }
                 navController.addOnDestinationChangedListener { controller, destination, arguments ->
                     when (destination.id) {
                         R.id.storagePickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
                         R.id.generatorPickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
                         else -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
                     }
+                    log { "Updating titles" }
                     requireActionBar().apply {
                         title = when (state.taskType) {
                             Task.Type.BACKUP_SIMPLE -> {

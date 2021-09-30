@@ -24,7 +24,7 @@ class GeneratorBuilder @Inject constructor(
     private val editors: @JvmSuppressWildcards Map<Backup.Type, GeneratorEditor.Factory<out GeneratorEditor>>
 ) {
 
-    private val hotData = HotData<Map<Generator.Id, Data>>(mutableMapOf())
+    private val hotData = HotData<Map<Generator.Id, Data>> { mutableMapOf() }
     val builders = hotData.data
 
     init {

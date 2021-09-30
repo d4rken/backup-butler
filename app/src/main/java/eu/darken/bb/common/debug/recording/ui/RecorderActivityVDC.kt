@@ -35,7 +35,7 @@ class RecorderActivityVDC @Inject constructor(
             Pair(zipped, File(zipped).length())
         }
         .cache()
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
 
     val state = stater.liveData
 

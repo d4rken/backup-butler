@@ -30,7 +30,7 @@ class SAFStorageEditor @AssistedInject constructor(
     private val safGateway: SAFGateway
 ) : StorageEditor {
 
-    private val editorDataPub = HotData(Data(storageId = initialStorageId))
+    private val editorDataPub = HotData { Data(storageId = initialStorageId) }
     override val editorData = editorDataPub.data
 
     private val configAdapter = moshi.adapter(SAFStorageConfig::class.java)

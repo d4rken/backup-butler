@@ -24,7 +24,7 @@ class StorageBuilder @Inject constructor(
     private val editors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
 ) {
 
-    private val hotData = HotData<Map<Storage.Id, Data>>(mutableMapOf())
+    private val hotData = HotData<Map<Storage.Id, Data>> { mutableMapOf() }
     val builders = hotData.data
 
     init {

@@ -26,7 +26,7 @@ class ItemContentsFragmentVDC @Inject constructor(
 
     private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
 
-    private val stater: Stater<State> = Stater(State())
+    private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<Any>()

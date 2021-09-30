@@ -23,7 +23,7 @@ class TaskBuilder @Inject constructor(
     private val editors: @JvmSuppressWildcards Map<Task.Type, TaskEditor.Factory<out TaskEditor>>
 ) {
 
-    private val hotData = HotData<Map<Task.Id, Data>>(mutableMapOf())
+    private val hotData = HotData<Map<Task.Id, Data>> { mutableMapOf() }
 
     init {
         hotData.data

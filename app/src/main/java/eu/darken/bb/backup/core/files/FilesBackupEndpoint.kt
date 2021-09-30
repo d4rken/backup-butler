@@ -30,7 +30,7 @@ class FilesBackupEndpoint @Inject constructor(
     private val gatewaySwitch: GatewaySwitch
 ) : Backup.Endpoint, Progress.Client, HasContext, SharedHolder.HasKeepAlive<Any> {
 
-    private val progressPub = HotData(Progress.Data())
+    private val progressPub = HotData { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressPub.data
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)

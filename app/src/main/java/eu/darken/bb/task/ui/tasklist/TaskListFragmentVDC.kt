@@ -30,7 +30,7 @@ class TaskListFragmentVDC @Inject constructor(
         .map { it.toList() }
         .map { tasks -> tasks.filter { !it.isOneTimeTask } }
 
-    private val stater = Stater(ViewState())
+    private val stater = Stater { ViewState() }
     val state = stater.liveData
 
     val editTaskEvent = SingleLiveEvent<EditActions>()

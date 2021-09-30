@@ -2,6 +2,7 @@ package eu.darken.bb.common
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.reactivex.rxjava3.core.Observable
 import org.junit.jupiter.api.Test
 import testhelper.BaseTest
 
@@ -10,9 +11,7 @@ class SharedHolderTest : BaseTest() {
     @Test
     fun `test init normal`() {
         val testValue = Any()
-        val sr = SharedHolder<Any>("tag") {
-            it.onAvailable(testValue)
-        }
+        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(testValue) })
         sr.isAlive shouldBe false
 
         val token = sr.get()
@@ -26,9 +25,7 @@ class SharedHolderTest : BaseTest() {
     @Test
     fun `test error while providing initial value`() {
         shouldThrow<Exception> {
-            val sr = SharedHolder<Any>("tag") {
-                it.onError(IllegalArgumentException())
-            }
+            val sr = SharedHolder<Any>("tag", Observable.error(IllegalArgumentException()))
             sr.get()
         }
     }
@@ -36,7 +33,7 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test staggered close`() {
-        val sr = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
 
         val token1 = sr.get()
         val token2 = sr.get()
@@ -50,7 +47,7 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test close all`() {
-        val sr = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
 
         sr.get()
         sr.get()
@@ -62,8 +59,8 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test child resource cascading close`() {
-        val sr1 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
-        val sr2 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
 
         val token1 = sr1.get()
         val token2 = sr2.get()
@@ -78,8 +75,8 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test child resource premature close`() {
-        val sr1 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
-        val sr2 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
 
         val token1 = sr1.get()
         val token2 = sr2.get()
@@ -97,8 +94,8 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test child resource added to closed parent`() {
-        val sr1 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
-        val sr2 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
 
         val token2 = sr2.get()
         sr1.isAlive shouldBe false
@@ -111,7 +108,7 @@ class SharedHolderTest : BaseTest() {
 
     @Test
     fun `test accessing closed resource`() {
-        val sr1 = SharedHolder<Any>("tag") { it.onAvailable(Any()) }
+        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
         val token = sr1.get()
         token.item
         token.close()

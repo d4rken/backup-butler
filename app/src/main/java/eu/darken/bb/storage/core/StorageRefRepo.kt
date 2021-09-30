@@ -25,7 +25,7 @@ class StorageRefRepo @Inject constructor(
         context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
     private val refAdapter = moshi.adapter(Storage.Ref::class.java)
 
-    private val initializer = Single.fromCallable {
+    private val internalData = HotData<Map<Storage.Id, Storage.Ref>> {
         val internalRefs = mutableMapOf<Storage.Id, Storage.Ref>()
         preferences.all.forEach {
             val ref = refAdapter.fromJson(it.value as String)!!
@@ -33,7 +33,6 @@ class StorageRefRepo @Inject constructor(
         }
         internalRefs.toMap()
     }
-    private val internalData = HotData<Map<Storage.Id, Storage.Ref>>(initializer)
 
     private val affectedIdPub = PublishSubject.create<Storage.Id>()
     internal val modifiedIds = affectedIdPub.hide()

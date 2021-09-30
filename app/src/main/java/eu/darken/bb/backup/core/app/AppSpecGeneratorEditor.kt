@@ -18,7 +18,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
     private val appSpecGenerator: AppSpecGenerator
 ) : GeneratorEditor {
 
-    private val editorDataPub = HotData(Data(generatorId = generatorId))
+    private val editorDataPub = HotData { Data(generatorId = generatorId) }
     override val editorData = editorDataPub.data
 
     override fun load(config: Generator.Config): Completable = Single.just(config as AppSpecGenerator.Config)

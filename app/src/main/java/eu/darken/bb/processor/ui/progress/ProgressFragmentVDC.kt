@@ -24,7 +24,7 @@ class ProgressFragmentVDC @Inject constructor(
         .timeout(3, TimeUnit.SECONDS)
         .onErrorComplete()
 
-    private val stater: Stater<State> = Stater(State())
+    private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
 
     val finishEvent = SingleLiveEvent<Any>()

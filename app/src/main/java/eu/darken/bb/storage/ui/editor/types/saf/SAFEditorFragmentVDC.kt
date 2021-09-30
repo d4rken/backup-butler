@@ -29,7 +29,7 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<SAFEditorFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)

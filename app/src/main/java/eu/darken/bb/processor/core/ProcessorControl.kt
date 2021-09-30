@@ -17,7 +17,7 @@ import javax.inject.Singleton
 class ProcessorControl @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val progressHostPub = HotData<Opt<Progress.Host>>(Opt())
+    private val progressHostPub = HotData<Opt<Progress.Host>> { Opt() }
     val progressHost = progressHostPub.data
 
     internal fun updateProgressHost(progressHost: Progress.Host?) {

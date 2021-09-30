@@ -37,7 +37,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     private val pathTool: GatewaySwitch
 ) : TaskEditor {
 
-    private val editorDataPub = HotData(Data(taskId = taskId))
+    private val editorDataPub = HotData { Data(taskId = taskId) }
     override val editorData = editorDataPub.data
 
     private val backupInfoCache = mutableMapOf<Backup.Id, Backup.InfoOpt>()

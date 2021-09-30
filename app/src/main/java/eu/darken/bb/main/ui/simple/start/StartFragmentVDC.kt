@@ -30,7 +30,7 @@ class StartFragmentVDC @Inject constructor(
         }
         .toLiveData()
 
-    private val updateStater = Stater(UpdateState())
+    private val updateStater = Stater { UpdateState() }
     val updateState = updateStater.liveData
 
 

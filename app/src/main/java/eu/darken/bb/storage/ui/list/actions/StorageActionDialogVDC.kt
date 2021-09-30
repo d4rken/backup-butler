@@ -30,7 +30,7 @@ class StorageActionDialogVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<StorageActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater(State(isLoadingData = true))
+    private val stater = Stater { State(isLoadingData = true) }
     val state = stater.liveData
     val closeDialogEvent = SingleLiveEvent<Any>()
     val errorEvent = SingleLiveEvent<Throwable>()

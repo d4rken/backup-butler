@@ -25,7 +25,7 @@ class RequirementsFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
     private val builderData = taskBuilder.task(taskId).subscribeOn(Schedulers.io())
 
-    val stater = Stater(State())
+    val stater = Stater { State() }
     val state = stater.liveData
 
     val runTimePermissionEvent = SingleLiveEvent<Requirement.Permission>()

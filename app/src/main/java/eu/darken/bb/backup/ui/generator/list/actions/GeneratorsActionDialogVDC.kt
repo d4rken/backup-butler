@@ -25,7 +25,7 @@ class GeneratorsActionDialogVDC @Inject constructor(
 ) : SmartVDC() {
     private val navArgs = handle.navArgs<GeneratorsActionDialogArgs>().value
     private val generatorId: Generator.Id = navArgs.generatorId
-    private val stateUpdater = Stater(State(loading = true))
+    private val stateUpdater = Stater { State(loading = true) }
     val state = stateUpdater.liveData
 
     init {

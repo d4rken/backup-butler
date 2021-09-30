@@ -23,7 +23,7 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
     private val generatorId = navArgs.value.generatorId
 
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     private val editorObs = builder.generator(generatorId)

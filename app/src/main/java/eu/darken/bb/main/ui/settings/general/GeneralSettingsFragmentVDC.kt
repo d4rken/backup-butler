@@ -13,7 +13,7 @@ class GeneralSettingsFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val bbDebug: BBDebug
 ) : SmartVDC() {
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     init {

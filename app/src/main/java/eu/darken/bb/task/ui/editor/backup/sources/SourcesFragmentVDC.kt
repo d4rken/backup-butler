@@ -30,7 +30,7 @@ class SourcesFragmentVDC @Inject constructor(
 
     private val editor: SimpleBackupTaskEditor by lazy { editorObs.blockingFirst() }
 
-    private val stater: Stater<State> = Stater(State())
+    private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
 
     init {

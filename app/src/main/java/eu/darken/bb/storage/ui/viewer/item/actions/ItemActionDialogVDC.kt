@@ -35,7 +35,7 @@ class ItemActionDialogVDC @Inject constructor(
     private val storageObs = storageManager.getStorage(storageId)
         .subscribeOn(Schedulers.io())
 
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     val actionEvent = SingleLiveEvent<Triple<ItemAction, Storage.Id, BackupSpec.Id>>()

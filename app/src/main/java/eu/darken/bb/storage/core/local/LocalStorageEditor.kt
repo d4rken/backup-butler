@@ -31,7 +31,7 @@ class LocalStorageEditor @AssistedInject constructor(
     private val userManager: UserManagerBB
 ) : StorageEditor {
 
-    private val editorDataPub = HotData(Data(storageId = initialStorageId))
+    private val editorDataPub = HotData { Data(storageId = initialStorageId) }
     override val editorData = editorDataPub.data
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)

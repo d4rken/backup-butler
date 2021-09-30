@@ -24,7 +24,7 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
     private val navArgs = handle.navArgs<AppEditorPreviewFragmentArgs>().value
     private val generatorId: Generator.Id = navArgs.generatorId
     private val previewMode: PreviewMode = navArgs.previewMode
-    private val stater = Stater(State(previewMode = previewMode))
+    private val stater = Stater { State(previewMode = previewMode) }
     val state = stater.liveData
 
     private val editorObs = builder.generator(generatorId)

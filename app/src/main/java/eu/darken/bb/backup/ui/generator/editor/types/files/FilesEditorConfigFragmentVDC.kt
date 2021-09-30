@@ -27,7 +27,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
 ) : SmartVDC() {
 
     private val generatorId: Generator.Id = handle.navArgs<FilesEditorConfigFragmentArgs>().value.generatorId
-    private val stater = Stater(State())
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     private val dataObs = builder.generator(generatorId)

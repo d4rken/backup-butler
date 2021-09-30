@@ -41,7 +41,7 @@ class BBDebug @Inject constructor(
 ) : DebugModuleHost {
 
     private var preferences: SharedPreferences = context.getSharedPreferences("debug_settings", Context.MODE_PRIVATE)
-    private val optionsUpdater = HotData(DebugOptions.default())
+    private val optionsUpdater = HotData(tag = TAG) { DebugOptions.default() }
     private val modules = mutableSetOf<DebugModule>()
 
     init {

@@ -39,10 +39,10 @@ class RestoreSourcesFragmentVDC @Inject constructor(
 
     private val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
 
-    private val summaryStater = Stater(CountState())
+    private val summaryStater = Stater { CountState() }
     val summaryState = summaryStater.liveData
 
-    private val backupsStater = Stater(BackupsState())
+    private val backupsStater = Stater { BackupsState() }
     val backupsState = backupsStater.liveData
 
     val finishEvent = SingleLiveEvent<Any>()

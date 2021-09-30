@@ -39,7 +39,7 @@ class PrivateDefaultRestoreHandler @Inject constructor(
     private val pkgOps: PkgOps
 ) : BaseRestoreHandler(context) {
 
-    private val progressPub = HotData(Progress.Data())
+    private val progressPub = HotData { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
     override val keepAlive = SharedHolder.createKeepAlive(TAG)

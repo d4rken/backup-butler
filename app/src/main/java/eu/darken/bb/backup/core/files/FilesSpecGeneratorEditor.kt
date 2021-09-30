@@ -25,7 +25,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     private val safGateway: SAFGateway
 ) : GeneratorEditor {
 
-    private val editorDataPub = HotData(Data(generatorId = generatorId))
+    private val editorDataPub = HotData { Data(generatorId = generatorId) }
     override val editorData = editorDataPub.data
 
     private var originalPath: APath? = null

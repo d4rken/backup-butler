@@ -45,10 +45,10 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val dataObs = editorObs.flatMap { it.editorData }
     private val customConfigs = editorObs.flatMap { it.customConfigs }
 
-    private val summaryStater = Stater(SummaryState())
+    private val summaryStater = Stater { SummaryState() }
     val summaryState = summaryStater.liveData
 
-    private val configStater = Stater(ConfigState())
+    private val configStater = Stater { ConfigState() }
     val configState = configStater.liveData
 
     val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
