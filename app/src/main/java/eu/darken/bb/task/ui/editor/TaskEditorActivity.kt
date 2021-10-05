@@ -1,5 +1,6 @@
 package eu.darken.bb.task.ui.editor
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
@@ -46,11 +47,6 @@ class TaskEditorActivity : SmartActivity() {
                 setupActionBarWithNavController(navController)
                 log { "Updating isGraphSet" }
                 navController.addOnDestinationChangedListener { controller, destination, arguments ->
-                    when (destination.id) {
-                        R.id.storagePickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
-                        R.id.generatorPickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
-                        else -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-                    }
                     log { "Updating titles" }
                     requireActionBar().apply {
                         title = when (state.taskType) {
@@ -64,6 +60,17 @@ class TaskEditorActivity : SmartActivity() {
                             }
                         }
                         subtitle = destination.label
+                        @SuppressLint("RestrictedApi")
+                        if (controller.backStack.size <= 2) {
+                            requireActionBar().setDisplayHomeAsUpEnabled(true)
+                            requireActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_close_24)
+                        } else {
+                            when (destination.id) {
+                                R.id.storagePickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+                                R.id.generatorPickerFragment -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel)
+                                else -> supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+                            }
+                        }
                     }
                 }
             }
