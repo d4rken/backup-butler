@@ -9,6 +9,6 @@
     <item android:bottom="48dp">
         <bitmap
             android:gravity="center"
-            android:src="@drawable/ic_android" />
+            android:src="@drawable/ic_launcher_foreground" />
     </item>
 </layer-list>
