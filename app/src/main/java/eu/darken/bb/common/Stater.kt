@@ -5,7 +5,13 @@ import eu.darken.bb.common.rx.toLiveData
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
-class Stater<T : Any>(startValueProvider: () -> T) : HotData<T>(initial = startValueProvider) {
+class Stater<T : Any>(
+    tag: String? = null,
+    startValueProvider: () -> T
+) : HotData<T>(
+    tag = tag,
+    initial = startValueProvider
+) {
 
     private val liveDeps = mutableSetOf<() -> Disposable>()
     private var liveDepCompDis = CompositeDisposable()

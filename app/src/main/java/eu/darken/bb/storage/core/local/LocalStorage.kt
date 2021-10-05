@@ -62,7 +62,7 @@ class LocalStorage @AssistedInject constructor(
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
 
-    private val progressPub = HotData { Progress.Data() }
+    private val progressPub = HotData(tag = TAG) { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
@@ -148,7 +148,7 @@ class LocalStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content as Collection<BackupSpec.Info>
+            return@map content
         }
         .doOnError { Timber.tag(TAG).e(it) }
         .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }

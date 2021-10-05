@@ -65,7 +65,7 @@ class APathPickerActivityVDC @Inject constructor(
     }
 
     fun onSAFPickerResult(data: Uri?) {
-        Timber.tag(TAG).d("onSSAFPickerResult(data=%s)", data)
+        Timber.tag(TAG).d("onSAFPickerResult(data=%s)", data)
         if (data != null) {
             val path = SAFPath.build(data)
             val takenPermissions = mutableSetOf<SAFPath>()

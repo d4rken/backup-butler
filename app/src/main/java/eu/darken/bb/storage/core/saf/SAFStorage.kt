@@ -61,7 +61,7 @@ class SAFStorage @AssistedInject constructor(
     private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
     private val propsAdapter = moshi.adapter(Props::class.java)
 
-    private val progressPub = HotData { Progress.Data() }
+    private val progressPub = HotData(tag = TAG) { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressPub.data
 
     private val dataDirEvents = Observable
@@ -158,7 +158,7 @@ class SAFStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content as Collection<BackupSpec.Info>
+            return@map content
         }
         .doOnError {
             if (it is InterruptedIOException) {

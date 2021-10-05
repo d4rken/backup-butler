@@ -29,7 +29,7 @@ class FilesRestoreEndpoint @Inject constructor(
     private val gateway: GatewaySwitch
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
-    private val progressPub = HotData { Progress.Data() }
+    private val progressPub = HotData(tag = TAG) { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 

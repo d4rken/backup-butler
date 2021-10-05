@@ -45,7 +45,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
 
     private val serviceDeathDisp = CompositeDisposable()
 
-    private val progressUpdater = HotData { Progress.Data() }
+    private val progressUpdater = HotData(tag = TAG) { Progress.Data() }
     override val progress: Observable<Progress.Data> = progressUpdater.data
 
     override fun onCreate() {

@@ -21,7 +21,7 @@ import java.util.*
  */
 @SuppressLint("CheckResult")
 open class HotData<T : Any>(
-    private val debug: Boolean = true,
+    private val debug: Boolean = false,
     private val tag: String? = null,
     private val scheduler: Scheduler = createDefaultScheduler(tag),
     private val initial: () -> T
@@ -154,9 +154,9 @@ open class HotData<T : Any>(
                 val compDisp = CompositeDisposable()
 
                 val replayer = ReplaySubject.create<State<T>>()
-                replayer
-                    //Wait for our action to have been processed
-                    .filter { it.actionId === updateActionId }
+            replayer
+                //Wait for our action to have been processed
+                .filter { it.actionId == updateActionId }
                     .take(1)
                     .doFinally { compDisp.dispose() }
                     .subscribe { emitter.onSuccess(Update(oldValue, newValue ?: oldValue)) }

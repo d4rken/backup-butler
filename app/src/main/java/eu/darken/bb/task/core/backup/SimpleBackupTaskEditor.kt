@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.core.Single
 class SimpleBackupTaskEditor @AssistedInject constructor(
     @Assisted private val taskId: Task.Id
 ) : TaskEditor {
-    private val editorDataPub = HotData { Data(taskId = taskId) }
+    private val editorDataPub = HotData(tag = TAG) { Data(taskId = taskId) }
     override val editorData = editorDataPub.data
 
     override fun load(task: Task): Completable = Single.just(task as SimpleBackupTask)

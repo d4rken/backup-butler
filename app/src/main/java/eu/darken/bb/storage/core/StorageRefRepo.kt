@@ -25,7 +25,7 @@ class StorageRefRepo @Inject constructor(
         context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
     private val refAdapter = moshi.adapter(Storage.Ref::class.java)
 
-    private val internalData = HotData<Map<Storage.Id, Storage.Ref>> {
+    private val internalData = HotData(tag = TAG) {
         val internalRefs = mutableMapOf<Storage.Id, Storage.Ref>()
         preferences.all.forEach {
             val ref = refAdapter.fromJson(it.value as String)!!
