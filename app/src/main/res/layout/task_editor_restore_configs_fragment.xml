@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         style="@style/MyCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -78,7 +78,7 @@
                 app:layout_constraintStart_toStartOf="@+id/count_container"
                 app:layout_constraintTop_toTopOf="@+id/count_container" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,6 +1,7 @@
 package eu.darken.bb.task.ui.editor.common.requirements
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -27,7 +28,7 @@ class RequirementsFragmentVDC @Inject constructor(
 
     val stater = Stater { State() }
     val state = stater.liveData
-
+    val navEvents = SingleLiveEvent<NavDirections>()
     val runTimePermissionEvent = SingleLiveEvent<Requirement.Permission>()
 
     init {
@@ -55,6 +56,18 @@ class RequirementsFragmentVDC @Inject constructor(
     fun onPermissionResult(granted: Boolean) {
         if (!granted) return
         updateRequirements()
+    }
+
+    fun onContinue() {
+        val nextStep = when (stater.snapshot.taskType) {
+            Task.Type.BACKUP_SIMPLE -> RequirementsFragmentDirections.actionPermissionFragmentToIntroFragment(
+                taskId = navArgs.taskId
+            )
+            Task.Type.RESTORE_SIMPLE -> RequirementsFragmentDirections.actionPermissionFragmentToRestoreSourcesFragment(
+                taskId = navArgs.taskId
+            )
+        }
+        navEvents.postValue(nextStep)
     }
 
     data class State(

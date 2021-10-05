@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
 import eu.darken.bb.R
 import eu.darken.bb.common.ui.*
 import eu.darken.bb.databinding.TaskEditorRestoreConfigsContainerViewBinding
@@ -13,13 +13,13 @@ class RestoreConfigContainerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr) {
 
     private val binding = TaskEditorRestoreConfigsContainerViewBinding.inflate(layoutInflator, this, true)
     val subTitle by lazy { binding.cardSubtitle }
 
     override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams) {
-        if (child.id == R.id.header_container) {
+        if (ROOT_IDS.contains(child.id)) {
             super.addView(child, index, params)
         } else {
             binding.childContainer.addView(child, index, params)
@@ -44,5 +44,12 @@ class RestoreConfigContainerView @JvmOverloads constructor(
             childContainer.toggleGone()
             headerToggle.updateExpander(childContainer)
         }
+    }
+
+    companion object {
+        private val ROOT_IDS = listOf(
+            R.id.binding_root,
+            R.id.header_container
+        )
     }
 }

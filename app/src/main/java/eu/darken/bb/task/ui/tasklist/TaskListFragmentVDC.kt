@@ -13,8 +13,6 @@ import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -66,11 +64,9 @@ class TaskListFragmentVDC @Inject constructor(
     }
 
     fun newTask() {
-        GlobalScope.launch {
-            taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
-                .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
-                .blockingAwait()
-        }
+        taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
+            .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
+            .subscribe()
     }
 
     fun editTask(item: Task) {

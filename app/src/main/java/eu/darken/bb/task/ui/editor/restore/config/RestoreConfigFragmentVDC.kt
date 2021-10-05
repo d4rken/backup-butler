@@ -21,9 +21,6 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.awaitFirst
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -104,14 +101,16 @@ class RestoreConfigFragmentVDC @Inject constructor(
     }
 
     fun updateConfig(config: Restore.Config, target: Backup.Id? = null) {
-        GlobalScope.launch {
-            val editor = editorObs.awaitFirst()
-            if (target == null) {
-                editor.updateDefaultConfig(config).blockingGet()
-            } else {
-                editor.updateCustomConfig(target) { config }.blockingGet()
+        editorObs.firstOrError()
+            .observeOn(Schedulers.computation())
+            .concatMap { editor ->
+                if (target == null) {
+                    editor.updateDefaultConfig(config)
+                } else {
+                    editor.updateCustomConfig(target) { config }
+                }
             }
-        }
+            .subscribe()
     }
 
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
