@@ -158,6 +158,7 @@ class SAFStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
+            content
         }
         .map { it as Collection<BackupSpec.Info> }
         .doOnError {
