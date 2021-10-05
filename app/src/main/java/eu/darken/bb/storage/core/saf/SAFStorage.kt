@@ -158,8 +158,8 @@ class SAFStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content
         }
+        .map { it as Collection<BackupSpec.Info> }
         .doOnError {
             if (it is InterruptedIOException) {
                 Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")

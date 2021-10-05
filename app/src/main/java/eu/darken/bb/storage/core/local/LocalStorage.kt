@@ -66,7 +66,7 @@ class LocalStorage @AssistedInject constructor(
     override val progress: Observable<Progress.Data> = progressPub.data
     override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
 
-    private val dataDirEvents = Observable
+    private val dataDirEvents: Observable<List<File>> = Observable
         .fromCallable { dataDir.listFilesThrowing() }
         .subscribeOn(Schedulers.io())
         .onErrorReturnItem(emptyList())
@@ -148,8 +148,9 @@ class LocalStorage @AssistedInject constructor(
                 )
                 content.add(ref)
             }
-            return@map content
+            content
         }
+        .map { it as Collection<BackupSpec.Info> }
         .doOnError { Timber.tag(TAG).e(it) }
         .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
         .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
