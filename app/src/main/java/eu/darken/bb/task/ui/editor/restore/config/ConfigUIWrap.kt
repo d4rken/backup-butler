@@ -10,10 +10,10 @@ abstract class ConfigUIWrap(
     private val configCallback: (Restore.Config, Backup.Id?) -> Unit
 ) : HasStableId {
 
-    val isCustomConfig: Boolean = configWrap.isCustomConfig
-    val isDefaultItem: Boolean = configWrap.backupInfoOpt == null
-    val backupInfo: Backup.Info? = configWrap.backupInfoOpt?.info
-    val config: Restore.Config = configWrap.config
+    val isCustomConfig: Boolean get() = configWrap.isCustomConfig
+    val isDefaultItem: Boolean get() = configWrap.backupInfoOpt == null
+    val backupInfo: Backup.Info? get() = configWrap.backupInfoOpt?.info
+    val config: Restore.Config get() = configWrap.config
 
     fun updateConfig(config: Restore.Config) = configCallback.invoke(config, backupInfo?.backupId)
 

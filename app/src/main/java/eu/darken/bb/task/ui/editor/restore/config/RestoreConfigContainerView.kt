@@ -33,7 +33,7 @@ class RestoreConfigContainerView @JvmOverloads constructor(
         cardTitle.text = title
         cardSubtitle.text = when {
             item.isDefaultItem -> getString(R.string.general_default_label)
-            item.backupInfo != null -> item.backupInfo.spec.getLabel(context)
+            item.backupInfo != null -> item.backupInfo!!.spec.getLabel(context)
             else -> getString(R.string.progress_loading_label)
         }
         if (item.isCustomConfig && !item.isDefaultItem) cardTitle.append("*")

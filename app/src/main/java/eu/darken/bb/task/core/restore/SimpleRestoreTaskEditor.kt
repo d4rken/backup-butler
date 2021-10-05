@@ -37,7 +37,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     private val pathTool: GatewaySwitch
 ) : TaskEditor {
 
-    private val editorDataPub = HotData { Data(taskId = taskId) }
+    private val editorDataPub = HotData(tag = TAG) { Data(taskId = taskId) }
     override val editorData = editorDataPub.data
 
     private val backupInfoCache = mutableMapOf<Backup.Id, Backup.InfoOpt>()
@@ -63,11 +63,12 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         .replayingShare()
 
 
-    private fun buildConfigWrap(target: Backup.Target): ConfigWrap {
-        val data = editorData.blockingFirst()
-        var config = data.customConfigs[target.backupId]
-        val isCustom = config != null
-        if (config == null) config = data.defaultConfigs.getValue(target.backupType)
+    private fun Backup.Target.createConfigWrap(
+        defaultConfig: Restore.Config,
+        customConfig: Restore.Config?,
+    ): ConfigWrap {
+        val target = this
+        val config = customConfig ?: defaultConfig
 
         val infos = backupInfos.blockingFirst()
         // Due to exclusion and data refresh, infos may no longer contains a data object
@@ -76,6 +77,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         return when (target.backupType) {
             Backup.Type.APP -> {
                 config as AppRestoreConfig
+                val isCustom = config != defaultConfig
                 AppsConfigWrap(
                     backupInfoOpt = infoOpt,
                     config = config,
@@ -84,8 +86,10 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             }
             Backup.Type.FILES -> {
                 config as FilesRestoreConfig
+                defaultConfig as FilesRestoreConfig
                 val defaultPath = (infoOpt?.info?.spec as? FilesBackupSpec)?.path
                 val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) } ?: false
+                val isCustom = config != defaultConfig
                 FilesConfigWrap(
                     backupInfoOpt = infoOpt,
                     config = config,
@@ -97,21 +101,30 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         }
     }
 
-    private val customConfigCache = mutableMapOf<Backup.Id, ConfigWrap>()
-    val customConfigs: Observable<List<ConfigWrap>> = Observables
+    //    private val configWrapCache = mutableMapOf<Backup.Id, ConfigWrap>()
+    val configWraps: Observable<List<ConfigWrap>> = Observables
         .combineLatest(backupInfos, editorData)
         .serialize()
         .map { (infos, data) ->
             data.backupTargets.map { target ->
-                var wrap = customConfigCache[target.backupId]
-                val hashMissMatch =
-                    wrap?.backupInfoOpt?.hashCode() != infos.find { it.backupId == target.backupId }?.hashCode()
-                if (wrap == null || hashMissMatch) {
-                    wrap = buildConfigWrap(target)
-                    customConfigCache[target.backupId] = wrap
-                }
-                @Suppress("UNNECESSARY_NOT_NULL_ASSERTION") // WHY?
-                wrap!!
+//                val currentInfos = infos.find { it.backupId == target.backupId }
+//                val currentWrap = configWrapCache[target.backupId]
+//
+//                // If the info changed, we need to update the wrap
+//                val hashMissMatch = currentWrap?.backupInfoOpt?.hashCode() != currentInfos?.hashCode()
+
+                val customConfig = data.customConfigs[target.backupId]
+                val defaultConfig = data.defaultConfigs.getValue(target.backupType)
+
+//                // if the config has changed, we need to update the wrap too
+//                val newConfig = currentWrap?.config != customConfig || currentWrap?.config != defaultConfig
+//
+//                if (currentWrap == null || hashMissMatch || newConfig) {
+//                    currentWrap = target.createConfigWrap(defaultConfig = defaultConfig, customConfig = customConfig)
+//                    configWrapCache[target.backupId] = currentWrap
+//                }
+//                currentWrap
+                target.createConfigWrap(defaultConfig = defaultConfig, customConfig = customConfig)
             }
         }
         .swallowInterruptExceptions()
@@ -155,7 +168,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         )
     }
 
-    override fun isValid(): Observable<Boolean> = Observables.combineLatest(customConfigs, editorData)
+    override fun isValid(): Observable<Boolean> = Observables.combineLatest(configWraps, editorData)
         .map { (configWrappers, editorData) ->
             val noMissingPermission = configWrappers.find {
                 it is FilesConfigWrap && !it.isPermissionGranted
@@ -169,11 +182,10 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         }
     }
 
-    fun updatePath(backupId: Backup.Id, newPath: APath) =
-        updateCustomConfig(backupId) {
-            it as FilesRestoreConfig
-            it.copy(restorePath = newPath)
-        }
+    fun updatePath(backupId: Backup.Id, newPath: APath) = updateCustomConfig(backupId) {
+        it as FilesRestoreConfig
+        it.copy(restorePath = newPath)
+    }
 
     fun excludeBackup(excludedId: Backup.Id) {
         editorDataPub.update { data ->

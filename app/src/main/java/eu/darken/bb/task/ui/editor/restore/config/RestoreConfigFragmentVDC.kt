@@ -35,12 +35,12 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.io())
+        .subscribeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SimpleRestoreTaskEditor }
 
     private val dataObs = editorObs.flatMap { it.editorData }
-    private val customConfigs = editorObs.flatMap { it.customConfigs }
+    private val configWraps = editorObs.flatMap { it.configWraps }
 
     private val summaryStater = Stater { SummaryState() }
     val summaryState = summaryStater.liveData
@@ -55,6 +55,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
+        // Config wraps for item types (defaults, e.g. default for file store)
         dataObs
             .subscribe { data ->
                 val customCount = data.customConfigs
@@ -86,7 +87,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
             }
             .withScopeVDC(this)
 
-        customConfigs
+        // Config wraps for specific items
+        configWraps
             .subscribe { customConfigs ->
                 val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
                 summaryStater.update { it.copy(configsWithIssues = issueCount) }
@@ -131,7 +133,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
         result.options.payload.classLoader = this.javaClass.classLoader
         val backupId: Backup.Id = result.options.payload.getParcelable("backupId")!!
         editorObs.firstOrError()
-            .flatMap { it.updatePath(backupId, result.selection!!.first()) }
+            .observeOn(Schedulers.computation())
+            .concatMap { it.updatePath(backupId, result.selection!!.first()) }
             .subscribe()
     }
 
