@@ -14,7 +14,7 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.localized
 import eu.darken.bb.databinding.LoadingOverlayViewBinding
 
 @Suppress("ProtectedInFinal")
@@ -58,7 +58,7 @@ class LoadingOverlayView @JvmOverloads constructor(
             return
         }
         setMode(Mode.ERROR)
-        binding.primaryText.text = error.tryLocalizedErrorMessage(context)
+        binding.primaryText.text = error.localized(context).asText()
     }
 
     var isCancelable: Boolean = false

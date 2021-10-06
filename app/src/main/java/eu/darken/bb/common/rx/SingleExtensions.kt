@@ -5,7 +5,7 @@ import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 
 
-fun <T> Single<T>.blockingGetUnWrapped(): T {
+fun <T : Any> Single<T>.blockingGetUnWrapped(): T {
     try {
         return blockingGet()
     } catch (e: Throwable) {

@@ -2,6 +2,7 @@ package eu.darken.bb.common.files.core
 
 import android.content.Context
 import eu.darken.bb.R
+import eu.darken.bb.common.HasLocalizedError
 import eu.darken.bb.common.LocalizedError
 import java.io.File
 import java.io.IOException
@@ -16,26 +17,28 @@ class ReadException(
     path: APath,
     message: String = "Can't read from path.",
     cause: Throwable? = null
-) : PathException(path, message, cause), LocalizedError {
+) : PathException(path, message, cause), HasLocalizedError {
 
     constructor(file: File) : this(RawPath.build(file))
 
-    override fun getLocalizedErrorMessage(context: Context): String {
-        return context.getString(R.string.general_error_cant_access_msg, path)
-    }
-
+    override fun getLocalizedError(context: Context) = LocalizedError(
+        throwable = this,
+        label = "ReadException",
+        description = context.getString(R.string.general_error_cant_access_msg, path)
+    )
 }
 
 class WriteException(
     path: APath,
     message: String = "Can't write to path.",
     cause: Throwable? = null
-) : PathException(path, message, cause), LocalizedError {
+) : PathException(path, message, cause), HasLocalizedError {
 
     constructor(file: File) : this(RawPath.build(file))
 
-    override fun getLocalizedErrorMessage(context: Context): String {
-        return context.getString(R.string.general_error_cant_access_msg, path)
-    }
-
+    override fun getLocalizedError(context: Context) = LocalizedError(
+        throwable = this,
+        label = "WriteException",
+        description = context.getString(R.string.general_error_cant_access_msg, path)
+    )
 }

@@ -2,12 +2,35 @@ package eu.darken.bb.common
 
 import android.content.Context
 
-interface LocalizedError {
-    fun getLocalizedErrorMessage(context: Context): String
+interface HasLocalizedError {
+    fun getLocalizedError(context: Context): LocalizedError
 }
 
-fun Throwable.tryLocalizedErrorMessage(context: Context): String = when {
-    this is LocalizedError -> this.getLocalizedErrorMessage(context)
-    localizedMessage != null -> localizedMessage
-    else -> this.toString()
+data class LocalizedError(
+    val throwable: Throwable,
+    val label: String,
+    val description: String
+) {
+    fun asText() = "$label:\n$description"
+}
+
+fun Throwable.localized(c: Context): LocalizedError = when {
+    this is HasLocalizedError -> this.getLocalizedError(c)
+    localizedMessage != null -> LocalizedError(
+        throwable = this,
+        label = "${c.getString(R.string.general_error_label)}: ${this::class.simpleName!!}",
+        description = localizedMessage!!.lines()
+            .filterIndexed { index, _ -> index > 1 }
+            .take(3)
+            .joinToString("\n")
+    )
+    else -> LocalizedError(
+        throwable = this,
+        label = "${c.getString(R.string.general_error_label)}: ${this::class.simpleName!!}",
+        description = this.stackTraceToString()
+            .lines()
+            .filterIndexed { index, _ -> index > 1 }
+            .take(3)
+            .joinToString("\n")
+    )
 }

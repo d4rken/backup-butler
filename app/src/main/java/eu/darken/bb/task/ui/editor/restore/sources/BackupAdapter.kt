@@ -9,7 +9,7 @@ import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.localized
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.TaskEditorRestoreSourcesAdapterLineBackupBinding
 import java.text.DateFormat
@@ -44,9 +44,10 @@ class BackupAdapter @Inject constructor() : ModularAdapter<BackupAdapter.VH>(), 
                     typeLabel.setText(R.string.general_unknown_label)
                     typeIcon.setImageResource(R.drawable.ic_error_outline)
 
-                    label.setText(R.string.general_error_label)
-
-                    repoStatus.text = item.error.tryLocalizedErrorMessage(context)
+                    item.error.localized(context).let {
+                        label.text = it.label
+                        repoStatus.text = it.description
+                    }
                 }
                 item.info != null -> {
                     typeLabel.setText(item.info.backupType.labelRes)

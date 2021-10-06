@@ -59,7 +59,7 @@ class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment) {
         vdc.errorEvent.observe2(this) { error ->
             val snackbar = Snackbar.make(
                 view,
-                error.tryLocalizedErrorMessage(requireContext()),
+                error.localized(requireContext()).asText(),
                 Snackbar.LENGTH_LONG
             )
             if (error is ExistingStorageException) {

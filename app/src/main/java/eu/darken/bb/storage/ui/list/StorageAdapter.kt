@@ -9,7 +9,7 @@ import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.localized
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.databinding.StorageListAdapterLineBinding
 import eu.darken.bb.storage.core.Storage
@@ -63,7 +63,10 @@ class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>()
             when {
                 info.error != null -> {
                     label.setTextColor(getColor(R.color.colorError))
-                    label.text = info.error.tryLocalizedErrorMessage(context)
+                    info.error.localized(context).let {
+                        label.text = it.label
+                        repoStatus.text = it.description
+                    }
                 }
                 info.status != null -> {
                     repoStatus.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))

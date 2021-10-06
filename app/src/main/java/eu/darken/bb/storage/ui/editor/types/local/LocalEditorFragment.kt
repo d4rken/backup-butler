@@ -74,7 +74,7 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
         vdc.errorEvent.observe2(this) { error ->
             val snackbar = Snackbar.make(
                 view,
-                error.tryLocalizedErrorMessage(requireContext()),
+                error.localized(requireContext()).asText(),
                 Snackbar.LENGTH_LONG
             )
             if (error is ExistingStorageException) {

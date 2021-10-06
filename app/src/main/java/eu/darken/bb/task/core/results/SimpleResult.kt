@@ -1,7 +1,7 @@
 package eu.darken.bb.task.core.results
 
 import android.content.Context
-import eu.darken.bb.common.tryLocalizedErrorMessage
+import eu.darken.bb.common.localized
 import eu.darken.bb.task.core.Task
 import timber.log.Timber
 import java.util.*
@@ -54,8 +54,10 @@ data class SimpleResult constructor(
 
         fun error(context: Context, error: Throwable) = apply {
             this.state = TaskResult.State.ERROR
-            this.primary = error.javaClass.name
-            this.secondary = error.tryLocalizedErrorMessage(context)
+            error.localized(context).let {
+                this.primary = it.label
+                this.secondary = it.description
+            }
             finished()
         }
 
@@ -135,8 +137,10 @@ data class SimpleResult constructor(
 
             fun error(context: Context, error: Throwable) = apply {
                 this.state = TaskResult.State.ERROR
-                this.primary = error.javaClass.name
-                this.secondary = error.tryLocalizedErrorMessage(context)
+                error.localized(context).let {
+                    this.primary = it.label
+                    this.secondary = it.description
+                }
                 finished()
             }
 

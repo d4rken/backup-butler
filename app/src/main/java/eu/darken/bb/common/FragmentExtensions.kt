@@ -10,7 +10,7 @@ fun Fragment.todoToast() {
 
 fun Fragment.toastError(throwable: Throwable?) {
     if (throwable != null) {
-        Toast.makeText(requireContext(), throwable.tryLocalizedErrorMessage(requireContext()), Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), throwable.localized(requireContext()).asText(), Toast.LENGTH_LONG).show()
     } else {
         Toast.makeText(requireContext(), R.string.general_error_label, Toast.LENGTH_LONG).show()
     }

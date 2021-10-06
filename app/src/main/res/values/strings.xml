@@ -68,7 +68,6 @@
     <string name="general_last_backup_time_x">Last backup: %s</string>
     <string name="progress_loading_label">Loading</string>
     <string name="general_createdat_label">Created at</string>
-    <string name="general_error_label">Error</string>
     <string name="general_restore_action">Restore</string>
     <string name="general_todo_msg">TODO (Not implemented yet)</string>
     <string name="general_update_available_label">Update available</string>

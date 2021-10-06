@@ -8,10 +8,10 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.localized
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.CoreDebugRecordingActivityBinding
 
@@ -41,7 +41,7 @@ class RecorderActivity : SmartActivity() {
             }
 
             if (state.error != null) {
-                Toast.makeText(this, state.error.tryLocalizedErrorMessage(this), Toast.LENGTH_LONG).show()
+                Toast.makeText(this, state.error.localized(this).asText(), Toast.LENGTH_LONG).show()
             }
         }
 

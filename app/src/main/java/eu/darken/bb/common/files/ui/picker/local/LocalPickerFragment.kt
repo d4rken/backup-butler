@@ -19,11 +19,11 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.localized
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.tryLocalizedErrorMessage
 import eu.darken.bb.common.ui.BreadCrumbBar
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
@@ -80,7 +80,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
         }
 
         vdc.errorEvents.observe2(this) { error ->
-            Snackbar.make(requireView(), error.tryLocalizedErrorMessage(requireContext()), Snackbar.LENGTH_LONG).show()
+            Snackbar.make(requireView(), error.localized(requireContext()).asText(), Snackbar.LENGTH_LONG).show()
         }
 
         ui.selectAction.clicksDebounced().subscribe { vdc.finishSelection() }
