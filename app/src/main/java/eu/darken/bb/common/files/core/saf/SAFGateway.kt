@@ -8,6 +8,9 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import okio.*
@@ -181,26 +184,29 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun read(path: SAFPath): Source {
-        val docFile = findDocFile(path)
-        if (docFile == null) throw ReadException(path)
+    override fun read(path: SAFPath): Source = try {
+        val docFile = findDocFile(path)!!
 
         val pfd = docFile.openPFD(contentResolver, FileMode.READ)
-        return ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
+        ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
+    } catch (e: Exception) {
+        log(TAG, WARN) { "Failed to read from $path: ${e.asLog()}" }
+        throw  ReadException(path = path, cause = e)
     }
 
     @Throws(IOException::class)
-    override fun write(path: SAFPath): Sink {
-        val docFile = findDocFile(path)
-        if (docFile == null) throw WriteException(path)
+    override fun write(path: SAFPath): Sink = try {
+        val docFile = findDocFile(path)!!
 
         val pfd = docFile.openPFD(contentResolver, FileMode.WRITE)
-        return ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
+        ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
+    } catch (e: Exception) {
+        log(TAG, WARN) { "Failed to write to $path: ${e.asLog()}" }
+        throw  WriteException(path = path, cause = e)
     }
 
     override fun setModifiedAt(path: SAFPath, modifiedAt: Date): Boolean = try {
-        val docFile = findDocFile(path)
-        if (docFile == null) throw WriteException(path)
+        val docFile = findDocFile(path)!!
 
         docFile.setLastModified(modifiedAt)
     } catch (e: Exception) {
@@ -208,8 +214,7 @@ class SAFGateway @Inject constructor(
     }
 
     override fun setPermissions(path: SAFPath, permissions: Permissions): Boolean = try {
-        val docFile = findDocFile(path)
-        if (docFile == null) throw WriteException(path)
+        val docFile = findDocFile(path)!!
 
         docFile.setPermissions(permissions)
     } catch (e: Exception) {
@@ -217,8 +222,7 @@ class SAFGateway @Inject constructor(
     }
 
     override fun setOwnership(path: SAFPath, ownership: Ownership): Boolean = try {
-        val docFile = findDocFile(path)
-        if (docFile == null) throw WriteException(path)
+        val docFile = findDocFile(path)!!
 
         docFile.setOwnership(ownership)
     } catch (e: Exception) {

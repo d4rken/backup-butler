@@ -96,7 +96,7 @@ fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T {
         return value ?: throw ReadException(file)
     } catch (e: Exception) {
         if (e !is InterruptedIOException) {
-            Timber.w("fromSAFFile(file=%s)", file)
+            Timber.w(e, "fromSAFFile(file=%s)", file)
         }
         throw e
     }
