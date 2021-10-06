@@ -48,7 +48,7 @@ object APathPicker {
 
         @IgnoredOnParcel val isCanceled: Boolean = error == null && selection == null
         @IgnoredOnParcel val isSuccess: Boolean = error == null && selection != null
-        @IgnoredOnParcel val isFailed: Boolean = error != null && selection == null
+        @IgnoredOnParcel val isFailed: Boolean = error != null
     }
 
     fun fromActivityResult(data: Intent): Result {

@@ -2,7 +2,7 @@ package eu.darken.bb.processor.core.processors
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.common.AString
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
@@ -50,7 +50,7 @@ abstract class SimpleBaseProcessor constructor(
         } finally {
             onCleanup()
             progressParent.updateProgressSecondary(R.string.progress_working_label)
-            progressParent.updateProgressTertiary(AString.EMPTY)
+            progressParent.updateProgressTertiary(CaString.EMPTY)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
         }

@@ -10,7 +10,7 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
-import eu.darken.bb.common.AString
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.debug.logging.logTag
@@ -84,7 +84,7 @@ class PublicDefaultRestoreHandler @Inject constructor(
             DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_restoring_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
-        updateProgressSecondary(AString.EMPTY)
+        updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
         gateway.keepAliveWith(this)

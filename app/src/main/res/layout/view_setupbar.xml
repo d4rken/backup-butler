@@ -10,7 +10,7 @@
     android:background="@color/colorPrimary"
     tools:parentTag="android.widget.FrameLayout">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_positive_primary"
         style="@style/Widget.MaterialComponents.Button.Highlight"
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_positive_secondary"
         style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_negative_secondary"
         style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_negative_primary"
         style="@style/Widget.MaterialComponents.Button.TextButton2"
         android:layout_width="wrap_content"

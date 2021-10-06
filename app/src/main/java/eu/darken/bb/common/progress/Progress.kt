@@ -3,16 +3,16 @@ package eu.darken.bb.common.progress
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.format.Formatter
-import eu.darken.bb.common.AString
+import eu.darken.bb.common.CaString
 import io.reactivex.rxjava3.core.Observable
 import kotlin.math.ceil
 
 interface Progress {
     data class Data(
         val icon: Drawable? = null,
-        val primary: AString = AString.EMPTY,
-        val secondary: AString = AString.EMPTY,
-        val tertiary: AString = AString.EMPTY,
+        val primary: CaString = CaString.EMPTY,
+        val secondary: CaString = CaString.EMPTY,
+        val tertiary: CaString = CaString.EMPTY,
         val count: Count = Count.None(),
         val child: Data? = null
     )

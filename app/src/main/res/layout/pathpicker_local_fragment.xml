@@ -29,7 +29,7 @@
 
     </eu.darken.bb.common.ui.RecyclerViewWrapperLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/select_action"
         style="@style/Widget.MaterialComponents.Button.Highlight"
         android:layout_width="0dp"

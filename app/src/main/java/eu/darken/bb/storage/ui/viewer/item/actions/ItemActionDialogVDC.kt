@@ -5,12 +5,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.CAString
 import eu.darken.bb.common.Operation
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.toCaString
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -90,7 +90,7 @@ class ItemActionDialogVDC @Inject constructor(
                         stater.update {
                             it.copy(
                                 currentOp = Operation(
-                                    CAString(R.string.progress_deleting_label),
+                                    R.string.progress_deleting_label.toCaString(),
                                     disposable = disp
                                 )
                             )
@@ -112,7 +112,7 @@ class ItemActionDialogVDC @Inject constructor(
                 .doFinally { stater.update { it.copy(currentOp = null) } }
                 .doOnSubscribe { disp ->
                     stater.update {
-                        it.copy(currentOp = Operation(CAString(R.string.progress_loading_label), disposable = disp))
+                        it.copy(currentOp = Operation(R.string.progress_loading_label.toCaString(), disposable = disp))
                     }
                 }
                 .subscribe(

@@ -1,11 +1,9 @@
 package eu.darken.bb.common.files.ui.picker.local
 
-import android.Manifest
 import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
-import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -19,6 +17,8 @@ import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
 import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.permission.Permission
+import eu.darken.bb.common.permission.RuntimePermissionTool
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class LocalPickerFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val localGateway: LocalGateway,
-    permissionTool: RuntimePermissionTool
+    private val permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
     private val options: APathPicker.Options = handle.navArgs<LocalPickerFragmentArgs>().value.options
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
@@ -51,14 +51,14 @@ class LocalPickerFragmentVDC @Inject constructor(
     val createDirEvent = SingleLiveEvent<APath>()
     val resultEvents = SingleLiveEvent<APathPicker.Result>()
     val errorEvents = SingleLiveEvent<Throwable>()
-    val missingPermissionEvent = SingleLiveEvent<Any>()
-    val requestPermissionEvent = SingleLiveEvent<Any>()
+    val missingPermissionEvent = SingleLiveEvent<Permission>()
+    val requestPermissionEvent = SingleLiveEvent<Permission>()
     var holderToken: SharedHolder.Resource<*>? = null
 
 
     init {
-        if (!permissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            missingPermissionEvent.postValue(Any())
+        if (!permissionTool.hasStoragePermission()) {
+            missingPermissionEvent.postValue(permissionTool.getRequiredStoragePermission())
         } else {
             selectItem(startPath)
         }
@@ -148,14 +148,14 @@ class LocalPickerFragmentVDC @Inject constructor(
         selectItem(startPath)
     }
 
-    fun onPermissionResult(granted: Boolean) {
-        if (!granted) return
+    fun onUpdatePermission(permission: Permission) {
+        if (!permissionTool.hasPermission(permission)) return
 
         selectItem(options.startPath)
     }
 
-    fun grantPermission() {
-        requestPermissionEvent.postValue(Any())
+    fun grantPermission(permission: Permission) {
+        requestPermissionEvent.postValue(permission)
     }
 
     data class State(

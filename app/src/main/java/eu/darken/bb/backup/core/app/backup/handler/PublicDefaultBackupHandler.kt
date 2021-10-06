@@ -86,7 +86,7 @@ class PublicDefaultBackupHandler @Inject constructor(
             DataType.CACHE_SDCARD_PRIMARY, DataType.CACHE_SDCARD_SECONDARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
-        updateProgressSecondary(AString.EMPTY)
+        updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
         gatewaySwitch.keepAliveWith(this)
@@ -172,7 +172,7 @@ class PublicDefaultBackupHandler @Inject constructor(
         targetPairs.forEach { (storageBase, subdirs) ->
             val collectedSubDirContent = mutableListOf<APathLookup<APath>>()
             subdirs.forEach { target ->
-                updateProgressSecondary(PathAString(target))
+                updateProgressSecondary(target.toCaString())
                 Timber.tag(TAG).v("Walking: %s", target)
 
                 gatewaySwitch.keepAlive.get().use {

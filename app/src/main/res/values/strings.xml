@@ -299,4 +299,6 @@
     <string name="startmode_switch_action">Switch UI mode</string>
     <string name="bugreporting_report_action">Report a bug</string>
     <string name="bugreporting_record_debuglog_action">Record debug log</string>
+    <string name="permission_write_external_storage_description">General access to public storage on Android 11 devices and older.</string>
+    <string name="permission_manage_external_storage_description">General access to public storage on Android 11+ devices.</string>
 </resources>

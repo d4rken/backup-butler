@@ -1,7 +1,5 @@
 package eu.darken.bb.common.files.ui.picker.local
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -22,6 +20,7 @@ import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
+import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.tryLocalizedErrorMessage
@@ -46,6 +45,20 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
 
     init {
         setHasOptionsMenu(true)
+    }
+
+    private lateinit var permissionWriteStorageLauncher: Permission.Launcher
+    private lateinit var permissionManageStorageLauncher: Permission.Launcher
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        permissionWriteStorageLauncher = Permission.WRITE_EXTERNAL_STORAGE.setup(this) { perm, _ ->
+            vdc.onUpdatePermission(perm)
+        }
+        permissionManageStorageLauncher = Permission.MANAGE_EXTERNAL_STORAGE.setup(this) { perm, _ ->
+            vdc.onUpdatePermission(perm)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,19 +88,22 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
         vdc.resultEvents.observe2(this) {
             sharedVM.postResult(it)
         }
-        vdc.missingPermissionEvent.observe2(this) {
-            Snackbar.make(
-                requireView(),
-                R.string.storage_additional_permission_required_msg,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.general_grant_action) {
-                    vdc.grantPermission()
-                }
+        vdc.missingPermissionEvent.observe2(this) { permission ->
+            Snackbar
+                .make(
+                    requireView(),
+                    R.string.storage_additional_permission_required_msg,
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                .setAction(R.string.general_grant_action) { vdc.grantPermission(permission) }
                 .show()
         }
-        vdc.requestPermissionEvent.observe2(this) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        vdc.requestPermissionEvent.observe2(this) { perm ->
+            when (perm) {
+                Permission.WRITE_EXTERNAL_STORAGE -> permissionWriteStorageLauncher.launch()
+                Permission.MANAGE_EXTERNAL_STORAGE -> permissionManageStorageLauncher.launch()
+                else -> throw UnsupportedOperationException("Requesting $perm is not setup for this screen.")
+            }
         }
 
         vdc.createDirEvent.observe2(this) {
@@ -137,13 +153,5 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
             true
         }
         else -> super.onOptionsItemSelected(item)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 1) {
-            vdc.onPermissionResult(grantResults.all { it == PackageManager.PERMISSION_GRANTED })
-        } else {
-            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
-        }
     }
 }

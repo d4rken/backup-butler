@@ -7,7 +7,7 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/cancel_button"
         style="@style/Widget.MaterialComponents.Button.Highlight"
         android:layout_width="wrap_content"

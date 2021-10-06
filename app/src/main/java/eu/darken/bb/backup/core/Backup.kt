@@ -8,7 +8,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
-import eu.darken.bb.common.AString
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.SharedHolder
@@ -42,7 +42,7 @@ interface Backup {
         val backupType: Type
         val createdAt: Date
 
-        fun getItemLabeling(spec: BackupSpec, props: Props): Pair<AString, AString>
+        fun getItemLabeling(spec: BackupSpec, props: Props): Pair<CaString, CaString>
 
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<MetaData> =
@@ -118,7 +118,7 @@ interface Backup {
         @Transient val backupType: Type = metaData.backupType
 
         interface Entry {
-            val labeling: Pair<AString, AString>
+            val labeling: Pair<CaString, CaString>
         }
 
         data class PropsEntry(
@@ -127,7 +127,7 @@ interface Backup {
             val props: Props
         ) : Entry {
 
-            override val labeling: Pair<AString, AString> by lazy { metaData.getItemLabeling(spec, props) }
+            override val labeling: Pair<CaString, CaString> by lazy { metaData.getItemLabeling(spec, props) }
         }
 
     }

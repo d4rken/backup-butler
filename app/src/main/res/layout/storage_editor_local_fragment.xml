@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -60,8 +61,8 @@
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
-                            android:layout_marginTop="16dp"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp">
 
                             <TextView
                                 android:id="@+id/textView"
@@ -81,7 +82,7 @@
                                 app:layout_constraintTop_toBottomOf="@+id/textView"
                                 tools:text="/storage/emulated/0/DCIM" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/path_button"
                                 style="@style/Widget.MaterialComponents.Button"
                                 android:layout_width="wrap_content"
@@ -103,7 +104,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/permission_card"
+            android:id="@+id/write_storage_card"
             style="@style/MyCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -117,18 +118,92 @@
                 android:paddingTop="8dp">
 
                 <TextView
-                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_margin="16dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/storage_additional_permission_required_msg" />
 
-                <Button
-                    android:id="@+id/permission_grant_button"
+                <TextView
+                    android:id="@+id/write_storage_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="WRITE_STORAGE" />
+
+                <TextView
+                    android:id="@+id/write_storage_description"
+                    style="@style/TextAppearance.MaterialComponents.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="@string/permission_write_external_storage_description" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/write_storage_grant"
                     style="@style/Widget.MaterialComponents.Button.Highlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/general_grant_action" />
+            </LinearLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/manage_storage_card"
+            style="@style/MyCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/storage_additional_permission_required_msg" />
+
+                <TextView
+                    android:id="@+id/manage_storage_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="MANAGE_STORAGE" />
+
+                <TextView
+                    android:id="@+id/manage_storage_description"
+                    style="@style/TextAppearance.MaterialComponents.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="@string/permission_manage_external_storage_description" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/manage_storage_grant"
+                    style="@style/Widget.MaterialComponents.Button.Highlight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/general_grant_action" />

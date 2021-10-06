@@ -69,7 +69,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
             DataType.CACHE_PRIVATE_PRIMARY -> updateProgressPrimary(R.string.progress_backingup_app_cache)
             else -> throw UnsupportedOperationException("Can't restore $type")
         }
-        updateProgressSecondary(AString.EMPTY)
+        updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
         gatewaySwitch.keepAliveWith(this)
@@ -111,7 +111,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
         val items = mutableListOf<APathLookup<APath>>()
         gatewaySwitch.keepAlive.get().use {
             targets.forEach { target ->
-                updateProgressSecondary(PathAString(target))
+                updateProgressSecondary(target.toCaString())
                 target.walk(gatewaySwitch)
                     .filterNot { it == target }
                     .map { it.lookup(gatewaySwitch) }

@@ -123,3 +123,5 @@ object ApiHelper {
         return "R" == Build.VERSION.RELEASE || "11" == Build.VERSION.RELEASE || SDK_INT >= 30
     }
 }
+
+fun ApiHelper.hasAPILevel(level: Int): Boolean = SDK_INT >= level

@@ -245,7 +245,7 @@ class SAFStorage @AssistedInject constructor(
 
             updateProgressCount(Progress.Count.Percent(index + 1, propFiles.size))
         }
-        updateProgressSecondary(AString.EMPTY)
+        updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
@@ -302,7 +302,7 @@ class SAFStorage @AssistedInject constructor(
                 updateProgressCount(Progress.Count.Counter(++current, max))
             }
         }
-        updateProgressSecondary(AString.EMPTY)
+        updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
         writeBackupMeta(backup.specId, backup.backupId, backup.metaData)

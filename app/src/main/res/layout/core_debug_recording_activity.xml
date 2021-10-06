@@ -101,7 +101,7 @@
             app:layout_constraintStart_toStartOf="@+id/share"
             app:layout_constraintTop_toTopOf="@+id/share" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/share"
             style="@style/Widget.MaterialComponents.Button.Highlight"
             android:layout_width="wrap_content"

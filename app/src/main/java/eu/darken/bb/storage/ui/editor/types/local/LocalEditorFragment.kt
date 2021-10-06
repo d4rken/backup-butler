@@ -1,9 +1,9 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
-import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
@@ -11,26 +11,37 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.*
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
-import eu.darken.bb.storage.ui.list.StorageAdapter
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment) {
     private val vdc: LocalEditorFragmentVDC by viewModels()
     private val ui: StorageEditorLocalFragmentBinding by viewBinding()
-    @Inject lateinit var adapter: StorageAdapter
 
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
 
     init {
         setHasOptionsMenu(true)
+    }
+
+    private lateinit var permissionWriteStorageLauncher: Permission.Launcher
+    private lateinit var permissionManageStorageLauncher: Permission.Launcher
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        permissionWriteStorageLauncher = Permission.WRITE_EXTERNAL_STORAGE.setup(this) { perm, _ ->
+            vdc.onUpdatePermission(perm)
+        }
+        permissionManageStorageLauncher = Permission.MANAGE_EXTERNAL_STORAGE.setup(this) { perm, _ ->
+            vdc.onUpdatePermission(perm)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,7 +53,8 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
 
             ui.coreSettingsContainer.setInvisible(state.isWorking)
             ui.coreSettingsProgress.setInvisible(!state.isWorking)
-            ui.permissionCard.setGone(state.isPermissionGranted)
+            ui.writeStorageCard.isGone = !state.missingPermissions.contains(Permission.WRITE_EXTERNAL_STORAGE)
+            ui.manageStorageCard.isGone = !state.missingPermissions.contains(Permission.MANAGE_EXTERNAL_STORAGE)
 
             allowCreate = state.isValid
             existing = state.isExisting
@@ -73,10 +85,15 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
             snackbar.show()
         }
 
-        ui.permissionGrantButton.clicksDebounced().subscribe { vdc.onGrantPermission() }
+        ui.writeStorageGrant.clicksDebounced().subscribe { vdc.requestPermission(Permission.WRITE_EXTERNAL_STORAGE) }
+        ui.manageStorageGrant.clicksDebounced().subscribe { vdc.requestPermission(Permission.MANAGE_EXTERNAL_STORAGE) }
 
-        vdc.requestPermissionEvent.observe2(this) {
-            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        vdc.requestPermissionEvent.observe2(this) { perm ->
+            when (perm) {
+                Permission.WRITE_EXTERNAL_STORAGE -> permissionWriteStorageLauncher.launch()
+                Permission.MANAGE_EXTERNAL_STORAGE -> permissionManageStorageLauncher.launch()
+                else -> throw UnsupportedOperationException("Requesting $perm is not setup for this screen.")
+            }
         }
 
         vdc.finishEvent.observe2(this) {
@@ -92,14 +109,6 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
             else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
         }
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 1) {
-            vdc.onPermissionResult()
-        } else {
-            throw IllegalArgumentException("Unknown permission request: code=$requestCode, permissions=$permissions")
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

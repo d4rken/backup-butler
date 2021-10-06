@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalGateway
@@ -13,6 +14,7 @@ import eu.darken.bb.common.files.ui.picker.APathPicker
 import eu.darken.bb.common.files.ui.picker.local.LocalPickerFragmentVDC
 import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -30,7 +32,7 @@ class LocalEditorFragmentVDC @Inject constructor(
 ) : SmartVDC() {
     private val navArgs by handle.navArgs<LocalEditorFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater { State(isPermissionGranted = true) }
+    private val stater = Stater { State() }
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
@@ -42,12 +44,11 @@ class LocalEditorFragmentVDC @Inject constructor(
 
     private val editor: LocalStorageEditor by lazy { editorObs.blockingFirst() }
 
-    val requestPermissionEvent = SingleLiveEvent<Any>()
+    val requestPermissionEvent = SingleLiveEvent<Permission>()
 
     val errorEvent = SingleLiveEvent<Throwable>()
     val pickerEvent = SingleLiveEvent<APathPicker.Options>()
     val finishEvent = SingleLiveEvent<Any>()
-
 
     init {
         editorDataObs
@@ -58,7 +59,7 @@ class LocalEditorFragmentVDC @Inject constructor(
                         path = editorData.refPath?.path ?: "",
                         isWorking = false,
                         isExisting = editorData.existingStorage,
-                        isPermissionGranted = editor.isPermissionGranted()
+                        missingPermissions = editor.getMissingPermissions()
                     )
                 }
             }
@@ -76,26 +77,28 @@ class LocalEditorFragmentVDC @Inject constructor(
     }
 
     fun updatePath(result: APathPicker.Result) {
+        log { "updatePath=$result" }
         if (result.isCanceled) return
         if (result.isFailed) {
-            errorEvent.postValue(result.error)
+            errorEvent.postValue(result.error!!)
             return
         }
 
         val path: LocalPath = result.selection!!.first() as LocalPath
-        Timber.tag(TAG).v("Updating path: %s", path)
+        log { "Updating path: $path " }
         editor.updatePath(path, false)
             .subscribeOn(Schedulers.io())
-            .subscribe { _, error ->
+            .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
     }
 
     fun importStorage(path: APath) {
+        log { "importStorage=$path" }
         path as LocalPath
         editor.updatePath(path, true)
             .subscribeOn(Schedulers.io())
-            .subscribe { _, error ->
+            .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
     }
@@ -112,12 +115,14 @@ class LocalEditorFragmentVDC @Inject constructor(
         }
     }
 
-    fun onGrantPermission() {
-        requestPermissionEvent.postValue(Any())
+    fun requestPermission(permission: Permission) {
+        log { "onGrantPermission=$permission" }
+        requestPermissionEvent.postValue(permission)
     }
 
-    fun onPermissionResult() {
-        stater.update { it.copy(isPermissionGranted = editor.isPermissionGranted()) }
+    fun onUpdatePermission(permission: Permission) {
+        log { "onUpdatePermission=$permission" }
+        stater.update { it.copy(missingPermissions = editor.getMissingPermissions()) }
     }
 
     fun saveConfig() {
@@ -135,7 +140,7 @@ class LocalEditorFragmentVDC @Inject constructor(
         val label: String = "",
         val path: String = "",
         val isWorking: Boolean = false,
-        val isPermissionGranted: Boolean = true,
+        val missingPermissions: Set<Permission> = emptySet(),
         val isExisting: Boolean = false,
         val isValid: Boolean = false
     )

@@ -5,10 +5,9 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.AString
-import eu.darken.bb.common.CAString
-import eu.darken.bb.common.PathAString
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.TypeMissMatchException
+import eu.darken.bb.common.toCaString
 import eu.darken.bb.processor.core.mm.Props
 import java.util.*
 
@@ -19,15 +18,15 @@ data class AppBackupMetaData(
     override val createdAt: Date = Date()
 ) : Backup.MetaData {
 
-    override fun getItemLabeling(spec: BackupSpec, props: Props): Pair<AString, AString> {
+    override fun getItemLabeling(spec: BackupSpec, props: Props): Pair<CaString, CaString> {
         spec as AppBackupSpec
 
         return if (props.label != null && props.originalPath != null) {
-            Pair(CAString(props.label!!), PathAString(props.originalPath!!))
+            Pair(props.label!!.toCaString(), props.originalPath!!.toCaString())
         } else if (props.label != null) {
-            Pair(AString.EMPTY, CAString(props.label!!))
+            Pair(CaString.EMPTY, props.label!!.toCaString())
         } else {
-            Pair(CAString(R.string.general_original_path_label), PathAString(props.originalPath!!))
+            Pair(R.string.general_original_path_label.toCaString(), props.originalPath!!.toCaString())
         }
     }
 

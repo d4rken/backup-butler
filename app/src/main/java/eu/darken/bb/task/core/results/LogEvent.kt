@@ -1,20 +1,20 @@
 package eu.darken.bb.task.core.results
 
-import eu.darken.bb.common.AString
-import eu.darken.bb.common.CAString
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.toCaString
 
 
 data class LogEvent(
     val type: Type,
-    val description: AString
+    val description: CaString
 ) {
 
     constructor(type: Type, path: APath)
-            : this(type = type, description = CAString { path.userReadablePath(it) })
+        : this(type = type, description = path.toCaString())
 
     constructor(type: Type, description: String)
-            : this(type = type, description = CAString(description))
+        : this(type = type, description = description.toCaString())
 
     enum class Type(val value: String) {
         BACKUPPED("backupped"),

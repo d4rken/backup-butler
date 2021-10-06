@@ -79,7 +79,7 @@
                             android:layout_height="wrap_content"
                             tools:text="/storage/emulated/0/DCIM" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/path_select_action"
                             style="@style/Widget.MaterialComponents.Button"
                             android:layout_width="wrap_content"

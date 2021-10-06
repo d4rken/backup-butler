@@ -1,18 +1,18 @@
 package eu.darken.bb.storage.core.local
 
-import android.Manifest
 import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import eu.darken.bb.common.HotData
-import eu.darken.bb.common.RuntimePermissionTool
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
+import eu.darken.bb.common.permission.Permission
+import eu.darken.bb.common.permission.RuntimePermissionTool
 import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
@@ -42,7 +42,7 @@ class LocalStorageEditor @AssistedInject constructor(
         .fromCallable {
             check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
 
-            check(isPermissionGranted()) { "Storage permission isn't granted, how did we get here?" }
+            check(getMissingPermissions().isEmpty()) { "Storage permission isn't granted, how did we get here?" }
 
             check(_path.asFile().canWrite()) { "Can't write to path." }
             check(_path.asFile().isDirectory) { "Target is not a directory!" }
@@ -70,14 +70,18 @@ class LocalStorageEditor @AssistedInject constructor(
             nextAction.ignoreElement().toSingleDefault(tweakedPath)
         }
 
-    fun isPermissionGranted(): Boolean {
-        return runtimePermissionTool.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    fun getMissingPermissions(): Set<Permission> {
+        val missingPermissions = mutableSetOf<Permission>()
+        if (!runtimePermissionTool.hasStoragePermission()) {
+            missingPermissions.add(runtimePermissionTool.getRequiredStoragePermission())
+        }
+        return missingPermissions
     }
 
     override fun isValid(): Observable<Boolean> = editorData.map { data ->
         data.refPath != null
-                && data.label.isNotEmpty()
-                && isPermissionGranted()
+            && data.label.isNotEmpty()
+            && getMissingPermissions().isEmpty()
     }
 
     override fun load(ref: Storage.Ref): Single<LocalStorageConfig> = Single.just(ref)

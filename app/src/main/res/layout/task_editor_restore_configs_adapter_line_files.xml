@@ -70,7 +70,7 @@
                 tools:text="Unable to read/write to this path. Please grant access."
                 tools:textColor="@color/colorError" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/option_path_action"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="wrap_content"
