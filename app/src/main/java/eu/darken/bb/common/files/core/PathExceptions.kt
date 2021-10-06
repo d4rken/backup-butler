@@ -11,7 +11,7 @@ open class PathException(
     val path: APath,
     message: String = "Error during access.",
     cause: Throwable? = null
-) : IOException("$message. <-> ${path.path}", cause)
+) : IOException("$message <-> ${path.path}", cause)
 
 class ReadException(
     path: APath,
