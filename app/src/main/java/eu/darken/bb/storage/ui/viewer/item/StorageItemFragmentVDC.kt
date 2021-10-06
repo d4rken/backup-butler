@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.ui.viewer.item
 
 import androidx.lifecycle.SavedStateHandle
-import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
@@ -29,9 +28,7 @@ class StorageItemFragmentVDC @Inject constructor(
     private val navArgs by handle.navArgs<StorageItemFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
 
-    private val storageObs = storageManager.getStorage(storageId)
-        .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
-        .replayingShare()
+    private val storageObs: Single<Storage> = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
 
     private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
@@ -49,7 +46,8 @@ class StorageItemFragmentVDC @Inject constructor(
             .subscribe { processorEvent.postValue(it.isNotNull) }
             .withScopeVDC(this)
 
-        storageObs.flatMap { it.info() }
+        storageObs
+            .flatMapObservable { it.info() }
             .filter { it.status != null }.map { it.status!! }
             .onErrorComplete()
             .subscribe { status ->
@@ -57,7 +55,8 @@ class StorageItemFragmentVDC @Inject constructor(
             }
             .withScopeVDC(this)
 
-        storageObs.flatMap { it.info() }
+        storageObs
+            .flatMapObservable { it.info() }
             .filter { it.config != null }
             .map { it.config!! }
             .take(1)
@@ -67,7 +66,8 @@ class StorageItemFragmentVDC @Inject constructor(
             .withScopeVDC(this)
 
         // TODO use storage extension?
-        storageObs.flatMap { it.specInfos() }
+        storageObs
+            .flatMapObservable { it.specInfos() }
             .subscribe({ storageContents ->
                 stater.update { oldState ->
                     oldState.copy(
@@ -95,8 +95,7 @@ class StorageItemFragmentVDC @Inject constructor(
 
     fun deleteAll() {
         storageObs
-            .subscribeOn(Schedulers.io())
-            .switchMap { storage ->
+            .flatMapObservable { storage ->
                 storage.specInfos()
                     .take(1)
                     .flatMapIterable { it }

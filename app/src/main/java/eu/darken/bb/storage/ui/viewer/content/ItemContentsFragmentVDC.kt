@@ -24,7 +24,7 @@ class ItemContentsFragmentVDC @Inject constructor(
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
 
-    private val storageObs = storageManager.getStorage(storageId).subscribeOn(Schedulers.io())
+    private val storageObs = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
 
     private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
@@ -32,7 +32,8 @@ class ItemContentsFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.specInfos() }
+        storageObs
+            .flatMapObservable { it.specInfos() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
             .subscribe({ item ->
                 stater.update { state ->

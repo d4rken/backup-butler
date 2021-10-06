@@ -24,7 +24,7 @@ class RequirementsFragmentVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<RequirementsFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
-    private val builderData = taskBuilder.task(taskId).subscribeOn(Schedulers.io())
+    private val builderData = taskBuilder.task(taskId).observeOn(Schedulers.computation())
 
     val stater = Stater { State() }
     val state = stater.liveData

@@ -33,7 +33,7 @@ class SAFEditorFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SAFStorageEditor }
 
@@ -89,7 +89,7 @@ class SAFEditorFragmentVDC @Inject constructor(
         val p = result.selection!!.first() as SAFPath
         val newlyPersistedPermission = result.persistedPermissions?.isNotEmpty() ?: false
         editor.updatePath(p, false, newlyPersistedPermission)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _, error ->
                 if (error != null) errorEvent.postValue(error)
             }
@@ -98,7 +98,7 @@ class SAFEditorFragmentVDC @Inject constructor(
     fun importStorage(path: APath) {
         path as SAFPath
         editor.updatePath(path, true)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _, error ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
@@ -106,8 +106,7 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     fun saveConfig() {
         builder.save(storageId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
             .doFinally { finishEvent.postValue(Any()) }
             .subscribe { _, error ->

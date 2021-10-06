@@ -29,8 +29,7 @@ class TaskEditorActivityVDC @Inject constructor(
 ) : SmartVDC() {
 
     private val taskId: Task.Id = handle.get(BackupTaskExtensions.TASKID_KEY)!!
-    private val taskObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.io())
+    private val taskObs = taskBuilder.task(taskId).observeOn(Schedulers.computation())
 
     private val editorObs = taskObs
         .filter { it.editor != null }
@@ -104,7 +103,7 @@ class TaskEditorActivityVDC @Inject constructor(
 
     fun dismiss() {
         taskBuilder.remove(taskId)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doOnSubscribe {
                 stater.update {
                     it.copy(isLoading = true)

@@ -27,7 +27,8 @@ class StorageViewerActivityVDC @Inject constructor(
     val state = stater.liveData
 
     init {
-        storageManager.infos(listOf(storageId)).subscribeOn(Schedulers.io())
+        storageManager.infos(listOf(storageId))
+            .observeOn(Schedulers.computation())
             .map { it.single() }
             .subscribe { optInfo ->
                 stater.update {

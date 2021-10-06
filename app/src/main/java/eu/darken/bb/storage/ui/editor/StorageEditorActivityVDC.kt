@@ -22,13 +22,11 @@ class StorageEditorActivityVDC @Inject constructor(
 
     private val navArgs = handle.navArgs<StorageEditorActivityArgs>()
     private val storageId: Storage.Id = navArgs.value.storageId
-    private val storageObs = storageBuilder.storage(storageId)
-        .subscribeOn(Schedulers.io())
+    private val storageObs = storageBuilder.storage(storageId).observeOn(Schedulers.computation())
 
     private val editorObs = storageObs
         .filter { it.editor != null }
         .map { it.editor!! }
-
 
     val finishEvent = SingleLiveEvent<Any>()
 
@@ -54,7 +52,7 @@ class StorageEditorActivityVDC @Inject constructor(
 
     fun dismiss() {
         storageBuilder.remove(storageId)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _ ->
                 finishEvent.postValue(Any())
             }

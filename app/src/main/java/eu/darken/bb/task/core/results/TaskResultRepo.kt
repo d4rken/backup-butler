@@ -35,7 +35,7 @@ class TaskResultRepo @Inject constructor(
 
     fun submitResult(result: TaskResult) {
         addResult(result)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe(
                 {
 

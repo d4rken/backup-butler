@@ -24,7 +24,6 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.kotlin.Observables
-import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -52,8 +51,12 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                     Observable.just(cachedInfo)
                 } else {
                     storageManager.getStorage(target.storageId)
-                        .subscribeOn(Schedulers.io())
-                        .switchMap { it.backupInfosOpt(Pair(target.backupSpecId, target.backupId), live = false) }
+                        .flatMapObservable {
+                            it.backupInfosOpt(
+                                Pair(target.backupSpecId, target.backupId),
+                                live = false
+                            )
+                        }
                         .map { it.first() }
                         .doOnNext { backupInfoCache[it.backupId] = it }
                 }
@@ -259,7 +262,6 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         .ignoreElement()
 
     fun addStorageId(storageId: Storage.Id): Single<Collection<Backup.Target>> = storageManager.getStorage(storageId)
-        .latest()
         .flatMap { it.specInfos().latest() }
         .map { infos ->
             infos
@@ -277,7 +279,6 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 
     fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id): Single<Backup.Target> =
         storageManager.getStorage(storageId)
-            .latest()
             .flatMap { it.specInfo(backupSpecId).latest() }
             .doOnSuccess { require(it.backups.isNotEmpty()) { "BackupSpec contains no backups." } }
             .map {

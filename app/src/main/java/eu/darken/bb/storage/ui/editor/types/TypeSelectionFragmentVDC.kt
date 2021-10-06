@@ -32,8 +32,8 @@ class TypeSelectionFragmentVDC @Inject constructor(
     fun createType(type: Storage.Type) {
         builder
             .update(storageId) { it!!.copy(storageType = type, editor = null) }
+            .observeOn(Schedulers.computation())
             .flatMapMaybe { builder.load(it.value!!.storageId) }
-            .subscribeOn(Schedulers.io())
             .doFinally { navigationEvent.postValue(type to storageId) }
             .subscribe()
     }

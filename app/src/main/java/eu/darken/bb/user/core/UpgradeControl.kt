@@ -29,11 +29,10 @@ class UpgradeControl @Inject constructor(
     )
 
     val upgradeData: Observable<out UpgradeData> = upgradeDataPub
-        .subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+        .subscribeOn(Schedulers.io())
         .doOnSubscribe {
             Timber.tag(TAG).d("upgradeData.doOnSubscribe")
             cascChecks = CompositeDisposable()
-
         }
         .doOnNext { Timber.tag(TAG).d("upgradeData.onNext()   : %s", it) }
         .doFinally {

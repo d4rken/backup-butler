@@ -37,7 +37,7 @@ class StorageActionDialogVDC @Inject constructor(
 
     init {
         storageManager.infos(listOf(storageId))
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .map { it.single() }
             .takeUntil { info -> info.isFinished }
             .subscribe { infoOpt ->
@@ -66,7 +66,7 @@ class StorageActionDialogVDC @Inject constructor(
                 }
 
                 if (infoOpt.anyError != null) {
-                    errorEvent.postValue(infoOpt.error)
+                    errorEvent.postValue(infoOpt.anyError)
                 }
             }
             .withScopeVDC(this)
@@ -93,7 +93,7 @@ class StorageActionDialogVDC @Inject constructor(
             }
             EDIT -> {
                 storageBuilder.load(storageId)
-                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
@@ -106,7 +106,7 @@ class StorageActionDialogVDC @Inject constructor(
             }
             RESTORE -> {
                 taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
-                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .flatMap { data ->
                         (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
                     }
@@ -122,7 +122,7 @@ class StorageActionDialogVDC @Inject constructor(
             }
             DETACH -> {
                 storageManager.detach(storageId, wipe = false)
-                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
@@ -133,7 +133,7 @@ class StorageActionDialogVDC @Inject constructor(
             }
             DELETE -> {
                 storageManager.detach(storageId, wipe = true)
-                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }

@@ -68,12 +68,12 @@ class DestinationsFragmentVDC @Inject constructor(
 
     private fun save(execute: Boolean = false) {
         taskBuilder.save(taskId)
+            .observeOn(Schedulers.computation())
             .doOnSubscribe {
                 stater.update {
                     it.copy(isWorking = true)
                 }
             }
-            .subscribeOn(Schedulers.computation())
             .subscribe { savedTask ->
                 if (execute) processorControl.submit(savedTask)
                 finishEvent.postValue(true)

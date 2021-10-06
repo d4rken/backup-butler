@@ -32,7 +32,7 @@ class TaskActionDialogVDC @Inject constructor(
 
     init {
         taskRepo.get(taskId)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribeNullable { task ->
                 val actions = listOf(
                     Confirmable(RUN),

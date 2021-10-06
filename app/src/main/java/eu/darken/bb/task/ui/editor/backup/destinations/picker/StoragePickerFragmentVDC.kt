@@ -28,13 +28,13 @@ class StoragePickerFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
 
     val storageData = storageManager.infos()
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .takeUntil { optInfos -> optInfos.all { it.isFinished } }
         .flatMap { all ->
             editorData
@@ -56,12 +56,13 @@ class StoragePickerFragmentVDC @Inject constructor(
 
     fun createStorage() {
         storageBuilder.startEditor()
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe()
     }
 
     fun selectStorage(item: Storage.InfoOpt) {
-        taskBuilder.task(taskId).subscribeOn(Schedulers.io())
+        taskBuilder.task(taskId)
+            .observeOn(Schedulers.computation())
             .latest()
             .map { it.editor as SimpleBackupTaskEditor }
             .subscribe { editor ->

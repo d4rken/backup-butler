@@ -35,7 +35,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.computation())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SimpleRestoreTaskEditor }
 
@@ -127,7 +127,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isCanceled) return
         if (result.isFailed) {
-            errorEvent.postValue(result.error)
+            errorEvent.postValue(result.error!!)
             return
         }
         result.options.payload.classLoader = this.javaClass.classLoader
@@ -140,9 +140,9 @@ class RestoreConfigFragmentVDC @Inject constructor(
 
     private fun save(execute: Boolean) {
         editorObs.latest()
+            .observeOn(Schedulers.computation())
             .flatMap { it.updateOneTime(execute) }
             .flatMap { taskBuilder.save(taskId) }
-            .subscribeOn(Schedulers.io())
             .doOnSubscribe {
                 configStater.update { it.copy(isWorking = true) }
             }

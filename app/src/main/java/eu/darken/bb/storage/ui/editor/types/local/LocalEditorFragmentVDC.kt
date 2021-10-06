@@ -36,7 +36,7 @@ class LocalEditorFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     private val editorObs = builder.storage(storageId)
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as LocalStorageEditor }
 
@@ -87,7 +87,7 @@ class LocalEditorFragmentVDC @Inject constructor(
         val path: LocalPath = result.selection!!.first() as LocalPath
         log { "Updating path: $path " }
         editor.updatePath(path, false)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
@@ -97,7 +97,7 @@ class LocalEditorFragmentVDC @Inject constructor(
         log { "importStorage=$path" }
         path as LocalPath
         editor.updatePath(path, true)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
@@ -127,8 +127,7 @@ class LocalEditorFragmentVDC @Inject constructor(
 
     fun saveConfig() {
         builder.save(storageId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
             .doFinally { finishEvent.postValue(true) }
             .subscribe { _, error ->

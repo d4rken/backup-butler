@@ -22,6 +22,7 @@ class RootManager @Inject constructor(
     }
 
     val rootContext: Single<RootContext> = Single.just(generalSettings)
+        .subscribeOn(Schedulers.io())
         .flatMap {
             when {
                 generalSettings.isRootDisabled -> {
@@ -34,7 +35,6 @@ class RootManager @Inject constructor(
                 }
             }
         }
-        .subscribeOn(Schedulers.io())
         .doOnSubscribe { Timber.tag(TAG).d("Acquiring RootContext...") }
         .doOnSuccess { Timber.tag(TAG).i("RootContext: %s", it) }
         .onErrorReturnItem(RootContext.EMPTY)

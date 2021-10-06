@@ -30,8 +30,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     private val stater = Stater { State() }
     val state = stater.liveData
 
-    private val dataObs = builder.generator(generatorId)
-        .subscribeOn(Schedulers.io())
+    private val dataObs = builder.generator(generatorId).observeOn(Schedulers.computation())
 
     private val editorObs = dataObs
         .filter { it.editor != null }
@@ -73,7 +72,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
 
     fun updateLabel(label: String) {
         editor.updateLabel(label)
-            .subscribeOn(Schedulers.computation())
+            .observeOn(Schedulers.computation())
             .subscribe(
                 { },
                 { err -> errorEvent.postValue(err) }
@@ -83,11 +82,11 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     fun updatePath(result: APathPicker.Result) {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isFailed) {
-            errorEvent.postValue(result.error)
+            errorEvent.postValue(result.error!!)
             return
         }
         editor.updatePath(result.selection!!.first())
-            .subscribeOn(Schedulers.computation())
+            .observeOn(Schedulers.computation())
             .subscribe(
                 { },
                 { err -> errorEvent.postValue(err) }
@@ -106,8 +105,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
 
     fun saveConfig() {
         builder.save(generatorId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doFinally { finishEvent.postValue(Any()) }
             .subscribe(
                 { },

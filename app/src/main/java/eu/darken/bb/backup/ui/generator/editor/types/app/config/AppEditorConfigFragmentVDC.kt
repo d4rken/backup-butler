@@ -101,8 +101,7 @@ class AppEditorConfigFragmentVDC @Inject constructor(
 
     fun saveConfig() {
         builder.save(generatorId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doFinally { finishEvent.postValue(Any()) }
             .subscribe()
     }

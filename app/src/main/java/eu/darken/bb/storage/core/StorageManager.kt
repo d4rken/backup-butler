@@ -28,7 +28,8 @@ class StorageManager @Inject constructor(
     private val repoCache = mutableMapOf<Storage.Id, Storage>()
 
     init {
-        refRepo.modifiedIds.subscribeOn(Schedulers.io())
+        refRepo.modifiedIds
+            .subscribeOn(Schedulers.io())
             .subscribe {
                 synchronized(repoCache) {
                     repoCache.remove(it)
@@ -58,6 +59,7 @@ class StorageManager @Inject constructor(
                 .map { it.toMap() }
                 .toObservable()
         }
+        .subscribeOn(Schedulers.io())
         .switchMap { it }
         .switchMap { refMap ->
             if (refMap.isEmpty()) return@switchMap Observable.just(emptyList<Storage.InfoOpt>())
@@ -78,7 +80,7 @@ class StorageManager @Inject constructor(
         }
 
     private fun info(ref: Storage.Ref): Observable<Storage.Info> = getStorage(ref)
-        .switchMap { it.info().startWithItem(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
+        .flatMapObservable { it.info().startWithItem(Storage.Info(ref.storageId, ref.storageType, it.storageConfig)) }
         .doOnError { Timber.tag(TAG).e(it) }
         .startWithItem(Storage.Info(ref.storageId, ref.storageType))
         .onErrorMixLast { last, error ->
@@ -86,11 +88,12 @@ class StorageManager @Inject constructor(
             last!!.copy(error = error)
         }
 
-    fun getStorage(id: Storage.Id): Observable<Storage> = refRepo.get(id)
+    fun getStorage(id: Storage.Id): Single<Storage> = refRepo.get(id)
+        .subscribeOn(Schedulers.io())
         .singleOrError(IllegalArgumentException("Can't find storage for $id"))
-        .flatMapObservable { getStorage(it) }
+        .flatMap { getStorage(it) }
 
-    private fun getStorage(ref: Storage.Ref): Observable<Storage> = Observable.fromCallable {
+    private fun getStorage(ref: Storage.Ref): Single<Storage> = Single.fromCallable {
         synchronized(repoCache) {
             var repo = repoCache[ref.storageId]
             if (repo != null) return@fromCallable repo
@@ -109,7 +112,7 @@ class StorageManager @Inject constructor(
     fun detach(id: Storage.Id, wipe: Boolean = false): Single<Storage.Ref> = Single
         .fromCallable {
             val storage = try {
-                getStorage(id).blockingFirst()
+                getStorage(id).blockingGet()
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "Failed to get storage for detach.")
                 null
@@ -126,14 +129,17 @@ class StorageManager @Inject constructor(
             val ref = refRepo.remove(id).blockingGet()
             ref.notNullValue()
         }
+        .subscribeOn(Schedulers.io())
         .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
 
-    fun startViewer(storageId: Storage.Id): Completable = Completable.fromCallable {
-        val intent = Intent(context, StorageViewerActivity::class.java)
-        intent.putExtras(StorageViewerActivityArgs(storageId = storageId).toBundle())
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
-    }
+    fun startViewer(storageId: Storage.Id): Completable = Completable
+        .fromCallable {
+            val intent = Intent(context, StorageViewerActivity::class.java)
+            intent.putExtras(StorageViewerActivityArgs(storageId = storageId).toBundle())
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
+        .subscribeOn(Schedulers.io())
 
     companion object {
         private val TAG = logTag("Storage", "Manager")

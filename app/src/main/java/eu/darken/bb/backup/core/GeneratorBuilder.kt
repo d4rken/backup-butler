@@ -58,10 +58,12 @@ class GeneratorBuilder @Inject constructor(
             }
             mutMap.toMap()
         }
+        .subscribeOn(Schedulers.computation())
         .map { Opt(it.newValue[id]) }
         .doOnSuccess { Timber.tag(TAG).v("Generator  updated: %s (%s): %s", id, action, it) }
 
     fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
+        .subscribeOn(Schedulers.computation())
         .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
         .flatMap {
             hotData.latest
@@ -78,6 +80,7 @@ class GeneratorBuilder @Inject constructor(
         }
 
     fun save(id: Generator.Id): Single<Generator.Config> = remove(id, false)
+        .subscribeOn(Schedulers.computation())
         .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
         .map {
             checkNotNull(it.value) { "Can't find ID to save: $id" }
@@ -94,6 +97,7 @@ class GeneratorBuilder @Inject constructor(
         .map { it }
 
     fun load(id: Generator.Id): Maybe<Data> = generatorRepo.get(id)
+        .subscribeOn(Schedulers.computation())
         .flatMapSingle { config ->
             val editor = editors.getValue(config.generatorType).create(config.generatorId)
             editor.load(config).blockingAwait()
@@ -112,6 +116,7 @@ class GeneratorBuilder @Inject constructor(
         type: Backup.Type? = null,
         targetTask: Task.Id? = null
     ): Single<Generator.Id> = hotData.latest
+        .subscribeOn(Schedulers.computation())
         .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
         .switchIfEmpty(
             load(generatorId)

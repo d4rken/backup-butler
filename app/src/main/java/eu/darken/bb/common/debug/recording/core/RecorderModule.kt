@@ -26,7 +26,8 @@ class RecorderModule @AssistedInject constructor(
     private var recorder: Recorder? = null
 
     init {
-        host.observeOptions().subscribeOn(Schedulers.io())
+        host.observeOptions()
+            .observeOn(Schedulers.computation())
             .subscribe { options ->
                 if (recorder == null && options.isRecording) {
                     recorder = Recorder()

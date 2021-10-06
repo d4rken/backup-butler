@@ -37,8 +37,8 @@ class GeneratorTypeFragmentVDC @Inject constructor(
     fun createType(type: Backup.Type) {
         builder
             .update(generatorId) { it!!.copy(generatorType = type, editor = null) }
+            .observeOn(Schedulers.computation())
             .flatMapMaybe { builder.load(it.value!!.generatorId) }
-            .subscribeOn(Schedulers.io())
             .doFinally { navigationEvent.postValue(type to generatorId) }
             .subscribe()
     }

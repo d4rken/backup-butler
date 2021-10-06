@@ -24,7 +24,7 @@ class StorageListFragmentVDC @Inject constructor(
 ) : SmartVDC() {
 
     val storageData = storageManager.infos()
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .map { infos ->
             StorageState(
                 storages = infos.toList(),
@@ -46,7 +46,7 @@ class StorageListFragmentVDC @Inject constructor(
 
     fun createStorage() {
         storageBuilder.startEditor()
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe()
     }
 

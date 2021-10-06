@@ -28,13 +28,13 @@ class GeneratorPickerFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
 
     val generatorData = generatorRepo.configs
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .map { it.values }
         .flatMap { all ->
             editorData
@@ -56,12 +56,13 @@ class GeneratorPickerFragmentVDC @Inject constructor(
 
     fun createGenerator() {
         generatorBuilder.startEditor()
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe()
     }
 
     fun selectGenerator(item: GeneratorConfigOpt) {
-        taskBuilder.task(taskId).subscribeOn(Schedulers.io())
+        taskBuilder.task(taskId)
+            .observeOn(Schedulers.computation())
             .latest()
             .map { it.editor as SimpleBackupTaskEditor }
             .subscribe { editor ->

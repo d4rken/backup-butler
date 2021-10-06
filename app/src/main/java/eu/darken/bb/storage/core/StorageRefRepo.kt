@@ -10,7 +10,6 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.opt
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import timber.log.Timber
 import javax.inject.Inject
@@ -41,7 +40,6 @@ class StorageRefRepo @Inject constructor(
 
     init {
         internalData.data
-            .subscribeOn(Schedulers.io())
             .subscribe { data ->
                 preferences.edit().clear().apply()
                 data.values.forEach {

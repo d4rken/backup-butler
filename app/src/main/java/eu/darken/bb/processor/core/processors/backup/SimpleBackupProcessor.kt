@@ -20,6 +20,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.backup.SimpleBackupTask
 import eu.darken.bb.task.core.results.LogEvent
 import eu.darken.bb.task.core.results.SimpleResult
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -71,7 +72,10 @@ class SimpleBackupProcessor @AssistedInject constructor(
 
                 task.destinations.forEach { storageId ->
                     // TODO what if the storage has been deleted?
-                    val storage = storageManager.getStorage(storageId).blockingFirst()
+                    val storage = storageManager
+                        .getStorage(storageId)
+                        .observeOn(Schedulers.computation())
+                        .blockingGet()
                     storage.keepAliveWith(this)
                     Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
 

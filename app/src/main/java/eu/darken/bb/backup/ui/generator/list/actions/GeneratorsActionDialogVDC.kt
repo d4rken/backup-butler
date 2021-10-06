@@ -30,7 +30,7 @@ class GeneratorsActionDialogVDC @Inject constructor(
 
     init {
         generatorRepo.get(generatorId)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribeNullable { config ->
                 val actions = listOf(
                     Confirmable(EDIT),
@@ -54,15 +54,15 @@ class GeneratorsActionDialogVDC @Inject constructor(
         when (action) {
             EDIT -> {
                 generatorBuilder.startEditor(generatorId)
-                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                     .subscribe()
             }
             DELETE -> {
                 Single.timer(200, TimeUnit.MILLISECONDS)
+                    .observeOn(Schedulers.computation())
                     .flatMap { generatorRepo.remove(generatorId) }
-                    .subscribeOn(Schedulers.io())
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                     .subscribe()

@@ -59,7 +59,7 @@ class GeneratorEditorActivityVDC @Inject constructor(
 
     fun dismiss() {
         generatorBuilder.remove(generatorId)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe { _ ->
                 finishEvent.postValue(Any())
             }

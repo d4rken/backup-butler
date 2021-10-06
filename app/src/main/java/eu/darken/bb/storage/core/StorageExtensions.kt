@@ -36,7 +36,7 @@ fun Storage.specInfosOpt(
 
         val statusObs = items.map { specId ->
             specInfo(specId)
-                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .compose { if (live) it else it.take(1) }
                 .map { BackupSpec.InfoOpt(it) }
                 .onErrorReturn { BackupSpec.InfoOpt(storageId, specId, error = it) }
@@ -58,7 +58,7 @@ fun Storage.backupInfosOpt(
 
         val statusObs = items.map { (specId, backupId) ->
             backupInfo(specId, backupId)
-                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .compose { if (live) it else it.take(1) }
                 .map { Backup.InfoOpt(it) }
                 .onErrorReturn { Backup.InfoOpt(storageId, specId, backupId, error = it) }

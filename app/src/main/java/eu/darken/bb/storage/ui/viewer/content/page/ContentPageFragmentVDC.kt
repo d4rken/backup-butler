@@ -31,10 +31,8 @@ class ContentPageFragmentVDC @Inject constructor(
     private val backupSpecId: BackupSpec.Id = navArgs.specId
     private val backupId: Backup.Id = navArgs.backupId
 
-    private val storageObs = storageManager.getStorage(storageId)
-        .subscribeOn(Schedulers.io())
-        .replayingShare()
-    private val contentObs = storageObs.switchMap { it.specInfos() }
+    private val storageObs = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
+    private val contentObs = storageObs.flatMapObservable { it.specInfos() }
         .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
         .replayingShare()
 
@@ -62,7 +60,7 @@ class ContentPageFragmentVDC @Inject constructor(
             .withScopeVDC(this)
 
         contentObs
-            .flatMap { content -> storageObs.switchMap { it.backupContent(content.specId, backupId) } }
+            .flatMap { content -> storageObs.flatMapObservable { it.backupContent(content.specId, backupId) } }
             .subscribe({ details ->
                 stater.update { state ->
                     state.copy(
@@ -79,7 +77,7 @@ class ContentPageFragmentVDC @Inject constructor(
 
     fun restore() {
         taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(showRestoreAction = false) } }
             .flatMap { data ->
                 val type = contentObs.blockingFirst().backupSpec.backupType

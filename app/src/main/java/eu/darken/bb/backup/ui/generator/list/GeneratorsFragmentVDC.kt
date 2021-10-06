@@ -40,7 +40,7 @@ class GeneratorsFragmentVDC @Inject constructor(
 
     fun newGenerator() {
         generatorBuilder.startEditor()
-            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
             .subscribe()
     }
 

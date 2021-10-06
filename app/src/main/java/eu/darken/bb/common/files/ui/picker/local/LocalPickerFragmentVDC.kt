@@ -89,6 +89,7 @@ class LocalPickerFragmentVDC @Inject constructor(
         }
 
         Observable.just(unwrapped)
+            .subscribeOn(Schedulers.computation())
             .map { path -> doCd(path) }
             .onErrorReturn {
                 errorEvents.postValue(it)
@@ -98,7 +99,6 @@ class LocalPickerFragmentVDC @Inject constructor(
                 errorEvents.postValue(it)
                 Triple(fallbackPath, fallbackPath.toCrumbs(), emptyList())
             }
-            .subscribeOn(Schedulers.io())
             .subscribe({ (path, crumbs, listing) ->
                 stater.update { state ->
                     state.copy(

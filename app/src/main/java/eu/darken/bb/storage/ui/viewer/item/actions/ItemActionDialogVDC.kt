@@ -32,8 +32,7 @@ class ItemActionDialogVDC @Inject constructor(
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
 
-    private val storageObs = storageManager.getStorage(storageId)
-        .subscribeOn(Schedulers.io())
+    private val storageObs = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
 
     private val stater = Stater { State() }
     val state = stater.liveData
@@ -43,7 +42,8 @@ class ItemActionDialogVDC @Inject constructor(
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
-        storageObs.flatMap { it.specInfos() }
+        storageObs
+            .flatMapObservable { it.specInfos() }
             .map { contents -> contents.single { it.backupSpec.specId == backupSpecId } }
             .take(1)
             .subscribe({ content ->
@@ -54,7 +54,8 @@ class ItemActionDialogVDC @Inject constructor(
             })
             .withScopeVDC(this)
 
-        storageObs.flatMap { it.info() }
+        storageObs
+            .flatMapObservable { it.info() }
             .filter { it.isFinished }
             .take(1)
             .subscribe({ info ->
@@ -82,8 +83,7 @@ class ItemActionDialogVDC @Inject constructor(
             }
             ItemAction.DELETE -> {
                 storageObs
-                    .flatMapSingle { it.remove(backupSpecId) }
-                    .subscribeOn(Schedulers.io())
+                    .flatMap { it.remove(backupSpecId) }
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOp = null) } }
                     .doOnSubscribe { disp ->
@@ -102,7 +102,6 @@ class ItemActionDialogVDC @Inject constructor(
                     )
             }
             ItemAction.RESTORE -> taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
-                .subscribeOn(Schedulers.io())
                 .flatMap { data ->
                     (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
                         .map { data.taskId }

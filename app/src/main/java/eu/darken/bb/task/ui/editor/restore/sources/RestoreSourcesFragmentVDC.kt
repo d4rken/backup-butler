@@ -29,7 +29,7 @@ class RestoreSourcesFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SimpleRestoreTaskEditor }
         .replayingShare()

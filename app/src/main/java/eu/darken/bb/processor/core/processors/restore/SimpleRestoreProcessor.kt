@@ -19,6 +19,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
 import eu.darken.bb.task.core.results.SimpleResult
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -83,7 +84,10 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     ) {
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 
-        val storage = storageManager.getStorage(target.storageId).blockingFirst()
+        val storage = storageManager
+            .getStorage(target.storageId)
+            .observeOn(Schedulers.computation())
+            .blockingGet()
         storage.keepAliveWith(this)
 
         val specInfo = storage.specInfo(target.backupSpecId).blockingFirst()

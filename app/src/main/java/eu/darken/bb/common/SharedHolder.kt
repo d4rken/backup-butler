@@ -24,7 +24,7 @@ open class SharedHolder<T : Any> constructor(
         get() = !activeTokens.isDisposed
 
     private val resourceHolder: Observable<T> = source
-        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.io())
         .doOnSubscribe {
             Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
             require(activeTokens.isDisposed) { "Previous active tokens were not disposed!" }
