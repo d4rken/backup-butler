@@ -300,4 +300,12 @@
     <string name="bugreporting_record_debuglog_action">Record debug log</string>
     <string name="permission_write_external_storage_description">General access to public storage on Android 11 devices and older.</string>
     <string name="permission_manage_external_storage_description">General access to public storage on Android 11+ devices.</string>
+    <string name="onboarding_beta_subtitle">Here be dragons</string>
+    <string name="onboarding_beta_bebrave">Be brave. Be bold!</string>
+    <string name="onboarding_beta_explanation_title">Beta version</string>
+    <string name="onboarding_beta_explanation_description">This is a beta version. It may have more bugs, it may have less bugs, you never know. Maybe just don\'t use it yet for backups of your firstborn and bitcoins.</string>
+    <string name="onboarding_beta_bugreport_title">Bug reporting</string>
+    <string name="onboarding_beta_bugreport_description">Please report issues. Participate on the issue tracker. Even if you are unsure.</string>
+    <string name="onboarding_betacost_title">Free stuff</string>
+    <string name="onboarding_betacost_description">Paid features are free during this beta.</string>
 </resources>

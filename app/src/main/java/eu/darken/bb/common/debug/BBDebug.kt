@@ -14,6 +14,7 @@ import eu.darken.bb.Bugs
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.ApiHelper
+import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
@@ -140,7 +141,7 @@ class BBDebug @Inject constructor(
     companion object {
         private val TAG = logTag("Debug")
 
-        fun isDebug() = BuildConfig.BETA || BuildConfig.DEBUG
+        fun isDebug() = BuildConfigWrap.isBetaBuild || BuildConfigWrap.isDebugBuild
     }
 
 }

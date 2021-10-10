@@ -7,6 +7,7 @@ import android.content.pm.Signature
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import dagger.hilt.android.qualifiers.ApplicationContext
+import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.CheckSummer
 import timber.log.Timber
 import java.io.File
@@ -29,12 +30,12 @@ class BackupButler @Inject constructor(
             versionCode = pkgInfo.versionCode.toLong(),
             versionName = pkgInfo.versionName,
             buildState = when {
-                BuildConfig.DEBUG -> BuildState.DEV
-                BuildConfig.BETA -> BuildState.BETA
+                BuildConfigWrap.isDebugBuild -> BuildState.DEV
+                BuildConfigWrap.isBetaBuild -> BuildState.BETA
                 else -> BuildState.PRODUCTION
             },
-            gitSha = BuildConfig.GITSHA,
-            buildTime = BuildConfig.BUILD_TYPE
+            gitSha = BuildConfigWrap.gitSha,
+            buildTime = BuildConfigWrap.buildTime
         )
     }
 

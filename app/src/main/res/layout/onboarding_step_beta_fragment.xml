@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="32dp">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.AppCompat.Display1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/onboarding_beta_subtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <ImageView
+            android:id="@+id/explanation_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_beta_onsurface"
+            app:layout_constraintBottom_toBottomOf="@id/explanation_title"
+            app:layout_constraintEnd_toStartOf="@id/explanation_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/explanation_title" />
+
+        <TextView
+            android:id="@+id/explanation_title"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/onboarding_beta_explanation_title"
+            app:layout_constraintBottom_toTopOf="@id/explanation_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/explanation_icon"
+            app:layout_constraintTop_toBottomOf="@+id/subtitle"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/explanation_description"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/onboarding_beta_explanation_description"
+            app:layout_constraintBottom_toTopOf="@id/bugreport_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/explanation_title"
+            app:layout_constraintTop_toBottomOf="@+id/explanation_title" />
+
+        <ImageView
+            android:id="@+id/bugreport_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="?colorOnSurface"
+            android:src="@drawable/ic_bug_report"
+            app:layout_constraintBottom_toBottomOf="@id/bugreport_title"
+            app:layout_constraintEnd_toStartOf="@id/bugreport_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bugreport_title" />
+
+        <TextView
+            android:id="@+id/bugreport_title"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/onboarding_beta_bugreport_title"
+            app:layout_constraintBottom_toTopOf="@id/bugreport_description"
+            app:layout_constraintStart_toEndOf="@id/bugreport_icon"
+            app:layout_constraintTop_toBottomOf="@+id/explanation_description" />
+
+        <TextView
+            android:id="@+id/bugreport_description"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/onboarding_beta_bugreport_description"
+            app:layout_constraintBottom_toTopOf="@id/betacost_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/bugreport_title"
+            app:layout_constraintTop_toBottomOf="@+id/bugreport_title" />
+
+        <ImageView
+            android:id="@+id/betacost_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:tint="?colorOnSurface"
+            android:src="@drawable/ic_baseline_stars_24"
+            app:layout_constraintBottom_toBottomOf="@id/betacost_title"
+            app:layout_constraintEnd_toStartOf="@id/betacost_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/betacost_title" />
+
+        <TextView
+            android:id="@+id/betacost_title"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/onboarding_betacost_title"
+            app:layout_constraintBottom_toTopOf="@id/betacost_description"
+            app:layout_constraintStart_toEndOf="@id/betacost_icon"
+            app:layout_constraintTop_toBottomOf="@+id/bugreport_description" />
+
+        <TextView
+            android:id="@+id/betacost_description"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/onboarding_betacost_description"
+            app:layout_constraintBottom_toTopOf="@id/continue_action"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/betacost_title"
+            app:layout_constraintTop_toBottomOf="@+id/betacost_title" />
+
+        <TextView
+            android:id="@+id/bebold_jib"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="@string/onboarding_beta_bebrave"
+            app:layout_constraintBottom_toTopOf="@id/continue_action" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/continue_action"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

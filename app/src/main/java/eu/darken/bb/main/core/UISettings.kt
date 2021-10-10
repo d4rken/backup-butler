@@ -73,11 +73,6 @@ class UISettings @Inject constructor(
         false
     )
 
-    var showOnboarding: Boolean
-        get() = preferences.getBoolean(PKEY_ONBOARDING, true)
-        set(value) = preferences.edit().putBoolean(PKEY_ONBOARDING, value).apply()
-
-
     var language: Locale
         get() {
             val tag = preferences.getString(PKEY_LANGUAGE, Locale.getDefault().toLanguageTag())!!
@@ -92,13 +87,11 @@ class UISettings @Inject constructor(
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
         override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
             PKEY_DEBUGPAGE -> showDebugPage.value
-            PKEY_ONBOARDING -> showOnboarding
             else -> super.getBoolean(key, defValue)
         }
 
         override fun putBoolean(key: String, value: Boolean) = when (key) {
             PKEY_DEBUGPAGE -> showDebugPage.update { value }
-            PKEY_ONBOARDING -> showOnboarding = value
             else -> super.putBoolean(key, value)
         }
 
@@ -124,7 +117,6 @@ class UISettings @Inject constructor(
         const val PKEY_THEME = "ui.theme"
         const val PKEY_STARTMODE = "ui.startmode"
         const val PKEY_DEBUGPAGE = "ui.debugpage.show"
-        const val PKEY_ONBOARDING = "ui.onboarding.show"
         const val PKEY_LANGUAGE = "ui.language.locale"
     }
 }
