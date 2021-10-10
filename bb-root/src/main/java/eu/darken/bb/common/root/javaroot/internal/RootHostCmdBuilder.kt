@@ -181,7 +181,7 @@ class RootHostCmdBuilder<Host : RootHost> constructor(
     }
 
     fun build(vararg javaArgs: String): Cmd.Builder {
-        log { "build($javaArgs)" }
+        log { "build(${javaArgs.toList()})" }
         val packageCodePath = context.packageCodePath
 
         val (relocScript, relocPath) = relocateScript()

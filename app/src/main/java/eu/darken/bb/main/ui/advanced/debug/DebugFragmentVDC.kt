@@ -30,7 +30,12 @@ class DebugFragmentVDC @Inject constructor(
 
     fun performJavaRootCheck() {
         Single
-            .fromCallable { javaRootClient.runSessionAction { it.ipc.checkBase() } }
+            .fromCallable {
+                javaRootClient.runSessionAction {
+                    log { "runSessionAction { checkBase() }" }
+                    it.ipc.checkBase()
+                }
+            }
             .subscribeOn(Schedulers.io())
             .doOnSubscribe { rootResult.postValue(RootCheckState(isWorking = true)) }
             .subscribe({ result ->

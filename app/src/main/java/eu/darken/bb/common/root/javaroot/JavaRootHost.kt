@@ -4,14 +4,16 @@ import android.annotation.SuppressLint
 import android.util.Log
 import dagger.Lazy
 import eu.darken.bb.BuildConfig
+import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.debug.logging.*
-import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
-import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
+import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.root.javaroot.internal.RootHost
 import eu.darken.bb.common.root.javaroot.internal.RootIPC
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
+import eu.darken.rxshell.extra.RXSDebug
+import timber.log.Timber
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -22,12 +24,12 @@ import kotlin.system.exitProcess
  * package, but not instances - this is a separate process from the UI.
  */
 @SuppressLint("UnsafeDynamicallyLoadedCode")
-class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<Any>, RootHost() {
+class JavaRootHost constructor(_args: List<String>) : SharedHolder.HasKeepAlive<Any>, RootHost() {
 
     override val keepAlive = SharedHolder.createKeepAlive(TAG)
-    private val keepAliveToken: SharedHolder.Resource<*>
 
-    private val pathToAPK: String
+    private val ourPkgName: String
+    private val isDebug: Boolean
     private val component: RootComponent
 
     @RootProcessShell @Inject lateinit var sharedShell: SharedShell
@@ -35,9 +37,16 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
     @Inject lateinit var rootIpcFactory: RootIPC.Factory
 
     init {
-        Log.d(TAG, "init1(args=${args})")
+        Log.d(TAG, "init1(args=${_args})")
+        val args = _args.toMutableList()
+        isDebug = args.remove(DEBUG_FLAG)
 
-        if (BuildConfig.DEBUG) Logging.install(LogCatLogger())
+        if (BuildConfigWrap.isVerbosebuild || isDebug) {
+            Logging.install(LogCatLogger())
+            Timber.plant(Timber.DebugTree())
+            RXSDebug.setDebug(true)
+            log(TAG) { "isVerbosebuild=${BuildConfigWrap.isVerbosebuild}, isDebug=$isDebug" }
+        }
         log(TAG, INFO) { "init2(args=$args)" }
 
         val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
@@ -49,7 +58,7 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
 
         require(args.isNotEmpty()) { "JavaRootHost: ARGS can't be empty" }
 
-        pathToAPK = args[0]
+        ourPkgName = args[0]
         log(TAG) { "PKG [${args[0]}]" }
 
         var usedArgs = 1
@@ -75,9 +84,6 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
 
         log(TAG) { "Running on threadId=${Thread.currentThread().id}" }
         //        Debugger.waitFor(true)
-
-        keepAliveToken = keepAlive.get()
-        sharedShell.keepAliveWith(this)
     }
 
     private fun run() {
@@ -88,8 +94,14 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
         )
         log(TAG) { "IPC created: $ipc" }
 
+        val keepAliveToken: SharedHolder.Resource<*> = keepAlive.get()
+
+        log(TAG) { "Launching SharedShell with root" }
+        sharedShell.keepAliveWith(this)
+
         try {
-            ipc.broadcast()
+            log(TAG) { "Ready, now broadcasting..." }
+            ipc.broadcastAndWait()
         } catch (e: TimeoutException) {
             log(TAG, ERROR) { "Non-root process did not connect in a timely fashion" }
         }
@@ -99,13 +111,16 @@ class JavaRootHost constructor(args: List<String>) : SharedHolder.HasKeepAlive<A
 
 
     companion object {
+        const val DEBUG_FLAG = "BB-DEBUG"
         internal val TAG = logTag("Root", "Java", "Host")
 
         @JvmStatic fun main(args: Array<String>) {
+            log(TAG) { "main(args=$args)" }
             val runner = JavaRootHost(args.toList())
-            log(TAG) { "run():START" }
+
+            log(TAG, VERBOSE) { "run():START" }
             runner.run()
-            log(TAG) { "run():FINISHED" }
+            log(TAG, VERBOSE) { "run():FINISHED" }
         }
     }
 }

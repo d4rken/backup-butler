@@ -125,7 +125,7 @@ class RootIPC @AssistedInject constructor(
         require(timeout >= 0L) { "Timeout can't be negative: $timeout" }
     }
 
-    fun broadcast() {
+    fun broadcastAndWait() {
         log(TAG) { "broadcast()" }
 
         broadcastIPC()

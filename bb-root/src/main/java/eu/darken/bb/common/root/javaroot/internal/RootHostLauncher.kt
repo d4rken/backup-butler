@@ -18,11 +18,14 @@ import kotlin.reflect.KClass
  * https://github.com/zhanghai/MaterialFiles/tree/71e1e0d50573d5c3645e0fe7ec025e0ec75024ec/app/src/main/java/me/zhanghai/android/files/provider/root
  * https://github.com/RikkaApps/Shizuku/blob/master/starter/src/main/java/moe/shizuku/starter/ServiceStarter.java
  */
-class RootHostLauncher @Inject constructor(@ApplicationContext private val context: Context) {
+class RootHostLauncher @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     fun <Binder : Any, Host : RootHost> createConnection(
         binderClass: KClass<Binder>,
         rootHostClass: KClass<Host>,
+        vararg args: String
     ): Observable<Binder> = Observable.create { emitter ->
         log(TAG) { "Initiating connection to host($rootHostClass) via binder($binderClass)" }
 
@@ -56,7 +59,7 @@ class RootHostLauncher @Inject constructor(@ApplicationContext private val conte
 
         try {
             val cmdBuilder = RootHostCmdBuilder(context, rootHostClass)
-            val cmd = cmdBuilder.build()
+            val cmd = cmdBuilder.build(*args)
             log { "Launching root host: $rootHostClass" }
             // Doesn't return until root host has quit
             val result = cmd.submit(rootSession).observeOn(Schedulers.io()).blockingGet()

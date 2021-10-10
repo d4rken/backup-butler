@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.work.Configuration
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
-import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.LogCatLogger
 import eu.darken.bb.common.debug.logging.Logging
@@ -28,7 +27,7 @@ open class App : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfigWrap.isDebugBuild || BuildConfigWrap.isBetaBuild) {
+        if (BBDebug.isDebug()) {
             RXSDebug.setDebug(true)
             Logging.install(LogCatLogger())
             // TODO remove aber migrating to Logging.kt wrapper

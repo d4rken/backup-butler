@@ -141,7 +141,7 @@ class BBDebug @Inject constructor(
     companion object {
         private val TAG = logTag("Debug")
 
-        fun isDebug() = BuildConfigWrap.isBetaBuild || BuildConfigWrap.isDebugBuild
+        fun isDebug() = BuildConfigWrap.isVerbosebuild
     }
 
 }

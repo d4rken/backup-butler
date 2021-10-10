@@ -1,6 +1,8 @@
 package eu.darken.bb.common.root.javaroot
 
 import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.debug.logging.Logging.Priority.*
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.ClientModule
 import javax.inject.Inject
@@ -23,18 +25,16 @@ class JavaRootClient @Inject constructor(
         }
     }
 
-    fun <T> runSessionAction(action: (Connection) -> T): T {
-        get().use {
-            return action(it.item)
-        }
+    fun <T> runSessionAction(action: (Connection) -> T): T = get().use {
+        log(TAG, VERBOSE) { "runSessionAction(action=$action)" }
+        return action(it.item)
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <R, T> runModuleAction(moduleClass: Class<out R>, action: (R) -> T): T {
-        return runSessionAction { session ->
-            val module = session.clientModules.single { moduleClass.isInstance(it) } as R
-            return@runSessionAction action(module)
-        }
+    fun <R, T> runModuleAction(moduleClass: Class<out R>, action: (R) -> T): T = runSessionAction { session ->
+        log(TAG, VERBOSE) { "runModuleAction(moduleClass=$moduleClass, action=$action)" }
+        val module = session.clientModules.single { moduleClass.isInstance(it) } as R
+        return@runSessionAction action(module)
     }
 
     companion object {
