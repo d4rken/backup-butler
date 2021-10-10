@@ -24,6 +24,7 @@ open class SharedHolder<T : Any> constructor(
         get() = !activeTokens.isDisposed
 
     private val resourceHolder: Observable<T> = source
+        .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.io())
         .doOnSubscribe {
             Timber.tag(tag).v("resourceHolder.doOnSubscribe()")
@@ -152,6 +153,9 @@ open class SharedHolder<T : Any> constructor(
                 check(!keepAlive.isDisposed) { "Trying to access closed resource!" }
                 return _item
             }
+
+        val isClosed: Boolean
+            get() = keepAlive.isDisposed
 
         override fun close() = keepAlive.dispose()
     }
