@@ -38,12 +38,12 @@ class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_pre
 
             when (state.previewMode) {
                 PreviewMode.PREVIEW -> {
-                    requireActivityActionBar().title = getString(R.string.general_preview_label)
+                    requireActivityActionBar().subtitle = getString(R.string.general_preview_label)
                     ui.infoMode.setText(R.string.backup_generator_app_itempreview_desc)
                     ui.infoItems.text = resources.getCountString(R.plurals.x_items, state.pkgs.size)
                 }
                 PreviewMode.INCLUDE -> {
-                    requireActivityActionBar().title = getString(R.string.general_included_label)
+                    requireActivityActionBar().subtitle = getString(R.string.general_included_label)
                     ui.infoMode.setText(R.string.backup_generator_app_includeditems_desc)
                     ui.infoItems.text = "${
                         resources.getCountString(
@@ -53,7 +53,7 @@ class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_pre
                     } (${resources.getCountString(R.plurals.x_selected, state.selected.size)})"
                 }
                 PreviewMode.EXCLUDE -> {
-                    requireActivityActionBar().title = getString(R.string.general_excluded_label)
+                    requireActivityActionBar().subtitle = getString(R.string.general_excluded_label)
                     ui.infoMode.setText(R.string.backup_generator_app_excludeditems_desc)
                     ui.infoItems.text = "${
                         resources.getCountString(
