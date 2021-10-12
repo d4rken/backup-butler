@@ -23,6 +23,9 @@ class InitFragment : SmartFragment(R.layout.init_fragment) {
             log { "Executing navEvent=$it" }
             doNavigate(it)
         }
+        vdc.finishSplashScreen.observe2(this) {
+            (requireActivity() as MainActivity).showSplashScreen = false
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

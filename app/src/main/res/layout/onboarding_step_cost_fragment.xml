@@ -1,193 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_margin="32dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="32dp">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/dont_worry_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.AppCompat.Display1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/subtitle"
-            style="@style/TextAppearance.AppCompat.Headline"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/onboarding_cost_subtitle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title" />
-
-        <ImageView
-            android:id="@+id/restoring_description_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_restore"
-            app:layout_constraintBottom_toBottomOf="@id/restoring_title"
-            app:layout_constraintEnd_toStartOf="@id/restoring_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/restoring_title" />
-
-        <TextView
-            android:id="@+id/restoring_title"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
-            android:text="@string/onboarding_cost_restore_title"
-            app:layout_constraintBottom_toTopOf="@id/restoring_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/restoring_description_icon"
-            app:layout_constraintTop_toBottomOf="@+id/subtitle"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <TextView
-            android:id="@+id/restoring_description"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/onboarding_cost_restore_description"
-            app:layout_constraintBottom_toTopOf="@id/backup_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/restoring_title"
-            app:layout_constraintTop_toBottomOf="@+id/restoring_title" />
-
-        <ImageView
-            android:id="@+id/backup_description_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_backup"
-            app:layout_constraintBottom_toBottomOf="@id/backup_title"
-            app:layout_constraintEnd_toStartOf="@id/backup_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/backup_title" />
-
-        <TextView
-            android:id="@+id/backup_title"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/onboarding_cost_backup_title"
-            app:layout_constraintBottom_toTopOf="@id/backup_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/backup_description_icon"
-            app:layout_constraintTop_toBottomOf="@+id/restoring_description" />
-
-        <TextView
-            android:id="@+id/backup_description"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/onboarding_cost_backup_description"
-            app:layout_constraintBottom_toTopOf="@id/why_subscription_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/backup_title"
-            app:layout_constraintTop_toBottomOf="@+id/backup_title" />
-
-        <ImageView
-            android:id="@+id/why_subscription_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_euro_24"
-            app:layout_constraintBottom_toBottomOf="@id/why_subscription_title"
-            app:layout_constraintEnd_toStartOf="@id/why_subscription_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/why_subscription_title" />
-
-        <TextView
-            android:id="@+id/why_subscription_title"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/onboarding_cost_subscription_title"
-            app:layout_constraintBottom_toTopOf="@id/why_subscription_description"
-            app:layout_constraintStart_toEndOf="@id/why_subscription_icon"
-            app:layout_constraintTop_toBottomOf="@+id/backup_description" />
-
-        <TextView
-            android:id="@+id/why_subscription_description"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/onboarding_cost_subscription_description"
-            app:layout_constraintBottom_toTopOf="@id/bus_factor_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/why_subscription_title"
-            app:layout_constraintTop_toBottomOf="@+id/why_subscription_title" />
-
-        <ImageView
-            android:id="@+id/bus_factor_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_directions_bus_24"
-            app:layout_constraintBottom_toBottomOf="@id/bus_factor_title"
-            app:layout_constraintEnd_toStartOf="@id/bus_factor_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/bus_factor_title" />
-
-        <TextView
-            android:id="@+id/bus_factor_title"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/onboarding_cost_busfactor_title"
-            app:layout_constraintBottom_toTopOf="@id/bus_factor_description"
-            app:layout_constraintStart_toEndOf="@id/bus_factor_icon"
-            app:layout_constraintTop_toBottomOf="@+id/why_subscription_description" />
-
-        <TextView
-            android:id="@+id/bus_factor_description"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:text="@string/onboarding_cost_busfactor_description"
-            app:layout_constraintBottom_toTopOf="@id/dont_worry_description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/why_subscription_title"
-            app:layout_constraintTop_toBottomOf="@+id/bus_factor_title" />
-
-        <TextView
-            android:id="@+id/dont_worry_description"
-            style="@style/TextAppearance.MaterialComponents.Caption"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:gravity="center"
-            android:text="@string/onboarding_cost_dontworry_description"
-            app:layout_constraintBottom_toTopOf="@id/continue_action" />
+            android:layout_height="match_parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/continue_action"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/general_continue_action"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.AppCompat.Display1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+            <TextView
+                android:id="@+id/subtitle"
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/onboarding_cost_subtitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/title" />
+
+            <ImageView
+                android:id="@+id/restoring_description_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_restore"
+                app:layout_constraintBottom_toBottomOf="@id/restoring_title"
+                app:layout_constraintEnd_toStartOf="@id/restoring_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/restoring_title" />
+
+            <TextView
+                android:id="@+id/restoring_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="32dp"
+                android:text="@string/onboarding_cost_restore_title"
+                app:layout_constraintBottom_toTopOf="@id/restoring_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/restoring_description_icon"
+                app:layout_constraintTop_toBottomOf="@+id/subtitle"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <TextView
+                android:id="@+id/restoring_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_cost_restore_description"
+                app:layout_constraintBottom_toTopOf="@id/backup_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/restoring_title"
+                app:layout_constraintTop_toBottomOf="@+id/restoring_title" />
+
+            <ImageView
+                android:id="@+id/backup_description_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_backup"
+                app:layout_constraintBottom_toBottomOf="@id/backup_title"
+                app:layout_constraintEnd_toStartOf="@id/backup_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/backup_title" />
+
+            <TextView
+                android:id="@+id/backup_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/onboarding_cost_backup_title"
+                app:layout_constraintBottom_toTopOf="@id/backup_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/backup_description_icon"
+                app:layout_constraintTop_toBottomOf="@+id/restoring_description" />
+
+            <TextView
+                android:id="@+id/backup_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_cost_backup_description"
+                app:layout_constraintBottom_toTopOf="@id/why_subscription_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/backup_title"
+                app:layout_constraintTop_toBottomOf="@+id/backup_title" />
+
+            <ImageView
+                android:id="@+id/why_subscription_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_euro_24"
+                app:layout_constraintBottom_toBottomOf="@id/why_subscription_title"
+                app:layout_constraintEnd_toStartOf="@id/why_subscription_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/why_subscription_title" />
+
+            <TextView
+                android:id="@+id/why_subscription_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/onboarding_cost_subscription_title"
+                app:layout_constraintBottom_toTopOf="@id/why_subscription_description"
+                app:layout_constraintStart_toEndOf="@id/why_subscription_icon"
+                app:layout_constraintTop_toBottomOf="@+id/backup_description" />
+
+            <TextView
+                android:id="@+id/why_subscription_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_cost_subscription_description"
+                app:layout_constraintBottom_toTopOf="@id/bus_factor_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/why_subscription_title"
+                app:layout_constraintTop_toBottomOf="@+id/why_subscription_title" />
+
+            <ImageView
+                android:id="@+id/bus_factor_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_directions_bus_24"
+                app:layout_constraintBottom_toBottomOf="@id/bus_factor_title"
+                app:layout_constraintEnd_toStartOf="@id/bus_factor_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/bus_factor_title" />
+
+            <TextView
+                android:id="@+id/bus_factor_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/onboarding_cost_busfactor_title"
+                app:layout_constraintBottom_toTopOf="@id/bus_factor_description"
+                app:layout_constraintStart_toEndOf="@id/bus_factor_icon"
+                app:layout_constraintTop_toBottomOf="@+id/why_subscription_description" />
+
+            <TextView
+                android:id="@+id/bus_factor_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:text="@string/onboarding_cost_busfactor_description"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/why_subscription_title"
+                app:layout_constraintTop_toBottomOf="@+id/bus_factor_title" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/dont_worry_description"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text="@string/onboarding_cost_dontworry_description"
+        app:layout_constraintBottom_toTopOf="@id/continue_action" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/continue_action"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/general_continue_action"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

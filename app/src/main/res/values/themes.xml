@@ -29,10 +29,10 @@
         <item name="windowNoTitle">false</item>
     </style>
 
-    <style name="AppThemeSplash" parent="AppThemeNoActionBar">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppThemeSplash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/graphic_mascot2</item>
+        <item name="postSplashScreenTheme">@style/AppThemeNoActionBar</item>
     </style>
 
     <style name="AppThemeFloating" parent="AppThemeBase">
