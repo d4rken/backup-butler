@@ -23,11 +23,6 @@ class ModeStepFragment : SmartFragment(R.layout.onboarding_step_mode_fragment) {
 
     @Inject lateinit var uiSettings: UISettings
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         ui.modeSimpleAction.clicksDebounced().subscribe {

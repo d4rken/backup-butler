@@ -308,4 +308,5 @@
     <string name="onboarding_beta_bugreport_description">Please report issues. Participate on the issue tracker. Even if you are unsure.</string>
     <string name="onboarding_betacost_title">Free stuff</string>
     <string name="onboarding_betacost_description">Paid features are free during this beta.</string>
+    <string name="onboarding_hello_subtitle">What does this app do?</string>
 </resources>

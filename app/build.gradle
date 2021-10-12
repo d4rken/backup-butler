@@ -144,6 +144,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${versions.kotlin.coroutines}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 
+    implementation 'androidx.core:core-ktx:1.6.0'
+
     // Support libs
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
@@ -164,7 +166,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
 
     implementation "androidx.fragment:fragment-ktx:1.4.0-alpha09"
 

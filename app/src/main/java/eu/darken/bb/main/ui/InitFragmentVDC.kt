@@ -1,11 +1,11 @@
 package eu.darken.bb.main.ui
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.BuildConfigWrap
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.OnboardingSettings
 import eu.darken.bb.main.core.UISettings
@@ -19,7 +19,8 @@ class InitFragmentVDC @Inject constructor(
     private val uiSettings: UISettings,
 ) : SmartVDC() {
 
-    val navEvents = MutableLiveData<NavDirections>()
+    val navEvents = SingleLiveEvent<NavDirections>()
+    val finishSplashScreen = SingleLiveEvent<Any>()
 
     init {
         // TODO If beta version and not shown yet for this version, show beta disclaimer
@@ -34,7 +35,10 @@ class InitFragmentVDC @Inject constructor(
             uiSettings.startMode == UISettings.StartMode.SIMPLE -> InitFragmentDirections.actionInitFragmentToSimpleModeFragment()
             uiSettings.startMode == UISettings.StartMode.ADVANCED -> InitFragmentDirections.actionInitFragmentToAdvancedModeFragment()
             else -> throw IllegalStateException("Unexpected init conditions: $uiSettings")
-        }.run { navEvents.postValue(this) }
+        }.run {
+            finishSplashScreen.postValue(Any())
+            navEvents.postValue(this)
+        }
     }
 
 }

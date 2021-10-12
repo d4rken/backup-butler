@@ -21,11 +21,6 @@ class CostStepFragment : SmartFragment(R.layout.onboarding_step_cost_fragment) {
 
     @Inject lateinit var uiSettings: UISettings
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         vdc.navEvents.observe2(this) { doNavigate(it) }

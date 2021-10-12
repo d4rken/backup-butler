@@ -9,8 +9,5 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val uiSettings: UISettings
-) : VDC() {
-
-
-}
+    private val uiSettings: UISettings,
+) : VDC()
