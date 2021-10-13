@@ -7,7 +7,7 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -31,7 +31,7 @@ class GeneratorTypeFragmentVDC @Inject constructor(
                 supportedTypes = types.toList()
             )
         }
-        .toLiveData()
+        .asLiveData()
 
 
     fun createType(type: Backup.Type) {

@@ -4,11 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
+import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
+import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -17,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AppEditorConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val builder: GeneratorBuilder
+    private val builder: GeneratorBuilder,
+    private val previewFilter: PreviewFilter
 ) : SmartVDC() {
 
     private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
@@ -27,10 +31,16 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     private val editorObs = builder.generator(generatorId)
+        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as AppSpecGeneratorEditor }
 
     private val editorDataObs = editorObs.switchMap { it.editorData }
+
+    val matchedPkgsCount = editorDataObs
+        .observeOn(Schedulers.computation())
+        .map { previewFilter.filter(it, PreviewMode.PREVIEW).size }
+        .asLiveData()
 
     private val editor: AppSpecGeneratorEditor by lazy { editorObs.blockingFirst() }
 
@@ -80,6 +90,7 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     }
 
     fun onUpdateIncludeUser(enabled: Boolean) {
+        // TODO this hangs the UI?
         editor.update { it.copy(includeUserApps = enabled) }
     }
 

@@ -3,13 +3,13 @@ package eu.darken.bb.backup.ui.generator.editor.types.app.config
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.*
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
@@ -31,45 +31,60 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.state.observe2(this) { state ->
-            ui.nameInput.setTextIfDifferentAndNotFocused(state.label)
+        vdc.state.observe2(this, ui) { state ->
+            nameInput.setTextIfDifferentAndNotFocused(state.label)
 
-            ui.coreSettingsAutoinclude.isChecked = state.autoInclude
-            ui.coreSettingsIncludeuser.isChecked = state.includeUserApps
-            ui.coreSettingsIncludesystem.isChecked = state.includeSystemApps
+            coreSettingsAutoinclude.isChecked = state.autoInclude
+            coreSettingsIncludeuser.isChecked = state.includeUserApps
+            coreSettingsIncludesystem.isChecked = state.includeSystemApps
 
-            ui.coreSettingsIncludedPackages.description =
+            coreSettingsIncludedPackages.description =
                 resources.getCountString(R.plurals.x_items, state.packagesIncluded.size)
-            ui.coreSettingsExcludedPackages.description =
+            coreSettingsExcludedPackages.description =
                 resources.getCountString(R.plurals.x_items, state.packagesExcluded.size)
 
-            ui.optionsBackupapk.isChecked = state.backupApk
-            ui.optionsBackupdata.isChecked = state.backupData
-            ui.optionsBackupcache.isChecked = state.backupCache
+            optionsBackupapk.isChecked = state.backupApk
+            optionsBackupdata.isChecked = state.backupData
+            optionsBackupcache.isChecked = state.backupCache
 
-            ui.coreSettingsContainer.setInvisible(state.isWorking)
-            ui.coreSettingsProgress.setGone(!state.isWorking)
-            ui.optionsContainer.setInvisible(state.isWorking)
-            ui.optionsProgress.setGone(!state.isWorking)
+            coreSettingsContainer.setInvisible(state.isWorking)
+            coreSettingsProgress.setGone(!state.isWorking)
+            optionsContainer.setInvisible(state.isWorking)
+            optionsProgress.setGone(!state.isWorking)
 
             allowCreate = state.isValid
             existing = state.isExisting
             invalidateOptionsMenu()
         }
+        ui.apply {
+            coreSettingsAutoinclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
+            coreSettingsIncludeuser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
+            coreSettingsIncludesystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
+        }
 
-        ui.coreSettingsAutoinclude.setSwitchListener { _, b -> vdc.onUpdateAutoInclude(b) }
-        ui.coreSettingsIncludeuser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
-        ui.coreSettingsIncludesystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
+        ui.apply {
+            coreSettingsIncludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.INCLUDE) }
+            coreSettingsExcludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.EXCLUDE) }
+        }
 
-        ui.coreSettingsIncludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.INCLUDE) }
-        ui.coreSettingsExcludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.EXCLUDE) }
+        ui.apply {
+            optionsBackupapk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
+            optionsBackupdata.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
+            optionsBackupcache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
+        }
 
-        ui.optionsBackupapk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
-        ui.optionsBackupdata.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
-        ui.optionsBackupcache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
+        ui.apply {
+            nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
+            nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
+        }
 
-        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-        ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
+        ui.appPreviewAction.setOnClickListener { navigatePreview(PreviewMode.PREVIEW) }
+        vdc.matchedPkgsCount.observe2(this, ui) {
+            appPreviewInfo.text = resources.getString(
+                R.string.app_preview_currently_matching_x_description,
+                resources.getCountString(R.plurals.x_items, it)
+            )
+        }
 
         vdc.finishEvent.observe2(this) { requireActivity().finish() }
 
@@ -77,7 +92,7 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     }
 
     private fun navigatePreview(mode: PreviewMode) {
-        findNavController().navigate(
+        doNavigate(
             AppEditorConfigFragmentDirections.actionAppEditorConfigFragmentToAppEditorPreviewFragment(
                 generatorId = navArgs.generatorId,
                 previewMode = mode,
@@ -100,10 +115,6 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_create -> {
             vdc.saveConfig()
-            true
-        }
-        R.id.action_preview -> {
-            navigatePreview(PreviewMode.PREVIEW)
             true
         }
         else -> super.onOptionsItemSelected(item)
