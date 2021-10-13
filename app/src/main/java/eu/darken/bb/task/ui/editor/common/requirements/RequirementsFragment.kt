@@ -12,6 +12,7 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
@@ -29,20 +30,21 @@ class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fra
     @Inject lateinit var adapter: RequirementsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.requirementsList.isNestedScrollingEnabled = false
-        ui.requirementsList.setupDefaults(adapter, dividers = false)
+        ui.requirementsList.apply {
+            isNestedScrollingEnabled = false
+            setupDefaults(adapter, dividers = false)
+        }
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.runMainAction(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { state ->
-            adapter.update(state.requirements)
+        vdc.state.observe2(this, ui) { adapter.update(it.requirements) }
+        vdc.navEvents.observe2(this) { doNavigate(it) }
+
+        vdc.runTimePermissionEvent.observe2(this) { req ->
+            requestPermissions(arrayOf(req.permission), 1)
         }
 
         ui.explanationMoreAction.clicksDebounced().subscribe {
             AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
-        }
-
-        vdc.runTimePermissionEvent.observe2(this) { req ->
-            requestPermissions(arrayOf(req.permission), 1)
         }
 
         ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
