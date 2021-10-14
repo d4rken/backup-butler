@@ -5,8 +5,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -50,7 +50,7 @@ class StoragePickerFragmentVDC @Inject constructor(
                 }
         }
         .startWithItem(StorageState())
-        .toLiveData()
+        .asLiveData()
 
     val finishEvent = SingleLiveEvent<Any>()
 

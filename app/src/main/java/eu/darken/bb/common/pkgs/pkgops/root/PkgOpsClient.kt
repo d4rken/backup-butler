@@ -4,8 +4,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.errors.getRootCause
 import eu.darken.bb.common.files.core.local.root.ClientModule
-import eu.darken.bb.common.getRootCause
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
 import timber.log.Timber
 import java.io.IOException

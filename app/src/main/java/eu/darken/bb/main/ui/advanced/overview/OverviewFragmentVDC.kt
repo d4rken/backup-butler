@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
@@ -28,7 +28,7 @@ class OverviewFragmentVDC @Inject constructor(
         .map { (appInfo, upgradeData) ->
             return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
         }
-        .toLiveData()
+        .asLiveData()
 
     private val updateStater = Stater { UpdateState() }
     val updateState = updateStater.liveData

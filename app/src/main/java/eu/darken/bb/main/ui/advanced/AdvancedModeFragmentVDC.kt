@@ -10,7 +10,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
@@ -68,7 +68,7 @@ class AdvancedModeFragmentVDC @Inject constructor(
             )
         }
         .subscribeOn(Schedulers.computation())
-        .toLiveData()
+        .asLiveData()
 
     init {
         log { handle.asLog() }

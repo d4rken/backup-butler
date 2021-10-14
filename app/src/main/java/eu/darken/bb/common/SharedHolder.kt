@@ -1,6 +1,7 @@
 package eu.darken.bb.common
 
 import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.common.errors.getStackTraceString
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable

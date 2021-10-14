@@ -7,6 +7,7 @@ import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityArgs
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Maybe
@@ -30,14 +31,19 @@ class GeneratorBuilder @Inject constructor(
     init {
         hotData.data
             .observeOn(Schedulers.computation())
-            .subscribe { dataMap ->
-                dataMap.entries.forEach { (uuid, data) ->
-                    if (data.generatorType != null && data.editor == null) {
-                        val editor = editors.getValue(data.generatorType).create(uuid)
-                        update(uuid) { it!!.copy(editor = editor) }.blockingGet()
-                    }
+            .flatMapIterable { map -> map.values }
+            .filter { it.generatorType != null && it.editor == null }
+            .map { it.generatorId }
+            .flatMapSingle { generatorId ->
+                update(generatorId) { data ->
+                    if (data?.generatorType == null || data.editor != null) return@update data
+
+                    val editor = editors.getValue(data.generatorType).create(generatorId)
+
+                    data.copy(editor = editor)
                 }
             }
+            .subscribe { log(TAG) { "Created generator editor for $it" } }
     }
 
     fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
@@ -60,7 +66,7 @@ class GeneratorBuilder @Inject constructor(
         }
         .subscribeOn(Schedulers.computation())
         .map { Opt(it.newValue[id]) }
-        .doOnSuccess { Timber.tag(TAG).v("Generator  updated: %s (%s): %s", id, action, it) }
+        .doOnSuccess { Timber.tag(TAG).v("Generator updated: %s (%s): %s", id, action, it) }
 
     fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
         .subscribeOn(Schedulers.computation())
@@ -111,7 +117,7 @@ class GeneratorBuilder @Inject constructor(
         .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
-    fun startEditor(
+    fun createEditor(
         generatorId: Generator.Id = Generator.Id(),
         type: Backup.Type? = null,
         targetTask: Task.Id? = null
@@ -133,14 +139,15 @@ class GeneratorBuilder @Inject constructor(
             }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
         )
-        .doOnSuccess { data ->
-            Timber.tag(TAG).v("Starting editor for ID %s", generatorId)
-            val intent = Intent(context, GeneratorEditorActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtras(GeneratorEditorActivityArgs(generatorId = data.generatorId).toBundle())
-            context.startActivity(intent)
-        }
         .map { generatorId }
+
+    fun launchEditor(generatorId: Generator.Id) {
+        log(TAG) { "launchEditor(generatorId=$generatorId)" }
+        val intent = Intent(context, GeneratorEditorActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtras(GeneratorEditorActivityArgs(generatorId = generatorId).toBundle())
+        context.startActivity(intent)
+    }
 
     data class Data(
         val generatorId: Generator.Id,

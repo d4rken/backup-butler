@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -25,7 +25,7 @@ class TypeSelectionFragmentVDC @Inject constructor(
                 supportedTypes = types.toList()
             )
         }
-        .toLiveData()
+        .asLiveData()
 
     val navigationEvent = SingleLiveEvent<Pair<Storage.Type, Storage.Id>>()
 

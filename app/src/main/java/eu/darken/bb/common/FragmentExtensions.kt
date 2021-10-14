@@ -3,6 +3,7 @@ package eu.darken.bb.common
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import eu.darken.bb.R
+import eu.darken.bb.common.errors.localized
 
 fun Fragment.todoToast() {
     Toast.makeText(requireContext(), R.string.general_todo_msg, Toast.LENGTH_LONG).show()

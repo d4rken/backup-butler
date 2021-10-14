@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
-import eu.darken.bb.common.localized
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.TaskEditorRestoreSourcesAdapterLineBackupBinding
 import java.text.DateFormat

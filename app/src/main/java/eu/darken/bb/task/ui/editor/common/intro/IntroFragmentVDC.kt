@@ -5,7 +5,7 @@ import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -24,7 +24,7 @@ class IntroFragmentVDC @Inject constructor(
     val navEvents = SingleLiveEvent<NavDirections>()
 
     val state = editorObs.flatMap { it.editorData }
-        .toLiveData()
+        .asLiveData()
 
     fun updateTaskName(name: CharSequence) {
         editorObs.blockingFirst().updateLabel(name.toString())

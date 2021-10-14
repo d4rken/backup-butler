@@ -15,15 +15,15 @@ class PreviewFilter @Inject constructor(
     fun filter(
         data: AppSpecGeneratorEditor.Data,
         previewMode: PreviewMode
-    ): Set<AppEditorPreviewFragmentVDC.PkgWrap> {
+    ): Set<PkgWrap> {
         val allPkgs = pkgOps.listPkgs()
             .filter { it.packageType == Pkg.Type.NORMAL }
             .map { it as AppPkg }
 
-        val previewPkgs = mutableSetOf<AppEditorPreviewFragmentVDC.PkgWrap>()
+        val previewPkgs = mutableSetOf<PkgWrap>()
         if (data.includeUserApps) {
             val userPkgs = allPkgs.filterNot { it.isSystemApp }.map {
-                AppEditorPreviewFragmentVDC.PkgWrap(
+                PkgWrap(
                     it,
                     mode = previewMode
                 )
@@ -32,7 +32,7 @@ class PreviewFilter @Inject constructor(
         }
         if (data.includeSystemApps) {
             val systemApps = allPkgs.filter { it.isSystemApp }.map {
-                AppEditorPreviewFragmentVDC.PkgWrap(
+                PkgWrap(
                     it,
                     mode = previewMode
                 )
@@ -40,12 +40,12 @@ class PreviewFilter @Inject constructor(
             previewPkgs.addAll(systemApps)
         }
 
-        val displayPkgs = mutableSetOf<AppEditorPreviewFragmentVDC.PkgWrap>()
+        val displayPkgs = mutableSetOf<PkgWrap>()
         when (previewMode) {
             PreviewMode.PREVIEW -> {
                 data.packagesIncluded.forEach { pkg ->
                     val pw =
-                        AppEditorPreviewFragmentVDC.PkgWrap(allPkgs.first { it.packageName == pkg }, mode = previewMode)
+                        PkgWrap(allPkgs.first { it.packageName == pkg }, mode = previewMode)
                     previewPkgs.add(pw)
                 }
                 previewPkgs.removeAll { data.packagesExcluded.contains(it.pkg.packageName) }
@@ -58,7 +58,7 @@ class PreviewFilter @Inject constructor(
                         previewPkgs.find { it.pkg == p } == null
                     }
                     .map {
-                        AppEditorPreviewFragmentVDC.PkgWrap(
+                        PkgWrap(
                             pkg = it,
                             isSelected = data.packagesIncluded.contains(it.packageName),
                             mode = previewMode
@@ -66,7 +66,7 @@ class PreviewFilter @Inject constructor(
                     }
                 val already = data.packagesIncluded.map { inPkg ->
                     val appPkg = allPkgs.single { it.packageName == inPkg }
-                    AppEditorPreviewFragmentVDC.PkgWrap(appPkg, true, previewMode)
+                    PkgWrap(appPkg, true, previewMode)
                 }
                 displayPkgs.addAll(possibly)
                 displayPkgs.addAll(already)
@@ -77,13 +77,21 @@ class PreviewFilter @Inject constructor(
                 }
                 val already = data.packagesExcluded.map { exPkg ->
                     val appPkg = allPkgs.single { it.packageName == exPkg }
-                    AppEditorPreviewFragmentVDC.PkgWrap(appPkg, true, previewMode)
+                    PkgWrap(appPkg, true, previewMode)
                 }
                 displayPkgs.addAll(possibly)
                 displayPkgs.addAll(already)
             }
         }
         return displayPkgs
+    }
+
+    data class PkgWrap(
+        val pkg: AppPkg,
+        val isSelected: Boolean = false,
+        val mode: PreviewMode
+    ) {
+        val pkgName = pkg.packageName
     }
 
 }

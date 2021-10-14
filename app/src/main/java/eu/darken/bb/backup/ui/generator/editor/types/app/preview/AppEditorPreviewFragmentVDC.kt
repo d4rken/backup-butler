@@ -8,7 +8,6 @@ import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -54,7 +53,7 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
         editor.updateLabel(label)
     }
 
-    fun onSelect(pkgWrap: PkgWrap) {
+    fun onSelect(pkgWrap: PreviewFilter.PkgWrap) {
         if (previewMode == PreviewMode.PREVIEW) {
             return
         }
@@ -83,17 +82,9 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
     data class State(
         val previewMode: PreviewMode,
         val selected: Set<String> = emptySet(),
-        val pkgs: List<PkgWrap> = emptyList(),
+        val pkgs: List<PreviewFilter.PkgWrap> = emptyList(),
         val isLoading: Boolean = true
     )
-
-    data class PkgWrap(
-        val pkg: AppPkg,
-        val isSelected: Boolean = false,
-        val mode: PreviewMode
-    ) {
-        val pkgName = pkg.packageName
-    }
 
     companion object {
         val TAG = logTag("Generator", "App", "Editor", "Preview", "VDC")

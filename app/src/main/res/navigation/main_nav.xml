@@ -86,8 +86,11 @@
             app:destination="@id/advancedModeFragment"
             app:popUpTo="@id/advancedModeFragment" />
         <action
-            android:id="@+id/action_simpleModeFragment_to_wizardStartFragment"
-            app:destination="@id/wizardStartFragment" />
+            android:id="@+id/action_simpleModeFragment_to_wizardAppsFragment"
+            app:destination="@id/wizardAppsFragment" />
+        <action
+            android:id="@+id/action_simpleModeFragment_to_wizardFilesFragment"
+            app:destination="@id/wizardFilesFragment" />
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
@@ -133,27 +136,14 @@
             app:popUpTo="@+id/main_nav_graph" />
     </fragment>
     <fragment
-        android:id="@+id/wizardStartFragment"
-        android:name="eu.darken.bb.main.ui.simple.wizard.start.WizardStartFragment"
-        android:label="WizardStartFragment"
-        tools:layout="@layout/simple_mode_wizard_start">
-        <action
-            android:id="@+id/action_wizardStartFragment_to_wizardAppsFragment"
-            app:destination="@id/wizardAppsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/wizardAppsFragment"
         android:name="eu.darken.bb.main.ui.simple.wizard.apps.WizardAppsFragment"
         android:label="WizardAppsFragment"
-        tools:layout="@layout/simple_mode_wizard_apps">
-        <action
-            android:id="@+id/action_wizardAppsFragment_to_wizardFilesFragment"
-            app:destination="@id/wizardFilesFragment" />
-    </fragment>
+        tools:layout="@layout/simple_mode_wizard_apps_fragment" />
     <fragment
         android:id="@+id/wizardFilesFragment"
         android:name="eu.darken.bb.main.ui.simple.wizard.files.WizardFilesFragment"
         android:label="WizardFilesFragment"
-        tools:layout="@layout/simple_mode_wizard_files" />
+        tools:layout="@layout/simple_mode_wizard_files_fragment" />
 
 </navigation>

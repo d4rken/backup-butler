@@ -106,7 +106,6 @@ class ItemActionDialogVDC @Inject constructor(
                     (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
                         .map { data.taskId }
                 }
-                .flatMapCompletable { taskBuilder.startEditor(it) }
                 .doOnError { Bugs.track(it) }
                 .doFinally { stater.update { it.copy(currentOp = null) } }
                 .doOnSubscribe { disp ->
@@ -114,10 +113,12 @@ class ItemActionDialogVDC @Inject constructor(
                         it.copy(currentOp = Operation(R.string.progress_loading_label.toCaString(), disposable = disp))
                     }
                 }
-                .subscribe(
-                    { finishedEvent.postValue(Any()) },
-                    { error -> errorEvents.postValue(error) }
-                )
+                .subscribe({
+                    taskBuilder.launchEditor(it)
+                    finishedEvent.postValue(Any())
+                }, { error ->
+                    errorEvents.postValue(error)
+                })
                 .withScopeVDC(this)
         }
     }

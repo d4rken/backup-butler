@@ -1,7 +1,7 @@
 package eu.darken.bb.common
 
 import androidx.lifecycle.LiveData
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 
@@ -34,7 +34,7 @@ class Stater<T : Any>(
                 liveDepCompDis = CompositeDisposable()
             }
         }
-        .toLiveData()
+        .asLiveData()
 
 }
 

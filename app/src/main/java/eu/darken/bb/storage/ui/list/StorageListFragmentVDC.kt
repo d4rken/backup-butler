@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -32,7 +32,7 @@ class StorageListFragmentVDC @Inject constructor(
             )
         }
         .startWithItem(StorageState())
-        .toLiveData()
+        .asLiveData()
 
     val editStorageEvent = SingleLiveEvent<Storage.Id>()
 

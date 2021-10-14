@@ -13,17 +13,21 @@ import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.MainAdvancedModeFragmentBinding
+import eu.darken.bb.databinding.AdvancedModeMainFragmentBinding
 import eu.darken.bb.main.ui.settings.SettingsActivity
 
 @AndroidEntryPoint
-class AdvancedModeFragment : SmartFragment(R.layout.main_advanced_mode_fragment) {
+class AdvancedModeFragment : SmartFragment(R.layout.advanced_mode_main_fragment) {
     val vdc: AdvancedModeFragmentVDC by viewModels()
-    val ui: MainAdvancedModeFragmentBinding by viewBinding()
+    val ui: AdvancedModeMainFragmentBinding by viewBinding()
 
     lateinit var pagerAdapter: PagerAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ui.apply {
+            toolbar.subtitle = "Advanced mode"
+        }
+
         vdc.state.observe2(this, ui) { state ->
             pagerAdapter = PagerAdapter(childFragmentManager, lifecycle, state.pages)
 
@@ -75,10 +79,6 @@ class AdvancedModeFragment : SmartFragment(R.layout.main_advanced_mode_fragment)
         }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
 }

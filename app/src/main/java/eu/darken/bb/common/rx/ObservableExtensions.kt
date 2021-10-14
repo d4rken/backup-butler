@@ -2,18 +2,18 @@ package eu.darken.bb.common.rx
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import eu.darken.bb.common.getRootCause
+import eu.darken.bb.common.errors.getRootCause
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource
 import io.reactivex.rxjava3.core.Single
 import timber.log.Timber
 
-fun <T> Observable<T>.toLiveData(): LiveData<T> {
+fun <T : Any> Observable<T>.asLiveData(): LiveData<T> {
     return LiveDataReactiveStreams.fromPublisher(this.toFlowable(BackpressureStrategy.ERROR))
 }
 
-fun <T> Observable<T>.filterUnchanged(check: (T, T) -> Boolean = { it1, it2 -> it1 != it2 }): Observable<T> {
+fun <T : Any> Observable<T>.filterUnchanged(check: (T, T) -> Boolean = { it1, it2 -> it1 != it2 }): Observable<T> {
     var lastEmission: T? = null
     return filter { newEmission ->
         val last = lastEmission
@@ -23,7 +23,7 @@ fun <T> Observable<T>.filterUnchanged(check: (T, T) -> Boolean = { it1, it2 -> i
     }
 }
 
-fun <T> Observable<T>.onErrorComplete(
+fun <T : Any> Observable<T>.onErrorComplete(
     action: ((Throwable) -> Unit)? = null,
     condition: ((Throwable) -> Boolean)? = null
 ): Observable<T> {
@@ -38,10 +38,10 @@ fun <T> Observable<T>.onErrorComplete(
     return onErrorResumeNext(call)
 }
 
-fun <T> Observable<T>.swallowInterruptExceptions() =
+fun <T : Any> Observable<T>.swallowInterruptExceptions() =
     onErrorComplete { it is InterruptedException || it.getRootCause() is InterruptedException }
 
-fun <T> Observable<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): Observable<T> =
+fun <T : Any> Observable<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): Observable<T> =
     materialize().withPrevious().flatMap { (previous, current) ->
         when {
             current.isOnComplete -> Observable.empty<T>()
@@ -54,9 +54,9 @@ fun <T> Observable<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): 
         }
     }
 
-internal fun <T> Observable<T>.latest(): Single<T> = take(1).singleOrError()
+internal fun <T : Any> Observable<T>.latest(): Single<T> = take(1).singleOrError()
 
-internal fun <T> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
+internal fun <T : Any> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
     this.scan(Pair<T?, T?>(null, null)) { previous, current -> Pair(previous.second, current) }
         .skip(1)
         .map {
@@ -64,7 +64,7 @@ internal fun <T> Observable<T>.withPrevious(): Observable<Pair<T?, T>> =
             it as Pair<T?, T>
         }
 
-internal fun <T> Observable<T>.filterEqual(check: (old: T, new: T) -> Boolean = { it1, it2 -> it1 != it2 }): Observable<T> =
+internal fun <T : Any> Observable<T>.filterEqual(check: (old: T, new: T) -> Boolean = { it1, it2 -> it1 != it2 }): Observable<T> =
     withPrevious()
         .filter { (old, new) ->
             return@filter if (old != null) check(old, new) else true

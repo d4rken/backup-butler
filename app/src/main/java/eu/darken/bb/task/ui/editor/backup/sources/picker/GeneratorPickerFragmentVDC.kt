@@ -8,8 +8,8 @@ import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.toLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -50,13 +50,14 @@ class GeneratorPickerFragmentVDC @Inject constructor(
                 }
         }
         .startWithItem(State())
-        .toLiveData()
+        .asLiveData()
 
     val finishEvent = SingleLiveEvent<Any>()
 
     fun createGenerator() {
-        generatorBuilder.startEditor()
+        generatorBuilder.createEditor()
             .observeOn(Schedulers.computation())
+            .doOnSuccess { generatorBuilder.launchEditor(it) }
             .subscribe()
     }
 

@@ -38,7 +38,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/action_negative_secondary"
-        style="@style/Widget.MaterialComponents.Button.TextButton2"
+        style="@style/Widget.MaterialComponents.Button.Flush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
@@ -52,7 +52,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/action_negative_primary"
-        style="@style/Widget.MaterialComponents.Button.TextButton2"
+        style="@style/Widget.MaterialComponents.Button.Flush"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"

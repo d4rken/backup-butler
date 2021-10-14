@@ -1,6 +1,7 @@
-package eu.darken.bb.common
+package eu.darken.bb.common.errors
 
 import android.content.Context
+import eu.darken.bb.common.R
 
 interface HasLocalizedError {
     fun getLocalizedError(context: Context): LocalizedError
@@ -34,3 +35,4 @@ fun Throwable.localized(c: Context): LocalizedError = when {
             .joinToString("\n")
     )
 }
+

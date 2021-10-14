@@ -178,7 +178,7 @@
     <string name="backup_generator_app_includeditems_desc">Included items will be suggested for backup by this source, if they are available.</string>
     <string name="general_continue_action">Continue</string>
     <string name="backups_label">Backups</string>
-    <string name="storage_tab_label">Storages</string>
+    <string name="storage_tab_label">Storage</string>
     <string name="task_editor_backup_sources_empty_desc">What should this task backup?</string>
     <string name="task_editor_backup_destinations_empty_desc">Where should this task save it\'s backups?</string>
     <string name="task_editor_backup_sources_picker_empty_desc">You don\'t have any backup sources yet. Create one so you can add it to this task.</string>
@@ -309,4 +309,17 @@
     <string name="onboarding_betacost_title">Free stuff</string>
     <string name="onboarding_betacost_description">Paid features are free during this beta.</string>
     <string name="onboarding_hello_subtitle">What does this app do?</string>
+    <string name="general_backup_action">Backup</string>
+    <string name="general_upgrade_action">Upgrade</string>
+    <string name="simple_mode_apps_create_default_task_description">You currently have no default app backup task.</string>
+    <string name="simple_mode_files_create_default_task_description">You currently have no default file backup task.</string>
+    <string name="default_backup_app_source_label">App source for default backup</string>
+    <string name="app_preview_currently_matching_x_description">Currently matching: %s</string>
+    <string name="general_setup_action">Set up</string>
+    <string name="general_ok_action">OK</string>
+    <string name="simple_mode_wizard_common_storage_setup_description">Set up a storage location where backups created by this task should be saved.</string>
+    <string name="simple_mode_wizard_common_auto_setup_title">Auto set up</string>
+    <string name="simple_mode_wizard_common_auto_setup_description">Backup Butler will try to set up some useful default. The values will be based on your device and you can still edit them.</string>
+    <string name="general_add_action">Add</string>
+    <string name="general_remove_action">Remove</string>
 </resources>

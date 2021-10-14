@@ -7,10 +7,4 @@
         android:orderInCategory="100"
         android:title="@string/general_create_action"
         app:showAsAction="ifRoom|withText" />
-
-    <item
-        android:id="@+id/action_preview"
-        android:orderInCategory="90"
-        android:title="@string/general_preview_action"
-        app:showAsAction="withText" />
 </menu>

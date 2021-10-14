@@ -6,35 +6,32 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.MainSimpleModeFragmentBinding
+import eu.darken.bb.databinding.SimpleModeMainFragmentBinding
 import eu.darken.bb.main.ui.settings.SettingsActivity
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class SimpleModeFragment : SmartFragment(R.layout.main_simple_mode_fragment) {
+class SimpleModeFragment : SmartFragment(R.layout.simple_mode_main_fragment) {
 
     private val vdc: SimpleModeFragmentVDC by viewModels()
-    private val ui: MainSimpleModeFragmentBinding by viewBinding()
-
+    private val ui: SimpleModeMainFragmentBinding by viewBinding()
+    @Inject lateinit var adapter: SimpleModeAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        requireActivityActionBar().subtitle = getString(R.string.startmode_simple_label)
-
         ui.apply {
-//            appVersion
-//            upgradeInfos
-//
-//            updateCard
-//            changelogAction
-//            updateAction
+            recyclerView.setupDefaults(adapter, dividers = false)
         }
 
         vdc.navEvents.observe2(this) { doNavigate(it) }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.debugState.observe2(this, ui) { state ->
             toolbar.menu.apply {
                 findItem(R.id.action_record_debuglog).apply {
                     isVisible = state.showDebugStuff
@@ -42,6 +39,11 @@ class SimpleModeFragment : SmartFragment(R.layout.main_simple_mode_fragment) {
                 }
                 findItem(R.id.action_report_bug).isVisible = state.showDebugStuff
             }
+        }
+
+        vdc.items.observe2(this) {
+            log { "Updating adapter with $it" }
+            adapter.update(it)
         }
 
         ui.toolbar.setOnMenuItemClickListener {

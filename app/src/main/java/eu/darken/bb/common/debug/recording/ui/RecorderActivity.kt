@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.localized
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity

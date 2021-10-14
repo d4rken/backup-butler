@@ -1,7 +1,7 @@
 package eu.darken.bb.task.core.results
 
 import android.content.Context
-import eu.darken.bb.common.localized
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.task.core.Task
 import timber.log.Timber
 import java.util.*

@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.text.format.Formatter
 import android.view.ViewGroup
 import eu.darken.bb.R
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.*
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
-import eu.darken.bb.common.localized
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.databinding.StorageListAdapterLineBinding
 import eu.darken.bb.storage.core.Storage

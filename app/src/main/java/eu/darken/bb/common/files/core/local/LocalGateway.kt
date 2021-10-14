@@ -2,10 +2,10 @@ package eu.darken.bb.common.files.core.local
 
 import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.errors.hasCause
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
-import eu.darken.bb.common.hasCause
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException

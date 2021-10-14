@@ -106,9 +106,10 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title =
-            getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        menu.findItem(R.id.action_create).apply {
+            isVisible = allowCreate
+            title = getString(if (existing) R.string.general_save_action else R.string.general_create_action)
+        }
         return super.onPrepareOptionsMenu(menu)
     }
 

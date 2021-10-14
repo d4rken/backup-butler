@@ -110,14 +110,15 @@ class StorageActionDialogVDC @Inject constructor(
                     .flatMap { data ->
                         (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
                     }
-                    .flatMapCompletable { taskBuilder.startEditor(it) }
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe(
-                        { closeDialogEvent.postValue(Any()) },
-                        { errorEvent.postValue(it) }
-                    )
+                    .subscribe({
+                        taskBuilder.launchEditor(it)
+                        closeDialogEvent.postValue(Any())
+                    }, {
+                        errorEvent.postValue(it)
+                    })
                     .withScopeVDC(this)
             }
             DETACH -> {

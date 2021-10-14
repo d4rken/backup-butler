@@ -1,9 +1,10 @@
-package eu.darken.bb.common
+package eu.darken.bb.common.errors
 
 import io.reactivex.rxjava3.core.Observable
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.reflect.InvocationTargetException
+import kotlin.reflect.KClass
 
 fun Throwable.getRootCause(): Throwable {
     var error = this
@@ -16,7 +17,11 @@ fun Throwable.getRootCause(): Throwable {
     return error
 }
 
-fun <T> Observable<T>.mapError(wrapper: (Throwable) -> Throwable): Observable<T> =
+fun Throwable.hasCause(exceptionClazz: KClass<out Throwable>): Boolean {
+    return exceptionClazz.isInstance(this.getRootCause())
+}
+
+fun <T : Any> Observable<T>.mapError(wrapper: (Throwable) -> Throwable): Observable<T> =
     onErrorResumeNext { err: Throwable ->
         Observable.error(wrapper(err))
     }

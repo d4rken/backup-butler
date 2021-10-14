@@ -9,12 +9,16 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.*
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
 

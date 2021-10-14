@@ -84,9 +84,8 @@ class ContentPageFragmentVDC @Inject constructor(
                 (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId, type)
                     .map { data.taskId }
             }
-            .flatMapCompletable { taskBuilder.startEditor(it) }
             .doFinally { finishEvent.postValue(Any()) }
-            .subscribe()
+            .subscribe { id -> taskBuilder.launchEditor(id) }
             .withScopeVDC(this)
     }
 

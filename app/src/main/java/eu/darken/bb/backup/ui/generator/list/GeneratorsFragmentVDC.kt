@@ -8,7 +8,7 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
@@ -34,13 +34,14 @@ class GeneratorsFragmentVDC @Inject constructor(
         .doFinally {
             Timber.i("Finally")
         }
-        .toLiveData()
+        .asLiveData()
 
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
     fun newGenerator() {
-        generatorBuilder.startEditor()
+        generatorBuilder.createEditor()
             .observeOn(Schedulers.computation())
+            .doOnSuccess { generatorBuilder.launchEditor(it) }
             .subscribe()
     }
 

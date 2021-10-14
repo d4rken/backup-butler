@@ -113,6 +113,11 @@
         <item name="android:background">@drawable/bg_flatbutton</item>
     </style>
 
+    <style name="Widget.MaterialComponents.Button.IconOnly" parent="Widget.MaterialComponents.Button">
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+    </style>
+
     <style name="Widget.MaterialComponents.Button.TextButton.Card" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">?colorOnSurface</item>
         <item name="android:minHeight">32dp</item>

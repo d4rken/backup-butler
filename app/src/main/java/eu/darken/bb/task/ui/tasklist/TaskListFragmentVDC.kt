@@ -65,8 +65,9 @@ class TaskListFragmentVDC @Inject constructor(
 
     fun newTask() {
         taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
-            .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
-            .subscribe()
+            .subscribe { data ->
+                taskBuilder.launchEditor(data.taskId)
+            }
     }
 
     fun editTask(item: Task) {

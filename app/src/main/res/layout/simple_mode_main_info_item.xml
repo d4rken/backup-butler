@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    style="@style/MyCardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".main.ui.MainActivity"
+    tools:theme="@style/AppThemeActionBar">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/primary_info"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:text="v0.0.1 - abcdef1234567"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/secondary_info"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Root unavailable"
+            app:layout_constraintEnd_toEndOf="@id/primary_info"
+            app:layout_constraintStart_toStartOf="@id/primary_info"
+            app:layout_constraintTop_toBottomOf="@id/primary_info" />
+
+        <TextView
+            android:id="@+id/tertiary_info"
+            style="@style/TextAppearance.MaterialComponents.Body2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Free/Pro version (beta test)"
+            app:layout_constraintEnd_toEndOf="@id/primary_info"
+            app:layout_constraintStart_toStartOf="@id/primary_info"
+            app:layout_constraintTop_toBottomOf="@id/secondary_info" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/upgrade_action"
+            style="@style/Widget.MaterialComponents.Button.Highlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/general_upgrade_action"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tertiary_info" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -4,7 +4,7 @@ import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.rx.toLiveData
+import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.LanguageEnforcer
 import io.reactivex.rxjava3.core.Observable
@@ -28,7 +28,7 @@ class LanguageFragmentVDC @Inject constructor(
             val current = languageEnforcer.lookup(languageEnforcer.currentLocale)
             State(languages = languages.map { LanguageItem(it, it == current) })
         }
-        .toLiveData()
+        .asLiveData()
     val finishEvent = SingleLiveEvent<Any>()
 
     fun selectLanguage(language: LanguageEnforcer.Language, resources: Resources) {

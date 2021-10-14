@@ -5,13 +5,12 @@ import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.ui.editor.TaskEditorActivity
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,24 +24,22 @@ class TaskBuilder @Inject constructor(
 
     private val hotData = HotData<Map<Task.Id, Data>>(tag = TAG) { mutableMapOf() }
 
-    init {
-        hotData.data
-            .observeOn(Schedulers.computation())
-            .subscribe { dataMap ->
-                dataMap.entries.forEach { (uuid, data) ->
-                    if (data.editor == null) {
-                        val editor = editors.getValue(data.taskType).create(uuid)
-                        update(uuid) { it!!.copy(editor = editor) }.blockingGet()
-                    }
-                }
-            }
-    }
+//    init {
+//        hotData.data
+//            .observeOn(Schedulers.computation())
+//            .subscribe { dataMap ->
+//                dataMap.entries.forEach { (uuid, data) ->
+//                    if (data.editor == null) {
+//                        val editor = editors.getValue(data.taskType).create(uuid)
+//                        update(uuid) { it!!.copy(editor = editor) }.blockingGet()
+//                    }
+//                }
+//            }
+//    }
 
-    fun task(id: Task.Id): Observable<Data> {
-        return hotData.data
-            .filter { it.containsKey(id) }
-            .map { it[id] }
-    }
+    fun task(id: Task.Id): Observable<Data> = hotData.data
+        .filter { it.containsKey(id) }
+        .map { it[id]!! }
 
     fun update(id: Task.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
         .updateRx {
@@ -98,7 +95,7 @@ class TaskBuilder @Inject constructor(
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
         .doOnComplete { Timber.tag(TAG).d("No task found for %s", id) }
 
-    fun startEditor(taskId: Task.Id): Completable = hotData.latest
+    fun createEditor(taskId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.latest
         .flatMapMaybe { Maybe.fromCallable<Data> { it[taskId] } }
         .switchIfEmpty(
             load(taskId)
@@ -106,21 +103,27 @@ class TaskBuilder @Inject constructor(
                 .doOnSuccess { Timber.tag(TAG).d("Loaded existing task for %s", taskId) }
                 .doOnError { Timber.tag(TAG).e("Failed to load existing task for %s", taskId) }
         )
-        .doOnSuccess { data ->
-            Timber.tag(TAG).v("Starting editor for ID %s", taskId)
-            val intent = Intent(context, TaskEditorActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putTaskId(data.taskId)
-            context.startActivity(intent)
-        }
-        .ignoreElement()
+        .switchIfEmpty(
+            update(taskId) {
+                val editor = editors.getValue(type).create(taskId)
+                Data(
+                    taskId = taskId,
+                    taskType = type,
+                    editor = editor,
+                )
+            }
+                .map { it.value!! }
+                .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", taskId) }
+                .doOnSuccess { log(TAG) { "Created new editor: $it" } }
+        )
 
-    fun createEditor(newId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.latest
-        .map { existingData ->
-            require(!existingData.containsKey(newId)) { "Builder with this ID already exists: $newId" }
-            Data(taskId = newId, taskType = type, editor = editors.getValue(type).create(newId))
-        }
-        .flatMap { data -> update(data.taskId) { data }.map { data } }
+    fun launchEditor(taskId: Task.Id) {
+        Timber.tag(TAG).v("Starting editor for ID %s", taskId)
+        val intent = Intent(context, TaskEditorActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putTaskId(taskId)
+        context.startActivity(intent)
+    }
 
     data class Data(
         val taskId: Task.Id,

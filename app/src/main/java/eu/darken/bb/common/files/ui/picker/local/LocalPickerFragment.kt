@@ -13,13 +13,13 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.localized
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced

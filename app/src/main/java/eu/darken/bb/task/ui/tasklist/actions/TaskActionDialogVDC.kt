@@ -70,8 +70,7 @@ class TaskActionDialogVDC @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                    .flatMapCompletable { taskBuilder.startEditor(it.taskId) }
-                    .subscribe()
+                    .subscribe { taskBuilder.launchEditor(it.taskId) }
             }
             DELETE -> {
                 Single.timer(200, TimeUnit.MILLISECONDS)

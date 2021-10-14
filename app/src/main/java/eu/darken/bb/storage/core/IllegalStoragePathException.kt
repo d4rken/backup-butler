@@ -3,8 +3,8 @@ package eu.darken.bb.storage.core
 import android.content.Context
 import androidx.annotation.StringRes
 import eu.darken.bb.R
-import eu.darken.bb.common.HasLocalizedError
-import eu.darken.bb.common.LocalizedError
+import eu.darken.bb.common.errors.HasLocalizedError
+import eu.darken.bb.common.errors.LocalizedError
 import eu.darken.bb.common.files.core.APath
 
 class IllegalStoragePathException(
