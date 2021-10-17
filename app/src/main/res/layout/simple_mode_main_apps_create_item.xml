@@ -43,11 +43,12 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/create_action"
-            style="@style/Widget.MaterialComponents.Button.Highlight"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
+            app:icon="@drawable/ic_add_task"
             android:text="@string/general_create_action"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

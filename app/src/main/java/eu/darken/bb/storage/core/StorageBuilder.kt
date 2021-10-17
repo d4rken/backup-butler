@@ -8,7 +8,6 @@ import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.editor.StorageEditorActivityArgs
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -40,19 +39,13 @@ class StorageBuilder @Inject constructor(
             }
     }
 
-    data class Data(
-        val storageId: Storage.Id,
-        val storageType: Storage.Type? = null,
-        val editor: StorageEditor? = null
-    )
-
     fun getSupportedStorageTypes(): Observable<Collection<Storage.Type>> =
         Observable.just(Storage.Type.values().toList())
 
     fun storage(id: Storage.Id): Observable<Data> {
         return hotData.data
             .filter { it.containsKey(id) }
-            .map { it[id] }
+            .map { it.getValue(id) }
     }
 
     fun update(id: Storage.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
@@ -68,7 +61,7 @@ class StorageBuilder @Inject constructor(
         .map { Opt(it.newValue[id]) }
         .doOnSuccess { Timber.tag(TAG).v("Storage updated: %s (%s): %s", id, action, it) }
 
-    fun remove(id: Storage.Id, isAbort: Boolean = true): Single<Opt<Data>> = Single.just(id)
+    fun remove(id: Storage.Id, isAbandon: Boolean = true): Single<Opt<Data>> = Single.just(id)
         .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
         .flatMap {
             hotData.latest
@@ -78,7 +71,7 @@ class StorageBuilder @Inject constructor(
         }
         .doOnSuccess { Timber.tag(TAG).v("Removed storage: %s", id) }
         .map { optData ->
-            if (isAbort && optData.isNotNull) {
+            if (isAbandon && optData.isNotNull) {
                 optData.value?.editor?.abort()?.blockingAwait()
             }
             return@map optData
@@ -114,7 +107,7 @@ class StorageBuilder @Inject constructor(
         .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
-    fun startEditor(storageId: Storage.Id = Storage.Id()): Completable = hotData.latest
+    fun createEditor(storageId: Storage.Id = Storage.Id()): Single<Data> = hotData.latest
         .flatMapMaybe { Maybe.fromCallable<Data> { it[storageId] } }
         .switchIfEmpty(
             load(storageId)
@@ -125,16 +118,21 @@ class StorageBuilder @Inject constructor(
             update(storageId) { Data(storageId = storageId) }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
         )
-        .doOnSuccess { data ->
-            Timber.tag(TAG).d("Starting editor for ID %s", storageId)
-            val intent = Intent(context, StorageEditorActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val navArgs = StorageEditorActivityArgs(storageId = data.storageId)
-            intent.putExtras(navArgs.toBundle())
-            context.startActivity(intent)
-        }
-        .ignoreElement()
 
+    fun launchEditor(storageId: Storage.Id) {
+        Timber.tag(TAG).d("Starting editor for ID %s", storageId)
+        val intent = Intent(context, StorageEditorActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val navArgs = StorageEditorActivityArgs(storageId = storageId)
+        intent.putExtras(navArgs.toBundle())
+        context.startActivity(intent)
+    }
+
+    data class Data(
+        val storageId: Storage.Id,
+        val storageType: Storage.Type? = null,
+        val editor: StorageEditor? = null
+    )
 
     companion object {
         val TAG = logTag("Storage", "Builder")

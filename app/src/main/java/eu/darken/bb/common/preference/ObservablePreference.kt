@@ -24,7 +24,7 @@ class ObservablePreference<T : Any> constructor(
             preferences.edit { writer(key, newValue) }
             internalObservable.onNext(internalValue!!)
         }
-    private val internalObservable = BehaviorSubject.createDefault<T>(internalValue)
+    private val internalObservable = BehaviorSubject.createDefault<T>(internalValue!!)
     val observable: Observable<T> = internalObservable as Observable<T>
 
     private val preferenceChangeListener =

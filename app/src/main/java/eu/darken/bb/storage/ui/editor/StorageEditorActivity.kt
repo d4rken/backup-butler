@@ -1,6 +1,8 @@
 package eu.darken.bb.storage.ui.editor
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
@@ -62,17 +64,30 @@ class StorageEditorActivity : AppCompatActivity() {
             }
         }
 
-        vdc.finishEvent.observe2(this) { finish() }
+        vdc.finishEvent.observe2(this) {
+            setResult(
+                Activity.RESULT_OK,
+                Intent().apply {
+                    putExtra(StorageEditorContract.RESULT_KEY, it)
+                }
+            )
+            finish()
+        }
 
         onBackPressedDispatcher.addCallback {
-            if (!navController.popBackStack()) finish()
+            if (!navController.popBackStack()) vdc.dismiss()
         }
     }
 
-    override fun onDestroy() {
-        if (isFinishing) vdc.dismiss()
-        super.onDestroy()
+    fun finishEditor(result: StorageEditorResult) {
+        vdc.finishEditor(result)
     }
+
+//    override fun onDestroy() {
+//        log { "onDestroy(isFinishing=$isFinishing)" }
+//        if (isFinishing) vdc.dismiss()
+//        super.onDestroy()
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         else -> NavigationUI.onNavDestinationSelected(item, navController) || super.onOptionsItemSelected(item)

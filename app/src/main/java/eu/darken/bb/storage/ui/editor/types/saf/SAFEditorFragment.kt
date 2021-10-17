@@ -19,6 +19,7 @@ import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorSafFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
+import eu.darken.bb.storage.ui.editor.StorageEditorActivity
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
@@ -75,7 +76,7 @@ class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment) {
         }
 
         vdc.finishEvent.observe2(this) {
-            finishActivity()
+            (requireActivity() as StorageEditorActivity).finishEditor(it)
         }
 
         super.onViewCreated(view, savedInstanceState)

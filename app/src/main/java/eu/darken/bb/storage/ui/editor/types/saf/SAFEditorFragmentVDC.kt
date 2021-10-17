@@ -16,6 +16,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
+import eu.darken.bb.storage.ui.editor.StorageEditorResult
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,7 +44,7 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
     init {
         editorDataObs.take(1)
@@ -90,7 +91,7 @@ class SAFEditorFragmentVDC @Inject constructor(
         val newlyPersistedPermission = result.persistedPermissions?.isNotEmpty() ?: false
         editor.updatePath(p, false, newlyPersistedPermission)
             .observeOn(Schedulers.computation())
-            .subscribe { _, error ->
+            .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error)
             }
     }
@@ -99,7 +100,7 @@ class SAFEditorFragmentVDC @Inject constructor(
         path as SAFPath
         editor.updatePath(path, true)
             .observeOn(Schedulers.computation())
-            .subscribe { _, error ->
+            .subscribe { _, error: Throwable? ->
                 if (error != null) errorEvent.postValue(error.getRootCause())
             }
     }
@@ -108,9 +109,12 @@ class SAFEditorFragmentVDC @Inject constructor(
         builder.save(storageId)
             .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-            .doFinally { finishEvent.postValue(Any()) }
-            .subscribe { _, error ->
-                if (error != null) errorEvent.postValue(error.getRootCause())
+            .subscribe { ref, error: Throwable? ->
+                if (error != null) {
+                    errorEvent.postValue(error.getRootCause())
+                } else {
+                    finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
+                }
             }
     }
 

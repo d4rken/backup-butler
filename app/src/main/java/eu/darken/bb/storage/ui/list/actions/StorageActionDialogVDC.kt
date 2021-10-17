@@ -94,12 +94,14 @@ class StorageActionDialogVDC @Inject constructor(
             EDIT -> {
                 storageBuilder.load(storageId)
                     .observeOn(Schedulers.computation())
-                    .flatMapCompletable { storageBuilder.startEditor(it.storageId) }
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe(
-                        { closeDialogEvent.postValue(Any()) },
+                        {
+                            storageBuilder.launchEditor(it.storageId)
+                            closeDialogEvent.postValue(Any())
+                        },
                         { errorEvent.postValue(it) }
                     )
                     .withScopeVDC(this)

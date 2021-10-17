@@ -322,4 +322,6 @@
     <string name="simple_mode_wizard_common_auto_setup_description">Backup Butler will try to set up some useful default. The values will be based on your device and you can still edit them.</string>
     <string name="general_add_action">Add</string>
     <string name="general_remove_action">Remove</string>
+    <string name="simple_mode_wizard_files_paths_to_back_up_title">Paths to back up</string>
+    <string name="general_dismiss_action">Dismiss</string>
 </resources>

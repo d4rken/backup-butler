@@ -55,9 +55,11 @@ class StoragePickerFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     fun createStorage() {
-        storageBuilder.startEditor()
+        storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
-            .subscribe()
+            .subscribe { data ->
+                storageBuilder.launchEditor(data.storageId)
+            }
     }
 
     fun selectStorage(item: Storage.InfoOpt) {

@@ -15,6 +15,7 @@ import eu.darken.bb.main.ui.simple.cards.apps.AppsInfoVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoCreateVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoVH
+import eu.darken.bb.main.ui.simple.cards.hints.AdvancedModeHintsVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoVH
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class SimpleModeAdapter @Inject constructor() :
 
     init {
         modules.add(DataBinderMod(data))
+        modules.add(TypedVHCreatorMod({ data[it] is AdvancedModeHintsVH.Item }) { AdvancedModeHintsVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is BBInfoVH.Item }) { BBInfoVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is BBInfoLoadingVH.Item }) { BBInfoLoadingVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is AppsInfoVH.Item }) { AppsInfoVH(it) })

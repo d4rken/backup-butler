@@ -28,7 +28,7 @@ class StorageEditorActivityVDC @Inject constructor(
         .filter { it.editor != null }
         .map { it.editor!! }
 
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
     private val stater = Stater {
         val data = storageObs.blockingFirst()
@@ -54,8 +54,12 @@ class StorageEditorActivityVDC @Inject constructor(
         storageBuilder.remove(storageId)
             .observeOn(Schedulers.computation())
             .subscribe { _ ->
-                finishEvent.postValue(Any())
+                finishEvent.postValue(StorageEditorResult(storageId = storageId))
             }
+    }
+
+    fun finishEditor(result: StorageEditorResult) {
+        finishEvent.postValue(result)
     }
 
     data class State(

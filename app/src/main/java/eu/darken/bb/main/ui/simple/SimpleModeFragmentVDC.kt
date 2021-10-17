@@ -14,10 +14,12 @@ import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.core.simple.SimpleMode
+import eu.darken.bb.main.core.simple.SimpleModeSettings
 import eu.darken.bb.main.ui.simple.cards.apps.AppsInfoCreateVH
 import eu.darken.bb.main.ui.simple.cards.apps.AppsInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoCreateVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoLoadingVH
+import eu.darken.bb.main.ui.simple.cards.hints.AdvancedModeHintsVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoVH
 import eu.darken.bb.storage.core.StorageManager
@@ -38,6 +40,7 @@ class SimpleModeFragmentVDC @Inject constructor(
     private val taskRepo: TaskRepo,
     private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
+    private val simpleModeSettings: SimpleModeSettings,
 ) : SmartVDC() {
 
     val navEvents = SingleLiveEvent<NavDirections>()
@@ -107,9 +110,19 @@ class SimpleModeFragmentVDC @Inject constructor(
         .combineLatest(
             infoObs,
             appObs,
-            fileObs
-        ) { info, apps, files ->
-            listOf(info, apps, files)
+            fileObs,
+            simpleModeSettings.isHintAdvancedModeDismissed.observable.observeOn(Schedulers.computation())
+        ) { info, apps, files, isHintAdvModeDismissed ->
+            mutableListOf(info, apps, files).apply {
+                if (!isHintAdvModeDismissed) {
+                    val hint = AdvancedModeHintsVH.Item(
+                        onDismiss = {
+                            simpleModeSettings.isHintAdvancedModeDismissed.update { true }
+                        }
+                    )
+                    add(0, hint)
+                }
+            }.toList()
         }
         .asLiveData()
 

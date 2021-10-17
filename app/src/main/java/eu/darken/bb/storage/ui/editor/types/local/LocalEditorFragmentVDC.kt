@@ -21,6 +21,7 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
+import eu.darken.bb.storage.ui.editor.StorageEditorResult
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -48,7 +49,7 @@ class LocalEditorFragmentVDC @Inject constructor(
 
     val errorEvent = SingleLiveEvent<Throwable>()
     val pickerEvent = SingleLiveEvent<APathPicker.Options>()
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
     init {
         editorDataObs
@@ -129,9 +130,12 @@ class LocalEditorFragmentVDC @Inject constructor(
         builder.save(storageId)
             .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-            .doFinally { finishEvent.postValue(true) }
-            .subscribe { _, error ->
-                if (error != null) errorEvent.postValue(error.getRootCause())
+            .subscribe { ref, error: Throwable? ->
+                if (error != null) {
+                    errorEvent.postValue(error.getRootCause())
+                } else {
+                    finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
+                }
             }
     }
 

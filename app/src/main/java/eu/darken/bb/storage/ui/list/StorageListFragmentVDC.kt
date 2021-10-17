@@ -45,9 +45,11 @@ class StorageListFragmentVDC @Inject constructor(
     }
 
     fun createStorage() {
-        storageBuilder.startEditor()
+        storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
-            .subscribe()
+            .subscribe { data ->
+                storageBuilder.launchEditor(data.storageId)
+            }
     }
 
     fun editStorage(item: Storage.InfoOpt) {

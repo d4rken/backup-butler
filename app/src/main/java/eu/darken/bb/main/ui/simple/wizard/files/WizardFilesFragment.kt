@@ -9,12 +9,14 @@ import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.SimpleModeWizardFilesFragmentBinding
 import eu.darken.bb.main.ui.simple.wizard.common.WizardAdapter
+import eu.darken.bb.storage.ui.editor.StorageEditorContract
 
 @AndroidEntryPoint
 class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_fragment) {
@@ -26,6 +28,10 @@ class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_frag
         listOf(
             TypedVHCreatorMod({ data[it] is FilesPathInfoVH.Item }) { FilesPathInfoVH(it) },
         )
+    }
+
+    private val storageEditorResult = registerForActivityResult(StorageEditorContract()) {
+        vdc.onStorageEditorResult(it)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,6 +59,8 @@ class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_frag
             }
             adapter.update(state.items)
         }
+
+        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.finishEvent.observe2(this) { popBackStack() }
         vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }

@@ -6,9 +6,12 @@ import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
+import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.main.core.simple.AutoSetUp
 import eu.darken.bb.main.core.simple.SimpleMode
 import eu.darken.bb.main.ui.simple.wizard.common.*
 import eu.darken.bb.storage.core.StorageManager
@@ -29,6 +32,7 @@ class WizardAppsFragmentVDC @Inject constructor(
     private val generatorBuilder: GeneratorBuilder,
     private val taskBuilder: TaskBuilder,
     private val previewFilter: PreviewFilter,
+    private val autoSetUp: AutoSetUp,
 ) : SmartVDC() {
 
     val finishEvent = SingleLiveEvent<Unit>()
@@ -90,22 +94,22 @@ class WizardAppsFragmentVDC @Inject constructor(
             val items = mutableListOf<WizardAdapter.Item>()
             if (!editorData.isExistingTask) {
                 AutoSetupVH.Item(
-                    onAutoSetup = {
-                        TODO()
-                    }
+                    onAutoSetup = { runAutoSetUp() }
                 ).let { items.add(it) }
             }
             items.add(storageItem)
 
             AppsPreviewVH.Item(
-                pkgWraps = previewFilter.filter,
+                pkgWraps = previewFilter.filter(data = TODO(), previewMode = PreviewMode.PREVIEW).toList(),
                 onPreview = {
 
                 }
             ).let { items.add(it) }
 
             AppsOptionVH.Item(
+                onToggleAutoInclude = {
 
+                }
             ).let { items.add(it) }
 
             State(
@@ -116,6 +120,24 @@ class WizardAppsFragmentVDC @Inject constructor(
         .doOnError { errorEvent.postValue(it) }
         .onErrorReturnItem(State())
         .asLiveData()
+
+    private fun runAutoSetUp() {
+        editorData
+            .flatMapSingle {
+                autoSetUp.setUp(it.taskId, AutoSetUp.Type.APPS)
+            }
+            .doOnSubscribe {
+                // TODO loading mode?
+            }
+            .doFinally {
+                // TODO clear loading mode
+            }
+            .subscribe({ result ->
+                // TODO
+            }, {
+                // TODO
+            })
+    }
 
     fun onSave() {
         editorObs
@@ -132,4 +154,7 @@ class WizardAppsFragmentVDC @Inject constructor(
         val isExisting: Boolean = false,
     )
 
+    companion object {
+        private val TAG = logTag("SimpleMode", "Apps", "Wizard", "VDC")
+    }
 }

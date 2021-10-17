@@ -17,9 +17,9 @@ import javax.inject.Inject
 
 class PkgsPreviewAdapter @Inject constructor(
     pkgOps: PkgOps
-) : ModularAdapter<PkgsPreviewAdapter.VH>(), DataAdapter<AppEditorPreviewFragmentVDC.PkgWrap> {
+) : ModularAdapter<PkgsPreviewAdapter.VH>(), DataAdapter<PreviewFilter.PkgWrap> {
 
-    override val data = mutableListOf<AppEditorPreviewFragmentVDC.PkgWrap>()
+    override val data = mutableListOf<PreviewFilter.PkgWrap>()
 
     init {
         modules.add(DataBinderMod(data))
@@ -30,12 +30,12 @@ class PkgsPreviewAdapter @Inject constructor(
 
     class VH(parent: ViewGroup, private val pkgOps: PkgOps) :
         ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent),
-        BindableVH<AppEditorPreviewFragmentVDC.PkgWrap, GeneratorEditorAppPreviewAdapterLineBinding> {
+        BindableVH<PreviewFilter.PkgWrap, GeneratorEditorAppPreviewAdapterLineBinding> {
 
         override val viewBinding = lazy { GeneratorEditorAppPreviewAdapterLineBinding.bind(itemView) }
 
         override val onBindData: GeneratorEditorAppPreviewAdapterLineBinding.(
-            item: AppEditorPreviewFragmentVDC.PkgWrap,
+            item: PreviewFilter.PkgWrap,
             payloads: List<Any>
         ) -> Unit = { item, _ ->
             val pkg = item.pkg

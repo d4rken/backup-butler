@@ -6,6 +6,8 @@ import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.opt
 import io.reactivex.rxjava3.core.Maybe
@@ -56,11 +58,13 @@ class StorageRefRepo @Inject constructor(
         return internalData
             .updateRx { data ->
                 data.toMutableMap().apply {
-                    oldValue = put(ref.storageId, ref)
+                    oldValue = put(ref.storageId, ref)?.also {
+                        log(TAG) { "Overwriting existing ref: $it" }
+                    }
                 }
             }
             .map { oldValue.opt() }
-            .doOnSuccess { Timber.d("put(ref=%s) -> old=%s", ref, it.value) }
+            .doOnSuccess { log(TAG, VERBOSE) { "put(ref=$ref) -> old=${it.value}" } }
             .doOnSuccess { affectedIdPub.onNext(ref.storageId) }
     }
 
@@ -74,7 +78,8 @@ class StorageRefRepo @Inject constructor(
             }
             .map { oldValue.opt() }
             .doOnSuccess {
-                Timber.d("remove(refId=%s) -> old=%s", refId, it.value)
+                log(TAG, VERBOSE) { "remove(refId=$refId) -> old=${it.value}" }
+
                 if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
             }
             .doOnSuccess { affectedIdPub.onNext(refId) }
