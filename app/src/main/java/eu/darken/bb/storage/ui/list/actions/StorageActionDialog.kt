@@ -11,6 +11,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.setGone
@@ -59,6 +60,7 @@ class StorageActionDialog : BottomSheetDialogFragment() {
             ui.workingOverlay.isCancelable = state.isCancelable
         }
 
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }
         vdc.errorEvent.observe2(this) { toastError(it) }
 

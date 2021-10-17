@@ -1,12 +1,12 @@
-package eu.darken.bb.task.ui.editor.backup.destinations.picker
+package eu.darken.bb.storage.ui.picker
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -32,6 +32,7 @@ class StoragePickerFragmentVDC @Inject constructor(
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
+    val navEvents = SingleLiveEvent<NavDirections>()
 
     val storageData = storageManager.infos()
         .observeOn(Schedulers.computation())
@@ -52,25 +53,22 @@ class StoragePickerFragmentVDC @Inject constructor(
         .startWithItem(StorageState())
         .asLiveData()
 
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<StoragePickerResult?>()
 
     fun createStorage() {
         storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
             .subscribe { data ->
-                storageBuilder.launchEditor(data.storageId)
+                // TODO use fragment result api
+                StoragePickerFragmentDirections.actionStoragePickerFragmentToStorageEditor()
+                    .run { navEvents.postValue(this) }
             }
     }
 
     fun selectStorage(item: Storage.InfoOpt) {
-        taskBuilder.task(taskId)
-            .observeOn(Schedulers.computation())
-            .latest()
-            .map { it.editor as SimpleBackupTaskEditor }
-            .subscribe { editor ->
-                editor.addDestination(item.storageId)
-            }
-        finishEvent.postValue(Any())
+        StoragePickerResult(
+            storageId = item.storageId
+        ).run { finishEvent.postValue(this) }
     }
 
     data class StorageState(

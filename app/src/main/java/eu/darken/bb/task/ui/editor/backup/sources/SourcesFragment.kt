@@ -18,8 +18,8 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupGeneratorsFragmentBinding
+import eu.darken.bb.storage.ui.picker.StoragePickerFragmentArgs
 import eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragmentArgs
-import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentArgs
 import javax.inject.Inject
 import javax.inject.Provider
 

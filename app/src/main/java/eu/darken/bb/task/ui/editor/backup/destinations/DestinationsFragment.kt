@@ -7,6 +7,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -17,17 +18,26 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
 import eu.darken.bb.storage.ui.list.StorageAdapter
-import eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragmentArgs
+import eu.darken.bb.storage.ui.picker.StoragePickerFragmentArgs
+import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment) {
+class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment), StoragePickerResultListener {
 
     val navArgs by navArgs<DestinationsFragmentArgs>()
     private val ui: TaskEditorBackupStoragesFragmentBinding by viewBinding()
     private val vdc: DestinationsFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: StorageAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupStoragePickerListener {
+            log { "setupStoragePickerListener(): $it" }
+            vdc.onStoragePicked(it)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.listDestinations.setupDefaults(adapter)

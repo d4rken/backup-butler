@@ -16,10 +16,10 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.SimpleModeWizardFilesFragmentBinding
 import eu.darken.bb.main.ui.simple.wizard.common.WizardAdapter
-import eu.darken.bb.storage.ui.editor.StorageEditorContract
+import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
 
 @AndroidEntryPoint
-class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_fragment) {
+class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_fragment), StoragePickerResultListener {
 
     private val vdc: WizardFilesFragmentVDC by viewModels()
     private val ui: SimpleModeWizardFilesFragmentBinding by viewBinding()
@@ -30,8 +30,12 @@ class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_frag
         )
     }
 
-    private val storageEditorResult = registerForActivityResult(StorageEditorContract()) {
-        vdc.onStorageEditorResult(it)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupStoragePickerListener {
+            vdc.onStoragePickerResult(it)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

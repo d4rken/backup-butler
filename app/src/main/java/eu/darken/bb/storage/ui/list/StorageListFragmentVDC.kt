@@ -1,18 +1,20 @@
 package eu.darken.bb.storage.ui.list
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +36,7 @@ class StorageListFragmentVDC @Inject constructor(
         .startWithItem(StorageState())
         .asLiveData()
 
-    val editStorageEvent = SingleLiveEvent<Storage.Id>()
+    val navEvents = SingleLiveEvent<NavDirections>()
 
     val processorEvent = SingleLiveEvent<Boolean>()
 
@@ -48,13 +50,17 @@ class StorageListFragmentVDC @Inject constructor(
         storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
             .subscribe { data ->
-                storageBuilder.launchEditor(data.storageId)
+                AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageEditor(
+                    storageId = null
+                ).run { navEvents.postValue(this) }
             }
     }
 
     fun editStorage(item: Storage.InfoOpt) {
-        Timber.tag(TAG).d("editStorage(%s)", item)
-        editStorageEvent.postValue(item.storageId)
+        log(TAG) { "editStorage($item)" }
+        // TODO why does this not  start from the actions dialog?
+        AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageActionDialog(item.storageId)
+            .run { navEvents.postValue(this) }
     }
 
     data class StorageState(

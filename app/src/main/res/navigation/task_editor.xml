@@ -89,8 +89,7 @@
     </fragment>
     <fragment
         android:id="@+id/storagePickerFragment"
-        android:name="eu.darken.bb.task.ui.editor.backup.destinations.picker.StoragePickerFragment"
-        android:label="@string/task_editor_backup_add_destination_action"
+        android:name="eu.darken.bb.storage.ui.picker.StoragePickerFragment"
         tools:layout="@layout/task_editor_backup_storages_picker_fragment">
         <argument
             android:name="taskId"

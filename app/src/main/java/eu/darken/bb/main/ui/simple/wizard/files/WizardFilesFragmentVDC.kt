@@ -16,7 +16,7 @@ import eu.darken.bb.main.ui.simple.wizard.apps.WizardAppsFragmentVDC
 import eu.darken.bb.main.ui.simple.wizard.common.*
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.editor.StorageEditorResult
+import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
@@ -148,8 +148,8 @@ class WizardFilesFragmentVDC @Inject constructor(
             })
     }
 
-    fun onStorageEditorResult(result: StorageEditorResult?) {
-        log(TAG) { "onStorageEditorResult(result=$result)" }
+    fun onStoragePickerResult(result: StoragePickerResult?) {
+        log(TAG) { "onStoragePickerResult(result=$result)" }
         if (result == null) return
         editorObs.take(1).subscribe {
             it.addDestination(result.storageId)

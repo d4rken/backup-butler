@@ -13,6 +13,8 @@ import timber.log.Timber
 
 fun Fragment.doNavigate(direction: NavDirections) = findNavController().doNavigate(direction)
 
+fun Fragment.doNavigateWithParent(direction: NavDirections) = parentFragment!!.findNavController().doNavigate(direction)
+
 fun Fragment.popBackStack(): Boolean {
     if (!isAdded) {
         IllegalStateException("Fragment is not added").also {

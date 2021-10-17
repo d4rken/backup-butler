@@ -19,7 +19,6 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageListFragmentBinding
-import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
@@ -46,9 +45,7 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
 
         ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
 
-        vdc.editStorageEvent.observe2(this) {
-            doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageActionDialog(it))
-        }
+        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         var snackbar: Snackbar? = null
         vdc.processorEvent.observe2(this) { isActive ->

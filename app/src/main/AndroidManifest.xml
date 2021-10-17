@@ -42,27 +42,30 @@
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
-            android:name=".storage.ui.editor.StorageEditorActivity"
-            android:theme="@style/AppThemeActionBar" />
-        <activity
             android:name=".backup.ui.generator.editor.GeneratorEditorActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
             android:name=".main.ui.settings.SettingsActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
             android:name=".storage.ui.viewer.StorageViewerActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
             android:name=".common.debug.recording.ui.RecorderActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeFloating" />
         <activity
             android:name=".processor.ui.ProcessorActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppThemeFloating" />
 
         <activity
             android:name=".common.files.ui.picker.APathPickerActivity"
+            android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
 
         <service android:name=".processor.core.service.ProcessorService" />

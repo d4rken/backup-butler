@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.list.actions
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
@@ -32,6 +33,7 @@ class StorageActionDialogVDC @Inject constructor(
     private val storageId: Storage.Id = navArgs.storageId
     private val stater = Stater { State(isLoadingData = true) }
     val state = stater.liveData
+    val navEvents = SingleLiveEvent<NavDirections>()
     val closeDialogEvent = SingleLiveEvent<Any>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
@@ -99,7 +101,10 @@ class StorageActionDialogVDC @Inject constructor(
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe(
                         {
-                            storageBuilder.launchEditor(it.storageId)
+                            // TODO why not navigate from dialog directly?
+                            StorageActionDialogDirections.actionStorageActionDialogToStorageEditor(
+                                storageId = it.storageId
+                            ).run { navEvents.postValue(this) }
                             closeDialogEvent.postValue(Any())
                         },
                         { errorEvent.postValue(it) }

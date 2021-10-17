@@ -1,13 +1,10 @@
 package eu.darken.bb.storage.core
 
 import android.content.Context
-import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.storage.ui.editor.StorageEditorActivity
-import eu.darken.bb.storage.ui.editor.StorageEditorActivityArgs
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -118,15 +115,15 @@ class StorageBuilder @Inject constructor(
             update(storageId) { Data(storageId = storageId) }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
         )
-
-    fun launchEditor(storageId: Storage.Id) {
-        Timber.tag(TAG).d("Starting editor for ID %s", storageId)
-        val intent = Intent(context, StorageEditorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val navArgs = StorageEditorActivityArgs(storageId = storageId)
-        intent.putExtras(navArgs.toBundle())
-        context.startActivity(intent)
-    }
+//
+//    fun launchEditor(storageId: Storage.Id) {
+//        Timber.tag(TAG).d("Starting editor for ID %s", storageId)
+//        val intent = Intent(context, StorageEditorActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        val navArgs = StorageEditorActivityArgs(storageId = storageId)
+//        intent.putExtras(navArgs.toBundle())
+//        context.startActivity(intent)
+//    }
 
     data class Data(
         val storageId: Storage.Id,

@@ -10,6 +10,7 @@ import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
@@ -26,6 +27,11 @@ class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselectio
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(adapter)
+
+        ui.toolbar.apply {
+            setNavigationIcon(R.drawable.ic_baseline_close_24)
+            setNavigationOnClickListener { popBackStack() }
+        }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
 

@@ -2,15 +2,19 @@ package eu.darken.bb.storage.ui.editor.types.local
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.KeyEvent
+import android.view.View
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
@@ -21,18 +25,14 @@ import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
+import eu.darken.bb.storage.ui.editor.EditorFragmentChild
+import eu.darken.bb.storage.ui.editor.setStorageEditorResult
 
 @AndroidEntryPoint
-class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment) {
+class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment), EditorFragmentChild {
     private val vdc: LocalEditorFragmentVDC by viewModels()
     private val ui: StorageEditorLocalFragmentBinding by viewBinding()
 
-    private var allowCreate: Boolean = false
-    private var existing: Boolean = false
-
-    init {
-        setHasOptionsMenu(true)
-    }
 
     private lateinit var permissionWriteStorageLauncher: Permission.Launcher
     private lateinit var permissionManageStorageLauncher: Permission.Launcher
@@ -49,7 +49,21 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.state.observe2(this) { state ->
+        ui.toolbar.apply {
+            setupWithNavController(findNavController())
+            inflateMenu(R.menu.menu_storage_editor_local_fragment)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_create -> {
+                        vdc.saveConfig()
+                        true
+                    }
+                    else -> super.onOptionsItemSelected(item)
+                }
+            }
+        }
+
+        vdc.state.observe2(this, ui) { state ->
             ui.nameInput.setTextIfDifferent(state.label)
 
             ui.pathDisplay.text = state.path
@@ -60,9 +74,13 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
             ui.writeStorageCard.isGone = !state.missingPermissions.contains(Permission.WRITE_EXTERNAL_STORAGE)
             ui.manageStorageCard.isGone = !state.missingPermissions.contains(Permission.MANAGE_EXTERNAL_STORAGE)
 
-            allowCreate = state.isValid
-            existing = state.isExisting
-            requireActivity().invalidateOptionsMenu()
+            toolbar.apply {
+                menu.findItem(R.id.action_create).isVisible = state.isValid
+                menu.findItem(R.id.action_create).title = getString(
+                    if (state.isExisting) R.string.general_save_action else R.string.general_create_action
+                )
+                setTitle(if (state.isExisting) R.string.storage_edit_action else R.string.storage_create_action)
+            }
         }
 
         ui.pathButton.clicksDebounced().subscribe { vdc.selectPath() }
@@ -101,7 +119,8 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
         }
 
         vdc.finishEvent.observe2(this) {
-            finishActivity()
+            setStorageEditorResult(it)
+            popBackStack()
         }
 
         super.onViewCreated(view, savedInstanceState)
@@ -114,25 +133,4 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_storage_editor_local_fragment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title =
-            getString(if (existing) R.string.general_save_action else R.string.general_create_action)
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_create -> {
-            vdc.saveConfig()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
-
 }

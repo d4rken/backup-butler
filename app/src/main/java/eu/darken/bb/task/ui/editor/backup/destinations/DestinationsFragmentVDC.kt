@@ -6,11 +6,13 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
@@ -77,6 +79,18 @@ class DestinationsFragmentVDC @Inject constructor(
             .subscribe { savedTask ->
                 if (execute) processorControl.submit(savedTask)
                 finishEvent.postValue(true)
+            }
+    }
+
+    fun onStoragePicked(result: StoragePickerResult?) {
+        if (result == null) return
+
+        taskBuilder.task(taskId)
+            .observeOn(Schedulers.computation())
+            .latest()
+            .map { it.editor as SimpleBackupTaskEditor }
+            .subscribe { editor ->
+                editor.addDestination(result.storageId)
             }
     }
 

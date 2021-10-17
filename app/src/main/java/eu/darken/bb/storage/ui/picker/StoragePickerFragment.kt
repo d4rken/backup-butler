@@ -1,15 +1,17 @@
-package eu.darken.bb.task.ui.editor.backup.destinations.picker
+package eu.darken.bb.storage.ui.picker
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
@@ -28,7 +30,15 @@ class StoragePickerFragment : SmartFragment(R.layout.task_editor_backup_storages
     @Inject lateinit var adapter: StorageAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.storageList.setupDefaults(adapter)
+        ui.apply {
+            storageList.setupDefaults(adapter)
+            toolbar.apply {
+                setupWithNavController(findNavController())
+                setNavigationIcon(R.drawable.ic_baseline_close_24)
+            }
+            fab.clicksDebounced().subscribe { vdc.createStorage() }
+        }
+
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectStorage(adapter.data[i]) })
 
@@ -54,10 +64,10 @@ class StoragePickerFragment : SmartFragment(R.layout.task_editor_backup_storages
         }
 
         vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack()
+            setStoragePickerResult(it)
+            popBackStack()
         }
 
-        ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
         super.onViewCreated(view, savedInstanceState)
     }
 }
