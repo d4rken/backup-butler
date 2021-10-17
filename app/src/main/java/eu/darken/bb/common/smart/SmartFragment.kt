@@ -9,67 +9,73 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.debug.logging.v
 import eu.darken.bb.common.navigation.doNavigate
 
 
-abstract class SmartFragment(@LayoutRes val layoutRes: Int) : Fragment(layoutRes) {
+abstract class SmartFragment(@LayoutRes val layoutRes: Int?) : Fragment(layoutRes ?: 0) {
+
+    constructor() : this(null)
+
     internal val tag: String =
         logTag("Fragment", "${this.javaClass.simpleName}(${Integer.toHexString(hashCode())})")
 
     override fun onAttach(context: Context) {
-        v(tag) { "onAttach(context=$context)" }
+        log(tag, VERBOSE) { "onAttach(context=$context)" }
         super.onAttach(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        v(tag) { "onCreate(savedInstanceState=$savedInstanceState)" }
+        log(tag, VERBOSE) { "onCreate(savedInstanceState=$savedInstanceState)" }
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        v(tag) { "onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState" }
-        return layoutRes.let { inflater.inflate(it, container, false) }
+        log(tag, VERBOSE) {
+            "onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState"
+        }
+        return layoutRes?.let { inflater.inflate(it, container, false) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        v(tag) { "onViewCreated(view=$view, savedInstanceState=$savedInstanceState)" }
+        log(tag, VERBOSE) { "onViewCreated(view=$view, savedInstanceState=$savedInstanceState)" }
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        v(tag) { "onActivityCreated(savedInstanceState=$savedInstanceState)" }
+        log(tag, VERBOSE) { "onActivityCreated(savedInstanceState=$savedInstanceState)" }
         super.onActivityCreated(savedInstanceState)
     }
 
     override fun onResume() {
-        v(tag) { "onResume()" }
+        log(tag, VERBOSE) { "onResume()" }
         super.onResume()
     }
 
     override fun onPause() {
-        v(tag) { "onPause()" }
+        log(tag, VERBOSE) { "onPause()" }
         super.onPause()
     }
 
     override fun onDestroyView() {
-        v(tag) { "onDestroyView()" }
+        log(tag, VERBOSE) { "onDestroyView()" }
         super.onDestroyView()
     }
 
     override fun onDetach() {
-        v(tag) { "onDetach()" }
+        log(tag, VERBOSE) { "onDetach()" }
         super.onDetach()
     }
 
     override fun onDestroy() {
-        v(tag) { "onDestroy()" }
+        log(tag, VERBOSE) { "onDestroy()" }
         super.onDestroy()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        v(tag) { "onActivityResult(requestCode=$requestCode, resultCode=$resultCode, data=$data)" }
+        log(tag, VERBOSE) { "onActivityResult(requestCode=$requestCode, resultCode=$resultCode, data=$data)" }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
