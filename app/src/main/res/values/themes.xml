@@ -31,7 +31,7 @@
 
     <style name="AppThemeSplash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/colorPrimary</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/graphic_mascot2</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/graphic_mascot_splash</item>
         <item name="postSplashScreenTheme">@style/AppThemeNoActionBar</item>
     </style>
 
