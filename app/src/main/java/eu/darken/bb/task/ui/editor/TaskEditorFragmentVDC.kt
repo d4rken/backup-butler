@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.task.core.Task
@@ -20,18 +22,26 @@ class TaskEditorFragmentVDC @Inject constructor(
     private val reqMan: RequirementsManager
 ) : SmartVDC() {
 
-    // TODO create on demand like storageEditor?
     private val navArgs = handle.navArgs<TaskEditorFragmentArgs>()
 
     private val args: TaskEditorArgs = navArgs.value.args
-
-    private val taskObs = taskBuilder.task(args.taskId).observeOn(Schedulers.computation())
-
-    private val editorObs = taskObs
-        .filter { it.editor != null }
-        .map { it.editor!! }
-
-    private val editorDataObs = editorObs.flatMap { it.editorData }
+    private val taskId: Task.Id = run {
+        log(TAG) { "navArgs=${navArgs.value}" }
+        val handleKey = "newId"
+        when {
+            handle.contains(handleKey) -> handle.get<Task.Id>(handleKey)!!
+            navArgs.value.args.taskId != null -> navArgs.value.args.taskId!!
+            else -> Task.Id().also {
+                // ID was null, we create a new one
+                handle.set(handleKey, it)
+            }
+        }
+    }
+    private val taskObs = taskBuilder
+        .load(taskId)
+        .observeOn(Schedulers.computation())
+        .switchIfEmpty(taskBuilder.createEditor(taskId, args.taskType))
+        .flatMapObservable { taskBuilder.task(it.taskId) }
 
     val navEvents = SingleLiveEvent<NavDirections>()
 
@@ -42,24 +52,25 @@ class TaskEditorFragmentVDC @Inject constructor(
                     if (reqs.all { it.satisfied }) {
                         when (taskData.taskType) {
                             Task.Type.BACKUP_SIMPLE -> TaskEditorFragmentDirections.actionTaskEditorFragmentToIntroFragment(
-                                taskId = args.taskId
+                                taskId = taskId
                             )
                             Task.Type.RESTORE_SIMPLE -> {
-                                val restoreData = editorDataObs.blockingFirst() as SimpleRestoreTaskEditor.Data
+                                val restoreData =
+                                    taskData.editor!!.editorData.blockingFirst() as SimpleRestoreTaskEditor.Data
                                 if (restoreData.backupTargets.size == 1) {
                                     TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreConfigFragment(
-                                        taskId = args.taskId
+                                        taskId = taskId
                                     )
                                 } else {
                                     TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreSourcesFragment(
-                                        taskId = args.taskId
+                                        taskId = taskId
                                     )
                                 }
                             }
                         }
                     } else {
                         TaskEditorFragmentDirections.actionTaskEditorFragmentToRequirementsFragment(
-                            taskId = args.taskId
+                            taskId = taskId
                         )
                     }
                 }
@@ -67,9 +78,7 @@ class TaskEditorFragmentVDC @Inject constructor(
             .subscribe { navEvents.postValue(it) }
     }
 
-//    enum class StepFlow(@IdRes val start: Int) {
-//        BACKUP_SIMPLE(R.id.introFragment),
-//        RESTORE_SIMPLE(R.id.restoreSourcesFragment),
-//        RESTORE_SIMPLE_SINGLE(R.id.restoreConfigFragment);
-//    }
+    companion object {
+        val TAG = logTag("Task", "Editor", "VDC")
+    }
 }

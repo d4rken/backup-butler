@@ -6,6 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class TaskEditorArgs(
-    val taskId: Task.Id,
+    val taskId: Task.Id? = null,
     val taskType: Task.Type,
 ) : Parcelable

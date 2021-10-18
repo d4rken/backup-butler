@@ -1,7 +1,5 @@
 package eu.darken.bb.task.core
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.log
@@ -15,25 +13,11 @@ import javax.inject.Singleton
 
 @Singleton
 class TaskBuilder @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val taskRepo: TaskRepo,
     private val editors: @JvmSuppressWildcards Map<Task.Type, TaskEditor.Factory<out TaskEditor>>
 ) {
 
     private val hotData = HotData<Map<Task.Id, Data>>(tag = TAG) { mutableMapOf() }
-
-//    init {
-//        hotData.data
-//            .observeOn(Schedulers.computation())
-//            .subscribe { dataMap ->
-//                dataMap.entries.forEach { (uuid, data) ->
-//                    if (data.editor == null) {
-//                        val editor = editors.getValue(data.taskType).create(uuid)
-//                        update(uuid) { it!!.copy(editor = editor) }.blockingGet()
-//                    }
-//                }
-//            }
-//    }
 
     fun task(id: Task.Id): Observable<Data> = hotData.data
         .filter { it.containsKey(id) }

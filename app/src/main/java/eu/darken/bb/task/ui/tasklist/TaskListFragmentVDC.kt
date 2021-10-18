@@ -67,13 +67,9 @@ class TaskListFragmentVDC @Inject constructor(
     }
 
     fun newTask() {
-        taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
-            .subscribe { data ->
-                // TODO use fragment result system, don't precreate taskBuilder?
-                AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskEditor(
-                    args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.BACKUP_SIMPLE)
-                ).run { navEvents.postValue(this) }
-            }
+        AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskEditor(
+            args = TaskEditorArgs(taskType = Task.Type.BACKUP_SIMPLE)
+        ).run { navEvents.postValue(this) }
     }
 
     fun editTask(item: Task) {
