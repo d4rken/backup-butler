@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.jakewharton.rxbinding4.view.longClicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -33,7 +35,15 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
     @Inject lateinit var adapter: RestoreConfigAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.recyclerview.setupDefaults(adapter, dividers = false)
+        ui.apply {
+            configList.setupDefaults(adapter, dividers = false)
+            toolbar.setupWithNavController(findNavController())
+
+            setupbar.apply {
+                buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }
+                buttonPositivePrimary.longClicks().subscribe { vdc.saveTask() }
+            }
+        }
 
         vdc.summaryState.observe2(this, ui) { state ->
             countBackups.setTextQuantity(R.plurals.task_editor_restore_x_backups_types_desc, state.backupTypes.size)
@@ -89,8 +99,8 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
             val adapterData = defaultItems.plus(customItems)
             adapter.update(adapterData)
 
-            recyclerview.setInvisible(state.isWorking || state.isLoading)
-            loadingOverlayBackuplist.setInvisible(!state.isWorking && !state.isLoading)
+            configList.setInvisible(state.isWorking || state.isLoading)
+            configListOverlay.setInvisible(!state.isWorking && !state.isLoading)
 
             setupbar.isEnabled = !state.isWorking && !state.isLoading
         }
@@ -102,10 +112,9 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
 
         vdc.errorEvent.observe2(this) { toastError(it) }
 
-        vdc.finishEvent.observe2(this) { finishActivity() }
-
-        ui.setupbar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }
-        ui.setupbar.buttonPositivePrimary.longClicks().subscribe { vdc.saveTask() }
+        vdc.finishEvent.observe2(this) {
+            findNavController().popBackStack(R.id.advancedModeFragment, false)
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

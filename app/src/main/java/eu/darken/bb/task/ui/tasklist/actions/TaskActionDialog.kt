@@ -12,6 +12,7 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.databinding.TaskListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
@@ -47,6 +48,8 @@ class TaskActionDialog : BottomSheetDialogFragment() {
             ui.progressCircular.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
         }
+
+        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

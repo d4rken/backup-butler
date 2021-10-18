@@ -35,12 +35,12 @@ interface Task {
 
     fun getDescription(context: Context): String
 
-    @Keep
+    @Parcelize @Keep
     enum class Type(
         @DrawableRes val iconRes: Int,
         @StringRes val labelRes: Int,
         val value: String
-    ) {
+    ) : Parcelable {
         BACKUP_SIMPLE(R.drawable.ic_backup, R.string.task_backup_label, "backup_simple"),
         RESTORE_SIMPLE(R.drawable.ic_restore, R.string.task_restore_label, "restore_simple");
 

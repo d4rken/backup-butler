@@ -3,7 +3,9 @@ package eu.darken.bb.task.ui.editor.common.intro
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.navigation.doNavigate
@@ -23,20 +25,18 @@ class IntroFragment : SmartFragment(R.layout.task_editor_intro_fragment) {
     private val vdc: IntroFragmentVDC by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ui.apply {
+            toolbar.setupWithNavController(findNavController())
+
+            nameInput.userTextChangeEvents().subscribe { vdc.updateTaskName(it.text.toString()) }
+
+            setupbar.buttonPositiveSecondary.clicksDebounced().subscribe { vdc.onContinue() }
+        }
+
         vdc.state.observe2(this, ui) {
             nameInput.setTextIfDifferent(it.label)
         }
-
-        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateTaskName(it.text.toString()) }
-
-        ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
-            vdc.onContinue()
-        }
-
-        vdc.navEvents.observe2(this) {
-            doNavigate(it)
-        }
-
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
@@ -13,9 +14,11 @@ import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentDirections
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -38,7 +41,7 @@ class ContentPageFragmentVDC @Inject constructor(
 
     private val stater: Stater<State> = Stater(tag = TAG) { State() }
     val state = stater.liveData
-
+    val navEvents = SingleLiveEvent<NavDirections>()
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
@@ -85,7 +88,11 @@ class ContentPageFragmentVDC @Inject constructor(
                     .map { data.taskId }
             }
             .doFinally { finishEvent.postValue(Any()) }
-            .subscribe { id -> taskBuilder.launchEditor(id) }
+            .subscribe { id ->
+                ItemContentsFragmentDirections.actionItemContentsFragmentToTaskEditor(
+                    args = TaskEditorArgs(taskId = id, taskType = Task.Type.RESTORE_SIMPLE)
+                ).run { navEvents.postValue(this) }
+            }
             .withScopeVDC(this)
     }
 

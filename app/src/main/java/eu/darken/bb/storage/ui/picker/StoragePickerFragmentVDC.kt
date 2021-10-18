@@ -4,42 +4,47 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.editor.StorageEditorResult
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
 class StoragePickerFragmentVDC @Inject constructor(
-    private val handle: SavedStateHandle,
+    handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
-    private val storageBuilder: StorageBuilder,
     storageManager: StorageManager
 ) : SmartVDC() {
     private val navArgs by handle.navArgs<StoragePickerFragmentArgs>()
-    private val taskId: Task.Id = navArgs.taskId
+    private val taskId: Task.Id? = navArgs.taskId
 
-    private val editorObs = taskBuilder.task(taskId)
+    val navEvents = SingleLiveEvent<NavDirections>()
+
+    private val alreadyAddedObs = (taskId?.let { Observable.just(it) } ?: Observable.empty())
         .observeOn(Schedulers.computation())
+        .flatMap { taskBuilder.task(it) }
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
-    private val editorData = editorObs.flatMap { it.editorData }
-    val navEvents = SingleLiveEvent<NavDirections>()
+        .flatMap { it.editorData }
+        .map { it.destinations }
+        .switchIfEmpty(Observable.just(emptySet()))
 
     val storageData = storageManager.infos()
         .observeOn(Schedulers.computation())
         .takeUntil { optInfos -> optInfos.all { it.isFinished } }
         .flatMap { all ->
-            editorData
-                .map { it.destinations }.map { alreadyAdded ->
+            alreadyAddedObs
+                .map { alreadyAdded ->
                     return@map all.filter { !alreadyAdded.contains(it.storageId) }
                 }
                 .map { infos ->
@@ -56,19 +61,18 @@ class StoragePickerFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<StoragePickerResult?>()
 
     fun createStorage() {
-        storageBuilder.createEditor()
-            .observeOn(Schedulers.computation())
-            .subscribe { data ->
-                // TODO use fragment result api
-                StoragePickerFragmentDirections.actionStoragePickerFragmentToStorageEditor()
-                    .run { navEvents.postValue(this) }
-            }
+        StoragePickerFragmentDirections.actionStoragePickerFragmentToStorageEditor()
+            .run { navEvents.postValue(this) }
     }
 
     fun selectStorage(item: Storage.InfoOpt) {
         StoragePickerResult(
             storageId = item.storageId
         ).run { finishEvent.postValue(this) }
+    }
+
+    fun onStorageEditorResult(result: StorageEditorResult) {
+        log(TAG) { "onStorageEditorResult(result=$result)" }
     }
 
     data class StorageState(
@@ -78,6 +82,6 @@ class StoragePickerFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = logTag("Task", "Editor", "Destinations", "Picker", "VDC")
+        private val TAG = logTag("Storage", "Picker", "VDC")
     }
 }

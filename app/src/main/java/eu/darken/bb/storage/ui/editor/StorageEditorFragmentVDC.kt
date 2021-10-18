@@ -39,10 +39,6 @@ class StorageEditorFragmentVDC @Inject constructor(
         .flatMapObservable { storageBuilder.storage(it.storageId) }
         .observeOn(Schedulers.computation())
 
-    private val editorObs = storageObs
-        .filter { it.editor != null }
-        .map { it.editor!! }
-
     val finishEvent = SingleLiveEvent<StorageEditorResult?>()
     val navEvents = SingleLiveEvent<NavDirections>()
 
@@ -59,19 +55,6 @@ class StorageEditorFragmentVDC @Inject constructor(
                 }
             }
             .subscribe { navEvents.postValue(it) }
-    }
-
-    fun finishEditor(result: StorageEditorResult?) {
-        log(TAG) { "finishEditor(result=$result)" }
-        if (result != null) {
-            finishEvent.postValue(result)
-        } else {
-            storageBuilder.remove(storageId)
-                .observeOn(Schedulers.computation())
-                .subscribe { _ ->
-                    finishEvent.postValue(null)
-                }
-        }
     }
 
     companion object {

@@ -1,7 +1,9 @@
 package eu.darken.bb.task.ui.tasklist.actions
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.subscribeNullable
@@ -11,6 +13,7 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -29,6 +32,7 @@ class TaskActionDialogVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
     private val stateUpdater = Stater { State(loading = true) }
     val state = stateUpdater.liveData
+    val navEvents = SingleLiveEvent<NavDirections>()
 
     init {
         taskRepo.get(taskId)
@@ -70,7 +74,11 @@ class TaskActionDialogVDC @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                    .subscribe { taskBuilder.launchEditor(it.taskId) }
+                    .subscribe {
+                        TaskActionDialogDirections.actionTaskActionDialogToTaskEditor(
+                            args = TaskEditorArgs(taskId = it.taskId, taskType = Task.Type.BACKUP_SIMPLE)
+                        ).run { navEvents.postValue(this) }
+                    }
             }
             DELETE -> {
                 Single.timer(200, TimeUnit.MILLISECONDS)

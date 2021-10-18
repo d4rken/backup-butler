@@ -5,20 +5,20 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
 import eu.darken.bb.storage.ui.list.StorageAdapter
-import eu.darken.bb.storage.ui.picker.StoragePickerFragmentArgs
 import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
 import javax.inject.Inject
 
@@ -33,19 +33,23 @@ class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupStoragePickerListener {
-            log { "setupStoragePickerListener(): $it" }
-            vdc.onStoragePicked(it)
-        }
+        setupStoragePickerListener { vdc.onStoragePicked(it) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.listDestinations.setupDefaults(adapter)
+        ui.apply {
+            toolbar.setupWithNavController(findNavController())
+
+            setupbar.apply {
+                buttonPositivePrimary.clicksDebounced().subscribe { vdc.executeTask() }
+                buttonPositiveSecondary.clicksDebounced().subscribe { vdc.saveTask() }
+            }
+            fab.clicksDebounced().subscribe { vdc.addStorage() }
+
+            listDestinations.setupDefaults(adapter)
+        }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
-
-        ui.setupbar.buttonPositivePrimary.clicksDebounced().subscribe { vdc.executeTask() }
-        ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe { vdc.saveTask() }
 
         vdc.state.observe2(this, ui) { state ->
             adapter.update(state.destinations)
@@ -54,14 +58,11 @@ class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_
             setupbar.buttonPositiveSecondary.isEnabled = state.destinations.isNotEmpty()
         }
 
-        ui.fab.clicksDebounced().subscribe {
-            findNavController().navigate(
-                R.id.nav_action_show_picker,
-                StoragePickerFragmentArgs(taskId = navArgs.taskId).toBundle()
-            )
+        vdc.navEvents.observe2(this) { doNavigate(it) }
+        vdc.finishEvent.observe2(this) {
+            findNavController().popBackStack(R.id.advancedModeFragment, false)
         }
 
-        vdc.finishEvent.observe2(this) { finishActivity() }
         super.onViewCreated(view, savedInstanceState)
     }
 }

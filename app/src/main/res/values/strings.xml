@@ -10,7 +10,7 @@
     <string name="notification_channel_backup_progress_label">Backup progress notifications</string>
     <string name="progress_loading_task_label">Loading task</string>
     <string name="progress_processing_task_label">Processing task</string>
-    <string name="task_backup_new_label">New backup task</string>
+    <string name="task_editor_backup_new_label">New backup task</string>
     <string name="overview_tab_label">Overview</string>
     <string name="scheduler_tab_label">Schedules</string>
     <string name="task_tab_label">Tasks</string>

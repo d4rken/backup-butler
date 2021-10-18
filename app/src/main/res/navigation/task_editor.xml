@@ -3,39 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/task_editor"
-    app:startDestination="@id/requirementsFragment">
+    app:startDestination="@id/taskEditorFragment">
+
+    <fragment
+        android:id="@+id/taskEditorFragment"
+        android:name="eu.darken.bb.task.ui.editor.TaskEditorFragment"
+        android:label="TaskEditorFragment">
+        <argument
+            android:name="args"
+            app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        <action
+            android:id="@+id/action_taskEditorFragment_to_requirementsFragment"
+            app:destination="@id/requirementsFragment"
+            app:popUpTo="@id/taskEditorFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_taskEditorFragment_to_restoreSourcesFragment"
+            app:destination="@id/restoreSourcesFragment"
+            app:popUpTo="@id/taskEditorFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_taskEditorFragment_to_introFragment"
+            app:destination="@id/introFragment"
+            app:popUpTo="@id/taskEditorFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_taskEditorFragment_to_restoreConfigFragment"
+            app:destination="@id/restoreConfigFragment"
+            app:popUpTo="@id/taskEditorFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/restoreSourcesFragment"
         android:name="eu.darken.bb.task.ui.editor.restore.sources.RestoreSourcesFragment"
-        android:label="@string/backups_label"
         tools:layout="@layout/task_editor_restore_sources_fragment">
-        <action
-            android:id="@+id/nav_action_next"
-            app:destination="@id/restoreConfigFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
+        <action
+            android:id="@+id/action_restoreSourcesFragment_to_restoreConfigFragment"
+            app:destination="@id/restoreConfigFragment" />
     </fragment>
     <fragment
         android:id="@+id/restoreConfigFragment"
         android:name="eu.darken.bb.task.ui.editor.restore.config.RestoreConfigFragment"
-        android:label="@string/general_configuration_label"
         tools:layout="@layout/task_editor_restore_configs_fragment">
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
     </fragment>
 
-
     <fragment
         android:id="@+id/introFragment"
         android:name="eu.darken.bb.task.ui.editor.common.intro.IntroFragment"
-        android:label="@string/general_introduction_label"
         tools:layout="@layout/task_editor_intro_fragment">
         <argument
             android:name="taskId"
@@ -51,7 +72,6 @@
     <fragment
         android:id="@+id/sourcesFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment"
-        android:label="@string/backup_generators_label"
         tools:layout="@layout/task_editor_backup_generators_fragment">
         <action
             android:id="@+id/nav_action_next"
@@ -74,31 +94,21 @@
     <fragment
         android:id="@+id/destinationsFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment"
-        android:label="@string/task_editor_backup_destinations_label"
         tools:layout="@layout/task_editor_backup_storages_fragment">
+        <argument
+            android:name="taskId"
+            app:argType="eu.darken.bb.task.core.Task$Id" />
         <action
-            android:id="@+id/nav_action_show_picker"
-            app:destination="@id/storagePickerFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-        <argument
-            android:name="taskId"
-            app:argType="eu.darken.bb.task.core.Task$Id" />
-    </fragment>
-    <fragment
-        android:id="@+id/storagePickerFragment"
-        android:name="eu.darken.bb.storage.ui.picker.StoragePickerFragment"
-        tools:layout="@layout/task_editor_backup_storages_picker_fragment">
-        <argument
-            android:name="taskId"
-            app:argType="eu.darken.bb.task.core.Task$Id" />
+            android:id="@+id/action_destinationsFragment_to_storage_picker"
+            app:destination="@id/storage_picker">
+            <argument
+                android:name="taskId"
+                app:argType="eu.darken.bb.task.core.Task$Id" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/generatorPickerFragment"
         android:name="eu.darken.bb.task.ui.editor.backup.sources.picker.GeneratorPickerFragment"
-        android:label="@string/backup_add_generator_action"
         tools:layout="@layout/task_editor_backup_generators_picker_fragment">
         <argument
             android:name="taskId"
@@ -107,7 +117,6 @@
     <fragment
         android:id="@+id/requirementsFragment"
         android:name="eu.darken.bb.task.ui.editor.common.requirements.RequirementsFragment"
-        android:label="@string/requirements_label"
         tools:layout="@layout/task_editor_requirements_fragment">
         <argument
             android:name="taskId"
@@ -127,4 +136,5 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
+    <include app:graph="@navigation/storage_picker" />
 </navigation>

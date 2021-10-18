@@ -30,7 +30,10 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
     @Inject lateinit var adapter: TaskListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.tasksList.setupDefaults(adapter)
+        ui.apply {
+            tasksList.setupDefaults(adapter)
+            fab.clicks().subscribe { vdc.newTask() }
+        }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
@@ -39,7 +42,6 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
             adapter.update(state.tasks)
         }
 
-        ui.fab.clicks().subscribe { vdc.newTask() }
 
         vdc.editTaskEvent.observe2(this) {
             doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskActionDialog(it.taskId))
@@ -59,6 +61,7 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
                 snackbar = null
             }
         }
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

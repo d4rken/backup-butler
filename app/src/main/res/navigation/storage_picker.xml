@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/storage_picker"
+    app:startDestination="@id/storagePickerFragment">
+
+    <fragment
+        android:id="@+id/storagePickerFragment"
+        android:name="eu.darken.bb.storage.ui.picker.StoragePickerFragment"
+        tools:layout="@layout/storage_picker_fragment">
+
+        <argument
+            android:name="taskId"
+            app:argType="eu.darken.bb.task.core.Task$Id"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <action
+            android:id="@+id/action_storagePickerFragment_to_storage_editor"
+            app:destination="@id/storage_editor">
+            <argument
+                android:name="storageId"
+                android:defaultValue="@null"
+                app:argType="eu.darken.bb.storage.core.Storage$Id"
+                app:nullable="true" />
+        </action>
+    </fragment>
+    <include app:graph="@navigation/storage_editor" />
+</navigation>

@@ -1,6 +1,7 @@
 package eu.darken.bb.storage.ui.viewer.item.actions
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.R
@@ -18,6 +19,7 @@ import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -39,6 +41,7 @@ class ItemActionDialogVDC @Inject constructor(
 
     val actionEvent = SingleLiveEvent<Triple<ItemAction, Storage.Id, BackupSpec.Id>>()
     val errorEvents = SingleLiveEvent<Throwable>()
+    val navEvents = SingleLiveEvent<NavDirections>()
     val finishedEvent = SingleLiveEvent<Any>()
 
     init {
@@ -114,7 +117,9 @@ class ItemActionDialogVDC @Inject constructor(
                     }
                 }
                 .subscribe({
-                    taskBuilder.launchEditor(it)
+                    ItemActionDialogDirections.actionStorageItemActionDialogToTaskEditor(
+                        args = TaskEditorArgs(taskId = it, taskType = Task.Type.RESTORE_SIMPLE)
+                    ).run { navEvents.postValue(this) }
                     finishedEvent.postValue(Any())
                 }, { error ->
                     errorEvents.postValue(error)

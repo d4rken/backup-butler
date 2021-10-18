@@ -54,6 +54,13 @@
                 app:argType="eu.darken.bb.storage.core.Storage$Id"
                 app:nullable="true" />
         </action>
+        <action
+            android:id="@+id/action_advancedModeFragment_to_task_editor"
+            app:destination="@id/task_editor">
+            <argument
+                android:name="args"
+                app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        </action>
     </fragment>
 
     <dialog
@@ -71,6 +78,13 @@
                 android:name="storageId"
                 app:argType="eu.darken.bb.storage.core.Storage$Id" />
         </action>
+        <action
+            android:id="@+id/action_storageActionDialog_to_task_editor"
+            app:destination="@id/task_editor">
+            <argument
+                android:name="args"
+                app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        </action>
     </dialog>
     <dialog
         android:id="@+id/taskActionDialog"
@@ -80,6 +94,13 @@
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
+        <action
+            android:id="@+id/action_taskActionDialog_to_task_editor"
+            app:destination="@id/task_editor">
+            <argument
+                android:name="args"
+                app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        </action>
     </dialog>
     <dialog
         android:id="@+id/generatorsActionDialog"
@@ -156,8 +177,12 @@
         android:label="WizardAppsFragment"
         tools:layout="@layout/simple_mode_wizard_apps_fragment">
         <action
-            android:id="@+id/action_wizardAppsFragment_to_storagePickerFragment2"
-            app:destination="@id/storagePickerFragment" />
+            android:id="@+id/action_wizardAppsFragment_to_storage_picker"
+            app:destination="@id/storage_picker">
+            <argument
+                android:name="taskId"
+                app:argType="eu.darken.bb.task.core.Task$Id" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/wizardFilesFragment"
@@ -165,20 +190,12 @@
         android:label="WizardFilesFragment"
         tools:layout="@layout/simple_mode_wizard_files_fragment">
         <action
-            android:id="@+id/action_wizardFilesFragment_to_storagePickerFragment"
-            app:destination="@id/storagePickerFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/storagePickerFragment"
-        android:name="eu.darken.bb.storage.ui.picker.StoragePickerFragment"
-        android:label="StoragePickerFragment"
-        tools:layout="@layout/task_editor_backup_storages_picker_fragment">
-        <argument
-            android:name="taskId"
-            app:argType="eu.darken.bb.task.core.Task$Id" />
-        <action
-            android:id="@+id/action_storagePickerFragment_to_storage_editor"
-            app:destination="@id/storage_editor" />
+            android:id="@+id/action_wizardFilesFragment_to_storage_picker"
+            app:destination="@id/storage_picker">
+            <argument
+                android:name="taskId"
+                app:argType="eu.darken.bb.task.core.Task$Id" />
+        </action>
     </fragment>
     <include app:graph="@navigation/storage_editor" />
     <fragment
@@ -195,6 +212,8 @@
                 app:nullable="true" />
         </action>
     </fragment>
+    <include app:graph="@navigation/task_editor" />
+    <include app:graph="@navigation/storage_picker" />
 
 
 </navigation>

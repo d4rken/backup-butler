@@ -14,8 +14,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             style="@style/Toolbar"
-            app:subtitle="@string/storage_picker_title"
-            app:title="@string/task_backup_new_label" />
+            app:title="@string/storage_picker_title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

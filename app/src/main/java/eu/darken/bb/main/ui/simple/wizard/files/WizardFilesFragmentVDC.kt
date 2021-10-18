@@ -66,7 +66,7 @@ class WizardFilesFragmentVDC @Inject constructor(
                             editorData
                                 .take(1)
                                 .subscribe { data ->
-                                    WizardFilesFragmentDirections.actionWizardFilesFragmentToStoragePickerFragment(
+                                    WizardFilesFragmentDirections.actionWizardFilesFragmentToStoragePicker(
                                         taskId = data.taskId
                                     ).run { navEvents.postValue(this) }
                                 }

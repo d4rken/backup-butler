@@ -1,13 +1,11 @@
 package eu.darken.bb.task.core
 
 import android.content.Context
-import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.task.ui.editor.TaskEditorActivity
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -117,13 +115,13 @@ class TaskBuilder @Inject constructor(
                 .doOnSuccess { log(TAG) { "Created new editor: $it" } }
         )
 
-    fun launchEditor(taskId: Task.Id) {
-        Timber.tag(TAG).v("Starting editor for ID %s", taskId)
-        val intent = Intent(context, TaskEditorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putTaskId(taskId)
-        context.startActivity(intent)
-    }
+//    fun launchEditor(taskId: Task.Id) {
+//        Timber.tag(TAG).v("Starting editor for ID %s", taskId)
+//        val intent = Intent(context, TaskEditorActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        intent.putTaskId(taskId)
+//        context.startActivity(intent)
+//    }
 
     data class Data(
         val taskId: Task.Id,

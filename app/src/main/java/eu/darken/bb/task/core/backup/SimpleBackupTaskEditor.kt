@@ -5,6 +5,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.common.HotData
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
@@ -56,24 +58,36 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 
     fun addDestination(storageId: Storage.Id) {
         editorDataPub.update {
+            if (it.destinations.contains(storageId)) {
+                log(TAG, WARN) { "Storage.Id was already added as destination: $storageId" }
+            }
             it.copy(destinations = it.destinations.toMutableSet().apply { add(storageId) }.toSet())
         }
     }
 
     fun removeDestination(storageId: Storage.Id) {
         editorDataPub.update { task ->
+            if (!task.destinations.contains(storageId)) {
+                log(TAG, WARN) { "Task ($taskId) does not contain destination $storageId" }
+            }
             task.copy(destinations = task.destinations.toMutableSet().filterNot { it == storageId }.toSet())
         }
     }
 
     fun addSource(generatorId: Generator.Id) {
         editorDataPub.update {
+            if (it.sources.contains(generatorId)) {
+                log(TAG, WARN) { "Generator.Id was already added as destination: $generatorId" }
+            }
             it.copy(sources = it.sources.toMutableSet().apply { add(generatorId) }.toSet())
         }
     }
 
     fun removeSource(generatorId: Generator.Id) {
         editorDataPub.update { task ->
+            if (task.sources.contains(generatorId)) {
+                log(TAG, WARN) { "Task ($taskId) does not contain source: $generatorId" }
+            }
             task.copy(sources = task.sources.toMutableSet().filterNot { it == generatorId }.toSet())
         }
     }

@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.modular.ModularAdapter
@@ -18,6 +20,7 @@ import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorRequirementsFragmentBinding
+import eu.darken.bb.task.core.Task
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,25 +33,36 @@ class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fra
     @Inject lateinit var adapter: RequirementsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.requirementsList.apply {
-            isNestedScrollingEnabled = false
-            setupDefaults(adapter, dividers = false)
+        ui.apply {
+            toolbar.apply {
+                setupWithNavController(findNavController())
+                setNavigationIcon(R.drawable.ic_baseline_close_24)
+            }
+            requirementsList.apply {
+                isNestedScrollingEnabled = false
+                setupDefaults(adapter, dividers = false)
+            }
+            explanationMoreAction.clicksDebounced().subscribe {
+                AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
+            }
+            setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
+                vdc.onContinue()
+            }
         }
+
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.runMainAction(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { adapter.update(it.requirements) }
+        vdc.state.observe2(this, ui) {
+            toolbar.title = when (it.taskType) {
+                Task.Type.BACKUP_SIMPLE -> getString(R.string.task_editor_backup_new_label)
+                Task.Type.RESTORE_SIMPLE -> getString(R.string.task_editor_restore_new_label)
+            }
+            adapter.update(it.requirements)
+        }
         vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.runTimePermissionEvent.observe2(this) { req ->
             requestPermissions(arrayOf(req.permission), 1)
-        }
-
-        ui.explanationMoreAction.clicksDebounced().subscribe {
-            AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
-        }
-
-        ui.setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
-            vdc.onContinue()
         }
 
         super.onViewCreated(view, savedInstanceState)

@@ -1,6 +1,7 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
@@ -45,6 +46,7 @@ class RestoreSourcesFragmentVDC @Inject constructor(
     private val backupsStater = Stater { BackupsState() }
     val backupsState = backupsStater.liveData
 
+    val navEvents = SingleLiveEvent<NavDirections>()
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
@@ -80,11 +82,16 @@ class RestoreSourcesFragmentVDC @Inject constructor(
         editor.excludeBackup(infoOpt.backupId)
     }
 
+    fun continueWithSources() {
+        RestoreSourcesFragmentDirections.actionRestoreSourcesFragmentToRestoreConfigFragment(
+            taskId = navArgs.taskId
+        ).run { navEvents.postValue(this) }
+    }
+
     data class CountState(
         val sourceBackups: List<Backup.Target> = emptyList(),
         override val workIds: Set<WorkId> = setOf(WorkId.DEFAULT)
     ) : WorkId.State
-
 
     data class BackupsState(
         val backups: List<Backup.InfoOpt> = emptyList(),

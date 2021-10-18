@@ -31,6 +31,13 @@
         <argument
             android:name="specId"
             app:argType="eu.darken.bb.backup.core.BackupSpec$Id" />
+        <action
+            android:id="@+id/action_itemContentsFragment_to_task_editor"
+            app:destination="@id/task_editor">
+            <argument
+                android:name="args"
+                app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        </action>
     </fragment>
     <activity
         android:id="@+id/storageViewerActivity"
@@ -57,6 +64,13 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_storageItemActionDialog_to_task_editor"
+            app:destination="@id/task_editor">
+            <argument
+                android:name="args"
+                app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
+        </action>
     </dialog>
     <fragment
         android:id="@+id/contentPageFragment"
@@ -73,6 +87,7 @@
             android:name="backupId"
             app:argType="eu.darken.bb.backup.core.Backup$Id" />
     </fragment>
+    <include app:graph="@navigation/task_editor" />
 
 
 </navigation>

@@ -17,6 +17,7 @@ import eu.darken.bb.storage.ui.list.actions.StorageAction.*
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -101,7 +102,6 @@ class StorageActionDialogVDC @Inject constructor(
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe(
                         {
-                            // TODO why not navigate from dialog directly?
                             StorageActionDialogDirections.actionStorageActionDialogToStorageEditor(
                                 storageId = it.storageId
                             ).run { navEvents.postValue(this) }
@@ -121,7 +121,9 @@ class StorageActionDialogVDC @Inject constructor(
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe({
-                        taskBuilder.launchEditor(it)
+                        StorageActionDialogDirections.actionStorageActionDialogToTaskEditor(
+                            args = TaskEditorArgs(taskId = it, taskType = Task.Type.RESTORE_SIMPLE)
+                        ).run { navEvents.postValue(this) }
                         closeDialogEvent.postValue(Any())
                     }, {
                         errorEvent.postValue(it)

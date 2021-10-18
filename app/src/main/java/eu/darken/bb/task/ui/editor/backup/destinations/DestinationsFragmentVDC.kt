@@ -1,6 +1,7 @@
 package eu.darken.bb.task.ui.editor.backup.destinations
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
@@ -41,7 +42,7 @@ class DestinationsFragmentVDC @Inject constructor(
 
     private val stater: Stater<State> = Stater { State() }
     val state = stater.liveData
-
+    val navEvents = SingleLiveEvent<NavDirections>()
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
@@ -92,6 +93,13 @@ class DestinationsFragmentVDC @Inject constructor(
             .subscribe { editor ->
                 editor.addDestination(result.storageId)
             }
+    }
+
+    fun addStorage() {
+        // Result gets returned via fragment result listener, see onStoragePicked
+        DestinationsFragmentDirections.actionDestinationsFragmentToStoragePicker(
+            taskId = taskId
+        ).run { navEvents.postValue(this) }
     }
 
     data class State(

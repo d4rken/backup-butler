@@ -1,18 +1,21 @@
 package eu.darken.bb.task.ui.tasklist
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,8 +35,8 @@ class TaskListFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     val editTaskEvent = SingleLiveEvent<EditActions>()
-
     val processorEvent = SingleLiveEvent<Boolean>()
+    val navEvents = SingleLiveEvent<NavDirections>()
 
     init {
         processorControl.progressHost
@@ -66,7 +69,10 @@ class TaskListFragmentVDC @Inject constructor(
     fun newTask() {
         taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE)
             .subscribe { data ->
-                taskBuilder.launchEditor(data.taskId)
+                // TODO use fragment result system, don't precreate taskBuilder?
+                AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskEditor(
+                    args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.BACKUP_SIMPLE)
+                ).run { navEvents.postValue(this) }
             }
     }
 

@@ -13,6 +13,7 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.setInvisible
@@ -69,8 +70,8 @@ class ItemActionDialog : BottomSheetDialogFragment() {
             findNavController().navigate(R.id.action_storageItemActionDialog_to_itemContentsFragment, args.toBundle())
         }
 
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }
-
         vdc.errorEvents.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)

@@ -38,10 +38,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".task.ui.editor.TaskEditorActivity"
-            android:parentActivityName=".main.ui.MainActivity"
-            android:theme="@style/AppThemeActionBar" />
-        <activity
             android:name=".backup.ui.generator.editor.GeneratorEditorActivity"
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
