@@ -14,7 +14,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.NormalmodeMainFragmentBinding
-import eu.darken.bb.main.ui.settings.SettingsActivity
+import eu.darken.bb.settings.ui.SettingsActivity
 
 @AndroidEntryPoint
 class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {

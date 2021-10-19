@@ -7,8 +7,8 @@ import eu.darken.bb.BackupButler
 import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.main.core.OnboardingSettings
 import eu.darken.bb.main.core.UISettings
+import eu.darken.bb.onboarding.core.OnboardingSettings
 import javax.inject.Inject
 
 @HiltViewModel

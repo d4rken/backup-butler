@@ -140,7 +140,7 @@
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
-        android:name="eu.darken.bb.main.ui.onboarding.hello.HelloStepFragment"
+        android:name="eu.darken.bb.onboarding.ui.hello.HelloStepFragment"
         android:label="HelloStepFragment"
         tools:layout="@layout/onboarding_step_hello_fragment">
         <action
@@ -149,7 +149,7 @@
     </fragment>
     <fragment
         android:id="@+id/costStepFragment"
-        android:name="eu.darken.bb.main.ui.onboarding.cost.CostStepFragment"
+        android:name="eu.darken.bb.onboarding.ui.cost.CostStepFragment"
         android:label="CostStepFragment"
         tools:layout="@layout/onboarding_step_cost_fragment">
         <action
@@ -158,7 +158,7 @@
     </fragment>
     <fragment
         android:id="@+id/modeStepFragment"
-        android:name="eu.darken.bb.main.ui.onboarding.mode.ModeStepFragment"
+        android:name="eu.darken.bb.onboarding.ui.mode.ModeStepFragment"
         android:label="ModeStepFragment"
         tools:layout="@layout/onboarding_step_mode_fragment">
         <action
@@ -169,7 +169,7 @@
     </fragment>
     <fragment
         android:id="@+id/betaStepFragment"
-        android:name="eu.darken.bb.main.ui.onboarding.beta.BetaStepFragment"
+        android:name="eu.darken.bb.onboarding.ui.beta.BetaStepFragment"
         android:label="BetaStepFragment"
         tools:layout="@layout/onboarding_step_beta_fragment">
         <action

@@ -42,7 +42,7 @@
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
-            android:name=".main.ui.settings.SettingsActivity"
+            android:name="eu.darken.bb.settings.ui.SettingsActivity"
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity

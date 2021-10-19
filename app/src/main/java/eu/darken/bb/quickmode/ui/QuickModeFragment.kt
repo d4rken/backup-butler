@@ -14,7 +14,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
-import eu.darken.bb.main.ui.settings.SettingsActivity
+import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
