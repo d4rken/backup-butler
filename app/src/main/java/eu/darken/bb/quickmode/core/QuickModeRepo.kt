@@ -1,9 +1,9 @@
 package eu.darken.bb.quickmode.core
 
+import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -13,25 +13,33 @@ import javax.inject.Singleton
 @Singleton
 class QuickModeRepo @Inject constructor(
     private val taskRepo: TaskRepo,
+    private val moshi: Moshi,
+    private val settings: QuickModeSettings,
 ) {
 
-    val appsData = HotData { AppsTaskData() }
+    private val appsConfigAdapter = moshi.adapter(AppsQuickModeConfig::class.java)
+    private val filesConfigAdapter = moshi.adapter(FilesQuickModeConfig::class.java)
 
-    data class AppsTaskData(
-        val taskId: Task.Id? = null,
-    )
+    val appsData = HotData {
+        settings.rawConfigApps?.let { appsConfigAdapter.fromJson(it) } ?: AppsQuickModeConfig()
+    }
 
-    val filesData = HotData { FilesTaskData() }
+    val filesData = HotData {
+        settings.rawConfigFiles?.let { filesConfigAdapter.fromJson(it) } ?: FilesQuickModeConfig()
+    }
 
-    data class FilesTaskData(
-        val taskId: Task.Id? = null,
-    )
+    init {
+        appsData.data.subscribe {
+            settings.rawConfigApps = appsConfigAdapter.toJson(it)
+        }
+        filesData.data.subscribe {
+            settings.rawConfigFiles = filesConfigAdapter.toJson(it)
+        }
+    }
 
-    fun removeFilesTask(): Completable = removeTask(Type.FILES)
-
-    private fun removeTask(type: Type): Completable = when (type) {
-        Type.APPS -> filesData.updateRx { FilesTaskData() }
-        Type.FILES -> filesData.updateRx { FilesTaskData() }
+    fun removeTask(type: QuickMode.Type): Completable = when (type) {
+        QuickMode.Type.APPS -> appsData.updateRx { AppsQuickModeConfig() }
+        QuickMode.Type.FILES -> filesData.updateRx { FilesQuickModeConfig() }
     }
         .doOnSubscribe { log(TAG) { "Removing task $type" } }
         .observeOn(Schedulers.computation())
@@ -39,16 +47,12 @@ class QuickModeRepo @Inject constructor(
         .flatMapCompletable {
             log(TAG) { "Task removed: $it" }
             if (it.taskId != null) {
-                taskRepo.remove(it.taskId).ignoreElement()
+                taskRepo.remove(it.taskId!!).ignoreElement()
             } else {
                 Completable.complete()
             }
         }
 
-    enum class Type {
-        APPS,
-        FILES
-    }
 
     companion object {
         private val TAG = logTag("QuickMode", "Repo")

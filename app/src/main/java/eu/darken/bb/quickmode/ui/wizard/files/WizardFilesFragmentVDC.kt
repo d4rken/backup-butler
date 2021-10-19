@@ -13,6 +13,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
+import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.ui.wizard.apps.WizardAppsFragmentVDC
 import eu.darken.bb.quickmode.ui.wizard.common.*
@@ -159,7 +160,7 @@ class WizardFilesFragmentVDC @Inject constructor(
 
     fun removeTask() {
         log(TAG) { "removeTask()" }
-        quickModeRepo.removeFilesTask().subscribe {
+        quickModeRepo.removeTask(QuickMode.Type.FILES).subscribe {
             navEvents.postValue(null)
         }
     }

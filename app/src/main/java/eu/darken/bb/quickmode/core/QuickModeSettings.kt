@@ -20,7 +20,21 @@ class QuickModeSettings @Inject constructor(
 
     val isHintAdvancedModeDismissed = preferences.createObservablePreference(PK_HINT_ADVANCED_MODE_DISMISSED, false)
 
+    var rawConfigApps: String?
+        get() = preferences.getString(PK_CONFIG_APPS, null)
+        set(value) = preferences.edit().putString(PK_CONFIG_APPS, value).apply()
+
+    var rawConfigFiles: String?
+        get() = preferences.getString(PK_CONFIG_FILES, null)
+        set(value) = preferences.edit().putString(PK_CONFIG_FILES, value).apply()
+
+
     override val preferenceDataStore: PreferenceDataStore = object : PreferenceStoreMapper() {
+        override fun getString(key: String, defValue: String?): String? = when (key) {
+            PK_CONFIG_APPS -> rawConfigApps
+            else -> super.getString(key, defValue)
+        }
+
         override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
             PK_HINT_ADVANCED_MODE_DISMISSED -> isHintAdvancedModeDismissed.value
             else -> super.getBoolean(key, defValue)
@@ -35,8 +49,10 @@ class QuickModeSettings @Inject constructor(
 
     companion object {
         internal val TAG = logTag("QuickMode", "Settings")
-        const val PREF_FILE = "settings_mode_simple"
+        const val PREF_FILE = "settings_quickmode"
 
-        private const val PK_HINT_ADVANCED_MODE_DISMISSED = "mode.simple.hint.advancedmode.dismissed"
+        private const val PK_CONFIG_APPS = "quickmode.config.apps.raw"
+        private const val PK_CONFIG_FILES = "quickmode.config.files.raw"
+        private const val PK_HINT_ADVANCED_MODE_DISMISSED = "quickmode.hint.advancedmode.dismissed"
     }
 }

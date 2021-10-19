@@ -16,6 +16,7 @@ import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.moshi.*
 import eu.darken.bb.processor.core.mm.CachePath
 import eu.darken.bb.processor.core.mm.Props
+import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 import java.util.*
@@ -39,6 +40,7 @@ class AppModule {
         .add(Backup.MetaData.MOSHI_FACTORY)
         .add(Props.MOSHI_FACTORY)
         .add(Task.MOSHI_FACTORY)
+        .add(QuickMode.Config.MOSHI_FACTORY)
         .add(FileAdapter())
         .add(BackupIdAdapter())
         .add(UUIDAdapter())
