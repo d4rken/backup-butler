@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced
+package eu.darken.bb.main.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,29 +13,25 @@ import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.NormalmodeMainFragmentBinding
+import eu.darken.bb.databinding.MainFragmentBinding
 import eu.darken.bb.settings.ui.SettingsActivity
 
 @AndroidEntryPoint
-class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {
-    val vdc: AdvancedModeFragmentVDC by viewModels()
-    val ui: NormalmodeMainFragmentBinding by viewBinding()
+class MainFragment : SmartFragment(R.layout.main_fragment) {
+    val vdc: MainFragmentVDC by viewModels()
+    val ui: MainFragmentBinding by viewBinding()
 
-    lateinit var pagerAdapter: PagerAdapter
+    lateinit var adapter: MainPagerAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.apply {
-            toolbar.subtitle = "Advanced mode"
-        }
-
         vdc.state.observe2(this, ui) { state ->
-            pagerAdapter = PagerAdapter(childFragmentManager, lifecycle, state.pages)
+            adapter = MainPagerAdapter(childFragmentManager, lifecycle, state.pages)
 
-            viewpager.adapter = pagerAdapter
+            viewpager.adapter = adapter
             tablayout.tabMode = TabLayout.MODE_SCROLLABLE
             // When smoothScroll is enabled and we navigate to an unloaded fragment, ??? happens we jump to the wrong position
             TabLayoutMediator(tablayout, viewpager, true, false) { tab, position ->
-                tab.setText(pagerAdapter.pages[position].titleRes)
+                tab.setText(adapter.pages[position].titleRes)
             }.attach()
 
             toolbar.menu.apply {

@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced
+package eu.darken.bb.main.ui
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
@@ -14,8 +14,8 @@ import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.VDC
 import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
-import eu.darken.bb.main.ui.advanced.debug.DebugFragment
-import eu.darken.bb.main.ui.advanced.overview.OverviewFragment
+import eu.darken.bb.main.ui.debug.DebugFragment
+import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.schedule.ui.list.ScheduleListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
@@ -24,7 +24,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class AdvancedModeFragmentVDC @Inject constructor(
+class MainFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val reportABug: ReportABug,
     private val uiSettings: UISettings,
@@ -36,7 +36,7 @@ class AdvancedModeFragmentVDC @Inject constructor(
     val navEvents = SingleLiveEvent<NavDirections>()
 
     data class State(
-        val pages: List<PagerAdapter.Page>,
+        val pages: List<MainPagerAdapter.Page>,
         val pagePosition: Int,
         val showDebugStuff: Boolean,
         val isRecordingDebug: Boolean,
@@ -48,14 +48,14 @@ class AdvancedModeFragmentVDC @Inject constructor(
             uiSettings.showDebugPage.observable
         ) { debug, showDebug ->
             val basePages = listOf(
-                PagerAdapter.Page(OverviewFragment::class, R.string.overview_tab_label),
-                PagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
-                PagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
-                PagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
-                PagerAdapter.Page(ScheduleListFragment::class, R.string.scheduler_tab_label)
+                MainPagerAdapter.Page(OverviewFragment::class, R.string.overview_tab_label),
+                MainPagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
+                MainPagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
+                MainPagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
+                MainPagerAdapter.Page(ScheduleListFragment::class, R.string.scheduler_tab_label)
             )
             val pages = if (debug.isDebug() || showDebug) {
-                listOf(PagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)
+                listOf(MainPagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)
             } else {
                 basePages
             }
@@ -76,7 +76,7 @@ class AdvancedModeFragmentVDC @Inject constructor(
 
     fun switchUIMode() {
         uiSettings.startMode = UISettings.StartMode.QUICK
-        navEvents.postValue(AdvancedModeFragmentDirections.actionNormalModeFragmentToQuickModeFragment())
+        navEvents.postValue(MainFragmentDirections.actionMainFragmentToQuickModeFragment())
     }
 
     fun reportBug() {

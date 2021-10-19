@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced.overview
+package eu.darken.bb.main.ui.overview
 
 import android.annotation.SuppressLint
 import android.os.Bundle

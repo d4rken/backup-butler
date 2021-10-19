@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced.debug
+package eu.darken.bb.main.ui.debug
 
 import android.os.Bundle
 import android.view.View

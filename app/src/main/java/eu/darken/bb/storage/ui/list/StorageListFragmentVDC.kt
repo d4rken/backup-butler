@@ -9,7 +9,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
+import eu.darken.bb.main.ui.MainFragmentDirections
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -50,7 +50,7 @@ class StorageListFragmentVDC @Inject constructor(
         storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
             .subscribe { data ->
-                AdvancedModeFragmentDirections.actionNormalModeFragmentToStorageEditor(
+                MainFragmentDirections.actionMainFragmentToStorageEditor(
                     storageId = null
                 ).run { navEvents.postValue(this) }
             }
@@ -59,7 +59,7 @@ class StorageListFragmentVDC @Inject constructor(
     fun editStorage(item: Storage.InfoOpt) {
         log(TAG) { "editStorage($item)" }
         // TODO why does this not  start from the actions dialog?
-        AdvancedModeFragmentDirections.actionNormalModeFragmentToStorageActionDialog(item.storageId)
+        MainFragmentDirections.actionMainFragmentToStorageEditor(item.storageId)
             .run { navEvents.postValue(this) }
     }
 

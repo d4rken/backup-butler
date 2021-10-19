@@ -1,4 +1,4 @@
-package eu.darken.bb.main.ui.advanced
+package eu.darken.bb.main.ui
 
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
@@ -9,7 +9,7 @@ import eu.darken.bb.common.debug.logging.log
 import kotlin.reflect.KClass
 
 
-class PagerAdapter constructor(
+class MainPagerAdapter constructor(
     fragmentManager: FragmentManager,
     lifecycle: Lifecycle,
     val pages: List<Page>

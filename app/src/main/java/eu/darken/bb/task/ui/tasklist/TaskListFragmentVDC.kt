@@ -8,7 +8,7 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.main.ui.advanced.AdvancedModeFragmentDirections
+import eu.darken.bb.main.ui.MainFragmentDirections
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -67,7 +67,7 @@ class TaskListFragmentVDC @Inject constructor(
     }
 
     fun newTask() {
-        AdvancedModeFragmentDirections.actionNormalModeFragmentToTaskEditor(
+        MainFragmentDirections.actionMainFragmentToTaskEditor(
             args = TaskEditorArgs(taskType = Task.Type.BACKUP_SIMPLE)
         ).run { navEvents.postValue(this) }
     }

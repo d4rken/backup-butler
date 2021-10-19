@@ -11,8 +11,8 @@
         android:label="InitFragment"
         tools:layout="@layout/init_fragment">
         <action
-            android:id="@+id/action_initFragment_to_normalModeFragment"
-            app:destination="@id/normalModeFragment"
+            android:id="@+id/action_initFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
             app:popUpTo="@+id/main_nav_graph" />
         <action
             android:id="@+id/action_initFragment_to_quickModeFragment"
@@ -29,24 +29,24 @@
     </fragment>
 
     <fragment
-        android:id="@+id/normalModeFragment"
-        android:name="eu.darken.bb.main.ui.advanced.AdvancedModeFragment"
-        tools:layout="@layout/normalmode_main_fragment">
+        android:id="@+id/mainFragment"
+        android:name="eu.darken.bb.main.ui.MainFragment"
+        tools:layout="@layout/main_fragment">
         <action
-            android:id="@+id/action_normalModeFragment_to_storageActionDialog"
+            android:id="@+id/action_mainFragment_to_storageActionDialog"
             app:destination="@id/storageActionDialog" />
         <action
-            android:id="@+id/action_normalModeFragment_to_generatorsActionDialog"
+            android:id="@+id/action_mainFragment_to_generatorsActionDialog"
             app:destination="@id/generatorsActionDialog" />
         <action
-            android:id="@+id/action_normalModeFragment_to_taskActionDialog"
+            android:id="@+id/action_mainFragment_to_taskActionDialog"
             app:destination="@id/taskActionDialog" />
         <action
-            android:id="@+id/action_normalModeFragment_to_quickModeFragment"
+            android:id="@+id/action_mainFragment_to_quickModeFragment"
             app:destination="@id/quickModeFragment"
             app:popUpTo="@id/quickModeFragment" />
         <action
-            android:id="@+id/action_normalModeFragment_to_storage_editor"
+            android:id="@+id/action_mainFragment_to_storage_editor"
             app:destination="@id/storage_editor">
             <argument
                 android:name="storageId"
@@ -54,7 +54,7 @@
                 app:nullable="true" />
         </action>
         <action
-            android:id="@+id/action_normalModeFragment_to_task_editor"
+            android:id="@+id/action_mainFragment_to_task_editor"
             app:destination="@id/task_editor">
             <argument
                 android:name="args"
@@ -116,9 +116,9 @@
         android:name="eu.darken.bb.quickmode.ui.QuickModeFragment"
         tools:layout="@layout/quickmode_main_fragment">
         <action
-            android:id="@+id/action_quickModeFragment_to_normalModeFragment"
-            app:destination="@id/normalModeFragment"
-            app:popUpTo="@id/normalModeFragment" />
+            android:id="@+id/action_quickModeFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment" />
         <action
             android:id="@+id/action_quickModeFragment_to_wizardAppsFragment"
             app:destination="@id/wizardAppsFragment">
@@ -194,8 +194,8 @@
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
         <action
-            android:id="@+id/action_wizardAppsFragment_to_normalModeFragment"
-            app:destination="@id/normalModeFragment" />
+            android:id="@+id/action_wizardAppsFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/wizardFilesFragment"
@@ -210,9 +210,9 @@
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
         <action
-            android:id="@+id/action_wizardFilesFragment_to_normalModeFragment"
-            app:destination="@id/normalModeFragment"
-            app:popUpTo="@id/normalModeFragment" />
+            android:id="@+id/action_wizardFilesFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment" />
     </fragment>
     <include app:graph="@navigation/storage_editor" />
     <fragment

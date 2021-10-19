@@ -60,14 +60,17 @@ class WizardFilesFragment : SmartFragment(R.layout.quickmode_wizard_files_fragme
         }
 
         vdc.state.observe2(this, ui) { state ->
-            toolbar.menu.apply {
-                findItem(R.id.action_save).apply {
-                    setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
-                    isVisible = true
+            toolbar.apply {
+                menu.apply {
+                    findItem(R.id.action_save).apply {
+                        setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
+                        isVisible = true
+                    }
+                    findItem(R.id.action_remove).isVisible = state.isExisting
                 }
-                findItem(R.id.action_remove).isVisible = state.isExisting
+                title = getString(R.string.general_create_dir)
+                adapter.update(state.items)
             }
-            adapter.update(state.items)
         }
 
         vdc.navEvents.observe2(this) {

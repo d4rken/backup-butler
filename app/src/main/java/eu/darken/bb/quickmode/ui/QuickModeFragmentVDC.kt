@@ -156,7 +156,7 @@ class QuickModeFragmentVDC @Inject constructor(
 
     fun switchToAdvancedMode() {
         uiSettings.startMode = UISettings.StartMode.NORMAL
-        navEvents.postValue(QuickModeFragmentDirections.actionQuickModeFragmentToNormalModeFragment())
+        navEvents.postValue(QuickModeFragmentDirections.actionQuickModeFragmentToMainFragment())
     }
 
     fun reportBug() {
