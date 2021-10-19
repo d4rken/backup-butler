@@ -1,5 +1,7 @@
 package eu.darken.bb.main.ui.settings.general
 
+import android.os.Bundle
+import android.view.View
 import androidx.annotation.Keep
 import androidx.fragment.app.viewModels
 import androidx.preference.Preference
@@ -23,8 +25,8 @@ class GeneralSettingsFragment : SmartPreferenceFragment() {
 
     private val recordPref by lazy { findPreference<Preference>(GeneralSettings.PKEY_RECORD_DEBUG)!! }
 
-    override fun onPreferencesCreated() {
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         recordPref.setOnPreferenceClickListener {
             vdc.startDebugLog()
             true
@@ -37,8 +39,6 @@ class GeneralSettingsFragment : SmartPreferenceFragment() {
             }
             recordPref.isEnabled = !state.isRecording
         }
-
-        super.onPreferencesCreated()
     }
 
 }
