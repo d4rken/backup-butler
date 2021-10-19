@@ -39,7 +39,7 @@ class GeneratorListFragment : SmartFragment(R.layout.generator_list_fragment) {
         binding.fab.clicks().subscribe { vdc.newGenerator() }
 
         vdc.editTaskEvent.observe2(this) {
-            doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToGeneratorsActionDialog(it.generatorId))
+            doNavigate(AdvancedModeFragmentDirections.actionNormalModeFragmentToGeneratorsActionDialog(it.generatorId))
         }
 
         super.onViewCreated(view, savedInstanceState)

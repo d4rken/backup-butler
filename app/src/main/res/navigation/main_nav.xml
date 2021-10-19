@@ -11,12 +11,12 @@
         android:label="InitFragment"
         tools:layout="@layout/init_fragment">
         <action
-            android:id="@+id/action_initFragment_to_advancedModeFragment"
-            app:destination="@id/advancedModeFragment"
+            android:id="@+id/action_initFragment_to_normalModeFragment"
+            app:destination="@id/normalModeFragment"
             app:popUpTo="@+id/main_nav_graph" />
         <action
-            android:id="@+id/action_initFragment_to_simpleModeFragment"
-            app:destination="@id/simpleModeFragment"
+            android:id="@+id/action_initFragment_to_quickModeFragment"
+            app:destination="@id/quickModeFragment"
             app:popUpTo="@+id/main_nav_graph" />
         <action
             android:id="@+id/action_initFragment_to_helloStepFragment"
@@ -29,25 +29,24 @@
     </fragment>
 
     <fragment
-        android:id="@+id/advancedModeFragment"
+        android:id="@+id/normalModeFragment"
         android:name="eu.darken.bb.main.ui.advanced.AdvancedModeFragment"
-        android:label="AdvancedModeFragment"
-        tools:layout="@layout/advanced_mode_main_fragment">
+        tools:layout="@layout/normalmode_main_fragment">
         <action
-            android:id="@+id/action_advancedModeFragment_to_storageActionDialog"
+            android:id="@+id/action_normalModeFragment_to_storageActionDialog"
             app:destination="@id/storageActionDialog" />
         <action
-            android:id="@+id/action_advancedModeFragment_to_generatorsActionDialog"
+            android:id="@+id/action_normalModeFragment_to_generatorsActionDialog"
             app:destination="@id/generatorsActionDialog" />
         <action
-            android:id="@+id/action_advancedModeFragment_to_taskActionDialog"
+            android:id="@+id/action_normalModeFragment_to_taskActionDialog"
             app:destination="@id/taskActionDialog" />
         <action
-            android:id="@+id/action_advancedModeFragment_to_simpleModeFragment"
-            app:destination="@id/simpleModeFragment"
-            app:popUpTo="@id/simpleModeFragment" />
+            android:id="@+id/action_normalModeFragment_to_quickModeFragment"
+            app:destination="@id/quickModeFragment"
+            app:popUpTo="@id/quickModeFragment" />
         <action
-            android:id="@+id/action_advancedModeFragment_to_storage_editor"
+            android:id="@+id/action_normalModeFragment_to_storage_editor"
             app:destination="@id/storage_editor">
             <argument
                 android:name="storageId"
@@ -55,7 +54,7 @@
                 app:nullable="true" />
         </action>
         <action
-            android:id="@+id/action_advancedModeFragment_to_task_editor"
+            android:id="@+id/action_normalModeFragment_to_task_editor"
             app:destination="@id/task_editor">
             <argument
                 android:name="args"
@@ -113,16 +112,15 @@
     </dialog>
 
     <fragment
-        android:id="@+id/simpleModeFragment"
-        android:name="eu.darken.bb.main.ui.simple.SimpleModeFragment"
-        android:label="SimpleModeFragment"
-        tools:layout="@layout/simple_mode_main_fragment">
+        android:id="@+id/quickModeFragment"
+        android:name="eu.darken.bb.quickmode.ui.QuickModeFragment"
+        tools:layout="@layout/quickmode_main_fragment">
         <action
-            android:id="@+id/action_simpleModeFragment_to_advancedModeFragment"
-            app:destination="@id/advancedModeFragment"
-            app:popUpTo="@id/advancedModeFragment" />
+            android:id="@+id/action_quickModeFragment_to_normalModeFragment"
+            app:destination="@id/normalModeFragment"
+            app:popUpTo="@id/normalModeFragment" />
         <action
-            android:id="@+id/action_simpleModeFragment_to_wizardAppsFragment"
+            android:id="@+id/action_quickModeFragment_to_wizardAppsFragment"
             app:destination="@id/wizardAppsFragment">
             <argument
                 android:name="taskId"
@@ -131,7 +129,7 @@
                 app:nullable="true" />
         </action>
         <action
-            android:id="@+id/action_simpleModeFragment_to_wizardFilesFragment"
+            android:id="@+id/action_quickModeFragment_to_wizardFilesFragment"
             app:destination="@id/wizardFilesFragment">
             <argument
                 android:name="taskId"
@@ -185,9 +183,9 @@
     </fragment>
     <fragment
         android:id="@+id/wizardAppsFragment"
-        android:name="eu.darken.bb.main.ui.simple.wizard.apps.WizardAppsFragment"
+        android:name="eu.darken.bb.quickmode.ui.wizard.apps.WizardAppsFragment"
         android:label="WizardAppsFragment"
-        tools:layout="@layout/simple_mode_wizard_apps_fragment">
+        tools:layout="@layout/quickmode_wizard_apps_fragment">
         <action
             android:id="@+id/action_wizardAppsFragment_to_storage_picker"
             app:destination="@id/storage_picker">
@@ -196,14 +194,14 @@
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
         <action
-            android:id="@+id/action_wizardAppsFragment_to_advancedModeFragment"
-            app:destination="@id/advancedModeFragment" />
+            android:id="@+id/action_wizardAppsFragment_to_normalModeFragment"
+            app:destination="@id/normalModeFragment" />
     </fragment>
     <fragment
         android:id="@+id/wizardFilesFragment"
-        android:name="eu.darken.bb.main.ui.simple.wizard.files.WizardFilesFragment"
+        android:name="eu.darken.bb.quickmode.ui.wizard.files.WizardFilesFragment"
         android:label="WizardFilesFragment"
-        tools:layout="@layout/simple_mode_wizard_files_fragment">
+        tools:layout="@layout/quickmode_wizard_files_fragment">
         <action
             android:id="@+id/action_wizardFilesFragment_to_storage_picker"
             app:destination="@id/storage_picker">
@@ -212,9 +210,9 @@
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
         <action
-            android:id="@+id/action_wizardFilesFragment_to_advancedModeFragment"
-            app:destination="@id/advancedModeFragment"
-            app:popUpTo="@id/advancedModeFragment" />
+            android:id="@+id/action_wizardFilesFragment_to_normalModeFragment"
+            app:destination="@id/normalModeFragment"
+            app:popUpTo="@id/normalModeFragment" />
     </fragment>
     <include app:graph="@navigation/storage_editor" />
     <fragment

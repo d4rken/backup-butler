@@ -113,7 +113,7 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
         vdc.errorEvent.observe2(this) { toastError(it) }
 
         vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack(R.id.advancedModeFragment, false)
+            findNavController().popBackStack(R.id.normalModeFragment, false)
         }
 
         super.onViewCreated(view, savedInstanceState)

@@ -20,11 +20,11 @@ class ModeStepFragmentVDC @Inject constructor(
     val finishOnboardingEvent = SingleLiveEvent<Unit>()
 
     fun onSimpleSelected() {
-        finishOnboarding(UISettings.StartMode.SIMPLE)
+        finishOnboarding(UISettings.StartMode.QUICK)
     }
 
     fun onAdvancedSelected() {
-        finishOnboarding(UISettings.StartMode.ADVANCED)
+        finishOnboarding(UISettings.StartMode.NORMAL)
     }
 
     private fun finishOnboarding(startMode: UISettings.StartMode) {

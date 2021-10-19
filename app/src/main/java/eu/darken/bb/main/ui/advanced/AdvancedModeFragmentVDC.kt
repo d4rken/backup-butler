@@ -74,9 +74,9 @@ class AdvancedModeFragmentVDC @Inject constructor(
         log { handle.asLog() }
     }
 
-    fun switchToSimpleMode() {
-        uiSettings.startMode = UISettings.StartMode.SIMPLE
-        navEvents.postValue(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToSimpleModeFragment())
+    fun switchUIMode() {
+        uiSettings.startMode = UISettings.StartMode.QUICK
+        navEvents.postValue(AdvancedModeFragmentDirections.actionNormalModeFragmentToQuickModeFragment())
     }
 
     fun reportBug() {

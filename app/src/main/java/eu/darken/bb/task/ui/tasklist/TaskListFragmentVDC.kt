@@ -67,7 +67,7 @@ class TaskListFragmentVDC @Inject constructor(
     }
 
     fun newTask() {
-        AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskEditor(
+        AdvancedModeFragmentDirections.actionNormalModeFragmentToTaskEditor(
             args = TaskEditorArgs(taskType = Task.Type.BACKUP_SIMPLE)
         ).run { navEvents.postValue(this) }
     }

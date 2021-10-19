@@ -50,7 +50,7 @@ class StorageListFragmentVDC @Inject constructor(
         storageBuilder.createEditor()
             .observeOn(Schedulers.computation())
             .subscribe { data ->
-                AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageEditor(
+                AdvancedModeFragmentDirections.actionNormalModeFragmentToStorageEditor(
                     storageId = null
                 ).run { navEvents.postValue(this) }
             }
@@ -59,7 +59,7 @@ class StorageListFragmentVDC @Inject constructor(
     fun editStorage(item: Storage.InfoOpt) {
         log(TAG) { "editStorage($item)" }
         // TODO why does this not  start from the actions dialog?
-        AdvancedModeFragmentDirections.actionAdvancedModeFragmentToStorageActionDialog(item.storageId)
+        AdvancedModeFragmentDirections.actionNormalModeFragmentToStorageActionDialog(item.storageId)
             .run { navEvents.postValue(this) }
     }
 

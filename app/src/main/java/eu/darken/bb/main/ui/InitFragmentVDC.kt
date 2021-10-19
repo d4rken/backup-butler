@@ -32,8 +32,8 @@ class InitFragmentVDC @Inject constructor(
         when {
             shouldShowBeta -> InitFragmentDirections.actionInitFragmentToBetaStepFragment()
             onboardingSettings.lastOnboardingVersion == 0L -> InitFragmentDirections.actionInitFragmentToHelloStepFragment()
-            uiSettings.startMode == UISettings.StartMode.SIMPLE -> InitFragmentDirections.actionInitFragmentToSimpleModeFragment()
-            uiSettings.startMode == UISettings.StartMode.ADVANCED -> InitFragmentDirections.actionInitFragmentToAdvancedModeFragment()
+            uiSettings.startMode == UISettings.StartMode.QUICK -> InitFragmentDirections.actionInitFragmentToQuickModeFragment()
+            uiSettings.startMode == UISettings.StartMode.NORMAL -> InitFragmentDirections.actionInitFragmentToNormalModeFragment()
             else -> throw IllegalStateException("Unexpected init conditions: $uiSettings")
         }.run {
             finishSplashScreen.postValue(Any())

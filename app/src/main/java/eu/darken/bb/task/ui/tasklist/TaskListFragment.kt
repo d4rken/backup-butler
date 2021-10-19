@@ -44,7 +44,7 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
 
 
         vdc.editTaskEvent.observe2(this) {
-            doNavigate(AdvancedModeFragmentDirections.actionAdvancedModeFragmentToTaskActionDialog(it.taskId))
+            doNavigate(AdvancedModeFragmentDirections.actionNormalModeFragmentToTaskActionDialog(it.taskId))
         }
 
         var snackbar: Snackbar? = null

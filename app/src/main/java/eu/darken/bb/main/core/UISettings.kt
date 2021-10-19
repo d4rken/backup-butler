@@ -51,8 +51,8 @@ class UISettings @Inject constructor(
         @StringRes val label: Int,
         val identifier: String
     ) {
-        SIMPLE(R.string.user_interface_mode_simple_label, "startmode_simple"),
-        ADVANCED(R.string.user_interface_mode_advanced_label, "startmode_advanced");
+        QUICK(R.string.user_interface_mode_quick_label, "startmode_quick"),
+        NORMAL(R.string.user_interface_mode_normal_label, "startmode_normal");
 
         companion object {
             fun fromString(value: String) = values().first { it.identifier == value }
@@ -61,7 +61,7 @@ class UISettings @Inject constructor(
 
     var startMode: StartMode
         get() {
-            val id = preferences.getString(PKEY_STARTMODE, StartMode.SIMPLE.identifier)!!
+            val id = preferences.getString(PKEY_STARTMODE, StartMode.QUICK.identifier)!!
             return StartMode.fromString(id)
         }
         set(value) {
@@ -97,7 +97,7 @@ class UISettings @Inject constructor(
 
         override fun putString(key: String, value: String?) = when (key) {
             PKEY_THEME -> theme = Theme.fromString(value ?: Theme.SYSTEM.identifier)
-            PKEY_STARTMODE -> startMode = StartMode.fromString(value ?: StartMode.SIMPLE.identifier)
+            PKEY_STARTMODE -> startMode = StartMode.fromString(value ?: StartMode.QUICK.identifier)
             PKEY_LANGUAGE -> language = value?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
             else -> super.putString(key, value)
         }

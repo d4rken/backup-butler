@@ -1,43 +1,37 @@
-package eu.darken.bb.main.ui.advanced
+package eu.darken.bb.quickmode.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.NormalmodeMainFragmentBinding
+import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
 import eu.darken.bb.main.ui.settings.SettingsActivity
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {
-    val vdc: AdvancedModeFragmentVDC by viewModels()
-    val ui: NormalmodeMainFragmentBinding by viewBinding()
+class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment) {
 
-    lateinit var pagerAdapter: PagerAdapter
+    private val vdc: QuickModeFragmentVDC by viewModels()
+    private val ui: QuickmodeMainFragmentBinding by viewBinding()
+    @Inject lateinit var adapter: QuickModeAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
-            toolbar.subtitle = "Advanced mode"
+            recyclerView.setupDefaults(adapter, dividers = false)
         }
 
-        vdc.state.observe2(this, ui) { state ->
-            pagerAdapter = PagerAdapter(childFragmentManager, lifecycle, state.pages)
+        vdc.navEvents.observe2(this) { doNavigate(it) }
 
-            viewpager.adapter = pagerAdapter
-            tablayout.tabMode = TabLayout.MODE_SCROLLABLE
-            // When smoothScroll is enabled and we navigate to an unloaded fragment, ??? happens we jump to the wrong position
-            TabLayoutMediator(tablayout, viewpager, true, false) { tab, position ->
-                tab.setText(pagerAdapter.pages[position].titleRes)
-            }.attach()
-
+        vdc.debugState.observe2(this, ui) { state ->
             toolbar.menu.apply {
                 findItem(R.id.action_record_debuglog).apply {
                     isVisible = state.showDebugStuff
@@ -45,16 +39,12 @@ class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {
                 }
                 findItem(R.id.action_report_bug).isVisible = state.showDebugStuff
             }
-
-            viewpager.setCurrentItem(state.pagePosition, false)
         }
-        ui.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                vdc.updateCurrentPage(position)
-            }
-        })
 
-        vdc.navEvents.observe2(this) { doNavigate(it) }
+        vdc.items.observe2(this) {
+            log { "Updating adapter with $it" }
+            adapter.update(it)
+        }
 
         ui.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -71,7 +61,7 @@ class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {
                     true
                 }
                 R.id.action_switch_startmode -> {
-                    vdc.switchUIMode()
+                    vdc.switchToAdvancedMode()
                     true
                 }
                 else -> false
@@ -80,5 +70,4 @@ class AdvancedModeFragment : SmartFragment(R.layout.normalmode_main_fragment) {
 
         super.onViewCreated(view, savedInstanceState)
     }
-
 }

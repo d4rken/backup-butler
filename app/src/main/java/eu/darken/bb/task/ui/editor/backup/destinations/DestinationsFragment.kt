@@ -60,7 +60,7 @@ class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_
 
         vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack(R.id.advancedModeFragment, false)
+            findNavController().popBackStack(R.id.normalModeFragment, false)
         }
 
         super.onViewCreated(view, savedInstanceState)
