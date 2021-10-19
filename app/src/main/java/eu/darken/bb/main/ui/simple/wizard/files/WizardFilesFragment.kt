@@ -45,7 +45,11 @@ class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_frag
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.action_save -> {
-                            vdc.onSave()
+                            vdc.saveTask()
+                            true
+                        }
+                        R.id.action_remove -> {
+                            vdc.removeTask()
                             true
                         }
                         else -> false
@@ -56,17 +60,20 @@ class WizardFilesFragment : SmartFragment(R.layout.simple_mode_wizard_files_frag
         }
 
         vdc.state.observe2(this, ui) { state ->
-            toolbar.menu.findItem(R.id.action_save).apply {
-                setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
-                setIcon(if (state.isExisting) R.drawable.ic_baseline_save_24 else R.drawable.ic_add_task)
-                isVisible = true
+            toolbar.menu.apply {
+                findItem(R.id.action_save).apply {
+                    setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
+                    isVisible = true
+                }
+                findItem(R.id.action_remove).isVisible = state.isExisting
             }
             adapter.update(state.items)
         }
 
-        vdc.navEvents.observe2(this) { doNavigate(it) }
+        vdc.navEvents.observe2(this) {
+            it?.run { doNavigate(this) } ?: popBackStack()
+        }
 
-        vdc.finishEvent.observe2(this) { popBackStack() }
         vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)

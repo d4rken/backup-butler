@@ -13,12 +13,13 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
-import eu.darken.bb.main.core.simple.SimpleMode
+import eu.darken.bb.main.core.simple.SimpleModeRepo
 import eu.darken.bb.main.core.simple.SimpleModeSettings
 import eu.darken.bb.main.ui.simple.cards.apps.AppsInfoCreateVH
 import eu.darken.bb.main.ui.simple.cards.apps.AppsInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoCreateVH
 import eu.darken.bb.main.ui.simple.cards.files.FilesInfoLoadingVH
+import eu.darken.bb.main.ui.simple.cards.files.FilesInfoVH
 import eu.darken.bb.main.ui.simple.cards.hints.AdvancedModeHintsVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoLoadingVH
 import eu.darken.bb.main.ui.simple.cards.info.BBInfoVH
@@ -36,7 +37,7 @@ class SimpleModeFragmentVDC @Inject constructor(
     private val uiSettings: UISettings,
     private val bbDebug: BBDebug,
     private val backupButler: BackupButler,
-    private val simpleMode: SimpleMode,
+    private val simpleModeRepo: SimpleModeRepo,
     private val taskRepo: TaskRepo,
     private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
@@ -76,7 +77,7 @@ class SimpleModeFragmentVDC @Inject constructor(
         .subscribeOn(Schedulers.computation())
         .startWithItem(BBInfoLoadingVH.Item)
 
-    private val appObs: Observable<out SimpleModeAdapter.Item> = simpleMode.appsData
+    private val appObs: Observable<out SimpleModeAdapter.Item> = simpleModeRepo.appsData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default app task id: $it" } }
         .flatMap { appsData ->
@@ -91,17 +92,39 @@ class SimpleModeFragmentVDC @Inject constructor(
         .doOnNext { log(TAG) { "Default app task info: $it" } }
         .startWithItem(AppsInfoLoadingVH.Item)
 
-    private val fileObs: Observable<out SimpleModeAdapter.Item> = simpleMode.filesData
+    private val fileObs: Observable<out SimpleModeAdapter.Item> = simpleModeRepo.filesData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default file task id: $it" } }
         .flatMap { filesData ->
             if (filesData.taskId == null) {
-                FilesInfoCreateVH.Item {
-                    navEvents.postValue(SimpleModeFragmentDirections.actionSimpleModeFragmentToWizardFilesFragment())
-                }.let { Observable.just(it) }
+                FilesInfoCreateVH.Item(
+                    onCreateAppsTaskAction = {
+                        navEvents.postValue(SimpleModeFragmentDirections.actionSimpleModeFragmentToWizardFilesFragment())
+                    }
+                ).let { Observable.just(it) }
             } else {
-                taskRepo.get(filesData.taskId).toObservable()
-            } as Observable<out SimpleModeAdapter.Item>
+                taskRepo.get(filesData.taskId)
+                    .toObservable()
+                    .map { task ->
+                        FilesInfoVH.Item(
+                            task = task,
+                            onBackup = {
+
+                            },
+                            onEdit = {
+                                SimpleModeFragmentDirections.actionSimpleModeFragmentToWizardFilesFragment(
+                                    taskId = it
+                                ).run { navEvents.postValue(this) }
+                            },
+                            onView = {
+
+                            },
+                            onRestore = {
+
+                            }
+                        )
+                    }
+            }
         }
         .doOnNext { log(TAG) { "Default file task info: $it" } }
         .startWithItem(FilesInfoLoadingVH.Item)

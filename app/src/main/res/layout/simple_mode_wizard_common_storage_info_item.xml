@@ -52,41 +52,14 @@
             tools:text="756 MB available" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/detach_action"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="@string/storage_detach_action"
-            app:layout_constraintBottom_toBottomOf="@id/setup_action"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/setup_action" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_action"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/general_delete_action"
-            android:textColor="@color/colorError"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/setup_action"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/detach_action"
-            app:layout_constraintTop_toTopOf="@id/setup_action" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/setup_action"
+            android:id="@+id/remove_action"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/general_view_action"
+            android:text="@string/general_remove_action"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/secondary_info" />

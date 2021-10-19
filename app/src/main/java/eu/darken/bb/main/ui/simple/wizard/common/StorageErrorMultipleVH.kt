@@ -4,8 +4,8 @@ import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.databinding.SimpleModeWizardCommonStorageErrorItemBinding
 
-class StorageErrorVH(parent: ViewGroup) :
-    WizardAdapter.BaseVH<StorageErrorVH.Item, SimpleModeWizardCommonStorageErrorItemBinding>(
+class StorageErrorMultipleVH(parent: ViewGroup) :
+    WizardAdapter.BaseVH<StorageErrorMultipleVH.Item, SimpleModeWizardCommonStorageErrorItemBinding>(
         R.layout.simple_mode_wizard_common_storage_error_item,
         parent
     ) {
@@ -21,7 +21,5 @@ class StorageErrorVH(parent: ViewGroup) :
 
     }
 
-    data class Item(
-        val onView: () -> Unit,
-    ) : StorageItem
+    object Item : StorageItem
 }

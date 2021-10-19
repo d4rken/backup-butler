@@ -24,7 +24,5 @@ class FilesInfoCreateVH(parent: ViewGroup) :
 
     data class Item(
         val onCreateAppsTaskAction: () -> Unit,
-    ) : SimpleModeAdapter.Item {
-        override val stableId: Long = FilesInfoVH.LIST_ID
-    }
+    ) : FilesItem
 }

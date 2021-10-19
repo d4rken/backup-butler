@@ -48,7 +48,7 @@ class WizardAppsFragment : SmartFragment(R.layout.simple_mode_wizard_apps_fragme
         vdc.state.observe2(this, ui) { state ->
             toolbar.menu.findItem(R.id.action_save).apply {
                 setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
-                setIcon(if (state.isExisting) R.drawable.ic_baseline_save_24 else R.drawable.ic_add_task)
+//                setIcon(if (state.isExisting) R.drawable.ic_baseline_save_24 else R.drawable.ic_add_task)
                 isVisible = true
             }
             adapter.update(state.items)

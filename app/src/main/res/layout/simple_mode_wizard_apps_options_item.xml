@@ -64,7 +64,7 @@
             app:layout_constraintTop_toBottomOf="@id/primary_info" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/detach_action"
+            android:id="@+id/view_advanced"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -123,10 +123,22 @@
             app:popUpTo="@id/advancedModeFragment" />
         <action
             android:id="@+id/action_simpleModeFragment_to_wizardAppsFragment"
-            app:destination="@id/wizardAppsFragment" />
+            app:destination="@id/wizardAppsFragment">
+            <argument
+                android:name="taskId"
+                android:defaultValue="@null"
+                app:argType="eu.darken.bb.task.core.Task$Id"
+                app:nullable="true" />
+        </action>
         <action
             android:id="@+id/action_simpleModeFragment_to_wizardFilesFragment"
-            app:destination="@id/wizardFilesFragment" />
+            app:destination="@id/wizardFilesFragment">
+            <argument
+                android:name="taskId"
+                android:defaultValue="@null"
+                app:argType="eu.darken.bb.task.core.Task$Id"
+                app:nullable="true" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
@@ -183,6 +195,9 @@
                 android:name="taskId"
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
+        <action
+            android:id="@+id/action_wizardAppsFragment_to_advancedModeFragment"
+            app:destination="@id/advancedModeFragment" />
     </fragment>
     <fragment
         android:id="@+id/wizardFilesFragment"
@@ -196,6 +211,10 @@
                 android:name="taskId"
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
+        <action
+            android:id="@+id/action_wizardFilesFragment_to_advancedModeFragment"
+            app:destination="@id/advancedModeFragment"
+            app:popUpTo="@id/advancedModeFragment" />
     </fragment>
     <include app:graph="@navigation/storage_editor" />
     <fragment

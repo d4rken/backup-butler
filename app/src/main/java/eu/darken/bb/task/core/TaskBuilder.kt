@@ -50,7 +50,7 @@ class TaskBuilder @Inject constructor(
         }
         .flatMap {
             checkNotNull(it.editor) { "Can't save builder data NULL editor: $it" }
-            it.editor.save()
+            it.editor.snapshot()
         }
         .flatMap { task ->
             return@flatMap taskRepo.put(task).map { task }

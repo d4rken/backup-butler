@@ -35,20 +35,23 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:text="Error"
+            android:text="@string/simple_mode_wizard_common_storage_multiple_hint"
+            app:layout_constraintBottom_toTopOf="@+id/view_advanced"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title" />
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_goneMarginBottom="16dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/setup_action"
+            android:id="@+id/view_advanced"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:text="View in advanced editor"
+            android:text="@string/general_view_action"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/description" />

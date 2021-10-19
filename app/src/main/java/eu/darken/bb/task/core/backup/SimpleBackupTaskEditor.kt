@@ -36,7 +36,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
         .ignoreElement()
 
-    override fun save(): Single<out Task> = Single.fromCallable {
+    override fun snapshot(): Single<out Task> = Single.fromCallable {
         val data = editorDataPub.snapshot
         SimpleBackupTask(
             taskId = data.taskId,

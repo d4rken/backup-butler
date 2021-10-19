@@ -36,6 +36,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:text="@string/general_edit_action"
+            android:textColor="?colorOnSurface"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -65,19 +66,20 @@
             app:layout_constraintTop_toBottomOf="@id/primary_info" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/detach_action"
+            android:id="@+id/view_action"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="8dp"
             android:text="@string/general_view_action"
-            app:layout_constraintBottom_toBottomOf="@id/setup_action"
+            android:textColor="?colorOnSurface"
+            app:layout_constraintBottom_toBottomOf="@id/restore_action"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/setup_action" />
+            app:layout_constraintTop_toTopOf="@id/restore_action" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_action"
+            android:id="@+id/backup_action"
             style="@style/Widget.MaterialComponents.Button.Highlight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -85,10 +87,10 @@
             android:layout_marginBottom="8dp"
             android:text="@string/general_backup_action"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/setup_action" />
+            app:layout_constraintEnd_toStartOf="@id/restore_action" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/setup_action"
+            android:id="@+id/restore_action"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

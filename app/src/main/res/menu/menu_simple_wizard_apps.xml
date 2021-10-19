@@ -4,7 +4,6 @@
     tools:context="eu.darken.bb.main.ui.MainActivity">
     <item
         android:id="@+id/action_save"
-        android:icon="@drawable/ic_add_task"
         android:orderInCategory="100"
         android:title="@string/general_save_action"
         android:visible="false"

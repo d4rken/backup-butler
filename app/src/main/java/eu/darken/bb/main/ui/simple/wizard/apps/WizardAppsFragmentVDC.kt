@@ -12,7 +12,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.simple.AutoSetUp
-import eu.darken.bb.main.core.simple.SimpleMode
+import eu.darken.bb.main.core.simple.SimpleModeRepo
 import eu.darken.bb.main.ui.simple.wizard.common.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WizardAppsFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val simpleMode: SimpleMode,
+    private val simpleModeRepo: SimpleModeRepo,
     private val taskRepo: TaskRepo,
     private val storageManager: StorageManager,
     private val generatorBuilder: GeneratorBuilder,
@@ -38,12 +38,13 @@ class WizardAppsFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<Unit>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
-    private val editorObs = simpleMode.filesData
+    private val editorObs = simpleModeRepo.filesData.data
         .observeOn(Schedulers.computation())
         .flatMapSingle { data ->
-            // Fallback Id doesn't matter, we go to switch case anyways
-            taskBuilder.load(data.taskId ?: Task.Id())
-                .switchIfEmpty(taskBuilder.createEditor(type = Task.Type.BACKUP_SIMPLE))
+            taskBuilder.getEditor(
+                data.taskId ?: Task.Id(),
+                type = Task.Type.BACKUP_SIMPLE,
+            )
         }
         .map { it.editor as SimpleBackupTaskEditor }
         .replayingShare()
@@ -56,37 +57,20 @@ class WizardAppsFragmentVDC @Inject constructor(
         .flatMap { storageManager.infos(it.destinations) }
         .map { storageInfos ->
             when (storageInfos.size) {
-                0 -> {
-                    StorageCreateVH.Item(
-                        onSetupStorage = {
-                            TODO()
-                        }
-                    )
-                }
-                1 -> {
-                    // Show info, allow attach/detach
-                    StorageInfoVH.Item(
-                        info = storageInfos.single(),
-                        onView = {
-                            TODO()
-                        },
-                        onDetach = {
-                            TODO()
-                        },
-                        onDelete = {
-                            TODO()
-                        }
-                    )
-                }
-                else -> {
-                    // Show error? Remove card
-                    StorageErrorVH.Item(
-                        onView = {
-                            TODO()
-                        }
-                    )
-                }
+                0 -> StorageCreateVH.Item(
+                    onSetupStorage = {
+                        TODO()
+                    }
+                )
+                1 -> StorageInfoVH.Item(
+                    infoOpt = storageInfos.single(),
+                    onRemove = {
+                        TODO()
+                    }
+                )
+                else -> StorageErrorMultipleVH.Item
             }
+            // Show info, allow attach/detach
         }
 
     val state: LiveData<State> = Observable
@@ -141,7 +125,7 @@ class WizardAppsFragmentVDC @Inject constructor(
 
     fun onSave() {
         editorObs
-            .flatMapSingle { it.save() }
+            .flatMapSingle { it.snapshot() }
             .subscribe({
                 finishEvent.postValue(Unit)
             }, {

@@ -9,7 +9,7 @@ interface TaskEditor {
 
     fun load(task: Task): Completable
 
-    fun save(): Single<out Task>
+    fun snapshot(): Single<out Task>
 
     fun isValid(): Observable<Boolean>
 

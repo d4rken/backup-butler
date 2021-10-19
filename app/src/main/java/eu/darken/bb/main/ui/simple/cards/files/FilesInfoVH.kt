@@ -4,8 +4,7 @@ import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.databinding.SimpleModeMainFilesItemBinding
 import eu.darken.bb.main.ui.simple.SimpleModeAdapter
-import java.text.DateFormat
-import java.time.Instant
+import eu.darken.bb.task.core.Task
 
 class FilesInfoVH(parent: ViewGroup) :
     SimpleModeAdapter.BaseVH<FilesInfoVH.Item, SimpleModeMainFilesItemBinding>(
@@ -13,35 +12,28 @@ class FilesInfoVH(parent: ViewGroup) :
         parent
     ) {
 
-    override val viewBinding = lazy {
-        SimpleModeMainFilesItemBinding.bind(itemView)
-    }
-
-    private val formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+    override val viewBinding = lazy { SimpleModeMainFilesItemBinding.bind(itemView) }
 
     override val onBindData: SimpleModeMainFilesItemBinding.(
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
         primaryInfo.text = "// TODO"
-        secondaryInfo.text = getString(
-            R.string.general_last_backup_time_x,
-            formatter.format(item.lastBackupAt)
-        )
+        secondaryInfo.text = "// TODO"
         // TODO next back in XXhours
+
+        val taskId = item.task.taskId
+        viewAction.setOnClickListener { item.onView(taskId) }
+        editAction.setOnClickListener { item.onEdit(taskId) }
+        restoreAction.setOnClickListener { item.onRestore(taskId) }
+        backupAction.setOnClickListener { item.onBackup(taskId) }
     }
 
     data class Item(
-        val lastBackupAt: Instant,
-        val onFilesBackupAction: () -> Unit,
-        val onFilesViewAction: () -> Unit,
-        val onFilesRestoreAction: () -> Unit,
-        val onFilesEditAction: () -> Unit,
-    ) : SimpleModeAdapter.Item {
-        override val stableId: Long = LIST_ID
-    }
-
-    companion object {
-        val LIST_ID = "Files".hashCode().toLong()
-    }
+        val task: Task,
+        val onBackup: (Task.Id) -> Unit,
+        val onView: (Task.Id) -> Unit,
+        val onRestore: (Task.Id) -> Unit,
+        val onEdit: (Task.Id) -> Unit,
+    ) : FilesItem
 }

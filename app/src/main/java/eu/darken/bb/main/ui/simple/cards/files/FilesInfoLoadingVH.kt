@@ -22,7 +22,5 @@ class FilesInfoLoadingVH(parent: ViewGroup) :
 
     }
 
-    object Item : SimpleModeAdapter.Item {
-        override val stableId: Long = FilesInfoVH.LIST_ID
-    }
+    object Item : FilesItem
 }

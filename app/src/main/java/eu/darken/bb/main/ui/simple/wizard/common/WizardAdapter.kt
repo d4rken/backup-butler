@@ -22,7 +22,7 @@ class WizardAdapter constructor(
         modules.add(DataBinderMod(data))
         modules.add(TypedVHCreatorMod({ data[it] is StorageCreateVH.Item }) { StorageCreateVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is StorageInfoVH.Item }) { StorageInfoVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is StorageErrorVH.Item }) { StorageErrorVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is StorageErrorMultipleVH.Item }) { StorageErrorMultipleVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is AutoSetupVH.Item }) { AutoSetupVH(it) })
         modules.addAll(onProvideModules(data))
     }

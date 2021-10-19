@@ -8,8 +8,9 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.BBEnv
 import eu.darken.bb.common.debug.InstallId
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +24,7 @@ class BugsnagErrorHandler @Inject constructor(
 ) : OnErrorCallback {
 
     override fun onError(event: Event): Boolean {
-        Timber.tag(TAG).v(event.originalError, "Handling error: %s", event)
+        log(TAG) { "Error event: $event\nHandling: ${event.originalError?.asLog()}" }
 
         bugsnagLogger.injectLog(event)
 
@@ -57,9 +58,9 @@ class BugsnagErrorHandler @Inject constructor(
 //            }
 //        }
 
-        val send = !BuildConfig.DEBUG && generalSettings.isBugTrackingEnabled
-        Timber.tag(TAG).d("Send error? %b", send)
-        return send
+        return (!BuildConfig.DEBUG && generalSettings.isBugTrackingEnabled).also {
+            log(TAG) { "Send error? $it" }
+        }
     }
 
     companion object {

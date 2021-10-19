@@ -36,7 +36,7 @@
         app:layout_constraintTop_toBottomOf="@id/label" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/remove_action"
+        android:id="@+id/view_advanced"
         style="@style/Widget.MaterialComponents.Button.IconOnly"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
