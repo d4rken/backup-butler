@@ -8,16 +8,16 @@
         app:title="@string/general_settings_label" />
 
     <Preference
-        android:icon="@drawable/ic_user_onsurface"
-        app:fragment="eu.darken.bb.user.ui.settings.UserSettingsFragment"
-        app:summary="@string/user_settings_desc"
-        app:title="@string/user_settings_label" />
-
-    <Preference
         android:icon="@drawable/ic_ui_onsurface"
         app:fragment="eu.darken.bb.main.ui.settings.ui.UISettingsFragment"
         app:summary="@string/userinterface_settings_desc"
         app:title="@string/userinterface_settings_label" />
+
+    <Preference
+        android:icon="@drawable/ic_user_onsurface"
+        app:fragment="eu.darken.bb.user.ui.settings.UserSettingsFragment"
+        app:summary="@string/user_settings_desc"
+        app:title="@string/user_settings_label" />
 
     <Preference
         android:icon="@drawable/ic_support_onsurface"
@@ -55,8 +55,8 @@
 
         <Preference
             android:icon="@drawable/ic_changelog_onsurface"
-            android:title="@string/changelog_label"
             android:key="core.changelog"
+            android:title="@string/changelog_label"
             app:summary="v?.?.?">
             <intent
                 android:action="android.intent.action.VIEW"

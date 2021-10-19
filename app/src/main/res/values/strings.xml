@@ -218,7 +218,6 @@
     <string name="support_installid_label">Install ID</string>
     <string name="general_settings_label">General</string>
     <string name="general_settings_desc">General tweaks that affect the whole app.</string>
-    <string name="twitter_label">Twitter</string>
     <string name="scheduler_settings_label">Scheduler</string>
     <string name="general_done_action">Done</string>
     <string name="task_editor_restore_file_config_restoration_path">Restoration path</string>
@@ -227,7 +226,6 @@
     <string name="discord_desc">A place to hang out in and ask questions.</string>
     <string name="reddit_desc">Our official subreddit at /r/backupbutler.</string>
     <string name="xda_desc">Our own thread on XDA-Developers.</string>
-    <string name="twitter_desc">darken\'s twitter account</string>
     <string name="issue_tracker_desc">A public issue tracker for bug reports and feature requests (english only).</string>
     <string name="support_installid_desc">Automatic error reports are anonymous. Share your install ID if the developer needs to find your error reports.</string>
     <string name="progress_deleting_label">Deleting</string>
@@ -236,9 +234,10 @@
     <string name="general_home_action">Return to start</string>
     <string name="general_pick_a_path_action">Pick a path</string>
     <string name="debug_label">Debug</string>
-    <string name="startmode_simple_label">Simple</string>
-    <string name="startmode_advanced_label">Advanced</string>
-    <string name="userinterface_startmode_label">Start mode</string>
+    <string name="user_interface_mode_label">User interface mode</string>
+    <string name="user_interface_mode_simple_label">Simplified</string>
+    <string name="user_interface_mode_advanced_label">Advanced</string>
+    <string name="startmode_switch_action">Switch UI mode</string>
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>
     <string name="general_copy_action">Copy</string>
@@ -294,7 +293,6 @@
     <string name="onboarding_cost_busfactor_title">Open source</string>
     <string name="onboarding_cost_busfactor_description">Backup Butler is open-source. When I get hit by a bus, someone else can take over to ensure your backups can be restored on new devices.</string>
     <string name="onboarding_cost_dontworry_description">Exploring the app is free. Don\'t worry.</string>
-    <string name="startmode_switch_action">Switch UI mode</string>
     <string name="bugreporting_report_action">Report a bug</string>
     <string name="bugreporting_record_debuglog_action">Record debug log</string>
     <string name="permission_write_external_storage_description">General access to public storage on Android 11 devices and older.</string>

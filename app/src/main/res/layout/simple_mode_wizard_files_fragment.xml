@@ -18,7 +18,7 @@
             style="@style/Toolbar"
             app:navigationIcon="@drawable/ic_baseline_close_24"
             app:subtitle="@string/backup_type_files_label"
-            app:title="@string/startmode_simple_label" />
+            app:title="@string/user_interface_mode_simple_label" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

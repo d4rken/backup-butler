@@ -10,7 +10,7 @@
     <ListPreference
         android:icon="@drawable/ic_startmode_onsurface"
         android:key="ui.startmode"
-        android:title="@string/userinterface_startmode_label" />
+        android:title="@string/user_interface_mode_label" />
 
     <PreferenceCategory android:title="@string/category_other_label">
         <Preference

@@ -51,8 +51,8 @@ class UISettings @Inject constructor(
         @StringRes val label: Int,
         val identifier: String
     ) {
-        SIMPLE(R.string.startmode_simple_label, "startmode_simple"),
-        ADVANCED(R.string.startmode_advanced_label, "startmode_advanced");
+        SIMPLE(R.string.user_interface_mode_simple_label, "startmode_simple"),
+        ADVANCED(R.string.user_interface_mode_advanced_label, "startmode_advanced");
 
         companion object {
             fun fromString(value: String) = values().first { it.identifier == value }
