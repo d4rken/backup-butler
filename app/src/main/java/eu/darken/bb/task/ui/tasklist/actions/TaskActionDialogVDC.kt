@@ -33,6 +33,7 @@ class TaskActionDialogVDC @Inject constructor(
     private val stateUpdater = Stater { State(loading = true) }
     val state = stateUpdater.liveData
     val navEvents = SingleLiveEvent<NavDirections>()
+    val errorEvents = SingleLiveEvent<Throwable>()
 
     init {
         taskRepo.get(taskId)
@@ -70,15 +71,9 @@ class TaskActionDialogVDC @Inject constructor(
                     }
             }
             EDIT -> {
-                taskBuilder.load(taskId)
-                    .subscribeOn(Schedulers.io())
-                    .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                    .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                    .subscribe {
-                        TaskActionDialogDirections.actionTaskActionDialogToTaskEditor(
-                            args = TaskEditorArgs(taskId = it.taskId, taskType = Task.Type.BACKUP_SIMPLE)
-                        ).run { navEvents.postValue(this) }
-                    }
+                TaskActionDialogDirections.actionTaskActionDialogToTaskEditor(
+                    args = TaskEditorArgs(taskId = taskId)
+                ).run { navEvents.postValue(this) }
             }
             DELETE -> {
                 Single.timer(200, TimeUnit.MILLISECONDS)

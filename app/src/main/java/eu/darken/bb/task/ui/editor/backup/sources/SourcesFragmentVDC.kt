@@ -46,7 +46,7 @@ class SourcesFragmentVDC @Inject constructor(
     }
 
     fun removeSource(source: GeneratorConfigOpt) {
-        editor.removeSource(source.generatorId)
+        editor.removeGenerator(source.generatorId)
     }
 
     data class State(

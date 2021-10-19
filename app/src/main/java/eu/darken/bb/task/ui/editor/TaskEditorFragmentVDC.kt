@@ -37,10 +37,8 @@ class TaskEditorFragmentVDC @Inject constructor(
             }
         }
     }
-    private val taskObs = taskBuilder
-        .load(taskId)
+    private val taskObs = taskBuilder.getEditor(taskId, args.taskType)
         .observeOn(Schedulers.computation())
-        .switchIfEmpty(taskBuilder.createEditor(taskId, args.taskType))
         .flatMapObservable { taskBuilder.task(it.taskId) }
 
     val navEvents = SingleLiveEvent<NavDirections>()

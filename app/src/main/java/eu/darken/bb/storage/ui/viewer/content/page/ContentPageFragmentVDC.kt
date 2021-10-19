@@ -79,7 +79,7 @@ class ContentPageFragmentVDC @Inject constructor(
 
 
     fun restore() {
-        taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
+        taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
             .observeOn(Schedulers.computation())
             .doOnSubscribe { stater.update { it.copy(showRestoreAction = false) } }
             .flatMap { data ->

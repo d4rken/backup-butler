@@ -5,7 +5,10 @@ import eu.darken.bb.task.core.Task
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class TaskEditorArgs(
-    val taskId: Task.Id? = null,
-    val taskType: Task.Type,
-) : Parcelable
+data class TaskEditorArgs constructor(
+    val taskId: Task.Id?,
+    val taskType: Task.Type?,
+) : Parcelable {
+    constructor(taskId: Task.Id?) : this(taskId = taskId, taskType = null)
+    constructor(taskType: Task.Type?) : this(taskId = null, taskType = taskType)
+}

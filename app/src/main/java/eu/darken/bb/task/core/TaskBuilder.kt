@@ -4,9 +4,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.*
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,7 +59,10 @@ class TaskBuilder @Inject constructor(
         .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
         .map { it }
 
-    fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
+    /**
+     * Attempt to load an existing task into an editor
+     */
+    private fun load(id: Task.Id): Maybe<Data> = taskRepo.get(id)
         .doOnSuccess { Timber.tag(TAG).d("Next: %s", it) }
         .flatMapSingle { task ->
             val editor = editors.getValue(task.taskType).create(task.taskId)
@@ -77,16 +78,30 @@ class TaskBuilder @Inject constructor(
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
         .doOnComplete { Timber.tag(TAG).d("No task found for %s", id) }
 
-    fun createEditor(taskId: Task.Id = Task.Id(), type: Task.Type): Single<Data> = hotData.latest
+    /**
+     * Attempts to load an existing task into an editor,
+     * otherwise creates a new editor.
+     */
+    fun getEditor(
+        taskId: Task.Id = Task.Id(),
+        type: Task.Type? = null,
+        createNew: Boolean = true,
+    ): Single<Data> = hotData.latest
         .flatMapMaybe { Maybe.fromCallable<Data> { it[taskId] } }
         .switchIfEmpty(
             load(taskId)
                 .doOnSubscribe { Timber.tag(TAG).d("Trying existing task for %s", taskId) }
                 .doOnSuccess { Timber.tag(TAG).d("Loaded existing task for %s", taskId) }
                 .doOnError { Timber.tag(TAG).e("Failed to load existing task for %s", taskId) }
+                .doOnComplete {
+                    if (type == null) throw IllegalStateException(
+                        "No task found for $taskId! getEditor requires a type, if there is no existing task."
+                    )
+                }
         )
         .switchIfEmpty(
             update(taskId) {
+                requireNotNull(type) { "If load($taskId) fails, a type needs to be specified." }
                 val editor = editors.getValue(type).create(taskId)
                 Data(
                     taskId = taskId,
@@ -98,14 +113,6 @@ class TaskBuilder @Inject constructor(
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", taskId) }
                 .doOnSuccess { log(TAG) { "Created new editor: $it" } }
         )
-
-//    fun launchEditor(taskId: Task.Id) {
-//        Timber.tag(TAG).v("Starting editor for ID %s", taskId)
-//        val intent = Intent(context, TaskEditorActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        intent.putTaskId(taskId)
-//        context.startActivity(intent)
-//    }
 
     data class Data(
         val taskId: Task.Id,

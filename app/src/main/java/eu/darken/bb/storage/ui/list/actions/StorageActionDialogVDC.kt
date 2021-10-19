@@ -112,7 +112,7 @@ class StorageActionDialogVDC @Inject constructor(
                     .withScopeVDC(this)
             }
             RESTORE -> {
-                taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
+                taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
                     .observeOn(Schedulers.computation())
                     .flatMap { data ->
                         (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }

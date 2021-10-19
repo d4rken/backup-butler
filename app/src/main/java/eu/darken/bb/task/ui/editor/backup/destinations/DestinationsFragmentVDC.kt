@@ -58,7 +58,7 @@ class DestinationsFragmentVDC @Inject constructor(
     }
 
     fun removeDestination(storage: Storage.InfoOpt) {
-        editor.removeDestination(storage.storageId)
+        editor.removeStorage(storage.storageId)
     }
 
     fun executeTask() {
@@ -91,7 +91,7 @@ class DestinationsFragmentVDC @Inject constructor(
             .latest()
             .map { it.editor as SimpleBackupTaskEditor }
             .subscribe { editor ->
-                editor.addDestination(result.storageId)
+                editor.addStorage(result.storageId)
             }
     }
 

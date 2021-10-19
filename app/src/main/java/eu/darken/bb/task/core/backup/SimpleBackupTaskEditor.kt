@@ -56,37 +56,37 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
     }
 
-    fun addDestination(storageId: Storage.Id) {
+    fun addStorage(storageId: Storage.Id) {
         editorDataPub.update {
             if (it.destinations.contains(storageId)) {
-                log(TAG, WARN) { "Storage.Id was already added as destination: $storageId" }
+                log(TAG, WARN) { "Storage.Id was already added as storage: $storageId" }
             }
             it.copy(destinations = it.destinations.toMutableSet().apply { add(storageId) }.toSet())
         }
     }
 
-    fun removeDestination(storageId: Storage.Id) {
+    fun removeStorage(storageId: Storage.Id) {
         editorDataPub.update { task ->
             if (!task.destinations.contains(storageId)) {
-                log(TAG, WARN) { "Task ($taskId) does not contain destination $storageId" }
+                log(TAG, WARN) { "Task ($taskId) does not contain storage $storageId" }
             }
             task.copy(destinations = task.destinations.toMutableSet().filterNot { it == storageId }.toSet())
         }
     }
 
-    fun addSource(generatorId: Generator.Id) {
+    fun addGenerator(generatorId: Generator.Id) {
         editorDataPub.update {
             if (it.sources.contains(generatorId)) {
-                log(TAG, WARN) { "Generator.Id was already added as destination: $generatorId" }
+                log(TAG, WARN) { "Generator.Id was already added: $generatorId" }
             }
             it.copy(sources = it.sources.toMutableSet().apply { add(generatorId) }.toSet())
         }
     }
 
-    fun removeSource(generatorId: Generator.Id) {
+    fun removeGenerator(generatorId: Generator.Id) {
         editorDataPub.update { task ->
             if (task.sources.contains(generatorId)) {
-                log(TAG, WARN) { "Task ($taskId) does not contain source: $generatorId" }
+                log(TAG, WARN) { "Task ($taskId) does not contain generator: $generatorId" }
             }
             task.copy(sources = task.sources.toMutableSet().filterNot { it == generatorId }.toSet())
         }

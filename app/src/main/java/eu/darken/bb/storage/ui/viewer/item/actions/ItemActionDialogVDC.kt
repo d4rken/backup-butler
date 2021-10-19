@@ -104,7 +104,7 @@ class ItemActionDialogVDC @Inject constructor(
                         { error -> errorEvents.postValue(error) }
                     )
             }
-            ItemAction.RESTORE -> taskBuilder.createEditor(type = Task.Type.RESTORE_SIMPLE)
+            ItemAction.RESTORE -> taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
                 .flatMap { data ->
                     (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
                         .map { data.taskId }

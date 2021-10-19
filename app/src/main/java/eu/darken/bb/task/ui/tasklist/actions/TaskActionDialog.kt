@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -50,6 +51,7 @@ class TaskActionDialog : BottomSheetDialogFragment() {
         }
 
         vdc.navEvents.observe2(this) { doNavigate(it) }
+        vdc.errorEvents.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)
     }

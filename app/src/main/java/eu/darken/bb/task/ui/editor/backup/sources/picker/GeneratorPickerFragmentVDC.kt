@@ -67,7 +67,7 @@ class GeneratorPickerFragmentVDC @Inject constructor(
             .latest()
             .map { it.editor as SimpleBackupTaskEditor }
             .subscribe { editor ->
-                editor.addSource(item.generatorId)
+                editor.addGenerator(item.generatorId)
             }
         finishEvent.postValue(Any())
     }
