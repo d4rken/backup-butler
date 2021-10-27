@@ -16,8 +16,6 @@ import eu.darken.bb.quickmode.ui.cards.files.FilesInfoCreateVH
 import eu.darken.bb.quickmode.ui.cards.files.FilesInfoLoadingVH
 import eu.darken.bb.quickmode.ui.cards.files.FilesInfoVH
 import eu.darken.bb.quickmode.ui.cards.hints.AdvancedModeHintsVH
-import eu.darken.bb.quickmode.ui.cards.info.BBInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.info.BBInfoVH
 import javax.inject.Inject
 
 class QuickModeAdapter @Inject constructor() :
@@ -29,8 +27,6 @@ class QuickModeAdapter @Inject constructor() :
     init {
         modules.add(DataBinderMod(data))
         modules.add(TypedVHCreatorMod({ data[it] is AdvancedModeHintsVH.Item }) { AdvancedModeHintsVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is BBInfoVH.Item }) { BBInfoVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is BBInfoLoadingVH.Item }) { BBInfoLoadingVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is AppsInfoVH.Item }) { AppsInfoVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is AppsInfoLoadingVH.Item }) { AppsInfoLoadingVH(it) })
         modules.add(TypedVHCreatorMod({ data[it] is AppsInfoCreateVH.Item }) { AppsInfoCreateVH(it) })

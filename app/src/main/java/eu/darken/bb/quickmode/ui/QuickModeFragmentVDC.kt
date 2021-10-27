@@ -21,8 +21,6 @@ import eu.darken.bb.quickmode.ui.cards.files.FilesInfoCreateVH
 import eu.darken.bb.quickmode.ui.cards.files.FilesInfoLoadingVH
 import eu.darken.bb.quickmode.ui.cards.files.FilesInfoVH
 import eu.darken.bb.quickmode.ui.cards.hints.AdvancedModeHintsVH
-import eu.darken.bb.quickmode.ui.cards.info.BBInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.info.BBInfoVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.TaskRepo
@@ -63,19 +61,6 @@ class QuickModeFragmentVDC @Inject constructor(
 //        .map { it.storageIds }
 //        .flatMap { storageManager.infos(it) }
 //        .doOnNext { log(TAG) { "Default storage infos: $it" } }
-
-    private val infoObs: Observable<out QuickModeAdapter.Item> = Observable
-        .create<QuickModeAdapter.Item> {
-            val item = BBInfoVH.Item(
-                appInfo = backupButler.appInfo,
-                onUpgradeAction = {
-                    TODO()
-                }
-            )
-            it.onNext(item)
-        }
-        .subscribeOn(Schedulers.computation())
-        .startWithItem(BBInfoLoadingVH.Item)
 
     private val appObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.appsData.data
         .observeOn(Schedulers.computation())
@@ -131,12 +116,11 @@ class QuickModeFragmentVDC @Inject constructor(
 
     val items: LiveData<List<QuickModeAdapter.Item>> = Observable
         .combineLatest(
-            infoObs,
             appObs,
             fileObs,
             quickModeSettings.isHintAdvancedModeDismissed.observable.observeOn(Schedulers.computation())
-        ) { info, apps, files, isHintAdvModeDismissed ->
-            mutableListOf(info, apps, files).apply {
+        ) { apps, files, isHintAdvModeDismissed ->
+            mutableListOf(apps, files).apply {
                 if (!isHintAdvModeDismissed) {
                     val hint = AdvancedModeHintsVH.Item(
                         onDismiss = {
