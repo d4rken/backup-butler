@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPickerVM
 import eu.darken.bb.common.lists.modular.ModularAdapter
@@ -39,7 +39,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
     private val ui: PathpickerLocalFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: APathLookupAdapter
-    private val sharedVM by lazy { ViewModelProvider(requireActivity()).get(SharedPickerVM::class.java) }
+    private val sharedVM by lazy { ViewModelProvider(requireActivity())[SharedPickerVM::class.java] }
 
     private var allowCreateDir = false
 
@@ -80,7 +80,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
         }
 
         vdc.errorEvents.observe2(this) { error ->
-            Snackbar.make(requireView(), error.localized(requireContext()).asText(), Snackbar.LENGTH_LONG).show()
+            error.asErrorDialogBuilder(requireContext()).show()
         }
 
         ui.selectAction.clicksDebounced().subscribe { vdc.finishSelection() }

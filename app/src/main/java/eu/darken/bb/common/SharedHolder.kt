@@ -2,6 +2,7 @@ package eu.darken.bb.common
 
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.errors.getStackTraceString
+import eu.darken.bb.common.errors.tryUnwrap
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -70,7 +71,7 @@ open class SharedHolder<T : Any> constructor(
             resourceHolder.blockingFirst()
         } catch (e: Exception) {
             keepAlive.dispose()
-            throw e
+            throw e.tryUnwrap()
         }
 
         val wrappedKeepAlive = object : Disposable {

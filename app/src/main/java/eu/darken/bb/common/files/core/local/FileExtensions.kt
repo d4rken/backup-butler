@@ -125,11 +125,15 @@ fun File.readLink(): String? = try {
     null
 }
 
-fun File.canOpenRead(): Boolean = try {
-    // canRead() may return true, while SELinux blocks open
-    // type=1400 audit(0.0:12576): avc: denied { open } for path="/data/data/alinktests/subdir/symtarget" dev="sda45" ino=2754227 scontext=u:r:untrusted_app_27:s0:c100,c257,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=0
-    reader().use { it.read() }
-    true
+fun File.isReadable(): Boolean = try {
+    if (isDirectory) {
+        canRead()
+    } else {
+        // canRead() may return true, while SELinux blocks open
+        // type=1400 audit(0.0:12576): avc: denied { open } for path="/data/data/alinktests/subdir/symtarget" dev="sda45" ino=2754227 scontext=u:r:untrusted_app_27:s0:c100,c257,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=0
+        reader().use { it.read() }
+        true
+    }
 } catch (e: Exception) {
     false
 }

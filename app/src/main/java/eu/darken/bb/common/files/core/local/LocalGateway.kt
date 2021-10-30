@@ -206,7 +206,7 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun canRead(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = try {
         val javaFile = path.asFile()
-        val canNormalOpen = javaFile.canOpenRead()
+        val canNormalOpen = javaFile.isReadable()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
                 canNormalOpen
@@ -236,7 +236,7 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun read(path: LocalPath, mode: Mode = Mode.AUTO): Source = try {
         val javaFile = path.asFile()
-        val canNormalOpen = javaFile.canOpenRead()
+        val canNormalOpen = javaFile.isReadable()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
                 javaFile.source()
@@ -257,7 +257,7 @@ class LocalGateway @Inject constructor(
     @Throws(IOException::class)
     fun write(path: LocalPath, mode: Mode = Mode.AUTO): Sink = try {
         val javaFile = path.asFile()
-        val canOpen = javaFile.canOpenRead()
+        val canOpen = javaFile.isReadable()
         when {
             mode == Mode.NORMAL || mode == Mode.AUTO && canOpen -> {
                 javaFile.sink()

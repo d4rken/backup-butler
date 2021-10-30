@@ -20,19 +20,17 @@ fun Throwable.localized(c: Context): LocalizedError = when {
     localizedMessage != null -> LocalizedError(
         throwable = this,
         label = "${c.getString(R.string.general_error_label)}: ${this::class.simpleName!!}",
-        description = localizedMessage!!.lines()
-            .filterIndexed { index, _ -> index > 1 }
-            .take(3)
-            .joinToString("\n")
+        description = localizedMessage ?: getStackTracePeek()
     )
     else -> LocalizedError(
         throwable = this,
         label = "${c.getString(R.string.general_error_label)}: ${this::class.simpleName!!}",
-        description = this.stackTraceToString()
-            .lines()
-            .filterIndexed { index, _ -> index > 1 }
-            .take(3)
-            .joinToString("\n")
+        description = getStackTracePeek()
     )
 }
 
+private fun Throwable.getStackTracePeek() = this.stackTraceToString()
+    .lines()
+    .filterIndexed { index, _ -> index > 1 }
+    .take(3)
+    .joinToString("\n")

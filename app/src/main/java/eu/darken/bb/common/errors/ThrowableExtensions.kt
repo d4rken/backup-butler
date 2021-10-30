@@ -33,3 +33,6 @@ fun Throwable.getStackTraceString(): String {
     pw.flush()
     return sw.toString()
 }
+
+fun Throwable.tryUnwrap(kClass: KClass<RuntimeException> = RuntimeException::class): Throwable =
+    if (!kClass.isInstance(this)) this else cause ?: this
