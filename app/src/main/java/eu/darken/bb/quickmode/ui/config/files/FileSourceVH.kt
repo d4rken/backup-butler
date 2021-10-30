@@ -1,21 +1,21 @@
-package eu.darken.bb.quickmode.ui.wizard.files
+package eu.darken.bb.quickmode.ui.config.files
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.databinding.QuickmodeWizardFilesPathAdapterItemBinding
+import eu.darken.bb.databinding.QuickmodeFilesConfigPathAdapterItemBinding
 
 class FileSourceVH(parent: ViewGroup) :
-    FileSourceAdapter.BaseVH<FileSourceVH.Item, QuickmodeWizardFilesPathAdapterItemBinding>(
-        R.layout.quickmode_wizard_files_path_adapter_item,
+    FileSourceAdapter.BaseVH<FileSourceVH.Item, QuickmodeFilesConfigPathAdapterItemBinding>(
+        R.layout.quickmode_files_config_path_adapter_item,
         parent
     ) {
 
     override val viewBinding = lazy {
-        QuickmodeWizardFilesPathAdapterItemBinding.bind(itemView)
+        QuickmodeFilesConfigPathAdapterItemBinding.bind(itemView)
     }
 
-    override val onBindData: QuickmodeWizardFilesPathAdapterItemBinding.(
+    override val onBindData: QuickmodeFilesConfigPathAdapterItemBinding.(
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->

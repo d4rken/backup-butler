@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,11 +13,10 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            app:menu="@menu/menu_quickmode_wizard_files"
             style="@style/Toolbar"
-            app:title="@string/task_editor_backup_new_label"
-            app:navigationIcon="@drawable/ic_baseline_close_24"
-            app:subtitle="@string/backup_type_files_label" />
+            app:menu="@menu/menu_quickmode_wizard_apps"
+            app:subtitle="@string/backup_type_app_label"
+            app:title="@string/task_editor_backup_new_label" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -28,7 +26,7 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingBottom="32dp"
-        tools:listitem="@layout/quickmode_wizard_common_storage_info_item"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/quickmode_config_common_storage_info_item" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

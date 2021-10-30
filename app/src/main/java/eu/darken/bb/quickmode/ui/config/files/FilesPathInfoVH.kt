@@ -1,22 +1,22 @@
-package eu.darken.bb.quickmode.ui.wizard.files
+package eu.darken.bb.quickmode.ui.config.files
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
-import eu.darken.bb.databinding.QuickmodeWizardFilesPathItemBinding
-import eu.darken.bb.quickmode.ui.wizard.common.WizardAdapter
+import eu.darken.bb.databinding.QuickmodeFilesConfigPathItemBinding
+import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
 
 class FilesPathInfoVH(parent: ViewGroup) :
-    WizardAdapter.BaseVH<FilesPathInfoVH.Item, QuickmodeWizardFilesPathItemBinding>(
-        R.layout.quickmode_wizard_files_path_item,
+    ConfigAdapter.BaseVH<FilesPathInfoVH.Item, QuickmodeFilesConfigPathItemBinding>(
+        R.layout.quickmode_files_config_path_item,
         parent
     ) {
 
     private val adapter = FileSourceAdapter()
 
-    override val viewBinding = lazy { QuickmodeWizardFilesPathItemBinding.bind(itemView) }
+    override val viewBinding = lazy { QuickmodeFilesConfigPathItemBinding.bind(itemView) }
 
-    override val onBindData: QuickmodeWizardFilesPathItemBinding.(
+    override val onBindData: QuickmodeFilesConfigPathItemBinding.(
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
@@ -27,7 +27,7 @@ class FilesPathInfoVH(parent: ViewGroup) :
         val sources: List<Generator>,
         val onAdd: () -> Unit,
         val onRemove: (Generator.Id) -> Unit,
-    ) : WizardAdapter.Item {
+    ) : ConfigAdapter.Item {
         override val stableId: Long = this.hashCode().toLong()
     }
 }

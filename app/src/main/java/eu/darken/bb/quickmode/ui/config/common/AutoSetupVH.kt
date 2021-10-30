@@ -1,20 +1,20 @@
-package eu.darken.bb.quickmode.ui.wizard.common
+package eu.darken.bb.quickmode.ui.config.common
 
 import android.view.ViewGroup
 import eu.darken.bb.R
-import eu.darken.bb.databinding.QuickmodeWizardCommonAutoSetupItemBinding
+import eu.darken.bb.databinding.QuickmodeConfigCommonAutoSetupItemBinding
 
 class AutoSetupVH(parent: ViewGroup) :
-    WizardAdapter.BaseVH<AutoSetupVH.Item, QuickmodeWizardCommonAutoSetupItemBinding>(
-        R.layout.quickmode_wizard_common_auto_setup_item,
+    ConfigAdapter.BaseVH<AutoSetupVH.Item, QuickmodeConfigCommonAutoSetupItemBinding>(
+        R.layout.quickmode_config_common_auto_setup_item,
         parent
     ) {
 
     override val viewBinding = lazy {
-        QuickmodeWizardCommonAutoSetupItemBinding.bind(itemView)
+        QuickmodeConfigCommonAutoSetupItemBinding.bind(itemView)
     }
 
-    override val onBindData: QuickmodeWizardCommonAutoSetupItemBinding.(
+    override val onBindData: QuickmodeConfigCommonAutoSetupItemBinding.(
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
@@ -23,7 +23,7 @@ class AutoSetupVH(parent: ViewGroup) :
 
     data class Item(
         val onAutoSetup: () -> Unit
-    ) : WizardAdapter.Item {
+    ) : ConfigAdapter.Item {
         override val stableId: Long = Item::class.hashCode().toLong()
     }
 }

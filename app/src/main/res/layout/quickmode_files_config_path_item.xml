@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            tools:listitem="@layout/quickmode_wizard_files_path_adapter_item"
+            tools:listitem="@layout/quickmode_files_config_path_adapter_item"
             app:layout_constraintTop_toBottomOf="@id/title" />
 
         <com.google.android.material.button.MaterialButton

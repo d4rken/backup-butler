@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.wizard.apps
+package eu.darken.bb.quickmode.ui.config.apps
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
@@ -13,7 +13,7 @@ import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
 import eu.darken.bb.quickmode.core.QuickModeRepo
-import eu.darken.bb.quickmode.ui.wizard.common.*
+import eu.darken.bb.quickmode.ui.config.common.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -24,7 +24,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class WizardAppsFragmentVDC @Inject constructor(
+class AppsConfigFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val quickModeRepo: QuickModeRepo,
     private val taskRepo: TaskRepo,
@@ -53,7 +53,7 @@ class WizardAppsFragmentVDC @Inject constructor(
         .flatMap { it.editorData }
         .replayingShare()
 
-    private val storageItemObs: Observable<WizardAdapter.Item> = editorData
+    private val storageItemObs: Observable<ConfigAdapter.Item> = editorData
         .flatMap { storageManager.infos(it.destinations) }
         .map { storageInfos ->
             when (storageInfos.size) {
@@ -75,7 +75,7 @@ class WizardAppsFragmentVDC @Inject constructor(
 
     val state: LiveData<State> = Observable
         .combineLatest(editorData, storageItemObs) { editorData, storageItem ->
-            val items = mutableListOf<WizardAdapter.Item>()
+            val items = mutableListOf<ConfigAdapter.Item>()
             if (!editorData.isExistingTask) {
                 AutoSetupVH.Item(
                     onAutoSetup = { runAutoSetUp() }
@@ -134,7 +134,7 @@ class WizardAppsFragmentVDC @Inject constructor(
     }
 
     data class State(
-        val items: List<WizardAdapter.Item> = emptyList(),
+        val items: List<ConfigAdapter.Item> = emptyList(),
         val isExisting: Boolean = false,
     )
 

@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.wizard.files
+package eu.darken.bb.quickmode.ui.config.files
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -15,8 +15,8 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
 import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.core.QuickModeRepo
-import eu.darken.bb.quickmode.ui.wizard.apps.WizardAppsFragmentVDC
-import eu.darken.bb.quickmode.ui.wizard.common.*
+import eu.darken.bb.quickmode.ui.config.apps.AppsConfigFragmentVDC
+import eu.darken.bb.quickmode.ui.config.common.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
@@ -28,7 +28,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class WizardFilesFragmentVDC @Inject constructor(
+class FilesConfigFragmentVDC @Inject constructor(
     @ApplicationContext private val context: Context,
     private val handle: SavedStateHandle,
     private val quickModeRepo: QuickModeRepo,
@@ -60,7 +60,7 @@ class WizardFilesFragmentVDC @Inject constructor(
     private val editorData: Observable<SimpleBackupTaskEditor.Data> = editorObs
         .flatMapObservable { it.editorData }
 
-    private val storageItemObs: Observable<WizardAdapter.Item> = editorData
+    private val storageItemObs: Observable<ConfigAdapter.Item> = editorData
         .switchMap { data ->
             storageManager.infos(data.destinations).takeUntil { infos ->
                 infos.all { it.isFinished }
@@ -73,7 +73,7 @@ class WizardFilesFragmentVDC @Inject constructor(
                         log(TAG) { "onSetupStorage()" }
 
                         editorData.take(1).subscribe { data ->
-                            WizardFilesFragmentDirections.actionWizardFilesFragmentToStoragePicker(
+                            FilesConfigFragmentDirections.actionWizardFilesFragmentToStoragePicker(
                                 taskId = data.taskId
                             ).run { navEvents.postValue(this) }
                         }
@@ -90,9 +90,9 @@ class WizardFilesFragmentVDC @Inject constructor(
             }
         }
 
-    val state: LiveData<WizardAppsFragmentVDC.State> = Observable
+    val state: LiveData<AppsConfigFragmentVDC.State> = Observable
         .combineLatest(editorData, storageItemObs) { editorData, storageItem ->
-            val items = mutableListOf<WizardAdapter.Item>()
+            val items = mutableListOf<ConfigAdapter.Item>()
 
             if (!editorData.isExistingTask) {
                 AutoSetupVH.Item(
@@ -112,13 +112,13 @@ class WizardFilesFragmentVDC @Inject constructor(
                 },
             ).let { items.add(it) }
 
-            WizardAppsFragmentVDC.State(
+            AppsConfigFragmentVDC.State(
                 items = items,
                 isExisting = editorData.isExistingTask
             )
         }
         .doOnError { errorEvent.postValue(it) }
-        .onErrorReturnItem(WizardAppsFragmentVDC.State())
+        .onErrorReturnItem(AppsConfigFragmentVDC.State())
         .asLiveData()
 
     private fun runAutoSetUp() {
@@ -166,7 +166,7 @@ class WizardFilesFragmentVDC @Inject constructor(
     }
 
     data class State(
-        val items: List<WizardAdapter.Item> = emptyList(),
+        val items: List<ConfigAdapter.Item> = emptyList(),
         val isExisting: Boolean = false,
     )
 

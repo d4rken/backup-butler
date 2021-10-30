@@ -189,9 +189,9 @@
     </fragment>
     <fragment
         android:id="@+id/wizardAppsFragment"
-        android:name="eu.darken.bb.quickmode.ui.wizard.apps.WizardAppsFragment"
+        android:name="eu.darken.bb.quickmode.ui.config.apps.AppsConfigFragment"
         android:label="WizardAppsFragment"
-        tools:layout="@layout/quickmode_wizard_apps_fragment">
+        tools:layout="@layout/quickmode_apps_config_fragment">
         <action
             android:id="@+id/action_wizardAppsFragment_to_storage_picker"
             app:destination="@id/storage_picker">
@@ -205,9 +205,9 @@
     </fragment>
     <fragment
         android:id="@+id/wizardFilesFragment"
-        android:name="eu.darken.bb.quickmode.ui.wizard.files.WizardFilesFragment"
+        android:name="eu.darken.bb.quickmode.ui.config.files.FilesConfigFragment"
         android:label="WizardFilesFragment"
-        tools:layout="@layout/quickmode_wizard_files_fragment">
+        tools:layout="@layout/quickmode_files_config_fragment">
         <action
             android:id="@+id/action_wizardFilesFragment_to_storage_picker"
             app:destination="@id/storage_picker">

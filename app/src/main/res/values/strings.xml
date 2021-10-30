@@ -325,4 +325,5 @@
     <string name="quick_wizard_common_storage_multiple_hint">Multiple storages are configured. Switch to the advanced user interface to view them.</string>
     <string name="quick_files_default_task_label">Default files backup task</string>
     <string name="quick_apps_default_task_label">Default app backup task</string>
+    <string name="quick_mode_subtitle">Quick mode</string>
 </resources>

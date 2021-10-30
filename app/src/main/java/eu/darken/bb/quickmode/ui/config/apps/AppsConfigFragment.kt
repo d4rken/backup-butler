@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.wizard.apps
+package eu.darken.bb.quickmode.ui.config.apps
 
 import android.os.Bundle
 import android.view.View
@@ -13,15 +13,15 @@ import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.QuickmodeWizardAppsFragmentBinding
-import eu.darken.bb.quickmode.ui.wizard.common.WizardAdapter
+import eu.darken.bb.databinding.QuickmodeAppsConfigFragmentBinding
+import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
 
 @AndroidEntryPoint
-class WizardAppsFragment : SmartFragment(R.layout.quickmode_wizard_apps_fragment) {
+class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment) {
 
-    private val vdc: WizardAppsFragmentVDC by viewModels()
-    private val ui: QuickmodeWizardAppsFragmentBinding by viewBinding()
-    private val adapter = WizardAdapter { data ->
+    private val vdc: AppsConfigFragmentVDC by viewModels()
+    private val ui: QuickmodeAppsConfigFragmentBinding by viewBinding()
+    private val adapter = ConfigAdapter { data ->
         listOf(
             TypedVHCreatorMod({ data[it] is AppsPreviewVH.Item }) { AppsPreviewVH(it) },
             TypedVHCreatorMod({ data[it] is AppsOptionVH.Item }) { AppsOptionVH(it) }

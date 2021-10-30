@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.wizard.files
+package eu.darken.bb.quickmode.ui.config.files
 
 import android.os.Bundle
 import android.view.View
@@ -14,17 +14,17 @@ import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.QuickmodeWizardFilesFragmentBinding
-import eu.darken.bb.quickmode.ui.wizard.common.WizardAdapter
+import eu.darken.bb.databinding.QuickmodeFilesConfigFragmentBinding
+import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
 import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
 
 @AndroidEntryPoint
-class WizardFilesFragment : SmartFragment(R.layout.quickmode_wizard_files_fragment), StoragePickerResultListener {
+class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragment), StoragePickerResultListener {
 
-    private val vdc: WizardFilesFragmentVDC by viewModels()
-    private val ui: QuickmodeWizardFilesFragmentBinding by viewBinding()
+    private val vdc: FilesConfigFragmentVDC by viewModels()
+    private val ui: QuickmodeFilesConfigFragmentBinding by viewBinding()
 
-    private val adapter = WizardAdapter { data ->
+    private val adapter = ConfigAdapter { data ->
         listOf(
             TypedVHCreatorMod({ data[it] is FilesPathInfoVH.Item }) { FilesPathInfoVH(it) },
         )

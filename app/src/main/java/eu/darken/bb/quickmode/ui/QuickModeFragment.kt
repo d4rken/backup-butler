@@ -27,6 +27,7 @@ class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
             recyclerView.setupDefaults(adapter, dividers = false)
+            toolbar.subtitle = getString(R.string.quick_mode_subtitle)
         }
 
         vdc.navEvents.observe2(this) { doNavigate(it) }

@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.wizard.common
+package eu.darken.bb.quickmode.ui.config.common
 
 import android.annotation.SuppressLint
 import android.text.format.Formatter
@@ -6,20 +6,20 @@ import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.localized
 import eu.darken.bb.common.getColorForAttr
-import eu.darken.bb.databinding.QuickmodeWizardCommonStorageInfoItemBinding
+import eu.darken.bb.databinding.QuickmodeConfigCommonStorageInfoItemBinding
 import eu.darken.bb.storage.core.Storage
 
 class StorageInfoVH(parent: ViewGroup) :
-    WizardAdapter.BaseVH<StorageInfoVH.Item, QuickmodeWizardCommonStorageInfoItemBinding>(
-        R.layout.quickmode_wizard_common_storage_info_item,
+    ConfigAdapter.BaseVH<StorageInfoVH.Item, QuickmodeConfigCommonStorageInfoItemBinding>(
+        R.layout.quickmode_config_common_storage_info_item,
         parent
     ) {
 
     override val viewBinding = lazy {
-        QuickmodeWizardCommonStorageInfoItemBinding.bind(itemView)
+        QuickmodeConfigCommonStorageInfoItemBinding.bind(itemView)
     }
 
-    override val onBindData: QuickmodeWizardCommonStorageInfoItemBinding.(
+    override val onBindData: QuickmodeConfigCommonStorageInfoItemBinding.(
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
