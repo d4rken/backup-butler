@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.config.files
+package eu.darken.bb.quickmode.ui.files.config
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -15,8 +15,8 @@ import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
 import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.core.QuickModeRepo
-import eu.darken.bb.quickmode.ui.config.apps.AppsConfigFragmentVDC
-import eu.darken.bb.quickmode.ui.config.common.*
+import eu.darken.bb.quickmode.ui.apps.config.AppsConfigFragmentVDC
+import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
@@ -73,7 +73,7 @@ class FilesConfigFragmentVDC @Inject constructor(
                         log(TAG) { "onSetupStorage()" }
 
                         editorData.take(1).subscribe { data ->
-                            FilesConfigFragmentDirections.actionWizardFilesFragmentToStoragePicker(
+                            FilesConfigFragmentDirections.actionFilesConfigFragmentToStoragePicker(
                                 taskId = data.taskId
                             ).run { navEvents.postValue(this) }
                         }
@@ -105,7 +105,7 @@ class FilesConfigFragmentVDC @Inject constructor(
             FilesPathInfoVH.Item(
                 sources = emptyList(),
                 onAdd = {
-                    TODO()
+                    FilesConfigFragmentDirections
                 },
                 onRemove = {
                     TODO()

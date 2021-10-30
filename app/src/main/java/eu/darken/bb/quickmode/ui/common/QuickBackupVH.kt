@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.cards.quick
+package eu.darken.bb.quickmode.ui.common
 
 import android.view.ViewGroup
 import eu.darken.bb.BackupButler

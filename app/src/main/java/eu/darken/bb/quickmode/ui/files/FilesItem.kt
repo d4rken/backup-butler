@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.cards.files
+package eu.darken.bb.quickmode.ui.files
 
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 

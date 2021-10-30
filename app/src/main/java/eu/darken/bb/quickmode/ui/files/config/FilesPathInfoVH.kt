@@ -1,10 +1,10 @@
-package eu.darken.bb.quickmode.ui.config.files
+package eu.darken.bb.quickmode.ui.files.config
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.databinding.QuickmodeFilesConfigPathItemBinding
-import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
+import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
 
 class FilesPathInfoVH(parent: ViewGroup) :
     ConfigAdapter.BaseVH<FilesPathInfoVH.Item, QuickmodeFilesConfigPathItemBinding>(

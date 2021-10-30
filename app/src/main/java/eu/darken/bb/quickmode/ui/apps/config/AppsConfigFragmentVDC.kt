@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.config.apps
+package eu.darken.bb.quickmode.ui.apps.config
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
@@ -13,7 +13,7 @@ import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
 import eu.darken.bb.quickmode.core.QuickModeRepo
-import eu.darken.bb.quickmode.ui.config.common.*
+import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder

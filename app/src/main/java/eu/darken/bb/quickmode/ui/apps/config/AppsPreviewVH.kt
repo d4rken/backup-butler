@@ -1,10 +1,10 @@
-package eu.darken.bb.quickmode.ui.config.apps
+package eu.darken.bb.quickmode.ui.apps.config
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
 import eu.darken.bb.databinding.QuickmodeAppsConfigPreviewItemBinding
-import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
+import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
 
 class AppsPreviewVH(parent: ViewGroup) :
     ConfigAdapter.BaseVH<AppsPreviewVH.Item, QuickmodeAppsConfigPreviewItemBinding>(

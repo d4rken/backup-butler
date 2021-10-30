@@ -15,18 +15,20 @@ import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
+import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.core.QuickModeSettings
-import eu.darken.bb.quickmode.ui.cards.apps.AppsInfoCreateVH
-import eu.darken.bb.quickmode.ui.cards.apps.AppsInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoCreateVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoVH
-import eu.darken.bb.quickmode.ui.cards.hints.AdvancedModeHintsVH
+import eu.darken.bb.quickmode.ui.apps.AppsInfoCreateVH
+import eu.darken.bb.quickmode.ui.apps.AppsInfoLoadingVH
+import eu.darken.bb.quickmode.ui.common.AdvancedModeHintsVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoCreateVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoLoadingVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
+import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -43,6 +45,7 @@ class QuickModeFragmentVDC @Inject constructor(
     private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
+    private val processorControl: ProcessorControl,
 ) : SmartVDC(), NavDirectionsProvider {
 
     override val navEvents = SingleLiveEvent<NavDirections>()
@@ -59,19 +62,13 @@ class QuickModeFragmentVDC @Inject constructor(
         .subscribeOn(Schedulers.computation())
         .asLiveData()
 
-//    private val storageObs: Observable<out SimpleModeAdapter.Item> = simpleMode.data
-//        .observeOn(Schedulers.computation())
-//        .map { it.storageIds }
-//        .flatMap { storageManager.infos(it) }
-//        .doOnNext { log(TAG) { "Default storage infos: $it" } }
-
     private val appObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.appsData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default app task id: $it" } }
         .flatMap { appsData ->
             if (appsData.taskId == null) {
                 AppsInfoCreateVH.Item {
-                    QuickModeFragmentDirections.actionQuickModeFragmentToWizardAppsFragment().via(this)
+                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
                 }.let { Observable.just(it) }
             } else {
                 taskRepo.get(appsData.taskId).toObservable()
@@ -87,7 +84,7 @@ class QuickModeFragmentVDC @Inject constructor(
             if (filesData.taskId == null) {
                 FilesInfoCreateVH.Item(
                     onCreateAppsTaskAction = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToWizardFilesFragment().via(this)
+                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
                     }
                 ).let { Observable.just(it) }
             } else {
@@ -97,11 +94,8 @@ class QuickModeFragmentVDC @Inject constructor(
                         task as Task.Backup
                         FilesInfoVH.Item(
                             task = task,
-                            onBackup = {
-
-                            },
                             onEdit = {
-                                QuickModeFragmentDirections.actionQuickModeFragmentToWizardFilesFragment(
+                                QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment(
                                     taskId = it
                                 ).via(this)
                             },
@@ -111,8 +105,17 @@ class QuickModeFragmentVDC @Inject constructor(
                                         .via(this)
                                 }
                             },
+                            onBackup = {
+                                // TODO progress display?
+                                processorControl.submit(it)
+                            },
                             onRestore = {
-
+                                QuickModeFragmentDirections.actionQuickModeFragmentToTaskEditor(
+                                    args = TaskEditorArgs(
+                                        taskId = task.taskId,
+                                        taskType = Task.Type.RESTORE_SIMPLE,
+                                    )
+                                ).via(this)
                             }
                         )
                     }

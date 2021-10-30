@@ -9,13 +9,13 @@ import eu.darken.bb.common.lists.HasStableId
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
-import eu.darken.bb.quickmode.ui.cards.apps.AppsInfoCreateVH
-import eu.darken.bb.quickmode.ui.cards.apps.AppsInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.apps.AppsInfoVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoCreateVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoLoadingVH
-import eu.darken.bb.quickmode.ui.cards.files.FilesInfoVH
-import eu.darken.bb.quickmode.ui.cards.hints.AdvancedModeHintsVH
+import eu.darken.bb.quickmode.ui.apps.AppsInfoCreateVH
+import eu.darken.bb.quickmode.ui.apps.AppsInfoLoadingVH
+import eu.darken.bb.quickmode.ui.apps.AppsInfoVH
+import eu.darken.bb.quickmode.ui.common.AdvancedModeHintsVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoCreateVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoLoadingVH
+import eu.darken.bb.quickmode.ui.files.FilesInfoVH
 import javax.inject.Inject
 
 class QuickModeAdapter @Inject constructor() :

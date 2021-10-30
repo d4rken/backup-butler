@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.config.files
+package eu.darken.bb.quickmode.ui.files.config
 
 import android.view.ViewGroup
 import eu.darken.bb.R

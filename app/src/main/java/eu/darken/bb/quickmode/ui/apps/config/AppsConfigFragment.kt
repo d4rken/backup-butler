@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.config.apps
+package eu.darken.bb.quickmode.ui.apps.config
 
 import android.os.Bundle
 import android.view.View
@@ -14,7 +14,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeAppsConfigFragmentBinding
-import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
+import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
 
 @AndroidEntryPoint
 class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment) {

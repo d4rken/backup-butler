@@ -1,12 +1,12 @@
-package eu.darken.bb.quickmode.ui.config.common
+package eu.darken.bb.quickmode.ui.common.config
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeConfigCommonAutoSetupItemBinding
 
-class AutoSetupVH(parent: ViewGroup) :
-    ConfigAdapter.BaseVH<AutoSetupVH.Item, QuickmodeConfigCommonAutoSetupItemBinding>(
-        R.layout.quickmode_config_common_auto_setup_item,
+class StorageCreateVH(parent: ViewGroup) :
+    ConfigAdapter.BaseVH<StorageCreateVH.Item, QuickmodeConfigCommonAutoSetupItemBinding>(
+        R.layout.quickmode_config_common_storage_create_item,
         parent
     ) {
 
@@ -18,12 +18,10 @@ class AutoSetupVH(parent: ViewGroup) :
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
-        setupAction.setOnClickListener { item.onAutoSetup() }
+        setupAction.setOnClickListener { item.onSetupStorage() }
     }
 
     data class Item(
-        val onAutoSetup: () -> Unit
-    ) : ConfigAdapter.Item {
-        override val stableId: Long = Item::class.hashCode().toLong()
-    }
+        val onSetupStorage: () -> Unit,
+    ) : StorageItem
 }

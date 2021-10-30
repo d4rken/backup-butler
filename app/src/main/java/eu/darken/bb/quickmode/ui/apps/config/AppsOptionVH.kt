@@ -1,9 +1,9 @@
-package eu.darken.bb.quickmode.ui.config.apps
+package eu.darken.bb.quickmode.ui.apps.config
 
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeAppsConfigOptionsItemBinding
-import eu.darken.bb.quickmode.ui.config.common.ConfigAdapter
+import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
 
 class AppsOptionVH(parent: ViewGroup) :
     ConfigAdapter.BaseVH<AppsOptionVH.Item, QuickmodeAppsConfigOptionsItemBinding>(

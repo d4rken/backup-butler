@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.cards.apps
+package eu.darken.bb.quickmode.ui.apps
 
 import android.view.ViewGroup
 import eu.darken.bb.R

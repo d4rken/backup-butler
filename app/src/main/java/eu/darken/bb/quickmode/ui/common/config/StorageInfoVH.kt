@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.ui.config.common
+package eu.darken.bb.quickmode.ui.common.config
 
 import android.annotation.SuppressLint
 import android.text.format.Formatter
