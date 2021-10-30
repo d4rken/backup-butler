@@ -15,14 +15,13 @@ import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.PathPicker
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.permission.RuntimePermissionTool
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +30,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     private val localGateway: LocalGateway,
     private val permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
-    private val options: APathPicker.Options = handle.navArgs<LocalPickerFragmentArgs>().value.options
+    private val options: PathPicker.Options = handle.navArgs<LocalPickerFragmentArgs>().value.options
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
     private val startPath = options.startPath as? LocalPath ?: fallbackPath
 
@@ -49,7 +48,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     val createDirEvent = SingleLiveEvent<APath>()
-    val resultEvents = SingleLiveEvent<APathPicker.Result>()
+    val resultEvents = SingleLiveEvent<PathPicker.Result>()
     val errorEvents = SingleLiveEvent<Throwable>()
     val missingPermissionEvent = SingleLiveEvent<Permission>()
     val requestPermissionEvent = SingleLiveEvent<Permission>()
@@ -82,7 +81,7 @@ class LocalPickerFragmentVDC @Inject constructor(
 
             if (holderToken == null) holderToken = localGateway.keepAlive.get()
             val listing = localGateway.lookupFiles(path, mode = mode)
-                .sortedBy { it.name.lowercase(Locale.ROOT) }
+                .sortedBy { it.name.lowercase() }
                 .filter { !options.onlyDirs || it.isDirectory }
 
             Triple(path, crumbs, listing)
@@ -137,7 +136,7 @@ class LocalPickerFragmentVDC @Inject constructor(
 
     fun finishSelection() {
         val selected = setOf(stater.snapshot.currentPath)
-        val result = APathPicker.Result(
+        val result = PathPicker.Result(
             options = options,
             selection = selected
         )

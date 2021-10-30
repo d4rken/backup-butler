@@ -1,20 +1,24 @@
 package eu.darken.bb.backup.ui.generator.editor.types.files
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.*
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.errors.asErrorDialogBuilder
+import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
+import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
+import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setInvisible
+import eu.darken.bb.common.userTextChangeEvents
+import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorEditorFileFragmentBinding
 
 @AndroidEntryPoint
@@ -50,24 +54,17 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
         ui.nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
         ui.pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
 
-        vdc.pickerEvent.observe2(this) {
-            val intent = APathPicker.createIntent(requireContext(), it)
-            startActivityForResult(intent, 13)
+        val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
+            if (it != null) vdc.updatePath(it)
+            else Toast.makeText(requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
+        vdc.pickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
         vdc.finishEvent.observe2(this) { requireActivity().finish() }
 
-        vdc.errorEvent.observe2(this) { toastError(it) }
+        vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            13 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
-            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
-        }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

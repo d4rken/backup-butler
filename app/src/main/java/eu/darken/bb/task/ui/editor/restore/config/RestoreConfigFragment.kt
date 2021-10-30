@@ -1,15 +1,15 @@
 package eu.darken.bb.task.ui.editor.restore.config
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.jakewharton.rxbinding4.view.longClicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
@@ -104,11 +104,11 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
 
             setupbar.isEnabled = !state.isWorking && !state.isLoading
         }
-
-        vdc.openPickerEvent.observe2(this) {
-            val intent = APathPicker.createIntent(requireContext(), it)
-            startActivityForResult(intent, 13)
+        val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
+            if (it != null) vdc.updatePath(it)
+            else Toast.makeText(requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
+        vdc.openPickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
         vdc.errorEvent.observe2(this) { toastError(it) }
 
@@ -119,11 +119,4 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            13 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
-            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
 }

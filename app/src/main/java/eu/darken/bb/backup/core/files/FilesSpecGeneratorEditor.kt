@@ -16,6 +16,7 @@ import eu.darken.bb.common.files.core.saf.SAFPath
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class FilesSpecGeneratorEditor @AssistedInject constructor(
     @Assisted private val generatorId: Generator.Id,
@@ -31,6 +32,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
     private var originalPath: APath? = null
 
     override fun load(config: Generator.Config): Completable = Single.just(config as FilesSpecGenerator.Config)
+        .subscribeOn(Schedulers.io())
         .flatMap { genSpec ->
             require(generatorId == genSpec.generatorId) { "IDs don't match" }
 
@@ -62,7 +64,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
             label = data.label,
             path = data.path!!
         )
-    }
+    }.subscribeOn(Schedulers.io())
 
     override fun release(): Completable = Completable.complete()
 
@@ -75,7 +77,11 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         .ignoreElement()
 
     fun updatePath(path: APath): Completable = Completable
-        .fromCallable { require(pathTool.canRead(path)) { "Can't read $path" } }
+        .fromCallable {
+            val canRead = pathTool.canRead(path)
+            require(canRead) { "Can't read $path" }
+        }
+        .subscribeOn(Schedulers.io())
         .andThen(editorDataPub.updateRx {
             it.copy(
                 path = path,

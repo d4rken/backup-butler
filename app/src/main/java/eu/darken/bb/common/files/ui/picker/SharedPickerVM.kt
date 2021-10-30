@@ -9,14 +9,14 @@ import timber.log.Timber
 class SharedPickerVM
     : ViewModel() {
 
-    val resultEvent = SingleLiveEvent<APathPicker.Result>()
+    val resultEvent = SingleLiveEvent<PathPicker.Result>()
     val typeEvent = SingleLiveEvent<Storage.Type>()
 
     init {
         Timber.tag(TAG).d("Init: %s", this)
     }
 
-    fun postResult(result: APathPicker.Result) {
+    fun postResult(result: PathPicker.Result) {
         resultEvent.postValue(result)
     }
 

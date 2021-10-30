@@ -1,9 +1,9 @@
 package eu.darken.bb.storage.ui.editor.types.local
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
+import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -13,7 +13,7 @@ import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.localized
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
@@ -85,10 +85,11 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
 
         ui.pathButton.clicksDebounced().subscribe { vdc.selectPath() }
 
-        vdc.pickerEvent.observe2(this) {
-            val intent = APathPicker.createIntent(requireContext(), it)
-            startActivityForResult(intent, 47)
+        val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
+            if (it != null) vdc.updatePath(it)
+            else Toast.makeText(requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
+        vdc.pickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
         ui.nameInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
         ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
@@ -124,13 +125,5 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
         }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            47 -> APathPicker.checkForNonNeutralResult(this, resultCode, data) { vdc.updatePath(it) }
-            else -> throw IllegalArgumentException("Unknown activity result: code=$requestCode, resultCode=$resultCode, data=$data")
-        }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 }

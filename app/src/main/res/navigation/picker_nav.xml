@@ -6,12 +6,12 @@
     tools:ignore="InvalidNavigation">
 
     <activity
-        android:id="@+id/aPathPickerActivity"
-        android:name="eu.darken.bb.common.files.ui.picker.APathPickerActivity"
+        android:id="@+id/pathPickerActivity"
+        android:name="eu.darken.bb.common.files.ui.picker.PathPickerActivity"
         android:label="@string/general_pick_a_path_action">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.files.ui.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
     </activity>
     <fragment
         android:id="@+id/localPickerFragment"
@@ -20,7 +20,7 @@
         tools:layout="@layout/pathpicker_local_fragment">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.files.ui.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
     </fragment>
     <fragment
         android:id="@+id/typesPickerFragment"
@@ -36,6 +36,6 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.files.ui.picker.APathPicker$Options" />
+            app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
     </fragment>
 </navigation>

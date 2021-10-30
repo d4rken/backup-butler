@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.navigation.NavDirectionsProvider
+import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.withScopeVDC
@@ -31,7 +31,7 @@ class StorageActionDialogVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val storageBuilder: StorageBuilder,
     private val taskBuilder: TaskBuilder
-) : SmartVDC(), NavDirectionsProvider {
+) : SmartVDC(), NavEventsSource {
 
     private val navArgs by handle.navArgs<StorageActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId

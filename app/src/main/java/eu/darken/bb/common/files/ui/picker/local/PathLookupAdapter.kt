@@ -18,7 +18,7 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 
-class APathLookupAdapter @Inject constructor() : ModularAdapter<APathLookupAdapter.VH>(), DataAdapter<APathLookup<*>> {
+class PathLookupAdapter @Inject constructor() : ModularAdapter<PathLookupAdapter.VH>(), DataAdapter<APathLookup<*>> {
 
     override val data = mutableListOf<APathLookup<*>>()
 

@@ -60,7 +60,7 @@
             android:theme="@style/AppThemeFloating" />
 
         <activity
-            android:name=".common.files.ui.picker.APathPickerActivity"
+            android:name=".common.files.ui.picker.PathPickerActivity"
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
 

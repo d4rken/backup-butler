@@ -22,10 +22,10 @@ import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.databinding.PathpickerActivityBinding
 
 @AndroidEntryPoint
-class APathPickerActivity : SmartActivity() {
-    val navArgs by navArgs<APathPickerActivityArgs>()
+class PathPickerActivity : SmartActivity() {
+    val navArgs by navArgs<PathPickerActivityArgs>()
 
-    private val vdc: APathPickerActivityVDC by viewModels()
+    private val vdc: PathPickerActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host) }
     private val graph by lazy { navController.navInflater.inflate(R.navigation.picker_nav) }
@@ -39,7 +39,7 @@ class APathPickerActivity : SmartActivity() {
     }
     private lateinit var ui: PathpickerActivityBinding
 
-    private val sharedVM by lazy { ViewModelProvider(this).get(SharedPickerVM::class.java) }
+    private val sharedVM by lazy { ViewModelProvider(this)[SharedPickerVM::class.java] }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +91,9 @@ class APathPickerActivity : SmartActivity() {
                 result.isSuccess -> Activity.RESULT_OK
                 else -> Activity.RESULT_CANCELED
             }
-            val data: Intent = APathPicker.toActivityResult(result)
+            val data = Intent().apply {
+                putExtra(PathPickerActivityContract.ARG_PICKER_RESULT, result)
+            }
             setResult(resultCode, data)
             if (finish) finish()
         }

@@ -11,7 +11,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.PathPicker
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
@@ -48,7 +48,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val configStater = Stater { ConfigState() }
     val configState = configStater.liveData
 
-    val openPickerEvent = SingleLiveEvent<APathPicker.Options>()
+    val openPickerEvent = SingleLiveEvent<PathPicker.Options>()
 
     val errorEvent = SingleLiveEvent<Throwable>()
 
@@ -117,13 +117,13 @@ class RestoreConfigFragmentVDC @Inject constructor(
 
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
         Timber.tag(TAG).d("updatePath(generator=%s, target=%s)", configWrapper, target)
-        openPickerEvent.postValue(APathPicker.Options(
+        openPickerEvent.postValue(PathPicker.Options(
             startPath = configWrapper.currentPath,
             payload = Bundle().apply { putParcelable("backupId", target) }
         ))
     }
 
-    fun updatePath(result: APathPicker.Result) {
+    fun updatePath(result: PathPicker.Result) {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isCanceled) return
         if (result.isFailed) {

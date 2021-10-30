@@ -38,7 +38,7 @@ class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
     private val vdc: LocalPickerFragmentVDC by viewModels()
     private val ui: PathpickerLocalFragmentBinding by viewBinding()
 
-    @Inject lateinit var adapter: APathLookupAdapter
+    @Inject lateinit var adapter: PathLookupAdapter
     private val sharedVM by lazy { ViewModelProvider(requireActivity())[SharedPickerVM::class.java] }
 
     private var allowCreateDir = false

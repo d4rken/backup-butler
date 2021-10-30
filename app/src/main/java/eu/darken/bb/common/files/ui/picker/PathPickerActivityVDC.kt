@@ -16,21 +16,21 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class APathPickerActivityVDC @Inject constructor(
+class PathPickerActivityVDC @Inject constructor(
     handle: SavedStateHandle,
     val safGateway: SAFGateway
 ) : SmartVDC() {
 
-    private val options: APathPicker.Options = handle.navArgs<APathPickerActivityArgs>().value.options
+    private val options: PathPicker.Options = handle.navArgs<PathPickerActivityArgs>().value.options
     val launchSAFEvents = SingleLiveEvent<Intent>()
-    val launchLocalEvents = SingleLiveEvent<APathPicker.Options>()
-    val launchTypesEvents = SingleLiveEvent<APathPicker.Options>()
+    val launchLocalEvents = SingleLiveEvent<PathPicker.Options>()
+    val launchTypesEvents = SingleLiveEvent<PathPicker.Options>()
 
-    val resultEvents = SingleLiveEvent<Pair<APathPicker.Result, Boolean>>()
+    val resultEvents = SingleLiveEvent<Pair<PathPicker.Result, Boolean>>()
 
     init {
         // Default result is canceled
-        resultEvents.postValue(APathPicker.Result(options = options) to false)
+        resultEvents.postValue(PathPicker.Result(options = options) to false)
 
         val startType = when {
             options.startPath != null -> options.startPath.pathType
@@ -72,7 +72,7 @@ class APathPickerActivityVDC @Inject constructor(
             if (!safGateway.hasPermission(path) && safGateway.takePermission(path)) {
                 takenPermissions.add(path)
             }
-            val result = APathPicker.Result(
+            val result = PathPicker.Result(
                 options,
                 selection = setOf(path),
                 persistedPermissions = takenPermissions
@@ -82,7 +82,7 @@ class APathPickerActivityVDC @Inject constructor(
             if (options.allowedTypes.size > 1) {
                 showPicker()
             } else {
-                resultEvents.postValue(APathPicker.Result(options = options) to true)
+                resultEvents.postValue(PathPicker.Result(options = options) to true)
             }
         }
     }
@@ -94,7 +94,7 @@ class APathPickerActivityVDC @Inject constructor(
         }
     }
 
-    fun onResult(result: APathPicker.Result) {
+    fun onResult(result: PathPicker.Result) {
         resultEvents.postValue(result to true)
     }
 

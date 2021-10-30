@@ -12,7 +12,7 @@ import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.ui.picker.APathPicker
+import eu.darken.bb.common.files.ui.picker.PathPicker
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -40,7 +40,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
 
     private val editor by lazy { editorObs.blockingFirst() }
 
-    val pickerEvent = SingleLiveEvent<APathPicker.Options>()
+    val pickerEvent = SingleLiveEvent<PathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<Any>()
 
@@ -79,7 +79,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
             )
     }
 
-    fun updatePath(result: APathPicker.Result) {
+    fun updatePath(result: PathPicker.Result) {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isFailed) {
             errorEvent.postValue(result.error!!)
@@ -94,7 +94,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     }
 
     fun showPicker() {
-        pickerEvent.postValue(APathPicker.Options(
+        pickerEvent.postValue(PathPicker.Options(
             startPath = editorDataObs.blockingFirst().path,
             allowedTypes = setOf(APath.PathType.SAF, APath.PathType.LOCAL),
             selectionLimit = 1,
