@@ -126,41 +126,9 @@ class SAFStorage @AssistedInject constructor(
         }
 
     override fun specInfos(): Observable<Collection<BackupSpec.Info>> = itemObs
+
     private val itemObs: Observable<Collection<BackupSpec.Info>> = dataDirEvents
-        .map { files ->
-            val content = mutableListOf<BackupSpec.Info>()
-
-            for (backupDir in files) {
-                if (backupDir.isFile(safGateway)) {
-                    Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
-                    continue
-                }
-
-                val backupConfig = try {
-                    readSpec(BackupSpec.Id(backupDir.name))
-                } catch (e: Throwable) {
-                    if (e is InterruptedIOException) throw e
-                    Timber.tag(TAG).w("Dir without spec file: %s", backupDir)
-                    continue
-                }
-
-                val metaDatas = getMetaDatas(backupConfig.specId)
-                if (metaDatas.isEmpty()) {
-                    Timber.tag(TAG).w("Dir without backups? %s", backupDir)
-                    continue
-                }
-
-                val ref = SAFStorageSpecInfo(
-                    storageId = storageConfig.storageId,
-                    path = backupDir,
-                    backupSpec = backupConfig,
-                    backups = metaDatas
-                )
-                content.add(ref)
-            }
-            content
-        }
-        .map { it as Collection<BackupSpec.Info> }
+        .flatMap { readBackupSpecs(it) }
         .doOnError {
             if (it is InterruptedIOException) {
                 Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")
@@ -170,6 +138,50 @@ class SAFStorage @AssistedInject constructor(
         }
         .doOnSubscribe { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
         .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
+
+    private fun readBackupSpecs(files: Collection<SAFPath>) = Observable.create<Collection<BackupSpec.Info>> { emitter ->
+        try {
+            val content = files.mapNotNull { backupDir ->
+                if (backupDir.isFile(safGateway)) {
+                    Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
+                    return@mapNotNull null
+                }
+
+                val backupConfig = try {
+                    readSpec(BackupSpec.Id(backupDir.name))
+                } catch (e: Throwable) {
+                    if (e is InterruptedIOException) throw e
+
+                    Timber.tag(TAG).w("Dir without spec file?: %s", backupDir)
+                    return@mapNotNull null
+
+                }
+
+                val metaDatas = getMetaDatas(backupConfig.specId)
+                if (metaDatas.isEmpty()) {
+                    Timber.tag(TAG).w("Dir without backups? %s", backupDir)
+                    return@mapNotNull null
+                }
+
+                SAFStorageSpecInfo(
+                    storageId = storageConfig.storageId,
+                    path = backupDir,
+                    backupSpec = backupConfig,
+                    backups = metaDatas
+                )
+            }
+
+            emitter.onNext(content)
+            emitter.onComplete()
+        } catch (e: Exception) {
+            if (e is InterruptedIOException)
+                if (emitter.isDisposed) {
+                    emitter.onComplete()
+                } else {
+                    emitter.tryOnError(e)
+                }
+        }
+    }
 
     override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> =
         backupContent(specId, backupId)
@@ -357,7 +369,11 @@ class SAFStorage @AssistedInject constructor(
         return try {
             specAdapter.fromSAFFile(safGateway, specFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
+            if (e !is InterruptedIOException) {
+                Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
+            } else {
+                Timber.tag(TAG).d("Reading the backup spec was interrupted %s", specFile)
+            }
             throw e
         }
     }
