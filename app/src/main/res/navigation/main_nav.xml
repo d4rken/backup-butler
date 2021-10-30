@@ -84,6 +84,9 @@
                 android:name="args"
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
+        <action
+            android:id="@+id/action_storageActionDialog_to_storageViewerActivity"
+            app:destination="@id/storageViewerActivity" />
     </dialog>
     <dialog
         android:id="@+id/taskActionDialog"
@@ -137,6 +140,9 @@
                 app:argType="eu.darken.bb.task.core.Task$Id"
                 app:nullable="true" />
         </action>
+        <action
+            android:id="@+id/action_quickModeFragment_to_storageViewerActivity"
+            app:destination="@id/storageViewerActivity" />
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
@@ -229,8 +235,18 @@
                 app:nullable="true" />
         </action>
     </fragment>
+
     <include app:graph="@navigation/task_editor" />
+
     <include app:graph="@navigation/storage_picker" />
 
+    <activity
+        android:id="@+id/storageViewerActivity"
+        android:name="eu.darken.bb.storage.ui.viewer.StorageViewerActivity"
+        tools:layout="@layout/storage_viewer_itemlist_fragment">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </activity>
 
 </navigation>

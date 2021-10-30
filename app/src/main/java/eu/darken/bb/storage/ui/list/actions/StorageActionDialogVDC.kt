@@ -6,7 +6,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.navigation.NavDirectionsProvider
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.ui.Confirmable
 import eu.darken.bb.common.vdc.SmartVDC
@@ -18,6 +20,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -28,13 +31,13 @@ class StorageActionDialogVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val storageBuilder: StorageBuilder,
     private val taskBuilder: TaskBuilder
-) : SmartVDC() {
+) : SmartVDC(), NavDirectionsProvider {
 
     private val navArgs by handle.navArgs<StorageActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val stater = Stater { State(isLoadingData = true) }
     val state = stater.liveData
-    val navEvents = SingleLiveEvent<NavDirections>()
+    override val navEvents = SingleLiveEvent<NavDirections>()
     val closeDialogEvent = SingleLiveEvent<Any>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
@@ -80,7 +83,12 @@ class StorageActionDialogVDC @Inject constructor(
 
         when (action) {
             VIEW -> {
-                storageManager.startViewer(storageId)
+                Single
+                    .fromCallable {
+                        // do we need to do more checks here, or will that always be part of the viewer activity
+                        storageId
+                    }
+                    .subscribeOn(Schedulers.computation())
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp ->
                         stater.update { it.copy(currentOperation = disp) }
@@ -88,10 +96,13 @@ class StorageActionDialogVDC @Inject constructor(
                     .doOnError { Bugs.track(it) }
                     .doFinally { stater.update { it.copy(currentOperation = null) } }
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe(
-                        { closeDialogEvent.postValue(Any()) },
-                        { errorEvent.postValue(it) }
-                    )
+                    .subscribe({
+                        StorageActionDialogDirections.actionStorageActionDialogToStorageViewerActivity(it)
+                            .run { navEvents.postValue(this) }
+                        closeDialogEvent.postValue(Any())
+                    }, {
+                        errorEvent.postValue(it)
+                    })
                     .withScopeVDC(this)
             }
             EDIT -> {
@@ -104,7 +115,7 @@ class StorageActionDialogVDC @Inject constructor(
                         {
                             StorageActionDialogDirections.actionStorageActionDialogToStorageEditor(
                                 storageId = it.storageId
-                            ).run { navEvents.postValue(this) }
+                            ).via(this)
                             closeDialogEvent.postValue(Any())
                         },
                         { errorEvent.postValue(it) }
@@ -123,7 +134,7 @@ class StorageActionDialogVDC @Inject constructor(
                     .subscribe({
                         StorageActionDialogDirections.actionStorageActionDialogToTaskEditor(
                             args = TaskEditorArgs(taskId = it, taskType = Task.Type.RESTORE_SIMPLE)
-                        ).run { navEvents.postValue(this) }
+                        ).via(navEvents)
                         closeDialogEvent.postValue(Any())
                     }, {
                         errorEvent.postValue(it)

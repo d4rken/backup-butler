@@ -1,16 +1,12 @@
 package eu.darken.bb.storage.core
 
 import android.content.Context
-import android.content.Intent
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.blockingGetUnWrapped
 import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.common.rx.singleOrError
-import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
-import eu.darken.bb.storage.ui.viewer.StorageViewerActivityArgs
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -131,15 +127,6 @@ class StorageManager @Inject constructor(
         }
         .subscribeOn(Schedulers.io())
         .doOnSubscribe { Timber.tag(TAG).i("Detaching %s", id) }
-
-    fun startViewer(storageId: Storage.Id): Completable = Completable
-        .fromCallable {
-            val intent = Intent(context, StorageViewerActivity::class.java)
-            intent.putExtras(StorageViewerActivityArgs(storageId = storageId).toBundle())
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-        }
-        .subscribeOn(Schedulers.io())
 
     companion object {
         private val TAG = logTag("Storage", "Manager")

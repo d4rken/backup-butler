@@ -59,7 +59,7 @@ class StorageListFragmentVDC @Inject constructor(
     fun editStorage(item: Storage.InfoOpt) {
         log(TAG) { "editStorage($item)" }
         // TODO why does this not  start from the actions dialog?
-        MainFragmentDirections.actionMainFragmentToStorageEditor(item.storageId)
+        MainFragmentDirections.actionMainFragmentToStorageActionDialog(item.storageId)
             .run { navEvents.postValue(this) }
     }
 

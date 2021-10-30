@@ -10,6 +10,8 @@ import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.navigation.NavDirectionsProvider
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
@@ -23,6 +25,7 @@ import eu.darken.bb.quickmode.ui.cards.files.FilesInfoVH
 import eu.darken.bb.quickmode.ui.cards.hints.AdvancedModeHintsVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
+import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -40,9 +43,9 @@ class QuickModeFragmentVDC @Inject constructor(
     private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
-) : SmartVDC() {
+) : SmartVDC(), NavDirectionsProvider {
 
-    val navEvents = SingleLiveEvent<NavDirections>()
+    override val navEvents = SingleLiveEvent<NavDirections>()
     val debugState = Observable
         .combineLatest(
             bbDebug.observeOptions(),
@@ -68,7 +71,7 @@ class QuickModeFragmentVDC @Inject constructor(
         .flatMap { appsData ->
             if (appsData.taskId == null) {
                 AppsInfoCreateVH.Item {
-                    navEvents.postValue(QuickModeFragmentDirections.actionQuickModeFragmentToWizardAppsFragment())
+                    QuickModeFragmentDirections.actionQuickModeFragmentToWizardAppsFragment().via(this)
                 }.let { Observable.just(it) }
             } else {
                 taskRepo.get(appsData.taskId).toObservable()
@@ -84,13 +87,14 @@ class QuickModeFragmentVDC @Inject constructor(
             if (filesData.taskId == null) {
                 FilesInfoCreateVH.Item(
                     onCreateAppsTaskAction = {
-                        navEvents.postValue(QuickModeFragmentDirections.actionQuickModeFragmentToWizardFilesFragment())
+                        QuickModeFragmentDirections.actionQuickModeFragmentToWizardFilesFragment().via(this)
                     }
                 ).let { Observable.just(it) }
             } else {
                 taskRepo.get(filesData.taskId)
                     .toObservable()
                     .map { task ->
+                        task as Task.Backup
                         FilesInfoVH.Item(
                             task = task,
                             onBackup = {
@@ -99,10 +103,13 @@ class QuickModeFragmentVDC @Inject constructor(
                             onEdit = {
                                 QuickModeFragmentDirections.actionQuickModeFragmentToWizardFilesFragment(
                                     taskId = it
-                                ).run { navEvents.postValue(this) }
+                                ).via(this)
                             },
                             onView = {
-
+                                task.destinations.singleOrNull()?.let {
+                                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(it)
+                                        .via(this)
+                                }
                             },
                             onRestore = {
 
@@ -140,7 +147,7 @@ class QuickModeFragmentVDC @Inject constructor(
 
     fun switchToAdvancedMode() {
         uiSettings.startMode = UISettings.StartMode.NORMAL
-        navEvents.postValue(QuickModeFragmentDirections.actionQuickModeFragmentToMainFragment())
+        QuickModeFragmentDirections.actionQuickModeFragmentToMainFragment().via(this)
     }
 
     fun reportBug() {
