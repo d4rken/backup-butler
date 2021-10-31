@@ -5,7 +5,7 @@ import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
 import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.DataAdapter
-import eu.darken.bb.common.lists.HasStableId
+import eu.darken.bb.common.lists.differ.DifferItem
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
@@ -34,6 +34,6 @@ class ConfigAdapter constructor(
         parent: ViewGroup
     ) : ModularAdapter.VH(layoutId, parent), BindableVH<D, B>
 
-    interface Item : HasStableId
+    interface Item : DifferItem
 
 }

@@ -2,13 +2,13 @@ package eu.darken.bb.task.ui.editor.restore.config
 
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
-import eu.darken.bb.common.lists.HasStableId
+import eu.darken.bb.common.lists.differ.DifferItem
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 
 abstract class ConfigUIWrap(
     private val configWrap: SimpleRestoreTaskEditor.ConfigWrap,
     private val configCallback: (Restore.Config, Backup.Id?) -> Unit
-) : HasStableId {
+) : DifferItem {
 
     val isCustomConfig: Boolean get() = configWrap.isCustomConfig
     val isDefaultItem: Boolean get() = configWrap.backupInfoOpt == null

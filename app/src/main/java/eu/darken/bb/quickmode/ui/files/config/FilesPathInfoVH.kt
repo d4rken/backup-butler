@@ -3,6 +3,8 @@ package eu.darken.bb.quickmode.ui.files.config
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.lists.update
 import eu.darken.bb.databinding.QuickmodeFilesConfigPathItemBinding
 import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
 

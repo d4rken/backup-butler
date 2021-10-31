@@ -1,13 +1,13 @@
 package eu.darken.bb.common.lists.modular.mods
 
 import androidx.recyclerview.widget.RecyclerView
-import eu.darken.bb.common.lists.HasStableId
+import eu.darken.bb.common.lists.differ.DifferItem
 import eu.darken.bb.common.lists.modular.ModularAdapter
 
-class StableIdMod<ItemT : HasStableId> constructor(
+class StableIdMod<ItemT : DifferItem> constructor(
     private val data: List<ItemT>,
     private val customResolver: (position: Int) -> Long = {
-        (data[it] as? HasStableId)?.stableId ?: RecyclerView.NO_ID
+        (data[it] as? DifferItem)?.stableId ?: RecyclerView.NO_ID
     }
 ) : ModularAdapter.Module.ItemId, ModularAdapter.Module.Setup {
 

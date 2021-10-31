@@ -4,10 +4,11 @@ import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.BindableVH
+import eu.darken.bb.common.lists.differ.DifferItem
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.databinding.ViewActionAdapterLineBinding
 
-abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup) :
+abstract class ConfirmableActionAdapterVH<T : DifferItem>(parent: ViewGroup) :
     ModularAdapter.VH(R.layout.view_action_adapter_line, parent),
     BindableVH<Confirmable<T>, ViewActionAdapterLineBinding> {
 
@@ -45,11 +46,11 @@ abstract class ConfirmableActionAdapterVH<T>(parent: ViewGroup) :
 
 }
 
-data class Confirmable<T>(
+data class Confirmable<T : DifferItem>(
     val data: T,
     val requiredLvl: Int = 0,
     var currentLvl: Int = 0
-) {
+) : DifferItem {
 
     fun guardedAction(action: (T) -> Unit) {
         if (currentLvl >= requiredLvl || requiredLvl == 0) {
@@ -59,4 +60,7 @@ data class Confirmable<T>(
             currentLvl++
         }
     }
+
+    override val stableId: Long
+        get() = data.stableId
 }
