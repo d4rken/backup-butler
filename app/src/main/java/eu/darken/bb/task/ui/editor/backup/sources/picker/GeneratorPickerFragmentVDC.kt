@@ -55,7 +55,7 @@ class GeneratorPickerFragmentVDC @Inject constructor(
     val finishEvent = SingleLiveEvent<Any>()
 
     fun createGenerator() {
-        generatorBuilder.createEditor()
+        generatorBuilder.getEditor()
             .observeOn(Schedulers.computation())
             .doOnSuccess { generatorBuilder.launchEditor(it) }
             .subscribe()

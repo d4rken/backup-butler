@@ -115,15 +115,6 @@ class StorageBuilder @Inject constructor(
             update(storageId) { Data(storageId = storageId) }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
         )
-//
-//    fun launchEditor(storageId: Storage.Id) {
-//        Timber.tag(TAG).d("Starting editor for ID %s", storageId)
-//        val intent = Intent(context, StorageEditorActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        val navArgs = StorageEditorActivityArgs(storageId = storageId)
-//        intent.putExtras(navArgs.toBundle())
-//        context.startActivity(intent)
-//    }
 
     data class Data(
         val storageId: Storage.Id,

@@ -19,7 +19,7 @@ import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 class FilesSpecGeneratorEditor @AssistedInject constructor(
-    @Assisted private val generatorId: Generator.Id,
+    @Assisted val generatorId: Generator.Id,
     @ApplicationContext private val context: Context,
     moshi: Moshi,
     private val pathTool: GatewaySwitch,

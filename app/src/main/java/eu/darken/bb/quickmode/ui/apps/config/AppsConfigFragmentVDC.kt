@@ -6,7 +6,6 @@ import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
-import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.rx.asLiveData
@@ -82,13 +81,6 @@ class AppsConfigFragmentVDC @Inject constructor(
                 ).let { items.add(it) }
             }
             items.add(storageItem)
-
-            AppsPreviewVH.Item(
-                pkgWraps = previewFilter.filter(data = TODO(), previewMode = PreviewMode.PREVIEW).toList(),
-                onPreview = {
-
-                }
-            ).let { items.add(it) }
 
             AppsOptionVH.Item(
                 onToggleAutoInclude = {

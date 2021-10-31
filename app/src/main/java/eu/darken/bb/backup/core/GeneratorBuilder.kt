@@ -9,7 +9,6 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.task.core.Task
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -28,24 +27,6 @@ class GeneratorBuilder @Inject constructor(
     private val hotData = HotData<Map<Generator.Id, Data>>(tag = TAG) { mutableMapOf() }
     val builders = hotData.data
 
-    init {
-        hotData.data
-            .observeOn(Schedulers.computation())
-            .flatMapIterable { map -> map.values }
-            .filter { it.generatorType != null && it.editor == null }
-            .map { it.generatorId }
-            .flatMapSingle { generatorId ->
-                update(generatorId) { data ->
-                    if (data?.generatorType == null || data.editor != null) return@update data
-
-                    val editor = editors.getValue(data.generatorType).create(generatorId)
-
-                    data.copy(editor = editor)
-                }
-            }
-            .subscribe { log(TAG) { "Created generator editor for $it" } }
-    }
-
     fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
 
     fun generator(id: Generator.Id): Observable<Data> {
@@ -58,7 +39,17 @@ class GeneratorBuilder @Inject constructor(
         .updateRx {
             val mutMap = it.toMutableMap()
             val old = mutMap.remove(id)
-            val new = action.invoke(old)
+
+            val new = action.invoke(old)?.let { newData ->
+                when {
+                    newData.generatorType == null -> newData.copy(editor = null)
+                    newData.editor == null -> newData.copy(
+                        editor = editors.getValue(newData.generatorType).create(newData.generatorId)
+                    )
+                    else -> newData
+                }
+            }
+
             if (new != null) {
                 mutMap[new.generatorId] = new
             }
@@ -117,12 +108,10 @@ class GeneratorBuilder @Inject constructor(
         .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
-    fun createEditor(
+    fun getEditor(
         generatorId: Generator.Id = Generator.Id(),
         type: Backup.Type? = null,
-        targetTask: Task.Id? = null
     ): Single<Generator.Id> = hotData.latest
-        .subscribeOn(Schedulers.computation())
         .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
         .switchIfEmpty(
             load(generatorId)
@@ -134,13 +123,14 @@ class GeneratorBuilder @Inject constructor(
                 Data(
                     generatorId = generatorId,
                     generatorType = type,
-                    targetTask = targetTask
+                    editor = type?.let { editors.getValue(it).create(generatorId) }
                 )
             }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
         )
         .map { generatorId }
 
+    // TODO refactor, move this to navgraph?
     fun launchEditor(generatorId: Generator.Id) {
         log(TAG) { "launchEditor(generatorId=$generatorId)" }
         val intent = Intent(context, GeneratorEditorActivity::class.java)
@@ -153,7 +143,6 @@ class GeneratorBuilder @Inject constructor(
         val generatorId: Generator.Id,
         val generatorType: Backup.Type? = null,
         val editor: GeneratorEditor? = null,
-        val targetTask: Task.Id? = null
     )
 
     companion object {

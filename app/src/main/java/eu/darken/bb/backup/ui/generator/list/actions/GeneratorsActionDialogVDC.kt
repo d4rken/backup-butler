@@ -53,7 +53,7 @@ class GeneratorsActionDialogVDC @Inject constructor(
     fun generatorAction(action: GeneratorsAction) {
         when (action) {
             EDIT -> {
-                generatorBuilder.createEditor(generatorId)
+                generatorBuilder.getEditor(generatorId)
                     .observeOn(Schedulers.computation())
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doOnSuccess { generatorBuilder.launchEditor(it) }

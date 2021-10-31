@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.asErrorDialogBuilder
+import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
@@ -26,10 +27,8 @@ class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragme
 
     private val adapter = ConfigAdapter { data ->
         listOf(
-            TypedVHCreatorMod({ data[it] is FilesPathInfoVH.Item }) { FilesPathInfoVH(it) },
-        )
+            TypedVHCreatorMod({ data[it] is FilesOptionVH.Item }) { FilesOptionVH(it) })
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +41,8 @@ class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragme
         ui.apply {
             recyclerView.setupDefaults(adapter, dividers = false)
             toolbar.apply {
+                title = getString(R.string.backup_type_files_label)
+                subtitle = getString(R.string.quick_mode_subtitle)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.action_save -> {
@@ -68,10 +69,13 @@ class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragme
                     }
                     findItem(R.id.action_remove).isVisible = state.isExisting
                 }
-                title = getString(R.string.general_create_dir)
                 adapter.update(state.items)
             }
         }
+        val pathPickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
+            vdc.onPathPickerResult(it)
+        }
+        vdc.pathPickerEvent.observe2(this) { pathPickerLauncher.launch(it) }
 
         vdc.navEvents.observe2(this) {
             it?.run { doNavigate(this) } ?: popBackStack()

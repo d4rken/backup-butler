@@ -326,4 +326,5 @@
     <string name="quick_files_default_task_label">Default files backup task</string>
     <string name="quick_apps_default_task_label">Default app backup task</string>
     <string name="quick_mode_subtitle">Quick mode</string>
+    <string name="general_longpress_remove_hint">Long press to remove entry.</string>
 </resources>

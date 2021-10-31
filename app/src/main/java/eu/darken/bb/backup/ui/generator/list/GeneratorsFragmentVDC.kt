@@ -39,7 +39,7 @@ class GeneratorsFragmentVDC @Inject constructor(
     val editTaskEvent = SingleLiveEvent<EditActions>()
 
     fun newGenerator() {
-        generatorBuilder.createEditor()
+        generatorBuilder.getEditor()
             .observeOn(Schedulers.computation())
             .doOnSuccess { generatorBuilder.launchEditor(it) }
             .subscribe()

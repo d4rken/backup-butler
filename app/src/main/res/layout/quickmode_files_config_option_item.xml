@@ -23,33 +23,25 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/quick_wizard_files_paths_to_back_up_title"
+            android:text="@string/general_options_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/option_overwrite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            tools:listitem="@layout/quickmode_files_config_path_adapter_item"
-            app:layout_constraintTop_toBottomOf="@id/title" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/add_action"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            app:icon="@drawable/ic_add_generator"
-            android:text="@string/general_add_action"
+            android:enabled="false"
+            android:layout_marginBottom="16dp"
+            android:text="@string/task_editor_restore_files_config_replace_existing_files_label"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

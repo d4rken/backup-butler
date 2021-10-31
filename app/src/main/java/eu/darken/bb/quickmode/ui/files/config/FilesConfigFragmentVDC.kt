@@ -7,9 +7,16 @@ import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
+import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.backup.core.GeneratorBuilder
+import eu.darken.bb.backup.core.GeneratorRepo
+import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.navigation.NavEventsSource
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
@@ -35,7 +42,9 @@ class FilesConfigFragmentVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val taskBuilder: TaskBuilder,
     private val autoSetUp: AutoSetUp,
-) : SmartVDC() {
+    private val generatorBuilder: GeneratorBuilder,
+    private val generatorRepo: GeneratorRepo,
+) : SmartVDC(), NavEventsSource {
 
     private val taskIdObs = quickModeRepo.filesData.data.take(1).singleOrError()
         .observeOn(Schedulers.computation())
@@ -46,8 +55,9 @@ class FilesConfigFragmentVDC @Inject constructor(
                 ?: Task.Id().also { handle.set(keyId, it) }
         }
 
-    val navEvents = SingleLiveEvent<NavDirections?>()
+    override val navEvents = SingleLiveEvent<NavDirections?>()
     val errorEvent = SingleLiveEvent<Throwable>()
+    val pathPickerEvent = SingleLiveEvent<PathPicker.Options>()
 
     private val editorObs: Single<SimpleBackupTaskEditor> = taskIdObs
         .flatMap { taskBuilder.getEditor(taskId = it, type = Task.Type.BACKUP_SIMPLE) }
@@ -75,7 +85,7 @@ class FilesConfigFragmentVDC @Inject constructor(
                         editorData.take(1).subscribe { data ->
                             FilesConfigFragmentDirections.actionFilesConfigFragmentToStoragePicker(
                                 taskId = data.taskId
-                            ).run { navEvents.postValue(this) }
+                            ).via(this)
                         }
                     }
                 )
@@ -90,27 +100,32 @@ class FilesConfigFragmentVDC @Inject constructor(
             }
         }
 
+    private val sourcesObs = editorData
+        .flatMapSingle { data ->
+            Observable.just(data.sources)
+                .flatMapIterable { it }
+                .flatMapMaybe { generatorRepo.get(it) }
+                .toList()
+        }
+
+
     val state: LiveData<AppsConfigFragmentVDC.State> = Observable
-        .combineLatest(editorData, storageItemObs) { editorData, storageItem ->
+        .combineLatest(editorData, storageItemObs, sourcesObs) { editorData, storageItem, sources ->
             val items = mutableListOf<ConfigAdapter.Item>()
 
             if (!editorData.isExistingTask) {
                 AutoSetupVH.Item(
                     onAutoSetup = { runAutoSetUp() }
-                ).let { items.add(it) }
+                ).run { items.add(this) }
             }
 
-            items.add(storageItem)
+            FilesOptionVH.Item(
+                replaceExisting = false,
+                replaceExistingOnToggle = {
 
-            FilesPathInfoVH.Item(
-                sources = emptyList(),
-                onAdd = {
-                    FilesConfigFragmentDirections
                 },
-                onRemove = {
-                    TODO()
-                },
-            ).let { items.add(it) }
+            ).run { items.add(this) }
+
 
             AppsConfigFragmentVDC.State(
                 items = items,
@@ -163,6 +178,27 @@ class FilesConfigFragmentVDC @Inject constructor(
         quickModeRepo.removeTask(QuickMode.Type.FILES).subscribe {
             navEvents.postValue(null)
         }
+    }
+
+    fun onPathPickerResult(result: PathPicker.Result?) {
+        log(TAG) { "onPathPickerResult(result=$result)" }
+        if (result == null || !result.isSuccess) return
+        taskIdObs
+            .flatMap { generatorBuilder.getEditor(type = Backup.Type.FILES) }
+            .flatMap { generatorBuilder.generator(it).firstOrError() }
+            .map { it.editor as FilesSpecGeneratorEditor }
+            .flatMap { generatorEditor ->
+                generatorEditor
+                    .updatePath(result.selection!!.first())
+                    .andThen(generatorBuilder.save(generatorEditor.generatorId))
+            }
+            .flatMap { generatorConfig -> editorObs.map { generatorConfig to it } }
+            .subscribe({ (config, editor) ->
+                log(TAG) { "Path picker result saved $config / $editor" }
+                editor.addGenerator(config.generatorId)
+            }, {
+                errorEvent.postValue(it)
+            })
     }
 
     data class State(

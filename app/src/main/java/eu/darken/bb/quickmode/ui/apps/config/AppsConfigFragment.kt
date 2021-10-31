@@ -23,7 +23,6 @@ class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment
     private val ui: QuickmodeAppsConfigFragmentBinding by viewBinding()
     private val adapter = ConfigAdapter { data ->
         listOf(
-            TypedVHCreatorMod({ data[it] is AppsPreviewVH.Item }) { AppsPreviewVH(it) },
             TypedVHCreatorMod({ data[it] is AppsOptionVH.Item }) { AppsOptionVH(it) }
         )
     }
@@ -32,6 +31,8 @@ class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment
         ui.apply {
             recyclerView.setupDefaults(adapter, dividers = false)
             toolbar.apply {
+                title = getString(R.string.backup_type_app_label)
+                subtitle = getString(R.string.quick_mode_subtitle)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.action_save -> {
