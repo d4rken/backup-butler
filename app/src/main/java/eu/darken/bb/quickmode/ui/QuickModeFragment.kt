@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
@@ -14,6 +15,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
+import eu.darken.bb.processor.ui.ProcessorActivity
 import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
@@ -66,6 +68,21 @@ class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment) {
                     true
                 }
                 else -> false
+            }
+        }
+
+        var snackbar: Snackbar? = null
+        vdc.processorState.observe2(this) { isActive ->
+            if (isVisible && isActive && snackbar == null) {
+                snackbar =
+                    Snackbar.make(requireView(), R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.general_show_action) {
+                            startActivity(Intent(requireContext(), ProcessorActivity::class.java))
+                        }
+                snackbar?.show()
+            } else if (!isActive && snackbar != null) {
+                snackbar?.dismiss()
+                snackbar = null
             }
         }
 

@@ -10,7 +10,7 @@ import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.navigation.NavDirectionsProvider
+import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
@@ -46,7 +46,7 @@ class QuickModeFragmentVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
     private val processorControl: ProcessorControl,
-) : SmartVDC(), NavDirectionsProvider {
+) : SmartVDC(), NavEventsSource {
 
     override val navEvents = SingleLiveEvent<NavDirections>()
     val debugState = Observable
@@ -141,6 +141,10 @@ class QuickModeFragmentVDC @Inject constructor(
                 }
             }.toList()
         }
+        .asLiveData()
+
+    val processorState: LiveData<Boolean> = processorControl.progressHost
+        .map { it.isNotNull }
         .asLiveData()
 
     data class DebugState(
