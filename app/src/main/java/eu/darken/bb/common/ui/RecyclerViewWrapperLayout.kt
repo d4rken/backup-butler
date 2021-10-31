@@ -8,6 +8,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.databinding.ViewRecyclerviewWrapperLayoutBinding
 import timber.log.Timber
 
@@ -29,14 +30,28 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     protected var currentAdapter: RecyclerView.Adapter<*>? = null
     protected lateinit var state: State
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
-        override fun onChanged() {
-            state = state.copy(dataCount = currentAdapter?.itemCount ?: -1)
+        override fun onChanged() = refresh()
+
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = refresh(itemCount)
+
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) = refresh(itemCount)
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = refresh(itemCount)
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = refresh(itemCount)
+
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = refresh(itemCount)
+
+        override fun onStateRestorationPolicyChanged() = refresh()
+
+        private fun refresh(itemCount: Int? = null) {
+            state = state.copy(dataCount = (itemCount ?: currentAdapter?.itemCount) ?: -1)
 
             if (!state.isPreFirstChange && state.isLoading && state.consumeFirstLoading) {
                 state = state.copy(isLoading = false, consumeFirstLoading = false)
             }
 
-            updateStates()
+            updateUI()
 
             if (state.isPreFirstChange) {
                 state = state.copy(isPreFirstChange = false)
@@ -104,7 +119,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     }
 
     override fun onFinishInflate() {
-        updateStates()
+        updateUI()
         super.onFinishInflate()
     }
 
@@ -119,7 +134,8 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         super.onLayout(changed, left, top, right, bottom)
     }
 
-    protected fun updateStates() {
+    protected fun updateUI() {
+        log { "updateStates(): $state" }
         ui.loadingOverlay.setInvisible(!loadingBehavior(state))
         ui.explanationContainer.setInvisible(!explanationBehavior(state))
         ui.emptyContainer.setInvisible(!emptyBehavior(state))
@@ -132,7 +148,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
 
     fun updateLoadingState(isLoading: Boolean) {
         state = state.copy(isLoading = isLoading)
-        updateStates()
+        updateUI()
     }
 
     data class State(

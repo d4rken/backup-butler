@@ -11,7 +11,6 @@ import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.ui.MainFragmentDirections
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -29,7 +28,7 @@ class StorageListFragmentVDC @Inject constructor(
         .observeOn(Schedulers.computation())
         .map { infos ->
             StorageState(
-                storages = infos.toList(),
+                storages = infos.map { StorageAdapter.Item(it) },
                 isLoading = false
             )
         }
@@ -56,15 +55,15 @@ class StorageListFragmentVDC @Inject constructor(
             }
     }
 
-    fun editStorage(item: Storage.InfoOpt) {
+    fun editStorage(item: StorageAdapter.Item) {
         log(TAG) { "editStorage($item)" }
         // TODO why does this not  start from the actions dialog?
-        MainFragmentDirections.actionMainFragmentToStorageActionDialog(item.storageId)
+        MainFragmentDirections.actionMainFragmentToStorageActionDialog(item.info.storageId)
             .run { navEvents.postValue(this) }
     }
 
     data class StorageState(
-        val storages: List<Storage.InfoOpt> = emptyList(),
+        val storages: List<StorageAdapter.Item> = emptyList(),
         val isLoading: Boolean = true
     )
 

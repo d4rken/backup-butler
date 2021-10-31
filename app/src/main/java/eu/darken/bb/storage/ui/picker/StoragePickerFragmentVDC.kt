@@ -9,9 +9,9 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.editor.StorageEditorResult
+import eu.darken.bb.storage.ui.list.StorageAdapter
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
@@ -49,7 +49,7 @@ class StoragePickerFragmentVDC @Inject constructor(
                 }
                 .map { infos ->
                     StorageState(
-                        storages = infos,
+                        storages = infos.map { StorageAdapter.Item(it) },
                         allExistingAdded = infos.isEmpty() && all.isNotEmpty(),
                         isLoading = false
                     )
@@ -65,9 +65,9 @@ class StoragePickerFragmentVDC @Inject constructor(
             .run { navEvents.postValue(this) }
     }
 
-    fun selectStorage(item: Storage.InfoOpt) {
+    fun selectStorage(item: StorageAdapter.Item) {
         StoragePickerResult(
-            storageId = item.storageId
+            storageId = item.info.storageId
         ).run { finishEvent.postValue(this) }
     }
 
@@ -76,7 +76,7 @@ class StoragePickerFragmentVDC @Inject constructor(
     }
 
     data class StorageState(
-        val storages: List<Storage.InfoOpt> = emptyList(),
+        val storages: List<StorageAdapter.Item> = emptyList(),
         val allExistingAdded: Boolean = false,
         val isLoading: Boolean = true
     )

@@ -11,8 +11,8 @@ import eu.darken.bb.common.rx.latest
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.list.StorageAdapter
 import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -51,14 +51,15 @@ class DestinationsFragmentVDC @Inject constructor(
                 storageManager.infos(dests.destinations)
                     .takeUntil { ios -> ios.all { it.isFinished } }
             }
+            .map { infos -> infos.map { StorageAdapter.Item(it) } }
             .subscribe { storageStatuses ->
                 stater.update { it.copy(destinations = storageStatuses.toList()) }
             }
             .withScopeVDC(this)
     }
 
-    fun removeDestination(storage: Storage.InfoOpt) {
-        editor.removeStorage(storage.storageId)
+    fun removeDestination(storage: StorageAdapter.Item) {
+        editor.removeStorage(storage.info.storageId)
     }
 
     fun executeTask() {
@@ -103,7 +104,7 @@ class DestinationsFragmentVDC @Inject constructor(
     }
 
     data class State(
-        val destinations: List<Storage.InfoOpt> = emptyList(),
+        val destinations: List<StorageAdapter.Item> = emptyList(),
         val isWorking: Boolean = false
     )
 

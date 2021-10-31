@@ -3,16 +3,17 @@ package eu.darken.bb.task.ui.tasklist
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
@@ -37,11 +38,11 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
 
-        vdc.state.observe2(this) { state ->
+        vdc.state.observe2(this, ui) { state ->
             log { "Updating UI state with $state" }
             adapter.update(state.tasks)
+            fab.isInvisible = false
         }
-
 
         vdc.editTaskEvent.observe2(this) {
             doNavigate(MainFragmentDirections.actionMainFragmentToTaskActionDialog(it.taskId))

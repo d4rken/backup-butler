@@ -4,7 +4,9 @@ import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.BindableVH
-import eu.darken.bb.common.lists.DataAdapter
+import eu.darken.bb.common.lists.differ.AsyncDiffer
+import eu.darken.bb.common.lists.differ.HasAsyncDiffer
+import eu.darken.bb.common.lists.differ.setupDiffer
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
@@ -12,16 +14,17 @@ import eu.darken.bb.databinding.GeneratorListAdapterLineBinding
 import javax.inject.Inject
 
 
-class GeneratorAdapter @Inject constructor() : ModularAdapter<GeneratorAdapter.VH>(), DataAdapter<GeneratorConfigOpt> {
+class GeneratorAdapter @Inject constructor() : ModularAdapter<GeneratorAdapter.VH>(),
+    HasAsyncDiffer<GeneratorConfigOpt> {
 
-    override val data = mutableListOf<GeneratorConfigOpt>()
+    override val asyncDiffer: AsyncDiffer<*, GeneratorConfigOpt> = setupDiffer()
+
+    override fun getItemCount(): Int = data.size
 
     init {
         modules.add(DataBinderMod(data))
         modules.add(SimpleVHCreatorMod { VH(it) })
     }
-
-    override fun getItemCount(): Int = data.size
 
     class VH(parent: ViewGroup) : ModularAdapter.VH(R.layout.generator_list_adapter_line, parent),
         BindableVH<GeneratorConfigOpt, GeneratorListAdapterLineBinding> {

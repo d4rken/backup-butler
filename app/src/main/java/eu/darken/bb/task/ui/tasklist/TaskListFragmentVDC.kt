@@ -13,7 +13,6 @@ import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import timber.log.Timber
@@ -46,7 +45,7 @@ class TaskListFragmentVDC @Inject constructor(
         tasksObs
             .subscribe { tasks ->
                 stater.update {
-                    it.copy(tasks = tasks.map { task -> TaskState(task = task) })
+                    it.copy(tasks = tasks.map { task -> TaskListAdapter.Item(task = task) })
                 }
             }
             .withScopeVDC(this)
@@ -82,13 +81,8 @@ class TaskListFragmentVDC @Inject constructor(
     }
 
     data class ViewState(
-        val tasks: List<TaskState> = emptyList(),
+        val tasks: List<TaskListAdapter.Item> = emptyList(),
         val hasRunningTask: Boolean = false
-    )
-
-    data class TaskState(
-        val task: Task,
-        val lastResult: TaskResult? = null
     )
 
     data class EditActions(
