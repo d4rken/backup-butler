@@ -11,6 +11,7 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
@@ -53,6 +54,7 @@ class GeneratorPickerFragment : SmartFragment(R.layout.task_editor_backup_genera
             requireActivity().invalidateOptionsMenu()
         }
 
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.finishEvent.observe2(this) {
             findNavController().popBackStack()
         }

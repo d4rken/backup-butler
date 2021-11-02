@@ -112,6 +112,9 @@
         <argument
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
+        <action
+            android:id="@+id/action_generatorsActionDialog_to_GeneratorEditorActivity"
+            app:destination="@id/GeneratorEditorActivity" />
     </dialog>
 
     <fragment
@@ -260,11 +263,27 @@
     <activity
         android:id="@+id/PathPickerActivity"
         android:name="eu.darken.bb.common.files.ui.picker.PathPickerActivity"
-        android:label="pathpicker_activity"
         tools:layout="@layout/pathpicker_activity">
         <argument
             android:name="options"
             app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
     </activity>
+
+    <activity
+        android:id="@+id/GeneratorEditorActivity"
+        android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
+        tools:layout="@layout/generator_editor_activity">
+        <argument
+            android:name="generatorId"
+            app:argType="eu.darken.bb.backup.core.Generator$Id" />
+    </activity>
+    <fragment
+        android:id="@+id/generatorListFragment"
+        tools:layout="@layout/generator_list_fragment"
+        android:name="eu.darken.bb.backup.ui.generator.list.GeneratorListFragment">
+        <action
+            android:id="@+id/action_generatorListFragment_to_GeneratorEditorActivity"
+            app:destination="@id/GeneratorEditorActivity" />
+    </fragment>
 
 </navigation>

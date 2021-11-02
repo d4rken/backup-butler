@@ -13,7 +13,9 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
+import eu.darken.bb.common.toastError
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
@@ -53,6 +55,10 @@ class GeneratorsActionDialog : BottomSheetDialogFragment() {
             ui.progressCircular.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
         }
+
+        vdc.navEvents.observe2(this) { doNavigate(it) }
+        vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }
+        vdc.errorEvent.observe2(this) { toastError(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

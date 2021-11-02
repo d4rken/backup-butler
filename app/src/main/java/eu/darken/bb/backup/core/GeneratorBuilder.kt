@@ -1,13 +1,9 @@
 package eu.darken.bb.backup.core
 
 import android.content.Context
-import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity
-import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivityArgs
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.Opt
-import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -129,15 +125,6 @@ class GeneratorBuilder @Inject constructor(
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
         )
         .map { generatorId }
-
-    // TODO refactor, move this to navgraph?
-    fun launchEditor(generatorId: Generator.Id) {
-        log(TAG) { "launchEditor(generatorId=$generatorId)" }
-        val intent = Intent(context, GeneratorEditorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtras(GeneratorEditorActivityArgs(generatorId = generatorId).toBundle())
-        context.startActivity(intent)
-    }
 
     data class Data(
         val generatorId: Generator.Id,

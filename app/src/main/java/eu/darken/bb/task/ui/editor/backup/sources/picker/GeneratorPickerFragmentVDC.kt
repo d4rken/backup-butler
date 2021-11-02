@@ -1,12 +1,14 @@
 package eu.darken.bb.task.ui.editor.backup.sources.picker
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.rx.latest
@@ -23,7 +25,7 @@ class GeneratorPickerFragmentVDC @Inject constructor(
     private val taskBuilder: TaskBuilder,
     private val generatorBuilder: GeneratorBuilder,
     generatorRepo: GeneratorRepo
-) : SmartVDC() {
+) : SmartVDC(), NavEventsSource {
     private val navArgs by handle.navArgs<GeneratorPickerFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
@@ -32,6 +34,7 @@ class GeneratorPickerFragmentVDC @Inject constructor(
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
     private val editorData = editorObs.flatMap { it.editorData }
+    override val navEvents = SingleLiveEvent<NavDirections>()
 
     val generatorData = generatorRepo.configs
         .observeOn(Schedulers.computation())
@@ -57,8 +60,9 @@ class GeneratorPickerFragmentVDC @Inject constructor(
     fun createGenerator() {
         generatorBuilder.getEditor()
             .observeOn(Schedulers.computation())
-            .doOnSuccess { generatorBuilder.launchEditor(it) }
-            .subscribe()
+            .subscribe { id ->
+
+            }
     }
 
     fun selectGenerator(item: GeneratorConfigOpt) {

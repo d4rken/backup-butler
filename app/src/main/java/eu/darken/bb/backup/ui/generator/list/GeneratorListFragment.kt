@@ -23,7 +23,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class GeneratorListFragment : SmartFragment(R.layout.generator_list_fragment) {
 
-    private val vdc: GeneratorsFragmentVDC by viewModels()
+    private val vdc: GeneratorListFragmentVDC by viewModels()
     private val ui: GeneratorListFragmentBinding by viewBinding()
     @Inject lateinit var adapter: GeneratorAdapter
 

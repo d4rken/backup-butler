@@ -2,12 +2,15 @@ package eu.darken.bb.backup.ui.generator.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.navigation.NavEventsSource
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -15,11 +18,11 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class GeneratorsFragmentVDC @Inject constructor(
+class GeneratorListFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val generatorRepo: GeneratorRepo,
     private val generatorBuilder: GeneratorBuilder
-) : SmartVDC() {
+) : SmartVDC(), NavEventsSource {
 
     val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
         .map { repos ->
@@ -37,12 +40,16 @@ class GeneratorsFragmentVDC @Inject constructor(
         .asLiveData()
 
     val editTaskEvent = SingleLiveEvent<EditActions>()
+    override val navEvents = SingleLiveEvent<NavDirections>()
 
     fun newGenerator() {
         generatorBuilder.getEditor()
             .observeOn(Schedulers.computation())
-            .doOnSuccess { generatorBuilder.launchEditor(it) }
-            .subscribe()
+            .subscribe { id ->
+                GeneratorListFragmentDirections.actionGeneratorListFragmentToGeneratorEditorActivity(
+                    generatorId = id
+                ).via(this)
+            }
     }
 
 
