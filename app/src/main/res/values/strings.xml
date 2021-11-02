@@ -182,8 +182,8 @@
     <string name="task_editor_backup_destinations_empty_desc">Where should this task save it\'s backups?</string>
     <string name="task_editor_backup_sources_picker_empty_desc">You don\'t have any backup sources yet. Create one so you can add it to this task.</string>
     <string name="task_editor_backup_sources_picker_alladded_desc">All existing sources have already been added to this task. Want to backup additional data? Just create another source.</string>
-    <string name="task_editor_backup_destination_picker_empty_desc">There are no existing storages. Let\'s create one so you can add it to this task.</string>
-    <string name="task_editor_backup_destination_picker_alladded_desc">All existing storages have already been added to this task. Need to store your backups in additional locations? Just create another storage!</string>
+    <string name="storage_picker_empty_no_existing_desc">There are no existing storages. Create one ;-)</string>
+    <string name="storage_picker_empty_all_added_desc">All existing storages have already been added, but you can create another one if you want :-).</string>
     <string name="backup_edit_source_label">Edit source</string>
     <string name="backup_create_source_label">Create new source</string>
     <string name="general_empty_list_desc">The list is empty.</string>
@@ -308,8 +308,8 @@
     <string name="onboarding_hello_subtitle">What does this app do?</string>
     <string name="general_backup_action">Backup</string>
     <string name="general_upgrade_action">Upgrade</string>
-    <string name="quick_apps_create_default_task_description">You currently have no default app backup task.</string>
-    <string name="quick_files_create_default_task_description">You currently have no default file backup task.</string>
+    <string name="quick_apps_create_default_task_description">Quick mode for apps needs to be set up before you can use it.</string>
+    <string name="quick_files_create_default_task_description">You need to set up quick mode for files before you can use it (it\'s quick, no worries).</string>
     <string name="default_backup_app_source_label">App source for default backup</string>
     <string name="app_preview_currently_matching_x_description">Currently matching: %s</string>
     <string name="general_setup_action">Set up</string>
@@ -327,4 +327,6 @@
     <string name="quick_apps_default_task_label">Default app backup task</string>
     <string name="quick_mode_subtitle">Quick mode</string>
     <string name="general_longpress_remove_hint">Long press to remove entry.</string>
+    <string name="general_reset_action">Reset</string>
+    <string name="quick_mode_apps_option_include_cache_label">Include caches</string>
 </resources>

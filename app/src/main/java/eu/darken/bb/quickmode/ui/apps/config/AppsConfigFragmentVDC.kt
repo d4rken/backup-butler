@@ -2,95 +2,85 @@ package eu.darken.bb.quickmode.ui.apps.config
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import com.jakewharton.rx3.replayingShare
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.backup.core.GeneratorBuilder
-import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.navigation.NavEventsSource
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.quickmode.core.AutoSetUp
+import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.TaskBuilder
-import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
+import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
 class AppsConfigFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val quickModeRepo: QuickModeRepo,
-    private val taskRepo: TaskRepo,
     private val storageManager: StorageManager,
-    private val generatorBuilder: GeneratorBuilder,
-    private val taskBuilder: TaskBuilder,
-    private val previewFilter: PreviewFilter,
     private val autoSetUp: AutoSetUp,
-) : SmartVDC() {
+) : SmartVDC(), NavEventsSource {
 
-    val finishEvent = SingleLiveEvent<Unit>()
+    private val configHD = quickModeRepo.appsData
+    override val navEvents = SingleLiveEvent<NavDirections?>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
-    private val editorObs = quickModeRepo.filesData.data
-        .observeOn(Schedulers.computation())
-        .flatMapSingle { data ->
-            taskBuilder.getEditor(
-                data.taskId ?: Task.Id(),
-                type = Task.Type.BACKUP_SIMPLE,
-            )
+    private val storageItemObs: Observable<ConfigAdapter.Item> = configHD.data
+        .switchMap { data ->
+            storageManager.infos(data.storageIds).takeUntil { infos ->
+                infos.all { it.isFinished }
+            }
         }
-        .map { it.editor as SimpleBackupTaskEditor }
-        .replayingShare()
-
-    private val editorData = editorObs
-        .flatMap { it.editorData }
-        .replayingShare()
-
-    private val storageItemObs: Observable<ConfigAdapter.Item> = editorData
-        .flatMap { storageManager.infos(it.destinations) }
         .map { storageInfos ->
             when (storageInfos.size) {
                 0 -> StorageCreateVH.Item(
                     onSetupStorage = {
-                        TODO()
+                        AppsConfigFragmentDirections.actionAppsConfigFragmentToStoragePicker().via(this)
                     }
                 )
                 1 -> StorageInfoVH.Item(
                     infoOpt = storageInfos.single(),
-                    onRemove = {
-                        TODO()
-                    }
+                    onRemove = { toRemove ->
+                        configHD.update {
+                            it.copy(storageIds = it.storageIds.minus(toRemove))
+                        }
+                    },
                 )
                 else -> StorageErrorMultipleVH.Item
             }
-            // Show info, allow attach/detach
         }
 
     val state: LiveData<State> = Observable
-        .combineLatest(editorData, storageItemObs) { editorData, storageItem ->
+        .combineLatest(configHD.data, storageItemObs) { config, storageItem ->
             val items = mutableListOf<ConfigAdapter.Item>()
-            if (!editorData.isExistingTask) {
+
+            if (config.storageIds.isEmpty()) {
                 AutoSetupVH.Item(
                     onAutoSetup = { runAutoSetUp() }
-                ).let { items.add(it) }
+                )
+//                    .run { items.add(this) }
             }
+
             items.add(storageItem)
 
             AppsOptionVH.Item(
-                onToggleAutoInclude = {
+                backupCaches = true,
+                backupCachesOnToggle = {
+                    TODO()
+                },
+            ).run { items.add(this) }
 
-                }
-            ).let { items.add(it) }
 
             State(
                 items = items,
-                isExisting = editorData.isExistingTask
+                isExisting = config.storageIds.isNotEmpty()
             )
         }
         .doOnError { errorEvent.postValue(it) }
@@ -98,31 +88,23 @@ class AppsConfigFragmentVDC @Inject constructor(
         .asLiveData()
 
     private fun runAutoSetUp() {
-        editorData
-            .flatMapSingle {
-                autoSetUp.setUp(it.taskId, AutoSetUp.Type.APPS)
-            }
-            .doOnSubscribe {
-                // TODO loading mode?
-            }
-            .doFinally {
-                // TODO clear loading mode
-            }
-            .subscribe({ result ->
-                // TODO
-            }, {
-                // TODO
-            })
+        log(TAG) { "runAutoSetUp()" }
     }
 
-    fun onSave() {
-        editorObs
-            .flatMapSingle { it.snapshot() }
-            .subscribe({
-                finishEvent.postValue(Unit)
-            }, {
-                errorEvent.postValue(it)
-            })
+    fun onStoragePickerResult(result: StoragePickerResult?) {
+        log(TAG) { "onStoragePickerResult(result=$result)" }
+        if (result == null) return
+
+        configHD.update {
+            it.copy(storageIds = it.storageIds.plus(result.storageId))
+        }
+    }
+
+    fun reset() {
+        log(TAG) { "reset()" }
+        quickModeRepo.reset(QuickMode.Type.APPS).subscribe { _ ->
+
+        }
     }
 
     data class State(

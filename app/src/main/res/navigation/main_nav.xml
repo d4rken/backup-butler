@@ -127,22 +127,10 @@
             app:popUpTo="@id/mainFragment" />
         <action
             android:id="@+id/action_quickModeFragment_to_appsConfigFragment"
-            app:destination="@id/appsConfigFragment">
-            <argument
-                android:name="taskId"
-                android:defaultValue="@null"
-                app:argType="eu.darken.bb.task.core.Task$Id"
-                app:nullable="true" />
-        </action>
+            app:destination="@id/appsConfigFragment" />
         <action
             android:id="@+id/action_quickModeFragment_to_filesConfigFragment"
-            app:destination="@id/filesConfigFragment">
-            <argument
-                android:name="taskId"
-                android:defaultValue="@null"
-                app:argType="eu.darken.bb.task.core.Task$Id"
-                app:nullable="true" />
-        </action>
+            app:destination="@id/filesConfigFragment" />
         <action
             android:id="@+id/action_quickModeFragment_to_storageViewerActivity"
             app:destination="@id/storageViewerActivity" />
@@ -203,11 +191,7 @@
         tools:layout="@layout/quickmode_apps_config_fragment">
         <action
             android:id="@+id/action_appsConfigFragment_to_storage_picker"
-            app:destination="@id/storage_picker">
-            <argument
-                android:name="taskId"
-                app:argType="eu.darken.bb.task.core.Task$Id" />
-        </action>
+            app:destination="@id/storage_picker" />
         <action
             android:id="@+id/action_appsConfigFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
@@ -218,11 +202,7 @@
         tools:layout="@layout/quickmode_files_config_fragment">
         <action
             android:id="@+id/action_filesConfigFragment_to_storage_picker"
-            app:destination="@id/storage_picker">
-            <argument
-                android:name="taskId"
-                app:argType="eu.darken.bb.task.core.Task$Id" />
-        </action>
+            app:destination="@id/storage_picker" />
         <action
             android:id="@+id/action_filesConfigFragment_to_mainFragment"
             app:destination="@id/mainFragment"

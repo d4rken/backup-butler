@@ -60,12 +60,12 @@ class StoragePickerFragment : SmartFragment(R.layout.storage_picker_fragment),
             if (state.allExistingAdded) {
                 storageListWrapper.setEmptyState(
                     R.drawable.ic_emoji_happy,
-                    R.string.task_editor_backup_destination_picker_alladded_desc
+                    R.string.storage_picker_empty_all_added_desc
                 )
             } else {
                 storageListWrapper.setEmptyState(
                     R.drawable.ic_emoji_neutral,
-                    R.string.task_editor_backup_destination_picker_empty_desc
+                    R.string.storage_picker_empty_no_existing_desc
                 )
             }
 

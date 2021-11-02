@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:rvwEmptyText="@string/task_editor_backup_destination_picker_empty_desc"
+        app:rvwEmptyText="@string/storage_picker_empty_no_existing_desc"
         app:rvwLoading="true"
         app:rvwLoadingUntilFirstChange="true">
 

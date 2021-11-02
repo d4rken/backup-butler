@@ -5,8 +5,8 @@ import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeMainFilesLoadingItemBinding
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 
-class FilesInfoLoadingVH(parent: ViewGroup) :
-    QuickModeAdapter.BaseVH<FilesInfoLoadingVH.Item, QuickmodeMainFilesLoadingItemBinding>(
+class QuickFilesLoadingVH(parent: ViewGroup) :
+    QuickModeAdapter.BaseVH<QuickFilesLoadingVH.Item, QuickmodeMainFilesLoadingItemBinding>(
         R.layout.quickmode_main_files_loading_item,
         parent
     ) {

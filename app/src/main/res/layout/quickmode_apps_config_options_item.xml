@@ -23,81 +23,24 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/backup_type_app_label"
-            app:layout_constraintEnd_toStartOf="@id/edit_action"
+            android:text="@string/general_options_label"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/edit_action"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/general_edit_action"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/primary_info"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:text="128 apps backupped"
-            app:layout_constraintEnd_toStartOf="@+id/edit_action"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title" />
-
-        <TextView
-            android:id="@+id/secondary_info"
-            style="@style/TextAppearance.MaterialComponents.Body2"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/option_include_cache"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:text="Last backup 12.12.2021 17:41:48"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/primary_info" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/view_advanced"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="@string/general_view_action"
-            app:layout_constraintBottom_toBottomOf="@id/setup_action"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/setup_action" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_action"
-            style="@style/Widget.MaterialComponents.Button.Highlight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/general_backup_action"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/setup_action"
-            app:layout_constraintTop_toTopOf="@id/setup_action" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/setup_action"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/general_restore_action"
+            android:layout_marginTop="8dp"
+            android:enabled="false"
+            android:layout_marginBottom="16dp"
+            android:text="@string/quick_mode_apps_option_include_cache_label"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/secondary_info" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

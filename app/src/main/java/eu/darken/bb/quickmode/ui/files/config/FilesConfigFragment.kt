@@ -6,7 +6,6 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.asErrorDialogBuilder
-import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
@@ -45,12 +44,8 @@ class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragme
                 subtitle = getString(R.string.quick_mode_subtitle)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.action_save -> {
-                            vdc.saveTask()
-                            true
-                        }
-                        R.id.action_remove -> {
-                            vdc.removeTask()
+                        R.id.action_reset -> {
+                            vdc.reset()
                             true
                         }
                         else -> false
@@ -61,21 +56,11 @@ class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragme
         }
 
         vdc.state.observe2(this, ui) { state ->
-            toolbar.apply {
-                menu.apply {
-                    findItem(R.id.action_save).apply {
-                        setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
-                        isVisible = true
-                    }
-                    findItem(R.id.action_remove).isVisible = state.isExisting
-                }
-                adapter.update(state.items)
+            toolbar.menu.apply {
+                findItem(R.id.action_reset).isVisible = state.isExisting
             }
+            adapter.update(state.items)
         }
-        val pathPickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
-            vdc.onPathPickerResult(it)
-        }
-        vdc.pathPickerEvent.observe2(this) { pathPickerLauncher.launch(it) }
 
         vdc.navEvents.observe2(this) {
             it?.run { doNavigate(this) } ?: popBackStack()

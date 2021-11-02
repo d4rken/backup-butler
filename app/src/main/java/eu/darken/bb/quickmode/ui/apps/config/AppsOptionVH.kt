@@ -23,8 +23,9 @@ class AppsOptionVH(parent: ViewGroup) :
     }
 
     data class Item(
-        val onToggleAutoInclude: (Boolean) -> Unit,
+        val backupCaches: Boolean = false,
+        val backupCachesOnToggle: (Boolean) -> Unit,
     ) : ConfigAdapter.Item {
-        override val stableId: Long = "CreateStorageVH".hashCode().toLong()
+        override val stableId: Long = "AppsOptionVH".hashCode().toLong()
     }
 }

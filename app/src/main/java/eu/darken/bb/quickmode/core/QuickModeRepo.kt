@@ -5,7 +5,7 @@ import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.task.core.TaskRepo
-import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,21 +37,13 @@ class QuickModeRepo @Inject constructor(
         }
     }
 
-    fun removeTask(type: QuickMode.Type): Completable = when (type) {
+    fun reset(type: QuickMode.Type): Single<QuickMode.Config> = when (type) {
         QuickMode.Type.APPS -> appsData.updateRx { AppsQuickModeConfig() }
         QuickMode.Type.FILES -> filesData.updateRx { FilesQuickModeConfig() }
     }
-        .doOnSubscribe { log(TAG) { "Removing task $type" } }
+        .doOnSubscribe { log(TAG) { "Resetting QuickMode: $type" } }
         .observeOn(Schedulers.computation())
         .map { it.oldValue }
-        .flatMapCompletable {
-            log(TAG) { "Task removed: $it" }
-            if (it.taskId != null) {
-                taskRepo.remove(it.taskId!!).ignoreElement()
-            } else {
-                Completable.complete()
-            }
-        }
 
 
     companion object {

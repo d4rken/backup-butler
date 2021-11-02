@@ -5,8 +5,8 @@ import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeMainAppsLoadingItemBinding
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 
-class AppsInfoLoadingVH(parent: ViewGroup) :
-    QuickModeAdapter.BaseVH<AppsInfoLoadingVH.Item, QuickmodeMainAppsLoadingItemBinding>(
+class QuickAppsLoadingVH(parent: ViewGroup) :
+    QuickModeAdapter.BaseVH<QuickAppsLoadingVH.Item, QuickmodeMainAppsLoadingItemBinding>(
         R.layout.quickmode_main_apps_loading_item,
         parent
     ) {
@@ -23,6 +23,6 @@ class AppsInfoLoadingVH(parent: ViewGroup) :
     }
 
     object Item : QuickModeAdapter.Item {
-        override val stableId: Long = AppsInfoVH.LIST_ID
+        override val stableId: Long = QuickAppsVH.LIST_ID
     }
 }

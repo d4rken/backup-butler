@@ -18,17 +18,16 @@ import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.core.QuickModeSettings
-import eu.darken.bb.quickmode.ui.apps.AppsInfoCreateVH
-import eu.darken.bb.quickmode.ui.apps.AppsInfoLoadingVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsCreateVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsLoadingVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsVH
 import eu.darken.bb.quickmode.ui.common.AdvancedModeHintsVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoCreateVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoLoadingVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesCreateVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
-import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -65,64 +64,66 @@ class QuickModeFragmentVDC @Inject constructor(
     private val appObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.appsData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default app task id: $it" } }
-        .flatMap { appsData ->
-            if (appsData.taskId == null) {
-                AppsInfoCreateVH.Item {
-                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
-                }.let { Observable.just(it) }
+        .map { appsConfig ->
+            if (appsConfig.isSetUp) {
+                QuickAppsVH.Item(
+                    config = appsConfig,
+                    onView = {
+                        QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
+                            storageId = it.storageIds.first()
+                        ).via(this)
+                    },
+                    onEdit = {
+                        QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
+                    },
+                    onBackup = {
+                        TODO()
+                    },
+                    onRestore = {
+                        TODO()
+                    }
+                )
             } else {
-                taskRepo.get(appsData.taskId).toObservable()
-            } as Observable<out QuickModeAdapter.Item>
+                QuickAppsCreateVH.Item {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
+                }
+            }
         }
         .doOnNext { log(TAG) { "Default app task info: $it" } }
-        .startWithItem(AppsInfoLoadingVH.Item)
+        .startWithItem(QuickAppsLoadingVH.Item)
 
     private val fileObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.filesData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default file task id: $it" } }
-        .flatMap { filesData ->
-            if (filesData.taskId == null) {
-                FilesInfoCreateVH.Item(
+        .map { filesConfig ->
+            if (filesConfig.isSetUp) {
+                QuickFilesVH.Item(
+                    config = filesConfig,
+                    onView = {
+                        QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
+                            storageId = it.storageIds.first()
+                        ).via(this)
+                    },
+                    onEdit = {
+                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
+                    },
+                    onBackup = {
+                        TODO()
+                    },
+                    onRestore = {
+                        TODO()
+                    }
+                )
+            } else {
+                QuickFilesCreateVH.Item(
                     onCreateAppsTaskAction = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
                     }
-                ).let { Observable.just(it) }
-            } else {
-                taskRepo.get(filesData.taskId)
-                    .toObservable()
-                    .map { task ->
-                        task as Task.Backup
-                        FilesInfoVH.Item(
-                            task = task,
-                            onEdit = {
-                                QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment(
-                                    taskId = it
-                                ).via(this)
-                            },
-                            onView = {
-                                task.destinations.singleOrNull()?.let {
-                                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(it)
-                                        .via(this)
-                                }
-                            },
-                            onBackup = {
-                                // TODO progress display?
-                                processorControl.submit(it)
-                            },
-                            onRestore = {
-                                QuickModeFragmentDirections.actionQuickModeFragmentToTaskEditor(
-                                    args = TaskEditorArgs(
-                                        taskId = task.taskId,
-                                        taskType = Task.Type.RESTORE_SIMPLE,
-                                    )
-                                ).via(this)
-                            }
-                        )
-                    }
+                )
             }
         }
         .doOnNext { log(TAG) { "Default file task info: $it" } }
-        .startWithItem(FilesInfoLoadingVH.Item)
+        .startWithItem(QuickFilesLoadingVH.Item)
 
     val items: LiveData<List<QuickModeAdapter.Item>> = Observable
         .combineLatest(

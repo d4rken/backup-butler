@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="eu.darken.bb.main.ui.MainActivity">
     <item
-        android:id="@+id/action_save"
-        android:orderInCategory="100"
-        android:title="@string/general_save_action"
+        android:id="@+id/action_reset"
+        android:title="@string/general_reset_action"
         android:visible="false"
-        app:showAsAction="always|withText" />
+        app:showAsAction="never"
+        tools:visible="true" />
 </menu>

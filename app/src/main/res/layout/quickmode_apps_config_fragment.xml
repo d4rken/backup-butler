@@ -15,6 +15,7 @@
             android:id="@+id/toolbar"
             style="@style/Toolbar"
             app:menu="@menu/menu_quickmode_wizard_apps"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:subtitle="@string/backup_type_app_label"
             app:title="@string/task_editor_backup_new_label" />
 

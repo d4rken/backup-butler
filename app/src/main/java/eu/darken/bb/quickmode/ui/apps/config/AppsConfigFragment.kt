@@ -9,15 +9,17 @@ import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeAppsConfigFragmentBinding
 import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
+import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
 
 @AndroidEntryPoint
-class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment) {
+class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment), StoragePickerResultListener {
 
     private val vdc: AppsConfigFragmentVDC by viewModels()
     private val ui: QuickmodeAppsConfigFragmentBinding by viewBinding()
@@ -25,6 +27,13 @@ class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment
         listOf(
             TypedVHCreatorMod({ data[it] is AppsOptionVH.Item }) { AppsOptionVH(it) }
         )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupStoragePickerListener {
+            vdc.onStoragePickerResult(it)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,8 +44,8 @@ class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment
                 subtitle = getString(R.string.quick_mode_subtitle)
                 setOnMenuItemClickListener {
                     when (it.itemId) {
-                        R.id.action_save -> {
-                            vdc.onSave()
+                        R.id.action_reset -> {
+                            vdc.reset()
                             true
                         }
                         else -> false
@@ -47,15 +56,15 @@ class AppsConfigFragment : SmartFragment(R.layout.quickmode_apps_config_fragment
         }
 
         vdc.state.observe2(this, ui) { state ->
-            toolbar.menu.findItem(R.id.action_save).apply {
-                setTitle(if (state.isExisting) R.string.general_save_action else R.string.general_create_action)
-//                setIcon(if (state.isExisting) R.drawable.ic_baseline_save_24 else R.drawable.ic_add_task)
-                isVisible = true
+            toolbar.menu.apply {
+                findItem(R.id.action_reset).isVisible = state.isExisting
             }
             adapter.update(state.items)
         }
 
-        vdc.finishEvent.observe2(this) { popBackStack() }
+        vdc.navEvents.observe2(this) {
+            it?.run { doNavigate(this) } ?: popBackStack()
+        }
         vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)

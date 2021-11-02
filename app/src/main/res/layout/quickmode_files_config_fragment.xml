@@ -17,7 +17,7 @@
             app:menu="@menu/menu_quickmode_wizard_files"
             style="@style/Toolbar"
             app:title="@string/task_editor_backup_new_label"
-            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:subtitle="@string/backup_type_files_label" />
 
     </com.google.android.material.appbar.AppBarLayout>

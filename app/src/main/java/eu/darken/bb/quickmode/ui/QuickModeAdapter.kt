@@ -9,13 +9,13 @@ import eu.darken.bb.common.lists.differ.DifferItem
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
-import eu.darken.bb.quickmode.ui.apps.AppsInfoCreateVH
-import eu.darken.bb.quickmode.ui.apps.AppsInfoLoadingVH
-import eu.darken.bb.quickmode.ui.apps.AppsInfoVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsCreateVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsLoadingVH
+import eu.darken.bb.quickmode.ui.apps.QuickAppsVH
 import eu.darken.bb.quickmode.ui.common.AdvancedModeHintsVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoCreateVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoLoadingVH
-import eu.darken.bb.quickmode.ui.files.FilesInfoVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesCreateVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
+import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import javax.inject.Inject
 
 class QuickModeAdapter @Inject constructor() :
@@ -27,12 +27,12 @@ class QuickModeAdapter @Inject constructor() :
     init {
         modules.add(DataBinderMod(data))
         modules.add(TypedVHCreatorMod({ data[it] is AdvancedModeHintsVH.Item }) { AdvancedModeHintsVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is AppsInfoVH.Item }) { AppsInfoVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is AppsInfoLoadingVH.Item }) { AppsInfoLoadingVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is AppsInfoCreateVH.Item }) { AppsInfoCreateVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is FilesInfoVH.Item }) { FilesInfoVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is FilesInfoLoadingVH.Item }) { FilesInfoLoadingVH(it) })
-        modules.add(TypedVHCreatorMod({ data[it] is FilesInfoCreateVH.Item }) { FilesInfoCreateVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickAppsVH.Item }) { QuickAppsVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickAppsLoadingVH.Item }) { QuickAppsLoadingVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickAppsCreateVH.Item }) { QuickAppsCreateVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickFilesVH.Item }) { QuickFilesVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickFilesLoadingVH.Item }) { QuickFilesLoadingVH(it) })
+        modules.add(TypedVHCreatorMod({ data[it] is QuickFilesCreateVH.Item }) { QuickFilesCreateVH(it) })
     }
 
     override fun getItemCount(): Int = data.size

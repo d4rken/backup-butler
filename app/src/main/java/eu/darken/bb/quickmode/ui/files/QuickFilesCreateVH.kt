@@ -5,8 +5,8 @@ import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeMainFilesCreateItemBinding
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 
-class FilesInfoCreateVH(parent: ViewGroup) :
-    QuickModeAdapter.BaseVH<FilesInfoCreateVH.Item, QuickmodeMainFilesCreateItemBinding>(
+class QuickFilesCreateVH(parent: ViewGroup) :
+    QuickModeAdapter.BaseVH<QuickFilesCreateVH.Item, QuickmodeMainFilesCreateItemBinding>(
         R.layout.quickmode_main_files_create_item,
         parent
     ) {

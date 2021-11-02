@@ -5,8 +5,8 @@ import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeMainAppsCreateItemBinding
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 
-class AppsInfoCreateVH(parent: ViewGroup) :
-    QuickModeAdapter.BaseVH<AppsInfoCreateVH.Item, QuickmodeMainAppsCreateItemBinding>(
+class QuickAppsCreateVH(parent: ViewGroup) :
+    QuickModeAdapter.BaseVH<QuickAppsCreateVH.Item, QuickmodeMainAppsCreateItemBinding>(
         R.layout.quickmode_main_apps_create_item,
         parent
     ) {
@@ -25,6 +25,6 @@ class AppsInfoCreateVH(parent: ViewGroup) :
     data class Item(
         val onCreateAppsTaskAction: () -> Unit,
     ) : QuickModeAdapter.Item {
-        override val stableId: Long = AppsInfoVH.LIST_ID
+        override val stableId: Long = QuickAppsVH.LIST_ID
     }
 }
