@@ -16,10 +16,10 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeFilesConfigFragmentBinding
 import eu.darken.bb.quickmode.ui.common.config.ConfigAdapter
-import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
+import eu.darken.bb.storage.ui.picker.StoragePickerListener
 
 @AndroidEntryPoint
-class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragment), StoragePickerResultListener {
+class FilesConfigFragment : SmartFragment(R.layout.quickmode_files_config_fragment), StoragePickerListener {
 
     private val vdc: FilesConfigFragmentVDC by viewModels()
     private val ui: QuickmodeFilesConfigFragmentBinding by viewBinding()

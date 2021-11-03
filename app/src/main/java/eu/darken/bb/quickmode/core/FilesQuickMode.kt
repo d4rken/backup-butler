@@ -11,36 +11,26 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class QuickModeRepo @Inject constructor(
+class FilesQuickMode @Inject constructor(
     private val taskRepo: TaskRepo,
-    private val moshi: Moshi,
+    moshi: Moshi,
     private val settings: QuickModeSettings,
 ) {
 
-    private val appsConfigAdapter = moshi.adapter(AppsQuickModeConfig::class.java)
     private val filesConfigAdapter = moshi.adapter(FilesQuickModeConfig::class.java)
 
-    val appsData = HotData {
-        settings.rawConfigApps?.let { appsConfigAdapter.fromJson(it) } ?: AppsQuickModeConfig()
-    }
-
-    val filesData = HotData {
+    val hotData = HotData {
         settings.rawConfigFiles?.let { filesConfigAdapter.fromJson(it) } ?: FilesQuickModeConfig()
     }
 
     init {
-        appsData.data.subscribe {
-            settings.rawConfigApps = appsConfigAdapter.toJson(it)
-        }
-        filesData.data.subscribe {
+        hotData.data.subscribe {
             settings.rawConfigFiles = filesConfigAdapter.toJson(it)
         }
     }
 
-    fun reset(type: QuickMode.Type): Single<QuickMode.Config> = when (type) {
-        QuickMode.Type.APPS -> appsData.updateRx { AppsQuickModeConfig() }
-        QuickMode.Type.FILES -> filesData.updateRx { FilesQuickModeConfig() }
-    }
+    fun reset(type: QuickMode.Type): Single<QuickMode.Config> = hotData
+        .updateRx { FilesQuickModeConfig() }
         .doOnSubscribe { log(TAG) { "Resetting QuickMode: $type" } }
         .observeOn(Schedulers.computation())
         .map { it.oldValue }

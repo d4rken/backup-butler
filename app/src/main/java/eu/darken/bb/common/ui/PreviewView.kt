@@ -15,27 +15,6 @@ class PreviewView @JvmOverloads constructor(
     val image = ui.previewImage
     val placeHolder = ui.previewPlaceholder
 
-    init {
-//        lateinit var typedArray: TypedArray
-//        try {
-//            typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.SetupBarView)
-//
-//            buttonPositivePrimary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositivePrimaryLabel)
-//            buttonPositivePrimary.setGone(buttonPositivePrimary.text.isNullOrEmpty())
-//
-//            buttonPositiveSecondary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvPositiveSecondaryLabel)
-//            buttonPositiveSecondary.setGone(buttonPositiveSecondary.text.isNullOrEmpty())
-//
-//            buttonNegativeSecondary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativeSecondaryLabel)
-//            buttonNegativeSecondary.setGone(buttonNegativeSecondary.text.isNullOrEmpty())
-//
-//            buttonNegativePrimary.text = typedArray.getStringOrRef(R.styleable.SetupBarView_sbvNegativePrimaryLabel)
-//            buttonNegativePrimary.setGone(buttonNegativePrimary.text.isNullOrEmpty())
-//        } finally {
-//            typedArray.recycle()
-//        }
-    }
-
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
         setEnabledRecursion(this, enabled)

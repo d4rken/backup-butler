@@ -11,8 +11,8 @@ import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.quickmode.core.FilesQuickMode
 import eu.darken.bb.quickmode.core.QuickMode
-import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.ui.apps.config.AppsConfigFragmentVDC
 import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
@@ -23,11 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class FilesConfigFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val quickModeRepo: QuickModeRepo,
+    private val quickMode: FilesQuickMode,
     private val storageManager: StorageManager,
 ) : SmartVDC(), NavEventsSource {
 
-    private val configHD = quickModeRepo.filesData
+    private val configHD = quickMode.hotData
 
     override val navEvents = SingleLiveEvent<NavDirections?>()
     val errorEvent = SingleLiveEvent<Throwable>()
@@ -102,7 +102,7 @@ class FilesConfigFragmentVDC @Inject constructor(
 
     fun reset() {
         log(TAG) { "reset()" }
-        quickModeRepo.reset(QuickMode.Type.FILES).subscribe { _ ->
+        quickMode.reset(QuickMode.Type.FILES).subscribe { _ ->
 
         }
     }

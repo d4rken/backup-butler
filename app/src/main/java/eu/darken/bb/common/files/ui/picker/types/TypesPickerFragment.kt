@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.files.ui.picker.SharedPickerVM
+import eu.darken.bb.common.files.ui.picker.SharedPathPickerVM
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -15,15 +15,15 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.PathpickerTypesFragmentBinding
+import eu.darken.bb.databinding.PathPickerTypesFragmentBinding
 import eu.darken.bb.storage.ui.editor.types.TypeSelectionAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TypesPickerFragment : SmartFragment(R.layout.pathpicker_types_fragment) {
+class TypesPickerFragment : SmartFragment(R.layout.path_picker_types_fragment) {
 
     val navArgs by navArgs<TypesPickerFragmentArgs>()
-    private val ui: PathpickerTypesFragmentBinding by viewBinding()
+    private val ui: PathPickerTypesFragmentBinding by viewBinding()
     private val vdc: TypesPickerFragmentVDC by viewModels()
 
 
@@ -37,7 +37,7 @@ class TypesPickerFragment : SmartFragment(R.layout.pathpicker_types_fragment) {
             adapter.update(it.allowedTypes)
         }
 
-        val sharedVM = ViewModelProvider(requireActivity()).get(SharedPickerVM::class.java)
+        val sharedVM = ViewModelProvider(requireActivity()).get(SharedPathPickerVM::class.java)
         vdc.typeEvents.observe2(this) {
             sharedVM.launchType(it)
         }

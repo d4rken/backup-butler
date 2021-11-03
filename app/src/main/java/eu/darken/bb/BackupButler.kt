@@ -23,7 +23,6 @@ class BackupButler @Inject constructor(
 ) {
     private val selfHealthPrefs = context.getSharedPreferences("selfhealth", Context.MODE_PRIVATE)
 
-
     val appInfo: AppInfo by lazy {
         val pkgInfo = packageManager.getPackageInfo(context.packageName, 0)
         AppInfo(

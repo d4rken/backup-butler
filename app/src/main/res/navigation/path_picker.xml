@@ -2,11 +2,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/picker_nav"
+    android:id="@+id/path_picker"
     tools:ignore="InvalidNavigation">
 
     <activity
         android:id="@+id/pathPickerActivity"
+        tools:layout="@layout/path_picker_activity"
         android:name="eu.darken.bb.common.files.ui.picker.PathPickerActivity"
         android:label="@string/general_pick_a_path_action">
         <argument
@@ -17,7 +18,7 @@
         android:id="@+id/localPickerFragment"
         android:name="eu.darken.bb.common.files.ui.picker.local.LocalPickerFragment"
         android:label="@string/storage_type_local_label"
-        tools:layout="@layout/pathpicker_local_fragment">
+        tools:layout="@layout/path_picker_local_fragment">
         <argument
             android:name="options"
             app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
@@ -26,7 +27,7 @@
         android:id="@+id/typesPickerFragment"
         android:name="eu.darken.bb.common.files.ui.picker.types.TypesPickerFragment"
         android:label="@string/general_select_type_label"
-        tools:layout="@layout/pathpicker_types_fragment">
+        tools:layout="@layout/path_picker_types_fragment">
         <action
             android:id="@+id/action_typesPickerFragment_to_localPickerFragment"
             app:destination="@id/localPickerFragment"

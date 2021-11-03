@@ -11,9 +11,8 @@ import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.quickmode.core.AppsQuickMode
 import eu.darken.bb.quickmode.core.AutoSetUp
-import eu.darken.bb.quickmode.core.QuickMode
-import eu.darken.bb.quickmode.core.QuickModeRepo
 import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.picker.StoragePickerResult
@@ -23,12 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class AppsConfigFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val quickModeRepo: QuickModeRepo,
+    private val quickMode: AppsQuickMode,
     private val storageManager: StorageManager,
     private val autoSetUp: AutoSetUp,
 ) : SmartVDC(), NavEventsSource {
 
-    private val configHD = quickModeRepo.appsData
+    private val configHD = quickMode.appsData
     override val navEvents = SingleLiveEvent<NavDirections?>()
     val errorEvent = SingleLiveEvent<Throwable>()
 
@@ -102,7 +101,7 @@ class AppsConfigFragmentVDC @Inject constructor(
 
     fun reset() {
         log(TAG) { "reset()" }
-        quickModeRepo.reset(QuickMode.Type.APPS).subscribe { _ ->
+        quickMode.reset().subscribe { _ ->
 
         }
     }

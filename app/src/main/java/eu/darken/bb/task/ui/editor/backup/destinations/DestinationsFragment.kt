@@ -19,11 +19,11 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
 import eu.darken.bb.storage.ui.list.StorageAdapter
-import eu.darken.bb.storage.ui.picker.StoragePickerResultListener
+import eu.darken.bb.storage.ui.picker.StoragePickerListener
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment), StoragePickerResultListener {
+class DestinationsFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment), StoragePickerListener {
 
     val navArgs by navArgs<DestinationsFragmentArgs>()
     private val ui: TaskEditorBackupStoragesFragmentBinding by viewBinding()

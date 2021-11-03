@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.SingleLiveEvent
@@ -13,6 +12,7 @@ import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.main.ui.MainFragmentDirections
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -39,14 +39,13 @@ class GeneratorListFragmentVDC @Inject constructor(
         }
         .asLiveData()
 
-    val editTaskEvent = SingleLiveEvent<EditActions>()
     override val navEvents = SingleLiveEvent<NavDirections>()
 
     fun newGenerator() {
         generatorBuilder.getEditor()
             .observeOn(Schedulers.computation())
             .subscribe { id ->
-                GeneratorListFragmentDirections.actionGeneratorListFragmentToGeneratorEditorActivity(
+                MainFragmentDirections.actionMainFragmentToGeneratorEditorActivity(
                     generatorId = id
                 ).via(this)
             }
@@ -55,22 +54,13 @@ class GeneratorListFragmentVDC @Inject constructor(
 
     fun editGenerator(config: GeneratorConfigOpt) {
         Timber.tag(TAG).d("editGenerator(%s)", config)
-        editTaskEvent.postValue(
-            EditActions(
-                generatorId = config.generatorId,
-                allowDelete = true
-            )
-        )
+        MainFragmentDirections.actionMainFragmentToGeneratorsActionDialog(
+            generatorId = config.generatorId,
+        ).via(this)
     }
 
     data class ViewState(
         val generators: List<GeneratorConfigOpt>
-    )
-
-    data class EditActions(
-        val generatorId: Generator.Id,
-        val allowEdit: Boolean = false,
-        val allowDelete: Boolean = false
     )
 
     companion object {

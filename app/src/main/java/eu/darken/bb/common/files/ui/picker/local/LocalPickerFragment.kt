@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.ui.picker.SharedPickerVM
+import eu.darken.bb.common.files.ui.picker.SharedPathPickerVM
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -27,19 +27,19 @@ import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.BreadCrumbBar
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.PathpickerLocalFragmentBinding
+import eu.darken.bb.databinding.PathPickerLocalFragmentBinding
 import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LocalPickerFragment : SmartFragment(R.layout.pathpicker_local_fragment) {
+class LocalPickerFragment : SmartFragment(R.layout.path_picker_local_fragment) {
 
     val navArgs by navArgs<LocalPickerFragmentArgs>()
     private val vdc: LocalPickerFragmentVDC by viewModels()
-    private val ui: PathpickerLocalFragmentBinding by viewBinding()
+    private val ui: PathPickerLocalFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: PathLookupAdapter
-    private val sharedVM by lazy { ViewModelProvider(requireActivity())[SharedPickerVM::class.java] }
+    private val sharedVM by lazy { ViewModelProvider(requireActivity())[SharedPathPickerVM::class.java] }
 
     private var allowCreateDir = false
 

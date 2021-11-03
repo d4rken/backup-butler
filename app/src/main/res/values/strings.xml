@@ -329,4 +329,6 @@
     <string name="general_longpress_remove_hint">Long press to remove entry.</string>
     <string name="general_reset_action">Reset</string>
     <string name="quick_mode_apps_option_include_cache_label">Include caches</string>
+    <string name="pkg_picker_title">Select an app</string>
+    <string name="pkg_picker_empty_desc">The app list is empty, that doesn\'t seem right...</string>
 </resources>

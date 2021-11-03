@@ -6,7 +6,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.storage.core.Storage
 import timber.log.Timber
 
-class SharedPickerVM
+class SharedPathPickerVM
     : ViewModel() {
 
     val resultEvent = SingleLiveEvent<PathPicker.Result>()

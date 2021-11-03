@@ -4,10 +4,10 @@ import androidx.recyclerview.widget.RecyclerView
 import eu.darken.bb.common.lists.modular.ModularAdapter
 
 
-fun <X, T> X.update(newData: List<T>?, notify: Boolean = true)
+fun <X, T> X.update(newData: List<T>?)
     where X : HasAsyncDiffer<T>, X : RecyclerView.Adapter<*> {
 
-    if (notify) asyncDiffer.submitUpdate(newData ?: emptyList())
+    asyncDiffer.submitUpdate(newData ?: emptyList())
 }
 
 fun <A, T : DifferItem> A.setupDiffer(): AsyncDiffer<A, T>

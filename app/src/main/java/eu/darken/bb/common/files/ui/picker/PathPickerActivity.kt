@@ -19,7 +19,7 @@ import eu.darken.bb.common.files.ui.picker.types.TypesPickerFragmentArgs
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartActivity
-import eu.darken.bb.databinding.PathpickerActivityBinding
+import eu.darken.bb.databinding.PathPickerActivityBinding
 
 @AndroidEntryPoint
 class PathPickerActivity : SmartActivity() {
@@ -28,7 +28,7 @@ class PathPickerActivity : SmartActivity() {
     private val vdc: PathPickerActivityVDC by viewModels()
 
     private val navController by lazy { findNavController(R.id.nav_host) }
-    private val graph by lazy { navController.navInflater.inflate(R.navigation.picker_nav) }
+    private val graph by lazy { navController.navInflater.inflate(R.navigation.path_picker) }
     private val appBarConf by lazy {
         AppBarConfiguration.Builder()
             .setFallbackOnNavigateUpListener {
@@ -37,15 +37,15 @@ class PathPickerActivity : SmartActivity() {
             }
             .build()
     }
-    private lateinit var ui: PathpickerActivityBinding
+    private lateinit var ui: PathPickerActivityBinding
 
-    private val sharedVM by lazy { ViewModelProvider(this)[SharedPickerVM::class.java] }
+    private val sharedVM by lazy { ViewModelProvider(this)[SharedPathPickerVM::class.java] }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ui = PathpickerActivityBinding.inflate(layoutInflater)
+        ui = PathPickerActivityBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
         sharedVM.typeEvent.observe2(this) { vdc.onTypePicked(it) }
@@ -56,7 +56,7 @@ class PathPickerActivity : SmartActivity() {
         }
 
         vdc.launchLocalEvents.observe2(this) { options ->
-            ensureContentView(R.layout.pathpicker_activity)
+            ensureContentView(R.layout.path_picker_activity)
             val args = LocalPickerFragmentArgs(options = options)
             if (!navController.isGraphSet()) {
                 if (options.allowedTypes.size > 1) {
@@ -75,7 +75,7 @@ class PathPickerActivity : SmartActivity() {
         }
 
         vdc.launchTypesEvents.observe2(this) {
-            ensureContentView(R.layout.pathpicker_activity)
+            ensureContentView(R.layout.path_picker_activity)
             val args = TypesPickerFragmentArgs(options = it)
             if (!navController.isGraphSet()) {
                 graph.startDestination = R.id.typesPickerFragment

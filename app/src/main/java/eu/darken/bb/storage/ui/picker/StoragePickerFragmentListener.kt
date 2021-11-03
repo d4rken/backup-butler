@@ -6,7 +6,7 @@ import androidx.fragment.app.setFragmentResultListener
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.smart.SmartFragment
 
-interface StoragePickerResultListener {
+interface StoragePickerListener {
 
     fun SmartFragment.setupStoragePickerListener(
         callback: (StoragePickerResult?) -> Unit
@@ -30,9 +30,9 @@ fun StoragePickerFragment.setStoragePickerResult(
 ) {
     log { "setStoragePickerResult(result=$result)" }
     setFragmentResult(
-        StoragePickerResultListener.RESULT_KEY,
+        StoragePickerListener.RESULT_KEY,
         Bundle().apply {
-            putParcelable(StoragePickerResultListener.RESULT_KEY, result)
+            putParcelable(StoragePickerListener.RESULT_KEY, result)
         }
     )
 }

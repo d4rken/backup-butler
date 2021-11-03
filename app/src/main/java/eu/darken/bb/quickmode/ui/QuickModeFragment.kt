@@ -8,10 +8,12 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
+import eu.darken.bb.common.pkgpicker.ui.PkgPickerListener
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
@@ -20,11 +22,19 @@ import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment) {
+class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment), PkgPickerListener {
 
     private val vdc: QuickModeFragmentVDC by viewModels()
     private val ui: QuickmodeMainFragmentBinding by viewBinding()
     @Inject lateinit var adapter: QuickModeAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setupPkgPickerListener {
+            log(TAG) { "setupPkgPickerCallback(): $it" }
+            vdc.onAppsPickerResult(it)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
@@ -87,5 +97,9 @@ class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment) {
         }
 
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    companion object {
+        private val TAG = logTag("QuickMode", "Main", "Fragment")
     }
 }

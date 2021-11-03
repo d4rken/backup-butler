@@ -60,6 +60,9 @@
                 android:name="args"
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
+        <action
+            android:id="@+id/action_mainFragment_to_GeneratorEditorActivity"
+            app:destination="@id/GeneratorEditorActivity" />
     </fragment>
 
     <dialog
@@ -141,6 +144,12 @@
                 android:name="args"
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
+        <action
+            android:id="@+id/action_quickModeFragment_to_PathPickerActivity"
+            app:destination="@id/PathPickerActivity" />
+        <action
+            android:id="@+id/action_quickModeFragment_to_pkgPickerFragment"
+            app:destination="@id/pkgPickerFragment" />
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
@@ -192,9 +201,6 @@
         <action
             android:id="@+id/action_appsConfigFragment_to_storage_picker"
             app:destination="@id/storage_picker" />
-        <action
-            android:id="@+id/action_appsConfigFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/filesConfigFragment"
@@ -203,13 +209,6 @@
         <action
             android:id="@+id/action_filesConfigFragment_to_storage_picker"
             app:destination="@id/storage_picker" />
-        <action
-            android:id="@+id/action_filesConfigFragment_to_mainFragment"
-            app:destination="@id/mainFragment"
-            app:popUpTo="@id/mainFragment" />
-        <action
-            android:id="@+id/action_filesConfigFragment_to_pathPickerActivity"
-            app:destination="@id/PathPickerActivity" />
     </fragment>
     <include app:graph="@navigation/storage_editor" />
     <fragment
@@ -217,14 +216,7 @@
         android:name="eu.darken.bb.storage.ui.list.StorageListFragment"
         android:label="StorageListFragment"
         tools:layout="@layout/storage_list_fragment">
-        <action
-            android:id="@+id/action_storageListFragment_to_storage_editor"
-            app:destination="@id/storage_editor">
-            <argument
-                android:name="storageId"
-                app:argType="eu.darken.bb.storage.core.Storage$Id"
-                app:nullable="true" />
-        </action>
+
     </fragment>
 
     <include app:graph="@navigation/task_editor" />
@@ -243,7 +235,7 @@
     <activity
         android:id="@+id/PathPickerActivity"
         android:name="eu.darken.bb.common.files.ui.picker.PathPickerActivity"
-        tools:layout="@layout/pathpicker_activity">
+        tools:layout="@layout/path_picker_activity">
         <argument
             android:name="options"
             app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
@@ -259,11 +251,15 @@
     </activity>
     <fragment
         android:id="@+id/generatorListFragment"
-        tools:layout="@layout/generator_list_fragment"
-        android:name="eu.darken.bb.backup.ui.generator.list.GeneratorListFragment">
-        <action
-            android:id="@+id/action_generatorListFragment_to_GeneratorEditorActivity"
-            app:destination="@id/GeneratorEditorActivity" />
+        android:name="eu.darken.bb.backup.ui.generator.list.GeneratorListFragment"
+        tools:layout="@layout/generator_list_fragment" />
+    <fragment
+        android:id="@+id/pkgPickerFragment"
+        android:name="eu.darken.bb.common.pkgpicker.ui.PkgPickerFragment"
+        tools:layout="@layout/pkg_picker_fragment">
+        <argument
+            android:name="options"
+            app:argType="eu.darken.bb.common.pkgpicker.ui.PkgPickerOptions" />
     </fragment>
 
 </navigation>

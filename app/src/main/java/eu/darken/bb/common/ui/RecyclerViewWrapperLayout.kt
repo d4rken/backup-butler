@@ -6,6 +6,8 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.view.isInvisible
+import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
@@ -51,7 +53,9 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
                 state = state.copy(isLoading = false, consumeFirstLoading = false)
             }
 
-            updateUI()
+            postDelayed(100L) {
+                updateUI()
+            }
 
             if (state.isPreFirstChange) {
                 state = state.copy(isPreFirstChange = false)
@@ -127,8 +131,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         if (currentAdapter != recyclerView.adapter) {
             Timber.v("Updating tracked adapter")
             currentAdapter?.unregisterAdapterDataObserver(dataListener)
-            currentAdapter = recyclerView.adapter
-            currentAdapter?.registerAdapterDataObserver(dataListener)
+            currentAdapter = recyclerView.adapter?.also { it.registerAdapterDataObserver(dataListener) }
             dataListener.onChanged()
         }
         super.onLayout(changed, left, top, right, bottom)
@@ -136,9 +139,9 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
 
     protected fun updateUI() {
         log { "updateStates(): $state" }
-        ui.loadingOverlay.setInvisible(!loadingBehavior(state))
-        ui.explanationContainer.setInvisible(!explanationBehavior(state))
-        ui.emptyContainer.setInvisible(!emptyBehavior(state))
+        ui.loadingOverlay.isInvisible = !loadingBehavior(state)
+        ui.explanationContainer.isInvisible = !explanationBehavior(state)
+        ui.emptyContainer.isInvisible = !emptyBehavior(state)
     }
 
     fun setEmptyState(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {

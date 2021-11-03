@@ -10,13 +10,18 @@ import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.ui.picker.PathPicker
 import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
+import eu.darken.bb.common.pkgpicker.ui.PkgPickerOptions
+import eu.darken.bb.common.pkgpicker.ui.PkgPickerResult
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.quickmode.core.QuickModeRepo
+import eu.darken.bb.quickmode.core.AppsQuickMode
+import eu.darken.bb.quickmode.core.FilesQuickMode
 import eu.darken.bb.quickmode.core.QuickModeSettings
 import eu.darken.bb.quickmode.ui.apps.QuickAppsCreateVH
 import eu.darken.bb.quickmode.ui.apps.QuickAppsLoadingVH
@@ -27,6 +32,7 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
+import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -39,7 +45,8 @@ class QuickModeFragmentVDC @Inject constructor(
     private val uiSettings: UISettings,
     private val bbDebug: BBDebug,
     private val backupButler: BackupButler,
-    private val quickModeRepo: QuickModeRepo,
+    private val appsQuickMode: AppsQuickMode,
+    private val filesQuickMode: FilesQuickMode,
     private val taskRepo: TaskRepo,
     private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
@@ -61,7 +68,7 @@ class QuickModeFragmentVDC @Inject constructor(
         .subscribeOn(Schedulers.computation())
         .asLiveData()
 
-    private val appObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.appsData.data
+    private val appObs: Observable<out QuickModeAdapter.Item> = appsQuickMode.appsData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default app task id: $it" } }
         .map { appsConfig ->
@@ -77,10 +84,15 @@ class QuickModeFragmentVDC @Inject constructor(
                         QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
                     },
                     onBackup = {
-                        TODO()
+                        QuickModeFragmentDirections.actionQuickModeFragmentToPkgPickerFragment(
+                            options = PkgPickerOptions(
+
+                            )
+                        ).via(this)
+                        // TODO launch apps picker
                     },
                     onRestore = {
-                        TODO()
+                        // TODO launch storage browser?
                     }
                 )
             } else {
@@ -92,7 +104,7 @@ class QuickModeFragmentVDC @Inject constructor(
         .doOnNext { log(TAG) { "Default app task info: $it" } }
         .startWithItem(QuickAppsLoadingVH.Item)
 
-    private val fileObs: Observable<out QuickModeAdapter.Item> = quickModeRepo.filesData.data
+    private val fileObs: Observable<out QuickModeAdapter.Item> = filesQuickMode.hotData.data
         .observeOn(Schedulers.computation())
         .doOnNext { log(TAG) { "Default file task id: $it" } }
         .map { filesConfig ->
@@ -108,10 +120,17 @@ class QuickModeFragmentVDC @Inject constructor(
                         QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
                     },
                     onBackup = {
-                        TODO()
+                        // TODO Launch file picker
+                        QuickModeFragmentDirections.actionQuickModeFragmentToPathPickerActivity(
+                            options = PathPicker.Options(
+                                onlyDirs = false,
+                                selectionLimit = Int.MAX_VALUE,
+                                allowedTypes = setOf(APath.PathType.LOCAL)
+                            )
+                        ).via(this)
                     },
                     onRestore = {
-                        TODO()
+                        // TODO launch storage browser?
                     }
                 )
             } else {
@@ -148,6 +167,20 @@ class QuickModeFragmentVDC @Inject constructor(
         .map { it.isNotNull }
         .asLiveData()
 
+    fun onAppsPickerResult(result: PkgPickerResult?) {
+        log(TAG) { "onAppsPickerResult(result=$result)" }
+        if (result == null) return
+
+        // TODO launch quick mode single shoot apps backup
+    }
+
+    fun onPathPickerResult(result: StoragePickerResult?) {
+        log(TAG) { "onPathPickerResult(result=$result)" }
+        if (result == null) return
+
+        // TODO launch quick mode single shoot files backup
+    }
+
     data class DebugState(
         val showDebugStuff: Boolean,
         val isRecordingDebug: Boolean
@@ -165,6 +198,7 @@ class QuickModeFragmentVDC @Inject constructor(
     fun recordDebugLog() {
         bbDebug.setRecording(true)
     }
+
 
     companion object {
         private val TAG = logTag("QuickMode", "Main", "VDC")
