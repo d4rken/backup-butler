@@ -37,7 +37,21 @@ class PkgPickerFragment : SmartFragment(R.layout.pkg_picker_fragment),
             toolbar.apply {
                 setupWithNavController(findNavController())
                 setNavigationIcon(R.drawable.ic_baseline_close_24)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.action_select_all -> {
+                            vdc.selectAll()
+                            true
+                        }
+                        R.id.action_unselect_all -> {
+                            vdc.unselectAll()
+                            true
+                        }
+                        else -> false
+                    }
+                }
             }
+
             fab.setOnClickListener { vdc.done() }
         }
 
@@ -45,7 +59,13 @@ class PkgPickerFragment : SmartFragment(R.layout.pkg_picker_fragment),
 
         vdc.state.observe2(this, ui) { state ->
             adapter.update(state.items)
-            toolbar.subtitle = resources.getCountString(R.plurals.x_selected, state.selected.size)
+            toolbar.apply {
+                subtitle = resources.getCountString(R.plurals.x_selected, state.selected.size)
+                menu.apply {
+                    findItem(R.id.action_select_all).isVisible = state.items.size != state.selected.size
+                    findItem(R.id.action_unselect_all).isVisible = state.selected.isNotEmpty()
+                }
+            }
             fab.isInvisible = state.selected.isEmpty()
         }
 

@@ -331,4 +331,6 @@
     <string name="quick_mode_apps_option_include_cache_label">Include caches</string>
     <string name="pkg_picker_title">Select an app</string>
     <string name="pkg_picker_empty_desc">The app list is empty, that doesn\'t seem right...</string>
+    <string name="general_select_all">Select all</string>
+    <string name="general_unselect_all">Unselect all</string>
 </resources>

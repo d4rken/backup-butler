@@ -3,6 +3,7 @@ package eu.darken.bb.common.pkgpicker.ui
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
+import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.log
@@ -29,10 +30,15 @@ class PkgPickerFragmentVDC @Inject constructor(
     private val navArgs by handle.navArgs<PkgPickerFragmentArgs>()
     private val options = navArgs.options
 
-    private val pkgData = Observable.create<List<NormalPkg>> { emitter ->
-        val pkgs = pkgOps.listPkgs().filterIsInstance<NormalPkg>()
-        emitter.onNext(pkgs)
-    }.subscribeOn(Schedulers.computation())
+    private val pkgData = Observable
+        .create<List<NormalPkg>> { emitter ->
+            val pkgs = pkgOps.listPkgs()
+                .filterIsInstance<NormalPkg>()
+                .filter { options.allowSystemApps || !it.isSystemApp }
+            emitter.onNext(pkgs)
+        }
+        .subscribeOn(Schedulers.computation())
+        .replayingShare()
 
     private val selectedItems = BehaviorSubject.createDefault(emptyList<Pkg>())
 
@@ -80,6 +86,14 @@ class PkgPickerFragmentVDC @Inject constructor(
             selection = selectedItems.value!!.map { PickedPkg(it.packageName) }.toSet(),
             payload = Bundle(),
         ).run { finishEvent.postValue(this) }
+    }
+
+    fun selectAll() {
+        selectedItems.onNext(pkgData.blockingFirst())
+    }
+
+    fun unselectAll() {
+        selectedItems.onNext(emptyList())
     }
 
     data class PkgsState(
