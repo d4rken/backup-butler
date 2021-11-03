@@ -10,7 +10,6 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.NormalPkg
-import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.asLiveData
@@ -40,7 +39,7 @@ class PkgPickerFragmentVDC @Inject constructor(
         .subscribeOn(Schedulers.computation())
         .replayingShare()
 
-    private val selectedItems = BehaviorSubject.createDefault(emptyList<Pkg>())
+    private val selectedItems = BehaviorSubject.createDefault(emptyList<String>())
 
     val navEvents = SingleLiveEvent<NavDirections>()
 
@@ -52,7 +51,7 @@ class PkgPickerFragmentVDC @Inject constructor(
                     PkgPickerAdapter.Item(
                         pkg = pkg,
                         label = pkg.getLabel(pkgOps) ?: pkg.packageName,
-                        isSelected = selected.contains(pkg)
+                        isSelected = selected.any { it == pkg.packageName }
                     )
                 },
                 selected = selected,
@@ -67,8 +66,8 @@ class PkgPickerFragmentVDC @Inject constructor(
         selectedItems.value!!
             .let {
                 val newSelection = when {
-                    item.isSelected -> it.minus(item.pkg)
-                    else -> it.plus(item.pkg)
+                    item.isSelected -> it.minus(item.pkg.packageName)
+                    else -> it.plus(item.pkg.packageName)
                 }
                 if (newSelection.size > options.selectionLimit) {
                     newSelection.subList(1, options.selectionLimit + 1)
@@ -83,13 +82,13 @@ class PkgPickerFragmentVDC @Inject constructor(
         PkgPickerResult(
             options = options,
             error = null,
-            selection = selectedItems.value!!.map { PickedPkg(it.packageName) }.toSet(),
+            selection = selectedItems.value!!.map { PickedPkg(it) }.toSet(),
             payload = Bundle(),
         ).run { finishEvent.postValue(this) }
     }
 
     fun selectAll() {
-        selectedItems.onNext(pkgData.blockingFirst())
+        selectedItems.onNext(pkgData.blockingFirst().map { it.packageName })
     }
 
     fun unselectAll() {
@@ -98,7 +97,7 @@ class PkgPickerFragmentVDC @Inject constructor(
 
     data class PkgsState(
         val items: List<PkgPickerAdapter.Item> = emptyList(),
-        val selected: List<Pkg> = emptyList()
+        val selected: List<String> = emptyList()
     )
 
     companion object {
