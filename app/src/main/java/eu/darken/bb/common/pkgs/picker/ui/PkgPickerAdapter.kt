@@ -1,4 +1,4 @@
-package eu.darken.bb.common.pkgpicker.ui
+package eu.darken.bb.common.pkgs.picker.ui
 
 import android.view.ViewGroup
 import eu.darken.bb.R

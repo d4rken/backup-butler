@@ -14,8 +14,8 @@ import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPicker
 import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
-import eu.darken.bb.common.pkgpicker.ui.PkgPickerOptions
-import eu.darken.bb.common.pkgpicker.ui.PkgPickerResult
+import eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions
+import eu.darken.bb.common.pkgs.picker.ui.PkgPickerResult
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.main.core.UISettings

@@ -1,9 +1,9 @@
-package eu.darken.bb.common.pkgpicker.ui
+package eu.darken.bb.common.pkgs.picker.ui
 
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.annotation.Keep
-import eu.darken.bb.common.pkgpicker.core.PickedPkg
+import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 

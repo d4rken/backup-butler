@@ -1,4 +1,4 @@
-package eu.darken.bb.common.pkgpicker.ui
+package eu.darken.bb.common.pkgs.picker.ui
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
@@ -9,9 +9,9 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.pkgpicker.core.PickedPkg
 import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.Pkg
+import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC

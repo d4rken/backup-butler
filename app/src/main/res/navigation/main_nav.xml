@@ -255,11 +255,11 @@
         tools:layout="@layout/generator_list_fragment" />
     <fragment
         android:id="@+id/pkgPickerFragment"
-        android:name="eu.darken.bb.common.pkgpicker.ui.PkgPickerFragment"
+        android:name="eu.darken.bb.common.pkgs.picker.ui.PkgPickerFragment"
         tools:layout="@layout/pkg_picker_fragment">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.pkgpicker.ui.PkgPickerOptions" />
+            app:argType="eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions" />
     </fragment>
 
 </navigation>

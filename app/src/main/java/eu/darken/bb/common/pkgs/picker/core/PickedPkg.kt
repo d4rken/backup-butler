@@ -1,4 +1,4 @@
-package eu.darken.bb.common.pkgpicker.core
+package eu.darken.bb.common.pkgs.picker.core
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

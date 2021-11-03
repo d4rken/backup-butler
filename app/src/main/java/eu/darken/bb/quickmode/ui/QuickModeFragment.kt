@@ -13,7 +13,7 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.pkgpicker.ui.PkgPickerListener
+import eu.darken.bb.common.pkgs.picker.ui.PkgPickerListener
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
