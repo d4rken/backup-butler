@@ -19,18 +19,19 @@ import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselection_fragment) {
+class StorageTypeFragment : SmartFragment(R.layout.storage_editor_typeselection_fragment) {
 
-    private val vdc: TypeSelectionFragmentVDC by viewModels()
+    private val vdc: StorageTypeFragmentVDC by viewModels()
     private val ui: StorageEditorTypeselectionFragmentBinding by viewBinding()
-    @Inject lateinit var adapter: TypeSelectionAdapter
+    @Inject lateinit var adapter: StorageTypeAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.recyclerview.setupDefaults(adapter)
-
-        ui.toolbar.apply {
-            setNavigationIcon(R.drawable.ic_baseline_close_24)
-            setNavigationOnClickListener { popBackStack() }
+        ui.apply {
+            recyclerview.setupDefaults(adapter)
+            toolbar.apply {
+                setNavigationIcon(R.drawable.ic_baseline_close_24)
+                setNavigationOnClickListener { popBackStack() }
+            }
         }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.createType(adapter.data[i]) })
@@ -41,10 +42,10 @@ class TypeSelectionFragment : SmartFragment(R.layout.storage_editor_typeselectio
 
         vdc.navigationEvent.observe2(this) { (type, id) ->
             val nextStep = when (type) {
-                Storage.Type.LOCAL -> TypeSelectionFragmentDirections.actionTypeSelectionFragmentToLocalEditorFragment(
+                Storage.Type.LOCAL -> StorageTypeFragmentDirections.actionTypeSelectionFragmentToLocalEditorFragment(
                     storageId = id
                 )
-                Storage.Type.SAF -> TypeSelectionFragmentDirections.actionTypeSelectionFragmentToSafEditorFragment(
+                Storage.Type.SAF -> StorageTypeFragmentDirections.actionTypeSelectionFragmentToSafEditorFragment(
                     storageId = id
                 )
             }

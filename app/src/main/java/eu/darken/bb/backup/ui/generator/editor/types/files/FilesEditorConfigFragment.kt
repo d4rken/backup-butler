@@ -10,8 +10,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorFragmentChild
+import eu.darken.bb.backup.ui.generator.editor.setGeneratorEditorResult
 import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferentAndNotFocused
@@ -22,7 +25,8 @@ import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorEditorFileFragmentBinding
 
 @AndroidEntryPoint
-class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment) {
+class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment),
+    GeneratorEditorFragmentChild {
 
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
@@ -37,6 +41,23 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ui.apply {
+            toolbar.apply {
+                setNavigationOnClickListener { popBackStack() }
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.action_create -> {
+                            vdc.saveConfig()
+                            true
+                        }
+                        else -> super.onOptionsItemSelected(it)
+                    }
+                }
+            }
+            nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
+            pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
+        }
+
         vdc.state.observe2(this) { state ->
             ui.nameInput.setTextIfDifferentAndNotFocused(state.label)
             ui.pathDisplay.text = state.path?.userReadablePath(requireContext())
@@ -51,16 +72,16 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
             invalidateOptionsMenu()
         }
 
-        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-        ui.pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
-
         val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
             if (it != null) vdc.updatePath(it)
             else Toast.makeText(requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
         vdc.pickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
-        vdc.finishEvent.observe2(this) { requireActivity().finish() }
+        vdc.finishEvent.observe2(this) {
+            setGeneratorEditorResult(it)
+            popBackStack()
+        }
 
         vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 

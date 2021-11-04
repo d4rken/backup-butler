@@ -1,51 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.card.MaterialCardView
-        style="@style/MyCardView"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:orientation="vertical">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:subtitle="@string/backup_type_app_label"
+            app:title="@string/generator_create_action" />
 
-            <TextView
-                android:id="@+id/info_mode"
-                style="@style/TextAppearance.MaterialComponents.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:text="Preview mode" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/info_items"
-                style="@style/TextAppearance.MaterialComponents.Body2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                tools:text="123 items. 18 selected." />
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:id="@+id/pkg_preview_list_wrapper"
-        android:layout_height="0dp"
-        app:rvwLoading="true"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/pkg_preview_list"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/MyCardView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </eu.darken.bb.common.ui.RecyclerViewWrapperLayout>
-</LinearLayout>
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/info_mode"
+                    style="@style/TextAppearance.MaterialComponents.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="Preview mode" />
+
+                <TextView
+                    android:id="@+id/info_items"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    tools:text="123 items. 18 selected." />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
+            android:id="@+id/pkg_preview_list_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:rvwLoading="true">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pkg_preview_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </eu.darken.bb.common.ui.RecyclerViewWrapperLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

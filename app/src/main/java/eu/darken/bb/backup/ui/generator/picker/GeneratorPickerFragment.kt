@@ -1,65 +1,63 @@
-package eu.darken.bb.task.ui.editor.backup.sources.picker
+package eu.darken.bb.backup.ui.generator.picker
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.ui.generator.list.GeneratorAdapter
+import eu.darken.bb.backup.ui.generator.list.GeneratorListAdapter
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.ModularAdapter
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.doNavigate
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.TaskEditorBackupGeneratorsPickerFragmentBinding
+import eu.darken.bb.databinding.GeneratorPickerFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorPickerFragment : SmartFragment(R.layout.task_editor_backup_generators_picker_fragment) {
+class GeneratorPickerFragment : SmartFragment(R.layout.generator_picker_fragment) {
 
     private val vdc: GeneratorPickerFragmentVDC by viewModels()
-    private val ui: TaskEditorBackupGeneratorsPickerFragmentBinding by viewBinding()
+    private val ui: GeneratorPickerFragmentBinding by viewBinding()
 
-    @Inject lateinit var adapter: GeneratorAdapter
+    @Inject lateinit var adapter: GeneratorListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.generatorList.setupDefaults(adapter)
-
-        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectGenerator(adapter.data[i]) })
+        ui.apply {
+            generatorList.setupDefaults(adapter)
+            toolbar.setNavigationOnClickListener { popBackStack() }
+            fab.clicksDebounced().subscribe { vdc.createGenerator() }
+        }
 
         vdc.generatorData.observe2(this, ui) { state ->
-            adapter.update(state.generatorData)
+            adapter.update(state.items)
 
             if (state.allExistingAdded) {
                 generatorListWrapper.setEmptyState(
                     R.drawable.ic_emoji_happy,
-                    R.string.task_editor_backup_sources_picker_alladded_desc
+                    R.string.generator_picker_alladded_desc
                 )
             } else {
                 generatorListWrapper.setEmptyState(
                     R.drawable.ic_emoji_neutral,
-                    R.string.task_editor_backup_sources_picker_empty_desc
+                    R.string.generator_picker_empty_desc
                 )
             }
 
             generatorListWrapper.updateLoadingState(state.isLoading)
-            fab.setInvisible(state.isLoading)
-
-            requireActivity().invalidateOptionsMenu()
+            fab.isInvisible = state.isLoading
         }
 
         vdc.navEvents.observe2(this) { doNavigate(it) }
-        vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack()
-        }
 
-        ui.fab.clicksDebounced().subscribe { vdc.createGenerator() }
+        vdc.finishEvent.observe2(this) {
+            setGeneratorPickerResult(it)
+            popBackStack()
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

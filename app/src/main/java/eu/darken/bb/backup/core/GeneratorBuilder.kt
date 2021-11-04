@@ -107,7 +107,7 @@ class GeneratorBuilder @Inject constructor(
     fun getEditor(
         generatorId: Generator.Id = Generator.Id(),
         type: Backup.Type? = null,
-    ): Single<Generator.Id> = hotData.latest
+    ): Single<Data> = hotData.latest
         .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
         .switchIfEmpty(
             load(generatorId)
@@ -124,7 +124,6 @@ class GeneratorBuilder @Inject constructor(
             }.map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
         )
-        .map { generatorId }
 
     data class Data(
         val generatorId: Generator.Id,

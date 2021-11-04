@@ -23,13 +23,13 @@ import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorSafFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
-import eu.darken.bb.storage.ui.editor.EditorFragmentChild
+import eu.darken.bb.storage.ui.editor.StorageEditorFragmentChild
 import eu.darken.bb.storage.ui.editor.setStorageEditorResult
 import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment), EditorFragmentChild {
+class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment), StorageEditorFragmentChild {
 
     private val vdc: SAFEditorFragmentVDC by viewModels()
     private val ui: StorageEditorSafFragmentBinding by viewBinding()

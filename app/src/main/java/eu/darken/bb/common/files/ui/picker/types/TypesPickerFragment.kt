@@ -16,7 +16,7 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.PathPickerTypesFragmentBinding
-import eu.darken.bb.storage.ui.editor.types.TypeSelectionAdapter
+import eu.darken.bb.storage.ui.editor.types.StorageTypeAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,7 +27,7 @@ class TypesPickerFragment : SmartFragment(R.layout.path_picker_types_fragment) {
     private val vdc: TypesPickerFragmentVDC by viewModels()
 
 
-    @Inject lateinit var adapter: TypeSelectionAdapter
+    @Inject lateinit var adapter: StorageTypeAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectType(adapter.data[i]) })

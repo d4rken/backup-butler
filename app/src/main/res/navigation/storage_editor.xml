@@ -12,8 +12,8 @@
         <argument
             android:name="storageId"
             android:defaultValue="@null"
-            app:argType="eu.darken.bb.storage.core.Storage$Id"
-            app:nullable="true" />
+            app:nullable="true"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
         <action
             android:id="@+id/action_storageEditorFragment_to_typeSelectionFragment"
             app:destination="@id/typeSelectionFragment"
@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/typeSelectionFragment"
-        android:name="eu.darken.bb.storage.ui.editor.types.TypeSelectionFragment"
+        android:name="eu.darken.bb.storage.ui.editor.types.StorageTypeFragment"
         android:label="@string/general_select_type_label"
         tools:layout="@layout/storage_editor_typeselection_fragment">
         <argument

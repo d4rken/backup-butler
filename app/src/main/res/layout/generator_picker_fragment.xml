@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar"
+            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:title="@string/generator_picker_title" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:id="@+id/generator_list_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:rvwEmptyText="@string/task_editor_backup_sources_picker_empty_desc"
+        app:rvwEmptyText="@string/generator_picker_empty_desc"
         app:rvwLoading="true"
         app:rvwLoadingUntilFirstChange="true">
 

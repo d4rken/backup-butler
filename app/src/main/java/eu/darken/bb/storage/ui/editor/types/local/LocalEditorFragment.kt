@@ -25,11 +25,11 @@ import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
-import eu.darken.bb.storage.ui.editor.EditorFragmentChild
+import eu.darken.bb.storage.ui.editor.StorageEditorFragmentChild
 import eu.darken.bb.storage.ui.editor.setStorageEditorResult
 
 @AndroidEntryPoint
-class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment), EditorFragmentChild {
+class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment), StorageEditorFragmentChild {
     private val vdc: LocalEditorFragmentVDC by viewModels()
     private val ui: StorageEditorLocalFragmentBinding by viewBinding()
 

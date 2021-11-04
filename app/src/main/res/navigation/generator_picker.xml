@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/generator_picker"
+    app:startDestination="@id/generatorPickerFragment">
+
+    <fragment
+        android:id="@+id/generatorPickerFragment"
+        android:name="eu.darken.bb.backup.ui.generator.picker.GeneratorPickerFragment"
+        tools:layout="@layout/generator_picker_fragment">
+
+        <argument
+            android:name="taskId"
+            android:defaultValue="@null"
+            app:argType="eu.darken.bb.task.core.Task$Id"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_generatorPickerFragment_to_generator_editor"
+            app:destination="@id/generator_editor">
+
+            <argument
+                android:name="generatorId"
+                android:defaultValue="@null"
+                app:argType="eu.darken.bb.backup.core.Generator$Id"
+                app:nullable="true" />
+        </action>
+
+
+    </fragment>
+    <include app:graph="@navigation/generator_editor" />
+</navigation>

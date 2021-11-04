@@ -1,96 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/MyCardView"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            app:menu="@menu/menu_generator_editor_files_config"
+            style="@style/Toolbar"
+            app:subtitle="@string/backup_type_files_label"
+            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:title="@string/generator_create_action" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <FrameLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/MyCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp">
-
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Overline"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="@string/general_core_settings_label" />
+                android:layout_height="wrap_content">
 
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="16dp">
+                    android:layout_margin="16dp">
 
-                    <eu.darken.bb.common.ui.LoadingOverlayView
-                        android:id="@+id/core_settings_loading_overlay"
-                        style="@style/LoadingOverlayViewStyle"
-                        android:visibility="invisible"
-                        tools:visibility="visible" />
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Overline"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/general_core_settings_label" />
 
-                    <LinearLayout
-                        android:id="@+id/core_settings_container"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusableInTouchMode="true"
-                        android:orientation="vertical"
-                        android:visibility="invisible"
-                        tools:visibility="visible">
+                        android:paddingTop="16dp">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/TextInputLayoutOutlinedDense"
+                        <eu.darken.bb.common.ui.LoadingOverlayView
+                            android:id="@+id/core_settings_loading_overlay"
+                            style="@style/LoadingOverlayViewStyle"
+                            android:visibility="invisible"
+                            tools:visibility="visible" />
+
+                        <LinearLayout
+                            android:id="@+id/core_settings_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/general_name_label"
-                            app:endIconMode="clear_text">
+                            android:focusableInTouchMode="true"
+                            android:orientation="vertical"
+                            android:visibility="invisible"
+                            tools:visibility="visible">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/name_input"
-                                style="@style/Widget.AppCompat.EditText"
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/TextInputLayoutOutlinedDense"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="textNoSuggestions"
-                                android:singleLine="true"
-                                tools:text="My local backup" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:hint="@string/general_name_label"
+                                app:endIconMode="clear_text">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/name_input"
+                                    style="@style/Widget.AppCompat.EditText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textNoSuggestions"
+                                    android:singleLine="true"
+                                    tools:text="My local backup" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
 
-                        <TextView
-                            style="@style/TextAppearance.MaterialComponents.Caption"
-                            android:layout_width="match_parent"
-                            android:layout_marginTop="16dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/general_path_label" />
+                            <TextView
+                                style="@style/TextAppearance.MaterialComponents.Caption"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:text="@string/general_path_label" />
 
-                        <TextView
-                            android:id="@+id/path_display"
-                            style="@style/TextAppearance.MaterialComponents.Body2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:text="/storage/emulated/0/DCIM" />
+                            <TextView
+                                android:id="@+id/path_display"
+                                style="@style/TextAppearance.MaterialComponents.Body2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                tools:text="/storage/emulated/0/DCIM" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/path_select_action"
-                            style="@style/Widget.MaterialComponents.Button"
-                            android:layout_width="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_height="wrap_content"
-                            android:text="@string/general_select_path_label" />
-                    </LinearLayout>
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/path_select_action"
+                                style="@style/Widget.MaterialComponents.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:text="@string/general_select_path_label" />
+                        </LinearLayout>
+                    </FrameLayout>
                 </FrameLayout>
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
+            </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
+        </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

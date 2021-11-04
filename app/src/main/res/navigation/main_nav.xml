@@ -61,8 +61,8 @@
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
         <action
-            android:id="@+id/action_mainFragment_to_GeneratorEditorActivity"
-            app:destination="@id/GeneratorEditorActivity" />
+            android:id="@+id/action_mainFragment_to_generator_editor"
+            app:destination="@id/generator_editor" />
     </fragment>
 
     <dialog
@@ -116,8 +116,12 @@
             android:name="generatorId"
             app:argType="eu.darken.bb.backup.core.Generator$Id" />
         <action
-            android:id="@+id/action_generatorsActionDialog_to_GeneratorEditorActivity"
-            app:destination="@id/GeneratorEditorActivity" />
+            android:id="@+id/action_generatorsActionDialog_to_generator_editor"
+            app:destination="@id/generator_editor">
+            <argument
+                android:name="generatorId"
+                app:argType="eu.darken.bb.backup.core.Generator$Id" />
+        </action>
     </dialog>
 
     <fragment
@@ -241,18 +245,11 @@
             app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
     </activity>
 
-    <activity
-        android:id="@+id/GeneratorEditorActivity"
-        android:name="eu.darken.bb.backup.ui.generator.editor.GeneratorEditorActivity"
-        tools:layout="@layout/generator_editor_activity">
-        <argument
-            android:name="generatorId"
-            app:argType="eu.darken.bb.backup.core.Generator$Id" />
-    </activity>
     <fragment
         android:id="@+id/generatorListFragment"
         android:name="eu.darken.bb.backup.ui.generator.list.GeneratorListFragment"
         tools:layout="@layout/generator_list_fragment" />
+
     <fragment
         android:id="@+id/pkgPickerFragment"
         android:name="eu.darken.bb.common.pkgs.picker.ui.PkgPickerFragment"
@@ -261,5 +258,7 @@
             android:name="options"
             app:argType="eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions" />
     </fragment>
+    <include app:graph="@navigation/generator_editor" />
+
 
 </navigation>

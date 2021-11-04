@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResult
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
@@ -42,7 +43,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
 
     val pickerEvent = SingleLiveEvent<PathPicker.Options>()
     val errorEvent = SingleLiveEvent<Throwable>()
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<GeneratorEditorResult>()
 
     init {
         editorDataObs
@@ -106,11 +107,11 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     fun saveConfig() {
         builder.save(generatorId)
             .observeOn(Schedulers.computation())
-            .doFinally { finishEvent.postValue(Any()) }
-            .subscribe(
-                { },
-                { err -> errorEvent.postValue(err) }
-            )
+            .subscribe({
+                GeneratorEditorResult(generatorId = it.generatorId).run { finishEvent.postValue(this) }
+            }, { err ->
+                errorEvent.postValue(err)
+            })
     }
 
     data class State(

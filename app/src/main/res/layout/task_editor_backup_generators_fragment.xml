@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:rvwEmptyText="@string/task_editor_backup_sources_empty_desc"
+        app:rvwEmptyText="@string/task_editor_backup_generators_empty_desc"
         app:rvwLoading="true"
         app:rvwLoadingUntilFirstChange="true">
 

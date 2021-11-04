@@ -12,7 +12,7 @@ import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 
-class TypeSelectionAdapter @Inject constructor() : ModularAdapter<TypeSelectionAdapter.VH>(),
+class StorageTypeAdapter @Inject constructor() : ModularAdapter<StorageTypeAdapter.VH>(),
     DataAdapter<Storage.Type> {
 
     override val data = mutableListOf<Storage.Type>()

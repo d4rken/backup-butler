@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
+import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResult
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
@@ -44,7 +45,7 @@ class AppEditorConfigFragmentVDC @Inject constructor(
 
     private val editor: AppSpecGeneratorEditor by lazy { editorObs.blockingFirst() }
 
-    val finishEvent = SingleLiveEvent<Any>()
+    val finishEvent = SingleLiveEvent<GeneratorEditorResult>()
 
     init {
         editorDataObs
@@ -113,8 +114,11 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     fun saveConfig() {
         builder.save(generatorId)
             .observeOn(Schedulers.computation())
-            .doFinally { finishEvent.postValue(Any()) }
-            .subscribe()
+            .subscribe { config ->
+                GeneratorEditorResult(
+                    generatorId = config.generatorId
+                ).run { finishEvent.postValue(this) }
+            }
     }
 
     data class State(

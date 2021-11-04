@@ -6,7 +6,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
@@ -17,7 +19,7 @@ import javax.inject.Inject
 class StorageEditorFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val storageBuilder: StorageBuilder
-) : SmartVDC() {
+) : SmartVDC(), NavEventsSource {
 
     private val navArgs = handle.navArgs<StorageEditorFragmentArgs>()
     private val storageId: Storage.Id = run {
@@ -39,8 +41,7 @@ class StorageEditorFragmentVDC @Inject constructor(
         .flatMapObservable { storageBuilder.storage(it.storageId) }
         .observeOn(Schedulers.computation())
 
-    val finishEvent = SingleLiveEvent<StorageEditorResult?>()
-    val navEvents = SingleLiveEvent<NavDirections>()
+    override val navEvents = SingleLiveEvent<NavDirections>()
 
     init {
         storageObs
@@ -54,7 +55,7 @@ class StorageEditorFragmentVDC @Inject constructor(
                         .actionStorageEditorFragmentToTypeSelectionFragment(storageId = data.storageId)
                 }
             }
-            .subscribe { navEvents.postValue(it) }
+            .subscribe { it.via(this) }
     }
 
     companion object {

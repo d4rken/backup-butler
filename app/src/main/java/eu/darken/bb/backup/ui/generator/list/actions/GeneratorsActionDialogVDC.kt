@@ -68,7 +68,7 @@ class GeneratorsActionDialogVDC @Inject constructor(
                     .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
                     .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
                     .subscribe({
-                        GeneratorsActionDialogDirections.actionGeneratorsActionDialogToGeneratorEditorActivity(
+                        GeneratorsActionDialogDirections.actionGeneratorsActionDialogToGeneratorEditor(
                             generatorId = it.generatorId
                         ).via(this)
                         closeDialogEvent.postValue(Any())

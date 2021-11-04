@@ -1,213 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/MyCardView"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            app:menu="@menu/menu_generator_editor_app_config"
+            style="@style/Toolbar"
+            app:subtitle="@string/backup_type_app_label"
+            app:navigationIcon="@drawable/ic_baseline_close_24"
+            app:title="@string/generator_create_action" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/MyCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/general_core_settings_label" />
-
-                <FrameLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="8dp">
+                    android:orientation="vertical">
 
-                    <ProgressBar
-                        android:id="@+id/core_settings_progress"
-                        style="@style/ProgressStyleSpinner" />
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/general_core_settings_label" />
 
-                    <LinearLayout
-                        android:id="@+id/core_settings_container"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusableInTouchMode="true"
-                        android:orientation="vertical">
+                        android:paddingTop="8dp">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/TextInputLayoutOutlinedDense"
+                        <ProgressBar
+                            android:id="@+id/core_settings_progress"
+                            style="@style/ProgressStyleSpinner" />
+
+                        <LinearLayout
+                            android:id="@+id/core_settings_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginEnd="16dp"
-                            android:hint="@string/general_name_label"
-                            app:endIconMode="clear_text">
+                            android:focusableInTouchMode="true"
+                            android:orientation="vertical">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/name_input"
-                                style="@style/Widget.AppCompat.EditText"
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/TextInputLayoutOutlinedDense"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="textNoSuggestions"
-                                android:singleLine="true"
-                                tools:text="My local backup" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:hint="@string/general_name_label"
+                                app:endIconMode="clear_text">
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/core_settings_autoinclude"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvDescription="@string/backup_generator_app_option_autoinclude_desc"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_autoinclude_label" />
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/name_input"
+                                    style="@style/Widget.AppCompat.EditText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textNoSuggestions"
+                                    android:singleLine="true"
+                                    tools:text="My local backup" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/core_settings_includeuser"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_option_includeuser_label" />
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/core_settings_autoinclude"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvDescription="@string/generator_editor_app_option_autoinclude_desc"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_autoinclude_label" />
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/core_settings_includesystem"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_includesystem_label" />
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/core_settings_includeuser"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_includeuser_label" />
 
-                        <eu.darken.bb.common.ui.PreferenceView
-                            android:id="@+id/core_settings_included_packages"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_included_apps_label" />
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/core_settings_includesystem"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_includesystem_label" />
 
-                        <eu.darken.bb.common.ui.PreferenceView
-                            android:id="@+id/core_settings_excluded_packages"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_excluded_apps_label" />
-                    </LinearLayout>
-                </FrameLayout>
-            </LinearLayout>
+                            <eu.darken.bb.common.ui.PreferenceView
+                                android:id="@+id/core_settings_included_packages"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_included_apps_label" />
+
+                            <eu.darken.bb.common.ui.PreferenceView
+                                android:id="@+id/core_settings_excluded_packages"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_excluded_apps_label" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </LinearLayout>
 
 
-        </com.google.android.material.card.MaterialCardView>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            style="@style/MyCardView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.google.android.material.card.MaterialCardView
+                style="@style/MyCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/app_preview_info"
-                    style="@style/TextAppearance.MaterialComponents.Body2"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="16dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="@string/app_preview_currently_matching_x_description" />
+                    android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/app_preview_action"
-                    style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/general_preview_action"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/app_preview_info" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/MyCardView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/general_options_label" />
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="8dp">
-
-                    <ProgressBar
-                        android:id="@+id/options_progress"
-                        style="@style/ProgressStyleSpinner" />
-
-                    <LinearLayout
-                        android:id="@+id/options_container"
+                    <TextView
+                        android:id="@+id/app_preview_info"
+                        style="@style/TextAppearance.MaterialComponents.Body2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:visibility="invisible"
-                        tools:visibility="visible">
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="@string/app_preview_currently_matching_x_description" />
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/options_backupapk"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/app_preview_action"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/general_preview_action"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/app_preview_info" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/MyCardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/general_options_label" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="8dp">
+
+                        <ProgressBar
+                            android:id="@+id/options_progress"
+                            style="@style/ProgressStyleSpinner" />
+
+                        <LinearLayout
+                            android:id="@+id/options_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_backupapk_label" />
+                            android:orientation="vertical"
+                            android:visibility="invisible"
+                            tools:visibility="visible">
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/options_backupdata"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_backupdata_label" />
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/options_backupapk"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_backupapk_label" />
 
-                        <eu.darken.bb.common.ui.SwitchPreferenceView
-                            android:id="@+id/options_backupcache"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:pvIcon="@drawable/ic_check_circle"
-                            app:pvTitle="@string/backup_generator_app_option_backupcache_label" />
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/options_backupdata"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_backupdata_label" />
 
-                    </LinearLayout>
-                </FrameLayout>
+                            <eu.darken.bb.common.ui.SwitchPreferenceView
+                                android:id="@+id/options_backupcache"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:pvIcon="@drawable/ic_check_circle"
+                                app:pvTitle="@string/generator_editor_app_option_backupcache_label" />
 
-            </LinearLayout>
+                        </LinearLayout>
+                    </FrameLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
 
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

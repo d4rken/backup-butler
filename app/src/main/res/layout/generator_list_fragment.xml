@@ -10,7 +10,7 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:rvwExplanationText="@string/backup_generator_quick_explanation_desc"
+        app:rvwExplanationText="@string/generator_quick_explanation_desc"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:rvwLoading="true"

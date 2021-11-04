@@ -12,11 +12,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class TypeSelectionFragmentVDC @Inject constructor(
+class StorageTypeFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val builder: StorageBuilder,
 ) : SmartVDC() {
-    private val navArgs by handle.navArgs<TypeSelectionFragmentArgs>()
+    private val navArgs by handle.navArgs<StorageTypeFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
 
     val state = builder.getSupportedStorageTypes()

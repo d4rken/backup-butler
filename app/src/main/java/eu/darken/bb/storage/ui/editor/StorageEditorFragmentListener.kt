@@ -27,7 +27,7 @@ interface StorageEditorResultListener {
 }
 
 
-fun <T> T.setStorageEditorResult(result: StorageEditorResult?) where T : EditorFragmentChild, T : Fragment {
+fun <T> T.setStorageEditorResult(result: StorageEditorResult?) where T : StorageEditorFragmentChild, T : Fragment {
     log { "setStorageEditorResult(result=$result)" }
     setFragmentResult(
         StorageEditorResultListener.RESULT_KEY,

@@ -11,8 +11,8 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorEditorAppPreviewFragmentBinding
@@ -28,23 +28,26 @@ class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_pre
     @Inject lateinit var adapter: PkgsPreviewAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.pkgPreviewList.setupDefaults(adapter)
+        ui.apply {
+            pkgPreviewList.setupDefaults(adapter)
+            toolbar.setNavigationOnClickListener { popBackStack() }
+        }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.onSelect(adapter.data[i]) })
 
-        vdc.state.observe2(this) { state ->
+        vdc.state.observe2(this, ui) { state ->
             adapter.update(state.pkgs)
             ui.pkgPreviewListWrapper.updateLoadingState(state.isLoading)
 
             when (state.previewMode) {
                 PreviewMode.PREVIEW -> {
-                    requireActivityActionBar().subtitle = getString(R.string.general_preview_label)
-                    ui.infoMode.setText(R.string.backup_generator_app_itempreview_desc)
+                    toolbar.subtitle = getString(R.string.general_preview_label)
+                    ui.infoMode.setText(R.string.generator_app_itempreview_desc)
                     ui.infoItems.text = resources.getCountString(R.plurals.x_items, state.pkgs.size)
                 }
                 PreviewMode.INCLUDE -> {
-                    requireActivityActionBar().subtitle = getString(R.string.general_included_label)
-                    ui.infoMode.setText(R.string.backup_generator_app_includeditems_desc)
+                    toolbar.subtitle = getString(R.string.general_included_label)
+                    ui.infoMode.setText(R.string.generator_editor_app_includeditems_desc)
                     ui.infoItems.text = "${
                         resources.getCountString(
                             R.plurals.x_items,
@@ -53,8 +56,8 @@ class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_pre
                     } (${resources.getCountString(R.plurals.x_selected, state.selected.size)})"
                 }
                 PreviewMode.EXCLUDE -> {
-                    requireActivityActionBar().subtitle = getString(R.string.general_excluded_label)
-                    ui.infoMode.setText(R.string.backup_generator_app_excludeditems_desc)
+                    toolbar.subtitle = getString(R.string.general_excluded_label)
+                    ui.infoMode.setText(R.string.generator_editor_app_excludeditems_desc)
                     ui.infoItems.text = "${
                         resources.getCountString(
                             R.plurals.x_items,
