@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.backup.destinations
+package eu.darken.bb.task.ui.editor.backup.storages
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
@@ -21,13 +21,13 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class DestinationsFragmentVDC @Inject constructor(
+class StoragesFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val storageManager: StorageManager,
     private val processorControl: ProcessorControl
 ) : SmartVDC() {
-    private val navArgs by handle.navArgs<DestinationsFragmentArgs>()
+    private val navArgs by handle.navArgs<StoragesFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
@@ -98,7 +98,7 @@ class DestinationsFragmentVDC @Inject constructor(
 
     fun addStorage() {
         // Result gets returned via fragment result listener, see onStoragePicked
-        DestinationsFragmentDirections.actionDestinationsFragmentToStoragePicker(
+        StoragesFragmentDirections.actionDestinationsFragmentToStoragePicker(
             taskId = taskId
         ).run { navEvents.postValue(this) }
     }
@@ -109,6 +109,6 @@ class DestinationsFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = logTag("Task", "Editor", "Destinations", "VDC")
+        val TAG = logTag("Task", "Editor", "Storages", "VDC")
     }
 }

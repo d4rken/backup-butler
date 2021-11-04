@@ -67,7 +67,7 @@
     </fragment>
     <fragment
         android:id="@+id/sourcesFragment"
-        android:name="eu.darken.bb.task.ui.editor.backup.sources.SourcesFragment"
+        android:name="eu.darken.bb.task.ui.editor.backup.generators.GeneratorsFragment"
         tools:layout="@layout/task_editor_backup_generators_fragment">
         <argument
             android:name="taskId"
@@ -85,7 +85,7 @@
     </fragment>
     <fragment
         android:id="@+id/destinationsFragment"
-        android:name="eu.darken.bb.task.ui.editor.backup.destinations.DestinationsFragment"
+        android:name="eu.darken.bb.task.ui.editor.backup.storages.StoragesFragment"
         tools:layout="@layout/task_editor_backup_storages_fragment">
         <argument
             android:name="taskId"

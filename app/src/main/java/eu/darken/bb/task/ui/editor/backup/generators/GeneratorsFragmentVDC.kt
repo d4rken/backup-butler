@@ -1,4 +1,4 @@
-package eu.darken.bb.task.ui.editor.backup.sources
+package eu.darken.bb.task.ui.editor.backup.generators
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavDirections
@@ -24,12 +24,12 @@ import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
 import javax.inject.Inject
 
 @HiltViewModel
-class SourcesFragmentVDC @Inject constructor(
+class GeneratorsFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val generatorRepo: GeneratorRepo
 ) : SmartVDC(), NavEventsSource {
-    private val navArgs by handle.navArgs<SourcesFragmentArgs>()
+    private val navArgs by handle.navArgs<GeneratorsFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
@@ -69,13 +69,13 @@ class SourcesFragmentVDC @Inject constructor(
 
 
     fun onAddSource() {
-        SourcesFragmentDirections.actionSourcesFragmentToGeneratorPicker(
+        GeneratorsFragmentDirections.actionSourcesFragmentToGeneratorPicker(
             taskId = taskId
         ).via(this)
     }
 
     fun onNext() {
-        SourcesFragmentDirections.navActionNext(
+        GeneratorsFragmentDirections.navActionNext(
             taskId = taskId
         ).via(this)
     }
@@ -91,6 +91,6 @@ class SourcesFragmentVDC @Inject constructor(
     )
 
     companion object {
-        val TAG = logTag("Backup", "Editor", "Sources", "List", "VDC")
+        val TAG = logTag("Backup", "Editor", "Generators", "List", "VDC")
     }
 }
