@@ -1,9 +1,6 @@
 package eu.darken.bb.backup.ui.generator.editor.types.files
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -33,9 +30,6 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
     private val vdc: FilesEditorConfigFragmentVDC by viewModels()
     private val ui: GeneratorEditorFileFragmentBinding by viewBinding()
 
-    private var allowCreate: Boolean = false
-    private var existing: Boolean = false
-
     init {
         setHasOptionsMenu(true)
     }
@@ -58,18 +52,21 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
             pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
         }
 
-        vdc.state.observe2(this) { state ->
-            ui.nameInput.setTextIfDifferentAndNotFocused(state.label)
-            ui.pathDisplay.text = state.path?.userReadablePath(requireContext())
+        vdc.state.observe2(this, ui) { state ->
+            nameInput.setTextIfDifferentAndNotFocused(state.label)
+            pathDisplay.text = state.path?.userReadablePath(requireContext())
 
-            ui.pathSelectAction.setText(if (state.path == null) R.string.general_select_action else R.string.general_change_action)
+            pathSelectAction.setText(if (state.path == null) R.string.general_select_action else R.string.general_change_action)
 
-            ui.coreSettingsContainer.setInvisible(state.isWorking)
-            ui.coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
+            coreSettingsContainer.setInvisible(state.isWorking)
+            coreSettingsLoadingOverlay.setInvisible(!state.isWorking)
 
-            allowCreate = state.isValid
-            existing = state.isExisting
-            invalidateOptionsMenu()
+            toolbar.menu.apply {
+                findItem(R.id.action_create).title = getString(
+                    if (state.isExisting) R.string.general_save_action else R.string.general_create_action
+                )
+                findItem(R.id.action_create).isVisible = state.isValid
+            }
         }
 
         val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
@@ -86,26 +83,6 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
         vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_generator_editor_files_config, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.action_create).isVisible = allowCreate
-        menu.findItem(R.id.action_create).title =
-            getString(if (existing) R.string.general_save_action else R.string.general_create_action)
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_create -> {
-            vdc.saveConfig()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
     }
 
 }
