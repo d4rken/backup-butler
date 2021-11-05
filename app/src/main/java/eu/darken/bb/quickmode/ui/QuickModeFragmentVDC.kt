@@ -11,7 +11,8 @@ import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerOptions
+import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions
@@ -32,7 +33,6 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -53,6 +53,8 @@ class QuickModeFragmentVDC @Inject constructor(
     private val quickModeSettings: QuickModeSettings,
     private val processorControl: ProcessorControl,
 ) : SmartVDC(), NavEventsSource {
+
+    val openPathPickerEvent = SingleLiveEvent<PathPickerOptions>()
 
     override val navEvents = SingleLiveEvent<NavDirections>()
     val debugState = Observable
@@ -120,14 +122,11 @@ class QuickModeFragmentVDC @Inject constructor(
                         QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
                     },
                     onBackup = {
-                        // TODO Launch file picker
-                        QuickModeFragmentDirections.actionQuickModeFragmentToPathPickerActivity(
-                            options = PathPicker.Options(
-                                onlyDirs = false,
-                                selectionLimit = Int.MAX_VALUE,
-                                allowedTypes = setOf(APath.PathType.LOCAL)
-                            )
-                        ).via(this)
+                        PathPickerOptions(
+                            onlyDirs = false,
+                            selectionLimit = Int.MAX_VALUE,
+                            allowedTypes = setOf(APath.PathType.LOCAL)
+                        ).run { openPathPickerEvent.postValue(this) }
                     },
                     onRestore = {
                         // TODO launch storage browser?
@@ -174,9 +173,8 @@ class QuickModeFragmentVDC @Inject constructor(
         // TODO launch quick mode single shoot apps backup
     }
 
-    fun onPathPickerResult(result: StoragePickerResult?) {
+    fun onPathPickerResult(result: PathPickerResult) {
         log(TAG) { "onPathPickerResult(result=$result)" }
-        if (result == null) return
 
         // TODO launch quick mode single shoot files backup
     }
@@ -198,7 +196,6 @@ class QuickModeFragmentVDC @Inject constructor(
     fun recordDebugLog() {
         bbDebug.setRecording(true)
     }
-
 
     companion object {
         private val TAG = logTag("QuickMode", "Main", "VDC")

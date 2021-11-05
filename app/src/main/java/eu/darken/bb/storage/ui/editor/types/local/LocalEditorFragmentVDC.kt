@@ -11,7 +11,8 @@ import eu.darken.bb.common.errors.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
-import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerOptions
+import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.files.ui.picker.local.LocalPickerFragmentVDC
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
@@ -48,7 +49,7 @@ class LocalEditorFragmentVDC @Inject constructor(
     val requestPermissionEvent = SingleLiveEvent<Permission>()
 
     val errorEvent = SingleLiveEvent<Throwable>()
-    val pickerEvent = SingleLiveEvent<PathPicker.Options>()
+    val pickerEvent = SingleLiveEvent<PathPickerOptions>()
     val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
     init {
@@ -77,7 +78,7 @@ class LocalEditorFragmentVDC @Inject constructor(
         editor.updateLabel(label)
     }
 
-    fun updatePath(result: PathPicker.Result) {
+    fun updatePath(result: PathPickerResult) {
         log { "updatePath=$result" }
         if (result.isCanceled) return
         if (result.isFailed) {
@@ -106,7 +107,7 @@ class LocalEditorFragmentVDC @Inject constructor(
 
     fun selectPath() {
         editorDataObs.latest().subscribe { data ->
-            pickerEvent.postValue(PathPicker.Options(
+            pickerEvent.postValue(PathPickerOptions(
                 startPath = data.refPath,
                 allowedTypes = setOf(APath.PathType.LOCAL),
                 payload = Bundle().apply {

@@ -6,9 +6,9 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import eu.darken.bb.common.debug.logging.log
 
-class PathPickerActivityContract : ActivityResultContract<PathPicker.Options, PathPicker.Result?>() {
+class PathPickerActivityContract : ActivityResultContract<PathPickerOptions, PathPickerResult?>() {
 
-    override fun createIntent(context: Context, input: PathPicker.Options): Intent = Intent(
+    override fun createIntent(context: Context, input: PathPickerOptions): Intent = Intent(
         context,
         PathPickerActivity::class.java
     ).apply {
@@ -17,7 +17,7 @@ class PathPickerActivityContract : ActivityResultContract<PathPicker.Options, Pa
         putExtras(bundle)
     }
 
-    override fun parseResult(resultCode: Int, intent: Intent?): PathPicker.Result? {
+    override fun parseResult(resultCode: Int, intent: Intent?): PathPickerResult? {
         log { "parseResult(resultCode=$resultCode, intent=$intent)" }
         if (resultCode != Activity.RESULT_OK) return null
         return intent?.getParcelableExtra(ARG_PICKER_RESULT)

@@ -21,16 +21,16 @@ class PathPickerActivityVDC @Inject constructor(
     val safGateway: SAFGateway
 ) : SmartVDC() {
 
-    private val options: PathPicker.Options = handle.navArgs<PathPickerActivityArgs>().value.options
+    private val options: PathPickerOptions = handle.navArgs<PathPickerActivityArgs>().value.options
     val launchSAFEvents = SingleLiveEvent<Intent>()
-    val launchLocalEvents = SingleLiveEvent<PathPicker.Options>()
-    val launchTypesEvents = SingleLiveEvent<PathPicker.Options>()
+    val launchLocalEvents = SingleLiveEvent<PathPickerOptions>()
+    val launchTypesEvents = SingleLiveEvent<PathPickerOptions>()
 
-    val resultEvents = SingleLiveEvent<Pair<PathPicker.Result, Boolean>>()
+    val resultEvents = SingleLiveEvent<Pair<PathPickerResult, Boolean>>()
 
     init {
         // Default result is canceled
-        resultEvents.postValue(PathPicker.Result(options = options) to false)
+        resultEvents.postValue(PathPickerResult(options = options) to false)
 
         val startType = when {
             options.startPath != null -> options.startPath.pathType
@@ -72,7 +72,7 @@ class PathPickerActivityVDC @Inject constructor(
             if (!safGateway.hasPermission(path) && safGateway.takePermission(path)) {
                 takenPermissions.add(path)
             }
-            val result = PathPicker.Result(
+            val result = PathPickerResult(
                 options,
                 selection = setOf(path),
                 persistedPermissions = takenPermissions
@@ -82,7 +82,7 @@ class PathPickerActivityVDC @Inject constructor(
             if (options.allowedTypes.size > 1) {
                 showPicker()
             } else {
-                resultEvents.postValue(PathPicker.Result(options = options) to true)
+                resultEvents.postValue(PathPickerResult(options = options) to true)
             }
         }
     }
@@ -94,7 +94,7 @@ class PathPickerActivityVDC @Inject constructor(
         }
     }
 
-    fun onResult(result: PathPicker.Result) {
+    fun onResult(result: PathPickerResult) {
         resultEvents.postValue(result to true)
     }
 

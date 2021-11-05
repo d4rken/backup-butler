@@ -9,7 +9,8 @@ import eu.darken.bb.common.errors.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
-import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerOptions
+import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.rx.withScopeVDC
 import eu.darken.bb.common.vdc.SmartVDC
@@ -42,7 +43,7 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
 
-    val openPickerEvent = SingleLiveEvent<PathPicker.Options>()
+    val openPickerEvent = SingleLiveEvent<PathPickerOptions>()
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
@@ -79,14 +80,14 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     fun selectPath() {
         openPickerEvent.postValue(
-            PathPicker.Options(
+            PathPickerOptions(
                 startPath = editorDataObs.blockingFirst().refPath,
                 allowedTypes = setOf(APath.PathType.SAF)
             )
         )
     }
 
-    fun onUpdatePath(result: PathPicker.Result) {
+    fun onUpdatePath(result: PathPickerResult) {
         val p = result.selection!!.first() as SAFPath
         val newlyPersistedPermission = result.persistedPermissions?.isNotEmpty() ?: false
         editor.updatePath(p, false, newlyPersistedPermission)

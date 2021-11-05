@@ -6,7 +6,7 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -17,7 +17,7 @@ class TypesPickerFragmentVDC @Inject constructor(
     handle: SavedStateHandle
 ) : SmartVDC() {
 
-    private val options: PathPicker.Options = handle.navArgs<TypesPickerFragmentArgs>().value.options
+    private val options: PathPickerOptions = handle.navArgs<TypesPickerFragmentArgs>().value.options
     private val stater = Stater {
         val types = options.allowedTypes.map {
             when (it) {

@@ -242,7 +242,7 @@
         tools:layout="@layout/path_picker_activity">
         <argument
             android:name="options"
-            app:argType="eu.darken.bb.common.files.ui.picker.PathPicker$Options" />
+            app:argType="eu.darken.bb.common.files.ui.picker.PathPickerOptions" />
     </activity>
 
     <fragment

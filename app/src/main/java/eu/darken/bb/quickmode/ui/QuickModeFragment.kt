@@ -9,6 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
@@ -80,6 +81,11 @@ class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment), PkgPi
                 else -> false
             }
         }
+
+        val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
+            if (it != null) vdc.onPathPickerResult(it)
+        }
+        vdc.openPathPickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
         var snackbar: Snackbar? = null
         vdc.processorState.observe2(this) { isActive ->

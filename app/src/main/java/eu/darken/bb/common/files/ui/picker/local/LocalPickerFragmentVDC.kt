@@ -15,7 +15,8 @@ import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
-import eu.darken.bb.common.files.ui.picker.PathPicker
+import eu.darken.bb.common.files.ui.picker.PathPickerOptions
+import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.permission.RuntimePermissionTool
@@ -30,7 +31,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     private val localGateway: LocalGateway,
     private val permissionTool: RuntimePermissionTool
 ) : SmartVDC() {
-    private val options: PathPicker.Options = handle.navArgs<LocalPickerFragmentArgs>().value.options
+    private val options: PathPickerOptions = handle.navArgs<LocalPickerFragmentArgs>().value.options
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
     private val startPath = options.startPath as? LocalPath ?: fallbackPath
 
@@ -48,7 +49,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     val state = stater.liveData
 
     val createDirEvent = SingleLiveEvent<APath>()
-    val resultEvents = SingleLiveEvent<PathPicker.Result>()
+    val resultEvents = SingleLiveEvent<PathPickerResult>()
     val errorEvents = SingleLiveEvent<Throwable>()
     val missingPermissionEvent = SingleLiveEvent<Permission>()
     val requestPermissionEvent = SingleLiveEvent<Permission>()
@@ -136,7 +137,7 @@ class LocalPickerFragmentVDC @Inject constructor(
 
     fun finishSelection() {
         val selected = setOf(stater.snapshot.currentPath)
-        val result = PathPicker.Result(
+        val result = PathPickerResult(
             options = options,
             selection = selected
         )
