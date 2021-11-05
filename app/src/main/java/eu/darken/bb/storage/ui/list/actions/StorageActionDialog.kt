@@ -9,7 +9,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
@@ -34,12 +33,6 @@ class StorageActionDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(actionsAdapter)
-
-        actionsAdapter.modules.add(ClickMod { _: ActionsAdapter.VH, pos: Int ->
-            val confirmable = actionsAdapter.data[pos]
-            confirmable.guardedAction { vdc.storageAction(it) }
-            actionsAdapter.notifyItemChanged(pos)
-        })
 
         ui.workingOverlay.setOnCancelListener {
             vdc.cancelCurrentOperation()

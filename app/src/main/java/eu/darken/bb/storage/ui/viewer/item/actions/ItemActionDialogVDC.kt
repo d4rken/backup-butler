@@ -63,10 +63,10 @@ class ItemActionDialogVDC @Inject constructor(
             .take(1)
             .subscribe({ info ->
                 val actions = mutableListOf<Confirmable<ItemAction>>().apply {
-                    add(Confirmable(ItemAction.VIEW))
-                    add(Confirmable(ItemAction.RESTORE))
+                    add(Confirmable(ItemAction.VIEW) { storageAction(it) })
+                    add(Confirmable(ItemAction.RESTORE) { storageAction(it) })
                     if (info.status?.isReadOnly == false) {
-                        add(Confirmable(ItemAction.DELETE, requiredLvl = 1))
+                        add(Confirmable(ItemAction.DELETE, requiredLvl = 1) { storageAction(it) })
                     }
                 }.toList()
                 stater.update { it.copy(allowedActions = actions) }

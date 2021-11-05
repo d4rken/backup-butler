@@ -25,11 +25,9 @@ class GeneratorBuilder @Inject constructor(
 
     fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
 
-    fun generator(id: Generator.Id): Observable<Data> {
-        return hotData.data
-            .filter { it.containsKey(id) }
-            .map { it[id] }
-    }
+    fun generator(id: Generator.Id): Observable<Data> = hotData.data
+        .filter { it.containsKey(id) }
+        .map { it[id] }
 
     fun update(id: Generator.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
         .updateRx {
@@ -121,7 +119,8 @@ class GeneratorBuilder @Inject constructor(
                     generatorType = type,
                     editor = type?.let { editors.getValue(it).create(generatorId) }
                 )
-            }.map { it.value!! }
+            }
+                .map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
         )
 

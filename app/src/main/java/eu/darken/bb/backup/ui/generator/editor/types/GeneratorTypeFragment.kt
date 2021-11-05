@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
@@ -40,14 +39,7 @@ class GeneratorTypeFragment : SmartFragment(R.layout.generator_editor_typeselect
             adapter.update(it.supportedTypes)
         }
 
-        vdc.navigationEvent.observe2(this) { (type, id) ->
-            val nextStep = when (type) {
-                Backup.Type.APP -> GeneratorTypeFragmentDirections.actionGeneratorTypeFragmentToAppEditorFragment(id)
-                Backup.Type.FILES -> GeneratorTypeFragmentDirections.actionGeneratorTypeFragmentToFilesEditorFragment(id)
-            }
-            doNavigate(nextStep)
-        }
-
+        vdc.navEvents.observe2(this) { doNavigate(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

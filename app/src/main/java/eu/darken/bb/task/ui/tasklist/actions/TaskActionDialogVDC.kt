@@ -40,9 +40,9 @@ class TaskActionDialogVDC @Inject constructor(
             .observeOn(Schedulers.computation())
             .subscribeNullable { task ->
                 val actions = listOf(
-                    Confirmable(RUN),
-                    Confirmable(EDIT),
-                    Confirmable(DELETE, requiredLvl = 1)
+                    Confirmable(RUN) { taskAction(it) },
+                    Confirmable(EDIT) { taskAction(it) },
+                    Confirmable(DELETE, requiredLvl = 1) { taskAction(it) },
                 )
                 stateUpdater.update {
                     if (task == null) {

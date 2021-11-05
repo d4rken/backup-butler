@@ -15,7 +15,6 @@ import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageEditorTypeselectionFragmentBinding
-import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -40,17 +39,7 @@ class StorageTypeFragment : SmartFragment(R.layout.storage_editor_typeselection_
             adapter.update(it.supportedTypes)
         }
 
-        vdc.navigationEvent.observe2(this) { (type, id) ->
-            val nextStep = when (type) {
-                Storage.Type.LOCAL -> StorageTypeFragmentDirections.actionTypeSelectionFragmentToLocalEditorFragment(
-                    storageId = id
-                )
-                Storage.Type.SAF -> StorageTypeFragmentDirections.actionTypeSelectionFragmentToSafEditorFragment(
-                    storageId = id
-                )
-            }
-            doNavigate(nextStep)
-        }
+        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

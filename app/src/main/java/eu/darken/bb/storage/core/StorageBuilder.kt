@@ -8,7 +8,6 @@ import eu.darken.bb.common.debug.logging.logTag
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,19 +22,6 @@ class StorageBuilder @Inject constructor(
     private val hotData = HotData<Map<Storage.Id, Data>>(tag = TAG) { mutableMapOf() }
     val builders = hotData.data
 
-    init {
-        hotData.data
-            .observeOn(Schedulers.computation())
-            .subscribe { dataMap ->
-                dataMap.entries.forEach { (uuid, data) ->
-                    if (data.storageType != null && data.editor == null) {
-                        val editor = editors.getValue(data.storageType).create(uuid)
-                        update(uuid) { it!!.copy(editor = editor) }.blockingGet()
-                    }
-                }
-            }
-    }
-
     fun getSupportedStorageTypes(): Observable<Collection<Storage.Type>> =
         Observable.just(Storage.Type.values().toList())
 
@@ -49,7 +35,15 @@ class StorageBuilder @Inject constructor(
         .updateRx {
             val mutMap = it.toMutableMap()
             val oldStorage = mutMap.remove(id)
-            val newStorage = action.invoke(oldStorage)
+            val newStorage = action.invoke(oldStorage)?.let { newData ->
+                when {
+                    newData.storageType == null -> newData.copy(editor = null)
+                    newData.editor == null -> newData.copy(
+                        editor = editors.getValue(newData.storageType).create(newData.storageId)
+                    )
+                    else -> newData
+                }
+            }
             if (newStorage != null) {
                 mutMap[newStorage.storageId] = newStorage
             }
@@ -104,7 +98,10 @@ class StorageBuilder @Inject constructor(
         .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
         .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
 
-    fun createEditor(storageId: Storage.Id = Storage.Id()): Single<Data> = hotData.latest
+    fun getEditor(
+        storageId: Storage.Id = Storage.Id(),
+        type: Storage.Type? = null,
+    ): Single<Data> = hotData.latest
         .flatMapMaybe { Maybe.fromCallable<Data> { it[storageId] } }
         .switchIfEmpty(
             load(storageId)
@@ -112,7 +109,14 @@ class StorageBuilder @Inject constructor(
                 .doOnSuccess { Timber.tag(TAG).d("Loaded existing storage for %s", storageId) }
         )
         .switchIfEmpty(
-            update(storageId) { Data(storageId = storageId) }.map { it.value!! }
+            update(storageId) {
+                Data(
+                    storageId = storageId,
+                    storageType = type,
+                    editor = type?.let { editors.getValue(it).create(storageId) }
+                )
+            }
+                .map { it.value!! }
                 .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
         )
 

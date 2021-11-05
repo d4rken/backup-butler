@@ -49,18 +49,18 @@ class StorageActionDialogVDC @Inject constructor(
             .subscribe { infoOpt ->
                 val allowedActions = mutableSetOf<Confirmable<StorageAction>>().apply {
                     if (infoOpt.info?.status != null) {
-                        add(Confirmable(VIEW))
-                        add(Confirmable(RESTORE))
+                        add(Confirmable(VIEW) { storageAction(it) })
+                        add(Confirmable(RESTORE) { storageAction(it) })
                     }
 
                     if (infoOpt.info?.config != null) {
-                        add(Confirmable(EDIT))
+                        add(Confirmable(EDIT) { storageAction(it) })
                     }
                     if (infoOpt.info?.status?.isReadOnly == false) {
-                        add(Confirmable(DELETE, requiredLvl = 2))
+                        add(Confirmable(DELETE, requiredLvl = 2) { storageAction(it) })
                     }
 
-                    add(Confirmable(DETACH, requiredLvl = 1))
+                    add(Confirmable(DETACH, requiredLvl = 1) { storageAction(it) })
                 }
 
                 stater.update {
@@ -98,7 +98,7 @@ class StorageActionDialogVDC @Inject constructor(
                     .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
                     .subscribe({
                         StorageActionDialogDirections.actionStorageActionDialogToStorageViewerActivity(it)
-                            .run { navEvents.postValue(this) }
+                            .via(this)
                         closeDialogEvent.postValue(Any())
                     }, {
                         errorEvent.postValue(it)

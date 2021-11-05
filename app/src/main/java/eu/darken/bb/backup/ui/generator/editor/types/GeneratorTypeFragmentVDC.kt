@@ -1,12 +1,14 @@
 package eu.darken.bb.backup.ui.generator.editor.types
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.navigation.via
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.vdc.SmartVDC
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -16,15 +18,13 @@ import javax.inject.Inject
 class GeneratorTypeFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val builder: GeneratorBuilder
-) : SmartVDC() {
+) : SmartVDC(), NavEventsSource {
 
     private val navArgs = handle.navArgs<GeneratorTypeFragmentArgs>()
     private val generatorId = navArgs.value.generatorId
 
     private val builderObs = builder.generator(generatorId)
-
-    val navigationEvent = SingleLiveEvent<Pair<Backup.Type, Generator.Id>>()
-
+    override val navEvents = SingleLiveEvent<NavDirections>()
     val state = builder.getSupportedBackupTypes()
         .map { types ->
             State(
@@ -38,9 +38,14 @@ class GeneratorTypeFragmentVDC @Inject constructor(
         builder
             .update(generatorId) { it!!.copy(generatorType = type, editor = null) }
             .observeOn(Schedulers.computation())
-            .flatMapMaybe { builder.load(it.value!!.generatorId) }
-            .doFinally { navigationEvent.postValue(type to generatorId) }
-            .subscribe()
+            .subscribe { data ->
+                when (type) {
+                    Backup.Type.APP -> GeneratorTypeFragmentDirections
+                        .actionGeneratorTypeFragmentToAppEditorFragment(generatorId)
+                    Backup.Type.FILES -> GeneratorTypeFragmentDirections
+                        .actionGeneratorTypeFragmentToFilesEditorFragment(generatorId)
+                }.via(this)
+            }
     }
 
     data class State(

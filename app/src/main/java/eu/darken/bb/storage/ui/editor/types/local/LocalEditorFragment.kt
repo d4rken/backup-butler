@@ -51,6 +51,7 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.toolbar.apply {
             setupWithNavController(findNavController())
+            setNavigationIcon(R.drawable.ic_baseline_close_24)
             inflateMenu(R.menu.menu_storage_editor_local_fragment)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {

@@ -37,9 +37,9 @@ class GeneratorEditorFragmentVDC @Inject constructor(
     }
 
     private val generatorObs = generatorBuilder.load(generatorId)
+        .observeOn(Schedulers.computation())
         .switchIfEmpty(generatorBuilder.getEditor(generatorId))
         .flatMapObservable { generatorBuilder.generator(it.generatorId) }
-        .observeOn(Schedulers.computation())
 
     override val navEvents = SingleLiveEvent<NavDirections>()
 

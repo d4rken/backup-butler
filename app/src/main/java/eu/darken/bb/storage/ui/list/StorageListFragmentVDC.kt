@@ -46,7 +46,7 @@ class StorageListFragmentVDC @Inject constructor(
     }
 
     fun createStorage() {
-        storageBuilder.createEditor()
+        storageBuilder.getEditor()
             .observeOn(Schedulers.computation())
             .subscribe { data ->
                 MainFragmentDirections.actionMainFragmentToStorageEditor(

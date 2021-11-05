@@ -13,6 +13,7 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             style="@style/Toolbar"
+            app:navigationIcon="@drawable/ic_baseline_close_24"
             app:subtitle="@string/storage_type_saf_label"
             app:title="@string/storage_create_action" />
 

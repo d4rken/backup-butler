@@ -10,8 +10,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.ModularAdapter
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
@@ -39,11 +37,6 @@ class GeneratorsActionDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(actionsAdapter)
-
-        actionsAdapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int ->
-            actionsAdapter.data[i].guardedAction { vdc.generatorAction(it) }
-            actionsAdapter.notifyItemChanged(i)
-        })
 
         vdc.state.observe2(this) { state ->
             ui.typeLabel.setText(state.config?.generatorType?.labelRes ?: R.string.general_unknown_label)

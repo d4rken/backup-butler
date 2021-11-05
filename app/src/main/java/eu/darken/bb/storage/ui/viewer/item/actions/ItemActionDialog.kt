@@ -10,8 +10,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.ModularAdapter
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
@@ -40,11 +38,6 @@ class ItemActionDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.actionlist.setupDefaults(actionsAdapter)
-
-        actionsAdapter.modules.add(ClickMod { _: ModularAdapter.VH, pos: Int ->
-            actionsAdapter.data[pos].guardedAction { vdc.storageAction(it) }
-            actionsAdapter.notifyItemChanged(pos)
-        })
 
         vdc.state.observe2(this) { state ->
             if (state.info != null) {

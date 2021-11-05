@@ -43,8 +43,8 @@ class GeneratorsActionDialogVDC @Inject constructor(
             .observeOn(Schedulers.computation())
             .subscribeNullable { config ->
                 val actions = listOf(
-                    Confirmable(EDIT),
-                    Confirmable(DELETE, requiredLvl = 1)
+                    Confirmable(EDIT) { generatorAction(it) },
+                    Confirmable(DELETE, requiredLvl = 1) { generatorAction(it) }
                 )
                 stateUpdater.update {
                     if (config == null) {

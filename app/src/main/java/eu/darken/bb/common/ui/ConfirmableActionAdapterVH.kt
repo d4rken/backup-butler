@@ -20,21 +20,31 @@ abstract class ConfirmableActionAdapterVH<T : DifferItem>(parent: ViewGroup) :
         val data = item.data
         icon.setImageResource(getIcon(data))
         name.text = getLabel(data)
-        when {
-            item.currentLvl > 1 -> {
-                description.setText(R.string.general_confirmation_confirmation_label)
-                itemView.setBackgroundColor(getColorForAttr(R.attr.colorError))
+
+        val updateDescription = {
+            when {
+                item.currentLvl > 1 -> {
+                    description.setText(R.string.general_confirmation_confirmation_label)
+                    itemView.setBackgroundColor(getColorForAttr(R.attr.colorError))
+                }
+                item.currentLvl == 1 -> {
+                    description.setText(R.string.general_confirmation_label)
+                    itemView.setBackgroundColor(getColorForAttr(R.attr.colorError))
+                }
+                else -> {
+                    description.text = getDesc(data)
+                    itemView.setBackgroundColor(getColorForAttr(R.attr.colorPrimary))
+                }
             }
-            item.currentLvl == 1 -> {
-                description.setText(R.string.general_confirmation_label)
-                itemView.setBackgroundColor(getColorForAttr(R.attr.colorError))
-            }
-            else -> {
-                description.text = getDesc(data)
-                itemView.setBackgroundColor(getColorForAttr(R.attr.colorPrimary))
-            }
+            description.setGone(description.text.isNullOrEmpty())
         }
-        description.setGone(description.text.isNullOrEmpty())
+        updateDescription()
+
+
+        itemView.setOnClickListener {
+            item.guardedAction { item.onClick(it) }
+            updateDescription()
+        }
     }
 
     @DrawableRes
@@ -49,7 +59,8 @@ abstract class ConfirmableActionAdapterVH<T : DifferItem>(parent: ViewGroup) :
 data class Confirmable<T : DifferItem>(
     val data: T,
     val requiredLvl: Int = 0,
-    var currentLvl: Int = 0
+    var currentLvl: Int = 0,
+    val onClick: (T) -> Unit
 ) : DifferItem {
 
     fun guardedAction(action: (T) -> Unit) {

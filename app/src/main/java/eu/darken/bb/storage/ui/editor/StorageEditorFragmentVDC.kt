@@ -35,11 +35,10 @@ class StorageEditorFragmentVDC @Inject constructor(
         }
     }
 
-    private val storageObs = storageBuilder
-        .load(storageId)
-        .switchIfEmpty(storageBuilder.createEditor(storageId))
-        .flatMapObservable { storageBuilder.storage(it.storageId) }
+    private val storageObs = storageBuilder.load(storageId)
         .observeOn(Schedulers.computation())
+        .switchIfEmpty(storageBuilder.getEditor(storageId))
+        .flatMapObservable { storageBuilder.storage(it.storageId) }
 
     override val navEvents = SingleLiveEvent<NavDirections>()
 

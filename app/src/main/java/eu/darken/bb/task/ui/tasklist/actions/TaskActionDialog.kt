@@ -10,8 +10,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.ModularAdapter
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
@@ -33,11 +31,6 @@ class TaskActionDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(actionsAdapter)
-
-        actionsAdapter.modules.add(ClickMod { _: ModularAdapter.VH, pos: Int ->
-            actionsAdapter.data[pos].guardedAction { vdc.taskAction(it) }
-            actionsAdapter.notifyItemChanged(pos)
-        })
 
         vdc.state.observe2(this, ui) { state ->
             taskTypeLabel.setText(state.taskType?.labelRes ?: R.string.general_unknown_label)
