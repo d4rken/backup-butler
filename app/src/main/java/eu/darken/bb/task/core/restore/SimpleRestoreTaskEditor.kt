@@ -167,7 +167,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             defaultConfigs = data.defaultConfigs,
             customConfigs = nonDefaultConfigs,
             backupTargets = data.backupTargets,
-            isOneTimeTask = data.isOneTimeTask
+            isOneTimeUse = data.isOneTimeUse
         )
     }
 
@@ -217,9 +217,9 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         }
         .map { it.newValue.defaultConfigs }
 
-    fun updateOneTime(isOneTimeTask: Boolean): Single<Data> = editorDataPub
+    fun updateOneTime(isOneTimeUse: Boolean): Single<Data> = editorDataPub
         .updateRx {
-            it.copy(isOneTimeTask = isOneTimeTask)
+            it.copy(isOneTimeUse = isOneTimeUse)
         }
         .map { it.newValue }
 
@@ -300,7 +300,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         override val taskId: Task.Id,
         override val label: String = "",
         override val isExistingTask: Boolean = false,
-        override val isOneTimeTask: Boolean = false,
+        override val isOneTimeUse: Boolean = false,
         val customConfigs: Map<Backup.Id, Restore.Config> = emptyMap(),
         val defaultConfigs: Map<Backup.Type, Restore.Config> = emptyMap(),
         val backupTargets: Set<Backup.Target> = emptySet()

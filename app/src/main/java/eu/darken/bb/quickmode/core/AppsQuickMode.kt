@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -34,6 +35,10 @@ class AppsQuickMode @Inject constructor(
         .doOnSubscribe { log(TAG) { "Resetting QuickMode" } }
         .observeOn(Schedulers.computation())
         .map { it.oldValue }
+
+    fun launchBackup(selection: Set<PickedPkg>) {
+        TODO()
+    }
 
 
     companion object {

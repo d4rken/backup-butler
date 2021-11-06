@@ -17,7 +17,10 @@ data class PathPickerResult(
     val payload: Bundle = Bundle()
 ) : Parcelable {
 
-    @IgnoredOnParcel val isCanceled: Boolean = error == null && selection == null
-    @IgnoredOnParcel val isSuccess: Boolean = error == null && selection != null
-    @IgnoredOnParcel val isFailed: Boolean = error != null
+    @IgnoredOnParcel val isCanceled: Boolean
+        get() = error == null && selection == null
+    @IgnoredOnParcel val isSuccess: Boolean
+        get() = error == null && selection != null
+    @IgnoredOnParcel val isFailed: Boolean
+        get() = error != null
 }

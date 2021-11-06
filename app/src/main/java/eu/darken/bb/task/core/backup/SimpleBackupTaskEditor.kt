@@ -17,7 +17,7 @@ import io.reactivex.rxjava3.core.Single
 
 
 class SimpleBackupTaskEditor @AssistedInject constructor(
-    @Assisted private val taskId: Task.Id
+    @Assisted val taskId: Task.Id
 ) : TaskEditor {
     private val editorDataPub = HotData(tag = TAG) { Data(taskId = taskId) }
     override val editorData = editorDataPub.data
@@ -92,11 +92,15 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
     }
 
+    fun updateOneTime(isOneTimeUse: Boolean): Single<Data> = editorDataPub
+        .updateRx { it.copy(isOneTimeUse = isOneTimeUse) }
+        .map { it.newValue }
+
     data class Data(
         override val taskId: Task.Id,
         override val label: String = "",
         override val isExistingTask: Boolean = false,
-        override val isOneTimeTask: Boolean = false,
+        override val isOneTimeUse: Boolean = false,
         val sources: Set<Generator.Id> = emptySet(),
         val destinations: Set<Storage.Id> = emptySet()
     ) : TaskEditor.Data

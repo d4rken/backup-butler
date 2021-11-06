@@ -80,6 +80,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         override val generatorId: Generator.Id,
         override val label: String = "",
         override val isExistingGenerator: Boolean = false,
+        override val isOneTimeUse: Boolean = false,
         val autoInclude: Boolean = true,
         val includeUserApps: Boolean = true,
         val includeSystemApps: Boolean = false,
@@ -88,7 +89,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         val backupApk: Boolean = true,
         val backupData: Boolean = true,
         val backupCache: Boolean = false,
-        val extraPaths: Map<String, Set<APath>> = emptyMap()
+        val extraPaths: Map<String, Set<APath>> = emptyMap(),
     ) : GeneratorEditor.Data
 
     @AssistedFactory

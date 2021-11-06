@@ -32,8 +32,6 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesCreateVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.core.StorageRefRepo
-import eu.darken.bb.task.core.TaskRepo
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
@@ -47,8 +45,6 @@ class QuickModeFragmentVDC @Inject constructor(
     private val backupButler: BackupButler,
     private val appsQuickMode: AppsQuickMode,
     private val filesQuickMode: FilesQuickMode,
-    private val taskRepo: TaskRepo,
-    private val storageRefRepo: StorageRefRepo,
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
     private val processorControl: ProcessorControl,
@@ -168,15 +164,16 @@ class QuickModeFragmentVDC @Inject constructor(
 
     fun onAppsPickerResult(result: PkgPickerResult?) {
         log(TAG) { "onAppsPickerResult(result=$result)" }
-        if (result == null) return
+        if (result?.isSuccess != true) return
 
-        // TODO launch quick mode single shoot apps backup
+        appsQuickMode.launchBackup(result.selection!!)
     }
 
     fun onPathPickerResult(result: PathPickerResult) {
         log(TAG) { "onPathPickerResult(result=$result)" }
+        if (!result.isSuccess) return
 
-        // TODO launch quick mode single shoot files backup
+        filesQuickMode.launchBackup(result.selection!!)
     }
 
     data class DebugState(

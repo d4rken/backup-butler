@@ -1,7 +1,7 @@
 package eu.darken.bb.quickmode.core
 
 import eu.darken.bb.AppModule
-import eu.darken.bb.task.core.Task
+import eu.darken.bb.storage.core.Storage
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import testhelper.toFormattedJson
@@ -11,13 +11,13 @@ class FilesQuickModeConfigTest {
     @Test
     fun `test serialization`() {
         val original = FilesQuickModeConfig(
-            taskId = Task.Id(),
+            storageIds = linkedSetOf(Storage.Id()),
         )
 
         original.type shouldBe QuickMode.Type.FILES
 
         val expectedOutput = """{
-            "taskId": "${original.taskId!!.idString}",
+            "storageIds": ["${original.storageIds.first().idString}"],
             "type": "FILES"
         }""".toFormattedJson()
 

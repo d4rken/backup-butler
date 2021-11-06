@@ -13,7 +13,7 @@ import eu.darken.bb.task.core.Task
 data class SimpleRestoreTask(
     override val taskId: Task.Id,
     override val label: String = "",
-    override val isOneTimeTask: Boolean = false,
+    override val isOneTimeUse: Boolean = false,
     val defaultConfigs: Map<Backup.Type, Restore.Config> = emptyMap(),
     val customConfigs: Map<Backup.Id, Restore.Config> = emptyMap(),
     val backupTargets: Set<Backup.Target> = emptySet()
