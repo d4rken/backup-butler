@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -13,18 +12,17 @@ import eu.darken.bb.R
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.toastError
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageViewerItemcontentFragmentBinding
 
 @AndroidEntryPoint
-class ItemContentsFragment : SmartFragment(R.layout.storage_viewer_itemcontent_fragment) {
+class ItemContentsFragment : Smart2Fragment(R.layout.storage_viewer_itemcontent_fragment) {
 
     val navArgs by navArgs<ItemContentsFragmentArgs>()
-    private val ui: StorageViewerItemcontentFragmentBinding by viewBinding()
-    private val vdc: ItemContentsFragmentVDC by viewModels()
+    override val ui: StorageViewerItemcontentFragmentBinding by viewBinding()
+    override val vdc: ItemContentsFragmentVDC by viewModels()
 
     private val pagerAdapter by lazy { VersionPagerAdapter(this, navArgs.storageId, navArgs.specId) }
 
@@ -46,13 +44,6 @@ class ItemContentsFragment : SmartFragment(R.layout.storage_viewer_itemcontent_f
 
             ui.loadingOverlay.setInvisible(state.versions != null)
             ui.viewpagerContainer.setInvisible(state.versions == null)
-        }
-
-        vdc.errorEvent.observe2(this) {
-            toastError(it)
-        }
-        vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack()
         }
 
         super.onViewCreated(view, savedInstanceState)

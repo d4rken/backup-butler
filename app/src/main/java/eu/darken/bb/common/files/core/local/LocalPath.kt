@@ -34,28 +34,28 @@ data class LocalPath(
     }
 
     @Throws(IOException::class)
-    fun lookup(gateway: LocalGateway): LocalPathLookup = gateway.lookup(this)
+    suspend fun lookup(gateway: LocalGateway): LocalPathLookup = gateway.lookup(this)
 
     @Throws(IOException::class)
-    fun listFiles(gateway: LocalGateway): List<LocalPath> = gateway.listFiles(this)
+    suspend fun listFiles(gateway: LocalGateway): List<LocalPath> = gateway.listFiles(this)
 
     @Throws(IOException::class)
-    fun canWrite(gateway: LocalGateway) = gateway.canWrite(this)
+    suspend fun canWrite(gateway: LocalGateway) = gateway.canWrite(this)
 
     @Throws(IOException::class)
-    fun canRead(gateway: LocalGateway) = gateway.canRead(this)
+    suspend fun canRead(gateway: LocalGateway) = gateway.canRead(this)
 
     @Throws(IOException::class)
-    fun delete(gateway: LocalGateway): Boolean = gateway.delete(this)
+    suspend fun delete(gateway: LocalGateway): Boolean = gateway.delete(this)
 
     @Throws(IOException::class)
-    fun exists(gateway: LocalGateway): Boolean = gateway.exists(this)
+    suspend fun exists(gateway: LocalGateway): Boolean = gateway.exists(this)
 
     @Throws(IOException::class)
-    fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
+    suspend fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
 
     @Throws(IOException::class)
-    fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
+    suspend fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "LocalPath(file=$file)"
 

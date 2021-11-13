@@ -7,28 +7,32 @@ import dagger.assisted.AssistedInject
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.debug.*
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 
 class AppInfoModule @AssistedInject constructor(
     @Assisted val host: DebugModuleHost,
     private val backupButler: BackupButler,
-    private val installId: InstallId
+    private val installId: InstallId,
+    @DebugScope private val debugScope: CoroutineScope,
 ) : DebugModule {
     private var previousOptions: DebugOptions = DebugOptions.default()
 
     init {
         host.observeOptions()
-            .observeOn(Schedulers.io())
             .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-            .doOnNext { previousOptions = it }
-            .subscribe {
+            .onEach { previousOptions = it }
+            .onEach {
                 Timber.tag(TAG).i("Install ID: %s", installId.installId)
                 Timber.tag(TAG).i("App Info: %s", backupButler.appInfo)
                 Timber.tag(TAG).d("APK Checksum MD5: %s", backupButler.checksumApkMd5)
                 Timber.tag(TAG).d("APK Signatures: %s", backupButler.signatures.map { it.hashCode() })
                 Timber.tag(TAG).i("Update history: %s", backupButler.updateHistory)
             }
+            .launchIn(debugScope)
     }
 
     @AssistedFactory

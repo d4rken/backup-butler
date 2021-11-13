@@ -1,87 +1,79 @@
 package eu.darken.bb.task.ui.tasklist.actions
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.subscribeNullable
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.common.ui.Confirmable
-import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import eu.darken.bb.task.ui.tasklist.actions.TaskAction.*
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskActionDialogVDC @Inject constructor(
-    private val taskRepo: TaskRepo,
-    private val taskBuilder: TaskBuilder,
-    private val processorControl: ProcessorControl,
     handle: SavedStateHandle,
-) : SmartVDC() {
+    dispatcherProvider: DispatcherProvider,
+    private val taskRepo: TaskRepo,
+    private val processorControl: ProcessorControl,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<TaskActionDialogArgs>()
     private val taskId: Task.Id = navArgs.taskId
     private val stateUpdater = Stater { State(loading = true) }
     val state = stateUpdater.liveData
-    val navEvents = SingleLiveEvent<NavDirections>()
-    val errorEvents = SingleLiveEvent<Throwable>()
 
     init {
-        taskRepo.get(taskId)
-            .observeOn(Schedulers.computation())
-            .subscribeNullable { task ->
-                val actions = listOf(
-                    Confirmable(RUN) { taskAction(it) },
-                    Confirmable(EDIT) { taskAction(it) },
-                    Confirmable(DELETE, requiredLvl = 1) { taskAction(it) },
-                )
-                stateUpdater.update {
-                    if (task == null) {
-                        it.copy(loading = true, finished = true)
-                    } else {
-                        it.copy(
-                            taskName = task.label,
-                            taskType = task.taskType,
-                            loading = false,
-                            allowedActions = actions
-                        )
-                    }
+        launch {
+            val task = taskRepo.get(taskId)
+
+            val actions = listOf(
+                Confirmable(RUN) { taskAction(it) },
+                Confirmable(EDIT) { taskAction(it) },
+                Confirmable(DELETE, requiredLvl = 1) { taskAction(it) },
+            )
+
+            stateUpdater.update {
+                if (task == null) {
+                    it.copy(loading = true, finished = true)
+                } else {
+                    it.copy(
+                        taskName = task.label,
+                        taskType = task.taskType,
+                        loading = false,
+                        allowedActions = actions
+                    )
                 }
             }
+        }
     }
 
     fun taskAction(action: TaskAction) {
-        when (action) {
-            RUN -> {
-                taskRepo.get(taskId)
-                    .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                    .subscribeOn(Schedulers.io())
-                    .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                    .subscribe { task ->
+        stateUpdater.update { it.copy(loading = true) }
+        launch {
+            try {
+                when (action) {
+                    RUN -> {
+                        val task = taskRepo.get(taskId) ?: return@launch
                         processorControl.submit(task)
                     }
-            }
-            EDIT -> {
-                TaskActionDialogDirections.actionTaskActionDialogToTaskEditor(
-                    args = TaskEditorArgs(taskId = taskId)
-                ).run { navEvents.postValue(this) }
-            }
-            DELETE -> {
-                Single.timer(200, TimeUnit.MILLISECONDS)
-                    .flatMap { taskRepo.remove(taskId) }
-                    .subscribeOn(Schedulers.io())
-                    .doOnSubscribe { stateUpdater.update { it.copy(loading = true) } }
-                    .doFinally { stateUpdater.update { it.copy(loading = false, finished = true) } }
-                    .subscribe()
+                    EDIT -> {
+                        TaskActionDialogDirections.actionTaskActionDialogToTaskEditor(
+                            args = TaskEditorArgs(taskId = taskId)
+                        ).run { navEvents.postValue(this) }
+                    }
+                    DELETE -> {
+                        delay(200)
+                        taskRepo.remove(taskId)
+                    }
+                }
+            } finally {
+                stateUpdater.update { it.copy(loading = false, finished = true) }
             }
         }
     }

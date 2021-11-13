@@ -9,7 +9,7 @@ fun <T> LiveData<T>.observe2(fragment: Fragment, callback: (T) -> Unit) {
     observe(fragment.viewLifecycleOwner) { callback.invoke(it) }
 }
 
-inline fun <T, reified VB : ViewBinding> LiveData<T>.observe2(
+inline fun <T, reified VB : ViewBinding?> LiveData<T>.observe2(
     fragment: Fragment,
     ui: VB,
     crossinline callback: VB.(T) -> Unit

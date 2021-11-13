@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.asErrorDialogBuilder
+import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPathPickerVM
 import eu.darken.bb.common.lists.modular.ModularAdapter

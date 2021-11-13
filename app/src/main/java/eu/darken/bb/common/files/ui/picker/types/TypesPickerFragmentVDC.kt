@@ -8,7 +8,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import javax.inject.Inject
 

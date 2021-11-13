@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.text.format.Formatter
 import android.view.ViewGroup
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.databinding.QuickmodeConfigCommonStorageInfoItemBinding
 import eu.darken.bb.storage.core.Storage

@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.main.core.LanguageEnforcer
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers

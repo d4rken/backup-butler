@@ -7,12 +7,17 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import okio.*
 import timber.log.Timber
 import java.io.IOException
@@ -23,10 +28,19 @@ import javax.inject.Singleton
 @Singleton
 class SAFGateway @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val contentResolver: ContentResolver
+    private val contentResolver: ContentResolver,
+    @AppScope private val appScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
 ) : APathGateway<SAFPath, SAFPathLookup> {
 
-    override val keepAlive = SharedHolder.createKeepAlive("${TAG}:SharedResource")
+    override val sharedResource = SharedResource.createKeepAlive(
+        "${TAG}:SharedResource",
+        appScope + dispatcherProvider.IO
+    )
+
+    private suspend fun <T> runIO(
+        block: suspend CoroutineScope.() -> T
+    ): T = withContext(dispatcherProvider.IO) { block() }
 
     private fun findDocFile(file: SAFPath): SAFDocFile? {
         val treeRoot = SAFDocFile.fromTreeUri(context, contentResolver, file.treeRoot)
@@ -42,13 +56,13 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun createFile(path: SAFPath): Boolean {
+    override suspend fun createFile(path: SAFPath): Boolean = runIO {
         val docFile = findDocFile(path)
         if (docFile != null) {
-            if (docFile.isFile) return false
+            if (docFile.isFile) return@runIO false
             else throw WriteException(path, message = "Path exists, but is not a file.")
         }
-        return try {
+        return@runIO try {
             createDocumentFile(FILE_TYPE_DEFAULT, path.treeRoot, path.crumbs)
             true
         } catch (e: Exception) {
@@ -58,13 +72,13 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun createDir(path: SAFPath): Boolean {
+    override suspend fun createDir(path: SAFPath): Boolean = runIO {
         val docFile = findDocFile(path)
         if (docFile != null) {
-            if (docFile.isDirectory) return false
+            if (docFile.isDirectory) return@runIO false
             else throw WriteException(path, message = "Path exists, but is not a directory.")
         }
-        return try {
+        return@runIO try {
             createDocumentFile(DIR_TYPE, path.treeRoot, path.crumbs)
             true
         } catch (e: Exception) {
@@ -105,49 +119,59 @@ class SAFGateway @Inject constructor(
     }
 
     @Throws(IOException::class)
-    override fun listFiles(path: SAFPath): List<SAFPath> = try {
-        findDocFile(path)!!
-            .listFiles()
-            .map {
-                val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-                path.child(name)
-            }
-    } catch (e: Exception) {
-        Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
-        throw ReadException(path, cause = e)
+    override suspend fun listFiles(path: SAFPath): List<SAFPath> = runIO {
+        try {
+            findDocFile(path)!!
+                .listFiles()
+                .map {
+                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                    path.child(name)
+                }
+        } catch (e: Exception) {
+            Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
+            throw ReadException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun exists(path: SAFPath): Boolean = try {
-        findDocFile(path)?.exists == true
-    } catch (e: Exception) {
-        throw ReadException(path, cause = e)
+    override suspend fun exists(path: SAFPath): Boolean = runIO {
+        try {
+            findDocFile(path)?.exists == true
+        } catch (e: Exception) {
+            throw ReadException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun delete(path: SAFPath): Boolean = try {
-        findDocFile(path)?.delete() == true
-    } catch (e: Exception) {
-        throw WriteException(path, cause = e)
+    override suspend fun delete(path: SAFPath): Boolean = runIO {
+        try {
+            findDocFile(path)?.delete() == true
+        } catch (e: Exception) {
+            throw WriteException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun canWrite(path: SAFPath): Boolean = try {
-        findDocFile(path)?.writable == true
-    } catch (e: Exception) {
-        throw ReadException(path, cause = e)
+    override suspend fun canWrite(path: SAFPath): Boolean = runIO {
+        try {
+            findDocFile(path)?.writable == true
+        } catch (e: Exception) {
+            throw ReadException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun canRead(path: SAFPath): Boolean = try {
-        findDocFile(path)?.readable == true
-    } catch (e: Exception) {
-        throw ReadException(path, cause = e)
+    override suspend fun canRead(path: SAFPath): Boolean = runIO {
+        try {
+            findDocFile(path)?.readable == true
+        } catch (e: Exception) {
+            throw ReadException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun lookup(path: SAFPath): SAFPathLookup {
-        return try {
+    override suspend fun lookup(path: SAFPath): SAFPathLookup = runIO {
+        try {
             val file = findDocFile(path)!!
             val fileType: FileType = when {
                 file.isDirectory -> FileType.DIRECTORY
@@ -170,66 +194,78 @@ class SAFGateway @Inject constructor(
         }
     }
 
-    override fun lookupFiles(path: SAFPath): List<SAFPathLookup> = try {
-        findDocFile(path)!!
-            .listFiles()
-            .map {
-                val name = it.name ?: it.uri.pathSegments.last().split('/').last()
-                path.child(name)
-            }
-            .map { lookup(it) }
-    } catch (e: Exception) {
-        Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
-        throw ReadException(path, cause = e)
+    override suspend fun lookupFiles(path: SAFPath): List<SAFPathLookup> = runIO {
+        try {
+            findDocFile(path)!!
+                .listFiles()
+                .map {
+                    val name = it.name ?: it.uri.pathSegments.last().split('/').last()
+                    path.child(name)
+                }
+                .map { lookup(it) }
+        } catch (e: Exception) {
+            Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
+            throw ReadException(path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun read(path: SAFPath): Source = try {
-        val docFile = findDocFile(path)!!
+    override suspend fun read(path: SAFPath): Source = runIO {
+        try {
+            val docFile = findDocFile(path)!!
 
-        val pfd = docFile.openPFD(contentResolver, FileMode.READ)
-        ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
-    } catch (e: Exception) {
-        log(TAG, WARN) { "Failed to read from $path: ${e.asLog()}" }
-        throw  ReadException(path = path, cause = e)
+            val pfd = docFile.openPFD(contentResolver, FileMode.READ)
+            ParcelFileDescriptor.AutoCloseInputStream(pfd).source().buffer()
+        } catch (e: Exception) {
+            log(TAG, WARN) { "Failed to read from $path: ${e.asLog()}" }
+            throw  ReadException(path = path, cause = e)
+        }
     }
 
     @Throws(IOException::class)
-    override fun write(path: SAFPath): Sink = try {
-        val docFile = findDocFile(path)!!
+    override suspend fun write(path: SAFPath): Sink = runIO {
+        try {
+            val docFile = findDocFile(path)!!
 
-        val pfd = docFile.openPFD(contentResolver, FileMode.WRITE)
-        ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
-    } catch (e: Exception) {
-        log(TAG, WARN) { "Failed to write to $path: ${e.asLog()}" }
-        throw  WriteException(path = path, cause = e)
+            val pfd = docFile.openPFD(contentResolver, FileMode.WRITE)
+            ParcelFileDescriptor.AutoCloseOutputStream(pfd).sink().buffer()
+        } catch (e: Exception) {
+            log(TAG, WARN) { "Failed to write to $path: ${e.asLog()}" }
+            throw  WriteException(path = path, cause = e)
+        }
     }
 
-    override fun setModifiedAt(path: SAFPath, modifiedAt: Date): Boolean = try {
-        val docFile = findDocFile(path)!!
+    override suspend fun setModifiedAt(path: SAFPath, modifiedAt: Date): Boolean = runIO {
+        try {
+            val docFile = findDocFile(path)!!
 
-        docFile.setLastModified(modifiedAt)
-    } catch (e: Exception) {
-        throw WriteException(path, cause = e)
+            docFile.setLastModified(modifiedAt)
+        } catch (e: Exception) {
+            throw WriteException(path, cause = e)
+        }
     }
 
-    override fun setPermissions(path: SAFPath, permissions: Permissions): Boolean = try {
-        val docFile = findDocFile(path)!!
+    override suspend fun setPermissions(path: SAFPath, permissions: Permissions): Boolean = runIO {
+        try {
+            val docFile = findDocFile(path)!!
 
-        docFile.setPermissions(permissions)
-    } catch (e: Exception) {
-        throw WriteException(path, cause = e)
+            docFile.setPermissions(permissions)
+        } catch (e: Exception) {
+            throw WriteException(path, cause = e)
+        }
     }
 
-    override fun setOwnership(path: SAFPath, ownership: Ownership): Boolean = try {
-        val docFile = findDocFile(path)!!
+    override suspend fun setOwnership(path: SAFPath, ownership: Ownership): Boolean = runIO {
+        try {
+            val docFile = findDocFile(path)!!
 
-        docFile.setOwnership(ownership)
-    } catch (e: Exception) {
-        throw WriteException(path, cause = e)
+            docFile.setOwnership(ownership)
+        } catch (e: Exception) {
+            throw WriteException(path, cause = e)
+        }
     }
 
-    override fun createSymlink(linkPath: SAFPath, targetPath: SAFPath): Boolean {
+    override suspend fun createSymlink(linkPath: SAFPath, targetPath: SAFPath): Boolean {
         throw UnsupportedOperationException("SAF doesn't support symlinks. createSymlink(linkPath=$linkPath, targetPath=$targetPath)")
     }
 

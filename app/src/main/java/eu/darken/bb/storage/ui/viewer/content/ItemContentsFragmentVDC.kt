@@ -4,50 +4,48 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class ItemContentsFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val storageManager: StorageManager
-) : SmartVDC() {
+    private val storageManager: StorageManager,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<ItemContentsFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
 
-    private val storageObs = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
-
-    private val stater: Stater<State> = Stater { State() }
-    val state = stater.liveData
-    val errorEvent = SingleLiveEvent<Throwable>()
-    val finishEvent = SingleLiveEvent<Any>()
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     init {
-        storageObs
-            .flatMapObservable { it.specInfos() }
+
+        flow { emit(storageManager.getStorage(storageId)) }
+            .flatMapConcat { it.specInfos() }
             .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-            .subscribe({ item ->
-                stater.update { state ->
-                    state.copy(
+            .onEach { item ->
+                stater.updateBlocking {
+                    copy(
                         backupSpec = item.backupSpec,
                         versions = item.backups.sortedBy { it.createdAt }.reversed(),
                         loading = false
                     )
                 }
-            }, { error ->
-                errorEvent.postValue(error)
-                finishEvent.postValue(Any())
-            })
-            .withScopeVDC(this)
+            }
+            .onCompletion {
+                navEvents.postValue(null)
+            }
+            .launchInViewModel()
     }
 
     data class State(
@@ -56,4 +54,8 @@ class ItemContentsFragmentVDC @Inject constructor(
         val loading: Boolean = true,
         val error: Throwable? = null
     )
+
+    companion object {
+        private val TAG = logTag("Storage", "Item", "Contents", "VDC")
+    }
 }

@@ -14,6 +14,7 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
+import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartFragment
@@ -77,10 +78,9 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
             StorageItemFragmentDirections.actionStorageItemFragmentToStorageItemActionDialog(
                 storageId = it.storageId,
                 specId = it.backupSpecId,
-            ).navigateTo()
+            ).run { doNavigate(this) }
         }
 
-        vdc.finishEvent.observe2(this) { finishActivity() }
 
         vdc.errorEvents.observe2(this) { toastError(it) }
 

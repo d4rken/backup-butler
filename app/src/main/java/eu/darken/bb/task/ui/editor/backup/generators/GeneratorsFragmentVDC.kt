@@ -1,55 +1,49 @@
 package eu.darken.bb.task.ui.editor.backup.generators
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.backup.ui.generator.list.GeneratorConfigOpt
 import eu.darken.bb.backup.ui.generator.list.GeneratorListAdapter
 import eu.darken.bb.backup.ui.generator.picker.GeneratorPickerResult
-import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.navigation.NavEventsSource
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.navigation.via
-import eu.darken.bb.common.rx.blockingGet2
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class GeneratorsFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
-    private val generatorRepo: GeneratorRepo
-) : SmartVDC(), NavEventsSource {
+    private val generatorRepo: GeneratorRepo,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<GeneratorsFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
-    private val editorObs = taskBuilder.task(taskId)
+    private val editorFlow = taskBuilder.task(taskId)
         .filter { it.editor != null }
         .map { it.editor as SimpleBackupTaskEditor }
-    private val editorData = editorObs.flatMap { it.editorData }
+    private val editorData = editorFlow.flatMapConcat { it.editorData }
 
-    private val editor: SimpleBackupTaskEditor by lazy { editorObs.blockingFirst() }
-
-    private val stater: Stater<State> = Stater { State() }
-    val state = stater.liveData
-
-    override val navEvents = SingleLiveEvent<NavDirections>()
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     init {
         editorData
-            .subscribe { data ->
+            .onEach { data ->
                 val items = data.sources
                     .map { id ->
-                        val config = generatorRepo.get(id).blockingGet2()
+                        val config = generatorRepo.get(id)
                         GeneratorConfigOpt(id, config)
                     }
                     .map { configOpt ->
@@ -58,32 +52,31 @@ class GeneratorsFragmentVDC @Inject constructor(
                             onClick = { removeSource(it) }
                         )
                     }
-                stater.update { it.copy(sources = items) }
+                stater.updateBlocking { copy(sources = items) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    private fun removeSource(generatorId: Generator.Id) {
-        editor.removeGenerator(generatorId)
+    private fun removeSource(generatorId: Generator.Id) = launch {
+        editorFlow.first().removeGenerator(generatorId)
     }
-
 
     fun onAddSource() {
         GeneratorsFragmentDirections.actionSourcesFragmentToGeneratorPicker(
             taskId = taskId
-        ).via(this)
+        ).navVia(this)
     }
 
     fun onNext() {
         GeneratorsFragmentDirections.navActionNext(
             taskId = taskId
-        ).via(this)
+        ).navVia(this)
     }
 
-    fun onSourceAdded(result: GeneratorPickerResult?) {
+    fun onSourceAdded(result: GeneratorPickerResult?) = launch {
         log(TAG) { "onSourceAdded(result=$result)" }
-        if (result == null) return
-        editor.addGenerator(result.generatorId)
+        if (result == null) return@launch
+        editorFlow.first().addGenerator(result.generatorId)
     }
 
     data class State(

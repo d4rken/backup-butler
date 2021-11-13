@@ -6,7 +6,7 @@ import eu.darken.bb.task.core.results.TaskResult
 
 interface Processor {
 
-    fun process(task: Task): TaskResult
+    suspend fun process(task: Task): TaskResult
 
     interface Factory<T : Processor> {
         fun create(progressParent: Progress.Client): T

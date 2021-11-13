@@ -6,8 +6,10 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -26,28 +28,28 @@ class RootHostLauncher @Inject constructor(
         binderClass: KClass<Binder>,
         rootHostClass: KClass<Host>,
         vararg args: String
-    ): Observable<Binder> = Observable.create { emitter ->
+    ): Flow<Binder> = callbackFlow {
         log(TAG) { "Initiating connection to host($rootHostClass) via binder($binderClass)" }
 
         val rootSession = try {
             RxCmdShell.builder().root(true).build().open().blockingGet()
         } catch (e: Exception) {
-            emitter.onError(RootException("Failed to open root session.", e.cause))
-            return@create
+            throw RootException("Failed to open root session.", e.cause)
         }
 
         val ipcReceiver = object : RootIPCReceiver<Binder>(0, binderClass) {
             override fun onConnect(ipc: Binder) {
                 log(TAG) { "onConnect(ipc=$ipc)" }
-                emitter.onNext(ipc)
+                trySendBlocking(ipc)
             }
 
             override fun onDisconnect(ipc: Binder) {
                 log(TAG) { "onDisconnect(ipc=$ipc)" }
-                emitter.onComplete()
+                close()
             }
         }
-        emitter.setCancellable {
+
+        invokeOnClose {
             log(TAG) { "Canceling!" }
             ipcReceiver.release()
             // TODO timeout until we CANCEL?
@@ -67,10 +69,10 @@ class RootHostLauncher @Inject constructor(
 
             // Check exitcode
             if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
-                emitter.onError(RootException("Shell died launching the java root host."))
+                throw RootException("Shell died launching the java root host.")
             }
         } catch (e: Exception) {
-            emitter.tryOnError(RootException("Failed to launch java root host.", e.cause))
+            throw RootException("Failed to launch java root host.", e.cause)
         }
     }
 

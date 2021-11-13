@@ -12,14 +12,14 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferent
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
@@ -29,10 +29,9 @@ import eu.darken.bb.storage.ui.editor.StorageEditorFragmentChild
 import eu.darken.bb.storage.ui.editor.setStorageEditorResult
 
 @AndroidEntryPoint
-class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment), StorageEditorFragmentChild {
-    private val vdc: LocalEditorFragmentVDC by viewModels()
-    private val ui: StorageEditorLocalFragmentBinding by viewBinding()
-
+class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragment), StorageEditorFragmentChild {
+    override val vdc: LocalEditorFragmentVDC by viewModels()
+    override val ui: StorageEditorLocalFragmentBinding by viewBinding()
 
     private lateinit var permissionWriteStorageLauncher: Permission.Launcher
     private lateinit var permissionManageStorageLauncher: Permission.Launcher
@@ -95,18 +94,21 @@ class LocalEditorFragment : SmartFragment(R.layout.storage_editor_local_fragment
         ui.nameInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
         ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
 
-        vdc.errorEvent.observe2(this) { error ->
-            val snackbar = Snackbar.make(
-                view,
-                error.localized(requireContext()).asText(),
-                Snackbar.LENGTH_LONG
-            )
+        onErrorEvent = { error ->
             if (error is ExistingStorageException) {
+                val snackbar = Snackbar.make(
+                    view,
+                    error.localized(requireContext()).asText(),
+                    Snackbar.LENGTH_LONG
+                )
                 snackbar.setAction(R.string.general_import_action) {
                     vdc.importStorage(error.path)
                 }
+                snackbar.show()
+                false
+            } else {
+                true
             }
-            snackbar.show()
         }
 
         ui.writeStorageGrant.clicksDebounced().subscribe { vdc.requestPermission(Permission.WRITE_EXTERNAL_STORAGE) }

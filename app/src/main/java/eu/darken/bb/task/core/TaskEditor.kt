@@ -1,19 +1,17 @@
 package eu.darken.bb.task.core
 
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface TaskEditor {
-    val editorData: Observable<out Data>
+    val editorData: Flow<out Data>
 
-    fun load(task: Task): Completable
+    suspend fun load(task: Task)
 
-    fun snapshot(): Single<out Task>
+    suspend fun snapshot(): Task
 
-    fun isValid(): Observable<Boolean>
+    fun isValid(): Flow<Boolean>
 
-    fun updateLabel(label: String)
+    suspend fun updateLabel(label: String)
 
     interface Factory<EditorT : TaskEditor> {
         fun create(taskId: Task.Id): EditorT

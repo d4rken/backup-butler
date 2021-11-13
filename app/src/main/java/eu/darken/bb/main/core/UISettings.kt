@@ -9,7 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.preference.PreferenceStoreMapper
-import eu.darken.bb.common.preference.createObservablePreference
+import eu.darken.bb.common.preference.createFlowPreference
 import eu.darken.bb.settings.core.Settings
 import java.util.*
 import javax.inject.Inject
@@ -70,7 +70,7 @@ class UISettings @Inject constructor(
             preferences.edit().putString(PKEY_STARTMODE, value.identifier).apply()
         }
 
-    val showDebugPage = preferences.createObservablePreference(
+    val showDebugPage = preferences.createFlowPreference(
         PKEY_DEBUGPAGE,
         false
     )

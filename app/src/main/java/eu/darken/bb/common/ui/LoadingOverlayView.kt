@@ -13,7 +13,7 @@ import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.databinding.LoadingOverlayViewBinding
 

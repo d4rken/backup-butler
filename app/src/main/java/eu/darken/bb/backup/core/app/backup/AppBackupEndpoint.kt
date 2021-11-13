@@ -11,23 +11,27 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.errors.hasCause
+import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.getString
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException
-import eu.darken.bb.common.rx.withScopeThis
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -39,18 +43,20 @@ class AppBackupEndpoint @Inject constructor(
     private val apkExporter: APKExporter,
     private val gatewaySwitch: GatewaySwitch,
     private val javaRootClient: JavaRootClient,
+    @ProcessorScope private val coroutineScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
     backupHandlers: @JvmSuppressWildcards Set<BackupHandler>
 ) : Backup.Endpoint, Progress.Client, HasContext {
 
-    private val progressPub = HotData(tag = TAG) { Progress.Data() }
-    override val progress: Observable<Progress.Data> = progressPub.data
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+    private val progressPub = DynamicStateFlow(TAG, coroutineScope) { Progress.Data() }
+    override val progress: Flow<Progress.Data> = progressPub.flow
+    override fun updateProgress(update: suspend Progress.Data.() -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, coroutineScope + dispatcherProvider.IO)
 
     private val backupHandlers = backupHandlers.sortedBy { it.priority }
 
-    override fun backup(spec: BackupSpec, logListener: ((LogEvent) -> Unit)?): Backup.Unit {
+    override suspend fun backup(spec: BackupSpec, logListener: ((LogEvent) -> Unit)?): Backup.Unit {
         spec as AppBackupSpec
         val builder = AppBackupWrap(spec, Backup.Id())
         updateProgressPrimary(R.string.progress_creating_app_backup)
@@ -67,7 +73,7 @@ class AppBackupEndpoint @Inject constructor(
             val baseApkRef: MMRef = mmDataRepo.create(
                 MMRef.Request(
                     backupId = builder.backupId,
-                    source = GenericRefSource(
+                    source = GenericRefSource.create(
                         gateway = gatewaySwitch,
                         label = getString(DataType.APK_BASE.labelRes),
                         path = apkData.mainSource
@@ -84,7 +90,7 @@ class AppBackupEndpoint @Inject constructor(
                 val splitRef: MMRef = mmDataRepo.create(
                     MMRef.Request(
                         backupId = builder.backupId,
-                        source = GenericRefSource(
+                        source = GenericRefSource.create(
                             gateway = gatewaySwitch,
                             label = getString(DataType.APK_SPLIT.labelRes),
                             path = splitApk
@@ -144,7 +150,7 @@ class AppBackupEndpoint @Inject constructor(
         return builder.createUnit()
     }
 
-    private fun backupType(
+    private suspend fun backupType(
         type: DataType,
         backupId: Backup.Id,
         spec: AppBackupSpec,
@@ -165,7 +171,8 @@ class AppBackupEndpoint @Inject constructor(
 
         handler.keepAliveWith(this)
 
-        handler.forwardProgressTo(this).withScopeThis {
+
+        handler.forwardProgressTo(this).launchForAction(coroutineScope) {
             handler.backup(
                 type = type,
                 backupId = backupId,
@@ -178,7 +185,7 @@ class AppBackupEndpoint @Inject constructor(
         }
     }
 
-    private fun backupExtra(
+    private suspend fun backupExtra(
         backupId: Backup.Id,
         spec: AppBackupSpec,
         appInfo: ApplicationInfo,
@@ -199,7 +206,7 @@ class AppBackupEndpoint @Inject constructor(
 
         handler.keepAliveWith(this)
 
-        handler.forwardProgressTo(this).withScopeThis {
+        handler.forwardProgressTo(this).launchForAction(coroutineScope) {
             handler.backup(
                 type = DataType.EXTRA_PATHS,
                 backupId = backupId,

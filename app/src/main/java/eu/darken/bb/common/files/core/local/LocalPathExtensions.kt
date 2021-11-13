@@ -38,13 +38,13 @@ fun LocalPath.toCrumbs(): List<LocalPath> {
     return crumbs
 }
 
-internal fun LocalPath.sourceRoot(client: JavaRootClient): Source {
+internal suspend fun LocalPath.sourceRoot(client: JavaRootClient): Source {
     val resource = client.get()
     val fileOps = resource.item.getModule<FileOpsClient>()
     return fileOps.readFile(this).callbacks { resource.close() }
 }
 
-internal fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
+internal suspend fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
     val resource = client.get()
     val fileOps = resource.item.getModule<FileOpsClient>()
     return fileOps.writeFile(this).callbacks { resource.close() }

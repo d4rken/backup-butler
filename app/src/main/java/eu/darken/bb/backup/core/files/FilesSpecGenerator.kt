@@ -15,7 +15,7 @@ import javax.inject.Inject
 class FilesSpecGenerator @Inject constructor(
     @ApplicationContext private val context: Context
 ) : Generator {
-    override fun generate(config: Generator.Config): Collection<BackupSpec> {
+    override suspend fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config
         val specs = mutableListOf<BackupSpec>()
 

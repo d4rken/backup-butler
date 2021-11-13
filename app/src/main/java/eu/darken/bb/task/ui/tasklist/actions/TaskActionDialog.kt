@@ -8,10 +8,8 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.asErrorDialogBuilder
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.databinding.TaskListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
@@ -42,9 +40,6 @@ class TaskActionDialog : BottomSheetDialogFragment() {
             ui.progressCircular.visibility = if (state.loading) View.VISIBLE else View.INVISIBLE
             if (state.finished) dismissAllowingStateLoss()
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
-        vdc.errorEvents.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)
     }

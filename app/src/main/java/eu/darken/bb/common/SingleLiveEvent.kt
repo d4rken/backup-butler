@@ -5,8 +5,9 @@ import androidx.annotation.Nullable
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SingleLiveEvent<T> : MutableLiveData<T>() {
@@ -16,7 +17,7 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
         if (hasActiveObservers()) {
-            Timber.tag(TAG).w(TAG, "Multiple observers registered but only one will be notified of changes.")
+            log(TAG) { "Multiple observers registered but only one will be notified of changes." }
         }
 
         // Observe the internal MutableLiveData
@@ -31,6 +32,9 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
     override fun setValue(@Nullable t: T?) {
         pending.set(true)
         super.setValue(t)
+        if (!hasActiveObservers()) {
+            log(TAG, WARN) { "Value set but no active observers ($this): $t" }
+        }
     }
 
     /**

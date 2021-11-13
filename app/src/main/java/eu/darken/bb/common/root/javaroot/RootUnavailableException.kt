@@ -3,8 +3,8 @@ package eu.darken.bb.common.root.javaroot
 import android.content.Context
 import androidx.annotation.StringRes
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.HasLocalizedError
-import eu.darken.bb.common.errors.LocalizedError
+import eu.darken.bb.common.error.HasLocalizedError
+import eu.darken.bb.common.error.LocalizedError
 import eu.darken.bb.common.root.javaroot.internal.RootException
 
 class RootUnavailableException(

@@ -10,19 +10,29 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
-import eu.darken.bb.common.*
+import eu.darken.bb.common.CaString
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.LocalPath
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.getString
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.toCaString
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,14 +40,16 @@ import javax.inject.Inject
 class PrivateDefaultBackupHandler @Inject constructor(
     @ApplicationContext context: Context,
     private val gatewaySwitch: GatewaySwitch,
-    private val mmDataRepo: MMDataRepo
+    private val mmDataRepo: MMDataRepo,
+    @ProcessorScope private val coroutineScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
 ) : BaseBackupHandler(context) {
 
-    private val progressPub = HotData(tag = TAG) { Progress.Data() }
-    override val progress: Observable<Progress.Data> = progressPub.data
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+    private val progressPub = DynamicStateFlow(TAG, coroutineScope) { Progress.Data() }
+    override val progress: Flow<Progress.Data> = progressPub.flow
+    override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, coroutineScope + dispatcherProvider.IO)
 
     override fun isResponsible(
         type: DataType,
@@ -55,7 +67,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
         return true
     }
 
-    override fun backup(
+    override suspend fun backup(
         type: DataType,
         backupId: Backup.Id,
         spec: AppBackupSpec,
@@ -86,7 +98,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
         }
     }
 
-    private fun doBackup(
+    private suspend fun doBackup(
         type: DataType,
         backupId: Backup.Id,
         spec: AppBackupSpec,
@@ -109,13 +121,13 @@ class PrivateDefaultBackupHandler @Inject constructor(
         }
 
         val items = mutableListOf<APathLookup<APath>>()
-        gatewaySwitch.keepAlive.get().use {
+
+        gatewaySwitch.sharedResource.get().use {
             targets.forEach { target ->
                 updateProgressSecondary(target.toCaString())
                 target.walk(gatewaySwitch)
                     .filterNot { it == target }
-                    .map { it.lookup(gatewaySwitch) }
-                    .forEach { items.add(it) }
+                    .collect { items.add(it) }
             }
         }
 
@@ -127,7 +139,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
         val ref = mmDataRepo.create(
             MMRef.Request(
                 backupId = backupId,
-                source = ArchiveRefSource(
+                source = ArchiveRefSource.create(
                     gatewaySwitch,
                     getString(type.labelRes),
                     privDir,

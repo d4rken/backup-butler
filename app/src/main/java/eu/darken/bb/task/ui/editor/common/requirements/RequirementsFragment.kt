@@ -14,21 +14,20 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorRequirementsFragmentBinding
 import eu.darken.bb.task.core.Task
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fragment) {
+class RequirementsFragment : Smart2Fragment(R.layout.task_editor_requirements_fragment) {
 
     val navArgs by navArgs<RequirementsFragmentArgs>()
-    private val ui: TaskEditorRequirementsFragmentBinding by viewBinding()
-    private val vdc: RequirementsFragmentVDC by viewModels()
+    override val ui: TaskEditorRequirementsFragmentBinding by viewBinding()
+    override val vdc: RequirementsFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: RequirementsAdapter
 
@@ -59,7 +58,6 @@ class RequirementsFragment : SmartFragment(R.layout.task_editor_requirements_fra
             }
             adapter.update(it.requirements)
         }
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.runTimePermissionEvent.observe2(this) { req ->
             requestPermissions(arrayOf(req.permission), 1)

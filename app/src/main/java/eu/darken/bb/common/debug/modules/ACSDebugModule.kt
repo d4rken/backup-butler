@@ -9,12 +9,17 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugScope
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 @TargetApi(Build.VERSION_CODES.N)
 class ACSDebugModule @AssistedInject constructor(
-    @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost,
+    @DebugScope private val debugScope: CoroutineScope,
 ) : DebugModule {
 
     companion object {
@@ -26,10 +31,9 @@ class ACSDebugModule @AssistedInject constructor(
 
     init {
         host.observeOptions()
-            .observeOn(Schedulers.io())
             .filter { BuildConfig.DEBUG }
             .filter { ApiHelper.hasAndroidN() }
-            .subscribe { options ->
+            .onEach { options ->
                 //                    if (options.level == Log.VERBOSE && crashHandler == null) {
 //                        origHandler = Thread.getDefaultUncaughtExceptionHandler()
 //                        crashHandler = Thread.UncaughtExceptionHandler { t, e ->
@@ -44,6 +48,7 @@ class ACSDebugModule @AssistedInject constructor(
 //                        Timber.tag(TAG).d("Disabled ACCService exception guard")
 //                    }
             }
+            .launchIn(debugScope)
     }
 
     @AssistedFactory

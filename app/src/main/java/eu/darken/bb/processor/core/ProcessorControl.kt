@@ -3,25 +3,27 @@ package eu.darken.bb.processor.core
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
-import eu.darken.bb.common.opt
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.service.ProcessorService
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.putTaskId
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ProcessorControl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @AppScope private val scope: CoroutineScope
 ) {
-    private val progressHostPub = HotData<Opt<Progress.Host>> { Opt() }
-    val progressHost = progressHostPub.data
+    private val progressHostPub = DynamicStateFlow<Progress.Host?>(TAG, scope) { null }
+    val progressHost = progressHostPub.flow
 
     internal fun updateProgressHost(progressHost: Progress.Host?) {
-        progressHostPub.update { progressHost.opt() }
+        progressHostPub.updateAsync { progressHost }
     }
 
     fun submit(taskId: Task.Id) {
@@ -31,4 +33,8 @@ class ProcessorControl @Inject constructor(
     }
 
     fun submit(task: Task) = submit(task.taskId)
+
+    companion object {
+        private val TAG = logTag("Processor", "Control")
+    }
 }

@@ -5,7 +5,8 @@ import android.util.Log
 import dagger.Lazy
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.BuildConfigWrap
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.debug.logging.*
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.root.javaroot.internal.RootHost
@@ -13,6 +14,10 @@ import eu.darken.bb.common.root.javaroot.internal.RootIPC
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
 import eu.darken.rxshell.extra.RXSDebug
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.util.concurrent.TimeoutException
 import javax.inject.Inject
@@ -24,9 +29,12 @@ import kotlin.system.exitProcess
  * package, but not instances - this is a separate process from the UI.
  */
 @SuppressLint("UnsafeDynamicallyLoadedCode")
-class JavaRootHost constructor(_args: List<String>) : SharedHolder.HasKeepAlive<Any>, RootHost() {
+class JavaRootHost constructor(_args: List<String>) : HasSharedResource<Any>, RootHost() {
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(
+        TAG,
+        GlobalScope + Dispatchers.IO
+    )
 
     private val ourPkgName: String
     private val isDebug: Boolean
@@ -86,7 +94,7 @@ class JavaRootHost constructor(_args: List<String>) : SharedHolder.HasKeepAlive<
         //        Debugger.waitFor(true)
     }
 
-    private fun run() {
+    private suspend fun run() {
         log(TAG) { "Starting IPC connection via $rootIpcFactory" }
         val ipc = rootIpcFactory.create(
             packageName = BuildConfig.APPLICATION_ID,
@@ -94,10 +102,10 @@ class JavaRootHost constructor(_args: List<String>) : SharedHolder.HasKeepAlive<
         )
         log(TAG) { "IPC created: $ipc" }
 
-        val keepAliveToken: SharedHolder.Resource<*> = keepAlive.get()
+        val keepAliveToken: SharedResource.Resource<*> = sharedResource.get()
 
         log(TAG) { "Launching SharedShell with root" }
-        sharedShell.keepAliveWith(this)
+        sharedShell.keepAliveWith(this.sharedResource)
 
         try {
             log(TAG) { "Ready, now broadcasting..." }
@@ -119,7 +127,9 @@ class JavaRootHost constructor(_args: List<String>) : SharedHolder.HasKeepAlive<
             val runner = JavaRootHost(args.toList())
 
             log(TAG, VERBOSE) { "run():START" }
-            runner.run()
+            runBlocking {
+                runner.run()
+            }
             log(TAG, VERBOSE) { "run():FINISHED" }
         }
     }

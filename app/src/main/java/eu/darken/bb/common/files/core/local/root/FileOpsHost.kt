@@ -9,6 +9,7 @@ import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -21,8 +22,11 @@ class FileOpsHost @Inject constructor(
 ) : FileOpsConnection.Stub() {
 
     override fun lookUp(path: LocalPath): LocalPathLookup = try {
-        sharedShell.session.get().use { sessionResource ->
-            path.performLookup(ipcFunnel, libcoreTool, sessionResource.item)
+        // TODO why use root shell here?
+        runBlocking {
+            sharedShell.session.get().use { sessionResource ->
+                path.performLookup(ipcFunnel, libcoreTool, sessionResource.item)
+            }
         }
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "lookUp(path=$path) failed.")

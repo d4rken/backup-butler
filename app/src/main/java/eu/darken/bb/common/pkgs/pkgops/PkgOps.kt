@@ -5,7 +5,10 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.TransactionTooLargeException
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.common.files.core.local.LocalPath
@@ -17,6 +20,8 @@ import eu.darken.bb.common.pkgs.PkgPathInfo
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.user.UserHandleBB
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,48 +30,43 @@ import javax.inject.Singleton
 class PkgOps @Inject constructor(
     private val javaRootClient: JavaRootClient,
     private val ipcFunnel: IPCFunnel,
-    private val deviceEnvironment: DeviceEnvironment
-) : SharedHolder.HasKeepAlive<Any> {
+    private val deviceEnvironment: DeviceEnvironment,
+    @AppScope private val appScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
+) : HasSharedResource<Any> {
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(
+        TAG,
+        appScope + dispatcherProvider.IO
+    )
 
-    private fun <T> rootOps(action: (PkgOpsClient) -> T): T {
-        keepAlive.keepAliveWith(javaRootClient)
+    private suspend fun <T> rootOps(action: (PkgOpsClient) -> T): T {
+        sharedResource.keepAliveWith(javaRootClient)
         return javaRootClient.runModuleAction(PkgOpsClient::class.java) {
             return@runModuleAction action(it)
         }
     }
 
-    fun getUserNameForUID(uid: Int): String? {
-        return rootOps { client ->
-            client.getUserNameForUID(uid)
-        }
+    suspend fun getUserNameForUID(uid: Int): String? = rootOps { client ->
+        client.getUserNameForUID(uid)
     }
 
-    fun getGroupNameforGID(gid: Int): String? {
-        return rootOps { client ->
-            client.getGroupNameforGID(gid)
-        }
+    suspend fun getGroupNameforGID(gid: Int): String? = rootOps { client ->
+        client.getGroupNameforGID(gid)
     }
 
-    fun getUIDForUserName(userName: String): Int? {
-        return when (val gid = Process.getUidForName(userName)) {
-            -1 -> null
-            else -> gid
-        }
+    fun getUIDForUserName(userName: String): Int? = when (val gid = Process.getUidForName(userName)) {
+        -1 -> null
+        else -> gid
     }
 
-    fun getGIDForGroupName(groupName: String): Int? {
-        return when (val gid = Process.getGidForName(groupName)) {
-            -1 -> null
-            else -> gid
-        }
+    fun getGIDForGroupName(groupName: String): Int? = when (val gid = Process.getGidForName(groupName)) {
+        -1 -> null
+        else -> gid
     }
 
-    fun forceStop(packageName: String): Boolean {
-        return rootOps {
-            it.forceStop(packageName)
-        }
+    suspend fun forceStop(packageName: String): Boolean = rootOps {
+        it.forceStop(packageName)
     }
 
     fun queryPkg(pkgName: String, flags: Int = 0): Pkg? = ipcFunnel.queryPM { pm ->

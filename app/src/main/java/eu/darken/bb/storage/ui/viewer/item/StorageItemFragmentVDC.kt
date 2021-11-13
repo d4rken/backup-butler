@@ -2,84 +2,82 @@ package eu.darken.bb.storage.ui.viewer.item
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.Bugs
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.onError
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.job
 import javax.inject.Inject
 
 @HiltViewModel
 class StorageItemFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     processorControl: ProcessorControl,
-    storageManager: StorageManager
-) : SmartVDC() {
+    storageManager: StorageManager,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<StorageItemFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
 
-    private val storageObs: Single<Storage> = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
+    private val storageFlow = flow { emit(storageManager.getStorage(storageId)) }
 
-    private val stater: Stater<State> = Stater { State() }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
-    private val deletionStater = Stater { DeletionState() }
-    val deletionState = deletionStater.liveData
+    private val deletionStater = DynamicStateFlow(TAG, vdcScope) { DeletionState() }
+    val deletionState = deletionStater.asLiveData2()
 
-    val finishEvent = SingleLiveEvent<Boolean>()
-    val errorEvents = SingleLiveEvent<Throwable>()
     val contentActionEvent = SingleLiveEvent<ContentActionEvent>()
     val processorEvent = SingleLiveEvent<Boolean>()
 
     init {
         processorControl.progressHost
-            .subscribe { processorEvent.postValue(it.isNotNull) }
-            .withScopeVDC(this)
+            .onEach { processorEvent.postValue(it != null) }
+            .launchInViewModel()
 
-        storageObs
-            .flatMapObservable { it.info() }
-            .filter { it.status != null }.map { it.status!! }
-            .onErrorComplete()
-            .subscribe { status ->
-                stater.update { it.copy(allowDeleteAll = !status.isReadOnly) }
+        storageFlow
+            .flatMapConcat { it.info() }
+            .filter { it.status != null }
+            .map { it.status!! }
+            .onEach { status ->
+                stater.updateBlocking { copy(allowDeleteAll = !status.isReadOnly) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
-        storageObs
-            .flatMapObservable { it.info() }
+        storageFlow
+            .flatMapConcat { it.info() }
             .filter { it.config != null }
             .map { it.config!! }
             .take(1)
-            .subscribe { config ->
-                stater.update { it.copy(storageLabel = config.label, storageType = config.storageType) }
+            .onEach { config ->
+                stater.updateBlocking { copy(storageLabel = config.label, storageType = config.storageType) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
         // TODO use storage extension?
-        storageObs
-            .flatMapObservable { it.specInfos() }
-            .subscribe({ storageContents ->
-                stater.update { oldState ->
-                    oldState.copy(
+        storageFlow
+            .flatMapConcat { it.specInfos() }
+            .onEach { storageContents ->
+                stater.updateBlocking {
+                    copy(
                         specInfos = storageContents.toList(),
                         isLoading = false
                     )
                 }
-            }, { error ->
-                errorEvents.postValue(error)
-                finishEvent.postValue(true)
-            })
-            .withScopeVDC(this)
+            }
+            .onError { navEvents.postValue(null) }
+            .launchInViewModel()
     }
 
     fun viewContent(info: BackupSpec.Info) {
@@ -93,28 +91,24 @@ class StorageItemFragmentVDC @Inject constructor(
         )
     }
 
-    fun deleteAll() {
-        storageObs
-            .flatMapObservable { storage ->
-                storage.specInfos()
-                    .take(1)
-                    .flatMapIterable { it }
-                    .concatMapSingle { content ->
-                        deletionStater.update { it.copy(backupSpec = content.backupSpec) }
-                        Single.timer(100, TimeUnit.MILLISECONDS).flatMap { storage.remove(content.backupSpec.specId) }
-                    }
-            }
-            .doOnError { Bugs.track(it) }
-            .doFinally { stater.update { it.copy(currentOperation = null) } }
-            .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-            .subscribe(
-                { },
-                { error -> errorEvents.postValue(error) }
-            )
+    fun deleteAll() = launch {
+        stater.updateBlocking { copy(job = coroutineContext.job) }
+
+        val storage = storageFlow.first()
+
+        val specInfos = storage.specInfos().first()
+
+        specInfos.forEach {
+            deletionStater.updateBlocking { copy(backupSpec = it.backupSpec) }
+            delay(100)
+            storage.remove(it.backupSpec.specId)
+        }
+
+        stater.updateBlocking { copy(job = null) }
     }
 
-    override fun onCleared() {
-        stater.snapshot.currentOperation?.dispose()
+    override fun onCleared() = launch {
+        stater.value().job?.cancel()
         super.onCleared()
     }
 
@@ -128,10 +122,10 @@ class StorageItemFragmentVDC @Inject constructor(
         val specInfos: List<BackupSpec.Info> = emptyList(),
         val allowDeleteAll: Boolean = false,
         val isLoading: Boolean = true,
-        val currentOperation: Disposable? = null
+        val job: Job? = null
     ) {
         val isWorking: Boolean
-            get() = isLoading || currentOperation != null
+            get() = isLoading || job != null
     }
 
     data class ContentActionEvent(
@@ -140,4 +134,8 @@ class StorageItemFragmentVDC @Inject constructor(
         val allowView: Boolean = false,
         val allowDelete: Boolean = false
     )
+
+    companion object {
+        private val TAG = logTag("Storage", "Item", "VDC")
+    }
 }

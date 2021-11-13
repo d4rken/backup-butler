@@ -1,25 +1,27 @@
 package eu.darken.bb.storage.ui.editor
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.navigation.NavEventsSource
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.navigation.via
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
 class StorageEditorFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val storageBuilder: StorageBuilder
-) : SmartVDC(), NavEventsSource {
+    private val storageBuilder: StorageBuilder,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs = handle.navArgs<StorageEditorFragmentArgs>()
     private val storageId: Storage.Id = run {
@@ -35,16 +37,15 @@ class StorageEditorFragmentVDC @Inject constructor(
         }
     }
 
-    private val storageObs = storageBuilder.load(storageId)
-        .observeOn(Schedulers.computation())
-        .switchIfEmpty(storageBuilder.getEditor(storageId))
-        .flatMapObservable { storageBuilder.storage(it.storageId) }
-
-    override val navEvents = SingleLiveEvent<NavDirections>()
+    private val storageFlow = flow {
+        val storage = storageBuilder.load(storageId) ?: storageBuilder.getEditor(storageId)
+        emit(storage)
+    }.flatMapLatest { storageBuilder.storage(it.storageId) }
 
     init {
-        storageObs
+        storageFlow
             .map { data ->
+                log(TAG) { "Navigating to ${data.storageType}" }
                 when (data.storageType) {
                     Storage.Type.LOCAL -> StorageEditorFragmentDirections
                         .actionStorageEditorFragmentToLocalEditorFragment(storageId = data.storageId)
@@ -54,7 +55,8 @@ class StorageEditorFragmentVDC @Inject constructor(
                         .actionStorageEditorFragmentToTypeSelectionFragment(storageId = data.storageId)
                 }
             }
-            .subscribe { it.via(this) }
+            .onEach { it.navVia(this) }
+            .launchInViewModel()
     }
 
     companion object {

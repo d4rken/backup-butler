@@ -2,25 +2,24 @@ package eu.darken.bb.backup.ui.generator.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
-import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.navigation.NavEventsSource
-import eu.darken.bb.common.navigation.via
-import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.main.ui.MainFragmentDirections
-import timber.log.Timber
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 @HiltViewModel
 class GeneratorListFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val generatorRepo: GeneratorRepo,
-) : SmartVDC(), NavEventsSource {
+    dispatcherProvider: DispatcherProvider
+) : Smart2VDC(dispatcherProvider) {
 
     val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
         .map { repos ->
@@ -33,21 +32,19 @@ class GeneratorListFragmentVDC @Inject constructor(
                 }
             return@map ViewState(generators = refs)
         }
-        .asLiveData()
-
-    override val navEvents = SingleLiveEvent<NavDirections>()
+        .asLiveData2()
 
     fun newGenerator() {
         MainFragmentDirections.actionMainFragmentToGeneratorEditor()
-            .via(this)
+            .navVia(this)
     }
 
 
     fun editGenerator(generatorId: Generator.Id) {
-        Timber.tag(TAG).d("editGenerator(%s)", generatorId)
+        log(TAG) { "editGenerator(generatorId=$generatorId)" }
         MainFragmentDirections.actionMainFragmentToGeneratorsActionDialog(
             generatorId = generatorId,
-        ).via(this)
+        ).navVia(this)
     }
 
     data class ViewState(

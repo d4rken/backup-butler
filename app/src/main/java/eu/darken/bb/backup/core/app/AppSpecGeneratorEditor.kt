@@ -5,46 +5,47 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
-import eu.darken.bb.common.HotData
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class AppSpecGeneratorEditor @AssistedInject constructor(
     @Assisted private val generatorId: Generator.Id,
-    private val appSpecGenerator: AppSpecGenerator
+    private val appSpecGenerator: AppSpecGenerator,
+    @AppScope private val appScope: CoroutineScope,
 ) : GeneratorEditor {
 
-    private val editorDataPub = HotData { Data(generatorId = generatorId) }
-    override val editorData = editorDataPub.data
+    private val editorDataPub = DynamicStateFlow(TAG, appScope) { Data(generatorId = generatorId) }
+    override val editorData = editorDataPub.flow
 
-    override fun load(config: Generator.Config): Completable = Single.just(config as AppSpecGenerator.Config)
-        .flatMap { genSpec ->
-            require(generatorId == genSpec.generatorId) { "IDs don't match" }
-            editorDataPub.updateRx {
-                it.copy(
-                    generatorId = genSpec.generatorId,
-                    label = genSpec.label,
-                    isExistingGenerator = true,
-                    autoInclude = genSpec.autoInclude,
-                    includeUserApps = genSpec.includeUserApps,
-                    includeSystemApps = genSpec.includeSystemApps,
-                    packagesIncluded = genSpec.packagesIncluded,
-                    packagesExcluded = genSpec.packagesExcluded,
-                    backupApk = genSpec.backupApk,
-                    backupData = genSpec.backupData,
-                    backupCache = genSpec.backupCache,
-                    extraPaths = genSpec.extraPaths
-                )
-            }
+    override suspend fun load(config: Generator.Config): Unit {
+        val genSpec = config as AppSpecGenerator.Config
+        require(generatorId == genSpec.generatorId) { "IDs don't match" }
+        editorDataPub.updateBlocking {
+            copy(
+                generatorId = genSpec.generatorId,
+                label = genSpec.label,
+                isExistingGenerator = true,
+                autoInclude = genSpec.autoInclude,
+                includeUserApps = genSpec.includeUserApps,
+                includeSystemApps = genSpec.includeSystemApps,
+                packagesIncluded = genSpec.packagesIncluded,
+                packagesExcluded = genSpec.packagesExcluded,
+                backupApk = genSpec.backupApk,
+                backupData = genSpec.backupData,
+                backupCache = genSpec.backupCache,
+                extraPaths = genSpec.extraPaths
+            )
         }
-        .ignoreElement()
+    }
 
-    override fun save(): Single<out Generator.Config> = Single.fromCallable {
-        val data = editorDataPub.snapshot
+    override suspend fun save(): Generator.Config {
+        val data = editorDataPub.value()
 
         val config = AppSpecGenerator.Config(
             generatorId = data.generatorId,
@@ -60,21 +61,20 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
             extraPaths = data.extraPaths
         )
         val gens = appSpecGenerator.generate(config)
-        Timber.tag(logTag("###")).i("AppBackupSpecs: %s", gens)
-        return@fromCallable config
+        log(TAG) { "AppBackupSpecs: $gens" }
+        return config
     }
 
-    override fun release(): Completable = Completable.complete()
-
-    override fun isValid(): Observable<Boolean> = editorData.map { true }
-
-    fun updateLabel(label: String) {
-        editorDataPub.update { it.copy(label = label) }
+    override suspend fun release() {
+        log(TAG) { "release()" }
     }
 
-    fun update(update: (Data) -> Data) {
-        editorDataPub.update(update)
-    }
+    override fun isValid(): Flow<Boolean> = editorData.map { true }
+
+    suspend fun updateLabel(label: String) = editorDataPub.updateBlocking { copy(label = label) }
+
+    suspend fun update(update: suspend (Data) -> Data) = editorDataPub.updateBlocking(update)
+
 
     data class Data(
         override val generatorId: Generator.Id,
@@ -95,4 +95,8 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
     @AssistedFactory
     interface Factory : GeneratorEditor.Factory<AppSpecGeneratorEditor>
 
+
+    companion object {
+        private val TAG = logTag("Backup", "App", "Generator", "Editor")
+    }
 }

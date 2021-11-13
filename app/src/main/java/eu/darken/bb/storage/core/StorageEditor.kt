@@ -1,21 +1,19 @@
 package eu.darken.bb.storage.core
 
 import eu.darken.bb.common.files.core.APath
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface StorageEditor {
 
-    val editorData: Observable<out Data>
+    val editorData: Flow<out Data>
 
-    fun load(ref: Storage.Ref): Single<out Storage.Config>
+    suspend fun load(ref: Storage.Ref): Storage.Config
 
-    fun save(): Single<Pair<Storage.Ref, Storage.Config>>
+    suspend fun save(): Pair<Storage.Ref, Storage.Config>
 
-    fun isValid(): Observable<Boolean>
+    fun isValid(): Flow<Boolean>
 
-    fun abort(): Completable
+    suspend fun abort()
 
     interface Factory<EditorT : StorageEditor> {
         fun create(initialStorageId: Storage.Id): EditorT

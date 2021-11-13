@@ -12,14 +12,20 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.ui.ProcessorActivity
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
 class ProcessorNotifications @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val notificationManager: NotificationManager
+    private val notificationManager: NotificationManager,
+    @ProcessorScope private val processorScope: CoroutineScope,
 ) {
 
     companion object {
@@ -29,7 +35,7 @@ class ProcessorNotifications @Inject constructor(
     }
 
     private val builder: NotificationCompat.Builder
-    private var progressSub = Disposable.disposed()
+    private var progressJob: Job? = null
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -57,21 +63,22 @@ class ProcessorNotifications @Inject constructor(
     fun start(service: Service) {
         service.startForeground(NOTIFICATION_ID, builder.build())
 
-        progressSub.dispose()
+        progressJob?.cancel()
         if (service is Progress.Host) {
-            progressSub = service.progress
-                .distinct { it.primary }
-                .subscribe {
+            progressJob = service.progress
+                .distinctUntilChangedBy { it.primary }
+                .onEach {
                     builder.setContentTitle(it.primary.get(context))
                     builder.setStyle(NotificationCompat.BigTextStyle().bigText(it.secondary.get(context)))
                     Timber.tag(TAG).v("updatingNotification(): %s", it)
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
                 }
+                .launchIn(processorScope)
         }
     }
 
     fun stop(service: Service) {
-        progressSub.dispose()
+        progressJob?.cancel()
         service.stopForeground(true)
     }
 }

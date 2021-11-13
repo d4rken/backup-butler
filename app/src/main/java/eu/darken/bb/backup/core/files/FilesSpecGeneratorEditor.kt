@@ -8,48 +8,51 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorEditor
-import eu.darken.bb.common.HotData
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class FilesSpecGeneratorEditor @AssistedInject constructor(
     @Assisted val generatorId: Generator.Id,
     @ApplicationContext private val context: Context,
     moshi: Moshi,
     private val pathTool: GatewaySwitch,
-    private val safGateway: SAFGateway
+    private val safGateway: SAFGateway,
+    @AppScope private val appScope: CoroutineScope,
 ) : GeneratorEditor {
 
-    private val editorDataPub = HotData { Data(generatorId = generatorId) }
-    override val editorData = editorDataPub.data
+    private val editorDataPub = DynamicStateFlow(TAG, appScope) { Data(generatorId = generatorId) }
+    override val editorData = editorDataPub.flow
 
     private var originalPath: APath? = null
 
-    override fun load(config: Generator.Config): Completable = Single.just(config as FilesSpecGenerator.Config)
-        .subscribeOn(Schedulers.io())
-        .flatMap { genSpec ->
-            require(generatorId == genSpec.generatorId) { "IDs don't match" }
+    override suspend fun load(config: Generator.Config) {
+        config as FilesSpecGenerator.Config
 
-            originalPath = genSpec.path
+        require(generatorId == config.generatorId) { "IDs don't match" }
 
-            editorDataPub.updateRx {
-                it.copy(
-                    label = genSpec.label,
-                    isExistingGenerator = true,
-                    path = genSpec.path
-                )
-            }
+        originalPath = config.path
+
+        editorDataPub.updateBlocking {
+            copy(
+                label = config.label,
+                isExistingGenerator = true,
+                path = config.path
+            )
         }
-        .ignoreElement()
+        log(TAG) { "load() successful: $config" }
+    }
 
-    override fun save(): Single<out Generator.Config> = Single.fromCallable {
-        val data = editorDataPub.snapshot
+    override suspend fun save(): Generator.Config {
+        val data = editorDataPub.value()
 
         if (data.path != originalPath && originalPath is SAFPath) {
             originalPath?.let { safGateway.releasePermission(it as SAFPath) }
@@ -59,36 +62,40 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
             require(safGateway.takePermission(data.path)) { "We persisted the permission but it's still unavailable?!" }
         }
 
-        FilesSpecGenerator.Config(
+        val config = FilesSpecGenerator.Config(
             generatorId = data.generatorId,
             label = data.label,
             path = data.path!!
         )
-    }.subscribeOn(Schedulers.io())
+        log(TAG) { "save()'ed $config" }
+        return config
+    }
 
-    override fun release(): Completable = Completable.complete()
+    override suspend fun release() {
+        log(TAG) { "release()" }
+    }
 
-    override fun isValid(): Observable<Boolean> = editorData.map {
+    override fun isValid(): Flow<Boolean> = editorData.map {
         it.label.isNotEmpty() && it.path != null
     }
 
-    fun updateLabel(label: String): Completable = editorDataPub
-        .updateRx { it.copy(label = label) }
-        .ignoreElement()
-
-    fun updatePath(path: APath): Completable = Completable
-        .fromCallable {
-            val canRead = pathTool.canRead(path)
-            require(canRead) { "Can't read $path" }
+    suspend fun updateLabel(label: String) {
+        editorDataPub.updateBlocking {
+            copy(label = label)
         }
-        .subscribeOn(Schedulers.io())
-        .andThen(editorDataPub.updateRx {
-            it.copy(
+    }
+
+    suspend fun updatePath(path: APath) {
+        val canRead = pathTool.canRead(path)
+        require(canRead) { "Can't read $path" }
+
+        editorDataPub.updateBlocking {
+            copy(
                 path = path,
-                label = if (it.label == "") path.userReadablePath(context) else it.label
+                label = if (this.label == "") path.userReadablePath(context) else this.label
             )
-        })
-        .ignoreElement()
+        }
+    }
 
     data class Data(
         override val generatorId: Generator.Id,
@@ -100,5 +107,9 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory : GeneratorEditor.Factory<FilesSpecGeneratorEditor>
+
+    companion object {
+        private val TAG = logTag("Backup", "Files", "Generator", "Editor")
+    }
 
 }

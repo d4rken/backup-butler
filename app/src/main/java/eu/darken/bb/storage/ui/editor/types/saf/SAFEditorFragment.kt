@@ -11,13 +11,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferent
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
@@ -29,10 +29,10 @@ import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment), StorageEditorFragmentChild {
+class SAFEditorFragment : Smart2Fragment(R.layout.storage_editor_saf_fragment), StorageEditorFragmentChild {
 
-    private val vdc: SAFEditorFragmentVDC by viewModels()
-    private val ui: StorageEditorSafFragmentBinding by viewBinding()
+    override val vdc: SAFEditorFragmentVDC by viewModels()
+    override val ui: StorageEditorSafFragmentBinding by viewBinding()
     @Inject lateinit var adapter: StorageAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,18 +80,21 @@ class SAFEditorFragment : SmartFragment(R.layout.storage_editor_saf_fragment), S
         }
         vdc.openPickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
-        vdc.errorEvent.observe2(this) { error ->
-            val snackbar = Snackbar.make(
-                view,
-                error.localized(requireContext()).asText(),
-                Snackbar.LENGTH_LONG
-            )
+        onErrorEvent = { error ->
             if (error is ExistingStorageException) {
+                val snackbar = Snackbar.make(
+                    view,
+                    error.localized(requireContext()).asText(),
+                    Snackbar.LENGTH_LONG
+                )
                 snackbar.setAction(R.string.general_import_action) {
                     vdc.importStorage(error.path)
                 }
+                snackbar.show()
+                false
+            } else {
+                true
             }
-            snackbar.show()
         }
 
         vdc.finishEvent.observe2(this) {

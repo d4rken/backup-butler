@@ -11,28 +11,29 @@ import okio.Source
 import timber.log.Timber
 
 class GenericRefSource(
-    private val sourceGenerator: (Props) -> Source,
-    propGenerator: () -> Props
+    private val sourceGenerator: suspend (Props) -> Source,
+    private val propGenerator: suspend () -> Props
 ) : BaseRefSource() {
 
-    constructor(
-        gateway: GatewaySwitch,
-        path: APath,
-        label: String? = null,
-        providedProps: Props? = null
-    ) : this(
-        sourceGenerator = { path.read(gateway) },
-        propGenerator = { providedProps ?: path.lookup(gateway).toProps(label) }
-    )
+    // TODO caching
+    override suspend fun getProps() = propGenerator()
 
-    override val props: Props by lazy { propGenerator() }
-
-    override fun doOpen(): Source {
-        Timber.tag(TAG).v("Opening source for %s", props)
-        return sourceGenerator(props)
+    override suspend fun doOpen(): Source {
+        Timber.tag(TAG).v("Opening source for %s", getProps())
+        return sourceGenerator(getProps())
     }
 
     companion object {
         val TAG = logTag("MMDataRepo", "MMRef", "GenericRefSource")
+
+        fun create(
+            gateway: GatewaySwitch,
+            path: APath,
+            label: String? = null,
+            providedProps: Props? = null
+        ) = GenericRefSource(
+            sourceGenerator = { path.read(gateway) },
+            propGenerator = { providedProps ?: path.lookup(gateway).toProps(label) }
+        )
     }
 }

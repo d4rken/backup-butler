@@ -2,16 +2,23 @@ package eu.darken.bb.common
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import org.junit.jupiter.api.Test
 import testhelper.BaseTest
+import testhelper.coroutine.runBlockingTest2
 
-class SharedHolderTest : BaseTest() {
+class SharedHolder2Test2 : BaseTest() {
 
     @Test
-    fun `test init normal`() {
+    fun `test init normal`() = runBlockingTest2(allowUncompleted = true) {
         val testValue = Any()
-        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(testValue) })
+
+        val sr = SharedResource("tag", this, callbackFlow {
+            send(testValue)
+            awaitClose()
+        })
+
         sr.isAlive shouldBe false
 
         val token = sr.get()
@@ -19,21 +26,29 @@ class SharedHolderTest : BaseTest() {
         token.item shouldBe testValue
 
         token.close()
+
+        advanceUntilIdle()
+
         sr.isAlive shouldBe false
     }
 
     @Test
-    fun `test error while providing initial value`() {
+    fun `test error while providing initial value`() = runBlockingTest2(allowUncompleted = true) {
         shouldThrow<Exception> {
-            val sr = SharedHolder<Any>("tag", Observable.error(IllegalArgumentException()))
+            val sr = SharedResource(
+                "tag",
+                this,
+                callbackFlow<Any> { throw IllegalArgumentException() })
             sr.get()
         }
     }
 
-
     @Test
-    fun `test staggered close`() {
-        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test staggered close`() = runBlockingTest2(allowUncompleted = true) {
+        val sr = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
 
         val token1 = sr.get()
         val token2 = sr.get()
@@ -46,21 +61,30 @@ class SharedHolderTest : BaseTest() {
     }
 
     @Test
-    fun `test close all`() {
-        val sr = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test close all`() = runBlockingTest2(allowUncompleted = true) {
+        val sr = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
 
         sr.get()
         sr.get()
 
         sr.isAlive shouldBe true
-        sr.closeAll()
+        sr.close()
         sr.isAlive shouldBe false
     }
 
     @Test
-    fun `test child resource cascading close`() {
-        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
-        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test child resource cascading close`() = runBlockingTest2(allowUncompleted = true) {
+        val sr1 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
+        val sr2 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
 
         val token1 = sr1.get()
         val token2 = sr2.get()
@@ -74,9 +98,15 @@ class SharedHolderTest : BaseTest() {
     }
 
     @Test
-    fun `test child resource premature close`() {
-        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
-        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test child resource premature close`() = runBlockingTest2(allowUncompleted = true) {
+        val sr1 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
+        val sr2 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
 
         val token1 = sr1.get()
         val token2 = sr2.get()
@@ -93,9 +123,15 @@ class SharedHolderTest : BaseTest() {
     }
 
     @Test
-    fun `test child resource added to closed parent`() {
-        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
-        val sr2 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test child resource added to closed parent`() = runBlockingTest2(allowUncompleted = true) {
+        val sr1 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
+        val sr2 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
 
         val token2 = sr2.get()
         sr1.isAlive shouldBe false
@@ -107,8 +143,11 @@ class SharedHolderTest : BaseTest() {
     }
 
     @Test
-    fun `test accessing closed resource`() {
-        val sr1 = SharedHolder<Any>("tag", Observable.create { it.onNext(Any()) })
+    fun `test accessing closed resource`() = runBlockingTest2(allowUncompleted = true) {
+        val sr1 = SharedResource("tag", this, callbackFlow {
+            send(Any())
+            awaitClose()
+        })
         val token = sr1.get()
         token.item
         token.close()

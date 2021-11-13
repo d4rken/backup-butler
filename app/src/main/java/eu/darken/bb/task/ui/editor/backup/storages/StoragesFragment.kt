@@ -12,10 +12,9 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
 import eu.darken.bb.storage.ui.list.StorageAdapter
@@ -23,11 +22,11 @@ import eu.darken.bb.storage.ui.picker.StoragePickerListener
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StoragesFragment : SmartFragment(R.layout.task_editor_backup_storages_fragment), StoragePickerListener {
+class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fragment), StoragePickerListener {
 
     val navArgs by navArgs<StoragesFragmentArgs>()
-    private val ui: TaskEditorBackupStoragesFragmentBinding by viewBinding()
-    private val vdc: StoragesFragmentVDC by viewModels()
+    override val ui: TaskEditorBackupStoragesFragmentBinding by viewBinding()
+    override val vdc: StoragesFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: StorageAdapter
 
@@ -58,7 +57,6 @@ class StoragesFragment : SmartFragment(R.layout.task_editor_backup_storages_frag
             setupbar.buttonPositiveSecondary.isEnabled = state.destinations.isNotEmpty()
         }
 
-        vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.finishEvent.observe2(this) {
             findNavController().popBackStack(R.id.mainFragment, false)
         }

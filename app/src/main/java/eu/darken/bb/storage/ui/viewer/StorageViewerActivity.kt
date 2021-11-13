@@ -13,7 +13,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.navigation.isGraphSet
 import eu.darken.bb.common.observe2
 import eu.darken.bb.databinding.StorageViewerActivityBinding
@@ -43,7 +43,7 @@ class StorageViewerActivity : AppCompatActivity() {
         ui = StorageViewerActivityBinding.inflate(layoutInflater)
         setContentView(ui.root)
 
-        vdc.errorEvent.observe2(this) {
+        vdc.errorEvents.observe2(this) {
             Toast.makeText(this, it.localized(this).asText(), Toast.LENGTH_LONG).show()
         }
 

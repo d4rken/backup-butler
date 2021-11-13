@@ -5,6 +5,10 @@ import androidx.lifecycle.ViewModel
 import eu.darken.bb.common.debug.logging.logTag
 import timber.log.Timber
 
+/**
+ * ViewDataController
+ * Subjective rename of "ViewModel".
+ */
 abstract class VDC : ViewModel() {
     val tag: String = logTag("VDC", javaClass.simpleName)
 

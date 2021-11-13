@@ -1,26 +1,27 @@
 package eu.darken.bb.task.ui.editor
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.common.requirements.RequirementsManager
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskEditorFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
-    private val reqMan: RequirementsManager
-) : SmartVDC() {
+    private val reqMan: RequirementsManager,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs = handle.navArgs<TaskEditorFragmentArgs>()
 
@@ -37,43 +38,41 @@ class TaskEditorFragmentVDC @Inject constructor(
             }
         }
     }
-    private val taskObs = taskBuilder.getEditor(taskId, args.taskType)
-        .observeOn(Schedulers.computation())
-        .flatMapObservable { taskBuilder.task(it.taskId) }
-
-    val navEvents = SingleLiveEvent<NavDirections>()
+    private val taskBuilderFlow = flow { emit(taskBuilder.getEditor(taskId, args.taskType)) }
+        .flatMapConcat { taskBuilder.task(it.taskId) }
 
     init {
-        taskObs
-            .concatMapSingle { taskData ->
-                reqMan.reqsFor(taskData.taskType).map { reqs ->
-                    if (reqs.all { it.satisfied }) {
-                        when (taskData.taskType) {
-                            Task.Type.BACKUP_SIMPLE -> TaskEditorFragmentDirections.actionTaskEditorFragmentToIntroFragment(
-                                taskId = taskId
-                            )
-                            Task.Type.RESTORE_SIMPLE -> {
-                                val restoreData =
-                                    taskData.editor!!.editorData.blockingFirst() as SimpleRestoreTaskEditor.Data
-                                if (restoreData.backupTargets.size == 1) {
-                                    TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreConfigFragment(
-                                        taskId = taskId
-                                    )
-                                } else {
-                                    TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreSourcesFragment(
-                                        taskId = taskId
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        TaskEditorFragmentDirections.actionTaskEditorFragmentToRequirementsFragment(
+        taskBuilderFlow
+            .map { taskData ->
+                val reqs = reqMan.reqsFor(taskData.taskType)
+
+                if (reqs.all { it.satisfied }) {
+                    when (taskData.taskType) {
+                        Task.Type.BACKUP_SIMPLE -> TaskEditorFragmentDirections.actionTaskEditorFragmentToIntroFragment(
                             taskId = taskId
                         )
+                        Task.Type.RESTORE_SIMPLE -> {
+                            val restoreData =
+                                taskData.editor!!.editorData.first() as SimpleRestoreTaskEditor.Data
+                            if (restoreData.backupTargets.size == 1) {
+                                TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreConfigFragment(
+                                    taskId = taskId
+                                )
+                            } else {
+                                TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreSourcesFragment(
+                                    taskId = taskId
+                                )
+                            }
+                        }
                     }
+                } else {
+                    TaskEditorFragmentDirections.actionTaskEditorFragmentToRequirementsFragment(
+                        taskId = taskId
+                    )
                 }
             }
-            .subscribe { navEvents.postValue(it) }
+            .onEach { it.navVia(this@TaskEditorFragmentVDC) }
+            .launchInViewModel()
     }
 
     companion object {

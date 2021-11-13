@@ -1,4 +1,4 @@
-package eu.darken.bb.common.errors
+package eu.darken.bb.common.error
 
 import android.content.Context
 import eu.darken.bb.common.R

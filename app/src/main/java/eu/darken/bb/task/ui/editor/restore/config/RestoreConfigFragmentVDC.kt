@@ -9,20 +9,18 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,13 +33,12 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val navArgs by handle.navArgs<RestoreConfigFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
-    private val editorObs = taskBuilder.task(taskId)
-        .observeOn(Schedulers.computation())
-        .filter { it.editor != null }
+    private val editorFlow = taskBuilder.task(taskId)
+        .filterNotNull()
         .map { it.editor as SimpleRestoreTaskEditor }
 
-    private val dataObs = editorObs.flatMap { it.editorData }
-    private val configWraps = editorObs.flatMap { it.configWraps }
+    private val dataFlow = editorFlow.flatMapConcat { it.editorData }
+    private val configWraps = editorFlow.flatMapConcat { it.configWraps }
 
     private val summaryStater = Stater { SummaryState() }
     val summaryState = summaryStater.liveData
@@ -57,8 +54,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
 
     init {
         // Config wraps for item types (defaults, e.g. default for file store)
-        dataObs
-            .subscribe { data ->
+        dataFlow
+            .onEach { data ->
                 val customCount = data.customConfigs
                     .filterNot { data.defaultConfigs.values.contains(it.value) }
                     .size
@@ -86,11 +83,11 @@ class RestoreConfigFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
         // Config wraps for specific items
         configWraps
-            .subscribe { customConfigs ->
+            .onEach { customConfigs ->
                 val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
                 summaryStater.update { it.copy(configsWithIssues = issueCount) }
                 configStater.update { state ->
@@ -100,57 +97,49 @@ class RestoreConfigFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun updateConfig(config: Restore.Config, target: Backup.Id? = null) {
-        editorObs.firstOrError()
-            .observeOn(Schedulers.computation())
-            .concatMap { editor ->
-                if (target == null) {
-                    editor.updateDefaultConfig(config)
-                } else {
-                    editor.updateCustomConfig(target) { config }
-                }
-            }
-            .subscribe()
+    fun updateConfig(config: Restore.Config, target: Backup.Id? = null) = launch {
+        val editor = editorFlow.first()
+        if (target == null) {
+            editor.updateDefaultConfig(config)
+        } else {
+            editor.updateCustomConfig(target) { config }
+        }
     }
 
     fun pathAction(configWrapper: SimpleRestoreTaskEditor.FilesConfigWrap, target: Backup.Id) {
-        Timber.tag(TAG).d("updatePath(generator=%s, target=%s)", configWrapper, target)
+        log(TAG) { "updatePath(generator=$configWrapper, target=$target)" }
         openPickerEvent.postValue(PathPickerOptions(
             startPath = configWrapper.currentPath,
             payload = Bundle().apply { putParcelable("backupId", target) }
         ))
     }
 
-    fun updatePath(result: PathPickerResult) {
-        Timber.tag(TAG).d("updatePath(result=%s)", result)
-        if (result.isCanceled) return
+    fun updatePath(result: PathPickerResult) = launch {
+        log(TAG) { "updatePath(result=$result)" }
+        if (result.isCanceled) return@launch
         if (result.isFailed) {
             errorEvent.postValue(result.error!!)
-            return
+            return@launch
         }
         result.options.payload.classLoader = this.javaClass.classLoader
         val backupId: Backup.Id = result.options.payload.getParcelable("backupId")!!
-        editorObs.firstOrError()
-            .observeOn(Schedulers.computation())
-            .concatMap { it.updatePath(backupId, result.selection!!.first()) }
-            .subscribe()
+        val editor = editorFlow.first()
+        editor.updatePath(backupId, result.selection!!.first())
     }
 
-    private fun save(execute: Boolean) {
-        editorObs.latest()
-            .observeOn(Schedulers.computation())
-            .flatMap { it.updateOneTime(execute) }
-            .flatMap { taskBuilder.save(taskId) }
-            .doOnSubscribe {
-                configStater.update { it.copy(isWorking = true) }
-            }
-            .subscribe { savedTask ->
-                if (execute) processorControl.submit(savedTask)
-                finishEvent.postValue(Any())
-            }
+    private fun save(execute: Boolean) = launch {
+        configStater.update { it.copy(isWorking = true) }
+        val editor = editorFlow.first()
+        editor.updateOneTime(execute)
+
+        val savedTask = taskBuilder.save(taskId)
+
+        if (execute) processorControl.submit(savedTask)
+
+        finishEvent.postValue(Any())
     }
 
     fun runTask() {

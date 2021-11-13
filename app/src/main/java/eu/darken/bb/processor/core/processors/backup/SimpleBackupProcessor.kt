@@ -8,11 +8,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.progress.*
-import eu.darken.bb.common.rx.blockingGet2
-import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.storage.core.StorageManager
@@ -20,7 +21,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.backup.SimpleBackupTask
 import eu.darken.bb.task.core.results.LogEvent
 import eu.darken.bb.task.core.results.SimpleResult
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -31,12 +32,16 @@ class SimpleBackupProcessor @AssistedInject constructor(
     private val generators: @JvmSuppressWildcards Map<Backup.Type, Generator>,
     private val mmDataRepo: MMDataRepo,
     private val generatorRepo: GeneratorRepo,
-    private val storageManager: StorageManager
-) : SimpleBaseProcessor(context, progressParent) {
+    private val storageManager: StorageManager,
+    @ProcessorScope private val processorScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
+) : SimpleBaseProcessor(context, progressParent, processorScope, dispatcherProvider) {
 
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)
+    override fun updateProgress(update: suspend Progress.Data.() -> Progress.Data) = progressParent.updateProgress(
+        update
+    )
 
-    override fun doProcess(task: Task) {
+    override suspend fun doProcess(task: Task) {
         updateProgressPrimary(task.taskType.labelRes)
         updateProgressSecondary(task.label)
 
@@ -48,8 +53,9 @@ class SimpleBackupProcessor @AssistedInject constructor(
         val endpointCache = mutableMapOf<Backup.Type, Backup.Endpoint>()
 
         task.sources.forEach { generatorId ->
-            val generatorConfig = generatorRepo.get(generatorId).blockingGet2()
+            val generatorConfig = generatorRepo.get(generatorId)
             requireNotNull(generatorConfig) { "Can't find generator config for $generatorId" }
+
             // TODO what if the config has been deleted?
 
             val backupConfigs = generators.getValue(generatorConfig.generatorType).generate(generatorConfig)
@@ -57,12 +63,12 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 updateProgressTertiary { config.getLabel(it) }
 
                 val endpoint = endpointCache.getOrPut(config.backupType) {
-                    backupEndpointFactories.getValue(config.backupType).get().keepAliveWIth(this)
+                    backupEndpointFactories.getValue(config.backupType).get().keepAliveWith(this)
                 }
                 Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
                 val logEvents = mutableListOf<LogEvent>()
-                val backupUnit = endpoint.forwardProgressTo(progressChild).withScopeThis {
+                val backupUnit = endpoint.forwardProgressTo(progressChild).launchForAction(processorScope) {
                     endpoint.backup(config) {
                         logEvents.add(it)
                     }
@@ -72,10 +78,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
 
                 task.destinations.forEach { storageId ->
                     // TODO what if the storage has been deleted?
-                    val storage = storageManager
-                        .getStorage(storageId)
-                        .observeOn(Schedulers.computation())
-                        .blockingGet()
+                    val storage = storageManager.getStorage(storageId)
                     storage.keepAliveWith(this)
                     Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
 
@@ -83,7 +86,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                     try {
                         subResultBuilder.label(backupUnit.spec.getLabel(context)) // If there are errors before getting a better label
 
-                        val result = storage.forwardProgressTo(progressChild).withScopeThis {
+                        val result = storage.forwardProgressTo(progressChild).launchForAction(processorScope) {
                             storage.save(backupUnit)
                         }
 
@@ -104,7 +107,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         }
     }
 
-    override fun onCleanup() {
+    override suspend fun onCleanup() {
         mmDataRepo.releaseAll()
         super.onCleanup()
     }

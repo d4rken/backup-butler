@@ -1,91 +1,92 @@
 package eu.darken.bb.task.ui.editor.restore.sources
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
-import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class RestoreSourcesFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val taskBuilder: TaskBuilder
-) : SmartVDC() {
+    private val taskBuilder: TaskBuilder,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<RestoreSourcesFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
-    private val editorObs = taskBuilder.task(taskId)
-        .observeOn(Schedulers.computation())
+    private val editorFlow = taskBuilder.task(taskId)
         .filter { it.editor != null }
         .map { it.editor as SimpleRestoreTaskEditor }
-        .replayingShare()
+        .replayingShare(vdcScope)
 
-    private val editorData = editorObs.flatMap { it.editorData }
-        .replayingShare()
+    private val editorData = editorFlow
+        .flatMapConcat { it.editorData }
+        .replayingShare(vdcScope)
 
-    private val editor: SimpleRestoreTaskEditor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor(): SimpleRestoreTaskEditor = editorFlow.first()
 
-    private val summaryStater = Stater { CountState() }
-    val summaryState = summaryStater.liveData
+    private val summaryStater = DynamicStateFlow(TAG, vdcScope) { CountState() }
+    val summaryState = summaryStater.asLiveData2()
 
-    private val backupsStater = Stater { BackupsState() }
-    val backupsState = backupsStater.liveData
+    private val backupsStater = DynamicStateFlow(TAG, vdcScope) { BackupsState() }
+    val backupsState = backupsStater.asLiveData2()
 
-    val navEvents = SingleLiveEvent<NavDirections>()
     val finishEvent = SingleLiveEvent<Any>()
 
     init {
         editorData
-            .subscribe { data ->
+            .onEach { data ->
                 if (data.backupTargets.isEmpty()) {
                     finishEvent.postValue(Any())
                 } else {
-                    summaryStater.update { oldState ->
-                        oldState.copy(
+                    summaryStater.updateBlocking {
+                        copy(
                             sourceBackups = data.backupTargets.toList(),
-                            workIds = oldState.clearWorkId()
+                            workIds = this.clearWorkId()
                         )
                     }
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
-        editor.backupInfos
-            .subscribe { backupInfos ->
-                backupsStater.update { oldState ->
-                    oldState.copy(
+        flow { emit(getEditor()) }
+            .flatMapConcat { it.backupInfos }
+            .onEach { backupInfos ->
+                backupsStater.updateBlocking {
+                    copy(
                         backups = backupInfos.toList(),
-                        workIds = oldState.clearWorkId()
+                        workIds = this.clearWorkId()
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun exclude(infoOpt: Backup.InfoOpt) {
+    fun exclude(infoOpt: Backup.InfoOpt) = launch {
         Timber.tag(TAG).i("Excluding %s", infoOpt)
-        editor.excludeBackup(infoOpt.backupId)
+        getEditor().excludeBackup(infoOpt.backupId)
     }
 
     fun continueWithSources() {
         RestoreSourcesFragmentDirections.actionRestoreSourcesFragmentToRestoreConfigFragment(
             taskId = navArgs.taskId
-        ).run { navEvents.postValue(this) }
+        ).navVia(this)
     }
 
     data class CountState(

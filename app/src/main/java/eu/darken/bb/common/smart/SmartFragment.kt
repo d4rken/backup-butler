@@ -8,11 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavDirections
 import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.navigation.doNavigate
 
 
 abstract class SmartFragment(@LayoutRes val layoutRes: Int?) : Fragment(layoutRes ?: 0) {
@@ -81,11 +79,5 @@ abstract class SmartFragment(@LayoutRes val layoutRes: Int?) : Fragment(layoutRe
 
     fun invalidateOptionsMenu() {
         requireActivity().invalidateOptionsMenu()
-    }
-
-    fun finishActivity() = requireActivity().finish()
-
-    fun NavDirections.navigateTo() {
-        doNavigate(this)
     }
 }

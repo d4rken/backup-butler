@@ -4,10 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import eu.darken.bb.common.SingleLiveEvent
 
-fun NavDirections.via(pub: MutableLiveData<in NavDirections>) = pub.postValue(this)
+fun NavDirections.navVia(pub: MutableLiveData<in NavDirections>) = pub.postValue(this)
 
-fun NavDirections.via(provider: NavEventsSource) = this.via(provider.navEvents)
+fun NavDirections.navVia(provider: NavEventSource) = this.navVia(provider.navEvents)
 
-interface NavEventsSource {
+interface NavEventSource {
     val navEvents: SingleLiveEvent<in NavDirections>
 }

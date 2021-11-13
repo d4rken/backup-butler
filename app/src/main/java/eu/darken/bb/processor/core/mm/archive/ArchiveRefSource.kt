@@ -8,6 +8,9 @@ import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.processor.core.mm.generic.DirectoryProps
 import eu.darken.bb.processor.core.mm.generic.FileProps
 import eu.darken.bb.processor.core.mm.generic.SymlinkProps
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import okio.Pipe
 import okio.Source
 import okio.buffer
@@ -21,33 +24,24 @@ import timber.log.Timber
 import java.io.File
 import kotlin.concurrent.thread
 
-open class ArchiveRefSource(
-    private val sourceGenerator: (ArchiveProps) -> Source,
-    propGenerator: () -> ArchiveProps
+class ArchiveRefSource(
+    private val sourceGenerator: suspend (ArchiveProps) -> Source,
+    private val propGenerator: suspend () -> ArchiveProps
 ) : BaseRefSource(), ArchiveRef {
 
-    constructor(
-        gateway: GatewaySwitch,
-        label: String?,
-        archivePath: APath,
-        targets: List<APathLookup<APath>>
-    ) : this(
-        sourceGenerator = genArchive(gateway, targets),
-        propGenerator = genProps(label, archivePath)
-    )
+    // TODO add caching
+    override suspend fun getProps(): ArchiveProps = propGenerator()
 
-    override val props: ArchiveProps by lazy { propGenerator() }
-
-    override fun doOpen(): Source {
-        Timber.tag(TAG).v("Opening source for %s", props)
-        return sourceGenerator(props)
+    override suspend fun doOpen(): Source {
+        Timber.tag(TAG).v("Opening source for %s", getProps())
+        return sourceGenerator(getProps())
     }
 
-    override fun openArchive(): Sequence<Pair<Props, Source?>> = sequence {
-        val archiveInputStream = if (props.archiveType == "tar" && props.compressionType == "gzip") {
+    override suspend fun extract(): Flow<Pair<Props, Source?>> = flow {
+        val archiveInputStream = if (getProps().archiveType == "tar" && getProps().compressionType == "gzip") {
             TarArchiveInputStream(GzipCompressorInputStream(open().buffer().inputStream()))
         } else {
-            throw UnsupportedOperationException("archiveType=${props.archiveType} and compressionType=${props.compressionType} are not supported")
+            throw UnsupportedOperationException("archiveType=${getProps().archiveType} and compressionType=${getProps().compressionType} are not supported")
         }.also { resources.add(it) }
 
         archiveInputStream.use {
@@ -87,7 +81,7 @@ open class ArchiveRefSource(
                 lastDataStream = dataStream
 
                 Timber.tag(TAG).v("Compressing ${entry.name}")
-                yield(Pair(props, dataStream))
+                emit(Pair(props, dataStream))
             }
         }
     }
@@ -95,27 +89,37 @@ open class ArchiveRefSource(
     companion object {
         val TAG = logTag("MMDataRepo", "MMRef", "ArchiveRefSource")
 
-        internal fun genProps(label: String?, archivePath: APath): () -> ArchiveProps {
-            return {
-                ArchiveProps(
-                    label = label,
-                    originalPath = if (archivePath is APathLookup<*>) archivePath.lookedUp as APath? else archivePath,
-                    archiveType = "tar",
-                    compressionType = "gzip"
-                )
-            }
+        fun create(
+            gateway: GatewaySwitch,
+            label: String?,
+            archivePath: APath,
+            targets: List<APathLookup<APath>>
+        ) = ArchiveRefSource(
+            sourceGenerator = genArchive(gateway, targets),
+            propGenerator = genProps(label, archivePath)
+        )
+
+        private fun genProps(label: String?, archivePath: APath): suspend () -> ArchiveProps = {
+            ArchiveProps(
+                label = label,
+                originalPath = if (archivePath is APathLookup<*>) archivePath.lookedUp as APath? else archivePath,
+                archiveType = "tar",
+                compressionType = "gzip"
+            )
         }
 
-        internal fun <PathType : APath, GateType : APathGateway<in PathType, out APathLookup<PathType>>> genArchive(
+        private fun <PathType : APath, GateType : APathGateway<in PathType, out APathLookup<PathType>>> genArchive(
             gateway: GateType,
             targets: List<APathLookup<PathType>>
-        ): (ArchiveProps) -> Source = genfun@{ props ->
+        ): suspend (ArchiveProps) -> Source = genfun@{ props ->
             val pipe = Pipe(8192)
             val out = TarArchiveOutputStream(GzipCompressorOutputStream(pipe.sink.buffer().outputStream())).apply {
                 setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
                 setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
                 setAddPaxHeadersForNonAsciiNames(true)
             }
+
+            // TODO Can we make this more kotlinish?
             thread(name = "Archiver Thread") {
                 try {
                     out.use {
@@ -163,14 +167,17 @@ open class ArchiveRefSource(
                                 throw e
                             }
                             if (p.fileType == FileType.FILE) {
-                                gateway.read(p.lookedUp).use {
-                                    it.buffer().inputStream().copyTo(out)
+                                runBlocking {
+                                    gateway.read(p.lookedUp).use {
+                                        it.buffer().inputStream().copyTo(out)
+                                    }
                                 }
                             }
                             out.closeArchiveEntry()
                         }
                     }
                 } catch (e: Exception) {
+                    // TODO should we rethrow to caller somehow?
                     Timber.tag(TAG).e(e, "Archiving of $props failed")
                 }
             }

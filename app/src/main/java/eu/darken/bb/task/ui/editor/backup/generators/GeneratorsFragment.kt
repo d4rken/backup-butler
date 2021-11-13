@@ -14,21 +14,20 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupGeneratorsFragmentBinding
 import javax.inject.Inject
 import javax.inject.Provider
 
 @AndroidEntryPoint
-class GeneratorsFragment : SmartFragment(R.layout.task_editor_backup_generators_fragment), GeneratorPickerListener {
+class GeneratorsFragment : Smart2Fragment(R.layout.task_editor_backup_generators_fragment), GeneratorPickerListener {
 
     val navArgs by navArgs<GeneratorsFragmentArgs>()
-    private val ui: TaskEditorBackupGeneratorsFragmentBinding by viewBinding()
-    private val vdc: GeneratorsFragmentVDC by viewModels()
+    override val ui: TaskEditorBackupGeneratorsFragmentBinding by viewBinding()
+    override val vdc: GeneratorsFragmentVDC by viewModels()
 
     @Inject lateinit var adapter: GeneratorListAdapter
     @Inject lateinit var pickerAdapterProvider: Provider<GeneratorListAdapter>
@@ -54,7 +53,6 @@ class GeneratorsFragment : SmartFragment(R.layout.task_editor_backup_generators_
             adapter.update(state.sources)
             setupbar.buttonPositiveSecondary.isEnabled = state.sources.isNotEmpty()
         }
-        vdc.navEvents.observe2(this) { doNavigate(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 

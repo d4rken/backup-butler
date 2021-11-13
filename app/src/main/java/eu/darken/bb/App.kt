@@ -12,6 +12,8 @@ import eu.darken.bb.main.core.LanguageEnforcer
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.workers.InjectionWorkerFactory
 import eu.darken.rxshell.extra.RXSDebug
+import kotlinx.coroutines.DEBUG_PROPERTY_NAME
+import kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,7 +29,10 @@ open class App : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
+        // TODO move code somewhere else
         if (BBDebug.isDebug()) {
+            System.setProperty(DEBUG_PROPERTY_NAME, DEBUG_PROPERTY_VALUE_ON)
+            DEBUG_PROPERTY_NAME
             RXSDebug.setDebug(true)
             Logging.install(LogCatLogger())
             // TODO remove aber migrating to Logging.kt wrapper

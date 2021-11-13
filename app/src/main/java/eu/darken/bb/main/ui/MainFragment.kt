@@ -9,17 +9,16 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.MainFragmentBinding
 import eu.darken.bb.settings.ui.SettingsActivity
 
 @AndroidEntryPoint
-class MainFragment : SmartFragment(R.layout.main_fragment) {
-    val vdc: MainFragmentVDC by viewModels()
-    val ui: MainFragmentBinding by viewBinding()
+class MainFragment : Smart2Fragment(R.layout.main_fragment) {
+    override val vdc: MainFragmentVDC by viewModels()
+    override val ui: MainFragmentBinding by viewBinding()
 
     lateinit var adapter: MainPagerAdapter
 
@@ -49,8 +48,6 @@ class MainFragment : SmartFragment(R.layout.main_fragment) {
                 vdc.updateCurrentPage(position)
             }
         })
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         ui.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {

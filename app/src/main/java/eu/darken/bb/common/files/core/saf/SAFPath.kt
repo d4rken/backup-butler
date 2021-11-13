@@ -12,6 +12,7 @@ import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.io.IOException
 
+@Suppress("BlockingMethodInNonBlockingContext")
 @Keep @Parcelize
 @JsonClass(generateAdapter = true)
 data class SAFPath(
@@ -58,28 +59,28 @@ data class SAFPath(
     }
 
     @Throws(IOException::class)
-    fun lookup(gateway: SAFGateway): SAFPathLookup = gateway.lookup(this)
+    suspend fun lookup(gateway: SAFGateway): SAFPathLookup = gateway.lookup(this)
 
     @Throws(IOException::class)
-    fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
+    suspend fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
 
     @Throws(IOException::class)
-    fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
+    suspend fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
 
     @Throws(IOException::class)
-    fun canRead(gateway: SAFGateway) = gateway.canRead(this)
+    suspend fun canRead(gateway: SAFGateway) = gateway.canRead(this)
 
     @Throws(IOException::class)
-    fun delete(gateway: SAFGateway): Boolean = gateway.delete(this)
+    suspend fun delete(gateway: SAFGateway): Boolean = gateway.delete(this)
 
     @Throws(IOException::class)
-    fun exists(gateway: SAFGateway): Boolean = gateway.exists(this)
+    suspend fun exists(gateway: SAFGateway): Boolean = gateway.exists(this)
 
     @Throws(IOException::class)
-    fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
+    suspend fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
 
     @Throws(IOException::class)
-    fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
+    suspend fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "SAFFile(treeRoot=$treeRoot, crumbs=$crumbs)"
 

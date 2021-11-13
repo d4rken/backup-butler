@@ -15,15 +15,19 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
 import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.BuildConfigWrap
-import eu.darken.bb.common.HotData
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.logging.Logging
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.core.Observable
+import eu.darken.bb.common.flow.DynamicStateFlow
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.runBlocking
 import rxdogtag2.RxDogTag
 import timber.log.Timber
 import java.io.InterruptedIOException
@@ -33,22 +37,26 @@ import javax.inject.Singleton
 @Singleton
 class BBDebug @Inject constructor(
     @ApplicationContext private val context: Context,
+    @DebugScope private val debugScope: CoroutineScope,
     moduleFactories: Set<@JvmSuppressWildcards DebugModule.Factory<out DebugModule>>,
     private val generalSettings: GeneralSettings,
     private val installId: InstallId,
     private val errorHandlerSrc: Lazy<BugsnagErrorHandler>,
     private val noopHandlerSrc: Lazy<NOPBugsnagErrorHandler>,
-    private val bugsnagTreeSrc: Lazy<BugsnagLogger>
+    private val bugsnagTreeSrc: Lazy<BugsnagLogger>,
 ) : DebugModuleHost {
 
+    // TODO provide better scope? limited dispatcher?
     private var preferences: SharedPreferences = context.getSharedPreferences("debug_settings", Context.MODE_PRIVATE)
-    private val optionsUpdater = HotData(tag = TAG) { DebugOptions.default() }
+    private val optionsUpdater = DynamicStateFlow(TAG, debugScope) { DebugOptions.default() }
     private val modules = mutableSetOf<DebugModule>()
 
     init {
         RxDogTag.builder().install()
 
-        observeOptions().subscribe { Timber.tag(TAG).d("Updated debug options: $it") }
+        observeOptions()
+            .onEach { Timber.tag(TAG).d("Updated debug options: $it") }
+            .launchIn(debugScope)
 
         if (BuildConfig.DEBUG) {
             val builder = StrictMode.VmPolicy.Builder()
@@ -123,16 +131,16 @@ class BBDebug @Inject constructor(
         Bugsnag.start(context, config)
     }
 
-    override fun observeOptions(): Observable<DebugOptions> = optionsUpdater.data
+    override fun observeOptions(): Flow<DebugOptions> = optionsUpdater.flow
 
     override fun getSettings(): SharedPreferences = preferences
 
     @SuppressLint("LogNotTimber")
-    override fun submit(update: (DebugOptions) -> DebugOptions) {
-        optionsUpdater.update(update)
+    override fun submit(update: suspend (DebugOptions) -> DebugOptions) {
+        optionsUpdater.updateAsync(onUpdate = update)
     }
 
-    fun isDebug(): Boolean = optionsUpdater.snapshot.isDebug()
+    fun isDebug(): Boolean = runBlocking { optionsUpdater.value().isDebug() }
 
     fun setRecording(recording: Boolean) {
         submit { it.copy(level = Log.VERBOSE, isRecording = recording) }

@@ -7,6 +7,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.migration.DisableInstallInCheck
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.plus
 import javax.inject.Singleton
 
 /**
@@ -20,7 +23,7 @@ class RootModule {
     @Singleton
     @RootProcessShell
     fun sharedShell(): SharedShell {
-        return SharedShell(JavaRootHost.TAG)
+        return SharedShell(JavaRootHost.TAG, GlobalScope + Dispatchers.IO)
     }
 
     @Provides

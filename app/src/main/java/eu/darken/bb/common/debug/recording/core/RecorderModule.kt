@@ -11,24 +11,27 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
+import eu.darken.bb.common.debug.DebugScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.startServiceCompat
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.io.File
 
 class RecorderModule @AssistedInject constructor(
     @Assisted private val host: DebugModuleHost,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @DebugScope private val debugScope: CoroutineScope,
 ) : DebugModule {
 
     private var recorder: Recorder? = null
 
     init {
         host.observeOptions()
-            .observeOn(Schedulers.computation())
-            .subscribe { options ->
+            .onEach { options ->
                 if (recorder == null && options.isRecording) {
                     recorder = Recorder()
 
@@ -50,6 +53,7 @@ class RecorderModule @AssistedInject constructor(
                     host.submit { it.copy(recorderPath = null) }
                 }
             }
+            .launchIn(debugScope)
 
         var recorderPath: String? = null
         if (host.getSettings().contains(KEY_RECORDER_PATH)) {

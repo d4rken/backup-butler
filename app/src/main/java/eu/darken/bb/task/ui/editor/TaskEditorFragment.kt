@@ -1,18 +1,14 @@
 package eu.darken.bb.task.ui.editor
 
-import android.os.Bundle
 import androidx.fragment.app.viewModels
+import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import eu.darken.bb.common.navigation.doNavigate
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 
 @AndroidEntryPoint
-class TaskEditorFragment : SmartFragment() {
+class TaskEditorFragment : Smart2Fragment() {
 
-    private val vdc: TaskEditorFragmentVDC by viewModels()
+    override val vdc: TaskEditorFragmentVDC by viewModels()
+    override val ui: ViewBinding? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        vdc.navEvents.observe(this) { doNavigate(it) }
-    }
 }

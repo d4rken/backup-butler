@@ -13,7 +13,7 @@ import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.schedulers.Schedulers

@@ -20,7 +20,7 @@ class AppSpecGenerator @Inject constructor(
     private val pkgOps: PkgOps
 ) : Generator {
 
-    override fun generate(config: Generator.Config): Collection<BackupSpec> {
+    override suspend fun generate(config: Generator.Config): Collection<BackupSpec> {
         config as Config
         val specs = mutableListOf<AppBackupSpec>()
 

@@ -34,7 +34,7 @@ class ModeStepFragment : SmartFragment(R.layout.onboarding_step_mode_fragment) {
 
         vdc.finishOnboardingEvent.observe2(this) {
             startActivity(Intent(requireActivity(), MainActivity::class.java))
-            finishActivity()
+            requireActivity().finish()
         }
 
         super.onViewCreated(view, savedInstanceState)

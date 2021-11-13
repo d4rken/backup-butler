@@ -4,117 +4,105 @@ import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.errors.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.files.ui.picker.local.LocalPickerFragmentVDC
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
-import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.local.LocalStorageEditor
 import eu.darken.bb.storage.ui.editor.StorageEditorResult
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class LocalEditorFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val builder: StorageBuilder
-) : SmartVDC() {
+    private val builder: StorageBuilder,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<LocalEditorFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater { State() }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     private val editorObs = builder.storage(storageId)
-        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as LocalStorageEditor }
 
-    private val editorDataObs = editorObs.switchMap { it.editorData }
+    private val editorDataObs = editorObs.flatMapConcat { it.editorData }
 
-    private val editor: LocalStorageEditor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor(): LocalStorageEditor = editorObs.first()
 
     val requestPermissionEvent = SingleLiveEvent<Permission>()
 
-    val errorEvent = SingleLiveEvent<Throwable>()
     val pickerEvent = SingleLiveEvent<PathPickerOptions>()
     val finishEvent = SingleLiveEvent<StorageEditorResult>()
 
     init {
         editorDataObs
-            .subscribe { editorData ->
-                stater.update { state ->
-                    state.copy(
+            .onEach { editorData ->
+                stater.updateBlocking {
+                    copy(
                         label = editorData.label,
                         path = editorData.refPath?.path ?: "",
                         isWorking = false,
                         isExisting = editorData.existingStorage,
-                        missingPermissions = editor.getMissingPermissions()
+                        missingPermissions = getEditor().getMissingPermissions()
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
         editorObs
-            .switchMap { it.isValid() }
-            .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
-            .withScopeVDC(this)
+            .flatMapConcat { it.isValid() }
+            .onEach { isValid: Boolean -> stater.updateBlocking { copy(isValid = isValid) } }
+            .launchInViewModel()
     }
 
-    fun updateName(label: String) {
+    fun updateName(label: String) = launch {
         Timber.tag(TAG).v("Updating label: %s", label)
-        editor.updateLabel(label)
+        getEditor().updateLabel(label)
     }
 
-    fun updatePath(result: PathPickerResult) {
+    fun updatePath(result: PathPickerResult) = launch {
         log { "updatePath=$result" }
-        if (result.isCanceled) return
+        if (result.isCanceled) return@launch
         if (result.isFailed) {
-            errorEvent.postValue(result.error!!)
-            return
+            errorEvents.postValue(result.error!!)
+            return@launch
         }
 
         val path: LocalPath = result.selection!!.first() as LocalPath
         log { "Updating path: $path " }
-        editor.updatePath(path, false)
-            .observeOn(Schedulers.computation())
-            .subscribe { _, error: Throwable? ->
-                if (error != null) errorEvent.postValue(error.getRootCause())
-            }
+        getEditor().updatePath(path, false)
     }
 
-    fun importStorage(path: APath) {
+    fun importStorage(path: APath) = launch {
         log { "importStorage=$path" }
         path as LocalPath
-        editor.updatePath(path, true)
-            .observeOn(Schedulers.computation())
-            .subscribe { _, error: Throwable? ->
-                if (error != null) errorEvent.postValue(error.getRootCause())
-            }
+        getEditor().updatePath(path, true)
     }
 
-    fun selectPath() {
-        editorDataObs.latest().subscribe { data ->
-            pickerEvent.postValue(PathPickerOptions(
-                startPath = data.refPath,
-                allowedTypes = setOf(APath.PathType.LOCAL),
-                payload = Bundle().apply {
-                    putString(LocalPickerFragmentVDC.ARG_MODE, LocalGateway.Mode.NORMAL.name)
-                }
-            ))
-        }
+    fun selectPath() = launch {
+        val data = editorDataObs.first()
+        pickerEvent.postValue(PathPickerOptions(
+            startPath = data.refPath,
+            allowedTypes = setOf(APath.PathType.LOCAL),
+            payload = Bundle().apply {
+                putString(LocalPickerFragmentVDC.ARG_MODE, LocalGateway.Mode.NORMAL.name)
+            }
+        ))
     }
 
     fun requestPermission(permission: Permission) {
@@ -122,22 +110,17 @@ class LocalEditorFragmentVDC @Inject constructor(
         requestPermissionEvent.postValue(permission)
     }
 
-    fun onUpdatePermission(permission: Permission) {
+    fun onUpdatePermission(permission: Permission) = launch {
         log { "onUpdatePermission=$permission" }
-        stater.update { it.copy(missingPermissions = editor.getMissingPermissions()) }
+        stater.updateBlocking { copy(missingPermissions = getEditor().getMissingPermissions()) }
     }
 
-    fun saveConfig() {
-        builder.save(storageId)
-            .observeOn(Schedulers.computation())
-            .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-            .subscribe { ref, error: Throwable? ->
-                if (error != null) {
-                    errorEvent.postValue(error.getRootCause())
-                } else {
-                    finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
-                }
-            }
+    fun saveConfig() = launch {
+        stater.updateBlocking { copy(isWorking = true) }
+
+        val ref = builder.save(storageId)
+
+        finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
     }
 
     data class State(

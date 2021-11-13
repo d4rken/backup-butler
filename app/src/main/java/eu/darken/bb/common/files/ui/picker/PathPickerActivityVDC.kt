@@ -10,7 +10,7 @@ import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import timber.log.Timber
 import javax.inject.Inject

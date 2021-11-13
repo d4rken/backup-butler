@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.annotation.StringRes
 import eu.darken.bb.common.CaString
 import eu.darken.bb.common.toCaString
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 
 fun <T : Progress.Client> T.updateProgressPrimary(primary: String) {
     updateProgress { it.copy(primary = primary.toCaString()) }
@@ -59,9 +59,6 @@ fun <T : Progress.Client> T.updateProgressCount(count: Progress.Count) {
     updateProgress { it.copy(count = count) }
 }
 
-fun <T : Progress.Host> T.forwardProgressTo(client: Progress.Client): Disposable {
-    return progress
-        .observeOn(Schedulers.computation())
-        .doFinally { client.updateProgress { Progress.Data() } }
-        .subscribe { pro -> client.updateProgress { pro } }
-}
+suspend fun <T : Progress.Host> T.forwardProgressTo(client: Progress.Client) = progress
+    .onCompletion { client.updateProgress { Progress.Data() } }
+    .onEach { pro -> client.updateProgress { pro } }

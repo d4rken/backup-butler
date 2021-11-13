@@ -8,96 +8,95 @@ import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.files.FilesSpecGeneratorEditor
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResult
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
-import io.reactivex.rxjava3.schedulers.Schedulers
+import eu.darken.bb.common.smart.SmartVDC
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class FilesEditorConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
-    private val builder: GeneratorBuilder
-) : SmartVDC() {
+    private val builder: GeneratorBuilder,
+    private val dispatcherProvider: DispatcherProvider,
+) : SmartVDC(dispatcherProvider) {
 
     private val generatorId: Generator.Id = handle.navArgs<FilesEditorConfigFragmentArgs>().value.generatorId
-    private val stater = Stater { State() }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
-    private val dataObs = builder.generator(generatorId).observeOn(Schedulers.computation())
-
-    private val editorObs = dataObs
+    private val editorFlow = builder.generator(generatorId)
         .filter { it.editor != null }
         .map { it.editor as FilesSpecGeneratorEditor }
 
-    private val editorDataObs = editorObs.switchMap { it.editorData }
+    private val editorDataFlow = editorFlow.flatMapLatest { it.editorData }
 
-    private val editor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor() = editorFlow.first()
 
     val pickerEvent = SingleLiveEvent<PathPickerOptions>()
     val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<GeneratorEditorResult>()
 
     init {
-        editorDataObs
-            .subscribe { editorData ->
-                stater.update { state ->
-                    state.copy(
+        launchErrorHandler = CoroutineExceptionHandler { _, ex ->
+            log(TAG) { "Error during launch: ${ex.asLog()}" }
+            errorEvent.postValue(ex)
+        }
+    }
+
+    init {
+        editorDataFlow
+            .onEach { editorData ->
+                stater.updateBlocking {
+                    copy(
                         label = editorData.label,
                         path = editorData.path,
-                        workIds = state.clearWorkId()
+                        workIds = clearWorkId()
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
-        editorObs
-            .flatMap { it.isValid() }
-            .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
-            .withScopeVDC(this)
+        editorFlow
+            .flatMapConcat { it.isValid() }
+            .onEach { isValid -> stater.updateBlocking { copy(isValid = isValid) } }
+            .launchInViewModel()
 
-        editorObs
-            .flatMap { it.editorData }
-            .subscribe { data ->
-                stater.update { it.copy(isExisting = data.isExistingGenerator) }
+        editorFlow
+            .flatMapConcat { it.editorData }
+            .onEach { data ->
+                stater.updateBlocking { copy(isExisting = data.isExistingGenerator) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun updateLabel(label: String) {
-        editor.updateLabel(label)
-            .observeOn(Schedulers.computation())
-            .subscribe(
-                { },
-                { err -> errorEvent.postValue(err) }
-            )
+    fun updateLabel(label: String) = launch {
+        getEditor().updateLabel(label)
     }
 
-    fun updatePath(result: PathPickerResult) {
+    fun updatePath(result: PathPickerResult) = launch {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isFailed) {
             errorEvent.postValue(result.error!!)
-            return
+            return@launch
         }
-        editor.updatePath(result.selection!!.first())
-            .observeOn(Schedulers.computation())
-            .subscribe(
-                { },
-                { err -> errorEvent.postValue(err) }
-            )
+        getEditor().updatePath(result.selection!!.first())
     }
 
-    fun showPicker() {
+    fun showPicker() = launch {
         pickerEvent.postValue(PathPickerOptions(
-            startPath = editorDataObs.blockingFirst().path,
+            startPath = editorDataFlow.first().path,
             allowedTypes = setOf(APath.PathType.SAF, APath.PathType.LOCAL),
             selectionLimit = 1,
             onlyDirs = true,
@@ -105,14 +104,9 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
         ))
     }
 
-    fun saveConfig() {
-        builder.save(generatorId)
-            .observeOn(Schedulers.computation())
-            .subscribe({
-                GeneratorEditorResult(generatorId = it.generatorId).run { finishEvent.postValue(this) }
-            }, { err ->
-                errorEvent.postValue(err)
-            })
+    fun saveConfig() = launch {
+        val saved = builder.save(generatorId)
+        GeneratorEditorResult(generatorId = saved.generatorId).run { finishEvent.postValue(this) }
     }
 
     data class State(

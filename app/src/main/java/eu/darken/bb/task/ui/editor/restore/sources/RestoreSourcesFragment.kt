@@ -14,10 +14,9 @@ import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
@@ -26,12 +25,12 @@ import eu.darken.bb.databinding.TaskEditorRestoreSourcesFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RestoreSourcesFragment : SmartFragment(R.layout.task_editor_restore_sources_fragment) {
+class RestoreSourcesFragment : Smart2Fragment(R.layout.task_editor_restore_sources_fragment) {
 
     val navArgs by navArgs<RestoreSourcesFragmentArgs>()
 
-    private val vdc: RestoreSourcesFragmentVDC by viewModels()
-    private val ui: TaskEditorRestoreSourcesFragmentBinding by viewBinding()
+    override val vdc: RestoreSourcesFragmentVDC by viewModels()
+    override val ui: TaskEditorRestoreSourcesFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: BackupAdapter
 
@@ -75,8 +74,6 @@ class RestoreSourcesFragment : SmartFragment(R.layout.task_editor_restore_source
                 )
             )
             swipeTool.attach(ui.backupList)
-
-            vdc.navEvents.observe2(this) { doNavigate(it) }
 
             vdc.finishEvent.observe2(this) {
                 findNavController().popBackStack(R.id.mainFragment, false)

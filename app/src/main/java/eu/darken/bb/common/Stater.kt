@@ -37,4 +37,3 @@ class Stater<T : Any>(
         .asLiveData()
 
 }
-

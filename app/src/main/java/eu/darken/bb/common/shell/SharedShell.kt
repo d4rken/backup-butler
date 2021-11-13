@@ -1,45 +1,47 @@
 package eu.darken.bb.common.shell
 
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.rxshell.cmd.RxCmdShell
-import io.reactivex.rxjava3.core.Observable
-import timber.log.Timber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.callbackFlow
 
-class SharedShell constructor(tag: String) : SharedHolder.HasKeepAlive<RxCmdShell.Session> {
+class SharedShell constructor(
+    tag: String,
+    scope: CoroutineScope,
+) : HasSharedResource<RxCmdShell.Session> {
     private val aTag = "$tag:SharedShell"
-    private val source = Observable.create<RxCmdShell.Session> { emitter ->
-        Timber.tag(aTag).d("Initiating connection to host.")
+    private val source = callbackFlow<RxCmdShell.Session> {
+        log(aTag) { "Initiating connection to host." }
 
         val session = try {
             RxCmdShell.builder().build().open().blockingGet()
         } catch (e: Exception) {
-            emitter.onError(e)
-            return@create
+            throw e
         }
 
-        emitter.setCancellable {
-            Timber.tag(aTag).d("Canceling!")
+        invokeOnClose {
+            log(aTag) { "Canceling!" }
             session.close().subscribe()
+
         }
 
-        emitter.onNext(session)
+        send(session)
 
         val end = try {
             session.waitFor().blockingGet()
         } catch (sessionError: Exception) {
-            emitter.tryOnError(IllegalStateException("SharedShell finished unexpectedly", sessionError))
-            return@create
+            throw IllegalStateException("SharedShell finished unexpectedly", sessionError)
         }
 
         if (end != 0) {
-            emitter.tryOnError(IllegalStateException("SharedShell finished with exitcode $end"))
-        } else {
-            emitter.onComplete()
+            throw IllegalStateException("SharedShell finished with exitcode $end")
         }
     }
 
-    val session = SharedHolder<RxCmdShell.Session>(aTag, source)
+    val session = SharedResource(aTag, scope, source)
 
-    override val keepAlive: SharedHolder<RxCmdShell.Session> = session
+    override val sharedResource: SharedResource<RxCmdShell.Session> = session
 
 }

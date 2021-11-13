@@ -1,17 +1,15 @@
 package eu.darken.bb.main.ui
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorListFragment
-import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
-import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.VDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.debug.DebugFragment
@@ -19,8 +17,7 @@ import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.schedule.ui.list.ScheduleListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,10 +27,10 @@ class MainFragmentVDC @Inject constructor(
     private val uiSettings: UISettings,
     private val bbDebug: BBDebug,
     private val backupButler: BackupButler,
-) : VDC() {
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private var currentPosition: Int = 0
-    val navEvents = SingleLiveEvent<NavDirections>()
 
     data class State(
         val pages: List<MainPagerAdapter.Page>,
@@ -42,33 +39,30 @@ class MainFragmentVDC @Inject constructor(
         val isRecordingDebug: Boolean,
     )
 
-    val state = Observable
-        .combineLatest(
-            bbDebug.observeOptions(),
-            uiSettings.showDebugPage.observable
-        ) { debug, showDebug ->
-            val basePages = listOf(
-                MainPagerAdapter.Page(OverviewFragment::class, R.string.overview_tab_label),
-                MainPagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
-                MainPagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
-                MainPagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
-                MainPagerAdapter.Page(ScheduleListFragment::class, R.string.scheduler_tab_label)
-            )
-            val pages = if (debug.isDebug() || showDebug) {
-                listOf(MainPagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)
-            } else {
-                basePages
-            }
-
-            State(
-                pages = pages,
-                pagePosition = currentPosition,
-                showDebugStuff = showDebug || BBDebug.isDebug(),
-                isRecordingDebug = debug.isRecording
-            )
+    val state = combine(
+        bbDebug.observeOptions(),
+        uiSettings.showDebugPage.flow
+    ) { debug, showDebug ->
+        val basePages = listOf(
+            MainPagerAdapter.Page(OverviewFragment::class, R.string.overview_tab_label),
+            MainPagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
+            MainPagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
+            MainPagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
+            MainPagerAdapter.Page(ScheduleListFragment::class, R.string.scheduler_tab_label)
+        )
+        val pages = if (debug.isDebug() || showDebug) {
+            listOf(MainPagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)
+        } else {
+            basePages
         }
-        .subscribeOn(Schedulers.computation())
-        .asLiveData()
+
+        State(
+            pages = pages,
+            pagePosition = currentPosition,
+            showDebugStuff = showDebug || BBDebug.isDebug(),
+            isRecordingDebug = debug.isRecording
+        )
+    }.asLiveData2()
 
     init {
         log { handle.asLog() }

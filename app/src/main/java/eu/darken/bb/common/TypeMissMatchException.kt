@@ -2,8 +2,8 @@ package eu.darken.bb.common
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.HasLocalizedError
-import eu.darken.bb.common.errors.LocalizedError
+import eu.darken.bb.common.error.HasLocalizedError
+import eu.darken.bb.common.error.LocalizedError
 
 class TypeMissMatchException(private val expected: Any, private val actual: Any) :
     IllegalArgumentException("Type missmatch: Wanted $expected, but got $actual."), HasLocalizedError {

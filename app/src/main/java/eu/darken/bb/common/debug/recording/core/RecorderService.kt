@@ -11,10 +11,13 @@ import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.BBDebug
+import eu.darken.bb.common.debug.DebugScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.ui.MainActivity
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -28,10 +31,12 @@ class RecorderService : Service() {
         private const val NOTIFICATION_ID = 53
     }
 
-    private lateinit var subscription: Disposable
     private lateinit var builder: NotificationCompat.Builder
     @Inject lateinit var bbDebug: BBDebug
     @Inject lateinit var notificationManager: NotificationManager
+    @DebugScope @Inject lateinit var debugScope: CoroutineScope
+
+    private val recorderScope = CoroutineScope(debugScope.coroutineContext)
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -65,9 +70,8 @@ class RecorderService : Service() {
 
         startForeground(NOTIFICATION_ID, builder.build())
 
-        subscription = bbDebug.observeOptions()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+        bbDebug.observeOptions()
+            .onEach {
                 if (it.isRecording) {
                     builder.setContentText(it.recorderPath)
                     notificationManager.notify(NOTIFICATION_ID, builder.build())
@@ -76,6 +80,7 @@ class RecorderService : Service() {
                     stopSelf()
                 }
             }
+            .launchIn(recorderScope)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -87,7 +92,7 @@ class RecorderService : Service() {
     }
 
     override fun onDestroy() {
-        subscription.dispose()
+        recorderScope.cancel()
         super.onDestroy()
     }
 }

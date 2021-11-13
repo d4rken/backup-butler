@@ -2,13 +2,15 @@ package eu.darken.bb.storage.core
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import timber.log.Timber
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,24 +18,24 @@ import javax.inject.Singleton
 class StorageBuilder @Inject constructor(
     @ApplicationContext private val context: Context,
     private val refRepo: StorageRefRepo,
-    private val editors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>
+    private val editors: @JvmSuppressWildcards Map<Storage.Type, StorageEditor.Factory<out StorageEditor>>,
+    @AppScope private val appScope: CoroutineScope
 ) {
 
-    private val hotData = HotData<Map<Storage.Id, Data>>(tag = TAG) { mutableMapOf() }
-    val builders = hotData.data
+    private val state = DynamicStateFlow<Map<Storage.Id, Data>>(TAG, appScope) { mutableMapOf() }
+    val builders = state.flow
 
-    fun getSupportedStorageTypes(): Observable<Collection<Storage.Type>> =
-        Observable.just(Storage.Type.values().toList())
-
-    fun storage(id: Storage.Id): Observable<Data> {
-        return hotData.data
-            .filter { it.containsKey(id) }
-            .map { it.getValue(id) }
+    suspend fun getSupportedStorageTypes(): Collection<Storage.Type> {
+        return Storage.Type.values().toList()
     }
 
-    fun update(id: Storage.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
-        .updateRx {
-            val mutMap = it.toMutableMap()
+    fun storage(id: Storage.Id): Flow<Data> = state.flow
+        .filter { it.containsKey(id) }
+        .map { it.getValue(id) }
+
+    suspend fun update(id: Storage.Id, action: (Data?) -> Data?): Data? {
+        val newValue = state.updateBlocking {
+            val mutMap = this.toMutableMap()
             val oldStorage = mutMap.remove(id)
             val newStorage = action.invoke(oldStorage)?.let { newData ->
                 when {
@@ -48,77 +50,84 @@ class StorageBuilder @Inject constructor(
                 mutMap[newStorage.storageId] = newStorage
             }
             mutMap.toMap()
-        }
-        .map { Opt(it.newValue[id]) }
-        .doOnSuccess { Timber.tag(TAG).v("Storage updated: %s (%s): %s", id, action, it) }
+        }[id]
+        log(TAG, VERBOSE) { "Storage updated: $id ($action): $newValue" }
+        return newValue
+    }
 
-    fun remove(id: Storage.Id, isAbandon: Boolean = true): Single<Opt<Data>> = Single.just(id)
-        .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
-        .flatMap {
-            hotData.latest
-                .flatMap { preDeleteMap ->
-                    update(id) { null }.map { Opt(preDeleteMap[id]) }
-                }
-        }
-        .doOnSuccess { Timber.tag(TAG).v("Removed storage: %s", id) }
-        .map { optData ->
-            if (isAbandon && optData.isNotNull) {
-                optData.value?.editor?.abort()?.blockingAwait()
-            }
-            return@map optData
+    suspend fun remove(id: Storage.Id, isAbandon: Boolean = true): Data? {
+        log(TAG) { "Removing $id" }
+
+        var removed: Data? = null
+        update(id) {
+            removed = it
+            null
         }
 
-    fun save(id: Storage.Id): Single<Storage.Ref> = remove(id, false)
-        .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
-        .map {
-            checkNotNull(it.value) { "Can't find ID to save: $id" }
-        }
-        .flatMap {
-            checkNotNull(it.editor) { "Can't save builder data NULL editor: $it" }
-            it.editor.save()
-        }
-        .flatMap { (ref, _) ->
-            return@flatMap refRepo.put(ref).map { ref }
-        }
-        .doOnSuccess { Timber.tag(TAG).d("Saved %s: %s", id, it) }
-        .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
-        .map { it }
+        log(TAG) { "Removed storage: $id -> $removed" }
 
-    fun load(id: Storage.Id): Maybe<Data> = refRepo.get(id)
-        .flatMapSingle { ref: Storage.Ref ->
-            val editor = editors.getValue(ref.storageType).create(ref.storageId)
-            editor.load(ref).blockingGet()
-            val builderData = Data(
-                storageId = ref.storageId,
-                storageType = ref.storageType,
-                editor = editor
-            )
-            update(id) { builderData }.map { builderData }
+        if (isAbandon && removed != null) {
+            removed?.editor?.abort()
         }
-        .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
-        .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
+        return removed
+    }
 
-    fun getEditor(
+    suspend fun save(id: Storage.Id): Storage.Ref {
+        log(TAG) { "Saving $id" }
+
+        val removed = remove(id, false)
+        checkNotNull(removed) { "Can't find ID to save: $id" }
+        checkNotNull(removed.editor) { "Can't save builder data NULL editor: $removed" }
+
+        val (ref, config) = removed.editor.save()
+
+        refRepo.put(ref)
+        log(TAG) { "Saved $id: $ref" }
+
+        return ref
+    }
+
+    suspend fun load(id: Storage.Id): Data? {
+        val ref = refRepo.get(id) ?: return null
+        val editor = editors.getValue(ref.storageType).create(ref.storageId)
+        editor.load(ref)
+        val builderData = Data(
+            storageId = ref.storageId,
+            storageType = ref.storageType,
+            editor = editor
+        )
+        update(id) { builderData }
+
+        log(TAG) { "Loaded $id: $builderData" }
+
+        return builderData
+    }
+
+    suspend fun getEditor(
         storageId: Storage.Id = Storage.Id(),
         type: Storage.Type? = null,
-    ): Single<Data> = hotData.latest
-        .flatMapMaybe { Maybe.fromCallable<Data> { it[storageId] } }
-        .switchIfEmpty(
-            load(storageId)
-                .doOnSubscribe { Timber.tag(TAG).d("Trying existing storage for %s", storageId) }
-                .doOnSuccess { Timber.tag(TAG).d("Loaded existing storage for %s", storageId) }
+    ): Data {
+        state.value()[storageId]?.let {
+            log(TAG) { "getEditor(storageId=$storageId, type=$type): Returning cached editor: $it" }
+            return it
+        }
+
+        load(storageId)?.let {
+            log(TAG) { "getEditor(storageId=$storageId, type=$type):  Created editor for existing storage: $it" }
+            return it
+        }
+
+        log(TAG) { "getEditor(storageId=$storageId, type=$type): Creating new storage editor" }
+        val newEditor = StorageBuilder.Data(
+            storageId = storageId,
+            storageType = type,
+            editor = type?.let { editors.getValue(it).create(storageId) }
         )
-        .switchIfEmpty(
-            update(storageId) {
-                Data(
-                    storageId = storageId,
-                    storageType = type,
-                    editor = type?.let { editors.getValue(it).create(storageId) }
-                )
-            }
-                .map { it.value!! }
-                .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", storageId) }
-        )
+
+        update(storageId) { newEditor }
+
+        return newEditor
+    }
 
     data class Data(
         val storageId: Storage.Id,

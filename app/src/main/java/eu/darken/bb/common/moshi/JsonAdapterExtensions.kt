@@ -69,7 +69,7 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T = try {
     throw e
 }
 
-fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) = try {
+suspend fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) = try {
     if (!file.exists(safGateway)) {
         safGateway.createFile(file)
     }
@@ -84,7 +84,7 @@ fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath
     throw e
 }
 
-fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T = try {
+suspend fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T = try {
     val value = safGateway.read(file).use {
         from(it)
     }

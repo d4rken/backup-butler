@@ -9,9 +9,9 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
 import eu.darken.bb.common.CaString
+import eu.darken.bb.common.HasSharedResource
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
-import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.core.mm.MMRef
@@ -23,8 +23,8 @@ import kotlinx.parcelize.Parcelize
 import java.util.*
 
 interface Backup {
-    interface Endpoint : Progress.Host, SharedHolder.HasKeepAlive<Any> {
-        fun backup(spec: BackupSpec, logListener: ((LogEvent) -> kotlin.Unit)?): Unit
+    interface Endpoint : Progress.Host, HasSharedResource<Any> {
+        suspend fun backup(spec: BackupSpec, logListener: ((LogEvent) -> kotlin.Unit)?): Unit
     }
 
     data class Unit(

@@ -12,10 +12,9 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.pkgs.picker.ui.PkgPickerListener
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeMainFragmentBinding
 import eu.darken.bb.processor.ui.ProcessorActivity
@@ -23,10 +22,10 @@ import eu.darken.bb.settings.ui.SettingsActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment), PkgPickerListener {
+class QuickModeFragment : Smart2Fragment(R.layout.quickmode_main_fragment), PkgPickerListener {
 
-    private val vdc: QuickModeFragmentVDC by viewModels()
-    private val ui: QuickmodeMainFragmentBinding by viewBinding()
+    override val vdc: QuickModeFragmentVDC by viewModels()
+    override val ui: QuickmodeMainFragmentBinding by viewBinding()
     @Inject lateinit var adapter: QuickModeAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,8 +41,6 @@ class QuickModeFragment : SmartFragment(R.layout.quickmode_main_fragment), PkgPi
             recyclerView.setupDefaults(adapter, dividers = false)
             toolbar.subtitle = getString(R.string.quick_mode_subtitle)
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.debugState.observe2(this, ui) { state ->
             toolbar.menu.apply {

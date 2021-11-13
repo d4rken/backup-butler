@@ -13,6 +13,7 @@ import eu.darken.bb.task.core.Task
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class ProcessorModule {
+
     @Binds
     @IntoMap
     @TaskType(Task.Type.BACKUP_SIMPLE)
