@@ -1,20 +1,18 @@
 package eu.darken.bb.backup.core
 
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 
 interface GeneratorEditor {
 
-    val editorData: Observable<out Data>
+    val editorData: Flow<out Data>
 
-    fun load(config: Generator.Config): Completable
+    suspend fun load(config: Generator.Config)
 
-    fun save(): Single<out Generator.Config>
+    suspend fun save(): Generator.Config
 
-    fun isValid(): Observable<Boolean>
+    fun isValid(): Flow<Boolean>
 
-    fun release(): Completable
+    suspend fun release()
 
     interface Factory<T : GeneratorEditor> {
         fun create(generatorId: Generator.Id): T

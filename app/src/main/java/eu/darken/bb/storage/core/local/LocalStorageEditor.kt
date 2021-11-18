@@ -4,11 +4,12 @@ import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.common.HotData
+import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
 import eu.darken.bb.common.permission.Permission
@@ -17,9 +18,9 @@ import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageEditor
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 import java.io.File
 
@@ -28,49 +29,50 @@ class LocalStorageEditor @AssistedInject constructor(
     moshi: Moshi,
     private val runtimePermissionTool: RuntimePermissionTool,
     private val localGateway: LocalGateway,
-    private val userManager: UserManagerBB
+    private val userManager: UserManagerBB,
+    @AppScope private val appScope: CoroutineScope
 ) : StorageEditor {
 
-    private val editorDataPub = HotData(tag = TAG) { Data(storageId = initialStorageId) }
-    override val editorData = editorDataPub.data
+    private val editorDataPub = DynamicStateFlow(TAG, appScope) { Data(storageId = initialStorageId) }
+    override val editorData = editorDataPub.flow
 
     private val configAdapter = moshi.adapter(LocalStorageConfig::class.java)
 
-    fun updateLabel(label: String) = editorDataPub.update { it.copy(label = label) }
+    suspend fun updateLabel(label: String) = editorDataPub.updateBlocking { copy(label = label) }
 
-    fun updatePath(_path: LocalPath, importExisting: Boolean): Single<LocalPath> = Single
-        .fromCallable {
-            check(!editorDataPub.snapshot.existingStorage) { "Can't change path on an existing storage." }
+    suspend fun updatePath(_path: LocalPath, importExisting: Boolean): LocalPath {
+        check(!editorDataPub.value().existingStorage) { "Can't change path on an existing storage." }
 
-            check(getMissingPermissions().isEmpty()) { "Storage permission isn't granted, how did we get here?" }
+        check(getMissingPermissions().isEmpty()) { "Storage permission isn't granted, how did we get here?" }
 
-            check(_path.asFile().canWrite()) { "Can't write to path." }
-            check(_path.asFile().isDirectory) { "Target is not a directory!" }
+        check(_path.asFile().canWrite()) { "Can't write to path." }
+        check(_path.asFile().isDirectory) { "Target is not a directory!" }
 
-            return@fromCallable if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
-                _path.child("BackupButler")
-            } else {
-                _path
-            }
-        }
-        .flatMap { tweakedPath ->
-            val configFile = tweakedPath.child(STORAGE_CONFIG)
-            val nextAction = if (configFile.exists(localGateway)) {
-                if (!importExisting) throw ExistingStorageException(tweakedPath)
-
-                load(tweakedPath)
-            } else {
-                editorDataPub.updateRx {
-                    it.copy(
-                        refPath = tweakedPath,
-                        label = if (it.label.isEmpty()) tweakedPath.name else it.label
-                    )
-                }
-            }
-            nextAction.ignoreElement().toSingleDefault(tweakedPath)
+        val tweakedPath = if (localGateway.isStorageRoot(_path, userManager.currentUser)) {
+            _path.child("BackupButler")
+        } else {
+            _path
         }
 
-    fun getMissingPermissions(): Set<Permission> {
+        val configFile = tweakedPath.child(STORAGE_CONFIG)
+
+        if (configFile.exists(localGateway)) {
+            if (!importExisting) throw ExistingStorageException(tweakedPath)
+
+            load(tweakedPath)
+        } else {
+            editorDataPub.updateBlocking {
+                copy(
+                    refPath = tweakedPath,
+                    label = if (this.label.isEmpty()) tweakedPath.name else this.label
+                )
+            }
+        }
+
+        return tweakedPath
+    }
+
+    suspend fun getMissingPermissions(): Set<Permission> {
         val missingPermissions = mutableSetOf<Permission>()
         if (!runtimePermissionTool.hasStoragePermission()) {
             missingPermissions.add(runtimePermissionTool.getRequiredStoragePermission())
@@ -78,56 +80,59 @@ class LocalStorageEditor @AssistedInject constructor(
         return missingPermissions
     }
 
-    override fun isValid(): Observable<Boolean> = editorData.map { data ->
+    override fun isValid(): Flow<Boolean> = editorData.map { data ->
         data.refPath != null
             && data.label.isNotEmpty()
             && getMissingPermissions().isEmpty()
     }
 
-    override fun load(ref: Storage.Ref): Single<LocalStorageConfig> = Single.just(ref)
-        .map { (it as LocalStorageRef).path }
-        .flatMap { load(it) }
+    override suspend fun load(ref: Storage.Ref): LocalStorageConfig {
+        val path = (ref as LocalStorageRef).path
+        return load(path)
+    }
 
-    private fun load(path: LocalPath): Single<LocalStorageConfig> = Single.just(path)
-        .map { configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG)) }
-        .doOnSuccess { config ->
+    private suspend fun load(path: LocalPath): LocalStorageConfig {
+        val config = configAdapter.fromFile(File(path.asFile(), STORAGE_CONFIG))
 
-            editorDataPub.update {
-                it.copy(
-                    refPath = path,
-                    existingStorage = true,
-                    storageId = config.storageId,
-                    label = config.label
-                )
-            }
+        editorDataPub.updateBlocking {
+            copy(
+                refPath = path,
+                existingStorage = true,
+                storageId = config.storageId,
+                label = config.label
+            )
         }
 
-    override fun save(): Single<Pair<Storage.Ref, Storage.Config>> = Single
-        .fromCallable {
-            val data = editorDataPub.snapshot
-            val ref = LocalStorageRef(
-                storageId = data.storageId,
-                path = data.refPath!!
-            )
-            val config = LocalStorageConfig(
-                storageId = data.storageId,
-                label = data.label
-            )
+        return config
+    }
 
-            configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
+    override suspend fun save(): Pair<Storage.Ref, Storage.Config> {
+        Timber.tag(TAG).v("save()")
 
-            return@fromCallable Pair(ref, config)
-        }
-        .doOnSubscribe { Timber.tag(TAG).v("save()") }
-        .flatMap { release().andThen(Single.just(it)) }
+        val data = editorDataPub.value()
+        val ref = LocalStorageRef(
+            storageId = data.storageId,
+            path = data.refPath!!
+        )
+        val config = LocalStorageConfig(
+            storageId = data.storageId,
+            label = data.label
+        )
+        release()
+        configAdapter.toFile(config, File(ref.path.asFile(), STORAGE_CONFIG))
 
-    override fun abort(): Completable = Completable
-        .fromCallable { editorDataPub.close() }
-        .doOnSubscribe { Timber.tag(TAG).v("abort()") }
+        return ref to config
+    }
 
-    private fun release(): Completable = Completable
-        .fromCallable { editorDataPub.close() }
-        .doOnSubscribe { Timber.tag(TAG).v("release()") }
+    override suspend fun abort() {
+        Timber.tag(TAG).v("abort()")
+        release()
+    }
+
+    private suspend fun release() {
+        Timber.tag(TAG).v("release()")
+//        editorDataPub.close()
+    }
 
     @AssistedFactory
     interface Factory : StorageEditor.Factory<LocalStorageEditor>
@@ -144,3 +149,4 @@ class LocalStorageEditor @AssistedInject constructor(
         val TAG = logTag("Storage", "Local", "Editor")
     }
 }
+

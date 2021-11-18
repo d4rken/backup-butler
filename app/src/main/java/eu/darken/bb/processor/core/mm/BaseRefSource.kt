@@ -16,14 +16,14 @@ abstract class BaseRefSource : MMRef.RefSource {
     internal val resources = mutableSetOf<Closeable>()
     internal var isReleased = false
 
-    override fun open(): Source {
+    override suspend fun open(): Source {
         require(!isReleased) { "Don't call open() on a released resource!" }
         return doOpen().also { resources.add(it) }
     }
 
-    abstract fun doOpen(): Source
+    abstract suspend fun doOpen(): Source
 
-    override fun release() {
+    override suspend fun release() {
         isReleased = true
         resources.toList().forEach {
             try {

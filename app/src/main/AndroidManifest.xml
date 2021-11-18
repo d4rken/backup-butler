@@ -43,10 +43,7 @@
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".backup.ui.generator.editor.GeneratorEditorActivity"
-            android:parentActivityName=".main.ui.MainActivity"
-            android:theme="@style/AppThemeActionBar" />
+
         <activity
             android:name="eu.darken.bb.settings.ui.SettingsActivity"
             android:parentActivityName=".main.ui.MainActivity"

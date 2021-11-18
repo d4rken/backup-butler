@@ -8,7 +8,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.javaroot.internal.RootHostLauncher
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class JavaRootHostLauncher @Inject constructor(
@@ -18,13 +18,13 @@ class JavaRootHostLauncher @Inject constructor(
     private val bbDebug: BBDebug,
 ) {
 
-    fun create(): Observable<JavaRootClient.Connection> = rootHostLauncher
+    fun create(): Flow<JavaRootClient.Connection> = rootHostLauncher
         .createConnection(
             JavaRootConnection::class,
             JavaRootHost::class,
             *(if (bbDebug.isDebug()) arrayOf(JavaRootHost.DEBUG_FLAG) else emptyArray())
         )
-        .doOnSubscribe { log(TAG) { "Initiating connection to host." } }
+        .onStart { log(TAG) { "Initiating connection to host." } }
         .map { ipc ->
             JavaRootClient.Connection(
                 ipc = ipc,
@@ -34,9 +34,12 @@ class JavaRootHostLauncher @Inject constructor(
                 )
             )
         }
-        .doOnNext { log(TAG) { "Connection available: $it" } }
-        .doOnError { log(TAG, ERROR) { "Failed to establish connection: ${it.asLog()}" } }
-        .doFinally { log(TAG) { "Connection unavailable." } }
+        .onEach { log(TAG) { "Connection available: $it" } }
+        .catch {
+            log(TAG, ERROR) { "Failed to establish connection: ${it.asLog()}" }
+            throw it
+        }
+        .onCompletion { log(TAG) { "Connection unavailable." } }
 
     companion object {
         private val TAG = logTag("Root", "Java", "Host", "Launcher")

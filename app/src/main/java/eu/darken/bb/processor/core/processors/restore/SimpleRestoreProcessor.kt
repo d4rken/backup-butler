@@ -9,17 +9,20 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.progress.*
-import eu.darken.bb.common.rx.withScopeThis
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.processors.SimpleBaseProcessor
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.restore.SimpleRestoreTask
 import eu.darken.bb.task.core.results.SimpleResult
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import javax.inject.Provider
 
@@ -29,12 +32,16 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     private val restoreEndpointFactories: @JvmSuppressWildcards Map<Backup.Type, Provider<Restore.Endpoint>>,
     private val restoreConfigRepo: RestoreConfigRepo,
     private val storageManager: StorageManager,
-    private val mmDataRepo: MMDataRepo
-) : SimpleBaseProcessor(context, progressParent) {
+    private val mmDataRepo: MMDataRepo,
+    @ProcessorScope private val processorScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
+) : SimpleBaseProcessor(context, progressParent, processorScope, dispatcherProvider) {
 
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressParent.updateProgress(update)
+    override fun updateProgress(update: suspend Progress.Data.() -> Progress.Data) = progressParent.updateProgress(
+        update
+    )
 
-    override fun doProcess(task: Task) {
+    override suspend fun doProcess(task: Task) {
         progressParent.updateProgressPrimary(task.taskType.labelRes)
         progressParent.updateProgressSecondary(task.label)
 
@@ -64,19 +71,19 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         }
     }
 
-    private fun getConfig(task: SimpleRestoreTask, metaData: Backup.MetaData): Restore.Config {
+    private suspend fun getConfig(task: SimpleRestoreTask, metaData: Backup.MetaData): Restore.Config {
         var config = task.customConfigs[metaData.backupId]
         if (config == null) {
             config = task.defaultConfigs[metaData.backupType]
         }
         if (config == null) {
-            val defaults = restoreConfigRepo.getDefaultConfigs().blockingGet()
+            val defaults = restoreConfigRepo.getDefaultConfigs()
             config = defaults.single { it.restoreType == metaData.backupType }
         }
         return config
     }
 
-    private fun restoreBackup(
+    private suspend fun restoreBackup(
         task: SimpleRestoreTask,
         endpointCache: MutableMap<Backup.Type, Restore.Endpoint>,
         target: Backup.Target,
@@ -84,13 +91,10 @@ class SimpleRestoreProcessor @AssistedInject constructor(
     ) {
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 
-        val storage = storageManager
-            .getStorage(target.storageId)
-            .observeOn(Schedulers.computation())
-            .blockingGet()
+        val storage = storageManager.getStorage(target.storageId)
         storage.keepAliveWith(this)
 
-        val specInfo = storage.specInfo(target.backupSpecId).blockingFirst()
+        val specInfo = storage.specInfo(target.backupSpecId).first()
         subResultBuilder.label(specInfo.backupSpec.getLabel(context))
 
         progressParent.updateProgressTertiary { specInfo.backupSpec.getLabel(it) }
@@ -101,19 +105,19 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         val backupId = backupMeta.backupId
 
         Timber.tag(TAG).d("Loading backup unit from storage %s", storage)
-        val backupUnit = storage.forwardProgressTo(progressChild).withScopeThis {
+        val backupUnit = storage.forwardProgressTo(progressChild).launchForAction(processorScope) {
             storage.load(specInfo.specId, backupId)
         }
         Timber.tag(TAG).d("Backup unit loaded: %s", backupUnit)
 
         val endpoint = endpointCache.getOrPut(backupType) {
-            restoreEndpointFactories.getValue(backupType).get().keepAliveWIth(this)
+            restoreEndpointFactories.getValue(backupType).get().keepAliveWith(this)
         }
 
         Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)
 
-        endpoint.forwardProgressTo(progressChild).withScopeThis {
-            endpoint.keepAlive.get().use {
+        endpoint.forwardProgressTo(progressChild).launchForAction(processorScope) {
+            endpoint.sharedResource.get().use {
                 endpoint.restore(config, backupUnit) {
                     subResultBuilder.addLogEvent(it)
                 }

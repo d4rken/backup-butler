@@ -17,4 +17,9 @@ interface APathLookup<out T> : APath {
     @IgnoredOnParcel val isDirectory: Boolean
         get() = fileType == FileType.DIRECTORY
 
+    @IgnoredOnParcel val isSymlink: Boolean
+        get() = fileType == FileType.SYMBOLIC_LINK
+
+    @IgnoredOnParcel val isFile: Boolean
+        get() = fileType == FileType.FILE
 }

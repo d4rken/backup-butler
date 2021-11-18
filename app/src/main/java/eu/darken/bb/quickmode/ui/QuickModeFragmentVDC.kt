@@ -2,10 +2,10 @@ package eu.darken.bb.quickmode.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.ReportABug
 import eu.darken.bb.common.debug.logging.log
@@ -13,12 +13,10 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
-import eu.darken.bb.common.navigation.NavEventsSource
-import eu.darken.bb.common.navigation.via
+import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions
 import eu.darken.bb.common.pkgs.picker.ui.PkgPickerResult
-import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.quickmode.core.AppsQuickMode
@@ -32,8 +30,7 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesCreateVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.StorageManager
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,27 +45,24 @@ class QuickModeFragmentVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
     private val processorControl: ProcessorControl,
-) : SmartVDC(), NavEventsSource {
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     val openPathPickerEvent = SingleLiveEvent<PathPickerOptions>()
 
-    override val navEvents = SingleLiveEvent<NavDirections>()
-    val debugState = Observable
-        .combineLatest(
-            bbDebug.observeOptions(),
-            uiSettings.showDebugPage.observable
-        ) { debug, showDebug ->
-            DebugState(
-                showDebugStuff = showDebug || BBDebug.isDebug(),
-                isRecordingDebug = debug.isRecording
-            )
-        }
-        .subscribeOn(Schedulers.computation())
-        .asLiveData()
+    val debugState = combine(
+        bbDebug.observeOptions(),
+        uiSettings.showDebugPage.flow
+    ) { debug, showDebug ->
+        DebugState(
+            showDebugStuff = showDebug || BBDebug.isDebug(),
+            isRecordingDebug = debug.isRecording
+        )
+    }
+        .asLiveData2()
 
-    private val appObs: Observable<out QuickModeAdapter.Item> = appsQuickMode.appsData.data
-        .observeOn(Schedulers.computation())
-        .doOnNext { log(TAG) { "Default app task id: $it" } }
+    private val appObs: Flow<QuickModeAdapter.Item> = appsQuickMode.appsData.flow
+        .onEach { log(TAG) { "Default app task id: $it" } }
         .map { appsConfig ->
             if (appsConfig.isSetUp) {
                 QuickAppsVH.Item(
@@ -76,17 +70,17 @@ class QuickModeFragmentVDC @Inject constructor(
                     onView = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
                             storageId = it.storageIds.first()
-                        ).via(this)
+                        ).navVia(this)
                     },
                     onEdit = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
+                        QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
                     },
                     onBackup = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToPkgPickerFragment(
                             options = PkgPickerOptions(
 
                             )
-                        ).via(this)
+                        ).navVia(this)
                         // TODO launch apps picker
                     },
                     onRestore = {
@@ -95,16 +89,15 @@ class QuickModeFragmentVDC @Inject constructor(
                 )
             } else {
                 QuickAppsCreateVH.Item {
-                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().via(this)
+                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
                 }
             }
         }
-        .doOnNext { log(TAG) { "Default app task info: $it" } }
-        .startWithItem(QuickAppsLoadingVH.Item)
+        .onEach { log(TAG) { "Default app task info: $it" } }
+        .onStart { emit(QuickAppsLoadingVH.Item) }
 
-    private val fileObs: Observable<out QuickModeAdapter.Item> = filesQuickMode.hotData.data
-        .observeOn(Schedulers.computation())
-        .doOnNext { log(TAG) { "Default file task id: $it" } }
+    private val fileObs: Flow<QuickModeAdapter.Item> = filesQuickMode.state.flow
+        .onEach { log(TAG) { "Default file task id: $it" } }
         .map { filesConfig ->
             if (filesConfig.isSetUp) {
                 QuickFilesVH.Item(
@@ -112,10 +105,10 @@ class QuickModeFragmentVDC @Inject constructor(
                     onView = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
                             storageId = it.storageIds.first()
-                        ).via(this)
+                        ).navVia(this)
                     },
                     onEdit = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
+                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
                     },
                     onBackup = {
                         PathPickerOptions(
@@ -131,47 +124,46 @@ class QuickModeFragmentVDC @Inject constructor(
             } else {
                 QuickFilesCreateVH.Item(
                     onCreateAppsTaskAction = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().via(this)
+                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
                     }
                 )
             }
         }
-        .doOnNext { log(TAG) { "Default file task info: $it" } }
-        .startWithItem(QuickFilesLoadingVH.Item)
+        .onEach { log(TAG) { "Default file task info: $it" } }
+        .onStart { emit(QuickFilesLoadingVH.Item) }
 
-    val items: LiveData<List<QuickModeAdapter.Item>> = Observable
-        .combineLatest(
-            appObs,
-            fileObs,
-            quickModeSettings.isHintAdvancedModeDismissed.observable.observeOn(Schedulers.computation())
-        ) { apps, files, isHintAdvModeDismissed ->
-            mutableListOf(apps, files).apply {
-                if (!isHintAdvModeDismissed) {
-                    val hint = AdvancedModeHintsVH.Item(
-                        onDismiss = {
-                            quickModeSettings.isHintAdvancedModeDismissed.update { true }
-                        }
-                    )
-                    add(0, hint)
-                }
-            }.toList()
-        }
-        .asLiveData()
+    val items: LiveData<List<QuickModeAdapter.Item>> = combine(
+        appObs,
+        fileObs,
+        quickModeSettings.isHintAdvancedModeDismissed.flow
+    ) { apps, files, isHintAdvModeDismissed ->
+        mutableListOf(apps, files).apply {
+            if (!isHintAdvModeDismissed) {
+                val hint = AdvancedModeHintsVH.Item(
+                    onDismiss = {
+                        quickModeSettings.isHintAdvancedModeDismissed.update { true }
+                    }
+                )
+                add(0, hint)
+            }
+        }.toList()
+    }
+        .asLiveData2()
 
     val processorState: LiveData<Boolean> = processorControl.progressHost
-        .map { it.isNotNull }
-        .asLiveData()
+        .map { it != null }
+        .asLiveData2()
 
-    fun onAppsPickerResult(result: PkgPickerResult?) {
+    fun onAppsPickerResult(result: PkgPickerResult?) = launch {
         log(TAG) { "onAppsPickerResult(result=$result)" }
-        if (result?.isSuccess != true) return
+        if (result?.isSuccess != true) return@launch
 
         appsQuickMode.launchBackup(result.selection!!)
     }
 
-    fun onPathPickerResult(result: PathPickerResult) {
+    fun onPathPickerResult(result: PathPickerResult) = launch {
         log(TAG) { "onPathPickerResult(result=$result)" }
-        if (!result.isSuccess) return
+        if (!result.isSuccess) return@launch
 
         filesQuickMode.launchBackup(result.selection!!)
     }
@@ -183,7 +175,7 @@ class QuickModeFragmentVDC @Inject constructor(
 
     fun switchToAdvancedMode() {
         uiSettings.startMode = UISettings.StartMode.NORMAL
-        QuickModeFragmentDirections.actionQuickModeFragmentToMainFragment().via(this)
+        QuickModeFragmentDirections.actionQuickModeFragmentToMainFragment().navVia(this)
     }
 
     fun reportBug() {

@@ -6,29 +6,27 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.toastError
+import eu.darken.bb.common.smart.Smart2BottomSheetDialogFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorsActionDialog : BottomSheetDialogFragment() {
+class GeneratorsActionDialog : Smart2BottomSheetDialogFragment() {
     val navArgs by navArgs<GeneratorsActionDialogArgs>()
 
-    private val vdc: GeneratorsActionDialogVDC by viewModels()
+    override val vdc: GeneratorsActionDialogVDC by viewModels()
+    override val ui: GeneratorListActionDialogBinding by viewBinding()
     private lateinit var binding: GeneratorListActionDialogBinding
     @Inject lateinit var taskRepo: TaskRepo
-    @Inject lateinit var actionsAdapter: ActionsAdapter
 
-    private val ui: GeneratorListActionDialogBinding by viewBinding()
+    @Inject lateinit var actionsAdapter: ActionsAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = GeneratorListActionDialogBinding.inflate(inflater, container, false)
@@ -49,9 +47,7 @@ class GeneratorsActionDialog : BottomSheetDialogFragment() {
             if (state.finished) dismissAllowingStateLoss()
         }
 
-        vdc.navEvents.observe2(this) { doNavigate(it) }
         vdc.closeDialogEvent.observe2(this) { dismissAllowingStateLoss() }
-        vdc.errorEvent.observe2(this) { toastError(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

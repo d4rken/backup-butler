@@ -9,20 +9,19 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.list.GeneratorListAdapter
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorPickerFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorPickerFragment : SmartFragment(R.layout.generator_picker_fragment) {
+class GeneratorPickerFragment : Smart2Fragment(R.layout.generator_picker_fragment) {
 
-    private val vdc: GeneratorPickerFragmentVDC by viewModels()
-    private val ui: GeneratorPickerFragmentBinding by viewBinding()
+    override val vdc: GeneratorPickerFragmentVDC by viewModels()
+    override val ui: GeneratorPickerFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: GeneratorListAdapter
 
@@ -51,8 +50,6 @@ class GeneratorPickerFragment : SmartFragment(R.layout.generator_picker_fragment
             generatorListWrapper.updateLoadingState(state.isLoading)
             fab.isInvisible = state.isLoading
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.finishEvent.observe2(this) {
             setGeneratorPickerResult(it)

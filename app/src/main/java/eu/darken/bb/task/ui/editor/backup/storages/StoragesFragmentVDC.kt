@@ -1,15 +1,13 @@
 package eu.darken.bb.task.ui.editor.backup.storages
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.StorageAdapter
@@ -17,7 +15,7 @@ import eu.darken.bb.storage.ui.picker.StoragePickerResult
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.backup.SimpleBackupTaskEditor
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,41 +23,35 @@ class StoragesFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val storageManager: StorageManager,
-    private val processorControl: ProcessorControl
-) : SmartVDC() {
+    private val processorControl: ProcessorControl,
+    dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<StoragesFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
-    private val editorObs = taskBuilder.task(taskId)
-        .filter { it.editor != null }
+    private val editorFlow = taskBuilder.task(taskId)
+        .filterNotNull()
         .map { it.editor as SimpleBackupTaskEditor }
 
-    private val editor: SimpleBackupTaskEditor by lazy {
-        editorObs.blockingFirst()
-    }
-
-    private val editorData = editorObs.flatMap { it.editorData }
-
-    private val stater: Stater<State> = Stater { State() }
-    val state = stater.liveData
-    val navEvents = SingleLiveEvent<NavDirections>()
-    val finishEvent = SingleLiveEvent<Any>()
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     init {
-        editorData
-            .switchMap { dests ->
+        editorFlow
+            .flatMapConcat { it.editorData }
+            .flatMapLatest { dests ->
                 storageManager.infos(dests.destinations)
-                    .takeUntil { ios -> ios.all { it.isFinished } }
+                    .takeUntilAfter { ios -> ios.all { it.isFinished } }
             }
             .map { infos -> infos.map { StorageAdapter.Item(it) } }
-            .subscribe { storageStatuses ->
-                stater.update { it.copy(destinations = storageStatuses.toList()) }
+            .onEach { storageStatuses ->
+                stater.updateBlocking { copy(destinations = storageStatuses.toList()) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun removeDestination(storage: StorageAdapter.Item) {
-        editor.removeStorage(storage.info.storageId)
+    fun removeDestination(storage: StorageAdapter.Item) = launch {
+        editorFlow.first().removeStorage(storage.info.storageId)
     }
 
     fun executeTask() {
@@ -70,30 +62,19 @@ class StoragesFragmentVDC @Inject constructor(
         save(false)
     }
 
-    private fun save(execute: Boolean = false) {
-        taskBuilder.save(taskId)
-            .observeOn(Schedulers.computation())
-            .doOnSubscribe {
-                stater.update {
-                    it.copy(isWorking = true)
-                }
-            }
-            .subscribe { savedTask ->
-                if (execute) processorControl.submit(savedTask)
-                finishEvent.postValue(true)
-            }
+    private fun save(execute: Boolean = false) = launch {
+        stater.updateBlocking { copy(isWorking = true) }
+
+        val savedTask = taskBuilder.save(taskId)
+        if (execute) processorControl.submit(savedTask)
+
+        navEvents.postValue(null)
     }
 
-    fun onStoragePicked(result: StoragePickerResult?) {
-        if (result == null) return
+    fun onStoragePicked(result: StoragePickerResult?) = launch {
+        if (result == null) return@launch
 
-        taskBuilder.task(taskId)
-            .observeOn(Schedulers.computation())
-            .latest()
-            .map { it.editor as SimpleBackupTaskEditor }
-            .subscribe { editor ->
-                editor.addStorage(result.storageId)
-            }
+        editorFlow.first().addStorage(result.storageId)
     }
 
     fun addStorage() {

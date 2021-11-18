@@ -32,7 +32,8 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
 
     data class Item(
         val task: Task,
-        val lastResult: TaskResult? = null
+        val lastResult: TaskResult? = null,
+        val onClickAction: (Task.Id) -> Unit
     ) : DifferItem {
         override val stableId: Long = task.taskId.hashCode().toLong()
     }
@@ -72,6 +73,8 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
 
             }
             statusIcon.setGone(lastResult == null)
+
+            itemView.setOnClickListener { item.onClickAction(task.taskId) }
         }
     }
 }

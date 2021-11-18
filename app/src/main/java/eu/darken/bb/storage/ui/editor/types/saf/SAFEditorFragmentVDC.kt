@@ -3,22 +3,21 @@ package eu.darken.bb.storage.ui.editor.types.saf
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.errors.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.saf.SAFStorageEditor
 import eu.darken.bb.storage.ui.editor.StorageEditorResult
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,22 +25,22 @@ import javax.inject.Inject
 class SAFEditorFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val builder: StorageBuilder,
-    private val safGateway: SAFGateway
-) : SmartVDC() {
+    private val safGateway: SAFGateway,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<SAFEditorFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater { State() }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     private val editorObs = builder.storage(storageId)
-        .observeOn(Schedulers.computation())
         .filter { it.editor != null }
         .map { it.editor as SAFStorageEditor }
 
-    private val editorDataObs = editorObs.switchMap { it.editorData }
+    private val editorDataObs = editorObs.flatMapConcat { it.editorData }
 
-    private val editor: SAFStorageEditor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor(): SAFStorageEditor = editorObs.first()
 
     val openPickerEvent = SingleLiveEvent<PathPickerOptions>()
     val errorEvent = SingleLiveEvent<Throwable>()
@@ -49,15 +48,15 @@ class SAFEditorFragmentVDC @Inject constructor(
 
     init {
         editorDataObs.take(1)
-            .subscribe { editor ->
-                stater.update { it.copy(path = editor.refPath?.path ?: "") }
+            .onEach { editor ->
+                stater.updateBlocking { copy(path = editor.refPath?.path ?: "") }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
         editorDataObs
-            .subscribe { data ->
-                stater.update { state ->
-                    state.copy(
+            .onEach { data ->
+                stater.updateBlocking {
+                    copy(
                         label = data.label,
                         path = data.refPath?.path ?: "",
                         isWorking = false,
@@ -65,58 +64,43 @@ class SAFEditorFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
         editorObs
-            .switchMap { it.isValid() }
-            .subscribe { isValid: Boolean -> stater.update { it.copy(isValid = isValid) } }
-            .withScopeVDC(this)
+            .flatMapConcat { it.isValid() }
+            .onEach { isValid: Boolean -> stater.updateBlocking { copy(isValid = isValid) } }
+            .launchInViewModel()
     }
 
-    fun updateName(label: String) {
+    fun updateName(label: String) = launch {
         Timber.tag(TAG).v("Updating label: %s", label)
-        editor.updateLabel(label)
+        getEditor().updateLabel(label)
     }
 
-    fun selectPath() {
+    fun selectPath() = launch {
         openPickerEvent.postValue(
             PathPickerOptions(
-                startPath = editorDataObs.blockingFirst().refPath,
+                startPath = editorDataObs.first().refPath,
                 allowedTypes = setOf(APath.PathType.SAF)
             )
         )
     }
 
-    fun onUpdatePath(result: PathPickerResult) {
+    fun onUpdatePath(result: PathPickerResult) = launch {
         val p = result.selection!!.first() as SAFPath
         val newlyPersistedPermission = result.persistedPermissions?.isNotEmpty() ?: false
-        editor.updatePath(p, false, newlyPersistedPermission)
-            .observeOn(Schedulers.computation())
-            .subscribe { _, error: Throwable? ->
-                if (error != null) errorEvent.postValue(error)
-            }
+        getEditor().updatePath(p, false, newlyPersistedPermission)
     }
 
-    fun importStorage(path: APath) {
+    fun importStorage(path: APath) = launch {
         path as SAFPath
-        editor.updatePath(path, true)
-            .observeOn(Schedulers.computation())
-            .subscribe { _, error: Throwable? ->
-                if (error != null) errorEvent.postValue(error.getRootCause())
-            }
+        getEditor().updatePath(path, true)
     }
 
-    fun saveConfig() {
-        builder.save(storageId)
-            .observeOn(Schedulers.computation())
-            .doOnSubscribe { stater.update { it.copy(isWorking = true) } }
-            .subscribe { ref, error: Throwable? ->
-                if (error != null) {
-                    errorEvent.postValue(error.getRootCause())
-                } else {
-                    finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
-                }
-            }
+    fun saveConfig() = launch {
+        stater.updateBlocking { copy(isWorking = true) }
+        val ref = builder.save(storageId)
+        finishEvent.postValue(StorageEditorResult(storageId = ref.storageId))
     }
 
     data class State(

@@ -6,14 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.toastError
+import eu.darken.bb.common.smart.Smart2BottomSheetDialogFragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.StorageViewerContentlistActionDialogBinding
 import eu.darken.bb.storage.ui.viewer.StorageViewerActivity
@@ -22,11 +20,11 @@ import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ItemActionDialog : BottomSheetDialogFragment() {
+class ItemActionDialog : Smart2BottomSheetDialogFragment() {
 
-    private val vdc: ItemActionDialogVDC by viewModels()
+    override val vdc: ItemActionDialogVDC by viewModels()
     private val activityVdc by lazy { (requireActivity() as StorageViewerActivity).vdc }
-    private lateinit var ui: StorageViewerContentlistActionDialogBinding
+    override lateinit var ui: StorageViewerContentlistActionDialogBinding
 
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
@@ -62,10 +60,6 @@ class ItemActionDialog : BottomSheetDialogFragment() {
             val args = ItemContentsFragmentArgs(storageId = storageId, specId = specId)
             findNavController().navigate(R.id.action_storageItemActionDialog_to_itemContentsFragment, args.toBundle())
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
-        vdc.finishedEvent.observe2(this) { dismissAllowingStateLoss() }
-        vdc.errorEvents.observe2(this) { toastError(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

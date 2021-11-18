@@ -2,7 +2,7 @@ package eu.darken.bb.common.rx
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
-import eu.darken.bb.common.errors.getRootCause
+import eu.darken.bb.common.error.getRootCause
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableSource

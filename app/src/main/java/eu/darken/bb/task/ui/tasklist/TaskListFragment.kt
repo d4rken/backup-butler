@@ -11,23 +11,19 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.differ.update
-import eu.darken.bb.common.lists.modular.ModularAdapter
-import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskListFragmentBinding
-import eu.darken.bb.main.ui.MainFragmentDirections
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
+class TaskListFragment : Smart2Fragment(R.layout.task_list_fragment) {
 
-    private val vdc: TaskListFragmentVDC by viewModels()
-    private val ui: TaskListFragmentBinding by viewBinding()
+    override val vdc: TaskListFragmentVDC by viewModels()
+    override val ui: TaskListFragmentBinding by viewBinding()
     @Inject lateinit var adapter: TaskListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,16 +32,10 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
             fab.clicks().subscribe { vdc.newTask() }
         }
 
-        adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editTask(adapter.data[i].task) })
-
         vdc.state.observe2(this, ui) { state ->
             log { "Updating UI state with $state" }
             adapter.update(state.tasks)
             fab.isInvisible = false
-        }
-
-        vdc.editTaskEvent.observe2(this) {
-            doNavigate(MainFragmentDirections.actionMainFragmentToTaskActionDialog(it.taskId))
         }
 
         var snackbar: Snackbar? = null
@@ -62,7 +52,6 @@ class TaskListFragment : SmartFragment(R.layout.task_list_fragment) {
                 snackbar = null
             }
         }
-        vdc.navEvents.observe2(this) { doNavigate(it) }
         super.onViewCreated(view, savedInstanceState)
     }
 }

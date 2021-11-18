@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.core.local
 
 import android.content.Context
-import com.jakewharton.rx3.replayingShare
 import com.squareup.moshi.Moshi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -11,20 +10,27 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.ReadException
 import eu.darken.bb.common.files.core.asFile
 import eu.darken.bb.common.files.core.copyToAutoClose
 import eu.darken.bb.common.files.core.local.*
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.onError
+import eu.darken.bb.common.flow.onErrorMixLast
+import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.common.moshi.fromFile
 import eu.darken.bb.common.moshi.toFile
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
-import eu.darken.bb.common.rx.filterUnchanged
-import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.onErrorMixLast
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.MMRef.Type.*
@@ -32,16 +38,16 @@ import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.yield
 import okio.sink
 import okio.source
 import timber.log.Timber
 import java.io.File
 import java.io.InterruptedIOException
-import java.util.concurrent.TimeUnit
 
 
 class LocalStorage @AssistedInject constructor(
@@ -50,10 +56,12 @@ class LocalStorage @AssistedInject constructor(
     @ApplicationContext override val context: Context,
     moshi: Moshi,
     private val mmDataRepo: MMDataRepo,
-    private val localGateway: LocalGateway
+    private val localGateway: LocalGateway,
+    @AppScope private val appScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
 ) : Storage, HasContext, Progress.Client {
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
 
     private val storageRef: LocalStorageRef = storageRef as LocalStorageRef
     override val storageConfig: LocalStorageConfig = storageConfig as LocalStorageConfig
@@ -62,17 +70,25 @@ class LocalStorage @AssistedInject constructor(
     private val specAdapter = moshi.adapter(BackupSpec::class.java)
     private val metaDataAdapter = moshi.adapter(Backup.MetaData::class.java)
 
-    private val progressPub = HotData(tag = TAG) { Progress.Data() }
-    override val progress: Observable<Progress.Data> = progressPub.data
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+    private val progressPub = DynamicStateFlow(TAG, appScope) { Progress.Data() }
+    override val progress: Flow<Progress.Data> = progressPub.flow
+    override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    private val dataDirEvents: Observable<List<File>> = Observable
-        .fromCallable { dataDir.listFilesThrowing() }
-        .subscribeOn(Schedulers.io())
-        .onErrorReturnItem(emptyList())
-        .repeatWhen { it.delay(1, TimeUnit.SECONDS) } // FIXME better way to update listing
-        .filterUnchanged { old, new -> old.toList() != new.toList() }
-        .replayingShare()
+    private val dataDirEvents: Flow<List<File>> = flow {
+        // FIXME better way to update listing
+        while (true) {
+            val listing = try {
+                dataDir.listFilesThrowing()
+            } catch (e: Exception) {
+                emptyList()
+            }
+            emit(listing)
+            delay(1000)
+            yield()
+        }
+    }
+        .distinctUntilChanged()
+        .replayingShare(appScope)
 
     init {
         Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
@@ -81,42 +97,44 @@ class LocalStorage @AssistedInject constructor(
         }
     }
 
-    override fun info(): Observable<Storage.Info> = infoObs
-    private val infoObs: Observable<Storage.Info> = Observable
-        .fromCallable { Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig) }
-        .flatMap { info ->
-            specInfos().map { contents ->
-                var status: Storage.Info.Status? = null
-                try {
-                    status = Storage.Info.Status(
-                        itemCount = contents.size,
-                        totalSize = 0,
-                        isReadOnly = dataDir.exists() && !dataDir.canWrite()
-                    )
-                } catch (e: Exception) {
-                    Timber.tag(TAG).w(e)
-                }
+    override fun info(): Flow<Storage.Info> = infowFlow
+    private val infowFlow: Flow<Storage.Info> =
+        flowOf(Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig))
+            .flatMapConcat { info ->
+                specInfos()
+                    .map { contents ->
+                        var status: Storage.Info.Status? = null
+                        try {
+                            status = Storage.Info.Status(
+                                itemCount = contents.size,
+                                totalSize = 0,
+                                isReadOnly = dataDir.exists() && !dataDir.canWrite()
+                            )
+                        } catch (e: Exception) {
+                            Timber.tag(TAG).w(e)
+                        }
 
-                info.copy(status = status)
-            }.startWithItem(info)
-        }
-        .doOnError { Timber.tag(TAG).e(it) }
-        .doOnSubscribe { Timber.tag(TAG).d("info().doOnSubscribe()") }
-        .doFinally { Timber.tag(TAG).d("info().doFinally()") }
-        .onErrorMixLast { last, error ->
-            // startWith
-            last!!.copy(error = error)
-        }
-        .replayingShare()
+                        info.copy(status = status)
+                    }
+                    .onStart { emit(info) }
+            }
+            .onError { Timber.tag(TAG).e(it) }
+            .onStart { Timber.tag(TAG).d("info().doOnSubscribe()") }
+            .onCompletion { Timber.tag(TAG).d("info().doFinally()") }
+            .onErrorMixLast { last, error ->
+                // startWith
+                last!!.copy(error = error)
+            }
+            .replayingShare(appScope)
 
-    override fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info> = specInfos()
+    override fun specInfo(specId: BackupSpec.Id): Flow<BackupSpec.Info> = specInfos()
         .map { specInfos ->
             val item = specInfos.find { it.backupSpec.specId == specId }
             requireNotNull(item) { "Can't find backup item for specId $specId" }
         }
 
-    override fun specInfos(): Observable<Collection<BackupSpec.Info>> = itemObs
-    private val itemObs: Observable<Collection<BackupSpec.Info>> = dataDirEvents
+    override fun specInfos(): Flow<Collection<BackupSpec.Info>> = itemObs
+    private val itemObs: Flow<Collection<BackupSpec.Info>> = dataDirEvents
         .map { files ->
             val content = mutableListOf<BackupSpec.Info>()
 
@@ -150,28 +168,34 @@ class LocalStorage @AssistedInject constructor(
             }
             content
         }
-        .map { it as Collection<BackupSpec.Info> }
-        .doOnError { Timber.tag(TAG).e(it) }
-        .doOnSubscribe { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
-        .doFinally { Timber.tag(TAG).d("specInfos().doFinally()") }
-        .replayingShare()
+        .map { it }
+        .onError { log(TAG, ERROR) { "specInfos() failed: ${it.asLog()}" } }
+        .onStart { Timber.tag(TAG).d("doOnSubscribe().doFinally()") }
+        .onCompletion { Timber.tag(TAG).d("specInfos().doFinally()") }
+        .replayingShare(appScope)
 
-    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info> =
+    override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.Info> =
         backupContent(specId, backupId)
             .map { Backup.Info(it.storageId, it.spec, it.metaData) }
 
-    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo> =
+    override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.ContentInfo> =
         specInfo(specId)
-            .flatMap { item ->
+            .flatMapConcat { item ->
                 item as LocalStorageSpecInfo
                 val backupDir = item.path.asFile().requireExists()
                 val versionDir = File(backupDir, backupId.idString).requireExists()
                 val backupSpec = readSpec(specId)
                 val metaData = readBackupMeta(item.specId, backupId)
 
-                return@flatMap Observable.fromCallable { backupDir.listFilesThrowing() }
-                    .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
-                    .filterUnchanged()
+                return@flatMapConcat flow<List<File>> {
+
+                    while (true) {
+                        emit(backupDir.listFilesThrowing())
+                        delay(1000L)
+                        yield()
+                    }
+                }
+                    .distinctUntilChanged()
                     .map {
                         return@map versionDir.listFilesThrowing()
                             .filter { it.path.endsWith(PROP_EXT) }
@@ -181,7 +205,7 @@ class LocalStorage @AssistedInject constructor(
                             }
                             .toList()
                     }
-                    .onErrorReturnItem(emptyList())
+                    .catch { emit(emptyList()) }
                     .map {
                         return@map Backup.ContentInfo(
                             storageId = storageId,
@@ -191,15 +215,15 @@ class LocalStorage @AssistedInject constructor(
                         )
                     }
             }
-            .doOnSubscribe { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
-            .doOnError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
-            .doFinally { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
-            .replayingShare()
+            .onStart { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
+            .onError { log(TAG, WARN) { "Failed to get content: specId=$specId, backupId=$backupId" } }
+            .onCompletion { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
+            .replayingShare(appScope)
 
-    override fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
+    override suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
         updateProgressPrimary(R.string.progress_reading_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
-        val item = specInfo(specId).blockingFirst()
+        val item = specInfo(specId).first()
         item as LocalStorageSpecInfo
 
         updateProgressPrimary(R.string.progress_reading_backup_metadata)
@@ -240,7 +264,7 @@ class LocalStorage @AssistedInject constructor(
         )
     }
 
-    override fun save(backup: Backup.Unit): Backup.Info {
+    override suspend fun save(backup: Backup.Unit): Backup.Info {
         updateProgressPrimary(R.string.progress_writing_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
         try {
@@ -260,6 +284,7 @@ class LocalStorage @AssistedInject constructor(
         updateProgressCount(Progress.Count.Counter(current, max))
 
         // TODO guardAction that backup dir doesn't exist, ie version dir?
+
         backup.data.entries.forEach { (baseKey, refs) ->
             refs.forEach { ref ->
 
@@ -272,10 +297,10 @@ class LocalStorage @AssistedInject constructor(
 
                 val targetProp = File(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists()
                 updateProgressSecondary(targetProp.path)
-                targetProp.sink().use { mmDataRepo.writeProps(ref.props, it) }
+                targetProp.sink().use { mmDataRepo.writeProps(ref.getProps(), it) }
 
                 // TODO errors should be shown in the result?
-                when (ref.props.dataType) {
+                when (ref.getProps().dataType) {
                     FILE, ARCHIVE -> {
                         val target = File(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists()
                         ref.source.open().copyToAutoClose(target.sink())
@@ -302,37 +327,35 @@ class LocalStorage @AssistedInject constructor(
         return info
     }
 
-    override fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): Single<BackupSpec.Info> = specInfo(specId)
-        .latest()
-        .map { specInfo ->
-            specInfo as LocalStorageSpecInfo
-            if (backupId != null) {
-                val versionDir = getVersionDir(specId, backupId)
-                versionDir.deleteAll()
-            } else {
-                val backupDir = getSpecDir(specId)
-                backupDir.deleteAll()
-            }
-            val newMetaData = if (backupId != null) {
-                // Not a complete deletion
-                getMetaDatas(specId)
-            } else {
-                emptySet()
-            }
-            return@map specInfo.copy(backups = newMetaData)
+    override suspend fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): BackupSpec.Info {
+        val specInfo = specInfo(specId).first()
+        specInfo as LocalStorageSpecInfo
+        if (backupId != null) {
+            val versionDir = getVersionDir(specId, backupId)
+            versionDir.deleteAll()
+        } else {
+            val backupDir = getSpecDir(specId)
+            backupDir.deleteAll()
         }
+        val newMetaData = if (backupId != null) {
+            // Not a complete deletion
+            getMetaDatas(specId)
+        } else {
+            emptySet()
+        }
+        return specInfo.copy(backups = newMetaData)
+    }
 
-    override fun detach(wipe: Boolean): Completable = Completable
-        .fromCallable {
-            if (wipe) {
-                Timber.tag(TAG).i("Wiping %s", storageRef.path)
-                // let's not use the gateway here as there is currently no reason to run this with root.
-                storageRef.path.asFile().deleteAll()
-            }
-            // TODO dispose resources, i.e. observables.
+    override suspend fun detach(wipe: Boolean) {
+        Timber.tag(TAG).d("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef)
+        if (wipe) {
+            Timber.tag(TAG).i("Wiping %s", storageRef.path)
+            // let's not use the gateway here as there is currently no reason to run this with root.
+            storageRef.path.asFile().deleteAll()
         }
-        .doOnSubscribe { Timber.tag(TAG).d("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef) }
-        .doFinally { Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef) }
+        // TODO dispose resources, i.e. observables.
+        Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef)
+    }
 
 
     private fun getSpecDir(specId: BackupSpec.Id): File = File(dataDir, specId.value)

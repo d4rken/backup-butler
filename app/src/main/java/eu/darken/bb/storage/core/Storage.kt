@@ -8,9 +8,9 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
+import eu.darken.bb.common.HasSharedResource
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
-import eu.darken.bb.common.SharedHolder
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
@@ -18,14 +18,12 @@ import eu.darken.bb.storage.core.local.LocalStorageConfig
 import eu.darken.bb.storage.core.local.LocalStorageRef
 import eu.darken.bb.storage.core.saf.SAFStorageConfig
 import eu.darken.bb.storage.core.saf.SAFStorageRef
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
-interface Storage : Progress.Host, SharedHolder.HasKeepAlive<Any> {
+interface Storage : Progress.Host, HasSharedResource<Any> {
     @Keep
     enum class Type(
         @Transient @DrawableRes val iconRes: Int,
@@ -41,23 +39,23 @@ interface Storage : Progress.Host, SharedHolder.HasKeepAlive<Any> {
 
     val storageConfig: Config
 
-    fun info(): Observable<Info>
+    fun info(): Flow<Info>
 
-    fun specInfos(): Observable<Collection<BackupSpec.Info>>
+    fun specInfos(): Flow<Collection<BackupSpec.Info>>
 
-    fun specInfo(specId: BackupSpec.Id): Observable<BackupSpec.Info>
+    fun specInfo(specId: BackupSpec.Id): Flow<BackupSpec.Info>
 
-    fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.Info>
+    fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.Info>
 
-    fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Observable<Backup.ContentInfo>
+    fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.ContentInfo>
 
-    fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit
+    suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit
 
-    fun save(backup: Backup.Unit): Backup.Info
+    suspend fun save(backup: Backup.Unit): Backup.Info
 
-    fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): Single<BackupSpec.Info>
+    suspend fun remove(specId: BackupSpec.Id, backupId: Backup.Id? = null): BackupSpec.Info
 
-    fun detach(wipe: Boolean = false): Completable
+    suspend fun detach(wipe: Boolean = false)
 
     @Parcelize @Keep
     @JsonClass(generateAdapter = true)

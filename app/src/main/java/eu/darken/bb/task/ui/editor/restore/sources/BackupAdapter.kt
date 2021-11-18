@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
-import eu.darken.bb.common.errors.localized
+import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.lists.BindableVH
 import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.common.lists.modular.ModularAdapter

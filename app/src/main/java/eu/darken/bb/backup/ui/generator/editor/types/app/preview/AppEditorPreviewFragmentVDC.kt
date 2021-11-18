@@ -9,8 +9,8 @@ import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,18 +26,18 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
     private val stater = Stater { State(previewMode = previewMode) }
     val state = stater.liveData
 
-    private val editorObs = builder.generator(generatorId)
+    private val editorFlow = builder.generator(generatorId)
         .filter { it.editor != null }
         .map { it.editor as AppSpecGeneratorEditor }
 
-    private val editorDataObs = editorObs.switchMap { it.editorData }
+    private val editorDataFlow = editorFlow.flatMapLatest { it.editorData }
 
-    private val editor: AppSpecGeneratorEditor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor(): AppSpecGeneratorEditor = editorFlow.first()
 
     init {
-        editorDataObs
+        editorDataFlow
             .map { data -> previewFilter.filter(data, previewMode) }
-            .subscribe { pkgs ->
+            .onEach { pkgs ->
                 stater.update { state ->
                     state.copy(
                         pkgs = pkgs.sortedBy { it.pkg.getLabel(pkgOps) }.toList(),
@@ -46,20 +46,20 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun updateLabel(label: String) {
-        editor.updateLabel(label)
+    fun updateLabel(label: String) = launch {
+        getEditor().updateLabel(label)
     }
 
-    fun onSelect(pkgWrap: PreviewFilter.PkgWrap) {
+    fun onSelect(pkgWrap: PreviewFilter.PkgWrap) = launch {
         if (previewMode == PreviewMode.PREVIEW) {
-            return
+            return@launch
         }
 
         val pkgName = pkgWrap.pkgName
-        editor.update { data ->
+        getEditor().update { data ->
             when (previewMode) {
                 PreviewMode.INCLUDE -> {
                     val updated = data.packagesIncluded.let {

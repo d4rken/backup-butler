@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorFragmentChild
 import eu.darken.bb.backup.ui.generator.editor.setGeneratorEditorResult
-import eu.darken.bb.common.errors.asErrorDialogBuilder
+import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2

@@ -1,14 +1,14 @@
 package eu.darken.bb.common.debug
 
 import android.content.SharedPreferences
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.flow.Flow
 
 interface DebugModuleHost {
 
-    fun observeOptions(): Observable<DebugOptions>
+    fun observeOptions(): Flow<DebugOptions>
 
     fun getSettings(): SharedPreferences
 
-    fun submit(update: (DebugOptions) -> DebugOptions)
+    fun submit(update: suspend (DebugOptions) -> DebugOptions)
 
 }

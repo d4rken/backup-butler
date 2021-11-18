@@ -13,20 +13,19 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageListFragmentBinding
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
+class StorageListFragment : Smart2Fragment(R.layout.storage_list_fragment) {
 
-    private val vdc: StorageListFragmentVDC by viewModels()
-    private val ui: StorageListFragmentBinding by viewBinding()
+    override val vdc: StorageListFragmentVDC by viewModels()
+    override val ui: StorageListFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: StorageAdapter
 
@@ -39,12 +38,11 @@ class StorageListFragment : SmartFragment(R.layout.storage_list_fragment) {
             log { "Updating UI state with $state" }
             adapter.update(state.storages)
             fab.isInvisible = state.isLoading
+            storageListWrapper.updateLoadingState(state.isLoading)
             requireActivity().invalidateOptionsMenu()
         }
 
         ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         var snackbar: Snackbar? = null
         vdc.processorEvent.observe2(this) { isActive ->

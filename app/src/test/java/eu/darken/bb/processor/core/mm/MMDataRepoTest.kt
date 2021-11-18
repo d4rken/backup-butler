@@ -4,12 +4,15 @@ import eu.darken.bb.AppModule
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.processor.core.mm.MMDataRepo.Companion.CACHEDIR
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import testhelper.BaseTest
+import testhelper.coroutine.TestDispatcherProvider
+import testhelper.coroutine.runBlockingTest2
 import java.io.File
 
 class MMDataRepoTest : BaseTest() {
@@ -27,8 +30,16 @@ class MMDataRepoTest : BaseTest() {
     }
 
     @Test
-    fun `test release`() {
-        val repo = MMDataRepo(testDir, AppModule().moshi())
+    fun `test release`() = runBlockingTest2 {
+        val testScope = TestCoroutineScope()
+        val dispatcherProvider = TestDispatcherProvider()
+
+        val repo = MMDataRepo(
+            cachePath = testDir,
+            moshi = AppModule().moshi(),
+            appScope = testScope,
+            dispatcherProvider = dispatcherProvider
+        )
         File(testDir, CACHEDIR).exists() shouldBe true
 
         val source1 = mockk<MMRef.RefSource>(relaxed = true)
@@ -38,7 +49,7 @@ class MMDataRepoTest : BaseTest() {
         )
         val ref1 = repo.create(req1)
         req1.source shouldBe ref1.source
-        verify(exactly = 0) { req1.source.release() }
+        coVerify(exactly = 0) { req1.source.release() }
 
         val source2 = mockk<MMRef.RefSource>(relaxed = true)
         val req2 = MMRef.Request(
@@ -47,12 +58,12 @@ class MMDataRepoTest : BaseTest() {
         )
         val ref2 = repo.create(req2)
         req2.source shouldBe ref2.source
-        verify(exactly = 0) { req2.source.release() }
+        coVerify(exactly = 0) { req2.source.release() }
 
         repo.release(req1.backupId)
-        verify { req1.source.release() }
+        coVerify { req1.source.release() }
 
         repo.releaseAll()
-        verify { req2.source.release() }
+        coVerify { req2.source.release() }
     }
 }

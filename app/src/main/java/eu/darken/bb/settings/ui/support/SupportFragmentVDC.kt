@@ -8,7 +8,7 @@ import eu.darken.bb.BackupButler
 import eu.darken.bb.common.EmailTool
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.debug.InstallId
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject

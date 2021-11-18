@@ -1,4 +1,4 @@
-package eu.darken.bb.common.errors
+package eu.darken.bb.common.error
 
 import io.reactivex.rxjava3.core.Observable
 import java.io.PrintWriter

@@ -13,11 +13,10 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.rx.clicksDebounced
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StoragePickerFragmentBinding
 import eu.darken.bb.storage.ui.editor.StorageEditorResultListener
@@ -25,11 +24,11 @@ import eu.darken.bb.storage.ui.list.StorageAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StoragePickerFragment : SmartFragment(R.layout.storage_picker_fragment),
+class StoragePickerFragment : Smart2Fragment(R.layout.storage_picker_fragment),
     StorageEditorResultListener {
 
-    private val vdc: StoragePickerFragmentVDC by viewModels()
-    private val ui: StoragePickerFragmentBinding by viewBinding()
+    override val vdc: StoragePickerFragmentVDC by viewModels()
+    override val ui: StoragePickerFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: StorageAdapter
 
@@ -74,8 +73,6 @@ class StoragePickerFragment : SmartFragment(R.layout.storage_picker_fragment),
 
             requireActivity().invalidateOptionsMenu()
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.finishEvent.observe2(this) {
             setStoragePickerResult(it)

@@ -5,16 +5,17 @@ import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.backup.core.files.FilesSpecGenerator
-import eu.darken.bb.common.Opt
+import eu.darken.bb.common.collections.mutate
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.GatewaySwitch
-import eu.darken.bb.common.opt
-import eu.darken.bb.common.rx.latest
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.subjects.BehaviorSubject
-import timber.log.Timber
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,52 +23,68 @@ import javax.inject.Singleton
 class GeneratorRepo @Inject constructor(
     @ApplicationContext context: Context,
     moshi: Moshi,
-    private val pathTool: GatewaySwitch
+    private val pathTool: GatewaySwitch,
+    @AppScope private val scope: CoroutineScope
 ) {
     private val configAdapter = moshi.adapter(Generator.Config::class.java)
     private val preferences: SharedPreferences = context.getSharedPreferences("backup_generators", Context.MODE_PRIVATE)
-    private val configsPub = BehaviorSubject.create<Map<Generator.Id, Generator.Config>>()
-    private val internalConfigs = mutableMapOf<Generator.Id, Generator.Config>()
+    private val state = DynamicStateFlow<Map<Generator.Id, Generator.Config>>(TAG, scope) {
+        mutableMapOf<Generator.Id, Generator.Config>().apply {
+            preferences.all.forEach {
+                val config = configAdapter.fromJson(it.value as String)!!
+                this[config.generatorId] = config
+            }
+        }
+    }
 
-    val configs: Observable<Map<Generator.Id, Generator.Config>> = configsPub.hide()
+    val configs: Flow<Map<Generator.Id, Generator.Config>> = state.flow
 
     init {
-        preferences.all.forEach {
-            val config = configAdapter.fromJson(it.value as String)!!
-            internalConfigs[config.generatorId] = config
-        }
-        configsPub.onNext(internalConfigs)
+        state.flow
+            .onEach { configs ->
+                // TODO save in database
+                synchronized(this@GeneratorRepo) {
+                    preferences.edit().clear().apply()
+                    configs.values.forEach {
+                        preferences.edit().putString(it.generatorId.toString(), configAdapter.toJson(it)).apply()
+                    }
+                }
+            }
+            .launchIn(scope)
     }
 
-    fun get(id: Generator.Id): Maybe<Generator.Config> = configs.latest()
-        .flatMapMaybe { Maybe.fromCallable { it[id] } }
+    suspend fun get(id: Generator.Id): Generator.Config? = state.value()[id]
 
     // Puts the spec into storage, returns the previous value
-    @Synchronized fun put(config: Generator.Config): Single<Opt<Generator.Config>> = Single.fromCallable {
-        val old = internalConfigs.put(config.generatorId, config)
-        Timber.tag(TAG).d("put(spec=%s) -> old=%s", config, old)
-        update()
-        return@fromCallable old.opt()
+    @Synchronized
+    suspend fun put(config: Generator.Config): Generator.Config? {
+        var old: Generator.Config? = null
+        state.updateBlocking {
+            old = this[config.generatorId]
+            mutate { this[config.generatorId] = config }
+        }
+        log(TAG) { "put(config=$config) -> old=$old" }
+        return old
     }
 
-    @Synchronized fun remove(configId: Generator.Id): Single<Opt<Generator.Config>> = Single.fromCallable {
-        val old = internalConfigs.remove(configId)
-        Timber.tag(TAG).d("remove(id=%s) -> old=%s", configId, old)
-        if (old is FilesSpecGenerator.Config) {
-            pathTool.tryReleaseResources(old.path)
+    @Synchronized
+    suspend fun remove(configId: Generator.Id): Generator.Config? {
+        var old: Generator.Config? = null
+        state.updateBlocking {
+            old = this[configId]
+            mutate { this.remove(configId) }
         }
-        update()
-        if (old == null) Timber.tag(TAG).w("Tried to delete non-existant GeneratorConfig: %s", configId)
-        return@fromCallable old.opt()
-    }
-
-    @Synchronized private fun update() {
-        // TODO save in database
-        preferences.edit().clear().apply()
-        internalConfigs.values.forEach {
-            preferences.edit().putString(it.generatorId.toString(), configAdapter.toJson(it)).apply()
+        if (old != null) {
+            log(TAG) { "remove(configId=$configId) -> removed=$old" }
+        } else {
+            log(TAG, WARN) { "remove(configId=$configId) -> Config does not exist!" }
         }
-        configsPub.onNext(internalConfigs)
+        old?.let {
+            if (it is FilesSpecGenerator.Config) {
+                pathTool.tryReleaseResources(it.path)
+            }
+        }
+        return old
     }
 
     companion object {

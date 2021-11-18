@@ -2,42 +2,53 @@ package eu.darken.bb.processor.core.mm
 
 import com.squareup.moshi.Moshi
 import eu.darken.bb.backup.core.Backup
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.listFilesThrowing
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.Sink
 import okio.Source
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.concurrent.thread
 
 @Singleton
 class MMDataRepo @Inject constructor(
     @CachePath private val cachePath: File,
-    moshi: Moshi
+    moshi: Moshi,
+    @AppScope private val appScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
 ) {
 
     private val tmpDir: File = File(cachePath, CACHEDIR)
     private val refMap = mutableMapOf<Backup.Id, MutableList<MMRef>>()
     private val propsAdapter = moshi.adapter(Props::class.java)
+    private val lock = Mutex()
 
     init {
         if (tmpDir.mkdirs()) {
             Timber.tag(TAG).d("TMP dirs created: %s", tmpDir)
         } else {
-            thread(start = true, name = "MMRepo Cleanup") {
-                tmpDir.listFilesThrowing().forEach {
-                    it.deleteRecursively()
+            appScope.launch(context = dispatcherProvider.IO) {
+                lock.withLock {
+                    tmpDir.listFilesThrowing().forEach {
+                        log(TAG) { "Cleaning up $it" }
+                        it.deleteRecursively()
+                    }
                 }
             }
         }
     }
 
-    @Synchronized
-    fun create(request: MMRef.Request): MMRef {
+    suspend fun create(request: MMRef.Request): MMRef = lock.withLock {
         val refId = MMRef.Id()
 
         val ref = MMRef(
@@ -55,21 +66,25 @@ class MMDataRepo @Inject constructor(
 
     fun writeProps(props: Props, output: Sink) = propsAdapter.into(props, output)
 
-    @Synchronized
-    fun release(backupId: Backup.Id) {
+    suspend fun release(backupId: Backup.Id) = lock.withLock {
         Timber.tag(TAG).d("release(%s): %s", backupId, refMap[backupId])
-        refMap[backupId]?.forEach { it ->
-            it.source.release()
-        }
-        refMap.remove(backupId)
+
+        backupId.doRelease()
     }
 
-    @Synchronized
-    fun releaseAll() {
+
+    suspend fun releaseAll() = lock.withLock {
         Timber.tag(TAG).d("Releasing all refs.")
-        refMap.keys.toList().forEach {
-            release(it)
+        refMap.keys.forEach {
+            it.doRelease()
         }
+    }
+
+    private suspend fun Backup.Id.doRelease() {
+        refMap[this]?.forEach { it ->
+            it.source.release()
+        }
+        refMap.remove(this)
     }
 
     companion object {

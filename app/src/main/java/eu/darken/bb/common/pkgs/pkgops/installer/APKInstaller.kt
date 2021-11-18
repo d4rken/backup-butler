@@ -5,12 +5,15 @@ import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent
 import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
@@ -23,7 +26,9 @@ import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -35,14 +40,16 @@ import javax.inject.Singleton
 class APKInstaller @Inject constructor(
     @ApplicationContext private val context: Context,
     private val javaRootClient: JavaRootClient,
-    private val pkgOps: PkgOps
-) : Progress.Client, Progress.Host, SharedHolder.HasKeepAlive<Any> {
+    private val pkgOps: PkgOps,
+    @AppScope private val appScope: CoroutineScope, // Shouldn't this be processorScope?
+    private val dispatcherProvider: DispatcherProvider,
+) : Progress.Client, Progress.Host, HasSharedResource<Any> {
 
-    private val progressPub = HotData(tag = TAG) { Progress.Data() }
-    override val progress: Observable<Progress.Data> = progressPub.data
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+    private val progressPub = DynamicStateFlow(TAG, appScope) { Progress.Data() }
+    override val progress: Flow<Progress.Data> = progressPub.flow
+    override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
 
     private val installer = context.packageManager.packageInstaller
     private val installMap = mutableMapOf<String, OnGoingInstall>()
@@ -65,7 +72,7 @@ class APKInstaller @Inject constructor(
         val error: Exception? = null
     )
 
-    fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
+    suspend fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
         Timber.tag(TAG).d("install(request=%s)", request)
         updateProgressPrimary(R.string.progress_restoring_apk)
         updateProgressSecondary(R.string.progress_working_label)
@@ -80,10 +87,11 @@ class APKInstaller @Inject constructor(
         }
 
         val apkInputs = mutableListOf<DetailedInputSource>()
+
         try {
             apkInputs.add(
                 DetailedInputSourceWrap(
-                    request.baseApk.props.originalPath as LocalPath,
+                    request.baseApk.getProps().originalPath as LocalPath,
                     request.baseApk.source.open()
                 )
             )
@@ -91,7 +99,7 @@ class APKInstaller @Inject constructor(
             request.splitApks
                 .map {
                     DetailedInputSourceWrap(
-                        it.props.originalPath as LocalPath,
+                        it.getProps().originalPath as LocalPath,
                         it.source.open()
                     )
                 }

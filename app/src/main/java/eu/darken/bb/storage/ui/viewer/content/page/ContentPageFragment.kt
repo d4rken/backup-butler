@@ -7,14 +7,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageViewerItemContentAdapterPageBinding
@@ -22,10 +21,10 @@ import java.text.DateFormat
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ContentPageFragment : SmartFragment(R.layout.storage_viewer_item_content_adapter_page) {
+class ContentPageFragment : Smart2Fragment(R.layout.storage_viewer_item_content_adapter_page) {
 
-    private val vdc: ContentPageFragmentVDC by viewModels()
-    private val ui: StorageViewerItemContentAdapterPageBinding by viewBinding()
+    override val vdc: ContentPageFragmentVDC by viewModels()
+    override val ui: StorageViewerItemContentAdapterPageBinding by viewBinding()
     @Inject lateinit var adapter: ContentEntryAdapter
 
     private val dateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
@@ -56,10 +55,6 @@ class ContentPageFragment : SmartFragment(R.layout.storage_viewer_item_content_a
 
             showRestoreAction = state.showRestoreAction
             invalidateOptionsMenu()
-        }
-
-        vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack()
         }
 
         super.onViewCreated(view, savedInstanceState)

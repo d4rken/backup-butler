@@ -4,9 +4,11 @@ import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.APathLookup
@@ -17,20 +19,21 @@ import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.files.core.local.toCrumbs
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.permission.RuntimePermissionTool
-import eu.darken.bb.common.vdc.SmartVDC
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import eu.darken.bb.common.smart.Smart2VDC
+import kotlinx.coroutines.CoroutineExceptionHandler
 import javax.inject.Inject
 
 @HiltViewModel
 class LocalPickerFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val localGateway: LocalGateway,
-    private val permissionTool: RuntimePermissionTool
-) : SmartVDC() {
+    private val permissionTool: RuntimePermissionTool,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
     private val options: PathPickerOptions = handle.navArgs<LocalPickerFragmentArgs>().value.options
     private val fallbackPath = LocalPath.build(Environment.getExternalStorageDirectory())
     private val startPath = options.startPath as? LocalPath ?: fallbackPath
@@ -40,23 +43,26 @@ class LocalPickerFragmentVDC @Inject constructor(
         LocalGateway.Mode.valueOf(options.payload.getString(ARG_MODE, LocalGateway.Mode.AUTO.name))
     }
 
-    private val stater = Stater {
+    private var resourceToken: SharedResource.Resource<*>? = null
+    private val stater = DynamicStateFlow(TAG, vdcScope) {
         State(
             currentPath = startPath,
             currentCrumbs = startPath.toCrumbs()
         )
     }
-    val state = stater.liveData
+    val state = stater.asLiveData2()
 
     val createDirEvent = SingleLiveEvent<APath>()
     val resultEvents = SingleLiveEvent<PathPickerResult>()
-    val errorEvents = SingleLiveEvent<Throwable>()
     val missingPermissionEvent = SingleLiveEvent<Permission>()
     val requestPermissionEvent = SingleLiveEvent<Permission>()
-    var holderToken: SharedHolder.Resource<*>? = null
-
 
     init {
+        launchErrorHandler = CoroutineExceptionHandler { _, ex ->
+            log(TAG) { "Error during launch: ${ex.asLog()}" }
+            errorEvents.postValue(ex)
+        }
+
         if (!permissionTool.hasStoragePermission()) {
             missingPermissionEvent.postValue(permissionTool.getRequiredStoragePermission())
         } else {
@@ -65,7 +71,7 @@ class LocalPickerFragmentVDC @Inject constructor(
     }
 
     override fun onCleared() {
-        holderToken?.close()
+        resourceToken?.close()
         super.onCleared()
     }
 
@@ -74,13 +80,12 @@ class LocalPickerFragmentVDC @Inject constructor(
             is LocalPath -> selected
             is LocalPathLookup -> selected.lookedUp
             else -> null
-        }
-        if (unwrapped == null) return
+        } ?: return
 
-        val doCd: (LocalPath) -> Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> = { path ->
+        val doCd: suspend (LocalPath) -> Triple<LocalPath, List<LocalPath>, List<APathLookup<*>>> = { path ->
             val crumbs = path.toCrumbs()
 
-            if (holderToken == null) holderToken = localGateway.keepAlive.get()
+            if (resourceToken == null) resourceToken = localGateway.sharedResource.get()
             val listing = localGateway.lookupFiles(path, mode = mode)
                 .sortedBy { it.name.lowercase() }
                 .filter { !options.onlyDirs || it.isDirectory }
@@ -88,55 +93,39 @@ class LocalPickerFragmentVDC @Inject constructor(
             Triple(path, crumbs, listing)
         }
 
-        Observable.just(unwrapped)
-            .subscribeOn(Schedulers.computation())
-            .map { path -> doCd(path) }
-            .onErrorReturn {
-                errorEvents.postValue(it)
-                doCd(fallbackPath)
+        launch {
+            val (path, crumbs, listing) = doCd(unwrapped)
+
+            stater.updateBlocking {
+                copy(
+                    currentPath = path,
+                    currentListing = listing,
+                    currentCrumbs = crumbs
+                )
             }
-            .onErrorReturn {
-                errorEvents.postValue(it)
-                Triple(fallbackPath, fallbackPath.toCrumbs(), emptyList())
-            }
-            .subscribe({ (path, crumbs, listing) ->
-                stater.update { state ->
-                    state.copy(
-                        currentPath = path,
-                        currentListing = listing,
-                        currentCrumbs = crumbs
-                    )
-                }
-            }, {
-                errorEvents.postValue(it)
-            })
+        }
     }
 
     fun createDirRequest() {
-        val current = stater.snapshot.currentPath
-        createDirEvent.postValue(current)
+        launch {
+            val current = stater.value().currentPath
+            createDirEvent.postValue(current)
+        }
     }
 
-    fun createDir(name: String) {
-        stater.data.take(1)
-            .map {
-                val current = it.currentPath
-                val child = current.child(name) as LocalPath
-                if (localGateway.createDir(child, mode = mode)) {
-                    child
-                } else {
-                    throw WriteException(child)
-                }
-            }
-            .subscribe({
-                selectItem(it)
-            }, {
-                errorEvents.postValue(it)
-            })
+    fun createDir(name: String) = launch {
+        val current = stater.value().currentPath
+
+        val child = current.child(name) as LocalPath
+        if (localGateway.createDir(child, mode = mode)) {
+            selectItem(child)
+        } else {
+            throw WriteException(child)
+        }
     }
 
-    fun finishSelection() {
-        val selected = setOf(stater.snapshot.currentPath)
+    fun finishSelection() = launch {
+        val selected = setOf(stater.value().currentPath)
         val result = PathPickerResult(
             options = options,
             selection = selected

@@ -4,8 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 
 object StorageExtensions {
     internal const val STORAGEID_KEY = "storage.id"
@@ -30,48 +29,59 @@ fun Bundle.getStorageIds(): Collection<Storage.Id>? = getParcelableArrayList(Sto
 fun Storage.specInfosOpt(
     vararg specIds: BackupSpec.Id,
     live: Boolean = false
-): Observable<Collection<BackupSpec.InfoOpt>> = Observable.just(specIds)
-    .flatMap { items ->
-        if (items.isEmpty()) return@flatMap Observable.just(emptyList<Backup.InfoOpt>())
+): Flow<Collection<BackupSpec.InfoOpt>> = flowOf(specIds)
+    .flatMapConcat { items ->
+        if (items.isEmpty()) return@flatMapConcat flowOf(emptyList<Backup.InfoOpt>())
 
         val statusObs = items.map { specId ->
             specInfo(specId)
-                .observeOn(Schedulers.computation())
-                .compose { if (live) it else it.take(1) }
+                .let { if (live) it else it.take(1) }
                 .map { BackupSpec.InfoOpt(it) }
-                .onErrorReturn { BackupSpec.InfoOpt(storageId, specId, error = it) }
+                .catch {
+                    BackupSpec.InfoOpt(storageId, specId, error = it)
+                        .run { emit(this) }
+                }
         }
-        return@flatMap Observable.combineLatest<BackupSpec.InfoOpt, Collection<BackupSpec.InfoOpt>>(statusObs) {
-            it.asList() as Collection<BackupSpec.InfoOpt>
-        }
+        return@flatMapConcat combine(statusObs) { it.asList() }
     }
-    .startWithItem(specIds.map { BackupSpec.InfoOpt(storageId = this.storageId, specId = it) })
+    .onStart {
+        val opts = specIds.map {
+            BackupSpec.InfoOpt(
+                storageId = this@specInfosOpt.storageId,
+                specId = it
+            )
+        }
+        emit(opts)
+    }
     .map { it as Collection<BackupSpec.InfoOpt> }
 
 
 fun Storage.backupInfosOpt(
     vararg backupIds: Pair<BackupSpec.Id, Backup.Id>,
     live: Boolean = false
-): Observable<Collection<Backup.InfoOpt>> = Observable.just(backupIds)
-    .flatMap { items ->
-        if (items.isEmpty()) return@flatMap Observable.just(emptyList<Backup.InfoOpt>())
+): Flow<Collection<Backup.InfoOpt>> = flowOf(backupIds)
+    .flatMapConcat { items ->
+        if (items.isEmpty()) return@flatMapConcat flowOf(emptyList<Backup.InfoOpt>())
 
         val statusObs = items.map { (specId, backupId) ->
             backupInfo(specId, backupId)
-                .observeOn(Schedulers.computation())
-                .compose { if (live) it else it.take(1) }
+                .let { if (live) it else it.take(1) }
                 .map { Backup.InfoOpt(it) }
-                .onErrorReturn { Backup.InfoOpt(storageId, specId, backupId, error = it) }
+                .catch {
+                    Backup.InfoOpt(storageId, specId, backupId, error = it)
+                        .run { emit(this) }
+                }
         }
-        return@flatMap Observable.combineLatest<Backup.InfoOpt, Collection<Backup.InfoOpt>>(statusObs) {
-            it.asList() as Collection<Backup.InfoOpt>
-        }
+        return@flatMapConcat combine(statusObs) { it.asList() }
     }
-    .startWithItem(backupIds.map {
-        Backup.InfoOpt(
-            storageId = this.storageId,
-            specId = it.first,
-            backupId = it.second
-        )
-    })
+    .onStart {
+        val opts = (backupIds.map {
+            Backup.InfoOpt(
+                storageId = this@backupInfosOpt.storageId,
+                specId = it.first,
+                backupId = it.second
+            )
+        })
+        emit(opts)
+    }
     .map { it }

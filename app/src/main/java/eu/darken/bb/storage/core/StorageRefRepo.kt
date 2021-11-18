@@ -4,29 +4,29 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
+import eu.darken.bb.common.collections.mutate
+import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.opt
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.subjects.PublishSubject
-import timber.log.Timber
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StorageRefRepo @Inject constructor(
     @ApplicationContext context: Context,
-    moshi: Moshi
+    moshi: Moshi,
+    @AppScope private val appScope: CoroutineScope,
 ) {
     private val preferences: SharedPreferences =
         context.getSharedPreferences("backup_storage_references", Context.MODE_PRIVATE)
     private val refAdapter = moshi.adapter(Storage.Ref::class.java)
 
-    private val internalData = HotData(tag = TAG) {
+    private val internalData = DynamicStateFlow(TAG, appScope) {
         val internalRefs = mutableMapOf<Storage.Id, Storage.Ref>()
         preferences.all.forEach {
             val ref = refAdapter.fromJson(it.value as String)!!
@@ -35,54 +35,60 @@ class StorageRefRepo @Inject constructor(
         internalRefs.toMap()
     }
 
-    private val affectedIdPub = PublishSubject.create<Storage.Id>()
-    internal val modifiedIds = affectedIdPub.hide()
+    private val affectedIdPub = MutableStateFlow<Storage.Id?>(null)
+    internal val modifiedIds: Flow<Storage.Id> = affectedIdPub.filterNotNull()
 
-    val references = internalData.data
+    val references = internalData.flow
 
     init {
-        internalData.data
-            .subscribe { data ->
+        internalData.flow
+            .onStart { log(TAG, VERBOSE) { "Monitoring refs for async storage" } }
+            .onEach { data ->
                 preferences.edit().clear().apply()
                 data.values.forEach {
                     preferences.edit().putString("${it.storageId}", refAdapter.toJson(it)).apply()
                 }
             }
+            .launchIn(appScope)
     }
 
-    fun get(id: Storage.Id): Maybe<Storage.Ref> = internalData.latest
-        .flatMapMaybe { Maybe.fromCallable { it[id] } }
+    suspend fun get(id: Storage.Id): Storage.Ref? = internalData.value()[id]
 
-    fun put(ref: Storage.Ref): Single<Opt<Storage.Ref>> {
+    suspend fun put(ref: Storage.Ref): Storage.Ref? {
         var oldValue: Storage.Ref? = null
-        return internalData
-            .updateRx { data ->
-                data.toMutableMap().apply {
-                    oldValue = put(ref.storageId, ref)?.also {
-                        log(TAG) { "Overwriting existing ref: $it" }
-                    }
+
+        internalData.updateBlocking {
+            oldValue = this[ref.storageId]
+            mutate {
+                put(ref.storageId, ref)?.also {
+                    log(TAG) { "Overwriting existing ref: $it" }
                 }
             }
-            .map { oldValue.opt() }
-            .doOnSuccess { log(TAG, VERBOSE) { "put(ref=$ref) -> old=${it.value}" } }
-            .doOnSuccess { affectedIdPub.onNext(ref.storageId) }
+        }
+
+        affectedIdPub.value = ref.storageId
+        log(TAG, VERBOSE) { "put(ref=$ref) -> old=$oldValue" }
+
+        return oldValue
     }
 
-    fun remove(refId: Storage.Id): Single<Opt<Storage.Ref>> {
+    suspend fun remove(refId: Storage.Id): Storage.Ref? {
         var oldValue: Storage.Ref? = null
-        return internalData
-            .updateRx { data ->
-                data.toMutableMap().apply {
-                    oldValue = remove(refId)
-                }
-            }
-            .map { oldValue.opt() }
-            .doOnSuccess {
-                log(TAG, VERBOSE) { "remove(refId=$refId) -> old=${it.value}" }
 
-                if (it.isNull) Timber.tag(TAG).w("Tried to delete non-existant StorageRef: %s", refId)
+        internalData.updateBlocking {
+            oldValue = this[refId]
+            mutate {
+                remove(refId)
             }
-            .doOnSuccess { affectedIdPub.onNext(refId) }
+        }
+
+        log(TAG, VERBOSE) { "remove(refId=$refId) -> old=$oldValue" }
+
+        if (oldValue == null) log(TAG, WARN) { "Tried to delete non-existant StorageRef: $refId" }
+
+        affectedIdPub.value = refId
+
+        return oldValue
     }
 
     companion object {

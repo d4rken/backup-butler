@@ -18,6 +18,7 @@
     <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:id="@+id/sources_list_wrapper"
         app:layout_constraintBottom_toTopOf="@+id/setupbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +28,7 @@
         app:rvwLoadingUntilFirstChange="true">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_sources"
+            android:id="@+id/sources_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:listitem="@layout/generator_list_adapter_line" />

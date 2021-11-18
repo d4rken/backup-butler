@@ -7,10 +7,15 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import eu.darken.bb.common.debug.modules.*
 import eu.darken.bb.common.debug.recording.core.RecorderModule
+import kotlinx.coroutines.CoroutineScope
 
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class DebugModuleModule {
+
+    @Binds
+    @DebugScope
+    abstract fun debugScope(scope: DebugCoroutineScope): CoroutineScope
 
     @Binds
     abstract fun debugModule(bbDebug: BBDebug): DebugModuleHost

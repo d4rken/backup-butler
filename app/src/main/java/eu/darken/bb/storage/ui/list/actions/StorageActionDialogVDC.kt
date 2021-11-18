@@ -1,17 +1,15 @@
 package eu.darken.bb.storage.ui.list.actions
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.Bugs
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
-import eu.darken.bb.common.navigation.NavEventsSource
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.navigation.via
-import eu.darken.bb.common.rx.withScopeVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.common.ui.Confirmable
-import eu.darken.bb.common.vdc.SmartVDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
@@ -20,9 +18,10 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.job
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,23 +29,21 @@ class StorageActionDialogVDC @Inject constructor(
     handle: SavedStateHandle,
     private val storageManager: StorageManager,
     private val storageBuilder: StorageBuilder,
-    private val taskBuilder: TaskBuilder
-) : SmartVDC(), NavEventsSource {
+    private val taskBuilder: TaskBuilder,
+    dispatcherProvider: DispatcherProvider
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<StorageActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val stater = Stater { State(isLoadingData = true) }
     val state = stater.liveData
-    override val navEvents = SingleLiveEvent<NavDirections>()
     val closeDialogEvent = SingleLiveEvent<Any>()
-    val errorEvent = SingleLiveEvent<Throwable>()
 
     init {
         storageManager.infos(listOf(storageId))
-            .observeOn(Schedulers.computation())
             .map { it.single() }
-            .takeUntil { info -> info.isFinished }
-            .subscribe { infoOpt ->
+            .takeUntilAfter { info -> info.isFinished }
+            .onEach { infoOpt ->
                 val allowedActions = mutableSetOf<Confirmable<StorageAction>>().apply {
                     if (infoOpt.info?.status != null) {
                         add(Confirmable(VIEW) { storageAction(it) })
@@ -72,102 +69,55 @@ class StorageActionDialogVDC @Inject constructor(
                 }
 
                 if (infoOpt.anyError != null) {
-                    errorEvent.postValue(infoOpt.anyError)
+                    errorEvents.postValue(infoOpt.anyError)
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun storageAction(action: StorageAction) {
-        require(stater.snapshot.currentOperation == null)
+    fun storageAction(action: StorageAction) = launch {
+        require(stater.snapshot.job == null)
+        stater.update { it.copy(job = coroutineContext.job) }
+        try {
+            when (action) {
+                VIEW -> {
+                    StorageActionDialogDirections.actionStorageActionDialogToStorageViewerActivity(storageId)
+                        .navVia(this@StorageActionDialogVDC)
+                    closeDialogEvent.postValue(Any())
+                }
+                EDIT -> {
+                    val load = storageBuilder.load(storageId)!!
+                    StorageActionDialogDirections.actionStorageActionDialogToStorageEditor(
+                        storageId = load.storageId
+                    ).navVia(this@StorageActionDialogVDC)
+                    closeDialogEvent.postValue(Any())
+                }
+                RESTORE -> {
+                    val data = taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
+                    (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId)
 
-        when (action) {
-            VIEW -> {
-                Single
-                    .fromCallable {
-                        // do we need to do more checks here, or will that always be part of the viewer activity
-                        storageId
-                    }
-                    .subscribeOn(Schedulers.computation())
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp ->
-                        stater.update { it.copy(currentOperation = disp) }
-                    }
-                    .doOnError { Bugs.track(it) }
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe({
-                        StorageActionDialogDirections.actionStorageActionDialogToStorageViewerActivity(it)
-                            .via(this)
-                        closeDialogEvent.postValue(Any())
-                    }, {
-                        errorEvent.postValue(it)
-                    })
-                    .withScopeVDC(this)
+                    StorageActionDialogDirections.actionStorageActionDialogToTaskEditor(
+                        args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
+                    ).navVia(navEvents)
+                    closeDialogEvent.postValue(Any())
+                }
+                DETACH -> {
+                    val ref = storageManager.detach(storageId, wipe = false)
+                    navEvents.postValue(null)
+                }
+                DELETE -> {
+                    val ref = storageManager.detach(storageId, wipe = true)
+                    closeDialogEvent.postValue(Any())
+                }
             }
-            EDIT -> {
-                storageBuilder.load(storageId)
-                    .observeOn(Schedulers.computation())
-                    .doOnError { Bugs.track(it) }
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe(
-                        {
-                            StorageActionDialogDirections.actionStorageActionDialogToStorageEditor(
-                                storageId = it.storageId
-                            ).via(this)
-                            closeDialogEvent.postValue(Any())
-                        },
-                        { errorEvent.postValue(it) }
-                    )
-                    .withScopeVDC(this)
-            }
-            RESTORE -> {
-                taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
-                    .observeOn(Schedulers.computation())
-                    .flatMap { data ->
-                        (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId).map { data.taskId }
-                    }
-                    .doOnError { Bugs.track(it) }
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe({
-                        StorageActionDialogDirections.actionStorageActionDialogToTaskEditor(
-                            args = TaskEditorArgs(taskId = it, taskType = Task.Type.RESTORE_SIMPLE)
-                        ).via(navEvents)
-                        closeDialogEvent.postValue(Any())
-                    }, {
-                        errorEvent.postValue(it)
-                    })
-                    .withScopeVDC(this)
-            }
-            DETACH -> {
-                storageManager.detach(storageId, wipe = false)
-                    .observeOn(Schedulers.computation())
-                    .doOnError { Bugs.track(it) }
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe(
-                        { closeDialogEvent.postValue(Any()) },
-                        { errorEvent.postValue(it) }
-                    )
-            }
-            DELETE -> {
-                storageManager.detach(storageId, wipe = true)
-                    .observeOn(Schedulers.computation())
-                    .doOnError { Bugs.track(it) }
-                    .doFinally { stater.update { it.copy(currentOperation = null) } }
-                    .doOnSubscribe { disp -> stater.update { it.copy(currentOperation = disp) } }
-                    .subscribe(
-                        { closeDialogEvent.postValue(Any()) },
-                        { errorEvent.postValue(it) }
-                    )
-            }
+
+        } finally {
+            stater.update { it.copy(job = null) }
         }
     }
 
     fun cancelCurrentOperation() {
-        stater.snapshot.currentOperation?.dispose()
+        stater.snapshot.job?.cancel()
     }
 
     data class State(
@@ -175,9 +125,9 @@ class StorageActionDialogVDC @Inject constructor(
         val allowedActions: List<Confirmable<StorageAction>> = listOf(),
         val isCancelable: Boolean = false,
         val isLoadingData: Boolean = false,
-        val currentOperation: Disposable? = null
+        val job: Job? = null
     ) {
         val isWorking: Boolean
-            get() = currentOperation != null
+            get() = job != null
     }
 }

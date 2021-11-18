@@ -12,18 +12,17 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorListFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class GeneratorListFragment : SmartFragment(R.layout.generator_list_fragment), GeneratorEditorResultListener {
+class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), GeneratorEditorResultListener {
 
-    private val vdc: GeneratorListFragmentVDC by viewModels()
-    private val ui: GeneratorListFragmentBinding by viewBinding()
+    override val vdc: GeneratorListFragmentVDC by viewModels()
+    override val ui: GeneratorListFragmentBinding by viewBinding()
     @Inject lateinit var adapter: GeneratorListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,8 +42,6 @@ class GeneratorListFragment : SmartFragment(R.layout.generator_list_fragment), G
         }
 
         ui.fab.clicks().subscribe { vdc.newGenerator() }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         super.onViewCreated(view, savedInstanceState)
     }

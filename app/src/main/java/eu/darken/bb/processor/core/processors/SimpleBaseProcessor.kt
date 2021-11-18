@@ -3,25 +3,32 @@ package eu.darken.bb.processor.core.processors
 import android.content.Context
 import eu.darken.bb.R
 import eu.darken.bb.common.CaString
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.progress.updateProgressTertiary
 import eu.darken.bb.processor.core.Processor
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.results.SimpleResult
 import eu.darken.bb.task.core.results.TaskResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.plus
 import timber.log.Timber
 
 abstract class SimpleBaseProcessor constructor(
     val context: Context,
-    val progressParent: Progress.Client
-) : Processor, Progress.Client, SharedHolder.HasKeepAlive<Any> {
+    val progressParent: Progress.Client,
+    @ProcessorScope private val processorScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
+) : Processor, Progress.Client, HasSharedResource<Any> {
 
     val progressChild = object : Progress.Client {
-        override fun updateProgress(update: (Progress.Data) -> Progress.Data) {
+        override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) {
             progressParent.updateProgress { parent ->
                 val oldChild = parent.child ?: Progress.Data()
                 val newChild = update.invoke(oldChild)
@@ -29,17 +36,17 @@ abstract class SimpleBaseProcessor constructor(
             }
         }
     }
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, processorScope + dispatcherProvider.IO)
 
     val resultBuilder = SimpleResult.Builder()
 
-    override fun process(task: Task): TaskResult {
+    override suspend fun process(task: Task): TaskResult {
         Timber.tag(TAG).i("Processing task: %s", task)
         try {
             resultBuilder.forTask(task)
             resultBuilder.startNow()
 
-            keepAlive.get().use {
+            sharedResource.get().use {
                 doProcess(task)
             }
 
@@ -57,9 +64,9 @@ abstract class SimpleBaseProcessor constructor(
         return resultBuilder.build(context)
     }
 
-    abstract fun doProcess(task: Task)
+    abstract suspend fun doProcess(task: Task)
 
-    open fun onCleanup() {
+    open suspend fun onCleanup() {
 
     }
 

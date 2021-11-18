@@ -120,7 +120,10 @@ android {
             freeCompilerArgs = [
                     '-XXLanguage:+InlineClasses',
                     '-Xopt-in=kotlin.ExperimentalStdlibApi',
-                    '-Xopt-in=kotlin.contracts.ExperimentalContracts'
+                    '-Xopt-in=kotlin.contracts.ExperimentalContracts',
+                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
+                    "-Xuse-experimental=kotlin.time.ExperimentalTime",
             ]
         }
     }

@@ -49,17 +49,18 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         private fun refresh(itemCount: Int? = null) {
             state = state.copy(dataCount = (itemCount ?: currentAdapter?.itemCount) ?: -1)
 
-            if (!state.isPreFirstChange && state.isLoading && state.consumeFirstLoading) {
-                state = state.copy(isLoading = false, consumeFirstLoading = false)
+            if (state.isPreFirstChange && state.isLoading && state.consumeFirstLoading) {
+                state = state.copy(
+                    isLoading = false,
+                    consumeFirstLoading = false,
+                    isPreFirstChange = false
+                )
             }
 
             postDelayed(100L) {
                 updateUI()
             }
 
-            if (state.isPreFirstChange) {
-                state = state.copy(isPreFirstChange = false)
-            }
             if (state.isPreFirstData && state.dataCount > 0) {
                 state = state.copy(isPreFirstData = false)
             }

@@ -11,19 +11,23 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.SharedHolder
+import eu.darken.bb.common.SharedResource
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.errors.hasCause
+import eu.darken.bb.common.error.hasCause
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.pkgs.AppPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.APKInstaller
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException
-import eu.darken.bb.common.rx.withScopeThis
+import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.task.core.results.LogEvent
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,18 +36,20 @@ class AppRestoreEndpoint @Inject constructor(
     private val apkInstaller: APKInstaller,
     private val javaRootClient: JavaRootClient,
     private val pkgOps: PkgOps,
+    @ProcessorScope private val processorScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
     restoreHandlers: @JvmSuppressWildcards Set<RestoreHandler>
 ) : Restore.Endpoint, Progress.Client, HasContext {
 
-    private val progressPub = HotData(tag = TAG) { Progress.Data() }
-    override val progress: Observable<Progress.Data> = progressPub.data
-    override fun updateProgress(update: (Progress.Data) -> Progress.Data) = progressPub.update(update)
+    private val progressPub = DynamicStateFlow(TAG, processorScope) { Progress.Data() }
+    override val progress: Flow<Progress.Data> = progressPub.flow
+    override fun updateProgress(update: suspend Progress.Data.() -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    override val keepAlive = SharedHolder.createKeepAlive(TAG)
+    override val sharedResource = SharedResource.createKeepAlive(TAG, processorScope + dispatcherProvider.IO)
 
     private val restoreHandlers = restoreHandlers.sortedBy { it.priority }
 
-    override fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?) {
+    override suspend fun restore(config: Restore.Config, backup: Backup.Unit, logListener: ((LogEvent) -> Unit)?) {
         updateProgressPrimary(R.string.progress_restoring_backup)
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
@@ -73,8 +79,8 @@ class AppRestoreEndpoint @Inject constructor(
                 useRoot = rootAvailable
             )
 
-            val installResult = apkInstaller.forwardProgressTo(this).withScopeThis {
-                apkInstaller.keepAliveWIth(this).install(request) {
+            val installResult = apkInstaller.forwardProgressTo(this).launchForAction(processorScope) {
+                apkInstaller.keepAliveWith(this).install(request) {
                     logListener?.invoke(it)
                 }
             }
@@ -121,7 +127,7 @@ class AppRestoreEndpoint @Inject constructor(
         }
     }
 
-    private fun restoreType(
+    private suspend fun restoreType(
         type: DataType,
         config: AppRestoreConfig,
         spec: AppBackupSpec,
@@ -137,7 +143,7 @@ class AppRestoreEndpoint @Inject constructor(
 
         handler.keepAliveWith(this)
 
-        handler.forwardProgressTo(this).withScopeThis {
+        handler.forwardProgressTo(this).launchForAction(processorScope) {
             handler.restore(type, appInfo, config, builder, logListener)
         }
     }

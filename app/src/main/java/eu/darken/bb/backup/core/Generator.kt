@@ -14,7 +14,7 @@ import java.util.*
 
 interface Generator {
 
-    fun generate(config: Config): Collection<BackupSpec>
+   suspend fun generate(config: Config): Collection<BackupSpec>
 
     @Keep
     interface Config {

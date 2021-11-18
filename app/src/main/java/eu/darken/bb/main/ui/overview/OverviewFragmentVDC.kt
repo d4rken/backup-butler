@@ -8,7 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.Stater
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
 import io.reactivex.rxjava3.core.Single

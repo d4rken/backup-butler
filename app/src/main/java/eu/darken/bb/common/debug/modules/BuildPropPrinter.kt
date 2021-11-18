@@ -7,12 +7,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import eu.darken.bb.common.ApiHelper
-import eu.darken.bb.common.debug.DebugModule
-import eu.darken.bb.common.debug.DebugModuleHost
-import eu.darken.bb.common.debug.DebugOptions
-import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.*
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.io.BufferedReader
 import java.io.File
@@ -20,17 +20,17 @@ import java.io.FileReader
 import java.util.*
 
 class BuildPropPrinter @AssistedInject constructor(
-    @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost,
+    @DebugScope private val debugScope: CoroutineScope,
 ) : DebugModule {
 
     private var previousOptions: DebugOptions = DebugOptions.default()
 
     init {
         host.observeOptions()
-            .observeOn(Schedulers.io())
             .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
-            .doOnNext { previousOptions = it }
-            .subscribe {
+            .onEach { previousOptions = it }
+            .onEach {
                 if (!ApiHelper.hasOreo()) {
                     for (info in getSystemBuildProp()) {
                         if (info.first!!.contains("ro.product") || info.first!!.contains("ro.build") || info.first!!.contains(
@@ -57,6 +57,7 @@ class BuildPropPrinter @AssistedInject constructor(
                     Timber.tag(TAG).d("ro.bootloader=%s", Build.BOOTLOADER)
                 }
             }
+            .launchIn(debugScope)
     }
 
     private fun getSystemBuildProp(): List<Pair<String, String>> {

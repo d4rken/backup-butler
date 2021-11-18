@@ -21,6 +21,19 @@ android {
         }
     }
 
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            jvmTarget = '1.8'
+            freeCompilerArgs = [
+                    '-XXLanguage:+InlineClasses',
+                    '-Xopt-in=kotlin.ExperimentalStdlibApi',
+                    '-Xopt-in=kotlin.RequiresOptIn',
+                    '-Xopt-in=kotlin.contracts.ExperimentalContracts',
+                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                    "-Xuse-experimental=kotlinx.coroutines.FlowPreview",
+            ]
+        }
+    }
 }
 
 dependencies {
@@ -32,6 +45,11 @@ dependencies {
 
     implementation "eu.darken.rxshell:core:${versions.rxshell}"
     implementation "eu.darken.rxshell:root:${versions.rxshell}"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.kotlin.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.kotlin.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx3:${versions.kotlin.coroutines}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.kotlin.coroutines}"
 
     implementation "com.google.dagger:dagger:${versions.dagger}"
     implementation "com.google.dagger:dagger-android:${versions.dagger}"

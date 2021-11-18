@@ -1,6 +1,5 @@
 package eu.darken.bb.task.core.restore
 
-import com.jakewharton.rx3.replayingShare
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -8,22 +7,21 @@ import eu.darken.bb.backup.core.*
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
-import eu.darken.bb.common.HotData
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.error.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
-import eu.darken.bb.common.rx.filterUnchanged
-import eu.darken.bb.common.rx.latest
-import eu.darken.bb.common.rx.swallowInterruptExceptions
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.core.backupInfosOpt
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskEditor
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Observables
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,47 +31,48 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     @Assisted private val taskId: Task.Id,
     private val restoreConfigRepo: RestoreConfigRepo,
     private val storageManager: StorageManager,
-    private val pathTool: GatewaySwitch
+    private val pathTool: GatewaySwitch,
+    @AppScope private val appScope: CoroutineScope,
 ) : TaskEditor {
 
-    private val editorDataPub = HotData(tag = TAG) { Data(taskId = taskId) }
-    override val editorData = editorDataPub.data
+    private val editorDataPub = DynamicStateFlow(TAG, appScope) { Data(taskId = taskId) }
+    override val editorData = editorDataPub.flow
 
     private val backupInfoCache = mutableMapOf<Backup.Id, Backup.InfoOpt>()
-    val backupInfos: Observable<List<Backup.InfoOpt>> = editorData.map { it.backupTargets }
-        .filterUnchanged()
-        .switchMap { targets ->
-            if (targets.isEmpty()) return@switchMap Observable.just(emptyList<Backup.InfoOpt>())
+    val backupInfos: Flow<List<Backup.InfoOpt>> = editorData.map { it.backupTargets }
+        .distinctUntilChanged()
+        .flatMapLatest { targets ->
+            if (targets.isEmpty()) return@flatMapLatest flowOf(emptyList<Backup.InfoOpt>())
             // TODO make lookup more efficient, e.g. group by storage id.
             val obs = targets.map { target ->
                 val cachedInfo = backupInfoCache[target.backupId]
                 if (cachedInfo != null) {
-                    Observable.just(cachedInfo)
+                    flowOf(cachedInfo)
                 } else {
-                    storageManager.getStorage(target.storageId)
-                        .flatMapObservable {
-                            it.backupInfosOpt(
-                                Pair(target.backupSpecId, target.backupId),
-                                live = false
-                            )
-                        }
+                    val storage = storageManager.getStorage(target.storageId)
+                    storage.backupInfosOpt(
+                        Pair(target.backupSpecId, target.backupId),
+                        live = false
+                    )
                         .map { it.first() }
-                        .doOnNext { backupInfoCache[it.backupId] = it }
+                        .onEach { backupInfoCache[it.backupId] = it }
                 }
             }
-            Observable.combineLatest(obs) { it.asList() as List<Backup.InfoOpt> }
+            combine(obs) {
+                it.asList()
+            }
         }
-        .replayingShare()
+        .replayingShare(appScope)
 
 
-    private fun Backup.Target.createConfigWrap(
+    private suspend fun Backup.Target.createConfigWrap(
         defaultConfig: Restore.Config,
         customConfig: Restore.Config?,
     ): ConfigWrap {
         val target = this
         val config = customConfig ?: defaultConfig
 
-        val infos = backupInfos.blockingFirst()
+        val infos = backupInfos.first()
         // Due to exclusion and data refresh, infos may no longer contains a data object
         val infoOpt = infos.find { it.backupId == target.backupId }
 
@@ -105,19 +104,16 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     }
 
     //    private val configWrapCache = mutableMapOf<Backup.Id, ConfigWrap>()
-    val configWraps: Observable<List<ConfigWrap>> = Observables
-        .combineLatest(backupInfos, editorData)
-        .serialize()
-        .map { (infos, data) ->
-            data.backupTargets.map { target ->
+    val configWraps: Flow<List<ConfigWrap>> = combine(backupInfos, editorData) { infos, data ->
+        data.backupTargets.map { target ->
 //                val currentInfos = infos.find { it.backupId == target.backupId }
 //                val currentWrap = configWrapCache[target.backupId]
 //
 //                // If the info changed, we need to update the wrap
 //                val hashMissMatch = currentWrap?.backupInfoOpt?.hashCode() != currentInfos?.hashCode()
 
-                val customConfig = data.customConfigs[target.backupId]
-                val defaultConfig = data.defaultConfigs.getValue(target.backupType)
+            val customConfig = data.customConfigs[target.backupId]
+            val defaultConfig = data.defaultConfigs.getValue(target.backupType)
 
 //                // if the config has changed, we need to update the wrap too
 //                val newConfig = currentWrap?.config != customConfig || currentWrap?.config != defaultConfig
@@ -127,29 +123,36 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
 //                    configWrapCache[target.backupId] = currentWrap
 //                }
 //                currentWrap
-                target.createConfigWrap(defaultConfig = defaultConfig, customConfig = customConfig)
+            target.createConfigWrap(defaultConfig = defaultConfig, customConfig = customConfig)
+        }
+
+    }
+        .catch {
+            if (it is InterruptedException || it.getRootCause() is InterruptedException) {
+                log(TAG) { "configWrap: Ignoring interrupt exception" }
+            } else {
+                throw it
             }
         }
-        .swallowInterruptExceptions()
-        .replayingShare()
+        .replayingShare(appScope)
 
-    override fun load(task: Task): Completable = Single.just(task as SimpleRestoreTask)
-        .flatMap { simpleTask ->
-            require(taskId == simpleTask.taskId) { "IDs don't match" }
-            editorDataPub.updateRx {
-                it.copy(
-                    label = task.label,
-                    isExistingTask = true,
-                    backupTargets = simpleTask.backupTargets,
-                    defaultConfigs = simpleTask.defaultConfigs,
-                    customConfigs = simpleTask.customConfigs
-                )
-            }
+    override suspend fun load(task: Task) {
+        require(taskId == task.taskId) { "IDs don't match" }
+        task as SimpleRestoreTask
+
+        editorDataPub.updateBlocking {
+            copy(
+                label = task.label,
+                isExistingTask = true,
+                backupTargets = task.backupTargets,
+                defaultConfigs = task.defaultConfigs,
+                customConfigs = task.customConfigs
+            )
         }
-        .ignoreElement()
+    }
 
-    override fun snapshot(): Single<out Task> = Single.fromCallable {
-        val data = editorDataPub.snapshot
+    override suspend fun snapshot(): Task {
+        val data = editorDataPub.value()
 
         // TODO test clean up custom configs
         val nonDefaultConfigs = data.customConfigs
@@ -161,7 +164,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             label = sdf.format(Date())
         }
 
-        SimpleRestoreTask(
+        return SimpleRestoreTask(
             taskId = data.taskId,
             label = label,
             defaultConfigs = data.defaultConfigs,
@@ -171,130 +174,128 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         )
     }
 
-    override fun isValid(): Observable<Boolean> = Observables.combineLatest(configWraps, editorData)
-        .map { (configWrappers, editorData) ->
-            val noMissingPermission = configWrappers.find {
-                it is FilesConfigWrap && !it.isPermissionGranted
-            } == null
-            return@map noMissingPermission
-        }
+    override fun isValid(): Flow<Boolean> = combine(configWraps, editorData) { configWrappers, editorData ->
+        val noMissingPermission = configWrappers.find {
+            it is FilesConfigWrap && !it.isPermissionGranted
+        } == null
+        return@combine noMissingPermission
+    }
 
-    override fun updateLabel(label: String) {
-        editorDataPub.update {
-            it.copy(label = label)
+    override suspend fun updateLabel(label: String) {
+        editorDataPub.updateBlocking {
+            copy(label = label)
         }
     }
 
-    fun updatePath(backupId: Backup.Id, newPath: APath) = updateCustomConfig(backupId) {
+    suspend fun updatePath(backupId: Backup.Id, newPath: APath) = updateCustomConfig(backupId) {
         it as FilesRestoreConfig
         it.copy(restorePath = newPath)
     }
 
-    fun excludeBackup(excludedId: Backup.Id) {
-        editorDataPub.update { data ->
-            val removed = data.backupTargets.single { it.backupId == excludedId }
-            val newTargets = data.backupTargets.filter { it.backupId != excludedId }.toSet()
+    suspend fun excludeBackup(excludedId: Backup.Id) {
+        editorDataPub.updateBlocking {
+            val removed = backupTargets.single { it.backupId == excludedId }
+            val newTargets = backupTargets.filter { it.backupId != excludedId }.toSet()
 
             val newDefaults = if (newTargets.none { it.backupType == removed.backupType }) {
-                data.defaultConfigs.filter { it.value.restoreType != removed.backupType }
+                defaultConfigs.filter { it.value.restoreType != removed.backupType }
             } else {
-                data.defaultConfigs
+                defaultConfigs
             }
 
-            data.copy(
+            copy(
                 backupTargets = newTargets,
                 defaultConfigs = newDefaults
             )
         }
     }
 
-    fun updateDefaultConfig(config: Restore.Config): Single<Map<Backup.Type, Restore.Config>> = editorDataPub
-        .updateRx { data ->
-            val newConfigs = data.defaultConfigs.toMutableMap()
+    suspend fun updateDefaultConfig(config: Restore.Config): Map<Backup.Type, Restore.Config> =
+        editorDataPub.updateBlocking {
+            val newConfigs = defaultConfigs.toMutableMap()
             Timber.tag(TAG).d("Replacing default generator %s with %s", newConfigs[config.restoreType], config)
             newConfigs[config.restoreType] = config
-            data.copy(defaultConfigs = newConfigs)
-        }
-        .map { it.newValue.defaultConfigs }
+            copy(defaultConfigs = newConfigs)
+        }.defaultConfigs
 
-    fun updateOneTime(isOneTimeUse: Boolean): Single<Data> = editorDataPub
-        .updateRx {
-            it.copy(isOneTimeUse = isOneTimeUse)
-        }
-        .map { it.newValue }
+    suspend fun updateOneTime(isOneTimeUse: Boolean): Data = editorDataPub.updateBlocking {
+        copy(isOneTimeUse = isOneTimeUse)
+    }
 
 
-    fun updateCustomConfig(
+    suspend fun updateCustomConfig(
         backupId: Backup.Id,
         updateAction: (Restore.Config?) -> Restore.Config
-    ): Single<Map<Backup.Id, Restore.Config>> = editorDataPub
-        .updateRx { data ->
-            val configs = data.customConfigs.toMutableMap()
-            val type = data.backupTargets.single { it.backupId == backupId }.backupType
-            val oldConfig = configs[backupId] ?: data.defaultConfigs[type]!!
-            val newConfig = updateAction(oldConfig)
-            Timber.tag(TAG).d("Replacing custom generator %s with %s", oldConfig, newConfig)
-            configs[backupId] = newConfig
-            data.copy(customConfigs = configs)
+    ): Map<Backup.Id, Restore.Config> = editorDataPub.updateBlocking {
+        val configs = customConfigs.toMutableMap()
+        val type = backupTargets.single { it.backupId == backupId }.backupType
+        val oldConfig = configs[backupId] ?: defaultConfigs[type]!!
+        val newConfig = updateAction(oldConfig)
+        Timber.tag(TAG).d("Replacing custom generator %s with %s", oldConfig, newConfig)
+        configs[backupId] = newConfig
+        copy(customConfigs = configs)
+    }.customConfigs
 
-        }
-        .map { it.newValue.customConfigs }
+    private suspend fun addTargets(vararg targets: Backup.Target) {
+        val defaults = restoreConfigRepo.getDefaultConfigs()
+        val wanted = targets.map { it.backupType }
+        val newConfigs = defaults.filter { wanted.contains(it.restoreType) }
 
-    private fun addTargets(vararg targets: Backup.Target): Completable = restoreConfigRepo.getDefaultConfigs()
-        .map { defaults ->
-            val wanted = targets.map { it.backupType }
-            defaults.filter { wanted.contains(it.restoreType) }
-        }
-        .flatMap { newConfigs ->
-            editorDataPub.updateRx { data ->
-                val existing = data.defaultConfigs.toMutableMap()
-                newConfigs.forEach {
-                    if (existing[it.restoreType] == null) {
-                        existing[it.restoreType] = it
-                    }
+        editorDataPub.updateBlocking {
+            val existing = defaultConfigs.toMutableMap()
+            newConfigs.forEach {
+                if (existing[it.restoreType] == null) {
+                    existing[it.restoreType] = it
                 }
-                data.copy(
-                    backupTargets = data.backupTargets.plus(targets),
-                    defaultConfigs = existing.toMap()
-                )
             }
+            copy(
+                backupTargets = backupTargets.plus(targets),
+                defaultConfigs = existing.toMap()
+            )
         }
-        .ignoreElement()
+    }
 
-    fun addStorageId(storageId: Storage.Id): Single<Collection<Backup.Target>> = storageManager.getStorage(storageId)
-        .flatMap { it.specInfos().latest() }
-        .map { infos ->
-            infos
-                .filter {
-                    val isEmpty = it.backups.isEmpty()
-                    if (isEmpty) Timber.tag(TAG).d("Empty spec: %s", it)
-                    !isEmpty
-                }
-                .map {
-                    val newest = it.backups.getNewest()!!
-                    Backup.Target(storageId, it.specId, newest.backupId, newest.backupType)
-                }
-        }
-        .flatMap { targets -> addTargets(*targets.toTypedArray()).toSingleDefault(targets) }
-
-    fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id): Single<Backup.Target> =
-        storageManager.getStorage(storageId)
-            .flatMap { it.specInfo(backupSpecId).latest() }
-            .doOnSuccess { require(it.backups.isNotEmpty()) { "BackupSpec contains no backups." } }
+    suspend fun addStorageId(storageId: Storage.Id): Collection<Backup.Target> {
+        val storage = storageManager.getStorage(storageId)
+        val infos = storage.specInfos().first()
+        val targets = infos
+            .filter {
+                val isEmpty = it.backups.isEmpty()
+                if (isEmpty) Timber.tag(TAG).d("Empty spec: %s", it)
+                !isEmpty
+            }
             .map {
                 val newest = it.backups.getNewest()!!
                 Backup.Target(storageId, it.specId, newest.backupId, newest.backupType)
             }
-            .flatMap { addTargets(it).toSingleDefault(it) }
 
-    fun addBackupId(
+        addTargets(*targets.toTypedArray())
+
+        return targets
+    }
+
+    suspend fun addBackupSpecId(storageId: Storage.Id, backupSpecId: BackupSpec.Id): Backup.Target {
+        val storage = storageManager.getStorage(storageId)
+        val infos = storage.specInfo(backupSpecId).first()
+        require(infos.backups.isNotEmpty()) { "BackupSpec contains no backups." }
+
+        val newest = infos.backups.getNewest()!!
+        val target = Backup.Target(storageId, infos.specId, newest.backupId, newest.backupType)
+        addTargets(target)
+
+        return target
+    }
+
+    suspend fun addBackupId(
         storageId: Storage.Id,
         backupSpecId: BackupSpec.Id,
         backupId: Backup.Id,
         backupType: Backup.Type
-    ): Single<Backup.Target> = Single
-        .just(Backup.Target(storageId, backupSpecId, backupId, backupType))
-        .flatMap { addTargets(it).toSingleDefault(it) }
+    ): Backup.Target {
+        val target = Backup.Target(storageId, backupSpecId, backupId, backupType)
+        addTargets(target)
+        return target
+    }
 
     data class Data(
         override val taskId: Task.Id,

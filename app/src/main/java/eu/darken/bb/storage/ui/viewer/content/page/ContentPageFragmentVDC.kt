@@ -1,17 +1,17 @@
 package eu.darken.bb.storage.ui.viewer.content.page
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
-import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
-import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.onError
+import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentDirections
@@ -19,7 +19,7 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,73 +27,70 @@ import javax.inject.Inject
 class ContentPageFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val storageManager: StorageManager,
-    private val taskBuilder: TaskBuilder
-) : SmartVDC() {
+    private val taskBuilder: TaskBuilder,
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<ContentPageFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
     private val backupId: Backup.Id = navArgs.backupId
 
-    private val storageObs = storageManager.getStorage(storageId).observeOn(Schedulers.computation())
-    private val contentObs = storageObs.flatMapObservable { it.specInfos() }
-        .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
-        .replayingShare()
+    private val storageFlow = flow { emit(storageManager.getStorage(storageId)) }
 
-    private val stater: Stater<State> = Stater(tag = TAG) { State() }
-    val state = stater.liveData
-    val navEvents = SingleLiveEvent<NavDirections>()
-    val finishEvent = SingleLiveEvent<Any>()
+    private val contentFlow = storageFlow.flatMapConcat { it.specInfos() }
+        .map { contents -> contents.find { it.backupSpec.specId == backupSpecId }!! }
+        .replayingShare(vdcScope)
+
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     init {
         Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
-        contentObs
-            .subscribe({ content ->
+        contentFlow
+            .onEach { content ->
                 val version = content.backups.find { it.backupId == backupId }!!
-                stater.update {
-                    it.copy(
+                stater.updateBlocking {
+                    copy(
                         specInfo = content,
                         metaData = version,
                         isLoadingInfos = false,
                         showRestoreAction = true
                     )
                 }
-            }, {
-                finishEvent.postValue(Any())
-            })
-            .withScopeVDC(this)
+            }
+            .onCompletion { navEvents.postValue(null) }
+            .launchInViewModel()
 
-        contentObs
-            .flatMap { content -> storageObs.flatMapObservable { it.backupContent(content.specId, backupId) } }
-            .subscribe({ details ->
-                stater.update { state ->
-                    state.copy(
+        contentFlow
+            .flatMapConcat { content -> storageFlow.flatMapConcat { it.backupContent(content.specId, backupId) } }
+            .onEach { details ->
+                stater.updateBlocking {
+                    copy(
                         items = details.items.toList(),
                         isLoadingItems = false
                     )
                 }
-            }, { err ->
-                stater.update { it.copy(error = err) }
-            })
-            .withScopeVDC(this)
+            }
+            .onError {
+                stater.updateBlocking { copy(error = it) }
+            }
+            .launchInViewModel()
     }
 
 
-    fun restore() {
-        taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
-            .observeOn(Schedulers.computation())
-            .doOnSubscribe { stater.update { it.copy(showRestoreAction = false) } }
-            .flatMap { data ->
-                val type = contentObs.blockingFirst().backupSpec.backupType
-                (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId, type)
-                    .map { data.taskId }
-            }
-            .doFinally { finishEvent.postValue(Any()) }
-            .subscribe { id ->
-                ItemContentsFragmentDirections.actionItemContentsFragmentToTaskEditor(
-                    args = TaskEditorArgs(taskId = id, taskType = Task.Type.RESTORE_SIMPLE)
-                ).run { navEvents.postValue(this) }
-            }
-            .withScopeVDC(this)
+    fun restore() = launch {
+        stater.updateBlocking { copy(showRestoreAction = false) }
+
+        val data = taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
+
+        val type = contentFlow.first().backupSpec.backupType
+        (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId, type)
+
+        ItemContentsFragmentDirections.actionItemContentsFragmentToTaskEditor(
+            args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
+        ).navVia(this@ContentPageFragmentVDC)
+
+        navEvents.postValue(null)
     }
 
     data class State(

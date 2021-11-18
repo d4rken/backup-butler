@@ -2,14 +2,16 @@ package eu.darken.bb.backup.core
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.HotData
-import eu.darken.bb.common.Opt
+import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import io.reactivex.rxjava3.core.Maybe
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
+import eu.darken.bb.common.flow.DynamicStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,21 +19,22 @@ import javax.inject.Singleton
 class GeneratorBuilder @Inject constructor(
     @ApplicationContext private val context: Context,
     private val generatorRepo: GeneratorRepo,
-    private val editors: @JvmSuppressWildcards Map<Backup.Type, GeneratorEditor.Factory<out GeneratorEditor>>
+    private val editors: @JvmSuppressWildcards Map<Backup.Type, GeneratorEditor.Factory<out GeneratorEditor>>,
+    @AppScope private val appScope: CoroutineScope
 ) {
 
-    private val hotData = HotData<Map<Generator.Id, Data>>(tag = TAG) { mutableMapOf() }
-    val builders = hotData.data
+    private val dynamicState = DynamicStateFlow<Map<Generator.Id, Data>>(TAG, appScope) { mutableMapOf() }
+    val builders = dynamicState.flow
 
-    fun getSupportedBackupTypes(): Observable<Collection<Backup.Type>> = Observable.just(Backup.Type.values().toList())
+    fun getSupportedBackupTypes(): Flow<Collection<Backup.Type>> = flowOf(Backup.Type.values().toList())
 
-    fun generator(id: Generator.Id): Observable<Data> = hotData.data
+    fun generator(id: Generator.Id): Flow<Data> = dynamicState.flow
         .filter { it.containsKey(id) }
-        .map { it[id] }
+        .map { it[id]!! }
 
-    fun update(id: Generator.Id, action: (Data?) -> Data?): Single<Opt<Data>> = hotData
-        .updateRx {
-            val mutMap = it.toMutableMap()
+    suspend fun update(id: Generator.Id, action: (Data?) -> Data?): Data? {
+        val changedData = dynamicState.updateBlocking {
+            val mutMap = this.toMutableMap()
             val old = mutMap.remove(id)
 
             val new = action.invoke(old)?.let { newData ->
@@ -49,80 +52,89 @@ class GeneratorBuilder @Inject constructor(
             }
             mutMap.toMap()
         }
-        .subscribeOn(Schedulers.computation())
-        .map { Opt(it.newValue[id]) }
-        .doOnSuccess { Timber.tag(TAG).v("Generator updated: %s (%s): %s", id, action, it) }
+        val updatedData = changedData[id]
 
-    fun remove(id: Generator.Id, releaseResources: Boolean = true): Single<Opt<Data>> = Single.just(id)
-        .subscribeOn(Schedulers.computation())
-        .doOnSubscribe { Timber.tag(TAG).d("Removing %s", id) }
-        .flatMap {
-            hotData.latest
-                .flatMap { preDeleteMap ->
-                    update(id) { null }.map { Opt(preDeleteMap[id]) }
-                }
-        }
-        .doOnSuccess { Timber.tag(TAG).v("Removed generator: %s", id) }
-        .map { optData ->
-            if (releaseResources && optData.isNotNull) {
-                optData.value?.editor?.release()?.blockingAwait()
-            }
-            return@map optData
+        log(TAG, VERBOSE) { "Generator updated: $id ($action): $updatedData" }
+
+        return updatedData
+    }
+
+    suspend fun remove(id: Generator.Id, releaseResources: Boolean = true): Data? {
+        log(TAG) { "Removing $id" }
+        val deleted = dynamicState.value()[id]
+
+        update(id) { null }
+
+        if (releaseResources && deleted != null) {
+            deleted.editor?.release()
         }
 
-    fun save(id: Generator.Id): Single<Generator.Config> = remove(id, false)
-        .subscribeOn(Schedulers.computation())
-        .doOnSubscribe { Timber.tag(TAG).d("Saving %s", id) }
-        .map {
-            checkNotNull(it.value) { "Can't find ID to save: $id" }
-        }
-        .flatMap {
-            checkNotNull(it.editor) { "Can't save builder data, NULL editor: $it" }
-            it.editor.save()
-        }
-        .flatMap { config ->
-            return@flatMap generatorRepo.put(config).map { config }
-        }
-        .doOnSuccess { Timber.tag(TAG).d("Saved %s: %s", id, it) }
-        .doOnError { Timber.tag(TAG).d(it, "Failed to save %s", id) }
-        .map { it }
+        log(TAG) { "Removed generator $deleted" }
+        return deleted
+    }
 
-    fun load(id: Generator.Id): Maybe<Data> = generatorRepo.get(id)
-        .subscribeOn(Schedulers.computation())
-        .flatMapSingle { config ->
-            val editor = editors.getValue(config.generatorType).create(config.generatorId)
-            editor.load(config).blockingAwait()
-            val data = Data(
-                generatorId = config.generatorId,
-                generatorType = config.generatorType,
-                editor = editor
-            )
-            update(id) { data }.map { data }
-        }
-        .doOnSuccess { Timber.tag(TAG).d("Loaded %s: %s", id, it) }
-        .doOnError { Timber.tag(TAG).e(it, "Failed to load %s", id) }
+    suspend fun save(id: Generator.Id): Generator.Config {
+        val removed = remove(id, false)
+        log(TAG) { "Saving $id" }
 
-    fun getEditor(
+        checkNotNull(removed) { "Can't find ID to save: $id" }
+        checkNotNull(removed.editor) { "Can't save builder data, NULL editor: $removed" }
+
+        val savedConfig = removed.editor.save()
+        generatorRepo.put(savedConfig)
+
+        log { "Saved $id: $savedConfig" }
+
+        return savedConfig
+    }
+
+    suspend fun load(id: Generator.Id): Data? {
+        log(TAG) { "Loading $id" }
+        val config = generatorRepo.get(id)
+        if (config == null) {
+            log(TAG) { "Couldn't load config for $id, does not exist." }
+            return null
+        }
+
+        val editor = editors.getValue(config.generatorType).create(config.generatorId)
+        editor.load(config)
+
+        val data = Data(
+            generatorId = config.generatorId,
+            generatorType = config.generatorType,
+            editor = editor
+        )
+        update(id) { data }
+
+        log(TAG) { "Loaded config for $id: $data" }
+
+        return data
+    }
+
+    suspend fun getEditor(
         generatorId: Generator.Id = Generator.Id(),
         type: Backup.Type? = null,
-    ): Single<Data> = hotData.latest
-        .flatMapMaybe { Maybe.fromCallable<Data> { it[generatorId] } }
-        .switchIfEmpty(
-            load(generatorId)
-                .doOnSubscribe { Timber.tag(TAG).d("Trying existing generator for %s", generatorId) }
-                .doOnSuccess { Timber.tag(TAG).d("Loaded existing generator for %s", generatorId) }
+    ): Data {
+        dynamicState.value()[generatorId]?.let {
+            log(TAG) { "getEditor(generatorId=$generatorId, type=$type): Returning cached editor: $it" }
+            return it
+        }
+
+        load(generatorId)?.let {
+            log(TAG) { "getEditor(generatorId=$generatorId, type=$type):  Created editor for existing generator: $it" }
+            return it
+        }
+
+        log(TAG) { "getEditor(generatorId=$generatorId, type=$type): Creating new generator" }
+        val newEditor = Data(
+            generatorId = generatorId,
+            generatorType = type,
+            editor = type?.let { editors.getValue(it).create(generatorId) }
         )
-        .switchIfEmpty(
-            update(generatorId) {
-                Data(
-                    generatorId = generatorId,
-                    generatorType = type,
-                    editor = type?.let { editors.getValue(it).create(generatorId) }
-                )
-            }
-                .map { it.value!! }
-                .doOnSubscribe { Timber.tag(TAG).d("Creating new editor for %s", generatorId) }
-        )
+
+        update(generatorId) { newEditor }
+        return newEditor
+    }
 
     data class Data(
         val generatorId: Generator.Id,

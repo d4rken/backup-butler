@@ -2,8 +2,8 @@ package eu.darken.bb.common.files.ui.picker
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.HasLocalizedError
-import eu.darken.bb.common.errors.LocalizedError
+import eu.darken.bb.common.error.HasLocalizedError
+import eu.darken.bb.common.error.LocalizedError
 
 class EmptyResultException
     : IllegalStateException("The result was empty."), HasLocalizedError {

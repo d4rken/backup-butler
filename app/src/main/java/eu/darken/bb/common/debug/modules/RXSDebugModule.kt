@@ -4,13 +4,13 @@ import android.util.Log
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.common.debug.DebugModule
-import eu.darken.bb.common.debug.DebugModuleHost
-import eu.darken.bb.common.debug.DebugOptions
-import eu.darken.bb.common.debug.compareIgnorePath
+import eu.darken.bb.common.debug.*
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.extra.RXSDebug
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.Semaphore
@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class RXSDebugModule @AssistedInject constructor(
-    @Assisted host: DebugModuleHost
+    @Assisted host: DebugModuleHost,
+    @DebugScope private val debugScope: CoroutineScope,
 ) : DebugModule {
     companion object {
         internal val TAG = logTag("Debug", "RXSDebug")
@@ -55,14 +56,14 @@ class RXSDebugModule @AssistedInject constructor(
 
     init {
         host.observeOptions()
-            .observeOn(Schedulers.io())
             .filter { !previousOptions.compareIgnorePath(it) }
-            .doOnNext { previousOptions = it }
-            .subscribe { options ->
+            .onEach { previousOptions = it }
+            .onEach { options ->
                 RXSDebug.setDebug(options.level == Log.VERBOSE && options.isRecording)
                 if (options.level == Log.VERBOSE) RXSDebug.addCallback(processCallback)
                 else RXSDebug.removeCallback(processCallback)
             }
+            .launchIn(debugScope)
     }
 
 

@@ -9,21 +9,21 @@ import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
-import io.reactivex.rxjava3.schedulers.Schedulers
+import eu.darken.bb.common.smart.SmartVDC
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class AppEditorConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val builder: GeneratorBuilder,
-    private val previewFilter: PreviewFilter
-) : SmartVDC() {
+    private val previewFilter: PreviewFilter,
+    private val dispatcherProvider: DispatcherProvider,
+) : SmartVDC(dispatcherProvider) {
 
     private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
     private val generatorId = navArgs.value.generatorId
@@ -31,25 +31,23 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     private val stater = Stater { State() }
     val state = stater.liveData
 
-    private val editorObs = builder.generator(generatorId)
-        .observeOn(Schedulers.computation())
+    private val editorFlow = builder.generator(generatorId)
         .filter { it.editor != null }
         .map { it.editor as AppSpecGeneratorEditor }
 
-    private val editorDataObs = editorObs.switchMap { it.editorData }
+    private val editorDataFlow = editorFlow.flatMapLatest { it.editorData }
 
-    val matchedPkgsCount = editorDataObs
-        .observeOn(Schedulers.computation())
+    val matchedPkgsCount = editorDataFlow
         .map { previewFilter.filter(it, PreviewMode.PREVIEW).size }
-        .asLiveData()
+        .asLiveData2()
 
-    private val editor: AppSpecGeneratorEditor by lazy { editorObs.blockingFirst() }
+    private suspend fun getEditor(): AppSpecGeneratorEditor = editorFlow.first()
 
     val finishEvent = SingleLiveEvent<GeneratorEditorResult>()
 
     init {
-        editorDataObs
-            .subscribe { editorData ->
+        editorDataFlow
+            .onEach { editorData ->
                 stater.update { state ->
                     state.copy(
                         label = editorData.label,
@@ -67,58 +65,55 @@ class AppEditorConfigFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
 
-        editorObs
-            .flatMap { it.isValid() }
-            .subscribe { isValid -> stater.update { it.copy(isValid = isValid) } }
-            .withScopeVDC(this)
+        editorFlow
+            .flatMapConcat { it.isValid() }
+            .onEach { isValid -> stater.update { it.copy(isValid = isValid) } }
+            .launchInViewModel()
 
-        editorObs
-            .flatMap { it.editorData }
-            .subscribe { data ->
+        editorFlow
+            .flatMapConcat { it.editorData }
+            .onEach { data ->
                 stater.update { it.copy(isExisting = data.isExistingGenerator) }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
-    fun updateLabel(label: String) {
-        editor.updateLabel(label)
+    fun updateLabel(label: String) = launch {
+        getEditor().updateLabel(label)
     }
 
-    fun onUpdateAutoInclude(enabled: Boolean) {
-        editor.update { it.copy(autoInclude = enabled) }
+    fun onUpdateAutoInclude(enabled: Boolean) = launch {
+        getEditor().update { it.copy(autoInclude = enabled) }
     }
 
-    fun onUpdateIncludeUser(enabled: Boolean) {
+    fun onUpdateIncludeUser(enabled: Boolean) = launch {
         // TODO this hangs the UI?
-        editor.update { it.copy(includeUserApps = enabled) }
+        getEditor().update { it.copy(includeUserApps = enabled) }
     }
 
-    fun onUpdateIncludeSystem(enabled: Boolean) {
-        editor.update { it.copy(includeSystemApps = enabled) }
+    fun onUpdateIncludeSystem(enabled: Boolean) = launch {
+        getEditor().update { it.copy(includeSystemApps = enabled) }
     }
 
-    fun onUpdateBackupApk(enabled: Boolean) {
-        editor.update { it.copy(backupApk = enabled) }
+    fun onUpdateBackupApk(enabled: Boolean) = launch {
+        getEditor().update { it.copy(backupApk = enabled) }
     }
 
-    fun onUpdateBackupData(enabled: Boolean) {
-        editor.update { it.copy(backupData = enabled) }
+    fun onUpdateBackupData(enabled: Boolean) = launch {
+        getEditor().update { it.copy(backupData = enabled) }
     }
 
-    fun onUpdateBackupCache(enabled: Boolean) {
-        editor.update { it.copy(backupCache = enabled) }
+    fun onUpdateBackupCache(enabled: Boolean) = launch {
+        getEditor().update { it.copy(backupCache = enabled) }
     }
 
-    fun saveConfig() {
-        builder.save(generatorId)
-            .observeOn(Schedulers.computation())
-            .subscribe { config ->
-                GeneratorEditorResult(
-                    generatorId = config.generatorId
-                ).run { finishEvent.postValue(this) }
-            }
+    fun saveConfig() = launch {
+        val config = builder.save(generatorId)
+        GeneratorEditorResult(
+            generatorId = config.generatorId
+        ).run { finishEvent.postValue(this) }
     }
 
     data class State(

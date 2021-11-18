@@ -2,31 +2,35 @@ package eu.darken.bb.settings.ui.general
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.BBDebug
-import eu.darken.bb.common.rx.withScopeVDC
-import eu.darken.bb.common.vdc.SmartVDC
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.smart.SmartVDC
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
 class GeneralSettingsFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
-    private val bbDebug: BBDebug
-) : SmartVDC() {
-    private val stater = Stater { State() }
-    val state = stater.liveData
+    private val bbDebug: BBDebug,
+    private val dispatcherProvider: DispatcherProvider,
+) : SmartVDC(dispatcherProvider) {
+
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     init {
         bbDebug.observeOptions()
-            .subscribe { options ->
-                stater.update {
-                    it.copy(
+            .onEach { options ->
+                stater.updateBlocking {
+                    copy(
                         isRecording = options.isRecording,
                         recordingPath = options.recorderPath ?: ""
                     )
                 }
             }
-            .withScopeVDC(this)
+            .launchInViewModel()
     }
 
     fun startDebugLog() {
@@ -37,4 +41,8 @@ class GeneralSettingsFragmentVDC @Inject constructor(
         val isRecording: Boolean = false,
         val recordingPath: String = ""
     )
+
+    companion object {
+        private val TAG = logTag("Settings", "General", "VDC")
+    }
 }

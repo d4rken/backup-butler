@@ -13,13 +13,15 @@ data class MMRef(
     val source: RefSource
 ) {
 
-    val props: Props
-        get() = source.props
+    suspend fun getProps(): Props = source.getProps()
 
     interface RefSource {
-        val props: Props
-        fun open(): Source
-        fun release()
+        /**
+         * Using cache for this
+         */
+        suspend fun getProps(): Props
+        suspend fun open(): Source
+        suspend fun release()
     }
 
     @Keep

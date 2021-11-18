@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.format.Formatter
 import eu.darken.bb.common.CaString
-import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.flow.Flow
 import kotlin.math.ceil
 
 interface Progress {
@@ -18,11 +18,11 @@ interface Progress {
     )
 
     interface Host {
-        val progress: Observable<Data>
+        val progress: Flow<Data>
     }
 
     interface Client {
-        fun updateProgress(update: (Data) -> Data)
+        fun updateProgress(update: suspend (Data) -> Data)
     }
 
     sealed class Count(val current: Long, val max: Long) {

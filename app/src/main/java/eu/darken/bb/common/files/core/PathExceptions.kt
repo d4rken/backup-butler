@@ -2,8 +2,8 @@ package eu.darken.bb.common.files.core
 
 import android.content.Context
 import eu.darken.bb.R
-import eu.darken.bb.common.errors.HasLocalizedError
-import eu.darken.bb.common.errors.LocalizedError
+import eu.darken.bb.common.error.HasLocalizedError
+import eu.darken.bb.common.error.LocalizedError
 import java.io.File
 import java.io.IOException
 

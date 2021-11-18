@@ -6,7 +6,7 @@ import androidx.preference.PreferenceDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.preference.PreferenceStoreMapper
-import eu.darken.bb.common.preference.createObservablePreference
+import eu.darken.bb.common.preference.createFlowPreference
 import eu.darken.bb.settings.core.Settings
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +18,7 @@ class QuickModeSettings @Inject constructor(
 
     override val preferences: SharedPreferences = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
-    val isHintAdvancedModeDismissed = preferences.createObservablePreference(PK_HINT_ADVANCED_MODE_DISMISSED, false)
+    val isHintAdvancedModeDismissed = preferences.createFlowPreference(PK_HINT_ADVANCED_MODE_DISMISSED, false)
 
     var rawConfigApps: String?
         get() = preferences.getString(PK_CONFIG_APPS, null)

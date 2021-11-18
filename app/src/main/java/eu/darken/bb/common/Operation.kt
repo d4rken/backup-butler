@@ -1,9 +1,9 @@
 package eu.darken.bb.common
 
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.Job
 
 data class Operation(
     val label: CaString,
     val description: CaString? = null,
-    val disposable: Disposable
+    val job: Job
 )
