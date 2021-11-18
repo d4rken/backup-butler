@@ -31,29 +31,25 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, HasContext {
 
-    companion object {
-        val TAG = logTag("Processor", "Service")
-    }
-
-    init {
-        setIntentRedelivery(true)
-    }
-
-    private val launchLock = Mutex()
     @ProcessorScope @Inject lateinit var processorScope: CoroutineScope
     @Inject lateinit var notifications: ProcessorNotifications
     @Inject lateinit var processorFactories: @JvmSuppressWildcards Map<Task.Type, Processor.Factory<out Processor>>
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var serviceControl: ProcessorControl
     @Inject lateinit var resultRepo: TaskResultRepo
-    @ProcessorScope @Inject lateinit var coroutineScope: CoroutineScope
 
     override val context: Context = this
 
     private val serviceDeathDisp = CompositeDisposable()
 
-    private val progressUpdater = DynamicStateFlow(TAG, processorScope) { Progress.Data() }
-    override val progress: Flow<Progress.Data> = progressUpdater.flow
+    private val progressUpdater by lazy { DynamicStateFlow("$TAG:Progress", processorScope) { Progress.Data() } }
+    override val progress: Flow<Progress.Data> by lazy { progressUpdater.flow }
+
+    private val launchLock = Mutex()
+
+    init {
+        setIntentRedelivery(true)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -110,4 +106,7 @@ class ProcessorService : IntentService(TAG), Progress.Host, Progress.Client, Has
         progressUpdater.updateAsync(onUpdate = update)
     }
 
+    companion object {
+        val TAG = logTag("Processor", "Service")
+    }
 }
