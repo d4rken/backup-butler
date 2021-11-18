@@ -5,20 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
+import eu.darken.bb.common.smart.Smart2BottomSheetDialogFragment
 import eu.darken.bb.databinding.TaskListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskActionDialog : BottomSheetDialogFragment() {
-    private val vdc: TaskActionDialogVDC by viewModels()
-    private lateinit var ui: TaskListActionDialogBinding
+class TaskActionDialog : Smart2BottomSheetDialogFragment() {
+    override val vdc: TaskActionDialogVDC by viewModels()
+    override lateinit var ui: TaskListActionDialogBinding
     @Inject lateinit var taskRepo: TaskRepo
     @Inject lateinit var actionsAdapter: ActionsAdapter
 
