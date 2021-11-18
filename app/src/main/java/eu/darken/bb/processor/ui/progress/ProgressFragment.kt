@@ -7,17 +7,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.tryTextElseHide
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.ProcessorProgressFragmentBinding
 
 @AndroidEntryPoint
-class ProgressFragment : SmartFragment(R.layout.processor_progress_fragment) {
+class ProgressFragment : Smart2Fragment(R.layout.processor_progress_fragment) {
 
-    private val vdc: ProgressFragmentVDC by viewModels()
-    private val ui: ProcessorProgressFragmentBinding by viewBinding()
+    override val vdc: ProgressFragmentVDC by viewModels()
+    override val ui: ProcessorProgressFragmentBinding by viewBinding()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(this, ui) { state ->
@@ -58,7 +58,7 @@ class ProgressFragment : SmartFragment(R.layout.processor_progress_fragment) {
                 }
             }
         }
-        vdc.finishEvent.observe2(this) {
+        onFinishEvent = {
             activity?.finish()
         }
         super.onViewCreated(view, savedInstanceState)

@@ -54,7 +54,7 @@ fun <T> Flow<T>.onErrorMixLast(mixer: (last: T?, error: Throwable) -> T): Flow<T
         }
     }
 
-internal fun <T : Any> Flow<T>.withPrevious(): Flow<Pair<T?, T>> = this
+internal fun <T> Flow<T>.withPrevious(): Flow<Pair<T?, T>> = this
     .scan(Pair<T?, T?>(null, null)) { previous, current -> Pair(previous.second, current) }
     .drop(1)
     .map {

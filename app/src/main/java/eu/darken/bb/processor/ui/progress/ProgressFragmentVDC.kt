@@ -2,14 +2,16 @@ package eu.darken.bb.processor.ui.progress
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,24 +19,27 @@ class ProgressFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     backupServiceControl: ProcessorControl,
     private val dispatcherProvider: DispatcherProvider
-) : SmartVDC(dispatcherProvider) {
+) : Smart2VDC(dispatcherProvider) {
 
     private val progressHost = backupServiceControl.progressHost
-        .filterNotNull()
-        .catch { }
-// TODO       .timeout(3, TimeUnit.SECONDS)
+        .onEach { delay(3000) }
+//        .filterNotNull()
+//        .catch { }
+//// TODO       .timeout(3, TimeUnit.SECONDS)
 
 
     private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
     val state = stater.asLiveData2()
 
-    val finishEvent = SingleLiveEvent<Any>()
-
     init {
         progressHost
-            .take(1)
-            .flatMapConcat { it.progress }
-            .onCompletion { finishEvent.postValue(Any()) }
+            .flatMapLatest {
+                it?.progress ?: throw IllegalStateException("No progress host available.")
+            }
+            .catch {
+                if (it is IllegalStateException) navEvents.postValue(null)
+                else throw it
+            }
             .onEach { progress ->
                 stater.updateBlocking {
                     copy(
