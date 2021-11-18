@@ -32,22 +32,29 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     protected var currentAdapter: RecyclerView.Adapter<*>? = null
     protected lateinit var state: State
     private val dataListener = object : RecyclerView.AdapterDataObserver() {
-        override fun onChanged() = refresh()
+        override fun onChanged() =
+            refresh(currentAdapter?.itemCount ?: -1)
 
-        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = refresh(itemCount)
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) =
+            refresh(currentAdapter?.itemCount ?: itemCount)
 
-        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) = refresh(itemCount)
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) =
+            refresh(currentAdapter?.itemCount ?: itemCount)
 
-        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = refresh(itemCount)
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) =
+            refresh((currentAdapter?.itemCount ?: 0) + itemCount)
 
-        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = refresh(itemCount)
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) =
+            refresh((currentAdapter?.itemCount ?: 0) - itemCount)
 
-        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = refresh(itemCount)
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) =
+            refresh(currentAdapter?.itemCount ?: itemCount)
 
-        override fun onStateRestorationPolicyChanged() = refresh()
+        override fun onStateRestorationPolicyChanged() =
+            refresh(currentAdapter?.itemCount ?: -1)
 
-        private fun refresh(itemCount: Int? = null) {
-            state = state.copy(dataCount = (itemCount ?: currentAdapter?.itemCount) ?: -1)
+        private fun refresh(itemCount: Int) {
+            state = state.copy(dataCount = itemCount)
 
             if (state.isPreFirstChange && state.isLoading && state.consumeFirstLoading) {
                 state = state.copy(

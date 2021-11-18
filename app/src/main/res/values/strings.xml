@@ -187,7 +187,7 @@
     <string name="generator_picker_empty_desc">You don\'t have any backup sources yet. Create one so you can add it to this task.</string>
     <string name="generator_picker_alladded_desc">All existing sources have already been added to this task. Want to backup additional data? Just create another source.</string>
     <string name="storage_picker_empty_no_existing_desc">There are no existing storages. Create one ;-)</string>
-    <string name="storage_picker_empty_all_added_desc">All existing storages have already been added, but you can create another one if you want :-).</string>
+    <string name="storage_picker_empty_all_added_desc">All existing storages have already been added. Create another if you want to add more!</string>
     <string name="general_empty_list_desc">The list is empty.</string>
     <string name="empty_list_msg">The list is empty.</string>
     <string name="empty_list_easter_msg">You must construct additional pylons!</string>
