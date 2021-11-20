@@ -1,6 +1,6 @@
 package eu.darken.bb.common.files.core
 
-import eu.darken.bb.common.HasSharedResource
+import eu.darken.bb.common.sharedresource.HasSharedResource
 import okio.Sink
 import okio.Source
 import java.io.IOException

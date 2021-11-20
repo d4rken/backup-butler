@@ -11,7 +11,6 @@ import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.error.hasCause
@@ -24,6 +23,7 @@ import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -62,8 +62,8 @@ class AppBackupEndpoint @Inject constructor(
         updateProgressPrimary(R.string.progress_creating_app_backup)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        gatewaySwitch.keepAliveWith(this)
-        pkgOps.keepAliveWith(this)
+        gatewaySwitch.addParent(this)
+        pkgOps.addParent(this)
 
         if (spec.backupApk) {
             updateProgressPrimary(R.string.progress_apk_lookup)
@@ -107,7 +107,7 @@ class AppBackupEndpoint @Inject constructor(
         requireNotNull(appInfo) { "Unable to lookup ${spec.packageName}" }
 
         val rootAvailable = try {
-            javaRootClient.keepAliveWith(this)
+            javaRootClient.addParent(this)
             true
         } catch (e: Exception) {
             if (e.hasCause(RootUnavailableException::class)) false else throw e
@@ -169,7 +169,7 @@ class AppBackupEndpoint @Inject constructor(
 
         Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
-        handler.keepAliveWith(this)
+        handler.addParent(this)
 
 
         handler.forwardProgressTo(this).launchForAction(coroutineScope) {
@@ -204,7 +204,7 @@ class AppBackupEndpoint @Inject constructor(
 
         Timber.tag(TAG).d("Processing pkg=%s extra=%s with handler:%s", appInfo.packageName, target, handler)
 
-        handler.keepAliveWith(this)
+        handler.addParent(this)
 
         handler.forwardProgressTo(this).launchForAction(coroutineScope) {
             handler.backup(

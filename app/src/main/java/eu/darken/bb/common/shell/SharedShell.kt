@@ -1,8 +1,8 @@
 package eu.darken.bb.common.shell
 
-import eu.darken.bb.common.HasSharedResource
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.sharedresource.HasSharedResource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.rxshell.cmd.RxCmdShell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.callbackFlow

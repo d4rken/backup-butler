@@ -1,12 +1,12 @@
 package eu.darken.bb.common.files.core
 
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
+import eu.darken.bb.common.sharedresource.SharedResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
@@ -42,7 +42,7 @@ class GatewaySwitch @Inject constructor(
             APath.PathType.LOCAL -> localGateway
             else -> throw NotImplementedError()
         } as APathGateway<T, APathLookup<T>>
-        gateway.keepAliveWith(this)
+        gateway.addParent(this)
         return gateway
     }
 

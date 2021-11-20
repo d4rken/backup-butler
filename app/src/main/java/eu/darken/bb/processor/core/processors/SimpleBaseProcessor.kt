@@ -3,14 +3,14 @@ package eu.darken.bb.processor.core.processors
 import android.content.Context
 import eu.darken.bb.R
 import eu.darken.bb.common.CaString
-import eu.darken.bb.common.HasSharedResource
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.progress.updateProgressTertiary
+import eu.darken.bb.common.sharedresource.HasSharedResource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.processor.core.Processor
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.task.core.Task

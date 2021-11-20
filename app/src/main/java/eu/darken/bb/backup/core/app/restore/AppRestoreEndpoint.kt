@@ -11,7 +11,6 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.error.hasCause
@@ -23,6 +22,7 @@ import eu.darken.bb.common.pkgs.pkgops.installer.APKInstaller
 import eu.darken.bb.common.progress.*
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.task.core.results.LogEvent
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +65,7 @@ class AppRestoreEndpoint @Inject constructor(
         }
 
         val rootAvailable = try {
-            javaRootClient.keepAliveWith(this)
+            javaRootClient.addParent(this)
             true
         } catch (e: Exception) {
             if (e.hasCause(RootUnavailableException::class)) false else throw e
@@ -80,7 +80,7 @@ class AppRestoreEndpoint @Inject constructor(
             )
 
             val installResult = apkInstaller.forwardProgressTo(this).launchForAction(processorScope) {
-                apkInstaller.keepAliveWith(this).install(request) {
+                apkInstaller.addParent(this).install(request) {
                     logListener?.invoke(it)
                 }
             }
@@ -141,7 +141,7 @@ class AppRestoreEndpoint @Inject constructor(
 
         Timber.tag(TAG).d("Processing type=%s for pkg=%s with handler:%s", type, appInfo.packageName, handler)
 
-        handler.keepAliveWith(this)
+        handler.addParent(this)
 
         handler.forwardProgressTo(this).launchForAction(processorScope) {
             handler.restore(type, appInfo, config, builder, logListener)

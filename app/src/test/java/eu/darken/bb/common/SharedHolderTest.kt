@@ -1,5 +1,6 @@
 package eu.darken.bb.common
 
+import eu.darken.bb.common.sharedresource.SharedResource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.channels.awaitClose
@@ -88,7 +89,7 @@ class SharedHolder2Test2 : BaseTest() {
 
         val token1 = sr1.get()
         val token2 = sr2.get()
-        sr1.addChildResource(token2)
+        sr1.addChild(token2)
 
         sr1.isAlive shouldBe true
         sr2.isAlive shouldBe true
@@ -110,7 +111,7 @@ class SharedHolder2Test2 : BaseTest() {
 
         val token1 = sr1.get()
         val token2 = sr2.get()
-        sr1.addChildResource(token2)
+        sr1.addChild(token2)
 
         sr1.isAlive shouldBe true
         sr2.isAlive shouldBe true
@@ -137,7 +138,7 @@ class SharedHolder2Test2 : BaseTest() {
         sr1.isAlive shouldBe false
         sr2.isAlive shouldBe true
 
-        sr1.addChildResource(token2)
+        sr1.addChild(token2)
         sr1.isAlive shouldBe false
         sr2.isAlive shouldBe false
     }

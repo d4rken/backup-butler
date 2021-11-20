@@ -1,6 +1,5 @@
 package eu.darken.bb.common.files.core.local
 
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
@@ -14,6 +13,8 @@ import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.bb.common.root.javaroot.RootUnavailableException
+import eu.darken.bb.common.sharedresource.Resource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.shell.SharedShell
 import eu.darken.bb.common.user.UserHandleBB
 import eu.darken.rxshell.cmd.RxCmdShell
@@ -42,15 +43,15 @@ class LocalGateway @Inject constructor(
     override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
 
     private suspend fun <T> rootOps(action: (FileOpsClient) -> T): T {
-        javaRootClient.keepAliveWith(this)
+        javaRootClient.addParent(this)
         return javaRootClient.runModuleAction(FileOpsClient::class.java) {
             return@runModuleAction action(it)
         }
     }
 
     private val sharedUserShell = SharedShell(TAG, appScope + dispatcherProvider.IO)
-    private suspend fun getShellSession(): SharedResource.Resource<RxCmdShell.Session> {
-        return sharedUserShell.session.keepAliveWith(this).get()
+    private suspend fun getShellSession(): Resource<RxCmdShell.Session> {
+        return sharedUserShell.session.addParent(this).get()
     }
 
     private suspend fun <T> runIO(

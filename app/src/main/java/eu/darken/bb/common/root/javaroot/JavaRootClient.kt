@@ -1,11 +1,11 @@
 package eu.darken.bb.common.root.javaroot
 
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.ClientModule
+import eu.darken.bb.common.sharedresource.SharedResource
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -5,8 +5,6 @@ import android.content.Intent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
-import eu.darken.bb.common.HasSharedResource
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
@@ -23,6 +21,8 @@ import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
 import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.sharedresource.HasSharedResource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.update
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.task.core.results.LogEvent
@@ -112,7 +112,7 @@ class APKInstaller @Inject constructor(
             }
 
             if (request.useRoot) {
-                javaRootClient.keepAliveWith(this)
+                javaRootClient.addParent(this)
                 javaRootClient.runModuleAction(PkgOpsClient::class.java) {
                     it.install(remoteRequest)
                 }

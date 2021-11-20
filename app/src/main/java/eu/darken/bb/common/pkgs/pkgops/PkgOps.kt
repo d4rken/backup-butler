@@ -5,8 +5,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.TransactionTooLargeException
-import eu.darken.bb.common.HasSharedResource
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
@@ -19,6 +17,8 @@ import eu.darken.bb.common.pkgs.Pkg
 import eu.darken.bb.common.pkgs.PkgPathInfo
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.root.javaroot.JavaRootClient
+import eu.darken.bb.common.sharedresource.HasSharedResource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.user.UserHandleBB
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.plus
@@ -41,7 +41,7 @@ class PkgOps @Inject constructor(
     )
 
     private suspend fun <T> rootOps(action: (PkgOpsClient) -> T): T {
-        sharedResource.keepAliveWith(javaRootClient)
+        sharedResource.addParent(javaRootClient)
         return javaRootClient.runModuleAction(PkgOpsClient::class.java) {
             return@runModuleAction action(it)
         }

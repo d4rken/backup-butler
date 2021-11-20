@@ -11,7 +11,6 @@ import eu.darken.bb.backup.core.app.AppBackupWrap
 import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.backup.BaseBackupHandler
 import eu.darken.bb.common.CaString
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
@@ -22,6 +21,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.toCaString
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMDataRepo
@@ -84,7 +84,7 @@ class PrivateDefaultBackupHandler @Inject constructor(
         updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        gatewaySwitch.keepAliveWith(this)
+        gatewaySwitch.addParent(this)
 
         try {
             val result = doBackup(type, backupId, spec, appInfo, logListener)

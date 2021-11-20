@@ -11,7 +11,6 @@ import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.app.restore.BaseRestoreHandler
 import eu.darken.bb.common.CaString
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.*
@@ -22,6 +21,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.user.UserManagerBB
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.processor.core.mm.MMRef
@@ -94,8 +94,8 @@ class PublicDefaultRestoreHandler @Inject constructor(
         updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        gateway.keepAliveWith(this)
-        pkgOps.keepAliveWith(this)
+        gateway.addParent(this)
+        pkgOps.addParent(this)
 
         val currentUser = userManager.currentUser
         val toRestore = wrap.getDataType(type)

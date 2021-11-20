@@ -63,7 +63,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 updateProgressTertiary { config.getLabel(it) }
 
                 val endpoint = endpointCache.getOrPut(config.backupType) {
-                    backupEndpointFactories.getValue(config.backupType).get().keepAliveWith(this)
+                    backupEndpointFactories.getValue(config.backupType).get().addParent(this)
                 }
                 Timber.tag(TAG).i("Backing up %s using %s", config, endpoint)
 
@@ -79,7 +79,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
                 task.destinations.forEach { storageId ->
                     // TODO what if the storage has been deleted?
                     val storage = storageManager.getStorage(storageId)
-                    storage.keepAliveWith(this)
+                    storage.addParent(this)
                     Timber.tag(TAG).i("Storing %s using %s", backupUnit.backupId, storage)
 
                     val subResultBuilder = SimpleResult.SubResult.Builder()

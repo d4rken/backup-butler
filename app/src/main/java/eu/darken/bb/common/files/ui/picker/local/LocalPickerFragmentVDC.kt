@@ -4,7 +4,6 @@ import android.os.Environment
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.App
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.asLog
@@ -23,6 +22,7 @@ import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.permission.Permission
 import eu.darken.bb.common.permission.RuntimePermissionTool
+import eu.darken.bb.common.sharedresource.Resource
 import eu.darken.bb.common.smart.Smart2VDC
 import kotlinx.coroutines.CoroutineExceptionHandler
 import javax.inject.Inject
@@ -43,7 +43,7 @@ class LocalPickerFragmentVDC @Inject constructor(
         LocalGateway.Mode.valueOf(options.payload.getString(ARG_MODE, LocalGateway.Mode.AUTO.name))
     }
 
-    private var resourceToken: SharedResource.Resource<*>? = null
+    private var resourceToken: Resource<*>? = null
     private val stater = DynamicStateFlow(TAG, vdcScope) {
         State(
             currentPath = startPath,

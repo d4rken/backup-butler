@@ -92,7 +92,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         subResultBuilder.label(target.toString()) // If there are errors before getting a better label
 
         val storage = storageManager.getStorage(target.storageId)
-        storage.keepAliveWith(this)
+        storage.addParent(this)
 
         val specInfo = storage.specInfo(target.backupSpecId).first()
         subResultBuilder.label(specInfo.backupSpec.getLabel(context))
@@ -111,7 +111,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         Timber.tag(TAG).d("Backup unit loaded: %s", backupUnit)
 
         val endpoint = endpointCache.getOrPut(backupType) {
-            restoreEndpointFactories.getValue(backupType).get().keepAliveWith(this)
+            restoreEndpointFactories.getValue(backupType).get().addParent(this)
         }
 
         Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)

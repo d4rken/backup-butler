@@ -9,11 +9,11 @@ import eu.darken.bb.R
 import eu.darken.bb.backup.core.app.AppBackupMetaData
 import eu.darken.bb.backup.core.files.FilesBackupMetaData
 import eu.darken.bb.common.CaString
-import eu.darken.bb.common.HasSharedResource
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.OptInfo
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.common.progress.Progress
+import eu.darken.bb.common.sharedresource.HasSharedResource
 import eu.darken.bb.processor.core.mm.MMRef
 import eu.darken.bb.processor.core.mm.Props
 import eu.darken.bb.storage.core.Storage

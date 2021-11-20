@@ -5,12 +5,13 @@ import android.util.Log
 import dagger.Lazy
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.BuildConfigWrap
-import eu.darken.bb.common.HasSharedResource
-import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.debug.logging.*
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.root.javaroot.internal.RootHost
 import eu.darken.bb.common.root.javaroot.internal.RootIPC
+import eu.darken.bb.common.sharedresource.HasSharedResource
+import eu.darken.bb.common.sharedresource.Resource
+import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
 import eu.darken.rxshell.extra.RXSDebug
@@ -102,10 +103,10 @@ class JavaRootHost constructor(_args: List<String>) : HasSharedResource<Any>, Ro
         )
         log(TAG) { "IPC created: $ipc" }
 
-        val keepAliveToken: SharedResource.Resource<*> = sharedResource.get()
+        val keepAliveToken: Resource<*> = sharedResource.get()
 
         log(TAG) { "Launching SharedShell with root" }
-        sharedShell.keepAliveWith(this.sharedResource)
+        sharedShell.addParent(this.sharedResource)
 
         try {
             log(TAG) { "Ready, now broadcasting..." }
