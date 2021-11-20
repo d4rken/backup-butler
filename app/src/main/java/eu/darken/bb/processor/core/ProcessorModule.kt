@@ -4,15 +4,20 @@ import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
+import eu.darken.bb.backup.core.BackupModule
 import eu.darken.bb.processor.core.processors.backup.SimpleBackupProcessor
 import eu.darken.bb.processor.core.processors.restore.SimpleRestoreProcessor
 import eu.darken.bb.task.core.Task
+import kotlinx.coroutines.CoroutineScope
 
-@InstallIn(SingletonComponent::class)
-@Module
+@InstallIn(ProcessorComponent::class)
+@Module(includes = [BackupModule::class])
 abstract class ProcessorModule {
+
+    @Binds
+    @ProcessorScope
+    abstract fun processorScope(scope: ProcessorCoroutineScope): CoroutineScope
 
     @Binds
     @IntoMap

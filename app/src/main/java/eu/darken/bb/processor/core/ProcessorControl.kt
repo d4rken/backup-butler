@@ -1,15 +1,18 @@
 package eu.darken.bb.processor.core
 
 import android.content.Context
-import android.content.Intent
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.coroutine.AppScope
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.progress.Progress
-import eu.darken.bb.processor.core.service.ProcessorService
+import eu.darken.bb.common.worker.putParcelable
+import eu.darken.bb.processor.core.execution.ProcessorWorker
 import eu.darken.bb.task.core.Task
-import eu.darken.bb.task.core.putTaskId
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,11 +29,24 @@ class ProcessorControl @Inject constructor(
         progressHostPub.updateAsync { progressHost }
     }
 
-    fun submit(taskId: Task.Id) {
-        val intent = Intent(context, ProcessorService::class.java)
-        intent.putTaskId(taskId)
-        context.startService(intent)
+    fun submit(request: ProcessorRequest) {
+        log(TAG) { "submit(request=$request)" }
+
+        val workerData = Data.Builder().apply {
+            putParcelable(ProcessorWorker.WKEY_TASK_REQUEST, request)
+        }.build()
+        log(TAG) { "Worker data: $workerData" }
+
+        val workRequest = OneTimeWorkRequestBuilder<ProcessorWorker>()
+            .setInputData(workerData)
+            .build()
+        log(TAG) { "Worker request: $workRequest" }
+
+        val operation = WorkManager.getInstance(context).enqueue(workRequest)
+        log(TAG) { "Request queued: $operation" }
     }
+
+    fun submit(taskId: Task.Id) = submit(ProcessorRequest(taskId = taskId))
 
     fun submit(task: Task) = submit(task.taskId)
 

@@ -26,3 +26,7 @@
 -keepclassmembers class androidx.lifecycle.ReportFragment$** { *; }
 
 -printusage ../build/outputs/usage.txt
+
+-keepclassmembers class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator CREATOR;
+}
