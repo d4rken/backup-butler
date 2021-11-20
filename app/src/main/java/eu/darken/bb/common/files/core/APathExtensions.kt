@@ -28,11 +28,8 @@ fun APath.asFile(): File = when (this) {
     else -> File(this.path)
 }
 
-suspend fun <P : APath, PL : APathLookup<P>, GT : APathGateway<P, PL>> P.walk(
-    gateway: GT,
-    direction: FileWalkDirection = FileWalkDirection.TOP_DOWN
-): PathTreeFlow<P, PL, GT> {
-    return PathTreeFlow(gateway, this)
+fun <P : APath, PL : APathLookup<P>, GT : APathGateway<P, PL>> P.walk(gateway: GT): PathTreeFlow<P, PL, GT> {
+    return PathTreeFlow(gateway, downCast())
 }
 
 fun FileType.toMMRefType(): MMRef.Type {
@@ -43,10 +40,21 @@ fun FileType.toMMRefType(): MMRef.Type {
     }
 }
 
-suspend fun <T : APath> T.exists(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
-    return gateway.exists(this)
+/**
+ * // FIXME not sure if this can be fixed?
+ * APathLookup is a super of APath, but LocalPathLookup is not a super of LocalPath
+ * The compiler allows us to pass a LocalPathLookup to a function that only takesk LocalPath
+ */
+internal fun <T : APath> T.downCast(): T = if (this is APathLookup<*>) {
+    @Suppress("UNCHECKED_CAST")
+    this.lookedUp as T
+} else {
+    this
 }
 
+suspend fun <T : APath> T.exists(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
+    return gateway.exists(downCast())
+}
 
 suspend fun <T : APath> T.requireExists(gateway: APathGateway<T, out APathLookup<T>>): T {
     if (!exists(gateway)) {
@@ -68,7 +76,7 @@ suspend fun <T : APath> T.requireNotExists(gateway: APathGateway<T, out APathLoo
 
 suspend fun <T : APath> T.createFileIfNecessary(gateway: APathGateway<T, out APathLookup<T>>): T {
     if (exists(gateway)) {
-        if (gateway.lookup(this).fileType == FileType.FILE) {
+        if (gateway.lookup(downCast()).fileType == FileType.FILE) {
             Timber.v("File already exists, not creating: %s", this)
             return this
         } else {
@@ -78,7 +86,7 @@ suspend fun <T : APath> T.createFileIfNecessary(gateway: APathGateway<T, out APa
         }
     }
     try {
-        gateway.createFile(this)
+        gateway.createFile(downCast())
         Timber.v("File created: %s", this)
         return this
     } catch (e: Exception) {
@@ -90,7 +98,7 @@ suspend fun <T : APath> T.createFileIfNecessary(gateway: APathGateway<T, out APa
 
 suspend fun <T : APath> T.createDirIfNecessary(gateway: APathGateway<T, out APathLookup<T>>): T {
     if (exists(gateway)) {
-        if (gateway.lookup(this).isDirectory) {
+        if (gateway.lookup(downCast()).isDirectory) {
             Timber.v("Directory already exists, not creating: %s", this)
             return this
         } else {
@@ -100,7 +108,7 @@ suspend fun <T : APath> T.createDirIfNecessary(gateway: APathGateway<T, out APat
         }
     }
     try {
-        gateway.createDir(this)
+        gateway.createDir(downCast())
         Timber.v("Directory created: %s", this)
         return this
     } catch (e: Exception) {
@@ -111,8 +119,8 @@ suspend fun <T : APath> T.createDirIfNecessary(gateway: APathGateway<T, out APat
 }
 
 suspend fun <T : APath> T.deleteAll(gateway: APathGateway<T, out APathLookup<T>>) {
-    if (gateway.lookup(this).isDirectory) {
-        gateway.listFiles(this).forEach { it.deleteAll(gateway) }
+    if (gateway.lookup(downCast()).isDirectory) {
+        gateway.listFiles(downCast()).forEach { it.deleteAll(gateway) }
     }
     if (gateway.delete(this)) {
         Timber.v("File.release(): Deleted %s", this)
@@ -124,15 +132,15 @@ suspend fun <T : APath> T.deleteAll(gateway: APathGateway<T, out APathLookup<T>>
 }
 
 suspend fun <T : APath> T.write(gateway: APathGateway<T, out APathLookup<T>>): Sink {
-    return gateway.write(this)
+    return gateway.write(downCast())
 }
 
 suspend fun <T : APath> T.read(gateway: APathGateway<T, out APathLookup<T>>): Source {
-    return gateway.read(this)
+    return gateway.read(downCast())
 }
 
 suspend fun <T : APath> T.createSymlink(gateway: APathGateway<T, out APathLookup<T>>, target: T): Boolean {
-    return gateway.createSymlink(this, target)
+    return gateway.createSymlink(downCast(), target)
 }
 
 suspend fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T>>, props: Props): Boolean {
@@ -155,26 +163,26 @@ suspend fun <T : APath> T.setMetaData(gateway: APathGateway<T, out APathLookup<T
 }
 
 suspend fun <P : APath, PLU : APathLookup<P>> P.lookup(gateway: APathGateway<P, PLU>): PLU {
-    return gateway.lookup(this)
+    return gateway.lookup(downCast())
 }
 
-suspend inline fun <P : APath, PLU : APathLookup<P>> P.lookupFiles(gateway: APathGateway<P, PLU>): List<PLU> {
-    return gateway.lookupFiles(this)
+suspend fun <P : APath, PLU : APathLookup<P>> P.lookupFiles(gateway: APathGateway<P, PLU>): List<PLU> {
+    return gateway.lookupFiles(downCast())
 }
 
 suspend fun <T : APath> T.setModifiedAt(gateway: APathGateway<T, out APathLookup<T>>, modifiedAt: Date): Boolean {
-    return gateway.setModifiedAt(this, modifiedAt)
+    return gateway.setModifiedAt(downCast(), modifiedAt)
 }
 
 suspend fun <T : APath> T.setPermissions(
     gateway: APathGateway<T, out APathLookup<T>>,
     permissions: Permissions
 ): Boolean {
-    return gateway.setPermissions(this, permissions)
+    return gateway.setPermissions(downCast(), permissions)
 }
 
 suspend fun <T : APath> T.setOwnership(gateway: APathGateway<T, out APathLookup<T>>, ownership: Ownership): Boolean {
-    return gateway.setOwnership(this, ownership)
+    return gateway.setOwnership(downCast(), ownership)
 }
 
 inline fun <reified T : APath> T.relativeTo(parent: T): APath? {
@@ -191,5 +199,5 @@ inline fun <reified T : APath> T.relativeTo(parent: T): APath? {
 }
 
 suspend fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
-    return gateway.listFiles(this)
+    return gateway.listFiles(downCast())
 }
