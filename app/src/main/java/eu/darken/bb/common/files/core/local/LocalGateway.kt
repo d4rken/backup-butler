@@ -58,10 +58,8 @@ class LocalGateway @Inject constructor(
         block: suspend CoroutineScope.() -> T
     ): T = withContext(dispatcherProvider.IO) { block() }
 
-    @Throws(IOException::class)
     override suspend fun createDir(path: LocalPath): Boolean = createDir(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun createDir(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaChild = path.asFile()
@@ -81,10 +79,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun createFile(path: LocalPath): Boolean = createFile(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun createFile(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaChild = path.asFile()
@@ -105,10 +101,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun lookup(path: LocalPath): LocalPathLookup = lookup(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun lookup(path: LocalPath, mode: Mode = Mode.AUTO): LocalPathLookup = runIO {
         try {
             val javaFile = path.asFile()
@@ -133,7 +127,6 @@ class LocalGateway @Inject constructor(
 
     override suspend fun listFiles(path: LocalPath): List<LocalPath> = listFiles(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = runIO {
         try {
             val nonRootList: List<File>? = path.asFile().listFilesSafe()
@@ -153,10 +146,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun lookupFiles(path: LocalPath): List<LocalPathLookup> = lookupFiles(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun lookupFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPathLookup> = withContext(
         dispatcherProvider.IO
     ) {
@@ -181,10 +172,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun exists(path: LocalPath): Boolean = exists(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun exists(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
@@ -204,10 +193,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun canWrite(path: LocalPath): Boolean = canWrite(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun canWrite(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
@@ -232,10 +219,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun canRead(path: LocalPath): Boolean = canRead(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun canRead(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
@@ -264,10 +249,8 @@ class LocalGateway @Inject constructor(
         return deviceEnvironment.getPublicStorage(userHandle).any { it.localPath == path }
     }
 
-    @Throws(IOException::class)
     override suspend fun read(path: LocalPath): Source = read(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun read(path: LocalPath, mode: Mode = Mode.AUTO): Source = runIO {
         try {
             val javaFile = path.asFile()
@@ -287,10 +270,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun write(path: LocalPath): Sink = write(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun write(path: LocalPath, mode: Mode = Mode.AUTO): Sink = runIO {
         try {
             val javaFile = path.asFile()
@@ -310,10 +291,8 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun delete(path: LocalPath): Boolean = delete(path, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun delete(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
@@ -334,11 +313,9 @@ class LocalGateway @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     override suspend fun createSymlink(linkPath: LocalPath, targetPath: LocalPath): Boolean =
         createSymlink(linkPath, targetPath, Mode.AUTO)
 
-    @Throws(IOException::class)
     suspend fun createSymlink(linkPath: LocalPath, targetPath: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val linkPathJava = linkPath.asFile()

@@ -7,6 +7,7 @@ import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.ReadException
+import eu.darken.bb.common.files.core.exists
 import eu.darken.bb.common.files.core.local.tryMkFile
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath

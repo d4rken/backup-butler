@@ -7,10 +7,8 @@ import androidx.documentfile.provider.DocumentFile
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.core.FileType
 import kotlinx.parcelize.Parcelize
 import java.io.File
-import java.io.IOException
 
 @Suppress("BlockingMethodInNonBlockingContext")
 @Keep @Parcelize
@@ -57,30 +55,6 @@ data class SAFPath(
     override fun child(vararg segments: String): SAFPath {
         return build(this.treeRoot, *this.crumbs.toTypedArray(), *segments)
     }
-
-    @Throws(IOException::class)
-    suspend fun lookup(gateway: SAFGateway): SAFPathLookup = gateway.lookup(this)
-
-    @Throws(IOException::class)
-    suspend fun listFiles(gateway: SAFGateway): List<SAFPath> = gateway.listFiles(this)
-
-    @Throws(IOException::class)
-    suspend fun canWrite(gateway: SAFGateway) = gateway.canWrite(this)
-
-    @Throws(IOException::class)
-    suspend fun canRead(gateway: SAFGateway) = gateway.canRead(this)
-
-    @Throws(IOException::class)
-    suspend fun delete(gateway: SAFGateway): Boolean = gateway.delete(this)
-
-    @Throws(IOException::class)
-    suspend fun exists(gateway: SAFGateway): Boolean = gateway.exists(this)
-
-    @Throws(IOException::class)
-    suspend fun isFile(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
-
-    @Throws(IOException::class)
-    suspend fun isDirectory(gateway: SAFGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "SAFFile(treeRoot=$treeRoot, crumbs=$crumbs)"
 

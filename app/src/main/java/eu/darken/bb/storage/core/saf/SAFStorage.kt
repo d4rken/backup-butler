@@ -12,6 +12,7 @@ import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.*
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -119,7 +120,7 @@ class SAFStorage @AssistedInject constructor(
                     }
                     .onStart { emit(info) }
             }
-            .onError { Timber.tag(TAG).e(it) }
+            .onError { log(TAG, ERROR) { "info() failed: ${it.asLog()}" } }
             .onStart { Timber.tag(TAG).d("info().doOnSubscribe()") }
             .onCompletion { Timber.tag(TAG).d("info().doFinally()") }
             .onErrorMixLast { last, error ->

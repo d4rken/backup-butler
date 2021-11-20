@@ -6,9 +6,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
-import eu.darken.bb.common.files.core.FileType
 import java.io.File
-import java.io.IOException
 
 
 @Keep
@@ -32,30 +30,6 @@ data class LocalPath(
     override fun child(vararg segments: String): LocalPath {
         return build(this.file, *segments)
     }
-
-    @Throws(IOException::class)
-    suspend fun lookup(gateway: LocalGateway): LocalPathLookup = gateway.lookup(this)
-
-    @Throws(IOException::class)
-    suspend fun listFiles(gateway: LocalGateway): List<LocalPath> = gateway.listFiles(this)
-
-    @Throws(IOException::class)
-    suspend fun canWrite(gateway: LocalGateway) = gateway.canWrite(this)
-
-    @Throws(IOException::class)
-    suspend fun canRead(gateway: LocalGateway) = gateway.canRead(this)
-
-    @Throws(IOException::class)
-    suspend fun delete(gateway: LocalGateway): Boolean = gateway.delete(this)
-
-    @Throws(IOException::class)
-    suspend fun exists(gateway: LocalGateway): Boolean = gateway.exists(this)
-
-    @Throws(IOException::class)
-    suspend fun isFile(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.FILE
-
-    @Throws(IOException::class)
-    suspend fun isDirectory(gateway: LocalGateway): Boolean = gateway.lookup(this).fileType == FileType.DIRECTORY
 
     override fun toString(): String = "LocalPath(file=$file)"
 

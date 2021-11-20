@@ -201,3 +201,15 @@ inline fun <reified T : APath> T.relativeTo(parent: T): APath? {
 suspend fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
     return gateway.listFiles(downCast())
 }
+
+suspend fun <T : APath> T.canWrite(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
+    return gateway.canWrite(downCast())
+}
+
+suspend fun <T : APath> T.isFile(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
+    return gateway.lookup(downCast()).fileType == FileType.FILE
+}
+
+suspend fun <T : APath> T.isDirectory(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
+    return gateway.lookup(downCast()).fileType == FileType.DIRECTORY
+}

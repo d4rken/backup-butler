@@ -7,6 +7,7 @@ import dagger.assisted.AssistedInject
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.asFile
+import eu.darken.bb.common.files.core.exists
 import eu.darken.bb.common.files.core.local.LocalGateway
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.flow.DynamicStateFlow
