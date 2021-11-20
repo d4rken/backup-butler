@@ -98,7 +98,7 @@ open class SharedResource<T : Any> constructor(
         val activeLease = lock.withLock {
             val job = resourceHolder.launchIn(childScope).apply {
                 invokeOnCompletion {
-                    log(tag, VERBOSE) { "get(): Resource lease completed (activeLeases=${activeLeases.size}" }
+                    log(tag, VERBOSE) { "get(): Resource lease completed (activeLeases=${activeLeases.size})" }
                 }
             }
 
