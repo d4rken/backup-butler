@@ -27,9 +27,9 @@ class PathTreeFlow<
 
         while (!queue.isEmpty()) {
 
-            val file = queue.removeFirst()
-            file as P // TODO sus
-            file.lookupFiles(gateway).forEach { child ->
+            val lookUp = queue.removeFirst()
+
+            lookUp.lookedUp.lookupFiles(gateway).forEach { child ->
                 if (child.isDirectory) queue.addFirst(child)
                 collector.emit(child)
             }

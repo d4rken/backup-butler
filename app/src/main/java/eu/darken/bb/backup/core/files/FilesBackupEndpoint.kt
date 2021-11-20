@@ -11,6 +11,7 @@ import eu.darken.bb.common.SharedResource
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.files.core.APathLookup
 import eu.darken.bb.common.files.core.GatewaySwitch
 import eu.darken.bb.common.files.core.walk
 import eu.darken.bb.common.flow.DynamicStateFlow
@@ -68,7 +69,7 @@ class FilesBackupEndpoint @Inject constructor(
         val builder = FilesBackupWrap(spec, Backup.Id())
         val pathToBackup = spec.path
 
-        val items: List<APath> = gatewaySwitch.sharedResource.get().use {
+        val items: List<APathLookup<APath>> = gatewaySwitch.sharedResource.get().use {
             pathToBackup.walk(gatewaySwitch)
                 .filterNot { it == pathToBackup }
                 .toList()
