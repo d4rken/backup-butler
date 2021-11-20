@@ -15,7 +15,6 @@ class PathTreeFlow<
     private val start: P,
 ) : AbstractFlow<PL>() {
 
-
     override suspend fun collectSafely(collector: FlowCollector<PL>) {
         val startLookUp = start.lookup(gateway)
         if (startLookUp.isFile) {
