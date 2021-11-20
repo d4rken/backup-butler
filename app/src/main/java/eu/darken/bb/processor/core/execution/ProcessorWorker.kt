@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.onEach
             ?: throw IllegalArgumentException("Worker executed without valid inputData")
 
         val start = System.currentTimeMillis()
-        log(TAG) { "Executing $request now (runAttemptCount=$runAttemptCount" }
+        log(TAG) { "Executing $request now (runAttemptCount=$runAttemptCount)" }
 
         notifications
             .getInfos(runner)
@@ -57,7 +57,7 @@ import kotlinx.coroutines.flow.onEach
 
         val duration = System.currentTimeMillis() - start
 
-        log(TAG) { "Execution finished after ${duration}ms, result for $inputData was $result" }
+        log(TAG) { "Execution finished after ${duration}ms, $request -> $result" }
 
         Result.success(inputData)
     } catch (e: Exception) {
