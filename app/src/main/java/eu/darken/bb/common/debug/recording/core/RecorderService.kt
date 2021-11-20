@@ -36,7 +36,9 @@ class RecorderService : Service() {
     @Inject lateinit var notificationManager: NotificationManager
     @DebugScope @Inject lateinit var debugScope: CoroutineScope
 
-    private val recorderScope = CoroutineScope(debugScope.coroutineContext)
+    private val recorderScope by lazy {
+        CoroutineScope(debugScope.coroutineContext)
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
