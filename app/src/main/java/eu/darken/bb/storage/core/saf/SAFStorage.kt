@@ -13,6 +13,7 @@ import eu.darken.bb.common.*
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -388,15 +389,25 @@ class SAFStorage @AssistedInject constructor(
     private suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
         getSpecDir(specId).listFiles(safGateway).filter { it.isDirectory(safGateway) }.forEach { dir ->
-            val metaData = readBackupMeta(specId, Backup.Id(dir.name))
-            metaDatas.add(metaData)
+            try {
+                val metaData = readBackupMeta(specId, Backup.Id(dir.name))
+                metaDatas.add(metaData)
+            } catch (e: ReadException) {
+                // TODO How will these get cleaned up?
+                log(TAG, ERROR) { "Failed to read meta data for $dir: ${e.asLog()}" }
+            }
         }
         return metaDatas
     }
 
     private suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
-        return metaDataAdapter.fromSAFFile(safGateway, versionFile)
+        return try {
+            metaDataAdapter.fromSAFFile(safGateway, versionFile)
+        } catch (e: Exception) {
+            log(TAG, WARN) { "Failed to get metadata from $versionFile: ${e.asLog()}" }
+            throw e
+        }
     }
 
     private suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {

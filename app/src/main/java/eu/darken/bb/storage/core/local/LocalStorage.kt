@@ -371,8 +371,8 @@ class LocalStorage @AssistedInject constructor(
                 val metaData = readBackupMeta(specId, Backup.Id(dir.name))
                 metaDatas.add(metaData)
             } catch (e: ReadException) {
-                // TODO what do we do with bad backups?
-                Timber.tag(TAG).w(e, "Backup.json is missing")
+                // TODO How will these get cleaned up?
+                log(TAG, ERROR) { "Failed to read meta data for $dir: ${e.asLog()}" }
             }
         }
         return metaDatas
@@ -383,7 +383,7 @@ class LocalStorage @AssistedInject constructor(
         return try {
             metaDataAdapter.fromFile(versionFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get metadata from %s", versionFile)
+            log(TAG, WARN) { "Failed to get metadata from $versionFile: ${e.asLog()}" }
             throw e
         }
     }
@@ -398,7 +398,7 @@ class LocalStorage @AssistedInject constructor(
         return try {
             specAdapter.fromFile(specFile)
         } catch (e: Exception) {
-            Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
+            log(TAG, WARN) { "Failed to get  backup spec from $specFile: ${e.asLog()}" }
             throw e
         }
     }
