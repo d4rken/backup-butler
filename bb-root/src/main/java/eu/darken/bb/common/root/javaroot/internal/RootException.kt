@@ -1,6 +1,8 @@
 package eu.darken.bb.common.root.javaroot.internal
 
+import java.io.IOException
+
 open class RootException(
     message: String,
     cause: Throwable? = null,
-) : Exception(message, cause)
+) : IOException(message, cause)
