@@ -4,8 +4,8 @@ import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.error.getStackTraceString
 import eu.darken.bb.common.error.tryUnwrap
-import eu.darken.bb.common.flow.onError
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
@@ -37,7 +37,7 @@ open class SharedResource<T : Any> constructor(
     var isAlive: Boolean = false
         private set
 
-    private val resourceHolder: Flow<T> = source
+    private val resourceHolder: Flow<Event<T>> = source
         .onStart {
             lock.withLock {
                 isAlive = true
@@ -85,14 +85,21 @@ open class SharedResource<T : Any> constructor(
                 parents.clear()
             }
         }
-        .onError { log(tag, WARN) { "Failed to provide resource: ${it.asLog()}" } }
+        .map {
+            @Suppress("USELESS_CAST")
+            Event.Resource(it) as Event<T>
+        }
+        .catch {
+            log(tag, WARN) { "Failed to provide resource: ${it.asLog()}" }
+            emit(Event.Error(it))
+        }
         .onEach { log(tag) { "Resource ready: $it" } }
         .shareIn(parentScope, SharingStarted.WhileSubscribed(replayExpirationMillis = 0), replay = 1)
 
     suspend fun get(): Resource<T> {
         if (BBDebug.isDebug() && !isAlive) {
-//            log(tag, VERBOSE) { "get() Reviving SharedResource: ${Throwable().getStackTraceString()}" }
-            log(tag, VERBOSE) { "get() Reviving SharedResource" }
+            log(tag, VERBOSE) { "get() Reviving SharedResource: ${Throwable().getStackTraceString()}" }
+//            log(tag, VERBOSE) { "get() Reviving SharedResource" }
         }
 
         val activeLease = lock.withLock {
@@ -107,8 +114,12 @@ open class SharedResource<T : Any> constructor(
 
         val resource = try {
             log(tag, VERBOSE) { "get(): Retrieving resource" }
-            resourceHolder.first()
+            when (val event = resourceHolder.first()) {
+                is Event.Error -> throw event.error
+                is Event.Resource -> event.resource
+            }
         } catch (e: Exception) {
+            log(tag, VERBOSE) { "get(): Failed to retrieve resource: ${e.asLog()}" }
             activeLease.close()
             throw e.tryUnwrap()
         }
@@ -238,6 +249,12 @@ open class SharedResource<T : Any> constructor(
 
     override fun toString(): String =
         "SharedResource(tag=$tag, leases=${activeLeases.size}, children=${children.size}, parents=${parents.size})"
+
+    sealed class Event<T> {
+
+        data class Resource<T>(val resource: T) : Event<T>()
+        data class Error<T>(val error: Throwable) : Event<T>()
+    }
 
     companion object {
         fun createKeepAlive(tag: String, scope: CoroutineScope): SharedResource<Any> = SharedResource(
