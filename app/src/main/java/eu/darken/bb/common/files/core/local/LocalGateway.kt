@@ -119,12 +119,13 @@ class LocalGateway @Inject constructor(
                 }
                 else -> throw IOException("No matching mode.")
             }
-        } catch (e: IOException) {
-            Timber.tag(TAG).w("lookup(path=%s, mode=%s) failed.", path, mode)
-            throw ReadException(path, cause = e)
+        } catch (e: Exception) {
+            throw ReadException(path, cause = e).also {
+                log(TAG, WARN) { "lookup(path=$path, mode=$mode) failed:\n${it.asLog()}" }
+            }
         }
     }
-
+    
     override suspend fun listFiles(path: LocalPath): List<LocalPath> = listFiles(path, Mode.AUTO)
 
     suspend fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = runIO {
@@ -141,8 +142,9 @@ class LocalGateway @Inject constructor(
                 else -> throw IOException("No matching mode.")
             }
         } catch (e: IOException) {
-            Timber.tag(TAG).w("listFiles(path=%s, mode=%s) failed.", path, mode)
-            throw ReadException(path, cause = e)
+            throw ReadException(path, cause = e).also {
+                log(TAG, WARN) { "listFiles(path=$path, mode=$mode) failed:\n${it.asLog()}" }
+            }
         }
     }
 
