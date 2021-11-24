@@ -6,7 +6,7 @@ import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.storage.core.Storage
 
 data class LocalStorageSpecInfo(
-    val path: LocalPath,
+    override val path: LocalPath,
     override val storageId: Storage.Id,
     override val backupSpec: BackupSpec,
     override val backups: Collection<Backup.MetaData>

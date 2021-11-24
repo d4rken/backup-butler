@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.backup.core.app.AppBackupSpec
 import eu.darken.bb.backup.core.files.FilesBackupSpec
 import eu.darken.bb.common.OptInfo
+import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
 import kotlinx.parcelize.IgnoredOnParcel
@@ -45,6 +46,7 @@ interface BackupSpec {
     }
 
     interface Info {
+        val path: APath
         val storageId: Storage.Id
         val backupSpec: BackupSpec
         val backups: Collection<Backup.MetaData>

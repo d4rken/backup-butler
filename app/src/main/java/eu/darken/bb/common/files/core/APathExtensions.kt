@@ -26,6 +26,9 @@ fun APath.crumbsTo(child: APath): Array<String> {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
+fun <P : APath> P.childCast(vararg segments: String): P = child(*segments) as P
+
 fun APath.asFile(): File = when (this) {
     is LocalPath -> this.file
     else -> File(this.path)
@@ -199,6 +202,10 @@ suspend fun <P : APath, PLU : APathLookup<P>> P.lookup(gateway: APathGateway<P, 
 
 suspend fun <P : APath, PLU : APathLookup<P>> P.lookupFiles(gateway: APathGateway<P, PLU>): List<PLU> {
     return gateway.lookupFiles(downCast())
+}
+
+suspend fun <P : APath, PLU : APathLookup<P>> P.lookupFilesOrNull(gateway: APathGateway<P, PLU>): List<PLU>? {
+    return if (exists(gateway)) gateway.lookupFiles(downCast()) else null
 }
 
 suspend fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
