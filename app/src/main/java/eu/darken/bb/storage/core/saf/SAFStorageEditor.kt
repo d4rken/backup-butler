@@ -16,8 +16,8 @@ import eu.darken.bb.common.files.core.isDirectory
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.flow.DynamicStateFlow
-import eu.darken.bb.common.moshi.fromSAFFile
-import eu.darken.bb.common.moshi.toSAFFile
+import eu.darken.bb.common.moshi.fromAPath
+import eu.darken.bb.common.moshi.toAPath
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.core.IllegalStoragePathException
 import eu.darken.bb.storage.core.Storage
@@ -88,7 +88,7 @@ class SAFStorageEditor @AssistedInject constructor(
     }
 
     private suspend fun load(path: SAFPath): SAFStorageConfig {
-        val config = configAdapter.fromSAFFile(safGateway, path.child(STORAGE_CONFIG))
+        val config = configAdapter.fromAPath(safGateway, path.child(STORAGE_CONFIG))
 
         editorDataPub.updateBlocking {
             copy(
@@ -130,7 +130,7 @@ class SAFStorageEditor @AssistedInject constructor(
         )
 
         val configFile = ref.path.child(STORAGE_CONFIG)
-        configAdapter.toSAFFile(config, safGateway, configFile)
+        configAdapter.toAPath(config, safGateway, configFile)
 
         release()
 

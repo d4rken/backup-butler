@@ -24,8 +24,8 @@ import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.flow.onError
 import eu.darken.bb.common.flow.onErrorMixLast
 import eu.darken.bb.common.flow.replayingShare
-import eu.darken.bb.common.moshi.fromSAFFile
-import eu.darken.bb.common.moshi.toSAFFile
+import eu.darken.bb.common.moshi.fromAPath
+import eu.darken.bb.common.moshi.toAPath
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
@@ -49,14 +49,14 @@ import java.io.InterruptedIOException
 
 
 class SAFStorage @AssistedInject constructor(
-    @Assisted storageRef: Storage.Ref,
-    @Assisted storageConfig: Storage.Config,
-    @ApplicationContext override val context: Context,
-    moshi: Moshi,
-    private val safGateway: SAFGateway,
-    private val mmDataRepo: MMDataRepo,
-    @AppScope private val appScope: CoroutineScope,
-    dispatcherProvider: DispatcherProvider,
+        @Assisted storageRef: Storage.Ref,
+        @Assisted storageConfig: Storage.Config,
+        @ApplicationContext override val context: Context,
+        moshi: Moshi,
+        private val safGateway: SAFGateway,
+        private val mmDataRepo: MMDataRepo,
+        @AppScope private val appScope: CoroutineScope,
+        dispatcherProvider: DispatcherProvider,
 ) : Storage, HasContext, Progress.Client {
 
     override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
@@ -83,12 +83,12 @@ class SAFStorage @AssistedInject constructor(
             delay(1000)
         }
     }
-        .catch {
-            log(TAG) { "dataDirEvents error: ${it.asLog()}" }
-            emit(emptyList())
-        }
-        .distinctUntilChanged()
-        .replayingShare(appScope)
+            .catch {
+                log(TAG) { "dataDirEvents error: ${it.asLog()}" }
+                emit(emptyList())
+            }
+            .distinctUntilChanged()
+            .replayingShare(appScope)
 
     init {
         appScope.launch {
@@ -101,26 +101,28 @@ class SAFStorage @AssistedInject constructor(
 
     override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
 
-    override fun info(): Flow<Storage.Info> = infoObs
-    private val infoObs: Flow<Storage.Info> =
-        flowOf(Storage.Info(this.storageRef.storageId, this.storageRef.storageType, storageConfig))
-            .flatMapConcat { info ->
-                specInfos()
-                    .map { contents ->
-                        var status: Storage.Info.Status? = null
-                        try {
-                            status = Storage.Info.Status(
-                                itemCount = contents.size,
-                                totalSize = 0,
-                                isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway)
-                            )
-                        } catch (e: Exception) {
-                            Timber.tag(TAG).w(e)
-                        }
-                        info.copy(status = status)
-                    }
-                    .onStart { emit(info) }
-            }
+    override fun info(): Flow<Storage.Info> = infoFlow
+    private val infoFlow: Flow<Storage.Info> = flow<Storage.Info> {
+        val info = Storage.Info(storageRef.storageId, storageRef.storageType, storageConfig)
+        emit(info)
+
+        var status = Storage.Info.Status(
+                isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway),
+                itemCount = -1,
+                totalSize = -1L
+        )
+        emit(info.copy(status = status))
+
+        status = status.copy(
+                itemCount = dataDir.listFiles(safGateway).size
+        )
+        emit(info.copy(status = status))
+
+        status = status.copy(
+                totalSize = dataDir.walk(safGateway).fold(0L) { totalSize, file -> totalSize + file.size }
+        )
+        emit(info.copy(status = status))
+    }
             .onError { log(TAG, ERROR) { "info() failed: ${it.asLog()}" } }
             .onStart { Timber.tag(TAG).d("info().doOnSubscribe()") }
             .onCompletion { Timber.tag(TAG).d("info().doFinally()") }
@@ -131,24 +133,24 @@ class SAFStorage @AssistedInject constructor(
             .replayingShare(appScope)
 
     override fun specInfo(specId: BackupSpec.Id): Flow<BackupSpec.Info> = specInfos()
-        .map { specInfos ->
-            val item = specInfos.find { it.backupSpec.specId == specId }
-            requireNotNull(item) { "Can't find backup item for specId $specId" }
-        }
+            .map { specInfos ->
+                val item = specInfos.find { it.backupSpec.specId == specId }
+                requireNotNull(item) { "Can't find backup item for specId $specId" }
+            }
 
     override fun specInfos(): Flow<Collection<BackupSpec.Info>> = itemObs
 
     private val itemObs: Flow<Collection<BackupSpec.Info>> = dataDirEvents
-        .map { readBackupSpecs(it) }
-        .onStart { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
-        .onError {
-            if (it is InterruptedIOException) {
-                Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")
-            } else {
-                Timber.tag(TAG).e(it, "specInfos().doOnError()")
+            .map { readBackupSpecs(it) }
+            .onStart { Timber.tag(TAG).d("specInfos().doOnSubscribe()") }
+            .onError {
+                if (it is InterruptedIOException) {
+                    Timber.tag(TAG).w("specInfos().doOnError(): Interrupted")
+                } else {
+                    Timber.tag(TAG).e(it, "specInfos().doOnError()")
+                }
             }
-        }
-        .onCompletion { Timber.tag(TAG).d("specInfos().doFinally()") }
+            .onCompletion { Timber.tag(TAG).d("specInfos().doFinally()") }
 
     private suspend fun readBackupSpecs(files: Collection<SAFPath>): Collection<BackupSpec.Info> {
         val content = files.mapNotNull { backupDir ->
@@ -174,55 +176,55 @@ class SAFStorage @AssistedInject constructor(
             }
 
             SAFStorageSpecInfo(
-                storageId = storageConfig.storageId,
-                path = backupDir,
-                backupSpec = backupConfig,
-                backups = metaDatas
+                    storageId = storageConfig.storageId,
+                    path = backupDir,
+                    backupSpec = backupConfig,
+                    backups = metaDatas
             )
         }
         return content
     }
 
     override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.Info> =
-        backupContent(specId, backupId)
-            .map { Backup.Info(it.storageId, it.spec, it.metaData) }
+            backupContent(specId, backupId)
+                    .map { Backup.Info(it.storageId, it.spec, it.metaData) }
 
     override fun backupContent(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.ContentInfo> =
-        specInfo(specId)
-            .flatMapLatest { item ->
-                item as SAFStorageSpecInfo
-                val backupDir = getSpecDir(item.specId).requireExists(safGateway)
-                val versionDir = backupDir.child(backupId.idString).requireExists(safGateway)
-                val metaData = readBackupMeta(item.specId, backupId)
-                val backupSpec = readSpec(item.specId)
+            specInfo(specId)
+                    .flatMapLatest { item ->
+                        item as SAFStorageSpecInfo
+                        val backupDir = getSpecDir(item.specId).requireExists(safGateway)
+                        val versionDir = backupDir.child(backupId.idString).requireExists(safGateway)
+                        val metaData = readBackupMeta(item.specId, backupId)
+                        val backupSpec = readSpec(item.specId)
 
-                return@flatMapLatest flow {
-                    while (true) {
-                        val versionedFiles = versionDir.listFiles(safGateway)
-                            .filter { it.name.endsWith(PROP_EXT) }
-                            .map { file ->
-                                val props = propsAdapter.fromSAFFile(safGateway, file)
-                                checkNotNull(props) { "Can't read props from $file" }
-                                Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
+                        return@flatMapLatest flow {
+                            while (true) {
+                                val versionedFiles = versionDir.listFiles(safGateway)
+                                        .filter { it.name.endsWith(PROP_EXT) }
+                                        .map { file ->
+                                            val props = propsAdapter.fromAPath(safGateway, file)
+                                            checkNotNull(props) { "Can't read props from $file" }
+                                            Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
+                                        }
+                                        .toList()
+
+                                val contentInfo = Backup.ContentInfo(
+                                        storageId = storageId,
+                                        spec = backupSpec,
+                                        metaData = metaData,
+                                        items = versionedFiles
+                                )
+                                emit(contentInfo)
+
+                                delay(1000)
                             }
-                            .toList()
-
-                        val contentInfo = Backup.ContentInfo(
-                            storageId = storageId,
-                            spec = backupSpec,
-                            metaData = metaData,
-                            items = versionedFiles
-                        )
-                        emit(contentInfo)
-
-                        delay(1000)
+                        }
                     }
-                }
-            }
-            .onStart { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
-            .onError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
-            .onCompletion { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
-            .replayingShare(appScope)
+                    .onStart { Timber.tag(TAG).d("content(%s).doOnSubscribe()", backupId) }
+                    .onError { Timber.tag(TAG).w(it, "Failed to get content: specId=$specId, backupId=$backupId") }
+                    .onCompletion { Timber.tag(TAG).d("content(%s).doFinally()", backupId) }
+                    .replayingShare(appScope)
 
     override suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
         updateProgressPrimary(R.string.progress_reading_backup_specs)
@@ -262,9 +264,9 @@ class SAFStorage @AssistedInject constructor(
         updateProgressCount(Progress.Count.Indeterminate())
 
         return Backup.Unit(
-            spec = item.backupSpec,
-            metaData = metaData,
-            data = dataMap
+                spec = item.backupSpec,
+                metaData = metaData,
+                data = dataMap
         )
     }
 
@@ -300,7 +302,7 @@ class SAFStorage @AssistedInject constructor(
                 }
 
                 val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
-                propsAdapter.toSAFFile(ref.getProps(), safGateway, targetProp)
+                propsAdapter.toAPath(ref.getProps(), safGateway, targetProp)
 
                 when (ref.getProps().dataType) {
                     FILE, ARCHIVE -> {
@@ -322,9 +324,9 @@ class SAFStorage @AssistedInject constructor(
 
         updateProgressPrimary(R.string.progress_writing_backup_metadata)
         val info = Backup.Info(
-            storageId = storageId,
-            spec = backup.spec,
-            metaData = backup.metaData
+                storageId = storageId,
+                spec = backup.spec,
+                metaData = backup.metaData
         )
         Timber.tag(TAG).d("New backup created: %s", info)
         return info
@@ -367,7 +369,7 @@ class SAFStorage @AssistedInject constructor(
     private suspend fun readSpec(specId: BackupSpec.Id): BackupSpec {
         val specFile = getSpecDir(specId).child(SPEC_FILE)
         return try {
-            specAdapter.fromSAFFile(safGateway, specFile)
+            specAdapter.fromAPath(safGateway, specFile)
         } catch (e: Exception) {
             if (e !is InterruptedIOException) {
                 Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
@@ -380,11 +382,11 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
         val specFile = getSpecDir(specId).child(SPEC_FILE)
-        specAdapter.toSAFFile(spec, safGateway, specFile)
+        specAdapter.toAPath(spec, safGateway, specFile)
     }
 
     private suspend fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath =
-        getSpecDir(specId).child(backupId.idString)
+            getSpecDir(specId).child(backupId.idString)
 
     private suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
@@ -403,7 +405,7 @@ class SAFStorage @AssistedInject constructor(
     private suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
         return try {
-            metaDataAdapter.fromSAFFile(safGateway, versionFile)
+            metaDataAdapter.fromAPath(safGateway, versionFile)
         } catch (e: Exception) {
             log(TAG, WARN) { "Failed to get metadata from $versionFile: ${e.asLog()}" }
             throw e
@@ -412,7 +414,7 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
         val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
-        metaDataAdapter.toSAFFile(metaData, safGateway, versionFile)
+        metaDataAdapter.toAPath(metaData, safGateway, versionFile)
     }
 
     override fun toString(): String = "SAFStorage(storageConfig=$storageConfig)"

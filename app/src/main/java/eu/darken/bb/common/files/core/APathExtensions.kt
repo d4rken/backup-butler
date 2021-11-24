@@ -1,5 +1,8 @@
 package eu.darken.bb.common.files.core
 
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.crumbsTo
 import eu.darken.bb.common.files.core.saf.SAFPath
@@ -212,4 +215,30 @@ suspend fun <T : APath> T.isFile(gateway: APathGateway<T, out APathLookup<T>>): 
 
 suspend fun <T : APath> T.isDirectory(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
     return gateway.lookup(downCast()).fileType == FileType.DIRECTORY
+}
+
+suspend fun <T : APath> T.mkdirs(gateway: APathGateway<T, out APathLookup<T>>): Boolean {
+    return gateway.createDir(downCast())
+}
+
+suspend fun <T : APath> T.tryMkDirs(gateway: APathGateway<T, out APathLookup<T>>): APath {
+    if (exists(gateway)) {
+        if (isDirectory(gateway)) {
+            log(VERBOSE) { "Directory already exists, not creating: $this" }
+            return this
+        } else {
+            throw IllegalStateException("Directory exists, but is not a directory: $this").also {
+                log(VERBOSE) { "Directory exists, but is not a directory: $this:\n${it.asLog()}" }
+            }
+        }
+    }
+
+    if (mkdirs(gateway)) {
+        log(VERBOSE) { "Directory created: $this" }
+        return this
+    } else {
+        throw IllegalStateException("Couldn't create Directory: $this").also {
+            log(VERBOSE) { "Couldn't create Directory: ${it.asLog()}" }
+        }
+    }
 }

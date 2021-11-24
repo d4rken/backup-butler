@@ -6,11 +6,8 @@ import com.squareup.moshi.JsonWriter
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.files.core.ReadException
-import eu.darken.bb.common.files.core.exists
+import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.tryMkFile
-import eu.darken.bb.common.files.core.saf.SAFGateway
-import eu.darken.bb.common.files.core.saf.SAFPath
 import okio.*
 import java.io.File
 import java.io.IOException
@@ -70,30 +67,37 @@ fun <T> JsonAdapter<T>.fromFile(file: File): T = try {
     throw e
 }
 
-suspend fun <T> JsonAdapter<T>.toSAFFile(value: T, safGateway: SAFGateway, file: SAFPath) = try {
-    if (!file.exists(safGateway)) {
-        safGateway.createFile(file)
+suspend fun <T, P : APath> JsonAdapter<T>.toAPath(
+    value: T,
+    gateway: APathGateway<P, out APathLookup<P>>,
+    file: P
+) = try {
+    if (!file.exists(gateway)) {
+        gateway.createFile(file)
     }
-    safGateway.write(file).use {
+    gateway.write(file).use {
         into(value, it)
     }
-    log(TAG, VERBOSE) { "toSAFFile(value=$value, safGateway=$safGateway, file=$file)" }
+    log(TAG, VERBOSE) { "toAPath(value=$value, gateway=$gateway, file=$file)" }
 } catch (e: Exception) {
     if (e !is InterruptedIOException) {
-        log(TAG, WARN) { "toSAFFile(value=$value, safGateway=$safGateway, file=$file): $e" }
+        log(TAG, WARN) { "toAPath(value=$value, gateway=$gateway, file=$file): $e" }
     }
     throw e
 }
 
-suspend fun <T> JsonAdapter<T>.fromSAFFile(safGateway: SAFGateway, file: SAFPath): T = try {
-    val value = safGateway.read(file).use {
+suspend fun <T, P : APath> JsonAdapter<T>.fromAPath(
+    gateway: APathGateway<P, out APathLookup<P>>,
+    file: P
+): T = try {
+    val value = gateway.read(file).use {
         from(it)
     }
-    log(TAG, VERBOSE) { "fromSAFFile(file=$file, safGateway=$safGateway): $value" }
+    log(TAG, VERBOSE) { "fromAPath(file=$file, safGateway=$gateway): $value" }
     value ?: throw ReadException(file)
 } catch (e: Exception) {
     if (e !is InterruptedIOException) {
-        log(TAG, WARN) { "fromSAFFile(file=$file, , safGateway=$safGateway): $e" }
+        log(TAG, WARN) { "fromAPath(file=$file, , safGateway=$gateway): $e" }
     }
     throw e
 }

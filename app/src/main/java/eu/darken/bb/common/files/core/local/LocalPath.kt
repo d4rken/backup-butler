@@ -15,6 +15,8 @@ data class LocalPath(
     val file: File
 ) : APath {
 
+    constructor(parent: LocalPath, child: String) : this(File(parent.file, child))
+
     override var pathType: APath.PathType
         get() = APath.PathType.LOCAL
         set(value) {
