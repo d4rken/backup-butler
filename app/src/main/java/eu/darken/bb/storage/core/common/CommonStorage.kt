@@ -10,6 +10,7 @@ import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.*
 import eu.darken.bb.common.flow.DynamicStateFlow
@@ -35,6 +36,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.io.InterruptedIOException
+import kotlin.time.Duration
 
 
 abstract class CommonStorage<
@@ -100,10 +102,20 @@ abstract class CommonStorage<
         .onStart { Timber.tag(tag).d("info().onStart()") }
         .onCompletion { Timber.tag(tag).d("info().onCompletion()") }
         .onErrorMixLast { last, error ->
-            // startWith
-            last!!.copy(error = error)
+            // First emit(info) needs to be error free
+            requireNotNull(last)
+            if (error.hasCause(CancellationException::class)) {
+                log(tag, DEBUG) { "infoFlow was cancelled." }
+                last
+            } else {
+                last.copy(error = error)
+            }
         }
-        .replayingShare(appScope)
+        .shareIn(
+            scope = appScope,
+            replay = 1,
+            started = SharingStarted.WhileSubscribed(replayExpiration = Duration.seconds(10))
+        )
 
     override fun specInfo(specId: BackupSpec.Id): Flow<BackupSpec.Info> = specInfos()
         .map { specInfos ->

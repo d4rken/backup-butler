@@ -14,6 +14,7 @@ import eu.darken.bb.common.lists.differ.setupDiffer
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
+import eu.darken.bb.common.ui.plusAssign
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.databinding.StorageListAdapterLineBinding
 import eu.darken.bb.storage.core.Storage
@@ -83,12 +84,14 @@ class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>()
                 info.status != null -> {
                     repoStatus.setTextColor(context.getColorForAttr(android.R.attr.textColorSecondary))
                     @SuppressLint("SetTextI18n")
-                    repoStatus.text = "${getQuantityString(R.plurals.x_items, info.status.itemCount)}; ${
-                        Formatter.formatFileSize(
-                            context,
-                            info.status.totalSize
-                        )
-                    }"
+                    repoStatus.text = ""
+
+                    if (info.status.itemCount != -1) {
+                        repoStatus += getQuantityString(R.plurals.x_items, info.status.itemCount)
+                    }
+                    if (info.status.totalSize != -1L) {
+                        repoStatus += "; ${Formatter.formatFileSize(context, info.status.totalSize)}"
+                    }
                     if (info.status.isReadOnly) repoStatus.append("; " + getString(R.string.general_read_only_label))
                 }
                 else -> {

@@ -12,3 +12,7 @@ fun TextView.tryTextElseHide(value: String?, hideMode: Int = View.INVISIBLE) {
 fun TextView.setTextQuantity(@PluralsRes pluralsRes: Int, quantity: Int, vararg arguments: Any = arrayOf(quantity)) {
     text = resources.getQuantityString(pluralsRes, quantity, *arguments)
 }
+
+operator fun TextView.plusAssign(value: String) {
+    this.append(value)
+}
