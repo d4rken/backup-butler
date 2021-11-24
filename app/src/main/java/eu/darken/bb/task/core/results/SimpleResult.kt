@@ -74,7 +74,7 @@ data class SimpleResult constructor(
         }
 
         override fun build(context: Context): SimpleResult {
-            subResults.singleOrNull { it.state == TaskResult.State.ERROR }?.let {
+            if (subResults.any { it.state == TaskResult.State.ERROR }) {
                 state = TaskResult.State.ERROR
             }
             if (subResults.isEmpty()) Timber.w("Empty subresults: %s", this)
