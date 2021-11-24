@@ -49,14 +49,14 @@ import java.io.InterruptedIOException
 
 
 class SAFStorage @AssistedInject constructor(
-        @Assisted storageRef: Storage.Ref,
-        @Assisted storageConfig: Storage.Config,
-        @ApplicationContext override val context: Context,
-        moshi: Moshi,
-        private val safGateway: SAFGateway,
-        private val mmDataRepo: MMDataRepo,
-        @AppScope private val appScope: CoroutineScope,
-        dispatcherProvider: DispatcherProvider,
+    @Assisted storageRef: Storage.Ref,
+    @Assisted storageConfig: Storage.Config,
+    @ApplicationContext override val context: Context,
+    moshi: Moshi,
+    private val gateway: SAFGateway,
+    private val mmDataRepo: MMDataRepo,
+    @AppScope private val appScope: CoroutineScope,
+    dispatcherProvider: DispatcherProvider,
 ) : Storage, HasContext, Progress.Client {
 
     override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
@@ -74,8 +74,8 @@ class SAFStorage @AssistedInject constructor(
 
     private val dataDirEvents = flow {
         while (true) {
-            val files = if (dataDir.exists(safGateway)) {
-                dataDir.listFiles(safGateway)
+            val files = if (dataDir.exists(gateway)) {
+                dataDir.listFiles(gateway)
             } else {
                 emptyList()
             }
@@ -93,7 +93,7 @@ class SAFStorage @AssistedInject constructor(
     init {
         appScope.launch {
             Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
-            if (!dataDir.exists(safGateway)) {
+            if (!dataDir.exists(gateway)) {
                 Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
             }
         }
@@ -107,19 +107,23 @@ class SAFStorage @AssistedInject constructor(
         emit(info)
 
         var status = Storage.Info.Status(
-                isReadOnly = dataDir.exists(safGateway) && !dataDir.canWrite(safGateway),
-                itemCount = -1,
-                totalSize = -1L
+            isReadOnly = dataDir.exists(gateway) && !dataDir.canWrite(gateway),
+            itemCount = -1,
+            totalSize = -1L
         )
         emit(info.copy(status = status))
 
         status = status.copy(
-                itemCount = dataDir.listFiles(safGateway).size
+            itemCount = dataDir.listFilesOrNull(gateway)?.size ?: 0
         )
         emit(info.copy(status = status))
 
         status = status.copy(
-                totalSize = dataDir.walk(safGateway).fold(0L) { totalSize, file -> totalSize + file.size }
+            totalSize = if (status.itemCount > 0) {
+                dataDir.walk(gateway).fold(0L) { totalSize, file -> totalSize + file.size }
+            } else {
+                0L
+            }
         )
         emit(info.copy(status = status))
     }
@@ -154,7 +158,7 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun readBackupSpecs(files: Collection<SAFPath>): Collection<BackupSpec.Info> {
         val content = files.mapNotNull { backupDir ->
-            if (backupDir.isFile(safGateway)) {
+            if (backupDir.isFile(gateway)) {
                 Timber.tag(TAG).w("Unexpected file within data directory: %s", backupDir)
                 return@mapNotNull null
             }
@@ -193,21 +197,21 @@ class SAFStorage @AssistedInject constructor(
             specInfo(specId)
                     .flatMapLatest { item ->
                         item as SAFStorageSpecInfo
-                        val backupDir = getSpecDir(item.specId).requireExists(safGateway)
-                        val versionDir = backupDir.child(backupId.idString).requireExists(safGateway)
+                        val backupDir = getSpecDir(item.specId).requireExists(gateway)
+                        val versionDir = backupDir.child(backupId.idString).requireExists(gateway)
                         val metaData = readBackupMeta(item.specId, backupId)
                         val backupSpec = readSpec(item.specId)
 
                         return@flatMapLatest flow {
                             while (true) {
-                                val versionedFiles = versionDir.listFiles(safGateway)
-                                        .filter { it.name.endsWith(PROP_EXT) }
-                                        .map { file ->
-                                            val props = propsAdapter.fromAPath(safGateway, file)
-                                            checkNotNull(props) { "Can't read props from $file" }
-                                            Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
-                                        }
-                                        .toList()
+                                val versionedFiles = versionDir.listFiles(gateway)
+                                    .filter { it.name.endsWith(PROP_EXT) }
+                                    .map { file ->
+                                        val props = propsAdapter.fromAPath(gateway, file)
+                                        checkNotNull(props) { "Can't read props from $file" }
+                                        Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
+                                    }
+                                    .toList()
 
                                 val contentInfo = Backup.ContentInfo(
                                         storageId = storageId,
@@ -237,19 +241,19 @@ class SAFStorage @AssistedInject constructor(
 
         updateProgressPrimary(R.string.progress_reading_backup_data)
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
-        val versionPath = getVersionDir(specId, backupId).requireExists(safGateway)
-        val propFiles = versionPath.listFiles(safGateway).filter { it.name.endsWith(PROP_EXT) }
+        val versionPath = getVersionDir(specId, backupId).requireExists(gateway)
+        val propFiles = versionPath.listFiles(gateway).filter { it.name.endsWith(PROP_EXT) }
         updateProgressCount(Progress.Count.Percent(0, propFiles.size))
 
         propFiles.forEachIndexed { index, propFile ->
             updateProgressSecondary { propFile.userReadablePath(it) }
 
             val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
-            val props = propFile.read(safGateway).use { mmDataRepo.readProps(it) }
+            val props = propFile.read(gateway).use { mmDataRepo.readProps(it) }
 
             val source: MMRef.RefSource = when (props.dataType) {
-                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.read(safGateway) }, { props })
-                ARCHIVE -> ArchiveRefSource({ dataFile.read(safGateway) }, { props as ArchiveProps })
+                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.read(gateway) }, { props })
+                ARCHIVE -> ArchiveRefSource({ dataFile.read(gateway) }, { props as ArchiveProps })
             }
 
             val tmpRef = mmDataRepo.create(MMRef.Request(backupId = backupId, source = source))
@@ -278,12 +282,12 @@ class SAFStorage @AssistedInject constructor(
             check(existingSpec == backup.spec) { "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}" }
         } catch (e: Throwable) {
             Timber.tag(TAG).d("Reading existing spec failed (${e.message}, creating new one.")
-            getSpecDir(backup.specId).createDirIfNecessary(safGateway)
+            getSpecDir(backup.specId).createDirIfNecessary(gateway)
             writeSpec(backup.specId, backup.spec)
         }
 
         updateProgressPrimary(R.string.progress_writing_backup_data)
-        val versionDir = getVersionDir(backup.specId, backup.backupId).createDirIfNecessary(safGateway)
+        val versionDir = getVersionDir(backup.specId, backup.backupId).createDirIfNecessary(gateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
@@ -301,14 +305,14 @@ class SAFStorage @AssistedInject constructor(
                     ""
                 }
 
-                val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(safGateway)
-                propsAdapter.toAPath(ref.getProps(), safGateway, targetProp)
+                val targetProp = versionDir.child("$key${ref.refId.idString}$PROP_EXT").requireNotExists(gateway)
+                propsAdapter.toAPath(ref.getProps(), gateway, targetProp)
 
                 when (ref.getProps().dataType) {
                     FILE, ARCHIVE -> {
-                        val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(safGateway)
-                        target.createFileIfNecessary(safGateway)
-                        ref.source.open().copyToAutoClose(safGateway.write(target))
+                        val target = versionDir.child("$key${ref.refId.idString}$DATA_EXT").requireNotExists(gateway)
+                        target.createFileIfNecessary(gateway)
+                        ref.source.open().copyToAutoClose(gateway.write(target))
                     }
                     DIRECTORY, SYMLINK -> {
                         // NOOP , props are enough
@@ -338,10 +342,10 @@ class SAFStorage @AssistedInject constructor(
 
         if (backupId != null) {
             val versionDir = getVersionDir(specId, backupId)
-            versionDir.deleteAll(safGateway)
+            versionDir.deleteAll(gateway)
         } else {
             val backupDir = getSpecDir(specId)
-            backupDir.deleteAll(safGateway)
+            backupDir.deleteAll(gateway)
         }
 
         val newMetaData = if (backupId != null) {
@@ -357,9 +361,9 @@ class SAFStorage @AssistedInject constructor(
         Timber.w("detach(wipe=%b).doOnSubscribe %s", wipe, storageRef)
         if (wipe) {
             Timber.tag(TAG).i("Wiping %s", storageRef.path)
-            storageRef.path.deleteAll(safGateway)
+            storageRef.path.deleteAll(gateway)
         }
-        safGateway.releasePermission(storageRef.path)
+        gateway.releasePermission(storageRef.path)
         // TODO dispose resources
         Timber.w("detach(wipe=%b).dofinally%s", wipe, storageRef)
     }
@@ -369,7 +373,7 @@ class SAFStorage @AssistedInject constructor(
     private suspend fun readSpec(specId: BackupSpec.Id): BackupSpec {
         val specFile = getSpecDir(specId).child(SPEC_FILE)
         return try {
-            specAdapter.fromAPath(safGateway, specFile)
+            specAdapter.fromAPath(gateway, specFile)
         } catch (e: Exception) {
             if (e !is InterruptedIOException) {
                 Timber.tag(TAG).w(e, "Failed to get backup spec from %s", specFile)
@@ -382,7 +386,7 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
         val specFile = getSpecDir(specId).child(SPEC_FILE)
-        specAdapter.toAPath(spec, safGateway, specFile)
+        specAdapter.toAPath(spec, gateway, specFile)
     }
 
     private suspend fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): SAFPath =
@@ -390,7 +394,7 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
-        getSpecDir(specId).listFiles(safGateway).filter { it.isDirectory(safGateway) }.forEach { dir ->
+        getSpecDir(specId).listFiles(gateway).filter { it.isDirectory(gateway) }.forEach { dir ->
             try {
                 val metaData = readBackupMeta(specId, Backup.Id(dir.name))
                 metaDatas.add(metaData)
@@ -405,7 +409,7 @@ class SAFStorage @AssistedInject constructor(
     private suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
         return try {
-            metaDataAdapter.fromAPath(safGateway, versionFile)
+            metaDataAdapter.fromAPath(gateway, versionFile)
         } catch (e: Exception) {
             log(TAG, WARN) { "Failed to get metadata from $versionFile: ${e.asLog()}" }
             throw e
@@ -414,7 +418,7 @@ class SAFStorage @AssistedInject constructor(
 
     private suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
         val versionFile = getVersionDir(specId, backupId).child(BACKUP_META_FILE)
-        metaDataAdapter.toAPath(metaData, safGateway, versionFile)
+        metaDataAdapter.toAPath(metaData, gateway, versionFile)
     }
 
     override fun toString(): String = "SAFStorage(storageConfig=$storageConfig)"

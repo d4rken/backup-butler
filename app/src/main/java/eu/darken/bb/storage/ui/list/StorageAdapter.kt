@@ -67,8 +67,8 @@ class StorageAdapter @Inject constructor() : ModularAdapter<StorageAdapter.VH>()
             typeIcon.setColorFilter(context.getColorForAttr(android.R.attr.textColorSecondary))
 
             when {
-                info.config != null && info.isFinished -> label.text = info.config.label
-                info.isFinished -> label.setText(R.string.general_error_label)
+                info.error != null -> label.setText(R.string.general_error_label)
+                info.config != null -> label.text = info.config.label
                 else -> label.setText(R.string.progress_loading_label)
             }
 

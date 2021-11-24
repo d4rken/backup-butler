@@ -6,7 +6,7 @@ import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.files.core.local.listFilesThrowing
+import eu.darken.bb.common.files.core.local.listFiles2
 import eu.darken.bb.common.moshi.from
 import eu.darken.bb.common.moshi.into
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +39,7 @@ class MMDataRepo @Inject constructor(
         } else {
             appScope.launch(context = dispatcherProvider.IO) {
                 lock.withLock {
-                    tmpDir.listFilesThrowing().forEach {
+                    tmpDir.listFiles2().forEach {
                         log(TAG) { "Cleaning up $it" }
                         it.deleteRecursively()
                     }

@@ -193,16 +193,20 @@ inline fun <reified T : APath> T.relativeTo(parent: T): APath? {
     }
 }
 
-suspend fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
-    return gateway.listFiles(downCast())
-}
-
 suspend fun <P : APath, PLU : APathLookup<P>> P.lookup(gateway: APathGateway<P, PLU>): PLU {
     return gateway.lookup(downCast())
 }
 
 suspend fun <P : APath, PLU : APathLookup<P>> P.lookupFiles(gateway: APathGateway<P, PLU>): List<PLU> {
     return gateway.lookupFiles(downCast())
+}
+
+suspend fun <T : APath> T.listFiles(gateway: APathGateway<T, out APathLookup<T>>): List<T> {
+    return gateway.listFiles(downCast())
+}
+
+suspend fun <T : APath> T.listFilesOrNull(gateway: APathGateway<T, out APathLookup<T>>): List<T>? {
+    return if (exists(gateway)) gateway.listFiles(downCast()) else null
 }
 
 suspend fun <T : APath> T.canWrite(gateway: APathGateway<T, out APathLookup<T>>): Boolean {

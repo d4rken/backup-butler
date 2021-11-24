@@ -101,13 +101,10 @@ fun File.deleteAll() {
     }
 }
 
-fun File.listFilesSafe(): List<File>? {
-    return this.listFiles()?.toList()
-}
-
-@Throws(IOException::class)
-fun File.listFilesThrowing(): List<File> {
-    return this.listFiles()?.toList() ?: throw IOException("listFiles() returned NULL on $path")
+fun File.listFiles2(): List<File> {
+    if (!exists()) throw IOException("File does not exist")
+    if (!canRead()) throw IOException("Can't read $path")
+    return this.listFiles()?.toList() ?: throw IOException("Failed to listFiles() on $path")
 }
 
 fun File.isSymbolicLink(): Boolean {

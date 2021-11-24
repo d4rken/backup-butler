@@ -49,7 +49,7 @@ class LocalStorage @AssistedInject constructor(
     @ApplicationContext override val context: Context,
     moshi: Moshi,
     private val mmDataRepo: MMDataRepo,
-    private val localGateway: LocalGateway,
+    private val gateway: LocalGateway,
     @AppScope private val appScope: CoroutineScope,
     private val dispatcherProvider: DispatcherProvider,
 ) : Storage, HasContext, Progress.Client {
@@ -71,7 +71,7 @@ class LocalStorage @AssistedInject constructor(
         // FIXME better way to update listing
         while (true) {
             val listing = try {
-                dataDir.lookupFiles(localGateway)
+                dataDir.lookupFiles(gateway)
             } catch (e: Exception) {
                 emptyList()
             }
@@ -86,7 +86,7 @@ class LocalStorage @AssistedInject constructor(
     init {
         Timber.tag(TAG).i("init(storageRef=%s, storageConfig=%s)", storageRef, storageConfig)
         appScope.launch {
-            if (!dataDir.exists(localGateway)) {
+            if (!dataDir.exists(gateway)) {
                 Timber.tag(TAG).w("Data dir doesn't exist: %s", dataDir)
             }
         }
@@ -98,19 +98,23 @@ class LocalStorage @AssistedInject constructor(
         emit(info)
 
         var status = Storage.Info.Status(
-            isReadOnly = dataDir.exists(localGateway) && !dataDir.canWrite(localGateway),
+            isReadOnly = dataDir.exists(gateway) && !dataDir.canWrite(gateway),
             itemCount = -1,
             totalSize = -1L
         )
         emit(info.copy(status = status))
 
         status = status.copy(
-            itemCount = dataDir.listFiles(localGateway).size
+            itemCount = dataDir.listFilesOrNull(gateway)?.size ?: 0
         )
         emit(info.copy(status = status))
 
         status = status.copy(
-            totalSize = dataDir.walk(localGateway).fold(0L) { totalSize, file -> totalSize + file.size }
+            totalSize = if (status.itemCount > 0) {
+                dataDir.walk(gateway).fold(0L) { totalSize, file -> totalSize + file.size }
+            } else {
+                0L
+            }
         )
         emit(info.copy(status = status))
     }
@@ -178,25 +182,25 @@ class LocalStorage @AssistedInject constructor(
         specInfo(specId)
             .flatMapConcat { item ->
                 item as LocalStorageSpecInfo
-                val backupDir = item.path.requireExists(localGateway)
-                val versionDir = LocalPath(backupDir, backupId.idString).requireExists(localGateway)
+                val backupDir = item.path.requireExists(gateway)
+                val versionDir = LocalPath(backupDir, backupId.idString).requireExists(gateway)
                 val backupSpec = readSpec(specId)
                 val metaData = readBackupMeta(item.specId, backupId)
 
                 return@flatMapConcat flow<List<LocalPath>> {
 
                     while (true) {
-                        emit(backupDir.listFiles(localGateway))
+                        emit(backupDir.listFiles(gateway))
                         delay(1000L)
                         yield()
                     }
                 }
                     .distinctUntilChanged()
                     .map {
-                        return@map versionDir.listFiles(localGateway)
+                        return@map versionDir.listFiles(gateway)
                             .filter { it.path.endsWith(PROP_EXT) }
                             .map { file ->
-                                val props = file.read(localGateway).use { mmDataRepo.readProps(it) }
+                                val props = file.read(gateway).use { mmDataRepo.readProps(it) }
                                 Backup.ContentInfo.PropsEntry(backupSpec, metaData, props)
                             }
                             .toList()
@@ -227,19 +231,19 @@ class LocalStorage @AssistedInject constructor(
 
         updateProgressPrimary(R.string.progress_reading_backup_data)
         val dataMap = mutableMapOf<String, MutableList<MMRef>>()
-        val versionPath = getVersionDir(specId, backupId).requireExists(localGateway)
-        val propFiles = versionPath.listFiles(localGateway).filter { it.path.endsWith(PROP_EXT) }
+        val versionPath = getVersionDir(specId, backupId).requireExists(gateway)
+        val propFiles = versionPath.listFiles(gateway).filter { it.path.endsWith(PROP_EXT) }
         updateProgressCount(Progress.Count.Percent(0, propFiles.size))
 
         propFiles.forEachIndexed { index, propFile ->
             updateProgressSecondary(propFile.path)
 
             val dataFile = versionPath.child(propFile.name.replace(PROP_EXT, DATA_EXT))
-            val props = propFile.read(localGateway).use { mmDataRepo.readProps(it) }
+            val props = propFile.read(gateway).use { mmDataRepo.readProps(it) }
 
             val source: MMRef.RefSource = when (props.dataType) {
-                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.read(localGateway) }, { props })
-                ARCHIVE -> ArchiveRefSource({ dataFile.read(localGateway) }, { props as ArchiveProps })
+                FILE, DIRECTORY, SYMLINK -> GenericRefSource({ dataFile.read(gateway) }, { props })
+                ARCHIVE -> ArchiveRefSource({ dataFile.read(gateway) }, { props as ArchiveProps })
             }
 
             val tmpRef = mmDataRepo.create(MMRef.Request(backupId = backupId, source = source))
@@ -270,13 +274,13 @@ class LocalStorage @AssistedInject constructor(
             }
         } catch (e: Throwable) {
             Timber.tag(TAG).d("Reading existing spec failed (${e.message}, creating new one.")
-            getSpecDir(backup.specId).tryMkDirs(localGateway)
+            getSpecDir(backup.specId).tryMkDirs(gateway)
             writeSpec(backup.specId, backup.spec)
         }
 
         updateProgressPrimary(R.string.progress_writing_backup_data)
         val versionDir = getVersionDir(specId = backup.specId, backupId = backup.backupId)
-        versionDir.tryMkDirs(localGateway)
+        versionDir.tryMkDirs(gateway)
 
         var current = 0
         val max = backup.data.values.fold(0, { cnt, vals -> cnt + vals.size })
@@ -295,16 +299,16 @@ class LocalStorage @AssistedInject constructor(
                 }
 
                 val targetProp =
-                    LocalPath(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists(localGateway)
+                    LocalPath(versionDir, "$key${ref.refId.idString}$PROP_EXT").requireNotExists(gateway)
                 updateProgressSecondary(targetProp.path)
-                targetProp.write(localGateway).use { mmDataRepo.writeProps(ref.getProps(), it) }
+                targetProp.write(gateway).use { mmDataRepo.writeProps(ref.getProps(), it) }
 
                 // TODO errors should be shown in the result?
                 when (ref.getProps().dataType) {
                     FILE, ARCHIVE -> {
                         val target =
-                            LocalPath(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists(localGateway)
-                        ref.source.open().copyToAutoClose(target.write(localGateway))
+                            LocalPath(versionDir, "$key${ref.refId.idString}$DATA_EXT").requireNotExists(gateway)
+                        ref.source.open().copyToAutoClose(target.write(gateway))
                     }
                     DIRECTORY, SYMLINK -> {
                         // NOOP props are enough
@@ -333,10 +337,10 @@ class LocalStorage @AssistedInject constructor(
         specInfo as LocalStorageSpecInfo
         if (backupId != null) {
             val versionDir = getVersionDir(specId, backupId)
-            versionDir.deleteAll(localGateway)
+            versionDir.deleteAll(gateway)
         } else {
             val backupDir = getSpecDir(specId)
-            backupDir.deleteAll(localGateway)
+            backupDir.deleteAll(gateway)
         }
         val newMetaData = if (backupId != null) {
             // Not a complete deletion
@@ -352,7 +356,7 @@ class LocalStorage @AssistedInject constructor(
         if (wipe) {
             Timber.tag(TAG).i("Wiping %s", storageRef.path)
             // let's not use the gateway here as there is currently no reason to run this with root.
-            storageRef.path.deleteAll(localGateway)
+            storageRef.path.deleteAll(gateway)
         }
         // TODO dispose resources, i.e. observables.
         Timber.tag(TAG).d("detach(wipe=%b).dofinally %s", wipe, storageRef)
@@ -366,7 +370,7 @@ class LocalStorage @AssistedInject constructor(
 
     private suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
-        getSpecDir(specId).lookupFiles(localGateway).filter { it.isDirectory }.forEach { dir ->
+        getSpecDir(specId).lookupFiles(gateway).filter { it.isDirectory }.forEach { dir ->
             try {
                 val metaData = readBackupMeta(specId, Backup.Id(dir.name))
                 metaDatas.add(metaData)
@@ -381,7 +385,7 @@ class LocalStorage @AssistedInject constructor(
     private suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = LocalPath(getVersionDir(specId, backupId), BACKUP_META_FILE)
         return try {
-            metaDataAdapter.fromAPath(localGateway, versionFile)
+            metaDataAdapter.fromAPath(gateway, versionFile)
         } catch (e: Exception) {
             log(TAG, WARN) { "Failed to get metadata from $versionFile: ${e.asLog()}" }
             throw e
@@ -390,13 +394,13 @@ class LocalStorage @AssistedInject constructor(
 
     private suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
         val versionFile = LocalPath(getVersionDir(specId, backupId), BACKUP_META_FILE)
-        metaDataAdapter.toAPath(metaData, localGateway, versionFile)
+        metaDataAdapter.toAPath(metaData, gateway, versionFile)
     }
 
     private suspend fun readSpec(specId: BackupSpec.Id): BackupSpec {
         val specFile = LocalPath(getSpecDir(specId), SPEC_FILE)
         return try {
-            specAdapter.fromAPath(localGateway, specFile)
+            specAdapter.fromAPath(gateway, specFile)
         } catch (e: Exception) {
             log(TAG, WARN) { "Failed to get  backup spec from $specFile: ${e.asLog()}" }
             throw e
@@ -405,7 +409,7 @@ class LocalStorage @AssistedInject constructor(
 
     private suspend fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
         val specFile = LocalPath(getSpecDir(specId), SPEC_FILE)
-        specAdapter.toAPath(spec, localGateway, specFile)
+        specAdapter.toAPath(spec, gateway, specFile)
     }
 
     override fun toString(): String = "LocalStorage(storageRef=$storageRef)"

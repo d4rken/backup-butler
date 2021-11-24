@@ -34,7 +34,7 @@ class FileOpsHost @Inject constructor(
     }
 
     override fun listFiles(path: LocalPath): List<LocalPath> = try {
-        path.asFile().listFilesThrowing().map { LocalPath.build(it) }
+        path.asFile().listFiles2().map { LocalPath.build(it) }
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "listFiles(path=$path) failed.")
         throw wrapPropagating(e)

@@ -125,12 +125,16 @@ class LocalGateway @Inject constructor(
             }
         }
     }
-    
+
     override suspend fun listFiles(path: LocalPath): List<LocalPath> = listFiles(path, Mode.AUTO)
 
     suspend fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = runIO {
         try {
-            val nonRootList: List<File>? = path.asFile().listFilesSafe()
+            val nonRootList: List<File>? = try {
+                path.asFile().listFiles2()
+            } catch (e: Exception) {
+                null
+            }
             when {
                 mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
                     if (nonRootList == null) throw ReadException(path)
@@ -154,7 +158,11 @@ class LocalGateway @Inject constructor(
         dispatcherProvider.IO
     ) {
         try {
-            val nonRootList: List<LocalPath>? = path.asFile().listFilesSafe()?.map { it.toLocalPath() }
+            val nonRootList = try {
+                path.asFile().listFiles2()
+            } catch (e: Exception) {
+                null
+            }?.map { it.toLocalPath() }
 
             when {
                 mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {

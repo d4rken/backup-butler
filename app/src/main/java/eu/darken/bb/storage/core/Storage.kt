@@ -111,13 +111,15 @@ interface Storage : Progress.Host, HasSharedResource<Any> {
         val error: Throwable? = null
     ) {
 
-        val isFinished: Boolean = error != null || (config != null && status != null)
+        val isFinished: Boolean = error != null || (config != null && status?.isFinished == true)
 
         data class Status(
             val isReadOnly: Boolean,
             val itemCount: Int,
             val totalSize: Long
-        )
+        ) {
+            val isFinished: Boolean = itemCount != -1 && totalSize != -1L
+        }
 
     }
 
