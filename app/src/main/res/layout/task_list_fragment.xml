@@ -28,6 +28,7 @@
         android:visibility="invisible"
         tools:visibility="visible"
         android:layout_marginEnd="16dp"
+        app:layout_behavior="com.google.android.material.floatingactionbutton.FloatingActionButton$Behavior"
         android:layout_marginBottom="16dp"
         android:src="@drawable/ic_add_task"
         android:tint="@color/colorOnPrimary" />

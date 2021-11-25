@@ -42,7 +42,6 @@ class TaskListFragment : Smart2Fragment(R.layout.task_list_fragment) {
         vdc.processorEvent.observe2(this) { isActive ->
             if (isVisible && isActive && snackbar == null) {
                 snackbar = Snackbar.make(view, R.string.progress_processing_task_label, Snackbar.LENGTH_INDEFINITE)
-                    .setAnchorView(ui.fab)
                     .setAction(R.string.general_show_action) {
                         startActivity(Intent(requireContext(), ProcessorActivity::class.java))
                     }
