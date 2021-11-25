@@ -4,16 +4,11 @@ import android.system.Os
 import eu.darken.bb.common.files.core.Ownership
 import eu.darken.bb.common.files.core.Permissions
 import eu.darken.bb.common.files.core.asFile
-import eu.darken.bb.common.files.core.callbacks
-import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
-import eu.darken.bb.common.root.javaroot.JavaRootClient
 import eu.darken.rxshell.cmd.Cmd
 import eu.darken.rxshell.cmd.RxCmdShell
 import eu.darken.rxshell.extra.CmdHelper
-import okio.Sink
-import okio.Source
 import timber.log.Timber
 import java.util.*
 
@@ -36,18 +31,6 @@ fun LocalPath.toCrumbs(): List<LocalPath> {
         parent = parent.parentFile
     }
     return crumbs
-}
-
-internal suspend fun LocalPath.sourceRoot(client: JavaRootClient): Source {
-    val resource = client.get()
-    val fileOps = resource.item.getModule<FileOpsClient>()
-    return fileOps.readFile(this).callbacks { resource.close() }
-}
-
-internal suspend fun LocalPath.sinkRoot(client: JavaRootClient): Sink {
-    val resource = client.get()
-    val fileOps = resource.item.getModule<FileOpsClient>()
-    return fileOps.writeFile(this).callbacks { resource.close() }
 }
 
 fun LocalPath.performLookup(

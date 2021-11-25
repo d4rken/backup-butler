@@ -41,13 +41,12 @@ class LocalStorage @AssistedInject constructor(
     gateway = gateway,
     appScope = appScope,
     dispatcherProvider = dispatcherProvider,
-    tag = TAG,
+    tag = "$TAG:${storageRef.storageId.idString.takeLast(4)}",
+    storageRef = storageRef,
+    storageConfig = storageConfig
 ), HasContext, Progress.Client {
 
-    override val storageRef: LocalStorageRef = storageRef as LocalStorageRef
-    override val storageConfig: LocalStorageConfig = storageConfig as LocalStorageConfig
-
-    override val dataDir: LocalPath = this.storageRef.path.childCast("data")
+    override val dataDir: LocalPath = (this.storageRef as LocalStorageRef).path.childCast("data")
 
     init {
         log(TAG, INFO) { "init(storage=$this)" }

@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
-import eu.darken.bb.common.BuildVersionWrap
+import eu.darken.bb.common.BuildVersion
 import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -68,7 +68,7 @@ class ProcessorNotifications @Inject constructor(
         }
 
     @SuppressLint("InlinedApi")
-    private fun NotificationCompat.Builder.toForegroundInfo(): ForegroundInfo = if (BuildVersionWrap.hasAPILevel(29)) {
+    private fun NotificationCompat.Builder.toForegroundInfo(): ForegroundInfo = if (BuildVersion.hasAPILevel(29)) {
         ForegroundInfo(
             NOTIFICATION_ID,
             this.build(),

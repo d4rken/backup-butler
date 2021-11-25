@@ -37,7 +37,7 @@ class JavaRootHostLauncher @Inject constructor(
         .onEach { log(TAG) { "Connection available: $it" } }
         .catch {
             log(TAG, ERROR) { "Failed to establish connection: ${it.asLog()}" }
-            throw it
+            throw RootUnavailableException("Failed to establish connection", cause = it)
         }
         .onCompletion { log(TAG) { "Connection unavailable." } }
 

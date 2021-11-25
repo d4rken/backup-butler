@@ -49,7 +49,6 @@ abstract class SimpleBaseProcessor constructor(
             sharedResource.get().use {
                 doProcess(task)
             }
-
             resultBuilder.sucessful()
         } catch (exception: Exception) {
             Timber.tag(TAG).e(exception, "Task failed: %s", task)

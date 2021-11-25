@@ -34,19 +34,18 @@ class SAFStorage @AssistedInject constructor(
     @AppScope appScope: CoroutineScope,
     dispatcherProvider: DispatcherProvider,
 ) : CommonStorage<SAFPath, SAFPathLookup, SAFGateway>(
-
     moshi = moshi,
     mmDataRepo = mmDataRepo,
     gateway = gateway,
     appScope = appScope,
     dispatcherProvider = dispatcherProvider,
-    tag = TAG,
+    tag = "${TAG}:${storageRef.storageId.idString.takeLast(4)}",
+    storageRef = storageRef,
+    storageConfig = storageConfig
 ) {
 
-    override val storageRef: SAFStorageRef = storageRef as SAFStorageRef
-    override val storageConfig: SAFStorageConfig = storageConfig as SAFStorageConfig
+    override val dataDir: SAFPath = (this.storageRef as SAFStorageRef).path.childCast("data")
 
-    override val dataDir: SAFPath = this.storageRef.path.childCast("data")
 
     init {
         log(TAG, INFO) { "init(storage=$this)" }

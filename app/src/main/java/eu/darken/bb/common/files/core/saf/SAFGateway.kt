@@ -325,7 +325,7 @@ class SAFGateway @Inject constructor(
     }
 
     companion object {
-        val TAG = logTag("SAF", "Gateway")
+        val TAG = logTag("Gateway", "SAF")
 
         const val RW_FLAGSINT = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         private const val DIR_TYPE: String = DocumentsContract.Document.MIME_TYPE_DIR

@@ -7,8 +7,10 @@ import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.ApiHelper.hasAndroidN
+import eu.darken.bb.common.BuildVersion
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.hasAPILevel
+import timber.log.Timber
 import java.io.File
 import java.lang.reflect.Method
 import java.util.*
@@ -16,48 +18,62 @@ import javax.inject.Inject
 
 @Reusable
 class StorageManagerX @Inject constructor(@ApplicationContext context: Context) {
-
     private val storageManager: StorageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
     private var _getVolumeList: Method? = null
     private var _getVolumes: Method? = null
 
-    @get:Throws(ReflectiveOperationException::class)
+    @get:RequiresApi(Build.VERSION_CODES.KITKAT)
     @get:SuppressLint("NewApi")
-    val volumeList: List<StorageVolumeX>
+    val storageVolumes: List<StorageVolumeX>
         get() {
             val svList: MutableList<StorageVolumeX> = ArrayList()
-            if (hasAndroidN()) {
+
+            if (BuildVersion.hasAPILevel(24)) {
                 for (vol in storageManager.storageVolumes) svList.add(StorageVolumeX(vol))
             } else {
-                if (_getVolumeList == null) _getVolumeList = storageManager.javaClass.getMethod("getVolumeList")
-                val storageVolumes = _getVolumeList!!.invoke(storageManager) as Array<Any>
-                for (storageVolume in storageVolumes) svList.add(StorageVolumeX(storageVolume))
+                try {
+                    if (_getVolumeList == null) _getVolumeList = storageManager.javaClass.getMethod("getVolumeList")
+                    val storageVolumes = _getVolumeList!!.invoke(storageManager) as Array<Any>
+                    for (storageVolume in storageVolumes) svList.add(StorageVolumeX(storageVolume))
+                } catch (e: ReflectiveOperationException) {
+                    Timber.tag(TAG).e(e, "StorageManagerX.volumeList reflection issue")
+
+                }
             }
+
             return svList
         }
 
-    @get:Throws(ReflectiveOperationException::class)
+
     @get:RequiresApi(Build.VERSION_CODES.M)
-    val volumes: List<VolumeInfoX>
-        get() {
+    val volumes: List<VolumeInfoX>?
+        get() = try {
             if (_getVolumes == null) _getVolumes = storageManager.javaClass.getMethod("getVolumes")
-            val volumeInfoXList: MutableList<VolumeInfoX> = ArrayList()
+
             val storageInfos = _getVolumes!!.invoke(storageManager) as List<*>
-            for (storageInfo in storageInfos) volumeInfoXList.add(VolumeInfoX(storageInfo!!))
-            return volumeInfoXList
+            storageInfos.filterNotNull().map { VolumeInfoX(it) }
+        } catch (e: ReflectiveOperationException) {
+            Timber.tag(TAG).e(e, "StorageManagerX.volumes reflection issue")
+            null
         }
 
-    @SuppressLint("NewApi")
-    fun getRootStorageVolume(file: File): StorageVolumeX? {
-        return if (hasAndroidN()) {
-            val volume = storageManager.getStorageVolume(file)
-            volume?.let { StorageVolumeX(it) }
-        } else {
-            volumeList.firstOrNull { it.path == file.path }
+    fun getStorageVolume(file: File): StorageVolumeX? {
+        var volume: StorageVolumeX? = null
+        if (BuildVersion.hasAPILevel(24)) {
+            @SuppressLint("NewApi")
+            volume = storageManager.getStorageVolume(file)?.let { StorageVolumeX(it) }
         }
+        if (volume == null) {
+            volume = storageVolumes.singleOrNull { it.path == file.path }
+        }
+        return volume
     }
 
+
     companion object {
-        val TAG = logTag("StorageManagerX")
+        val TAG: String = logTag("StorageManagerX")
+        private const val DEFAULT_THRESHOLD_PERCENTAGE = 10
+        private const val DEFAULT_THRESHOLD_MAX_BYTES = (500 * 1024 * 1024).toLong()
+        private const val DEFAULT_FULL_THRESHOLD_BYTES = (1024 * 1024).toLong()
     }
 }

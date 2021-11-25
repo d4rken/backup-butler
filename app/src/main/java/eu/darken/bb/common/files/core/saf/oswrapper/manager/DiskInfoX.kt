@@ -1,32 +1,114 @@
 package eu.darken.bb.common.files.core.saf.oswrapper.manager
 
+import android.annotation.TargetApi
+import android.os.Build
+import timber.log.Timber
+import java.lang.reflect.Method
+
+
 /**
  * https://github.com/android/platform_frameworks_base/blob/master/core/java/android/os/storage/DiskInfo.java
  */
-data class DiskInfoX(private val diskInfoObject: Any) {
-    val volumeInfoClass: Class<*> = diskInfoObject.javaClass
+@TargetApi(Build.VERSION_CODES.KITKAT)
+class DiskInfoX(private val diskInfoObject: Any) {
+    private val volumeInfoClass: Class<*> = diskInfoObject.javaClass
 
-    @get:Throws(ReflectiveOperationException::class)
-    val id: String
-        get() = volumeInfoClass.getMethod("getId").invoke(diskInfoObject) as String
+    private val methodGetId: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getId")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"getId\")")
+            null
+        }
+    }
+    val id: String?
+        get() = try {
+            methodGetId?.invoke(diskInfoObject) as? String
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.id reflection failed")
+            null
+        }
 
-    @get:Throws(ReflectiveOperationException::class)
+    private val methodGetDescription: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getDescription")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"getDescription\")")
+            null
+        }
+    }
     val description: String?
-        get() = volumeInfoClass.getMethod("getDescription").invoke(diskInfoObject) as String
+        get() = try {
+            methodGetDescription?.invoke(diskInfoObject) as? String?
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.description reflection failed")
+            null
+        }
 
-    @get:Throws(ReflectiveOperationException::class)
-    val isAdoptable: Boolean
-        get() = volumeInfoClass.getMethod("isAdoptable").invoke(diskInfoObject) as Boolean
+    private val methodIsAdoptable: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("isAdoptable")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"isAdoptable\")")
+            null
+        }
+    }
+    val isAdoptable: Boolean?
+        get() = try {
+            methodIsAdoptable?.invoke(diskInfoObject) as? Boolean
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.isAdoptable reflection failed")
+            null
+        }
 
-    @get:Throws(ReflectiveOperationException::class)
-    val isDefaultPrimary: Boolean
-        get() = volumeInfoClass.getMethod("isDefaultPrimary").invoke(diskInfoObject) as Boolean
+    private val methodIsDefaultPrimary: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("isDefaultPrimary")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"isDefaultPrimary\")")
+            null
+        }
+    }
+    val isDefaultPrimary: Boolean?
+        get() = try {
+            methodIsDefaultPrimary?.invoke(diskInfoObject) as? Boolean
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.isDefaultPrimary reflection failed")
+            null
+        }
 
-    @get:Throws(ReflectiveOperationException::class)
-    val isSd: Boolean
-        get() = volumeInfoClass.getMethod("isSd").invoke(diskInfoObject) as Boolean
+    private val methodIsSd: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("isSd")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"isSd\")")
+            null
+        }
+    }
+    val isSd: Boolean?
+        get() = try {
+            methodIsSd?.invoke(diskInfoObject) as? Boolean
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.isSd reflection failed")
+            null
+        }
 
-    @get:Throws(ReflectiveOperationException::class)
-    val isUsb: Boolean
-        get() = volumeInfoClass.getMethod("isUsb").invoke(diskInfoObject) as Boolean
+    private val methodIsUsb: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("isUsb")
+        } catch (e: Exception) {
+            Timber.w(e, "volumeInfoClass.getMethod(\"isUsb\")")
+            null
+        }
+    }
+    val isUsb: Boolean?
+        get() = try {
+            methodIsUsb?.invoke(diskInfoObject) as? Boolean
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("DiskInfoX.isUsb reflection failed")
+            null
+        }
+
+    override fun toString(): String = "DiskInfoX($diskInfoObject)"
+
 }

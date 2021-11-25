@@ -44,18 +44,22 @@ abstract class CommonStorage<
     PL : APathLookup<P>,
     GW : APathGateway<P, PL>
     > constructor(
+    @AppScope private val appScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
     moshi: Moshi,
     private val mmDataRepo: MMDataRepo,
     private val gateway: GW,
-    @AppScope private val appScope: CoroutineScope,
-    dispatcherProvider: DispatcherProvider,
-    private val tag: String,
-    refreshTrigger: Flow<Unit> = TIME_TRIGGER
+    val tag: String,
+    refreshTrigger: Flow<Unit> = TIME_TRIGGER,
+    val storageRef: Storage.Ref,
+    override val storageConfig: Storage.Config,
 ) : Storage, HasContext, Progress.Client {
 
-    abstract val storageRef: Storage.Ref
 
-    override val sharedResource = SharedResource.createKeepAlive(tag, appScope + dispatcherProvider.IO)
+    override val sharedResource = SharedResource.createKeepAlive(
+        "$tag:SR",
+        appScope + dispatcherProvider.IO
+    )
 
     abstract val dataDir: P
 
@@ -65,6 +69,16 @@ abstract class CommonStorage<
     private val progressPub = DynamicStateFlow(tag, appScope) { Progress.Data() }
     override val progress: Flow<Progress.Data> = progressPub.flow
     override fun updateProgress(update: suspend (Progress.Data) -> Progress.Data) = progressPub.updateAsync(onUpdate = update)
+
+    init {
+        log(tag) { "init(storageRef=$storageRef, storageConfig=$storageConfig)" }
+    }
+
+    private suspend fun <T> runStorageOp(
+        block: suspend CoroutineScope.() -> T
+    ): T = withContext(dispatcherProvider.Default) {
+        gateway.sharedResource.get().use { block() }
+    }
 
     private val dataDirEvents: Flow<List<PL>> = refreshTrigger
         .onEach { log(tag, VERBOSE) { "refresh triggered." } }
@@ -210,7 +224,8 @@ abstract class CommonStorage<
             .onCompletion { Timber.tag(tag).d("content(%s).doFinally()", backupId) }
             .replayingShare(appScope)
 
-    override suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit {
+    override suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit = runStorageOp {
+        log(tag) { "load(specId=$specId, backupId=$backupId)" }
         updateProgressPrimary(R.string.progress_reading_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
         val item = specInfo(specId).first()
@@ -247,14 +262,15 @@ abstract class CommonStorage<
         updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        return Backup.Unit(
+        Backup.Unit(
             spec = item.backupSpec,
             metaData = metaData,
             data = dataMap
         )
     }
 
-    override suspend fun save(backup: Backup.Unit): Backup.Info {
+    override suspend fun save(backup: Backup.Unit): Backup.Info = runStorageOp {
+        log(tag) { "save(backup=$backup)" }
         updateProgressPrimary(R.string.progress_writing_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
         try {
@@ -262,8 +278,8 @@ abstract class CommonStorage<
             check(existingSpec == backup.spec) {
                 "BackupSpec missmatch:\nExisting: $existingSpec\n\nNew: ${backup.spec}"
             }
-        } catch (e: Throwable) {
-            Timber.tag(tag).d("Reading existing spec failed (${e.message}, creating new one.")
+        } catch (e: Exception) {
+            log(tag) { "Reading existing spec failed, creating new one: ${e.message}" }
             getSpecDir(backup.specId).tryMkDirs(gateway)
             writeSpec(backup.specId, backup.spec)
         }
@@ -319,10 +335,11 @@ abstract class CommonStorage<
             metaData = backup.metaData
         )
         Timber.tag(tag).d("New backup created: %s", info)
-        return info
+        info
     }
 
-    override suspend fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): BackupSpec.Info {
+    override suspend fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): BackupSpec.Info = runStorageOp {
+        log(tag) { "remove(specId=$specId, backupId=$backupId)" }
         val specInfo = specInfo(specId).first()
         specInfo as LocalStorageSpecInfo
         if (backupId != null) {
@@ -338,10 +355,11 @@ abstract class CommonStorage<
         } else {
             emptySet()
         }
-        return specInfo.copy(backups = newMetaData)
+        specInfo.copy(backups = newMetaData)
     }
 
-    override suspend fun detach(wipe: Boolean) {
+    override suspend fun detach(wipe: Boolean) = runStorageOp {
+        log(tag) { "detach(wipe=$wipe)" }
         Timber.tag(tag).d("detach(wipe=%b): %s", wipe, storageRef)
         if (wipe) {
             Timber.tag(tag).i("Wiping %s", storageRef.path)
@@ -353,12 +371,12 @@ abstract class CommonStorage<
     }
 
 
-    fun getSpecDir(specId: BackupSpec.Id): P = dataDir.childCast(specId.value)
+    private fun getSpecDir(specId: BackupSpec.Id): P = dataDir.childCast(specId.value)
 
-    fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): P =
+    private fun getVersionDir(specId: BackupSpec.Id, backupId: Backup.Id): P =
         getSpecDir(specId).childCast(backupId.idString)
 
-    suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
+    private suspend fun getMetaDatas(specId: BackupSpec.Id): Collection<Backup.MetaData> {
         val metaDatas = mutableListOf<Backup.MetaData>()
         getSpecDir(specId).lookupFiles(gateway).filter { it.isDirectory }.forEach { dir ->
             try {
@@ -372,7 +390,7 @@ abstract class CommonStorage<
         return metaDatas
     }
 
-    suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
+    private suspend fun readBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id): Backup.MetaData {
         val versionFile = getVersionDir(specId, backupId).childCast(BACKUP_META_FILE)
         return try {
             metaDataAdapter.fromAPath(gateway, versionFile)
@@ -382,22 +400,22 @@ abstract class CommonStorage<
         }
     }
 
-    suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
+    private suspend fun writeBackupMeta(specId: BackupSpec.Id, backupId: Backup.Id, metaData: Backup.MetaData) {
         val versionFile = getVersionDir(specId, backupId).childCast(BACKUP_META_FILE)
         metaDataAdapter.toAPath(metaData, gateway, versionFile)
     }
 
-    suspend fun readSpec(specId: BackupSpec.Id): BackupSpec {
+    private suspend fun readSpec(specId: BackupSpec.Id): BackupSpec {
         val specFile = getSpecDir(specId).childCast(SPEC_FILE)
         return try {
             specAdapter.fromAPath(gateway, specFile)
         } catch (e: Exception) {
-            log(tag, WARN) { "Failed to get  backup spec from $specFile: ${e.asLog()}" }
+            log(tag, WARN) { "Failed to get backup spec from $specFile: ${e.asLog()}" }
             throw e
         }
     }
 
-    suspend fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
+    private suspend fun writeSpec(specId: BackupSpec.Id, spec: BackupSpec) {
         val specFile = getSpecDir(specId).childCast(SPEC_FILE)
         specAdapter.toAPath(spec, gateway, specFile)
     }

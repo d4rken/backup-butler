@@ -4,7 +4,6 @@ import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
-import eu.darken.bb.common.error.getStackTraceString
 import eu.darken.bb.common.error.tryUnwrap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
@@ -98,8 +97,8 @@ open class SharedResource<T : Any> constructor(
 
     suspend fun get(): Resource<T> {
         if (BBDebug.isDebug() && !isAlive) {
-            log(tag, VERBOSE) { "get() Reviving SharedResource: ${Throwable().getStackTraceString()}" }
-//            log(tag, VERBOSE) { "get() Reviving SharedResource" }
+//            log(tag, VERBOSE) { "get() Reviving SharedResource: ${Throwable().getStackTraceString()}" }
+            log(tag, VERBOSE) { "get() Reviving SharedResource" }
         }
 
         val activeLease = lock.withLock {
@@ -219,7 +218,7 @@ open class SharedResource<T : Any> constructor(
         }
 
         if (parents.contains(parent)) {
-            log(tag, WARN) { "Parent already contains us as keep-alive" }
+            log(tag, VERBOSE) { "Parent already contains us as keep-alive" }
             return this
         }
 

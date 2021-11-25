@@ -10,121 +10,178 @@ import java.lang.reflect.Method
 
 /**
  * https://github.com/android/platform_frameworks_base/blob/master/core/java/android/os/storage/VolumeInfo.java
- * https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/os/storage/VolumeInfo.java;
  */
 @TargetApi(Build.VERSION_CODES.M)
-data class VolumeInfoX internal constructor(private val volumeInfoObject: Any) {
-    private val volumeInfoClass: Class<*> = volumeInfoObject.javaClass
-    private val methodGetId: Method = volumeInfoClass.getMethod("getId")
-    private val methodIsPrimary: Method = volumeInfoClass.getMethod("isPrimary")
-    private val methodGetFsUuid: Method = volumeInfoClass.getMethod("getFsUuid")
-    private val methodGetPath: Method = volumeInfoClass.getMethod("getPath")
-    private val methodGetState: Method = volumeInfoClass.getMethod("getState")
-    private val methodGetDisk: Method = volumeInfoClass.getMethod("getDisk")
-    private val methodGetType: Method = volumeInfoClass.getMethod("getType")
-    private var methodGetDescription: Method? = null
-    private var methodGetPathForUser: Method? = null
+class VolumeInfoX internal constructor(private val mVolumeInfoObject: Any) {
+    private val volumeInfoClass: Class<*> = mVolumeInfoObject.javaClass
 
-    @get:Throws(ReflectiveOperationException::class)
+    private val methodGetDisk: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getDisk")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "volumeInfoClass.getMethod(\"getDisk\")")
+            null
+        }
+    }
     val disk: DiskInfoX?
-        get() {
-            return methodGetDisk.invoke(volumeInfoObject)?.let { DiskInfoX(it) }
+        get() = try {
+            methodGetDisk?.invoke(mVolumeInfoObject)?.let { DiskInfoX(it) }
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.disk reflection failed")
+            null
         }
 
-    @get:Throws(ReflectiveOperationException::class)
     val isMounted: Boolean
         get() = state == STATE_MOUNTED
 
-    @get:Throws(ReflectiveOperationException::class)
     val isPrivate: Boolean
         get() = type == TYPE_PRIVATE
 
-    @get:Throws(ReflectiveOperationException::class)
     val isEmulated: Boolean
         get() = type == TYPE_EMULATED
 
-    @get:Throws(ReflectiveOperationException::class)
     val isRemovable: Boolean
-        get() {
-            val type = type
-            return if (type == TYPE_EMULATED) {
-                id != ID_EMULATED_INTERNAL
-            } else type == TYPE_PUBLIC
+        get() = when (val type = type) {
+            TYPE_EMULATED -> id != ID_EMULATED_INTERNAL
+            else -> type == TYPE_PUBLIC
         }
 
-    @get:Throws(ReflectiveOperationException::class)
-    val type: Int
-        get() = methodGetType.invoke(volumeInfoObject) as Int
-
-    @get:Throws(ReflectiveOperationException::class)
-    val state: Int
-        get() = methodGetState.invoke(volumeInfoObject) as Int
-
-    @get:Throws(ReflectiveOperationException::class)
-    val id: String
-        get() = methodGetId.invoke(volumeInfoObject) as String
-
-    @get:Throws(ReflectiveOperationException::class)
-    val isPrimary: Boolean
-        get() = methodIsPrimary.invoke(volumeInfoObject) as Boolean
-
-    @get:Throws(ReflectiveOperationException::class)
-    val fsUuid: String?
-        get() = methodGetFsUuid.invoke(volumeInfoObject) as String?
-
-    @get:Throws(ReflectiveOperationException::class)
-    val path: File
-        get() = methodGetPath.invoke(volumeInfoObject) as File
-
-    // https://github.com/d4rken/sdmaid-public/issues/1678
-    val description: String?
-        get() {
-            if (methodGetDescription == null) {
-                try {
-                    methodGetDescription = volumeInfoClass.getMethod("getDescription")
-                } catch (e: ReflectiveOperationException) { // https://github.com/d4rken/sdmaid-public/issues/1678
-                    Timber.tag(TAG).w(e)
-                }
-            }
-            if (methodGetDescription != null) {
-                try {
-                    return methodGetDescription!!.invoke(volumeInfoObject) as String?
-                } catch (e: ReflectiveOperationException) {
-                    Timber.tag(TAG).w(e)
-                }
-            }
-            return null
+    private val methodGetType: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getType")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "volumeInfoClass.getMethod(\"getType\")")
+            null
         }
-
-    fun getPathForUser(userId: Int): File? {
-        if (methodGetPathForUser == null) {
-            try {
-                methodGetPathForUser = volumeInfoClass.getMethod("getPathForUser", Int::class.javaPrimitiveType)
-            } catch (e: ReflectiveOperationException) { // https://github.com/d4rken/sdmaid-public/issues/1678
-                Timber.tag(TAG).w(e)
-            }
-        }
-        if (methodGetPathForUser != null) {
-            try {
-                return methodGetPathForUser!!.invoke(volumeInfoObject, userId) as File
-            } catch (e: ReflectiveOperationException) {
-                Timber.tag(TAG).w(e)
-            }
-        }
-        return null
     }
-
-    override fun toString(): String {
-        return try {
-            "VolumeInfoX(fsUuid=$fsUuid, state=$state, path=$path, description=$description, disk=$disk)"
+    val type: Int?
+        get() = try {
+            methodGetType?.invoke(mVolumeInfoObject) as? Int
         } catch (e: ReflectiveOperationException) {
-            "Failed to gather info for ${volumeInfoObject}: ${e.message}"
+            Timber.w("VolumeInfo.type reflection failed")
+            null
+        }
+
+    private val methodGetState: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getState")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "volumeInfoClass.getMethod(\"getState\")")
+            null
         }
     }
+    val state: Int?
+        get() = try {
+            methodGetState?.invoke(mVolumeInfoObject) as? Int
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.state reflection failed")
+            null
+        }
+
+    private val methodGetId: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getId")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "volumeInfoClass.getMethod(\"getId\")")
+            null
+        }
+    }
+    val id: String?
+        get() = try {
+            methodGetId?.invoke(mVolumeInfoObject) as? String
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.id reflection failed")
+            null
+        }
+
+    private val methodIsPrimary: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("isPrimary")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Reflection failed: volumeInfoClass.getMethod(\"isPrimary\")")
+            null
+        }
+    }
+    val isPrimary: Boolean?
+        get() = try {
+            methodIsPrimary?.invoke(mVolumeInfoObject) as? Boolean
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.isPrimary reflection failed")
+            null
+        }
+
+    private val methodGetFsUuid: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getFsUuid")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Reflection failed: volumeInfoClass.getMethod(\"getId\")")
+            null
+        }
+    }
+    val fsUuid: String?
+        get() = try {
+            methodGetFsUuid?.invoke(mVolumeInfoObject) as? String?
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.fsUuid reflection failed")
+            null
+        }
+
+    private val methodGetPath: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getPath")
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Reflection failed: volumeInfoClass.getMethod(\"getPath\")")
+            null
+        }
+    }
+    val path: File?
+        get() = try {
+            methodGetPath?.invoke(mVolumeInfoObject) as? File?
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.path reflection failed")
+            null
+        }
+
+    private val methodGetDescription: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getDescription")
+        } catch (e: Exception) {
+            // https://github.com/d4rken/sdmaid-public/issues/1678
+            Timber.tag(TAG).w(e, "Reflection failed: volumeInfoClass.getMethod(\"getDescription\")")
+            null
+        }
+    }
+    val description: String?
+        get() = try {
+            methodGetDescription?.invoke(mVolumeInfoObject) as? String?
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.description reflection failed")
+            null
+        }
+
+    private val methodGetPathForUser: Method? by lazy {
+        try {
+            volumeInfoClass.getMethod("getPathForUser", Int::class.javaPrimitiveType)
+        } catch (e: Exception) {
+            // https://github.com/d4rken/sdmaid-public/issues/1678
+            Timber.tag(TAG)
+                .w(e, "Reflection failed:  volumeInfoClass.getMethod(\"getPathForUser\", Int::class.javaPrimitiveType)")
+            null
+        }
+    }
+
+    fun getPathForUser(userId: Int): File? = try {
+        methodGetPathForUser?.invoke(mVolumeInfoObject, userId) as? File?
+    } catch (e: ReflectiveOperationException) {
+        Timber.w("VolumeInfo.getPathForUser($userId) reflection failed")
+        null
+    }
+
+    override fun toString(): String =
+        "VolumeInfoX(fsUuid=$fsUuid,state=$state,path=$path,description=$description,disk=$disk)"
 
     companion object {
-        private val TAG: String = logTag("VolumeInfoX")
-
+        private val TAG = logTag("VolumeInfoX")
         private const val TYPE_PUBLIC = 0
         private const val TYPE_PRIVATE = 1
         private const val TYPE_EMULATED = 2
@@ -145,12 +202,15 @@ data class VolumeInfoX internal constructor(private val volumeInfoObject: Any) {
          */
         private const val ID_EMULATED_INTERNAL = "emulated"
 
-        @SuppressLint("PrivateApi") @Throws(ReflectiveOperationException::class)
-        fun getEnvironmentForState(state: Int): String {
+        @SuppressLint("PrivateApi")
+        fun getEnvironmentForState(state: Int): String? = try {
             val volumeInfoClass = Class.forName("android.os.storage.VolumeInfo")
             val methodGetEnvironmentForState =
                 volumeInfoClass.getMethod("getEnvironmentForState", Int::class.javaPrimitiveType)
-            return methodGetEnvironmentForState.invoke(null, state) as String
+            methodGetEnvironmentForState.invoke(null, state) as String?
+        } catch (e: ReflectiveOperationException) {
+            Timber.w("VolumeInfo.getEnvironmentForState reflection failed")
+            null
         }
     }
 }

@@ -59,20 +59,22 @@ class RootHostLauncher @Inject constructor(
 
         ipcReceiver.connect(context)
 
-        try {
+        val result = try {
             val cmdBuilder = RootHostCmdBuilder(context, rootHostClass)
             val cmd = cmdBuilder.build(*args)
             log { "Launching root host: $rootHostClass" }
             // Doesn't return until root host has quit
-            val result = cmd.submit(rootSession).observeOn(Schedulers.io()).blockingGet()
-            log(TAG) { "Root host launch result was: $result" }
+            cmd.submit(rootSession).observeOn(Schedulers.io()).blockingGet()
 
-            // Check exitcode
-            if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
-                throw RootException("Shell died launching the java root host.")
-            }
         } catch (e: Exception) {
             throw RootException("Failed to launch java root host.", e.cause)
+        }
+
+        log(TAG) { "Root host launch result was: $result" }
+
+        // Check exitcode
+        if (result.exitCode == Cmd.ExitCode.SHELL_DIED) {
+            throw RootException("Shell died launching the java root host.")
         }
     }
 

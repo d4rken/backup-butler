@@ -20,9 +20,21 @@ class DeviceEnvironment @Inject constructor(
     private val storageManagerX: StorageManagerX
 ) {
 
+    val externalDirs: List<LocalPath>
+        get() = ContextCompat.getExternalFilesDirs(context, null)
+            .filter { it != null && it.isAbsolute }
+            .mapNotNull { base ->
+                var root = base
+                for (i in 0..3) {
+                    root = root.parentFile
+                    if (root == null) break
+                }
+                root?.let { LocalPath.build(it) }
+            }
+
     fun getPublicPrimaryStorage(userHandle: UserHandleBB): DeviceStorage {
         val path = Environment.getExternalStorageDirectory()
-        val volume = storageManagerX.getRootStorageVolume(path)
+        val volume = storageManagerX.getStorageVolume(path)
         requireNotNull(volume) { "Can't find volume for $path" }
         return DeviceStorage(
             LocalPath.build(path),
@@ -48,7 +60,7 @@ class DeviceEnvironment @Inject constructor(
         return pathResult
             .filter { it != primary }
             .map {
-                val volume = storageManagerX.getRootStorageVolume(it.asFile())
+                val volume = storageManagerX.getStorageVolume(it.asFile())
                 requireNotNull(volume) { "Can't find volume for $it" }
                 DeviceStorage(
                     it,

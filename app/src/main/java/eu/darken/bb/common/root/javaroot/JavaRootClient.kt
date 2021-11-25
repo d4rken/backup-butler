@@ -29,13 +29,16 @@ class JavaRootClient @Inject constructor(
         }
     }
 
-    suspend fun <T> runSessionAction(action: (Connection) -> T): T = get().use {
+    suspend fun <T> runSessionAction(action: suspend (Connection) -> T): T = get().use {
         log(TAG, VERBOSE) { "runSessionAction(action=$action)" }
         return action(it.item)
     }
 
     @Suppress("UNCHECKED_CAST")
-    suspend fun <R, T> runModuleAction(moduleClass: Class<out R>, action: (R) -> T): T = runSessionAction { session ->
+    suspend fun <R, T> runModuleAction(
+        moduleClass: Class<out R>,
+        action: suspend (R) -> T
+    ): T = runSessionAction { session ->
         log(TAG, VERBOSE) { "runModuleAction(moduleClass=$moduleClass, action=$action)" }
         val module = session.clientModules.single { moduleClass.isInstance(it) } as R
         return@runSessionAction action(module)

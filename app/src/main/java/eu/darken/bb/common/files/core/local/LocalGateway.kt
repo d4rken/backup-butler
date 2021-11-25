@@ -2,11 +2,11 @@ package eu.darken.bb.common.files.core.local
 
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
 import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.root.FileOpsClient
 import eu.darken.bb.common.funnel.IPCFunnel
@@ -20,6 +20,8 @@ import eu.darken.bb.common.user.UserHandleBB
 import eu.darken.rxshell.cmd.RxCmdShell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okio.*
 import timber.log.Timber
@@ -38,15 +40,34 @@ class LocalGateway @Inject constructor(
     private val libcoreTool: LibcoreTool,
     @AppScope private val appScope: CoroutineScope,
     private val dispatcherProvider: DispatcherProvider,
+    private val environment: DeviceEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
+    // TODO who keeps this alive? getShellSession() sharedUserShell wants to add itself to this as parent.
     override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
 
-    private suspend fun <T> rootOps(action: (FileOpsClient) -> T): T {
+    private var rootCheckValue = 0
+    private val rootCheckLock = Mutex()
+
+    private suspend fun <T> rootOps(action: suspend (FileOpsClient) -> T): T {
         javaRootClient.addParent(this)
-        return javaRootClient.runModuleAction(FileOpsClient::class.java) {
-            return@runModuleAction action(it)
+
+        return javaRootClient.runModuleAction(FileOpsClient::class.java) { action(it) }
+    }
+
+    private suspend fun hasRoot(): Boolean = rootCheckLock.withLock {
+        if (rootCheckValue != 0) return@withLock rootCheckValue == 1
+
+        rootCheckValue = try {
+            javaRootClient.runSessionAction { it.ipc.checkBase() }
+            log(TAG, INFO) { "Root is available." }
+            1
+        } catch (e: RootUnavailableException) {
+            log(TAG, INFO) { "Root is NOT available." }
+            -1
         }
+
+        return@withLock rootCheckValue == 1
     }
 
     private val sharedUserShell = SharedShell(TAG, appScope + dispatcherProvider.IO)
@@ -56,22 +77,25 @@ class LocalGateway @Inject constructor(
 
     private suspend fun <T> runIO(
         block: suspend CoroutineScope.() -> T
-    ): T = withContext(dispatcherProvider.IO) { block() }
+    ): T = withContext(dispatcherProvider.IO) {
+        block()
+    }
 
     override suspend fun createDir(path: LocalPath): Boolean = createDir(path, Mode.AUTO)
 
     suspend fun createDir(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val javaChild = path.asFile()
-            val canNormalWrite = javaChild.canWrite()
-            when {
-                mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
-                    javaChild.mkdirs()
-                }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                    rootOps { it.mkdirs(path) }
-                }
-                else -> throw IOException("No matching mode.")
+            val file = path.asFile()
+
+            if (mode == Mode.NORMAL || mode == Mode.AUTO) {
+                if (file.mkdirs()) return@runIO true
+                if (file.exists()) return@runIO false
+            }
+
+            if (hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO)) {
+                rootOps { it.mkdirs(path) }
+            } else {
+                false
             }
         } catch (e: IOException) {
             Timber.tag(TAG).w("createDir(path=%s, mode=%s) failed.", path, mode)
@@ -83,17 +107,17 @@ class LocalGateway @Inject constructor(
 
     suspend fun createFile(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val javaChild = path.asFile()
-            val canNormalWrite = javaChild.canWrite()
-            when {
-                mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
-                    if (!javaChild.parentFile.exists()) javaChild.parentFile.mkdirs()
-                    javaChild.createNewFile()
-                }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                    rootOps { it.createNewFile(path) }
-                }
-                else -> throw IOException("No matching mode.")
+            val file = path.asFile()
+
+            if (mode == Mode.NORMAL || mode == Mode.AUTO) {
+                if (file.createNewFile()) return@runIO true
+                if (file.exists()) return@runIO false
+            }
+
+            if (hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO)) {
+                rootOps { it.createNewFile(path) }
+            } else {
+                false
             }
         } catch (e: IOException) {
             Timber.tag(TAG).w("createFile(path=%s, mode=%s) failed.", path, mode)
@@ -106,7 +130,12 @@ class LocalGateway @Inject constructor(
     suspend fun lookup(path: LocalPath, mode: Mode = Mode.AUTO): LocalPathLookup = runIO {
         try {
             val javaFile = path.asFile()
-            val canRead = javaFile.canRead()
+            val canRead = if (mode == Mode.ROOT) {
+                false
+            } else {
+                javaFile.canRead()
+            }
+
             when {
                 mode == Mode.NORMAL || canRead && mode == Mode.AUTO -> {
                     if (!canRead) throw ReadException(path)
@@ -114,7 +143,7 @@ class LocalGateway @Inject constructor(
                         path.performLookup(ipcFunnel, libcoreTool, sessionResource.item)
                     }
                 }
-                mode == Mode.ROOT || !canRead && mode == Mode.AUTO -> {
+                hasRoot() && (mode == Mode.ROOT || !canRead && mode == Mode.AUTO) -> {
                     rootOps { it.lookUp(path) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -131,16 +160,20 @@ class LocalGateway @Inject constructor(
     suspend fun listFiles(path: LocalPath, mode: Mode = Mode.AUTO): List<LocalPath> = runIO {
         try {
             val nonRootList: List<File>? = try {
-                path.asFile().listFiles2()
+                when (mode) {
+                    Mode.ROOT -> null
+                    else -> path.asFile().listFiles2()
+                }
             } catch (e: Exception) {
                 null
             }
+
             when {
                 mode == Mode.NORMAL || nonRootList != null && mode == Mode.AUTO -> {
                     if (nonRootList == null) throw ReadException(path)
                     nonRootList.map { LocalPath.build(it) }
                 }
-                mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
+                hasRoot() && (mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO) -> {
                     rootOps { it.listFiles(path) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -159,7 +192,10 @@ class LocalGateway @Inject constructor(
     ) {
         try {
             val nonRootList = try {
-                path.asFile().listFiles2()
+                when (mode) {
+                    Mode.ROOT -> null
+                    else -> path.asFile().listFiles2()
+                }
             } catch (e: Exception) {
                 null
             }?.map { it.toLocalPath() }
@@ -171,7 +207,7 @@ class LocalGateway @Inject constructor(
                         nonRootList.map { it.performLookup(ipcFunnel, libcoreTool, sessionResource.item) }
                     }
                 }
-                mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO -> {
+                hasRoot() && (mode == Mode.ROOT || nonRootList == null && mode == Mode.AUTO) -> {
                     rootOps { it.lookupFiles(path) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -187,12 +223,21 @@ class LocalGateway @Inject constructor(
     suspend fun exists(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
-            val canAccessParent = javaFile.parentFile?.canReadExecute() ?: false
+
+            val canAccessParent = when (mode) {
+                Mode.ROOT -> false
+                else -> when {
+                    javaFile.exists() -> true
+                    javaFile.parentFile?.exists() == true -> true
+                    else -> environment.externalDirs.any { javaFile.path.startsWith(it.path) }
+                }
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canAccessParent -> {
                     javaFile.exists()
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canAccessParent -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canAccessParent) -> {
                     rootOps { it.exists(path) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -208,18 +253,17 @@ class LocalGateway @Inject constructor(
     suspend fun canWrite(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
-            val canNormalWrite = javaFile.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> javaFile.canWrite()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     javaFile.canWrite()
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
-                    try {
-                        rootOps { it.canWrite(path) }
-                    } catch (e: Exception) {
-                        if (e.hasCause(RootUnavailableException::class)) false
-                        else throw e
-                    }
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
+                    rootOps { it.canWrite(path) }
                 }
                 else -> throw IOException("No matching mode.")
             }
@@ -234,21 +278,21 @@ class LocalGateway @Inject constructor(
     suspend fun canRead(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
-            val canNormalOpen = javaFile.isReadable()
+            val canNormalOpen = when (mode) {
+                Mode.ROOT -> false
+                else -> javaFile.isReadable()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
                     canNormalOpen
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
-                    try {
-                        rootOps { it.canRead(path) }
-                    } catch (e: Exception) {
-                        if (e.hasCause(RootUnavailableException::class)) false
-                        else throw e
-                    }
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen) -> {
+                    rootOps { it.canRead(path) }
                 }
                 else -> throw IOException("No matching mode.")
             }
+
         } catch (e: IOException) {
             Timber.tag(TAG).w("canRead(path=%s, mode=%s) failed.", path, mode)
             throw ReadException(path, cause = e)
@@ -264,13 +308,20 @@ class LocalGateway @Inject constructor(
     suspend fun read(path: LocalPath, mode: Mode = Mode.AUTO): Source = runIO {
         try {
             val javaFile = path.asFile()
-            val canNormalOpen = javaFile.isReadable()
+            val canNormalOpen = when (mode) {
+                Mode.ROOT -> false
+                else -> javaFile.isReadable()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalOpen -> {
                     javaFile.source()
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen -> {
-                    path.sourceRoot(javaRootClient).buffer()
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen) -> {
+                    val resource = javaRootClient.get()
+                    rootOps {
+                        it.readFile(path).callbacks { resource.close() }
+                    }
                 }
                 else -> throw IOException("No matching mode.")
             }
@@ -284,20 +335,28 @@ class LocalGateway @Inject constructor(
 
     suspend fun write(path: LocalPath, mode: Mode = Mode.AUTO): Sink = runIO {
         try {
-            val javaFile = path.asFile()
-            val canOpen = javaFile.isReadable()
+            val file = path.asFile()
+
+            val canOpen = when (mode) {
+                Mode.ROOT -> false
+                else -> (file.exists() && file.canWrite()) || !file.exists() && file.parentFile?.canWrite() == true
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canOpen -> {
-                    javaFile.sink()
+                    file.sink()
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canOpen -> {
-                    path.sinkRoot(javaRootClient).buffer()
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canOpen) -> {
+                    val resource = javaRootClient.get()
+                    rootOps {
+                        it.writeFile(path).callbacks { resource.close() }
+                    }
                 }
                 else -> throw IOException("No matching mode.")
             }
         } catch (e: IOException) {
-            Timber.tag(TAG).w("read(path=%s, mode=%s) failed.", path, mode)
-            throw ReadException(path, cause = e)
+            Timber.tag(TAG).w("write(path=%s, mode=%s) failed.", path, mode)
+            throw WriteException(path, cause = e)
         }
     }
 
@@ -306,13 +365,17 @@ class LocalGateway @Inject constructor(
     suspend fun delete(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
             val javaFile = path.asFile()
-            val canNormalWrite = javaFile.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> javaFile.canWrite()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     if (!canNormalWrite) throw WriteException(path)
                     javaFile.delete()
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps { it.delete(path) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -330,12 +393,16 @@ class LocalGateway @Inject constructor(
         try {
             val linkPathJava = linkPath.asFile()
             val targetPathJava = targetPath.asFile()
-            val canNormalWrite = linkPathJava.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> linkPathJava.canWrite()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     linkPathJava.createSymlink(targetPathJava)
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps { it.createSymlink(linkPath, targetPath) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -354,12 +421,15 @@ class LocalGateway @Inject constructor(
 
     suspend fun setModifiedAt(path: LocalPath, modifiedAt: Date, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val canNormalWrite = path.file.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> path.file.canWrite()
+            }
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     path.file.setLastModified(modifiedAt.time)
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps {
                         it.setModifiedAt(path, modifiedAt)
                     }
@@ -377,12 +447,16 @@ class LocalGateway @Inject constructor(
 
     suspend fun setPermissions(path: LocalPath, permissions: Permissions, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val canNormalWrite = path.file.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> path.file.canWrite()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     path.file.setPermissions(permissions)
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps { it.setPermissions(path, permissions) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -401,12 +475,16 @@ class LocalGateway @Inject constructor(
 
     suspend fun setOwnership(path: LocalPath, ownership: Ownership, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val canNormalWrite = path.file.canWrite()
+            val canNormalWrite = when (mode) {
+                Mode.ROOT -> false
+                else -> path.file.canWrite()
+            }
+
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
                     path.file.setOwnership(ownership)
                 }
-                mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite -> {
+                hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps { it.setOwnership(path, ownership) }
                 }
                 else -> throw IOException("No matching mode.")
@@ -422,6 +500,6 @@ class LocalGateway @Inject constructor(
     }
 
     companion object {
-        val TAG = logTag("Local", "Gateway")
+        val TAG = logTag("Gateway", "Local")
     }
 }
