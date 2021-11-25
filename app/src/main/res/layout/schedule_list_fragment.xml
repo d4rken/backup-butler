@@ -11,7 +11,7 @@
         android:id="@+id/schedule_list_wrapper"
         app:rvwLoadingUntilFirstChange="true"
         android:layout_height="match_parent"
-        app:rvwExplanationText="@string/scheduler_quick_explanation_desc">
+        app:rvwExplanationText="@string/trigger_quick_explanation_desc">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/schedule_list"

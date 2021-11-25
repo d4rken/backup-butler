@@ -41,8 +41,8 @@
         <Preference
             android:icon="@drawable/ic_scheduler_onsurface"
             app:fragment="eu.darken.bb.schedule.ui.settings.SchedulerSettingsFragment"
-            app:summary="@string/schedule_settings_desc"
-            app:title="@string/scheduler_settings_label" />
+            app:summary="@string/trigger_settings_desc"
+            app:title="@string/trigger_settings_label" />
 
         <Preference
             android:icon="@drawable/ic_backup_onsurface"

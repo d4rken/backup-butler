@@ -14,7 +14,7 @@ import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.debug.DebugFragment
 import eu.darken.bb.main.ui.overview.OverviewFragment
-import eu.darken.bb.schedule.ui.list.ScheduleListFragment
+import eu.darken.bb.schedule.ui.list.TriggerListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
 import kotlinx.coroutines.flow.combine
@@ -48,7 +48,7 @@ class MainFragmentVDC @Inject constructor(
             MainPagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
             MainPagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
             MainPagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
-            MainPagerAdapter.Page(ScheduleListFragment::class, R.string.scheduler_tab_label)
+            MainPagerAdapter.Page(TriggerListFragment::class, R.string.trigger_tab_label)
         )
         val pages = if (debug.isDebug() || showDebug) {
             listOf(MainPagerAdapter.Page(DebugFragment::class, R.string.debug_label)).plus(basePages)

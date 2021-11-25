@@ -12,7 +12,7 @@
     <string name="progress_processing_task_label">Processing task</string>
     <string name="task_editor_backup_new_label">New backup task</string>
     <string name="overview_tab_label">Overview</string>
-    <string name="scheduler_tab_label">Schedules</string>
+    <string name="trigger_tab_label">Triggers</string>
     <string name="task_tab_label">Tasks</string>
     <plurals name="x_versions">
         <item quantity="one">%d version</item>
@@ -193,7 +193,7 @@
     <string name="empty_list_easter_msg">You must construct additional pylons!</string>
     <string name="storage_quick_explanation_desc">A location for your backups. A backup storage can be local (e.g. sdcard) or remote (e.g. Google Drive).</string>
     <string name="task_quick_explanation">A task is where work gets done. Each task describes a set sources from which data is taken and a set of destinations where it is stored. It can be executed directly or scheduled.</string>
-    <string name="scheduler_quick_explanation_desc">Schedules can be attached to tasks to run them under specific conditions (e.g. when charging) or at specific times (e.g. during the night).</string>
+    <string name="trigger_quick_explanation_desc">Triggers can be attached to tasks to run them under specific conditions (e.g. when charging) or at specific times (e.g. during the night).</string>
     <string name="acknowledgements_settings_label">Acknowledgements</string>
     <string name="support_settings_label">Support</string>
     <string name="user_settings_label">User</string>
@@ -203,8 +203,8 @@
     <string name="licenses_settings_label">Licenses</string>
     <string name="general_thank_you_label">Thank you</string>
     <string name="task_settings_desc">How tasks are executed.</string>
-    <string name="schedule_settings_label">Scheduler</string>
-    <string name="schedule_settings_desc">How the task scheduler behaves.</string>
+    <string name="trigger_settings_label">Trigger</string>
+    <string name="trigger_settings_desc">How the task triggers behaves.</string>
     <string name="documentation_label">Documentation</string>
     <string name="email_developer_label">Email developer</string>
     <string name="discord_label">Discord</string>
@@ -219,7 +219,6 @@
     <string name="support_installid_label">Install ID</string>
     <string name="general_settings_label">General</string>
     <string name="general_settings_desc">General tweaks that affect the whole app.</string>
-    <string name="scheduler_settings_label">Scheduler</string>
     <string name="general_done_action">Done</string>
     <string name="task_editor_restore_file_config_restoration_path">Restoration path</string>
     <string name="documentation_desc">The official Wiki for Backup Butler.</string>

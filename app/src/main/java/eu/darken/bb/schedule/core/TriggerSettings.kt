@@ -11,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SchedulerSettings @Inject constructor(
+class TriggerSettings @Inject constructor(
     @ApplicationContext private val context: Context
 ) : Settings() {
 
@@ -27,7 +27,7 @@ class SchedulerSettings @Inject constructor(
         }
     }
 
-    override val preferences: SharedPreferences = context.getSharedPreferences("settings_core", Context.MODE_PRIVATE)
+    override val preferences: SharedPreferences = context.getSharedPreferences("settings_trigger", Context.MODE_PRIVATE)
 
     companion object {
         internal val TAG = logTag("Backup", "Settings")

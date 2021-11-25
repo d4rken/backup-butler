@@ -6,6 +6,6 @@ import eu.darken.bb.common.smart.SmartVDC
 import javax.inject.Inject
 
 @HiltViewModel
-class SchedulerSettingsFragmentVDC @Inject constructor(
+class TriggerSettingsFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle
 ) : SmartVDC()

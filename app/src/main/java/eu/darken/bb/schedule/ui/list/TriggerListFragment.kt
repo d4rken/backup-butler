@@ -11,9 +11,9 @@ import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.ScheduleListFragmentBinding
 
 @AndroidEntryPoint
-class ScheduleListFragment : SmartFragment(R.layout.schedule_list_fragment) {
+class TriggerListFragment : SmartFragment(R.layout.schedule_list_fragment) {
 
-    private val vdc: SchedulesFragmentVDC by viewModels()
+    private val vdc: TriggerFragmentVDC by viewModels()
     private val ui: ScheduleListFragmentBinding by viewBinding()
 
 
