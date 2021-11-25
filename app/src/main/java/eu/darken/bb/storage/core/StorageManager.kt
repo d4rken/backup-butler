@@ -1,7 +1,6 @@
 package eu.darken.bb.storage.core
 
 import android.content.Context
-import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
@@ -18,8 +17,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@Reusable
+@Singleton
 class StorageManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @AppScope private val appScope: CoroutineScope,

@@ -33,9 +33,11 @@ import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.local.LocalStorageSpecInfo
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import java.io.InterruptedIOException
+import java.util.*
 import kotlin.time.Duration
 
 
@@ -54,7 +56,6 @@ abstract class CommonStorage<
     val storageRef: Storage.Ref,
     override val storageConfig: Storage.Config,
 ) : Storage, HasContext, Progress.Client {
-
 
     override val sharedResource = SharedResource.createKeepAlive(
         "$tag:SR",
@@ -87,34 +88,37 @@ abstract class CommonStorage<
         .replayingShare(appScope)
 
     override fun info(): Flow<Storage.Info> = infowFlow
-    private val infowFlow: Flow<Storage.Info> = flow<Storage.Info> {
-        val info = Storage.Info(storageRef.storageId, storageRef.storageType, storageConfig)
-        emit(info)
+    private val infowFlow: Flow<Storage.Info> = dataDirEvents
+        .flatMapLatest {
+            flow<Storage.Info> {
+                val info = Storage.Info(storageRef.storageId, storageRef.storageType, storageConfig)
+                emit(info)
 
-        var status = Storage.Info.Status(
-            isReadOnly = dataDir.exists(gateway) && !dataDir.canWrite(gateway),
-            itemCount = -1,
-            totalSize = -1L
-        )
-        emit(info.copy(status = status))
+                var status = Storage.Info.Status(
+                    isReadOnly = dataDir.exists(gateway) && !dataDir.canWrite(gateway),
+                    itemCount = -1,
+                    totalSize = -1L
+                )
+                emit(info.copy(status = status))
 
-        status = status.copy(
-            itemCount = dataDir.listFilesOrNull(gateway)?.size ?: 0
-        )
-        emit(info.copy(status = status))
+                status = status.copy(
+                    itemCount = dataDir.listFilesOrNull(gateway)?.size ?: 0
+                )
+                emit(info.copy(status = status))
 
-        status = status.copy(
-            totalSize = if (status.itemCount > 0) {
-                dataDir.walk(gateway).fold(0L) { totalSize, file -> totalSize + file.size }
-            } else {
-                0L
+                status = status.copy(
+                    totalSize = if (status.itemCount > 0) {
+                        dataDir.walk(gateway).fold(0L) { totalSize, file -> totalSize + file.size }
+                    } else {
+                        0L
+                    }
+                )
+                emit(info.copy(status = status))
             }
-        )
-        emit(info.copy(status = status))
-    }
+        }
         .onError { Timber.tag(tag).e(it) }
-        .onStart { Timber.tag(tag).d("info().onStart()") }
-        .onCompletion { Timber.tag(tag).d("info().onCompletion()") }
+        .onStart { Timber.tag(tag).d("info().onStart() this=${hashCode()}") }
+        .onCompletion { Timber.tag(tag).d("info().onCompletion() this=${hashCode()}") }
         .onErrorMixLast { last, error ->
             // First emit(info) needs to be error free
             requireNotNull(last)
@@ -429,11 +433,14 @@ abstract class CommonStorage<
         private const val BACKUP_META_FILE = "backup.json"
 
         // TODO Improve this
-        private val TIME_TRIGGER = flow<Unit> {
-            while (true) {
-                emit(Unit)
-                delay(3000)
-                yield()
+        private val TIME_TRIGGER = callbackFlow<Unit> {
+
+            while (isActive) {
+                send(Unit)
+                delay(Duration.seconds(5))
+            }
+            awaitClose {
+                log { "Timed refresh trigger closed." }
             }
         }
     }
