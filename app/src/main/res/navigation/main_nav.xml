@@ -172,19 +172,8 @@
         android:label="CostStepFragment"
         tools:layout="@layout/onboarding_step_cost_fragment">
         <action
-            android:id="@+id/action_costStepFragment_to_modeStepFragment"
-            app:destination="@id/modeStepFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/modeStepFragment"
-        android:name="eu.darken.bb.onboarding.ui.mode.ModeStepFragment"
-        android:label="ModeStepFragment"
-        tools:layout="@layout/onboarding_step_mode_fragment">
-        <action
-            android:id="@+id/action_modeStepFragment_to_initFragment"
-            app:destination="@id/initFragment"
-            app:popUpTo="@+id/main_nav_graph"
-            app:popUpToInclusive="true" />
+            android:id="@+id/action_costStepFragment_to_initFragment"
+            app:destination="@id/initFragment" />
     </fragment>
     <fragment
         android:id="@+id/betaStepFragment"
