@@ -6,6 +6,15 @@ import java.io.StringWriter
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 
+val Throwable.causes: Sequence<Throwable>
+    get() = sequence {
+        var subCause = cause
+        while (subCause != null) {
+            yield(subCause)
+            subCause = subCause.cause
+        }
+    }
+
 fun Throwable.getRootCause(): Throwable {
     var error = this
     while (error.cause != null) {

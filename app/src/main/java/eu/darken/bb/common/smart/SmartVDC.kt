@@ -60,6 +60,6 @@ abstract class SmartVDC(
         }
     }
 
-    fun <T> Flow<T>.launchInViewModel() = this.launchIn(vdcScope)
+    open fun <T> Flow<T>.launchInViewModel() = this.launchIn(vdcScope)
 
 }

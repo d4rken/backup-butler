@@ -17,8 +17,7 @@ import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.requireActivityActionBar
-import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.toastError
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageViewerItemlistFragmentBinding
@@ -26,10 +25,10 @@ import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragment) {
+class StorageItemFragment : Smart2Fragment(R.layout.storage_viewer_itemlist_fragment) {
 
-    private val vdc: StorageItemFragmentVDC by viewModels()
-    private val ui: StorageViewerItemlistFragmentBinding by viewBinding()
+    override val vdc: StorageItemFragmentVDC by viewModels()
+    override val ui: StorageViewerItemlistFragmentBinding by viewBinding()
     @Inject lateinit var adapter: StorageItemAdapter
 
 
@@ -80,9 +79,6 @@ class StorageItemFragment : SmartFragment(R.layout.storage_viewer_itemlist_fragm
                 specId = it.backupSpecId,
             ).run { doNavigate(this) }
         }
-
-
-        vdc.errorEvents.observe2(this) { toastError(it) }
 
         var snackbar: Snackbar? = null
         vdc.processorEvent.observe2(this) { isActive ->

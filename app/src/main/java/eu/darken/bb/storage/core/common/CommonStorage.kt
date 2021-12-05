@@ -13,10 +13,7 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.*
 import eu.darken.bb.common.files.core.local.*
-import eu.darken.bb.common.flow.DynamicStateFlow
-import eu.darken.bb.common.flow.onError
-import eu.darken.bb.common.flow.onErrorMixLast
-import eu.darken.bb.common.flow.replayingShare
+import eu.darken.bb.common.flow.*
 import eu.darken.bb.common.moshi.fromAPath
 import eu.darken.bb.common.moshi.toAPath
 import eu.darken.bb.common.progress.Progress
@@ -116,9 +113,7 @@ abstract class CommonStorage<
                 emit(info.copy(status = status))
             }
         }
-        .onError { Timber.tag(tag).e(it) }
-        .onStart { Timber.tag(tag).d("info().onStart() this=${hashCode()}") }
-        .onCompletion { Timber.tag(tag).d("info().onCompletion() this=${hashCode()}") }
+        .setupCommonEventHandlers(tag) { "info()" }
         .onErrorMixLast { last, error ->
             // First emit(info) needs to be error free
             requireNotNull(last)
@@ -177,9 +172,7 @@ abstract class CommonStorage<
             content
         }
         .map { it }
-        .onError { log(tag, ERROR) { "specInfos() failed: ${it.asLog()}" } }
-        .onStart { Timber.tag(tag).d("doOnSubscribe().doFinally()") }
-        .onCompletion { Timber.tag(tag).d("specInfos().doFinally()") }
+        .setupCommonEventHandlers(tag) { "specInfos()" }
         .replayingShare(appScope)
 
     override fun backupInfo(specId: BackupSpec.Id, backupId: Backup.Id): Flow<Backup.Info> =
@@ -223,9 +216,7 @@ abstract class CommonStorage<
                         )
                     }
             }
-            .onStart { Timber.tag(tag).d("content(%s).doOnSubscribe()", backupId) }
-            .onError { log(tag, WARN) { "Failed to get content: specId=$specId, backupId=$backupId" } }
-            .onCompletion { Timber.tag(tag).d("content(%s).doFinally()", backupId) }
+            .setupCommonEventHandlers(tag) { "backupContent(specId=$specId, backupId=$backupId)" }
             .replayingShare(appScope)
 
     override suspend fun load(specId: BackupSpec.Id, backupId: Backup.Id): Backup.Unit = runStorageOp {

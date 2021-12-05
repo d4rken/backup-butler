@@ -1,8 +1,12 @@
 package eu.darken.bb.common.flow
 
 import eu.darken.bb.common.coroutine.cancelAfterRun
+import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
+import eu.darken.bb.common.error.hasCause
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
@@ -73,3 +77,16 @@ fun <T> Flow<T>.takeUntilAfter(predicate: suspend (T) -> Boolean) = transformWhi
     emit(it)
     !fullfilled // We keep emitting until condition is fullfilled = true
 }
+
+fun <T> Flow<T>.setupCommonEventHandlers(tag: String, identifier: () -> String) = this
+    .onStart { log(tag, VERBOSE) { "${identifier()}.onStart()" } }
+    .onCompletion { log(tag, VERBOSE) { "${identifier()}.onCompletion()" } }
+    .catch {
+        if (it.hasCause(CancellationException::class)) {
+            log(tag, VERBOSE) { "${identifier()} cancelled" }
+        } else {
+            log(tag, ERROR) { "${identifier()} failed: ${it.asLog()}" }
+            throw it
+        }
+    }
+

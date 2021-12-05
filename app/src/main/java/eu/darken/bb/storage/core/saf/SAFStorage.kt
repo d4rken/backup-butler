@@ -46,7 +46,6 @@ class SAFStorage @AssistedInject constructor(
 
     override val dataDir: SAFPath = (this.storageRef as SAFStorageRef).path.childCast("data")
 
-
     init {
         log(TAG, INFO) { "init(storage=$this)" }
         appScope.launch {
