@@ -29,6 +29,7 @@ import eu.darken.bb.quickmode.ui.common.AdvancedModeHintsVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesCreateVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
+import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -63,10 +64,17 @@ class QuickModeFragmentVDC @Inject constructor(
 
     private val appObs: Flow<QuickModeAdapter.Item> = appsQuickMode.appsData.flow
         .onEach { log(TAG) { "Default app task id: $it" } }
-        .map { appsConfig ->
+        .flatMapLatest { config ->
+            storageManager
+                .infos(config.storageIds)
+                .onStart { emptyList<Storage.InfoOpt>() }
+                .map { config to it }
+        }
+        .map { (appsConfig, storageInfos) ->
             if (appsConfig.isSetUp) {
                 QuickAppsVH.Item(
                     config = appsConfig,
+                    storageInfos = storageInfos,
                     onView = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
                             storageId = it.storageIds.first()
@@ -97,11 +105,18 @@ class QuickModeFragmentVDC @Inject constructor(
         .onStart { emit(QuickAppsLoadingVH.Item) }
 
     private val fileObs: Flow<QuickModeAdapter.Item> = filesQuickMode.state.flow
-        .onEach { log(TAG) { "Default file task id: $it" } }
-        .map { filesConfig ->
+        .onEach { log(TAG) { "File task config: $it" } }
+        .flatMapLatest { config ->
+            storageManager
+                .infos(config.storageIds)
+                .onStart { emptyList<Storage.InfoOpt>() }
+                .map { config to it }
+        }
+        .map { (filesConfig, storageInfos) ->
             if (filesConfig.isSetUp) {
                 QuickFilesVH.Item(
                     config = filesConfig,
+                    storageInfos = storageInfos,
                     onView = {
                         QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
                             storageId = it.storageIds.first()
@@ -118,7 +133,7 @@ class QuickModeFragmentVDC @Inject constructor(
                         ).run { openPathPickerEvent.postValue(this) }
                     },
                     onRestore = {
-                        // TODO launch storage browser?
+                        // TODO
                     }
                 )
             } else {

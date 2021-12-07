@@ -26,6 +26,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/loading_animation"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:layout_constraintBottom_toBottomOf="@id/icon"
+            app:layout_constraintEnd_toEndOf="@id/icon"
+            app:layout_constraintStart_toStartOf="@id/icon"
+            app:layout_constraintTop_toTopOf="@id/icon"
+            app:lottie_autoPlay="true"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:lottie_colorFilter="?colorOnBackground"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/anim_loading_circle" />
+
         <TextView
             android:id="@+id/title"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
@@ -58,7 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:text="128 locations backupped"
+            tools:text="128 locations backupped"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@id/edit_action"
             app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +86,7 @@
             android:layout_height="wrap_content"
 
             android:layout_marginHorizontal="16dp"
-            android:text="Last backup 12.12.2021 17:41:48"
+            tools:text="Last backup 12.12.2021 17:41:48"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/primary_info" />
