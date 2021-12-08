@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.item.actions
+package eu.darken.bb.storage.ui.viewer.viewer.actions
 
 import android.view.ViewGroup
 import eu.darken.bb.common.lists.differ.AsyncDiffer
@@ -13,9 +13,9 @@ import javax.inject.Inject
 
 class ActionsAdapter @Inject constructor() :
     ModularAdapter<ActionsAdapter.VH>(),
-    HasAsyncDiffer<Confirmable<ItemAction>> {
+    HasAsyncDiffer<Confirmable<StorageViewerAction>> {
 
-    override val asyncDiffer: AsyncDiffer<ActionsAdapter, Confirmable<ItemAction>> = setupDiffer()
+    override val asyncDiffer: AsyncDiffer<ActionsAdapter, Confirmable<StorageViewerAction>> = setupDiffer()
 
     override fun getItemCount(): Int = data.size
 
@@ -24,10 +24,10 @@ class ActionsAdapter @Inject constructor() :
         modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
-    class VH(parent: ViewGroup) : ConfirmableActionAdapterVH<ItemAction>(parent) {
-        override fun getIcon(item: ItemAction): Int = item.iconRes
+    class VH(parent: ViewGroup) : ConfirmableActionAdapterVH<StorageViewerAction>(parent) {
+        override fun getIcon(item: StorageViewerAction): Int = item.iconRes
 
-        override fun getLabel(item: ItemAction): String = getString(item.labelRes)
+        override fun getLabel(item: StorageViewerAction): String = getString(item.labelRes)
 
     }
 }

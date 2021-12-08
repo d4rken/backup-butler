@@ -71,35 +71,37 @@ class QuickModeFragmentVDC @Inject constructor(
                 .map { config to it }
         }
         .map { (appsConfig, storageInfos) ->
-            if (appsConfig.isSetUp) {
-                QuickAppsVH.Item(
-                    config = appsConfig,
-                    storageInfos = storageInfos,
-                    onView = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
-                            storageId = it.storageIds.first()
-                        ).navVia(this)
-                    },
-                    onEdit = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
-                    },
-                    onBackup = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToPkgPickerFragment(
-                            options = PkgPickerOptions(
-
-                            )
-                        ).navVia(this)
-                        // TODO launch apps picker
-                    },
-                    onRestore = {
-                        // TODO launch storage browser?
-                    }
-                )
-            } else {
-                QuickAppsCreateVH.Item {
+            if (!appsConfig.isSetUp) {
+                return@map QuickAppsCreateVH.Item {
                     QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
                 }
             }
+            QuickAppsVH.Item(
+                config = appsConfig,
+                storageInfos = storageInfos,
+                onView = {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
+                        storageId = it.storageIds.first()
+                    ).navVia(this)
+                },
+                onEdit = {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
+                },
+                onBackup = {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToPkgPickerFragment(
+                        options = PkgPickerOptions(
+
+                        )
+                    ).navVia(this)
+                    // TODO launch apps picker
+                },
+                onRestore = {
+                    // TODO make this more specific
+                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
+                        storageId = it.storageIds.first()
+                    ).navVia(this)
+                }
+            )
         }
         .onEach { log(TAG) { "Default app task info: $it" } }
         .onStart { emit(QuickAppsLoadingVH.Item) }
@@ -113,36 +115,37 @@ class QuickModeFragmentVDC @Inject constructor(
                 .map { config to it }
         }
         .map { (filesConfig, storageInfos) ->
-            if (filesConfig.isSetUp) {
-                QuickFilesVH.Item(
-                    config = filesConfig,
-                    storageInfos = storageInfos,
-                    onView = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewerActivity(
-                            storageId = it.storageIds.first()
-                        ).navVia(this)
-                    },
-                    onEdit = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
-                    },
-                    onBackup = {
-                        PathPickerOptions(
-                            onlyDirs = false,
-                            selectionLimit = Int.MAX_VALUE,
-                            allowedTypes = setOf(APath.PathType.LOCAL)
-                        ).run { openPathPickerEvent.postValue(this) }
-                    },
-                    onRestore = {
-                        // TODO
-                    }
-                )
-            } else {
-                QuickFilesCreateVH.Item(
-                    onCreateAppsTaskAction = {
-                        QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
-                    }
-                )
+            if (!filesConfig.isSetUp) {
+                return@map QuickFilesCreateVH.Item {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
+                }
             }
+
+            QuickFilesVH.Item(
+                config = filesConfig,
+                storageInfos = storageInfos,
+                onView = {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
+                        storageId = it.storageIds.first()
+                    ).navVia(this)
+                },
+                onEdit = {
+                    QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
+                },
+                onBackup = {
+                    PathPickerOptions(
+                        onlyDirs = false,
+                        selectionLimit = Int.MAX_VALUE,
+                        allowedTypes = setOf(APath.PathType.LOCAL)
+                    ).run { openPathPickerEvent.postValue(this) }
+                },
+                onRestore = {
+                    // TODO make this more specific
+                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
+                        storageId = it.storageIds.first()
+                    ).navVia(this)
+                }
+            )
         }
         .onEach { log(TAG) { "Default file task info: $it" } }
         .onStart { emit(QuickFilesLoadingVH.Item) }

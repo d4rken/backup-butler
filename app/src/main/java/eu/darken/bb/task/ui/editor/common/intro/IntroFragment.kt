@@ -26,6 +26,7 @@ class IntroFragment : Smart2Fragment(R.layout.task_editor_intro_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
             toolbar.setupWithNavController(findNavController())
+            toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
 
             nameInput.userTextChangeEvents().subscribe { vdc.updateTaskName(it.text.toString()) }
 

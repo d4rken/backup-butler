@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/menu_storage_viewer_item_fragment"
+        tools:subtitle="@string/storage_type_saf_label"
+        tools:title="@string/storage_tab_label" />
+
+    <eu.darken.bb.common.ui.RecyclerViewWrapperLayout
+        android:id="@+id/storage_list_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:rvwEmptyText="@string/empty_list_msg"
+        app:rvwLoading="true"
+        app:rvwLoadingUntilFirstChange="true">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/storage_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/storage_list_adapter_line" />
+    </eu.darken.bb.common.ui.RecyclerViewWrapperLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/storageItemFragment"
-        android:name="eu.darken.bb.storage.ui.viewer.item.StorageItemFragment"
+        android:name="eu.darken.bb.storage.ui.viewer.viewer.StorageViewerFragment"
         android:label="@string/storage_tab_label"
-        tools:layout="@layout/storage_viewer_itemlist_fragment">
+        tools:layout="@layout/storage_viewer_viewer_fragment">
         <argument
             android:name="storageId"
             app:argType="eu.darken.bb.storage.core.Storage$Id" />
@@ -23,8 +23,8 @@
     </fragment>
     <fragment
         android:id="@+id/itemContentsFragment"
-        android:name="eu.darken.bb.storage.ui.viewer.content.ItemContentsFragment"
-        tools:layout="@layout/storage_viewer_itemcontent_fragment">
+        android:name="eu.darken.bb.storage.ui.viewer.content.StorageContentFragment"
+        tools:layout="@layout/storage_viewer_content_fragment">
         <argument
             android:name="storageId"
             app:argType="eu.darken.bb.storage.core.Storage$Id" />
@@ -39,18 +39,10 @@
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
     </fragment>
-    <activity
-        android:id="@+id/storageViewerActivity"
-        android:name="eu.darken.bb.storage.ui.viewer.StorageViewerActivity"
-        tools:layout="@layout/storage_viewer_activity">
-        <argument
-            android:name="storageId"
-            app:argType="eu.darken.bb.storage.core.Storage$Id" />
-    </activity>
     <dialog
         android:id="@+id/storageItemActionDialog"
-        android:name="eu.darken.bb.storage.ui.viewer.item.actions.ItemActionDialog"
-        tools:layout="@layout/storage_viewer_contentlist_action_dialog">
+        android:name="eu.darken.bb.storage.ui.viewer.viewer.actions.StorageViewerActionDialog"
+        tools:layout="@layout/storage_viewer_viewer_action_dialog">
         <argument
             android:name="storageId"
             app:argType="eu.darken.bb.storage.core.Storage$Id" />
@@ -76,7 +68,7 @@
         android:id="@+id/contentPageFragment"
         android:name="eu.darken.bb.storage.ui.viewer.content.page.ContentPageFragment"
         android:label="ContentPageFragment"
-        tools:layout="@layout/storage_viewer_item_content_adapter_page">
+        tools:layout="@layout/storage_viewer_content_page_fragment">
         <argument
             android:name="storageId"
             app:argType="eu.darken.bb.storage.core.Storage$Id" />

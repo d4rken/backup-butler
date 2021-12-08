@@ -1,10 +1,19 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".storage.ui.viewer.StorageViewerActivity">
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:subtitle="@string/storage_type_saf_label"
+        tools:title="@string/storage_tab_label" />
 
     <LinearLayout
         android:id="@+id/viewpager_container"
@@ -30,4 +39,4 @@
     <eu.darken.bb.common.ui.LoadingOverlayView
         android:id="@+id/loading_overlay"
         style="@style/LoadingOverlayViewStyle" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

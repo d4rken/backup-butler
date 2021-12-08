@@ -38,6 +38,7 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
         ui.apply {
             configList.setupDefaults(adapter, dividers = false)
             toolbar.setupWithNavController(findNavController())
+            toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
 
             setupbar.apply {
                 buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }

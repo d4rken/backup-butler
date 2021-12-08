@@ -81,7 +81,7 @@ class StorageActionDialogVDC @Inject constructor(
         try {
             when (action) {
                 VIEW -> {
-                    StorageActionDialogDirections.actionStorageActionDialogToStorageViewerActivity(storageId)
+                    StorageActionDialogDirections.actionStorageActionDialogToStorageViewer(storageId)
                         .navVia(this@StorageActionDialogVDC)
                     closeDialogEvent.postValue(Any())
                 }

@@ -1,12 +1,12 @@
-package eu.darken.bb.storage.ui.viewer.item
+package eu.darken.bb.storage.ui.viewer.viewer
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -16,35 +16,54 @@ import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.Smart2Fragment
-import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
-import eu.darken.bb.databinding.StorageViewerItemlistFragmentBinding
+import eu.darken.bb.databinding.StorageViewerViewerFragmentBinding
 import eu.darken.bb.processor.ui.ProcessorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class StorageItemFragment : Smart2Fragment(R.layout.storage_viewer_itemlist_fragment) {
+class StorageViewerFragment : Smart2Fragment(R.layout.storage_viewer_viewer_fragment) {
 
-    override val vdc: StorageItemFragmentVDC by viewModels()
-    override val ui: StorageViewerItemlistFragmentBinding by viewBinding()
-    @Inject lateinit var adapter: StorageItemAdapter
+    override val vdc: StorageViewerFragmentVDC by viewModels()
+    override val ui: StorageViewerViewerFragmentBinding by viewBinding()
+    @Inject lateinit var adapter: StorageViewerAdapter
 
 
     private var showOptionDeleteAll = false
 
-    init {
-        setHasOptionsMenu(true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.storageItemList.setupDefaults(adapter)
+        ui.apply {
+            storageList.setupDefaults(adapter)
+        }
+
+        ui.toolbar.apply {
+            setupWithNavController(findNavController())
+
+            setOnCreateContextMenuListener { menu, v, menuInfo ->
+                menu.findItem(R.id.action_delete_all).isVisible = showOptionDeleteAll
+            }
+            setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_delete_all -> {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setMessage(R.string.general_delete_all_action)
+                            .setPositiveButton(R.string.general_delete_all_action) { _, _ ->
+                                vdc.deleteAll()
+                            }
+                            .setNegativeButton(R.string.general_cancel_action) { _, _ -> }
+                            .show()
+                        true
+                    }
+                    else -> super.onOptionsItemSelected(it)
+                }
+            }
+        }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
         vdc.state.observe2(this, ui) { state ->
-            requireActivityActionBar().apply {
+            toolbar.apply {
                 if (state.storageType != null) {
                     title = getString(state.storageType.labelRes)
                 }
@@ -53,8 +72,7 @@ class StorageItemFragment : Smart2Fragment(R.layout.storage_viewer_itemlist_frag
 
             adapter.update(state.specInfos)
 
-            storageItemList.setInvisible(state.isWorking)
-            loadingOverlay.setInvisible(!state.isWorking)
+            storageListWrapper.updateLoadingState(state.isWorking)
 
             showOptionDeleteAll = state.allowDeleteAll && !state.isWorking
             invalidateOptionsMenu()
@@ -62,19 +80,19 @@ class StorageItemFragment : Smart2Fragment(R.layout.storage_viewer_itemlist_frag
 
         vdc.deletionState.observe2(this, ui) { deletionState ->
             if (deletionState.backupSpec != null) {
-                loadingOverlay.setPrimaryText(
+                storageListWrapper.setLoadingText(
                     getString(
                         R.string.progress_deleting_x_label,
                         deletionState.backupSpec.getLabel(requireContext())
                     )
                 )
             } else {
-                loadingOverlay.setPrimaryText(null)
+                storageListWrapper.setLoadingText(null)
             }
         }
 
         vdc.contentActionEvent.observe2(this) {
-            StorageItemFragmentDirections.actionStorageItemFragmentToStorageItemActionDialog(
+            StorageViewerFragmentDirections.actionStorageItemFragmentToStorageItemActionDialog(
                 storageId = it.storageId,
                 specId = it.backupSpecId,
             ).run { doNavigate(this) }
@@ -96,21 +114,4 @@ class StorageItemFragment : Smart2Fragment(R.layout.storage_viewer_itemlist_frag
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_storage_viewer_item_fragment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.action_delete_all).isVisible = showOptionDeleteAll
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_delete_all -> {
-            vdc.deleteAll()
-            true
-        }
-        else -> super.onOptionsItemSelected(item)
-    }
 }

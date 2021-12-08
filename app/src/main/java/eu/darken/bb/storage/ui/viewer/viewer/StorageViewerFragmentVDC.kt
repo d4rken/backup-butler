@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.item
+package eu.darken.bb.storage.ui.viewer.viewer
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,14 +20,14 @@ import kotlinx.coroutines.job
 import javax.inject.Inject
 
 @HiltViewModel
-class StorageItemFragmentVDC @Inject constructor(
+class StorageViewerFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     processorControl: ProcessorControl,
     storageManager: StorageManager,
     private val dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
-    private val navArgs by handle.navArgs<StorageItemFragmentArgs>()
+    private val navArgs by handle.navArgs<StorageViewerFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
 
     private val storageFlow = flow { emit(storageManager.getStorage(storageId)) }
@@ -100,7 +100,7 @@ class StorageItemFragmentVDC @Inject constructor(
 
         specInfos.forEach {
             deletionStater.updateBlocking { copy(backupSpec = it.backupSpec) }
-            delay(100)
+            delay(300)
             storage.remove(it.backupSpec.specId)
         }
 

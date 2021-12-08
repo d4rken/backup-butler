@@ -1,4 +1,4 @@
-package eu.darken.bb.storage.ui.viewer.item.actions
+package eu.darken.bb.storage.ui.viewer.viewer.actions
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,14 +25,14 @@ import kotlinx.coroutines.job
 import javax.inject.Inject
 
 @HiltViewModel
-class ItemActionDialogVDC @Inject constructor(
+class StorageViewerActionDialogVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     storageManager: StorageManager,
     private val dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
-    private val navArgs by handle.navArgs<ItemActionDialogArgs>()
+    private val navArgs by handle.navArgs<StorageViewerActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
 
@@ -41,7 +41,7 @@ class ItemActionDialogVDC @Inject constructor(
     private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
     val state = stater.asLiveData2()
 
-    val actionEvent = SingleLiveEvent<Triple<ItemAction, Storage.Id, BackupSpec.Id>>()
+    val actionEvent = SingleLiveEvent<Triple<StorageViewerAction, Storage.Id, BackupSpec.Id>>()
 
     init {
         storageFlow
@@ -59,11 +59,11 @@ class ItemActionDialogVDC @Inject constructor(
             .filter { it.isFinished }
             .take(1)
             .onEach { info ->
-                val actions = mutableListOf<Confirmable<ItemAction>>().apply {
-                    add(Confirmable(ItemAction.VIEW) { storageAction(it) })
-                    add(Confirmable(ItemAction.RESTORE) { storageAction(it) })
+                val actions = mutableListOf<Confirmable<StorageViewerAction>>().apply {
+                    add(Confirmable(StorageViewerAction.VIEW) { storageAction(it) })
+                    add(Confirmable(StorageViewerAction.RESTORE) { storageAction(it) })
                     if (info.status?.isReadOnly == false) {
-                        add(Confirmable(ItemAction.DELETE, requiredLvl = 1) { storageAction(it) })
+                        add(Confirmable(StorageViewerAction.DELETE, requiredLvl = 1) { storageAction(it) })
                     }
                 }.toList()
                 stater.updateBlocking { copy(allowedActions = actions) }
@@ -72,15 +72,15 @@ class ItemActionDialogVDC @Inject constructor(
             .launchInViewModel()
     }
 
-    fun storageAction(action: ItemAction) = launch {
+    fun storageAction(action: StorageViewerAction) = launch {
         require(stater.value().currentOp == null)
 
         try {
             when (action) {
-                ItemAction.VIEW -> {
-                    actionEvent.postValue(Triple(ItemAction.VIEW, storageId, backupSpecId))
+                StorageViewerAction.VIEW -> {
+                    actionEvent.postValue(Triple(StorageViewerAction.VIEW, storageId, backupSpecId))
                 }
-                ItemAction.DELETE -> {
+                StorageViewerAction.DELETE -> {
                     stater.updateBlocking {
                         copy(
                             currentOp = Operation(
@@ -94,7 +94,7 @@ class ItemActionDialogVDC @Inject constructor(
                     navEvents.postValue(null)
 
                 }
-                ItemAction.RESTORE -> {
+                StorageViewerAction.RESTORE -> {
                     stater.updateBlocking {
                         copy(
                             currentOp = Operation(
@@ -106,7 +106,7 @@ class ItemActionDialogVDC @Inject constructor(
                     val data = taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
                     (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
 
-                    ItemActionDialogDirections.actionStorageItemActionDialogToTaskEditor(
+                    StorageViewerActionDialogDirections.actionStorageItemActionDialogToTaskEditor(
                         args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
                     ).run { navEvents.postValue(this) }
                 }
@@ -118,7 +118,7 @@ class ItemActionDialogVDC @Inject constructor(
 
     data class State(
         val info: BackupSpec.Info? = null,
-        val allowedActions: List<Confirmable<ItemAction>>? = null,
+        val allowedActions: List<Confirmable<StorageViewerAction>>? = null,
         val currentOp: Operation? = null
     ) {
         val isWorking: Boolean

@@ -5,6 +5,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.BackupSpec
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.flow.onError
@@ -14,13 +16,12 @@ import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
-import eu.darken.bb.storage.ui.viewer.content.ItemContentsFragmentDirections
+import eu.darken.bb.storage.ui.viewer.content.StorageContentFragmentDirections
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
 import kotlinx.coroutines.flow.*
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,7 +46,8 @@ class ContentPageFragmentVDC @Inject constructor(
     val state = stater.asLiveData2()
 
     init {
-        Timber.tag(TAG).v("StorageId %s, BackupSpecId: %s, BackupId: %s", storageId, backupSpecId, backupId)
+        log(TAG, VERBOSE) { "init() storageId=$storageId, backupSpecId=$backupSpecId, backupId=$backupId" }
+
         contentFlow
             .onEach { content ->
                 val version = content.backups.find { it.backupId == backupId }!!
@@ -58,7 +60,6 @@ class ContentPageFragmentVDC @Inject constructor(
                     )
                 }
             }
-            .onCompletion { navEvents.postValue(null) }
             .launchInViewModel()
 
         contentFlow
@@ -77,8 +78,8 @@ class ContentPageFragmentVDC @Inject constructor(
             .launchInViewModel()
     }
 
-
     fun restore() = launch {
+        log(TAG) { "Restore storageId=$storageId, backupSpecId=$backupSpecId, backupId=$backupId" }
         stater.updateBlocking { copy(showRestoreAction = false) }
 
         val data = taskBuilder.getEditor(type = Task.Type.RESTORE_SIMPLE)
@@ -86,11 +87,9 @@ class ContentPageFragmentVDC @Inject constructor(
         val type = contentFlow.first().backupSpec.backupType
         (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId, type)
 
-        ItemContentsFragmentDirections.actionItemContentsFragmentToTaskEditor(
+        StorageContentFragmentDirections.actionItemContentsFragmentToTaskEditor(
             args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
         ).navVia(this@ContentPageFragmentVDC)
-
-        navEvents.postValue(null)
     }
 
     data class State(

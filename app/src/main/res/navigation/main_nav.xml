@@ -44,8 +44,8 @@
         <action
             android:id="@+id/action_mainFragment_to_quickModeFragment"
             app:destination="@id/quickModeFragment"
-            app:popUpToInclusive="true"
-            app:popUpTo="@id/mainFragment" />
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_mainFragment_to_storage_editor"
             app:destination="@id/storage_editor">
@@ -89,8 +89,12 @@
                 app:argType="eu.darken.bb.task.ui.editor.TaskEditorArgs" />
         </action>
         <action
-            android:id="@+id/action_storageActionDialog_to_storageViewerActivity"
-            app:destination="@id/storageViewerActivity" />
+            android:id="@+id/action_storageActionDialog_to_storage_viewer"
+            app:destination="@id/storage_viewer">
+            <argument
+                android:name="storageId"
+                app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        </action>
     </dialog>
     <dialog
         android:id="@+id/taskActionDialog"
@@ -132,17 +136,14 @@
         <action
             android:id="@+id/action_quickModeFragment_to_mainFragment"
             app:destination="@id/mainFragment"
-            app:popUpToInclusive="true"
-            app:popUpTo="@id/quickModeFragment" />
+            app:popUpTo="@id/quickModeFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_quickModeFragment_to_appsConfigFragment"
             app:destination="@id/appsConfigFragment" />
         <action
             android:id="@+id/action_quickModeFragment_to_filesConfigFragment"
             app:destination="@id/filesConfigFragment" />
-        <action
-            android:id="@+id/action_quickModeFragment_to_storageViewerActivity"
-            app:destination="@id/storageViewerActivity" />
         <action
             android:id="@+id/action_quickModeFragment_to_task_editor"
             app:destination="@id/task_editor">
@@ -156,6 +157,13 @@
         <action
             android:id="@+id/action_quickModeFragment_to_pkgPickerFragment"
             app:destination="@id/pkgPickerFragment" />
+        <action
+            android:id="@+id/action_quickModeFragment_to_storage_viewer"
+            app:destination="@id/storage_viewer">
+            <argument
+                android:name="storageId"
+                app:argType="eu.darken.bb.storage.core.Storage$Id" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/helloStepFragment"
@@ -219,15 +227,6 @@
     <include app:graph="@navigation/storage_picker" />
 
     <activity
-        android:id="@+id/storageViewerActivity"
-        android:name="eu.darken.bb.storage.ui.viewer.StorageViewerActivity"
-        tools:layout="@layout/storage_viewer_itemlist_fragment">
-        <argument
-            android:name="storageId"
-            app:argType="eu.darken.bb.storage.core.Storage$Id" />
-    </activity>
-
-    <activity
         android:id="@+id/PathPickerActivity"
         android:name="eu.darken.bb.common.files.ui.picker.PathPickerActivity"
         tools:layout="@layout/path_picker_activity">
@@ -250,6 +249,11 @@
             app:argType="eu.darken.bb.common.pkgs.picker.ui.PkgPickerOptions" />
     </fragment>
     <include app:graph="@navigation/generator_editor" />
+    <include app:graph="@navigation/storage_viewer">
+        <argument
+            android:name="storageId"
+            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+    </include>
 
 
 </navigation>

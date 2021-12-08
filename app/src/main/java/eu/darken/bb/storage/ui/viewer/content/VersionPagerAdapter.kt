@@ -11,7 +11,7 @@ import eu.darken.bb.storage.ui.viewer.content.page.ContentPageFragmentArgs
 
 
 class VersionPagerAdapter constructor(
-    private val fragment: ItemContentsFragment,
+    private val fragment: StorageContentFragment,
     private val storageId: Storage.Id,
     private val backupSpecId: BackupSpec.Id
 ) : FragmentStateAdapter(fragment), DataAdapter<Backup.MetaData> {

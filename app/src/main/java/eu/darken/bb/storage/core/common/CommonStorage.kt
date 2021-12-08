@@ -12,7 +12,6 @@ import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.*
-import eu.darken.bb.common.files.core.local.*
 import eu.darken.bb.common.flow.*
 import eu.darken.bb.common.moshi.fromAPath
 import eu.darken.bb.common.moshi.toAPath
@@ -28,7 +27,6 @@ import eu.darken.bb.processor.core.mm.archive.ArchiveProps
 import eu.darken.bb.processor.core.mm.archive.ArchiveRefSource
 import eu.darken.bb.processor.core.mm.generic.GenericRefSource
 import eu.darken.bb.storage.core.Storage
-import eu.darken.bb.storage.core.local.LocalStorageSpecInfo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
@@ -224,7 +222,7 @@ abstract class CommonStorage<
         updateProgressPrimary(R.string.progress_reading_backup_specs)
         updateProgressCount(Progress.Count.Indeterminate())
         val item = specInfo(specId).first()
-        item as LocalStorageSpecInfo
+        item as CommonStorageSpecInfo
 
         updateProgressPrimary(R.string.progress_reading_backup_metadata)
         val metaData = readBackupMeta(specId, backupId)
@@ -336,7 +334,7 @@ abstract class CommonStorage<
     override suspend fun remove(specId: BackupSpec.Id, backupId: Backup.Id?): BackupSpec.Info = runStorageOp {
         log(tag) { "remove(specId=$specId, backupId=$backupId)" }
         val specInfo = specInfo(specId).first()
-        specInfo as LocalStorageSpecInfo
+        specInfo as CommonStorageSpecInfo
         if (backupId != null) {
             val versionDir = getVersionDir(specId, backupId)
             versionDir.deleteAll(gateway)

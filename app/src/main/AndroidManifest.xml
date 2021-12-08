@@ -49,10 +49,6 @@
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeActionBar" />
         <activity
-            android:name=".storage.ui.viewer.StorageViewerActivity"
-            android:parentActivityName=".main.ui.MainActivity"
-            android:theme="@style/AppThemeActionBar" />
-        <activity
             android:name=".common.debug.recording.ui.RecorderActivity"
             android:parentActivityName=".main.ui.MainActivity"
             android:theme="@style/AppThemeFloating" />

@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
-class ItemContentsFragmentVDC @Inject constructor(
+class StorageContentFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val storageManager: StorageManager,
     private val dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
-    private val navArgs by handle.navArgs<ItemContentsFragmentArgs>()
+    private val navArgs by handle.navArgs<StorageContentFragmentArgs>()
     private val storageId: Storage.Id = navArgs.storageId
     private val backupSpecId: BackupSpec.Id = navArgs.specId
 
