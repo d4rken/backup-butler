@@ -190,7 +190,6 @@
     <string name="storage_picker_empty_all_added_desc">All existing storages have already been added. Create another if you want to add more!</string>
     <string name="general_empty_list_desc">The list is empty.</string>
     <string name="empty_list_msg">The list is empty.</string>
-    <string name="empty_list_easter_msg">You must construct additional pylons!</string>
     <string name="storage_quick_explanation_desc">A location for your backups. A backup storage can be local (e.g. sdcard) or remote (e.g. Google Drive).</string>
     <string name="task_quick_explanation">A task is where work gets done. Each task describes a set sources from which data is taken and a set of destinations where it is stored. It can be executed directly or scheduled.</string>
     <string name="trigger_quick_explanation_desc">Triggers can be attached to tasks to run them under specific conditions (e.g. when charging) or at specific times (e.g. during the night).</string>

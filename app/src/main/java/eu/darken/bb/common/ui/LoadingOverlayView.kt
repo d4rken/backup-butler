@@ -77,7 +77,7 @@ class LoadingOverlayView @JvmOverloads constructor(
     ) {
         companion object {
             val LOADING = Mode(R.raw.anim_loading_box, R.string.progress_loading_label)
-            val ERROR = Mode(R.raw.anim_loading_box, R.string.progress_loading_label)
+            val ERROR = Mode(R.raw.anim_loading_box, R.string.general_error_label)
         }
     }
 

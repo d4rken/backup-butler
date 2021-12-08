@@ -3,10 +3,13 @@ package eu.darken.bb.common.ui
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.recyclerview.widget.RecyclerView
 import eu.darken.bb.R
@@ -22,11 +25,8 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
     private val ui = ViewRecyclerviewWrapperLayoutBinding.inflate(layoutInflator, this)
 
     protected val recyclerView: RecyclerView by lazy {
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            if (child is RecyclerView) return@lazy child
-        }
-        throw IllegalArgumentException("No RecyclerView found")
+        ui.recyclerviewContainer.getChildAt(0) as? RecyclerView
+            ?: throw IllegalArgumentException("No RecyclerView found")
     }
 
     protected var currentAdapter: RecyclerView.Adapter<*>? = null
@@ -99,7 +99,6 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             val consumeFirstLoading =
                 typedArray.getBoolean(R.styleable.RecyclerViewWrapperLayout_rvwLoadingUntilFirstChange, false)
 
-
             val explanationIcon = typedArray.getDrawableRes(R.styleable.RecyclerViewWrapperLayout_rvwExplanationIcon)
             if (explanationIcon != null) ui.explanationIcon.setImageResource(explanationIcon)
 
@@ -113,11 +112,7 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
             if (emptyText != null) {
                 ui.emptyText.text = emptyText
             } else {
-                if ((0..5).random() == 0) {
-                    ui.emptyText.setText(R.string.empty_list_easter_msg)
-                } else {
-                    ui.emptyText.setText(R.string.empty_list_msg)
-                }
+                ui.emptyText.setText(R.string.empty_list_msg)
             }
 
             state = State(
@@ -147,9 +142,22 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
 
     protected fun updateUI() {
         log { "updateStates(): $state" }
-        ui.loadingOverlay.isInvisible = !loadingBehavior(state)
-        ui.explanationContainer.isInvisible = !explanationBehavior(state)
-        ui.emptyContainer.isInvisible = !emptyBehavior(state)
+        ui.apply {
+            loadingOverlay.isInvisible = !loadingBehavior(state)
+            explanationContainer.isInvisible = !explanationBehavior(state)
+            emptyContainer.isInvisible = !emptyBehavior(state)
+
+            recyclerviewContainer.isInvisible =
+                loadingOverlay.isVisible || explanationContainer.isVisible || emptyContainer.isVisible
+        }
+    }
+
+    override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams) {
+        if (ROOT_IDS.contains(child.id)) {
+            super.addView(child, index, params)
+        } else {
+            ui.recyclerviewContainer.addView(child, index, params)
+        }
     }
 
     fun setEmptyState(@DrawableRes iconRes: Int? = null, @StringRes stringRes: Int? = null) {
@@ -162,6 +170,10 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         updateUI()
     }
 
+    fun setLoadingText(loadingText: String?) = ui.loadingOverlay.setPrimaryText(loadingText)
+
+    fun setLoadingText(@StringRes loadingRes: Int) = ui.loadingOverlay.setPrimaryText(loadingRes)
+
     data class State(
         val isPreFirstData: Boolean = true,
         val isPreFirstChange: Boolean = true,
@@ -171,4 +183,13 @@ class RecyclerViewWrapperLayout @JvmOverloads constructor(
         val dataCount: Int = 0
     )
 
+    companion object {
+        private val ROOT_IDS = listOf(
+            R.id.recyclerview_container,
+            R.id.explanation_container,
+            R.id.empty_container,
+            R.id.loading_overlay
+        )
+    }
 }
+
