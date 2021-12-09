@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.log
@@ -29,7 +28,7 @@ class TaskListFragment : Smart2Fragment(R.layout.task_list_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
             tasksList.setupDefaults(adapter)
-            fab.clicks().subscribe { vdc.newTask() }
+            fab.setOnClickListener { vdc.newTask() }
         }
 
         vdc.state.observe2(this, ui) { state ->

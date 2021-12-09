@@ -13,7 +13,6 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
@@ -43,10 +42,10 @@ class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fra
             toolbar.setupWithNavController(findNavController())
 
             setupbar.apply {
-                buttonPositivePrimary.clicksDebounced().subscribe { vdc.executeTask() }
-                buttonPositiveSecondary.clicksDebounced().subscribe { vdc.saveTask() }
+                buttonPositivePrimary.setOnClickListener { vdc.executeTask() }
+                buttonPositiveSecondary.setOnClickListener { vdc.saveTask() }
             }
-            fab.clicksDebounced().subscribe { vdc.addStorage() }
+            fab.setOnClickListener { vdc.addStorage() }
 
             listDestinations.setupDefaults(adapter)
         }

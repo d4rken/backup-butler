@@ -14,7 +14,6 @@ import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StorageListFragmentBinding
@@ -42,7 +41,7 @@ class StorageListFragment : Smart2Fragment(R.layout.storage_list_fragment) {
             requireActivity().invalidateOptionsMenu()
         }
 
-        ui.fab.clicksDebounced().subscribe { vdc.createStorage() }
+        ui.fab.setOnClickListener { vdc.createStorage() }
 
         var snackbar: Snackbar? = null
         vdc.processorEvent.observe2(this) { isActive ->

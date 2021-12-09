@@ -15,7 +15,6 @@ import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorRequirementsFragmentBinding
@@ -41,10 +40,10 @@ class RequirementsFragment : Smart2Fragment(R.layout.task_editor_requirements_fr
                 isNestedScrollingEnabled = false
                 setupDefaults(adapter, dividers = false)
             }
-            explanationMoreAction.clicksDebounced().subscribe {
+            explanationMoreAction.setOnClickListener {
                 AlertDialog.Builder(requireContext()).setMessage(R.string.requirements_extended_desc).show()
             }
-            setupbar.buttonPositiveSecondary.clicksDebounced().subscribe {
+            setupbar.buttonPositiveSecondary.setOnClickListener {
                 vdc.onContinue()
             }
         }

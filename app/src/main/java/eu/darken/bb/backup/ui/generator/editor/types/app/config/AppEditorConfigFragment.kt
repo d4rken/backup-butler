@@ -5,20 +5,21 @@ import android.view.KeyEvent
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorFragmentChild
 import eu.darken.bb.backup.ui.generator.editor.setGeneratorEditorResult
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.*
+import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.GeneratorEditorAppConfigFragmentBinding
+import kotlinx.coroutines.flow.onEach
+import reactivecircus.flowbinding.android.widget.editorActionEvents
 
 @AndroidEntryPoint
 class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_config_fragment),
@@ -50,16 +51,22 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
             coreSettingsIncludeuser.setSwitchListener { _, b -> vdc.onUpdateIncludeUser(b) }
             coreSettingsIncludesystem.setSwitchListener { _, b -> vdc.onUpdateIncludeSystem(b) }
 
-            coreSettingsIncludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.INCLUDE) }
-            coreSettingsExcludedPackages.clicksDebounced().subscribe { navigatePreview(PreviewMode.EXCLUDE) }
+            coreSettingsIncludedPackages.setOnClickListener { navigatePreview(PreviewMode.INCLUDE) }
+            coreSettingsExcludedPackages.setOnClickListener { navigatePreview(PreviewMode.EXCLUDE) }
 
             optionsBackupapk.setSwitchListener { _, b -> vdc.onUpdateBackupApk(b) }
             optionsBackupdata.setSwitchListener { _, b -> vdc.onUpdateBackupData(b) }
             optionsBackupcache.setSwitchListener { _, b -> vdc.onUpdateBackupCache(b) }
 
 
-            nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-            nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
+            nameInput
+                .userTextChangeEvents()
+                .onEach { vdc.updateLabel(it.text.toString()) }
+                .launchInView(this@AppEditorConfigFragment)
+            nameInput
+                .editorActionEvents { it.keyEvent?.keyCode == KeyEvent.KEYCODE_ENTER }
+                .onEach { ui.nameInput.clearFocus() }
+                .launchInView(this@AppEditorConfigFragment)
         }
 
         ui.appPreviewAction.setOnClickListener { navigatePreview(PreviewMode.PREVIEW) }

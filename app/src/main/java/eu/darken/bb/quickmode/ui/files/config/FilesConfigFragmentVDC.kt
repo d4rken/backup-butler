@@ -9,8 +9,8 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
-import eu.darken.bb.quickmode.core.FilesQuickMode
 import eu.darken.bb.quickmode.core.QuickMode
+import eu.darken.bb.quickmode.core.files.FilesQuickMode
 import eu.darken.bb.quickmode.ui.apps.config.AppsConfigFragmentVDC
 import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager

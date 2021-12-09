@@ -16,18 +16,19 @@ import eu.darken.bb.R
 import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.SharedPathPickerVM
+import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.BreadCrumbBar
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.PathPickerLocalFragmentBinding
+import kotlinx.coroutines.flow.onEach
 import java.io.File
 import javax.inject.Inject
 
@@ -83,7 +84,7 @@ class LocalPickerFragment : Smart2Fragment(R.layout.path_picker_local_fragment) 
             error.asErrorDialogBuilder(requireContext()).show()
         }
 
-        ui.selectAction.clicksDebounced().subscribe { vdc.finishSelection() }
+        ui.selectAction.setOnClickListener { vdc.finishSelection() }
 
         vdc.resultEvents.observe2(this) {
             sharedVM.postResult(it)
@@ -123,9 +124,9 @@ class LocalPickerFragment : Smart2Fragment(R.layout.path_picker_local_fragment) 
             dialog.setOnShowListener {
                 val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 positiveButton.isEnabled = false
-                input.userTextChangeEvents().subscribe {
-                    positiveButton.isEnabled = it.text.isNotEmpty()
-                }
+                input.userTextChangeEvents()
+                    .onEach { positiveButton.isEnabled = it.text.isNotEmpty() }
+                    .launchInView(this@LocalPickerFragment)
             }
 
             dialog.show()

@@ -15,7 +15,6 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupGeneratorsFragmentBinding
@@ -43,9 +42,9 @@ class GeneratorsFragment : Smart2Fragment(R.layout.task_editor_backup_generators
 
             sourcesList.setupDefaults(adapter)
 
-            fab.clicksDebounced().subscribe { vdc.onAddSource() }
+            fab.setOnClickListener { vdc.onAddSource() }
 
-            setupbar.buttonPositiveSecondary.clicksDebounced().subscribe { vdc.onNext() }
+            setupbar.buttonPositiveSecondary.setOnClickListener { vdc.onNext() }
         }
 
         vdc.state.observe2(this, ui) { state ->

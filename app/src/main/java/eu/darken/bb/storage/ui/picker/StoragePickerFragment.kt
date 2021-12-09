@@ -15,7 +15,6 @@ import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.StoragePickerFragmentBinding
@@ -48,7 +47,7 @@ class StoragePickerFragment : Smart2Fragment(R.layout.storage_picker_fragment),
                 setupWithNavController(findNavController())
                 setNavigationIcon(R.drawable.ic_baseline_close_24)
             }
-            fab.clicksDebounced().subscribe { vdc.createStorage() }
+            fab.setOnClickListener { vdc.createStorage() }
         }
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectStorage(adapter.data[i]) })

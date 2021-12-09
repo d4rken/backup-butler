@@ -11,15 +11,16 @@ import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorFragmentChild
 import eu.darken.bb.backup.ui.generator.editor.setGeneratorEditorResult
 import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
+import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferentAndNotFocused
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorEditorFileFragmentBinding
+import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
 class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment),
@@ -48,8 +49,10 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
                     }
                 }
             }
-            nameInput.userTextChangeEvents().subscribe { vdc.updateLabel(it.text.toString()) }
-            pathSelectAction.clicksDebounced().subscribe { vdc.showPicker() }
+            nameInput.userTextChangeEvents()
+                .onEach { vdc.updateLabel(it.text.toString()) }
+                .launchInView(this@FilesEditorConfigFragment)
+            pathSelectAction.setOnClickListener { vdc.showPicker() }
         }
 
         vdc.state.observe2(this, ui) { state ->

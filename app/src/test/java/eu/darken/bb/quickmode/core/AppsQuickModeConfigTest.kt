@@ -1,6 +1,7 @@
 package eu.darken.bb.quickmode.core
 
 import eu.darken.bb.AppModule
+import eu.darken.bb.quickmode.core.apps.AppsQuickModeConfig
 import eu.darken.bb.storage.core.Storage
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

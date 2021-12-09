@@ -9,8 +9,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
-import eu.darken.bb.quickmode.core.AppsQuickMode
-import eu.darken.bb.quickmode.core.AutoSetUp
+import eu.darken.bb.quickmode.core.apps.AppsQuickMode
 import eu.darken.bb.quickmode.ui.common.config.*
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.picker.StoragePickerResult
@@ -22,11 +21,10 @@ class AppsConfigFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val quickMode: AppsQuickMode,
     private val storageManager: StorageManager,
-    private val autoSetUp: AutoSetUp,
     private val dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
-    private val configHD = quickMode.appsData
+    private val configHD = quickMode.state
 
     private val storageItemFlow: Flow<ConfigAdapter.Item> = configHD.flow
         .flatMapLatest { data ->

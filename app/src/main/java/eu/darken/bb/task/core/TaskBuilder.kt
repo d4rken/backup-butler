@@ -2,6 +2,7 @@ package eu.darken.bb.task.core
 
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
@@ -63,7 +64,8 @@ class TaskBuilder @Inject constructor(
         checkNotNull(removed.editor) { "Can't save builder data NULL editor: $removed" }
 
         val task = removed.editor.snapshot()
-        taskRepo.put(task)
+        val previousTask = taskRepo.put(task)
+        if (previousTask != null) log(TAG, WARN) { "Replaced previous task: $previousTask" }
 
         log(TAG) { "Saved $id -> $task" }
         return task

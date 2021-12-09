@@ -43,7 +43,8 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
             taskId = data.taskId,
             label = data.label,
             sources = data.sources,
-            destinations = data.destinations
+            destinations = data.destinations,
+            isOneTimeUse = data.isOneTimeUse
         )
     }
 
@@ -95,9 +96,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 
     suspend fun updateOneTime(isOneTimeUse: Boolean) {
         editorDataPub.updateBlocking {
-            copy(
-                isOneTimeUse = isOneTimeUse
-            )
+            copy(isOneTimeUse = isOneTimeUse)
         }
     }
 

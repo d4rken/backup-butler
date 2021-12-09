@@ -6,14 +6,12 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
-import com.jakewharton.rxbinding4.view.longClicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.toastError
 import eu.darken.bb.common.ui.setGone
@@ -41,8 +39,8 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
             toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
 
             setupbar.apply {
-                buttonPositivePrimary.clicksDebounced().subscribe { vdc.runTask() }
-                buttonPositivePrimary.longClicks().subscribe { vdc.saveTask() }
+                buttonPositivePrimary.setOnClickListener { vdc.runTask() }
+                buttonPositivePrimary.setOnLongClickListener { vdc.saveTask().let { true } }
             }
         }
 

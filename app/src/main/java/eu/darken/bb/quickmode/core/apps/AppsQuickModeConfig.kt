@@ -1,7 +1,8 @@
-package eu.darken.bb.quickmode.core
+package eu.darken.bb.quickmode.core.apps
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
+import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.storage.core.Storage
 
 @Keep

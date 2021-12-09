@@ -8,14 +8,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
+import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
@@ -26,6 +25,8 @@ import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.ui.editor.StorageEditorFragmentChild
 import eu.darken.bb.storage.ui.editor.setStorageEditorResult
 import eu.darken.bb.storage.ui.list.StorageAdapter
+import kotlinx.coroutines.flow.onEach
+import reactivecircus.flowbinding.android.widget.editorActionEvents
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -69,10 +70,15 @@ class SAFEditorFragment : Smart2Fragment(R.layout.storage_editor_saf_fragment), 
             }
         }
 
-        ui.pathButton.clicksDebounced().subscribe { vdc.selectPath() }
+        ui.pathButton.setOnClickListener { vdc.selectPath() }
 
-        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
-        ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
+        ui.nameInput.userTextChangeEvents()
+            .onEach { vdc.updateName(it.text.toString()) }
+            .launchInView(this)
+        ui.nameInput
+            .editorActionEvents { it.keyEvent?.keyCode == KeyEvent.KEYCODE_ENTER }
+            .onEach { ui.nameInput.clearFocus() }
+            .launchInView(this)
 
         val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
             if (it != null) vdc.onUpdatePath(it)

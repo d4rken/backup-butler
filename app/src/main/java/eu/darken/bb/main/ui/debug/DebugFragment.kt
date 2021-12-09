@@ -10,7 +10,6 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.getColorForAttr
 import eu.darken.bb.common.getCompatColor
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.DebugFragmentBinding
@@ -34,8 +33,8 @@ class DebugFragment : SmartFragment(R.layout.debug_fragment) {
             )
         }
         ui.apply {
-            rootTestJavaAction.clicksDebounced().subscribe { vdc.performJavaRootCheck() }
-            rootTestShellAction.clicksDebounced().subscribe { vdc.performShellRootCheck() }
+            rootTestJavaAction.setOnClickListener { vdc.performJavaRootCheck() }
+            rootTestShellAction.setOnClickListener { vdc.performShellRootCheck() }
         }
 
         super.onViewCreated(view, savedInstanceState)

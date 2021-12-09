@@ -15,7 +15,6 @@ import eu.darken.bb.common.lists.ItemSwipeTool
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
@@ -49,7 +48,7 @@ class RestoreSourcesFragment : Smart2Fragment(R.layout.task_editor_restore_sourc
             )
             ui.setupbar.apply {
                 buttonPositiveSecondary.setGone(state.sourceBackups.isEmpty())
-                buttonPositiveSecondary.clicksDebounced().subscribe { vdc.continueWithSources() }
+                buttonPositiveSecondary.setOnClickListener { vdc.continueWithSources() }
             }
 
             ui.countContainer.setInvisible(state.isWorking)

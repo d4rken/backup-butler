@@ -20,9 +20,9 @@ import eu.darken.bb.common.pkgs.picker.ui.PkgPickerResult
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.processor.core.ProcessorControl
-import eu.darken.bb.quickmode.core.AppsQuickMode
-import eu.darken.bb.quickmode.core.FilesQuickMode
 import eu.darken.bb.quickmode.core.QuickModeSettings
+import eu.darken.bb.quickmode.core.apps.AppsQuickMode
+import eu.darken.bb.quickmode.core.files.FilesQuickMode
 import eu.darken.bb.quickmode.ui.apps.QuickAppsCreateVH
 import eu.darken.bb.quickmode.ui.apps.QuickAppsLoadingVH
 import eu.darken.bb.quickmode.ui.apps.QuickAppsVH
@@ -64,7 +64,7 @@ class QuickModeFragmentVDC @Inject constructor(
     }
         .asLiveData2()
 
-    private val appObs: Flow<QuickModeAdapter.Item> = appsQuickMode.appsData.flow
+    private val appObs: Flow<QuickModeAdapter.Item> = appsQuickMode.state.flow
         .onEach { log(TAG) { "Default app task id: $it" } }
         .flatMapLatest { config ->
             storageManager

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
-import com.jakewharton.rxbinding4.view.clicks
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResultListener
@@ -41,7 +40,7 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
             fab.isInvisible = false
         }
 
-        ui.fab.clicks().subscribe { vdc.newGenerator() }
+        ui.fab.setOnClickListener { vdc.newGenerator() }
 
         super.onViewCreated(view, savedInstanceState)
     }

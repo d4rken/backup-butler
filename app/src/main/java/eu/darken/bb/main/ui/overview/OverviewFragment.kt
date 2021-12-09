@@ -7,7 +7,6 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartFragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.viewBinding
@@ -34,8 +33,8 @@ class OverviewFragment : SmartFragment(R.layout.overview_fragment) {
         vdc.updateState.observe2(this, ui) { updateState ->
             cardUpdate.setGone(!updateState.available)
         }
-        ui.cardUpdateActionChangelog.clicksDebounced().subscribe { vdc.onChangelog() }
-        ui.cardUpdateActionUpdate.clicksDebounced().subscribe { vdc.onUpdate() }
+        ui.cardUpdateActionChangelog.setOnClickListener { vdc.onChangelog() }
+        ui.cardUpdateActionUpdate.setOnClickListener { vdc.onUpdate() }
 
         super.onViewCreated(view, savedInstanceState)
     }

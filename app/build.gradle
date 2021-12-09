@@ -182,6 +182,25 @@ dependencies {
     implementation "androidx.work:work-runtime:${work_version}"
     testImplementation "androidx.work:work-testing:${work_version}"
 
+    // Flow
+    def flowbinding_version = "1.2.0"
+
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-android:${flowbinding_version}"
+
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-activity:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-appcompat:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-core:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-drawerlayout:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-lifecycle:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-navigation:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-preference:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-recyclerview:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-swiperefreshlayout:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-viewpager:${flowbinding_version}"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-viewpager2:${flowbinding_version}"
+
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-material:${flowbinding_version}"
+
     // Network
     implementation("com.squareup.okio:okio:2.10.0")
 
@@ -233,18 +252,6 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxkotlin:${versions.rxkotlin}"
     implementation 'com.jakewharton.rx3:replaying-share:3.0.0'
     implementation "com.jakewharton.rx3:replaying-share-kotlin:3.0.0"
-
-    implementation "com.jakewharton.rxbinding4:rxbinding:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-core:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-appcompat:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-drawerlayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-leanback:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-recyclerview:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-slidingpanelayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-swiperefreshlayout:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-viewpager:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-viewpager2:${versions.rxbindings}"
-    implementation "com.jakewharton.rxbinding4:rxbinding-material:${versions.rxbindings}"
 
     implementation "eu.darken.rxshell:core:${versions.rxshell}"
     implementation "eu.darken.rxshell:root:${versions.rxshell}"

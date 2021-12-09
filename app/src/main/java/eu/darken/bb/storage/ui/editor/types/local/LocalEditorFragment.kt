@@ -9,15 +9,14 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding4.widget.editorActions
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
+import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.permission.Permission
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
@@ -27,6 +26,8 @@ import eu.darken.bb.databinding.StorageEditorLocalFragmentBinding
 import eu.darken.bb.storage.core.ExistingStorageException
 import eu.darken.bb.storage.ui.editor.StorageEditorFragmentChild
 import eu.darken.bb.storage.ui.editor.setStorageEditorResult
+import kotlinx.coroutines.flow.onEach
+import reactivecircus.flowbinding.android.widget.editorActionEvents
 
 @AndroidEntryPoint
 class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragment), StorageEditorFragmentChild {
@@ -83,7 +84,7 @@ class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragmen
             }
         }
 
-        ui.pathButton.clicksDebounced().subscribe { vdc.selectPath() }
+        ui.pathButton.setOnClickListener { vdc.selectPath() }
 
         val pickerLauncher = registerForActivityResult(PathPickerActivityContract()) {
             if (it != null) vdc.updatePath(it)
@@ -91,8 +92,13 @@ class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragmen
         }
         vdc.pickerEvent.observe2(this) { pickerLauncher.launch(it) }
 
-        ui.nameInput.userTextChangeEvents().subscribe { vdc.updateName(it.text.toString()) }
-        ui.nameInput.editorActions { it == KeyEvent.KEYCODE_ENTER }.subscribe { ui.nameInput.clearFocus() }
+        ui.nameInput.userTextChangeEvents()
+            .onEach { vdc.updateName(it.text.toString()) }
+            .launchInView(this)
+        ui.nameInput
+            .editorActionEvents { it.keyEvent?.keyCode == KeyEvent.KEYCODE_ENTER }
+            .onEach { ui.nameInput.clearFocus() }
+            .launchInView(this)
 
         onErrorEvent = { error ->
             if (error is ExistingStorageException) {
@@ -111,8 +117,8 @@ class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragmen
             }
         }
 
-        ui.writeStorageGrant.clicksDebounced().subscribe { vdc.requestPermission(Permission.WRITE_EXTERNAL_STORAGE) }
-        ui.manageStorageGrant.clicksDebounced().subscribe { vdc.requestPermission(Permission.MANAGE_EXTERNAL_STORAGE) }
+        ui.writeStorageGrant.setOnClickListener { vdc.requestPermission(Permission.WRITE_EXTERNAL_STORAGE) }
+        ui.manageStorageGrant.setOnClickListener { vdc.requestPermission(Permission.MANAGE_EXTERNAL_STORAGE) }
 
         vdc.requestPermissionEvent.observe2(this) { perm ->
             when (perm) {

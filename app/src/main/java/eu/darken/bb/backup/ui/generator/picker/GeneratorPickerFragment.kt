@@ -11,7 +11,6 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorPickerFragmentBinding
@@ -29,7 +28,7 @@ class GeneratorPickerFragment : Smart2Fragment(R.layout.generator_picker_fragmen
         ui.apply {
             generatorList.setupDefaults(adapter)
             toolbar.setNavigationOnClickListener { popBackStack() }
-            fab.clicksDebounced().subscribe { vdc.createGenerator() }
+            fab.setOnClickListener { vdc.createGenerator() }
         }
 
         vdc.generatorData.observe2(this, ui) { state ->

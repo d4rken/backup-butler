@@ -10,7 +10,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.error.localized
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.rx.clicksDebounced
 import eu.darken.bb.common.smart.SmartActivity
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.CoreDebugRecordingActivityBinding
@@ -45,7 +44,7 @@ class RecorderActivity : SmartActivity() {
             }
         }
 
-        ui.share.clicksDebounced().subscribe { vdc.share() }
+        ui.share.setOnClickListener { vdc.share() }
     }
 
     companion object {

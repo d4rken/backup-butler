@@ -1,6 +1,8 @@
 package eu.darken.bb.quickmode.core
 
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
+import eu.darken.bb.quickmode.core.apps.AppsQuickModeConfig
+import eu.darken.bb.quickmode.core.files.FilesQuickModeConfig
 import eu.darken.bb.storage.core.Storage
 
 interface QuickMode {

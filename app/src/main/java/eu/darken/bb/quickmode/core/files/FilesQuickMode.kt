@@ -1,4 +1,4 @@
-package eu.darken.bb.quickmode.core
+package eu.darken.bb.quickmode.core.files
 
 import com.squareup.moshi.Moshi
 import eu.darken.bb.backup.core.Backup
@@ -10,6 +10,8 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.processor.core.ProcessorControl
+import eu.darken.bb.quickmode.core.QuickMode
+import eu.darken.bb.quickmode.core.QuickModeSettings
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.TaskRepo
@@ -57,8 +59,7 @@ class FilesQuickMode @Inject constructor(
     }
 
     suspend fun launchBackup(selection: Set<APath>) {
-        // TODO mark these as one shot, hide them from UI
-
+        // TODO multiple paths per generator?
         val generatorIds = selection.map { selPath ->
             val editorData = generatorBuilder.getEditor(type = Backup.Type.FILES)
             editorData.editor as FilesSpecGeneratorEditor
@@ -72,6 +73,8 @@ class FilesQuickMode @Inject constructor(
 
         val quickModeConfig = state.flow.first()
 
+        // TODO implement this within the processor
+        // TODO hide one time task from the tasks list
         taskBuilderData.editor.updateOneTime(true)
         generatorIds.forEach { taskBuilderData.editor.addGenerator(it) }
         quickModeConfig.storageIds.forEach { taskBuilderData.editor.addStorage(it) }

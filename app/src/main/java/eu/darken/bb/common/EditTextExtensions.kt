@@ -1,10 +1,11 @@
 package eu.darken.bb.common
 
 import android.widget.EditText
-import com.jakewharton.rxbinding4.widget.TextViewTextChangeEvent
-import com.jakewharton.rxbinding4.widget.textChangeEvents
-import io.reactivex.rxjava3.core.Observable
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import reactivecircus.flowbinding.android.widget.TextChangeEvent
+import reactivecircus.flowbinding.android.widget.textChangeEvents
 
 fun EditText.setTextIfDifferent(newText: String) {
     if (this.text.toString() == newText) return
@@ -18,7 +19,8 @@ fun EditText.setTextIfDifferentAndNotFocused(newText: String) {
     setTextIfDifferent(newText)
 }
 
-fun EditText.userTextChangeEvents(): Observable<TextViewTextChangeEvent> {
-    return textChangeEvents().skipInitialValue().throttleLatest(250, TimeUnit.MILLISECONDS)
-        .filter { it.view.hasFocus() }
-}
+// TODO Flow does not have throttleLatest
+fun EditText.userTextChangeEvents(): Flow<TextChangeEvent> = textChangeEvents()
+    .skipInitialValue()
+    .debounce(250)
+    .filter { it.view.hasFocus() }
