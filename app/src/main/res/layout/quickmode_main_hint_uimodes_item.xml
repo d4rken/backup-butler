@@ -22,22 +22,35 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:text="Additional features and support for more complex backup scenarios is available via the advanced UI. You can switch back and forth via the menu."
+            android:text="@string/uimode_quickmode_to_advanced_description"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/dismiss_action"
+            android:id="@+id/switch_action"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/general_dismiss_action"
+            android:text="@string/uimode_switch_action"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/primary_info" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/dismiss_action"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:textColor="?colorOnSurface"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/general_dismiss_action"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/primary_info" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -160,6 +160,9 @@ class QuickModeFragmentVDC @Inject constructor(
                 val hint = AdvancedModeHintsVH.Item(
                     onDismiss = {
                         quickModeSettings.isHintAdvancedModeDismissed.update { true }
+                    },
+                    onSwitch = {
+                        switchToAdvancedMode()
                     }
                 )
                 add(0, hint)

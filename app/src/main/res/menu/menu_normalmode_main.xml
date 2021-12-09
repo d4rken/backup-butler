@@ -27,6 +27,6 @@
         android:id="@+id/action_switch_startmode"
         android:icon="@drawable/ic_startmode_onsurface"
         android:orderInCategory="3"
-        android:title="@string/startmode_switch_action"
+        android:title="@string/uimode_switch_action"
         app:showAsAction="never" />
 </menu>

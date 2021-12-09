@@ -236,7 +236,7 @@
     <string name="user_interface_mode_label">User interface mode</string>
     <string name="user_interface_mode_quick_label">Quick</string>
     <string name="user_interface_mode_normal_label">Normal</string>
-    <string name="startmode_switch_action">Switch UI mode</string>
+    <string name="uimode_switch_action">Switch UI mode</string>
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>
     <string name="general_copy_action">Copy</string>
@@ -331,4 +331,5 @@
     <string name="pkg_picker_empty_desc">The app list is empty, that doesn\'t seem right…</string>
     <string name="general_select_all">Select all</string>
     <string name="general_unselect_all">Unselect all</string>
+    <string name="uimode_quickmode_to_advanced_description">Additional features and support for more complex backup scenarios is available via the advanced UI. You can switch back and forth via the menu.</string>
 </resources>

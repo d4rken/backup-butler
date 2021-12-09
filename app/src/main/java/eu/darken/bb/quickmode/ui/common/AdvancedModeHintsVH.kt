@@ -20,10 +20,12 @@ class AdvancedModeHintsVH(parent: ViewGroup) :
         payloads: List<Any>
     ) -> Unit = { item, _ ->
         dismissAction.setOnClickListener { item.onDismiss() }
+        switchAction.setOnClickListener { item.onSwitch() }
     }
 
     data class Item(
-        val onDismiss: () -> Unit
+        val onDismiss: () -> Unit,
+        val onSwitch: () -> Unit,
     ) : QuickModeAdapter.Item {
         override val stableId: Long = this.javaClass.hashCode().toLong()
     }
