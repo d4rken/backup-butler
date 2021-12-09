@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
+import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.BBDebug
@@ -31,6 +32,7 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesLoadingVH
 import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.viewer.StorageViewerOptions
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -81,7 +83,9 @@ class QuickModeFragmentVDC @Inject constructor(
                 storageInfos = storageInfos,
                 onView = {
                     QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        storageId = it.storageIds.first()
+                        viewerOptions = StorageViewerOptions(
+                            storageId = it.storageIds.first(),
+                        )
                     ).navVia(this)
                 },
                 onEdit = {
@@ -98,7 +102,10 @@ class QuickModeFragmentVDC @Inject constructor(
                 onRestore = {
                     // TODO make this more specific
                     QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        storageId = it.storageIds.first()
+                        viewerOptions = StorageViewerOptions(
+                            storageId = it.storageIds.first(),
+                            backupTypeFilter = setOf(Backup.Type.APP)
+                        )
                     ).navVia(this)
                 }
             )
@@ -126,7 +133,9 @@ class QuickModeFragmentVDC @Inject constructor(
                 storageInfos = storageInfos,
                 onView = {
                     QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        storageId = it.storageIds.first()
+                        viewerOptions = StorageViewerOptions(
+                            storageId = it.storageIds.first(),
+                        )
                     ).navVia(this)
                 },
                 onEdit = {
@@ -142,7 +151,10 @@ class QuickModeFragmentVDC @Inject constructor(
                 onRestore = {
                     // TODO make this more specific
                     QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        storageId = it.storageIds.first()
+                        viewerOptions = StorageViewerOptions(
+                            storageId = it.storageIds.first(),
+                            backupTypeFilter = setOf(Backup.Type.FILES)
+                        )
                     ).navVia(this)
                 }
             )

@@ -14,6 +14,7 @@ import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageBuilder
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.list.actions.StorageAction.*
+import eu.darken.bb.storage.ui.viewer.StorageViewerOptions
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -81,8 +82,9 @@ class StorageActionDialogVDC @Inject constructor(
         try {
             when (action) {
                 VIEW -> {
-                    StorageActionDialogDirections.actionStorageActionDialogToStorageViewer(storageId)
-                        .navVia(this@StorageActionDialogVDC)
+                    StorageActionDialogDirections.actionStorageActionDialogToStorageViewer(
+                        viewerOptions = StorageViewerOptions(storageId = storageId)
+                    ).navVia(this@StorageActionDialogVDC)
                     closeDialogEvent.postValue(Any())
                 }
                 EDIT -> {

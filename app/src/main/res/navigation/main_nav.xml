@@ -92,8 +92,8 @@
             android:id="@+id/action_storageActionDialog_to_storage_viewer"
             app:destination="@id/storage_viewer">
             <argument
-                android:name="storageId"
-                app:argType="eu.darken.bb.storage.core.Storage$Id" />
+                android:name="viewerOptions"
+                app:argType="eu.darken.bb.storage.ui.viewer.StorageViewerOptions" />
         </action>
     </dialog>
     <dialog
@@ -161,8 +161,8 @@
             android:id="@+id/action_quickModeFragment_to_storage_viewer"
             app:destination="@id/storage_viewer">
             <argument
-                android:name="storageId"
-                app:argType="eu.darken.bb.storage.core.Storage$Id" />
+                android:name="viewerOptions"
+                app:argType="eu.darken.bb.storage.ui.viewer.StorageViewerOptions" />
         </action>
     </fragment>
     <fragment

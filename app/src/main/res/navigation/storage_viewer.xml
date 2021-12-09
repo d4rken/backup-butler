@@ -11,8 +11,8 @@
         android:label="@string/storage_tab_label"
         tools:layout="@layout/storage_viewer_viewer_fragment">
         <argument
-            android:name="storageId"
-            app:argType="eu.darken.bb.storage.core.Storage$Id" />
+            android:name="viewerOptions"
+            app:argType="eu.darken.bb.storage.ui.viewer.StorageViewerOptions" />
         <action
             android:id="@+id/action_storageItemFragment_to_storageItemActionDialog"
             app:destination="@id/storageItemActionDialog"

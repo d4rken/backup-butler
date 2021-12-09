@@ -13,6 +13,7 @@ import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
+import eu.darken.bb.storage.ui.viewer.StorageViewerOptions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -28,9 +29,9 @@ class StorageViewerFragmentVDC @Inject constructor(
 ) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<StorageViewerFragmentArgs>()
-    private val storageId: Storage.Id = navArgs.storageId
+    private val viewerOptions: StorageViewerOptions = navArgs.viewerOptions
 
-    private val storageFlow = flow { emit(storageManager.getStorage(storageId)) }
+    private val storageFlow = flow { emit(storageManager.getStorage(viewerOptions.storageId)) }
 
     private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
     val state = stater.asLiveData2()
@@ -68,6 +69,11 @@ class StorageViewerFragmentVDC @Inject constructor(
         // TODO use storage extension?
         storageFlow
             .flatMapConcat { it.specInfos() }
+            .map { specInfos ->
+                specInfos.filter {
+                    viewerOptions.backupTypeFilter?.contains(it.backupSpec.backupType) ?: true
+                }
+            }
             .onEach { storageContents ->
                 stater.updateBlocking {
                     copy(
