@@ -5,7 +5,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.main.ui.MainFragmentDirections
@@ -14,7 +14,8 @@ import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
 import eu.darken.bb.task.core.results.TaskResultRepo
 import eu.darken.bb.task.ui.editor.TaskEditorArgs
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
@@ -33,42 +34,29 @@ class TaskListFragmentVDC @Inject constructor(
         .map { it.values }
         .map { it.toList() }
         .map { tasks -> tasks.filter { !it.isOneTimeUse } }
+        .replayingShare(vdcScope)
 
-    private val stater = DynamicStateFlow(TAG, vdcScope) { ViewState() }
-    val state = stater.asLiveData2()
+
+    val state = combine(
+        tasksFlow,
+        tasksFlow.flatMapLatest { tasks -> resultRepo.getLatestTaskResultGlimse(tasks.map { it.taskId }) }
+    ) { tasks, results ->
+        ViewState(
+            tasks = tasks.map { task ->
+                TaskListAdapter.Item(
+                    task = task,
+                    lastResult = results.find { task.taskId == it.taskId },
+                    onClickAction = { editTask(it) }
+                )
+            }
+        )
+    }.asLiveData2()
 
     val processorEvent = SingleLiveEvent<Boolean>()
 
     init {
         processorControl.progressHost
             .onEach { processorEvent.postValue(it != null) }
-            .launchInViewModel()
-
-        tasksFlow
-            .onEach { tasks ->
-                stater.updateBlocking {
-                    copy(tasks = tasks.map { task ->
-                        TaskListAdapter.Item(
-                            task = task,
-                            onClickAction = { editTask(it) }
-                        )
-                    })
-                }
-            }
-            .launchInViewModel()
-        tasksFlow
-            .flatMapConcat { tasks ->
-                val ids = tasks.map { it.taskId }
-                resultRepo.getLatestTaskResultGlimse(ids)
-            }
-            .onEach { results ->
-                stater.updateBlocking {
-                    val merged = this.tasks.map { s ->
-                        s.copy(lastResult = results.find { s.task.taskId == it.taskId })
-                    }
-                    copy(tasks = merged)
-                }
-            }
             .launchInViewModel()
     }
 
