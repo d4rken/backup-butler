@@ -78,11 +78,11 @@ class SharedHolder2Test2 : BaseTest() {
 
     @Test
     fun `test child resource cascading close`() = runBlockingTest2(allowUncompleted = true) {
-        val sr1 = SharedResource("tag", this, callbackFlow {
+        val sr1 = SharedResource("sr1", this, callbackFlow {
             send(Any())
             awaitClose()
         })
-        val sr2 = SharedResource("tag", this, callbackFlow {
+        val sr2 = SharedResource("sr2", this, callbackFlow {
             send(Any())
             awaitClose()
         })
@@ -91,9 +91,14 @@ class SharedHolder2Test2 : BaseTest() {
         val token2 = sr2.get()
         sr1.addChild(token2)
 
+        advanceUntilIdle()
+
         sr1.isAlive shouldBe true
         sr2.isAlive shouldBe true
+
         token1.close()
+        advanceUntilIdle()
+
         sr1.isAlive shouldBe false
         sr2.isAlive shouldBe false
     }

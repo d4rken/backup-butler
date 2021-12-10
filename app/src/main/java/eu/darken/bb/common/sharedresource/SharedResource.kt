@@ -69,10 +69,12 @@ open class SharedResource<T : Any> constructor(
                 // Cancel all borrowed resources
                 childScope.coroutineContext.cancelChildren()
 
-                activeLeases.forEach {
-                    log(tag, WARN) { "Shared resource released with despite active lease: $it" }
-                    if (BBDebug.isDebug()) throw IllegalStateException("Shared resource released with despite active leases: $activeLeases")
-                }
+                activeLeases
+                    .filterNot { it.isClosed }
+                    .forEach {
+                        log(tag, WARN) { "Shared resource released with despite active lease: $it" }
+                        if (BBDebug.isDebug()) throw IllegalStateException("Shared resource released with despite active leases: $activeLeases")
+                    }
                 activeLeases.clear()
 
                 children.forEach {
@@ -125,11 +127,11 @@ open class SharedResource<T : Any> constructor(
 
         lock.withLock {
             if (activeLease.isClosed) {
-                log(tag, ERROR) { "We got a resource, but the lease is already closed???" }
+                log(tag, ERROR) { "get(): We got a resource, but the lease is already closed???" }
             } else {
-                log(tag, VERBOSE) { "Adding new lease: $activeLease" }
+                log(tag, VERBOSE) { "get(): Adding new lease: $activeLease" }
                 activeLeases.add(activeLease)
-                log(tag, VERBOSE) { "Now holding ${activeLeases.size} lease(s)" }
+                log(tag, VERBOSE) { "get(): Now holding ${activeLeases.size} lease(s)" }
             }
         }
 
@@ -162,7 +164,7 @@ open class SharedResource<T : Any> constructor(
      */
     suspend fun addChild(resource: Resource<*>) = lock.withLock {
         if (!isAlive) {
-            log(tag, WARN) { "Adding child resource to an already closed holder: $resource" }
+            log(tag, WARN) { "addChild(): Can't add holder is already closed: $resource" }
             resource.close()
             return@withLock
         }
@@ -170,9 +172,9 @@ open class SharedResource<T : Any> constructor(
         val wrapped = ChildResource(resource)
 
         if (!children.add(wrapped)) {
-            log(tag, WARN) { "Child resource has already been added: $resource" }
+            log(tag, WARN) { "addChild(): Child resource has already been added: $resource" }
         } else {
-            log(tag, VERBOSE) { "Resource now has ${children.size} children" }
+            log(tag, VERBOSE) { "addChild(): Resource now has ${children.size} children: $resource" }
         }
     }
 
