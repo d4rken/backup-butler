@@ -58,22 +58,24 @@ class AppsQuickMode @Inject constructor(
 
     suspend fun launchBackup(selection: Set<PickedPkg>) {
         val editorData = generatorBuilder.getEditor(type = Backup.Type.APP)
-        editorData.editor as AppSpecGeneratorEditor
-
-        editorData.editor.update { data ->
-            data.copy(
-                packagesIncluded = selection.map { it.pkg }.toSet()
-            )
+        (editorData.editor as AppSpecGeneratorEditor).apply {
+            update { data ->
+                data.copy(
+                    packagesIncluded = selection.map { it.pkg }.toSet(),
+                    isSingleUse = true
+                )
+            }
         }
+
         val generatorId = generatorBuilder.save(editorData.generatorId).generatorId
 
         val taskBuilderData = taskBuilder.getEditor(type = Task.Type.BACKUP_SIMPLE)
-        taskBuilderData.editor as SimpleBackupTaskEditor
+        (taskBuilderData.editor as SimpleBackupTaskEditor).apply {
+            setSingleUse(true)
+            addGenerator(generatorId)
+        }
 
         val quickModeConfig = state.flow.first()
-
-        taskBuilderData.editor.updateOneTime(true)
-        taskBuilderData.editor.addGenerator(generatorId)
 
         quickModeConfig.storageIds.forEach { taskBuilderData.editor.addStorage(it) }
 

@@ -13,7 +13,7 @@ class SimpleRestoreTaskTest {
         val original = SimpleRestoreTask(
             taskId = Task.Id(),
             label = "BackupTaskName",
-            isOneTimeUse = false,
+            isSingleUse = false,
             customConfigs = emptyMap(),
             defaultConfigs = emptyMap(),
             backupTargets = emptySet()
@@ -22,7 +22,7 @@ class SimpleRestoreTaskTest {
         val expectedOutput = """{
             "taskId": "${original.taskId.idString}",
             "label": "BackupTaskName",
-            "isOneTimeUse": false,
+            "isSingleUse": false,
             "defaultConfigs": {},
             "customConfigs": {},
             "backupTargets": [],

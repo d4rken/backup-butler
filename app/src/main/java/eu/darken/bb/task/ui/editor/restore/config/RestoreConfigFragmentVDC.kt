@@ -131,7 +131,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private fun save(execute: Boolean) = launch {
         configStater.update { it.copy(isWorking = true) }
         val editor = editorFlow.first()
-        editor.updateOneTime(execute)
+        editor.setSingleUse(execute)
 
         val savedTask = taskBuilder.save(taskId)
 

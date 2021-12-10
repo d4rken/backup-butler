@@ -44,7 +44,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
             label = data.label,
             sources = data.sources,
             destinations = data.destinations,
-            isOneTimeUse = data.isOneTimeUse
+            isSingleUse = data.isSingleUse
         )
     }
 
@@ -94,9 +94,9 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
     }
 
-    suspend fun updateOneTime(isOneTimeUse: Boolean) {
+    suspend fun setSingleUse(isSingleUse: Boolean) {
         editorDataPub.updateBlocking {
-            copy(isOneTimeUse = isOneTimeUse)
+            copy(isSingleUse = isSingleUse)
         }
     }
 
@@ -104,7 +104,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         override val taskId: Task.Id,
         override val label: String = "",
         override val isExistingTask: Boolean = false,
-        override val isOneTimeUse: Boolean = false,
+        override val isSingleUse: Boolean = false,
         val sources: Set<Generator.Id> = emptySet(),
         val destinations: Set<Storage.Id> = emptySet()
     ) : TaskEditor.Data

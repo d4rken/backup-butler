@@ -41,6 +41,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         update
     )
 
+    // TODO remove single use generators
     override suspend fun doProcess(task: Task) {
         progressParent.updateProgressPrimary(task.taskType.labelRes)
         progressParent.updateProgressSecondary(task.label)

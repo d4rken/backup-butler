@@ -33,7 +33,7 @@ class TaskListFragmentVDC @Inject constructor(
     private val tasksFlow = taskRepo.tasks
         .map { it.values }
         .map { it.toList() }
-        .map { tasks -> tasks.filter { !it.isOneTimeUse } }
+        .map { tasks -> tasks.filter { !it.isSingleUse } }
         .replayingShare(vdcScope)
 
 

@@ -22,7 +22,7 @@ interface Task {
     val taskId: Id
     val taskType: Type
     val label: String
-    val isOneTimeUse: Boolean
+    val isSingleUse: Boolean
 
     @Keep
     interface Backup : Task {

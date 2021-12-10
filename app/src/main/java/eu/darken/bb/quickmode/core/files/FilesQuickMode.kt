@@ -62,22 +62,22 @@ class FilesQuickMode @Inject constructor(
         // TODO multiple paths per generator?
         val generatorIds = selection.map { selPath ->
             val editorData = generatorBuilder.getEditor(type = Backup.Type.FILES)
-            editorData.editor as FilesSpecGeneratorEditor
-
-            editorData.editor.updatePath(selPath)
+            (editorData.editor as FilesSpecGeneratorEditor).apply {
+                setSingleUse(true)
+                updatePath(selPath)
+            }
             generatorBuilder.save(editorData.generatorId).generatorId
         }
-
-        val taskBuilderData = taskBuilder.getEditor(type = Task.Type.BACKUP_SIMPLE)
-        taskBuilderData.editor as SimpleBackupTaskEditor
-
         val quickModeConfig = state.flow.first()
 
-        // TODO implement this within the processor
-        // TODO hide one time task from the tasks list
-        taskBuilderData.editor.updateOneTime(true)
-        generatorIds.forEach { taskBuilderData.editor.addGenerator(it) }
-        quickModeConfig.storageIds.forEach { taskBuilderData.editor.addStorage(it) }
+        val taskBuilderData = taskBuilder.getEditor(type = Task.Type.BACKUP_SIMPLE)
+        (taskBuilderData.editor as SimpleBackupTaskEditor).apply {
+            // TODO implement this within the processor
+            // TODO hide one time task from the tasks list
+            generatorIds.forEach { addGenerator(it) }
+            setSingleUse(true)
+            quickModeConfig.storageIds.forEach { addStorage(it) }
+        }
 
         val task = taskBuilder.save(taskBuilderData.taskId)
         processorControl.submit(task.taskId)

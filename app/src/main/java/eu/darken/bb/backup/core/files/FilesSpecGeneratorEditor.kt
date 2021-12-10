@@ -45,7 +45,8 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
             copy(
                 label = config.label,
                 isExistingGenerator = true,
-                path = config.path
+                path = config.path,
+                isSingleUse = isSingleUse
             )
         }
         log(TAG) { "load() successful: $config" }
@@ -85,6 +86,10 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         }
     }
 
+    suspend fun setSingleUse(isSingleUse: Boolean) = editorDataPub.updateBlocking {
+        copy(isSingleUse = isSingleUse)
+    }
+
     suspend fun updatePath(path: APath) {
         val canRead = pathTool.canRead(path)
         require(canRead) { "Can't read $path" }
@@ -101,7 +106,7 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         override val generatorId: Generator.Id,
         override val label: String = "",
         override val isExistingGenerator: Boolean = false,
-        override val isOneTimeUse: Boolean = false,
+        override val isSingleUse: Boolean = false,
         val path: APath? = null
     ) : GeneratorEditor.Data
 

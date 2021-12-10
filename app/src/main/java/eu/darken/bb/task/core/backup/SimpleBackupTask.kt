@@ -15,7 +15,7 @@ data class SimpleBackupTask(
     override val label: String = "",
     override val sources: Set<Generator.Id> = emptySet(),
     override val destinations: Set<Storage.Id> = emptySet(),
-    override val isOneTimeUse: Boolean = false
+    override val isSingleUse: Boolean = false
 ) : Task.Backup {
 
     override var taskType: Task.Type

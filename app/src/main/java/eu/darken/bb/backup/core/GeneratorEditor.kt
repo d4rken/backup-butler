@@ -22,6 +22,6 @@ interface GeneratorEditor {
         val generatorId: Generator.Id
         val label: String
         val isExistingGenerator: Boolean
-        val isOneTimeUse: Boolean
+        val isSingleUse: Boolean
     }
 }

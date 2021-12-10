@@ -41,6 +41,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         update
     )
 
+    // TODO remove single use generators
     override suspend fun doProcess(task: Task) {
         updateProgressPrimary(task.taskType.labelRes)
         updateProgressSecondary(task.label)

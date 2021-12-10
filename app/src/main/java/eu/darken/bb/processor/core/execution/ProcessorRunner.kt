@@ -54,6 +54,7 @@ class ProcessorRunner @Inject constructor(
         processorControl.updateProgressHost(null)
     }
 
+    // TODO remove one time use tasks and generators
     private suspend fun runTask(task: Task): TaskResult {
         updateProgressPrimary(R.string.progress_loading_task_label)
 
@@ -63,7 +64,7 @@ class ProcessorRunner @Inject constructor(
         val taskResult = processor.process(task)
         resultRepo.submitResult(taskResult)
 
-        if (task.isOneTimeUse) {
+        if (task.isSingleUse) {
             log(TAG, INFO) { "Removing one-time-task: $task" }
             taskRepo.remove(task.taskId)
         }

@@ -21,7 +21,7 @@ interface TaskEditor {
         val taskId: Task.Id
         val label: String
         val isExistingTask: Boolean
-        val isOneTimeUse: Boolean
+        val isSingleUse: Boolean
     }
 
 }

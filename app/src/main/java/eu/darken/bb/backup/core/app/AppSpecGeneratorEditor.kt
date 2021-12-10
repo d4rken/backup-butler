@@ -80,7 +80,7 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
         override val generatorId: Generator.Id,
         override val label: String = "",
         override val isExistingGenerator: Boolean = false,
-        override val isOneTimeUse: Boolean = false,
+        override val isSingleUse: Boolean = false,
         val autoInclude: Boolean = true,
         val includeUserApps: Boolean = true,
         val includeSystemApps: Boolean = false,
