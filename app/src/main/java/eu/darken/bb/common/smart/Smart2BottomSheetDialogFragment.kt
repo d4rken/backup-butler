@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
@@ -83,5 +84,12 @@ abstract class Smart2BottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         log(tag, VERBOSE) { "onActivityResult(requestCode=$requestCode, resultCode=$resultCode, data=$data)" }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    inline fun <T, reified VB : ViewBinding?> LiveData<T>.observe2(
+        ui: VB,
+        crossinline callback: VB.(T) -> Unit
+    ) {
+        observe(viewLifecycleOwner) { callback.invoke(ui, it) }
     }
 }

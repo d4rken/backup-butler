@@ -31,7 +31,7 @@ class GeneratorPickerFragment : Smart2Fragment(R.layout.generator_picker_fragmen
             fab.setOnClickListener { vdc.createGenerator() }
         }
 
-        vdc.generatorData.observe2(this, ui) { state ->
+        vdc.generatorData.observe2(ui) { state ->
             adapter.update(state.items)
 
             if (state.allExistingAdded) {

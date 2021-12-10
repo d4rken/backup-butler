@@ -42,7 +42,7 @@ class QuickModeFragment : Smart2Fragment(R.layout.quickmode_main_fragment), PkgP
             toolbar.subtitle = getString(R.string.quick_mode_subtitle)
         }
 
-        vdc.debugState.observe2(this, ui) { state ->
+        vdc.debugState.observe2(ui) { state ->
             toolbar.menu.apply {
                 findItem(R.id.action_record_debuglog).apply {
                     isVisible = state.showDebugStuff

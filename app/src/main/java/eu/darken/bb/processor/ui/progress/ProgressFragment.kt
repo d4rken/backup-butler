@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
@@ -20,7 +19,7 @@ class ProgressFragment : Smart2Fragment(R.layout.processor_progress_fragment) {
     override val ui: ProcessorProgressFragmentBinding by viewBinding()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             taskLabel.text = when {
                 state.taskProgress.primary.get(requireContext()).isNotEmpty() -> state.taskProgress.primary.get(
                     requireContext()

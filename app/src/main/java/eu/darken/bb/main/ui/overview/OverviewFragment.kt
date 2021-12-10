@@ -6,21 +6,20 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.OverviewFragmentBinding
 import eu.darken.bb.user.core.UpgradeData
 
 @AndroidEntryPoint
-class OverviewFragment : SmartFragment(R.layout.overview_fragment) {
+class OverviewFragment : Smart2Fragment(R.layout.overview_fragment) {
 
-    private val vdc: OverviewFragmentVDC by viewModels()
-    private val ui: OverviewFragmentBinding by viewBinding()
+    override val vdc: OverviewFragmentVDC by viewModels()
+    override val ui: OverviewFragmentBinding by viewBinding()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.appState.observe2(this, ui) {
+        vdc.appState.observe2(ui) {
             @SuppressLint("SetTextI18n")
             cardAppinfosVersion.text =
                 "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
@@ -30,7 +29,7 @@ class OverviewFragment : SmartFragment(R.layout.overview_fragment) {
             }
         }
 
-        vdc.updateState.observe2(this, ui) { updateState ->
+        vdc.updateState.observe2(ui) { updateState ->
             cardUpdate.setGone(!updateState.available)
         }
         ui.cardUpdateActionChangelog.setOnClickListener { vdc.onChangelog() }

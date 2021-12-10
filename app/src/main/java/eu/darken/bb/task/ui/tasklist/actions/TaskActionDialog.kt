@@ -9,7 +9,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2BottomSheetDialogFragment
 import eu.darken.bb.databinding.TaskListActionDialogBinding
 import eu.darken.bb.task.core.TaskRepo
@@ -30,7 +29,7 @@ class TaskActionDialog : Smart2BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(actionsAdapter)
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             taskTypeLabel.setText(state.taskType?.labelRes ?: R.string.general_unknown_label)
             taskName.text = state.taskName
 

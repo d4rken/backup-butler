@@ -13,7 +13,7 @@ import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     private val builder: GeneratorBuilder,
     private val previewFilter: PreviewFilter,
     private val dispatcherProvider: DispatcherProvider,
-) : SmartVDC(dispatcherProvider) {
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
     private val generatorId = navArgs.value.generatorId

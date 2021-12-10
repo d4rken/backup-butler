@@ -9,7 +9,6 @@ import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.flow.launchInView
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.setTextIfDifferent
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.userTextChangeEvents
@@ -36,7 +35,7 @@ class IntroFragment : Smart2Fragment(R.layout.task_editor_intro_fragment) {
             setupbar.buttonPositiveSecondary.setOnClickListener { vdc.onContinue() }
         }
 
-        vdc.state.observe2(this, ui) {
+        vdc.state.observe2(ui) {
             nameInput.setTextIfDifferent(it.label)
         }
 

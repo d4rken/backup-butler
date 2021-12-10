@@ -52,7 +52,7 @@ class SAFEditorFragment : Smart2Fragment(R.layout.storage_editor_saf_fragment), 
             }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             nameInput.setTextIfDifferent(state.label)
 
             pathDisplay.text = state.path

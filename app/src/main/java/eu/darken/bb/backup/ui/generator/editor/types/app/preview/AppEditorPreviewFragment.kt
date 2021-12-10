@@ -12,19 +12,18 @@ import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.popBackStack
-import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorEditorAppPreviewFragmentBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_preview_fragment) {
+class AppEditorPreviewFragment : Smart2Fragment(R.layout.generator_editor_app_preview_fragment) {
 
     val args by navArgs<AppEditorPreviewFragmentArgs>()
 
-    private val vdc: AppEditorPreviewFragmentVDC by viewModels()
-    private val ui: GeneratorEditorAppPreviewFragmentBinding by viewBinding()
+    override val vdc: AppEditorPreviewFragmentVDC by viewModels()
+    override val ui: GeneratorEditorAppPreviewFragmentBinding by viewBinding()
     @Inject lateinit var adapter: PkgsPreviewAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,7 +34,7 @@ class AppEditorPreviewFragment : SmartFragment(R.layout.generator_editor_app_pre
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.onSelect(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             adapter.update(state.pkgs)
             ui.pkgPreviewListWrapper.updateLoadingState(state.isLoading)
 

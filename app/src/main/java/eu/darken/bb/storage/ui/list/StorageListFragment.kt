@@ -33,7 +33,7 @@ class StorageListFragment : Smart2Fragment(R.layout.storage_list_fragment) {
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.editStorage(adapter.data[i]) })
 
-        vdc.storageData.observe2(this, ui) { state ->
+        vdc.storageData.observe2(ui) { state ->
             log { "Updating UI state with $state" }
             adapter.update(state.storages)
             fab.isInvisible = state.isLoading

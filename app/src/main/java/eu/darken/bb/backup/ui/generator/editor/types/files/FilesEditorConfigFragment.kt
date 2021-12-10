@@ -9,13 +9,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorFragmentChild
 import eu.darken.bb.backup.ui.generator.editor.setGeneratorEditorResult
-import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
 import eu.darken.bb.common.setTextIfDifferentAndNotFocused
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.userTextChangeEvents
 import eu.darken.bb.common.viewBinding
@@ -23,13 +22,13 @@ import eu.darken.bb.databinding.GeneratorEditorFileFragmentBinding
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
-class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_fragment),
+class FilesEditorConfigFragment : Smart2Fragment(R.layout.generator_editor_file_fragment),
     GeneratorEditorFragmentChild {
 
     val navArgs by navArgs<FilesEditorConfigFragmentArgs>()
 
-    private val vdc: FilesEditorConfigFragmentVDC by viewModels()
-    private val ui: GeneratorEditorFileFragmentBinding by viewBinding()
+    override val vdc: FilesEditorConfigFragmentVDC by viewModels()
+    override val ui: GeneratorEditorFileFragmentBinding by viewBinding()
 
     init {
         setHasOptionsMenu(true)
@@ -55,7 +54,7 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
             pathSelectAction.setOnClickListener { vdc.showPicker() }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             nameInput.setTextIfDifferentAndNotFocused(state.label)
             pathDisplay.text = state.path?.userReadablePath(requireContext())
 
@@ -82,8 +81,6 @@ class FilesEditorConfigFragment : SmartFragment(R.layout.generator_editor_file_f
             setGeneratorEditorResult(it)
             popBackStack()
         }
-
-        vdc.errorEvent.observe2(this) { it.asErrorDialogBuilder(requireContext()).show() }
 
         super.onViewCreated(view, savedInstanceState)
     }

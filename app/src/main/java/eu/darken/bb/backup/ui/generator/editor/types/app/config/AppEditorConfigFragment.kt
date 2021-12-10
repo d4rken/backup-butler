@@ -14,7 +14,7 @@ import eu.darken.bb.common.*
 import eu.darken.bb.common.flow.launchInView
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.databinding.GeneratorEditorAppConfigFragmentBinding
@@ -22,13 +22,13 @@ import kotlinx.coroutines.flow.onEach
 import reactivecircus.flowbinding.android.widget.editorActionEvents
 
 @AndroidEntryPoint
-class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_config_fragment),
+class AppEditorConfigFragment : Smart2Fragment(R.layout.generator_editor_app_config_fragment),
     GeneratorEditorFragmentChild {
 
     val navArgs by navArgs<AppEditorConfigFragmentArgs>()
 
-    private val vdc: AppEditorConfigFragmentVDC by viewModels()
-    private val ui: GeneratorEditorAppConfigFragmentBinding by viewBinding()
+    override val vdc: AppEditorConfigFragmentVDC by viewModels()
+    override val ui: GeneratorEditorAppConfigFragmentBinding by viewBinding()
     private var allowCreate: Boolean = false
     private var existing: Boolean = false
 
@@ -71,7 +71,7 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
 
         ui.appPreviewAction.setOnClickListener { navigatePreview(PreviewMode.PREVIEW) }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             nameInput.setTextIfDifferentAndNotFocused(state.label)
 
             coreSettingsAutoinclude.isChecked = state.autoInclude
@@ -103,7 +103,7 @@ class AppEditorConfigFragment : SmartFragment(R.layout.generator_editor_app_conf
             }
         }
 
-        vdc.matchedPkgsCount.observe2(this, ui) {
+        vdc.matchedPkgsCount.observe2(ui) {
             appPreviewInfo.text = resources.getString(
                 R.string.app_preview_currently_matching_x_description,
                 resources.getCountString(R.plurals.x_items, it)

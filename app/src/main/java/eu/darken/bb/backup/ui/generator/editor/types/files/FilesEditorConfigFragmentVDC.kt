@@ -11,16 +11,13 @@ import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.WorkId
 import eu.darken.bb.common.clearWorkId
 import eu.darken.bb.common.coroutine.DispatcherProvider
-import eu.darken.bb.common.debug.logging.asLog
-import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.smart.SmartVDC
-import kotlinx.coroutines.CoroutineExceptionHandler
+import eu.darken.bb.common.smart.Smart2VDC
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -30,7 +27,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val builder: GeneratorBuilder,
     private val dispatcherProvider: DispatcherProvider,
-) : SmartVDC(dispatcherProvider) {
+) : Smart2VDC(dispatcherProvider) {
 
     private val generatorId: Generator.Id = handle.navArgs<FilesEditorConfigFragmentArgs>().value.generatorId
     private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
@@ -45,15 +42,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     private suspend fun getEditor() = editorFlow.first()
 
     val pickerEvent = SingleLiveEvent<PathPickerOptions>()
-    val errorEvent = SingleLiveEvent<Throwable>()
     val finishEvent = SingleLiveEvent<GeneratorEditorResult>()
-
-    init {
-        launchErrorHandler = CoroutineExceptionHandler { _, ex ->
-            log(TAG) { "Error during launch: ${ex.asLog()}" }
-            errorEvent.postValue(ex)
-        }
-    }
 
     init {
         editorDataFlow
@@ -88,7 +77,7 @@ class FilesEditorConfigFragmentVDC @Inject constructor(
     fun updatePath(result: PathPickerResult) = launch {
         Timber.tag(TAG).d("updatePath(result=%s)", result)
         if (result.isFailed) {
-            errorEvent.postValue(result.error!!)
+            errorEvents.postValue(result.error!!)
             return@launch
         }
         getEditor().updatePath(result.selection!!.first())

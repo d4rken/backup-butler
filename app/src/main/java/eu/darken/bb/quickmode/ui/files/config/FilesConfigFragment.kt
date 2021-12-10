@@ -9,7 +9,6 @@ import eu.darken.bb.common.lists.modular.mods.TypedVHCreatorMod
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
 import eu.darken.bb.common.navigation.popBackStack
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.QuickmodeFilesConfigFragmentBinding
@@ -53,7 +52,7 @@ class FilesConfigFragment : Smart2Fragment(R.layout.quickmode_files_config_fragm
             }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             toolbar.menu.apply {
                 findItem(R.id.action_reset).isVisible = state.isExisting
             }

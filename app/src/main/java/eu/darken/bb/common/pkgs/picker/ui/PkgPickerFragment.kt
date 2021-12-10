@@ -13,21 +13,20 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.PkgPickerFragmentBinding
 import eu.darken.bb.storage.ui.editor.StorageEditorResultListener
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PkgPickerFragment : SmartFragment(R.layout.pkg_picker_fragment),
+class PkgPickerFragment : Smart2Fragment(R.layout.pkg_picker_fragment),
     StorageEditorResultListener {
 
-    private val vdc: PkgPickerFragmentVDC by viewModels()
-    private val ui: PkgPickerFragmentBinding by viewBinding()
+    override val vdc: PkgPickerFragmentVDC by viewModels()
+    override val ui: PkgPickerFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: PkgPickerAdapter
 
@@ -57,7 +56,7 @@ class PkgPickerFragment : SmartFragment(R.layout.pkg_picker_fragment),
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectPkg(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             adapter.update(state.items)
             toolbar.apply {
                 subtitle = resources.getCountString(R.plurals.x_selected, state.selected.size)
@@ -68,8 +67,6 @@ class PkgPickerFragment : SmartFragment(R.layout.pkg_picker_fragment),
             }
             fab.isInvisible = state.selected.isEmpty()
         }
-
-        vdc.navEvents.observe2(this) { doNavigate(it) }
 
         vdc.finishEvent.observe2(this) {
             setPkgPickerResult(it)

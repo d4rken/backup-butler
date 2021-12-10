@@ -64,7 +64,7 @@ class LocalEditorFragment : Smart2Fragment(R.layout.storage_editor_local_fragmen
             }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             ui.nameInput.setTextIfDifferent(state.label)
 
             ui.pathDisplay.text = state.path

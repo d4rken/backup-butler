@@ -9,7 +9,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.lists.update
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.viewBinding
@@ -33,7 +32,7 @@ class ContentPageFragment : Smart2Fragment(R.layout.storage_viewer_content_page_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.recyclerview.setupDefaults(adapter)
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             if (state.metaData != null) {
                 creationDateValue.text = dateFormatter.format(state.metaData.createdAt)
             }

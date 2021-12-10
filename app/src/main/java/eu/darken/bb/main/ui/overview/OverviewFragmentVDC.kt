@@ -1,14 +1,13 @@
 package eu.darken.bb.main.ui.overview
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.BackupButler
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.user.core.UpgradeControl
 import eu.darken.bb.user.core.UpgradeData
 import io.reactivex.rxjava3.core.Single
@@ -20,8 +19,8 @@ class OverviewFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val butler: BackupButler,
     private val upgradeControl: UpgradeControl,
-    @ApplicationContext private val context: Context
-) : SmartVDC() {
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     val appState: LiveData<AppState> = Observables
         .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)

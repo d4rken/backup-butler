@@ -9,7 +9,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.MainFragmentBinding
@@ -23,7 +22,7 @@ class MainFragment : Smart2Fragment(R.layout.main_fragment) {
     lateinit var adapter: MainPagerAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             adapter = MainPagerAdapter(childFragmentManager, lifecycle, state.pages)
 
             viewpager.adapter = adapter

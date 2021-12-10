@@ -12,8 +12,7 @@ import eu.darken.bb.common.files.ui.picker.PathPickerActivityContract
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
 import eu.darken.bb.common.observe2
-import eu.darken.bb.common.smart.SmartFragment
-import eu.darken.bb.common.toastError
+import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.ui.setInvisible
 import eu.darken.bb.common.ui.setTextQuantity
@@ -25,12 +24,16 @@ import eu.darken.bb.task.ui.editor.restore.config.files.FilesConfigUIWrap
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs_fragment) {
+class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_configs_fragment) {
 
-    private val vdc: RestoreConfigFragmentVDC by viewModels()
-    private val ui: TaskEditorRestoreConfigsFragmentBinding by viewBinding()
+    override val vdc: RestoreConfigFragmentVDC by viewModels()
+    override val ui: TaskEditorRestoreConfigsFragmentBinding by viewBinding()
 
     @Inject lateinit var adapter: RestoreConfigAdapter
+
+    init {
+        onFinishEvent = { findNavController().popBackStack(R.id.mainFragment, false) }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
@@ -44,7 +47,7 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
             }
         }
 
-        vdc.summaryState.observe2(this, ui) { state ->
+        vdc.summaryState.observe2(ui) { state ->
             countBackups.setTextQuantity(R.plurals.task_editor_restore_x_backups_types_desc, state.backupTypes.size)
 
             countCustomConfigs.setTextQuantity(
@@ -65,7 +68,7 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
             loadingOverlayCounts.setInvisible(!state.isLoading)
         }
 
-        vdc.configState.observe2(this, ui) { state ->
+        vdc.configState.observe2(ui) { state ->
             val defaultItems = state.defaultConfigs
                 .map {
                     when (it) {
@@ -108,12 +111,6 @@ class RestoreConfigFragment : SmartFragment(R.layout.task_editor_restore_configs
             else Toast.makeText(requireContext(), R.string.general_error_empty_result_msg, Toast.LENGTH_SHORT).show()
         }
         vdc.openPickerEvent.observe2(this) { pickerLauncher.launch(it) }
-
-        vdc.errorEvent.observe2(this) { toastError(it) }
-
-        vdc.finishEvent.observe2(this) {
-            findNavController().popBackStack(R.id.mainFragment, false)
-        }
 
         super.onViewCreated(view, savedInstanceState)
     }

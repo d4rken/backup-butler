@@ -62,7 +62,7 @@ class StorageViewerFragment : Smart2Fragment(R.layout.storage_viewer_viewer_frag
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.viewContent(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             toolbar.apply {
                 if (state.storageType != null) {
                     title = getString(state.storageType.labelRes)
@@ -78,7 +78,7 @@ class StorageViewerFragment : Smart2Fragment(R.layout.storage_viewer_viewer_frag
             invalidateOptionsMenu()
         }
 
-        vdc.deletionState.observe2(this, ui) { deletionState ->
+        vdc.deletionState.observe2(ui) { deletionState ->
             if (deletionState.backupSpec != null) {
                 storageListWrapper.setLoadingText(
                     getString(

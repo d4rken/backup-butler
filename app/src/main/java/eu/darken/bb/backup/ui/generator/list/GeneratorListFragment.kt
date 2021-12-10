@@ -11,7 +11,6 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.GeneratorListFragmentBinding
@@ -34,7 +33,7 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.generatorList.setupDefaults(adapter)
 
-        vdc.viewState.observe2(this, ui) {
+        vdc.viewState.observe2(ui) {
             log { "Updating UI state with $it" }
             adapter.update(it.generators)
             fab.isInvisible = false

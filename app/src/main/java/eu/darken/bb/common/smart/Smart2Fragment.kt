@@ -3,12 +3,12 @@ package eu.darken.bb.common.smart
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.lifecycle.LiveData
 import androidx.viewbinding.ViewBinding
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.error.asErrorDialogBuilder
 import eu.darken.bb.common.navigation.doNavigate
 import eu.darken.bb.common.navigation.popBackStack
-import eu.darken.bb.common.observe2
 
 
 abstract class Smart2Fragment(@LayoutRes layoutRes: Int?) : SmartFragment(layoutRes) {
@@ -25,15 +25,23 @@ abstract class Smart2Fragment(@LayoutRes layoutRes: Int?) : SmartFragment(layout
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        vdc.navEvents.observe2(this, ui) {
+        vdc.navEvents.observe2(ui) {
             log { "navEvents: $it" }
 
             it?.run { doNavigate(this) } ?: onFinishEvent?.invoke() ?: popBackStack()
         }
 
-        vdc.errorEvents.observe2(this, ui) {
+        vdc.errorEvents.observe2(ui) {
             val showDialog = onErrorEvent?.invoke(it) ?: true
             if (showDialog) it.asErrorDialogBuilder(requireContext()).show()
         }
     }
+
+    inline fun <T, reified VB : ViewBinding?> LiveData<T>.observe2(
+        ui: VB,
+        crossinline callback: VB.(T) -> Unit
+    ) {
+        observe(viewLifecycleOwner) { callback.invoke(ui, it) }
+    }
+
 }

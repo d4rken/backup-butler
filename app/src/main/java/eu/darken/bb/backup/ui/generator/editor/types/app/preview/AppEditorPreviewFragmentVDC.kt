@@ -6,20 +6,22 @@ import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class AppEditorPreviewFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
+    private val dispatcherProvider: DispatcherProvider,
     private val builder: GeneratorBuilder,
     private val pkgOps: PkgOps,
     private val previewFilter: PreviewFilter,
-) : SmartVDC() {
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs = handle.navArgs<AppEditorPreviewFragmentArgs>().value
     private val generatorId: Generator.Id = navArgs.generatorId
     private val previewMode: PreviewMode = navArgs.previewMode

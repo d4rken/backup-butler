@@ -9,13 +9,14 @@ import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.Stater
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.navigation.navArgs
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -28,8 +29,9 @@ class RestoreConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val safGateway: SAFGateway,
-    private val processorControl: ProcessorControl
-) : SmartVDC() {
+    private val processorControl: ProcessorControl,
+    private val dispatcherProvider: DispatcherProvider
+) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<RestoreConfigFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
 
@@ -47,10 +49,6 @@ class RestoreConfigFragmentVDC @Inject constructor(
     val configState = configStater.liveData
 
     val openPickerEvent = SingleLiveEvent<PathPickerOptions>()
-
-    val errorEvent = SingleLiveEvent<Throwable>()
-
-    val finishEvent = SingleLiveEvent<Any>()
 
     init {
         // Config wraps for item types (defaults, e.g. default for file store)
@@ -121,7 +119,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
         log(TAG) { "updatePath(result=$result)" }
         if (result.isCanceled) return@launch
         if (result.isFailed) {
-            errorEvent.postValue(result.error!!)
+            errorEvents.postValue(result.error!!)
             return@launch
         }
         result.options.payload.classLoader = this.javaClass.classLoader
@@ -139,7 +137,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
 
         if (execute) processorControl.submit(savedTask)
 
-        finishEvent.postValue(Any())
+        navEvents.postValue(null)
     }
 
     fun runTask() {

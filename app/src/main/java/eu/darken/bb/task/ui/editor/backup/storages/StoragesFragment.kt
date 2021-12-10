@@ -12,7 +12,6 @@ import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.ClickMod
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupStoragesFragmentBinding
@@ -52,7 +51,7 @@ class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fra
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.removeDestination(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             adapter.update(state.destinations)
 
             setupbar.buttonPositivePrimary.isEnabled = state.destinations.isNotEmpty()

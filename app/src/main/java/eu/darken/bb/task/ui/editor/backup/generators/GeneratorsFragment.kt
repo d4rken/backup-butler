@@ -14,7 +14,6 @@ import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
-import eu.darken.bb.common.observe2
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.TaskEditorBackupGeneratorsFragmentBinding
@@ -47,7 +46,7 @@ class GeneratorsFragment : Smart2Fragment(R.layout.task_editor_backup_generators
             setupbar.buttonPositiveSecondary.setOnClickListener { vdc.onNext() }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             log { "Updating UI state with $state" }
             adapter.update(state.sources)
             setupbar.buttonPositiveSecondary.isEnabled = state.sources.isNotEmpty()

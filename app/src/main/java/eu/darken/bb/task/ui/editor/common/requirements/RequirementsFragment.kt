@@ -50,7 +50,7 @@ class RequirementsFragment : Smart2Fragment(R.layout.task_editor_requirements_fr
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.runMainAction(adapter.data[i]) })
 
-        vdc.state.observe2(this, ui) {
+        vdc.state.observe2(ui) {
             toolbar.title = when (it.taskType) {
                 Task.Type.BACKUP_SIMPLE -> getString(R.string.task_editor_backup_new_label)
                 Task.Type.RESTORE_SIMPLE -> getString(R.string.task_editor_restore_new_label)

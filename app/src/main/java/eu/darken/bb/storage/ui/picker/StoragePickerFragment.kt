@@ -52,7 +52,7 @@ class StoragePickerFragment : Smart2Fragment(R.layout.storage_picker_fragment),
 
         adapter.modules.add(ClickMod { _: ModularAdapter.VH, i: Int -> vdc.selectStorage(adapter.data[i]) })
 
-        vdc.storageData.observe2(this, ui) { state ->
+        vdc.storageData.observe2(ui) { state ->
             adapter.update(state.storages)
 
             if (state.allExistingAdded) {

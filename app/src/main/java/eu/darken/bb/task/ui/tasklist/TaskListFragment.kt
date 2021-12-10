@@ -31,7 +31,7 @@ class TaskListFragment : Smart2Fragment(R.layout.task_list_fragment) {
             fab.setOnClickListener { vdc.newTask() }
         }
 
-        vdc.state.observe2(this, ui) { state ->
+        vdc.state.observe2(ui) { state ->
             log { "Updating UI state with $state" }
             adapter.update(state.tasks)
             fab.isInvisible = false

@@ -2,10 +2,10 @@ package eu.darken.bb.common.pkgs.picker.ui
 
 import android.os.Bundle
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavDirections
 import com.jakewharton.rx3.replayingShare
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.navigation.navArgs
@@ -13,7 +13,7 @@ import eu.darken.bb.common.pkgs.NormalPkg
 import eu.darken.bb.common.pkgs.picker.core.PickedPkg
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.rx.asLiveData
-import eu.darken.bb.common.smart.SmartVDC
+import eu.darken.bb.common.smart.Smart2VDC
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.kotlin.Observables
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -24,7 +24,8 @@ import javax.inject.Inject
 class PkgPickerFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val pkgOps: PkgOps,
-) : SmartVDC() {
+    private val dispatcherProvider: DispatcherProvider,
+) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs by handle.navArgs<PkgPickerFragmentArgs>()
     private val options = navArgs.options
@@ -40,8 +41,6 @@ class PkgPickerFragmentVDC @Inject constructor(
         .replayingShare()
 
     private val selectedItems = BehaviorSubject.createDefault(emptyList<String>())
-
-    val navEvents = SingleLiveEvent<NavDirections>()
 
     val state = Observables.combineLatest(pkgData, selectedItems)
         .observeOn(Schedulers.computation())
