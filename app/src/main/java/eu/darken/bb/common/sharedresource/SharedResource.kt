@@ -178,7 +178,7 @@ open class SharedResource<T : Any> constructor(
         }
     }
 
-    private inner class ChildResource(private val resource: Resource<*>) : KeepAlive {
+    private class ChildResource(private val resource: Resource<*>) : KeepAlive {
         var closed: Boolean = false
 
         override val isClosed: Boolean
@@ -187,14 +187,13 @@ open class SharedResource<T : Any> constructor(
         override fun close() {
             closed = true
             resource.close()
-            children.remove(resource)
         }
 
         override fun toString(): String = "ChildResource(isClosed=$isClosed, resource=$resource)"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is SharedResource<*>.ChildResource) return false
+            if (other !is ChildResource) return false
 
             if (resource != other.resource) return false
 
