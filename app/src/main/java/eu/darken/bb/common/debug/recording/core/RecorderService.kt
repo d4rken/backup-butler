@@ -94,7 +94,7 @@ class RecorderService : Service() {
 
     companion object {
         private val TAG = logTag("Debug", "RecorderService")
-        private const val NOTIF_CHANID_DEBUG = "bb.notifchan.debug"
+        private const val NOTIF_CHANID_DEBUG = "eu.darken.bb.notification.channel.debug"
         private const val STOP_ACTION = "STOP_SERVICE"
         private const val NOTIFICATION_ID = 53
     }

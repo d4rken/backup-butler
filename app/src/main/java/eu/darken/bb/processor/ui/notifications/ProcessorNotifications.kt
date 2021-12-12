@@ -83,7 +83,7 @@ class ProcessorNotifications @Inject constructor(
 
     companion object {
         val TAG = logTag("Processor", "Service", "Notifications")
-        private const val NOTIFICATION_CHANNEL_ID = "notif.chan.process.progress"
+        private const val NOTIFICATION_CHANNEL_ID = "eu.darken.bb.notification.channel.process.progress"
         private const val NOTIFICATION_ID = 1
     }
 }
