@@ -10,11 +10,12 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.BBDebug
-import eu.darken.bb.common.debug.DebugScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.main.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -24,20 +25,13 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class RecorderService : Service() {
-    companion object {
-        private val TAG = logTag("Debug", "RecorderService")
-        private const val NOTIF_CHANID_DEBUG = "bb.notifchan.debug"
-        private const val STOP_ACTION = "STOP_SERVICE"
-        private const val NOTIFICATION_ID = 53
-    }
-
     private lateinit var builder: NotificationCompat.Builder
+
     @Inject lateinit var bbDebug: BBDebug
     @Inject lateinit var notificationManager: NotificationManager
-    @DebugScope @Inject lateinit var debugScope: CoroutineScope
-
+    @Inject lateinit var dispatcherProvider: DispatcherProvider
     private val recorderScope by lazy {
-        CoroutineScope(debugScope.coroutineContext)
+        CoroutineScope(SupervisorJob() + dispatcherProvider.IO)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -94,7 +88,14 @@ class RecorderService : Service() {
     }
 
     override fun onDestroy() {
-        recorderScope.cancel()
+        recorderScope.coroutineContext.cancel()
         super.onDestroy()
+    }
+
+    companion object {
+        private val TAG = logTag("Debug", "RecorderService")
+        private const val NOTIF_CHANID_DEBUG = "bb.notifchan.debug"
+        private const val STOP_ACTION = "STOP_SERVICE"
+        private const val NOTIFICATION_ID = 53
     }
 }
