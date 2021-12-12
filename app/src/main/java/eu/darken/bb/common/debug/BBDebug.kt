@@ -19,6 +19,7 @@ import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
 import eu.darken.bb.common.debug.bugsnag.NOPBugsnagErrorHandler
 import eu.darken.bb.common.debug.logging.Logging
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
 import io.reactivex.rxjava3.exceptions.UndeliverableException
@@ -135,14 +136,15 @@ class BBDebug @Inject constructor(
 
     override fun getSettings(): SharedPreferences = preferences
 
-    @SuppressLint("LogNotTimber")
     override fun submit(update: suspend (DebugOptions) -> DebugOptions) {
+        log(TAG) { "submit($update)" }
         optionsUpdater.updateAsync(onUpdate = update)
     }
 
     fun isDebug(): Boolean = runBlocking { optionsUpdater.value().isDebug() }
 
     fun setRecording(recording: Boolean) {
+        log(TAG) { "setRecording($recording)" }
         submit { it.copy(level = Log.VERBOSE, isRecording = recording) }
     }
 

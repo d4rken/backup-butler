@@ -4,8 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.BackupButler
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.user.core.UpgradeControl
@@ -29,8 +30,8 @@ class OverviewFragmentVDC @Inject constructor(
         }
         .asLiveData()
 
-    private val updateStater = Stater { UpdateState() }
-    val updateState = updateStater.liveData
+    private val updateStater = DynamicStateFlow(TAG, vdcScope) { UpdateState() }
+    val updateState = updateStater.asLiveData2()
 
     fun onChangelog() {
         TODO("not implemented")
@@ -48,4 +49,8 @@ class OverviewFragmentVDC @Inject constructor(
     data class UpdateState(
         val available: Boolean = false
     )
+
+    companion object {
+        private val TAG = logTag("Overview", "VDC")
+    }
 }

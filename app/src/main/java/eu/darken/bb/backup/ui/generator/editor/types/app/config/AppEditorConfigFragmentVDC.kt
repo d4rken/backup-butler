@@ -8,10 +8,10 @@ import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResult
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewFilter
 import eu.darken.bb.backup.ui.generator.editor.types.app.preview.PreviewMode
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.smart.Smart2VDC
 import kotlinx.coroutines.flow.*
@@ -28,8 +28,8 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     private val navArgs = handle.navArgs<AppEditorConfigFragmentArgs>()
     private val generatorId = navArgs.value.generatorId
 
-    private val stater = Stater { State() }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State() }
+    val state = stater.asLiveData2()
 
     private val editorFlow = builder.generator(generatorId)
         .filter { it.editor != null }
@@ -48,8 +48,8 @@ class AppEditorConfigFragmentVDC @Inject constructor(
     init {
         editorDataFlow
             .onEach { editorData ->
-                stater.update { state ->
-                    state.copy(
+                stater.updateBlocking {
+                    copy(
                         label = editorData.label,
                         isWorking = false,
                         isExisting = editorData.isExistingGenerator,
@@ -69,13 +69,13 @@ class AppEditorConfigFragmentVDC @Inject constructor(
 
         editorFlow
             .flatMapConcat { it.isValid() }
-            .onEach { isValid -> stater.update { it.copy(isValid = isValid) } }
+            .onEach { isValid -> stater.updateBlocking { copy(isValid = isValid) } }
             .launchInViewModel()
 
         editorFlow
             .flatMapConcat { it.editorData }
             .onEach { data ->
-                stater.update { it.copy(isExisting = data.isExistingGenerator) }
+                stater.updateBlocking { copy(isExisting = data.isExistingGenerator) }
             }
             .launchInViewModel()
     }

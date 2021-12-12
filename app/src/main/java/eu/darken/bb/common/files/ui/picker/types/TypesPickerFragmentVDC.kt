@@ -3,10 +3,10 @@ package eu.darken.bb.common.files.ui.picker.types
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.smart.SmartVDC
 import eu.darken.bb.storage.core.Storage
@@ -18,7 +18,7 @@ class TypesPickerFragmentVDC @Inject constructor(
 ) : SmartVDC() {
 
     private val options: PathPickerOptions = handle.navArgs<TypesPickerFragmentArgs>().value.options
-    private val stater = Stater {
+    private val stater = DynamicStateFlow(TAG, vdcScope) {
         val types = options.allowedTypes.map {
             when (it) {
                 APath.PathType.RAW -> throw UnsupportedOperationException("$it is not supported")
@@ -28,7 +28,7 @@ class TypesPickerFragmentVDC @Inject constructor(
         }
         State(allowedTypes = types.sortedBy { it.name }.toList())
     }
-    val state = stater.liveData
+    val state = stater.asLiveData2()
 
     val typeEvents = SingleLiveEvent<Storage.Type>()
 

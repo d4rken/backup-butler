@@ -3,8 +3,9 @@ package eu.darken.bb.storage.ui.list.actions
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.navigation.navVia
@@ -36,8 +37,8 @@ class StorageActionDialogVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<StorageActionDialogArgs>()
     private val storageId: Storage.Id = navArgs.storageId
-    private val stater = Stater { State(isLoadingData = true) }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State(isLoadingData = true) }
+    val state = stater.asLiveData2()
     val closeDialogEvent = SingleLiveEvent<Any>()
 
     init {
@@ -61,8 +62,8 @@ class StorageActionDialogVDC @Inject constructor(
                     add(Confirmable(DETACH, requiredLvl = 1) { storageAction(it) })
                 }
 
-                stater.update {
-                    it.copy(
+                stater.updateBlocking {
+                    copy(
                         storageInfo = infoOpt.info,
                         allowedActions = allowedActions.toList(),
                         isLoadingData = !infoOpt.isFinished
@@ -77,8 +78,8 @@ class StorageActionDialogVDC @Inject constructor(
     }
 
     fun storageAction(action: StorageAction) = launch {
-        require(stater.snapshot.job == null)
-        stater.update { it.copy(job = coroutineContext.job) }
+        require(stater.value().job == null)
+        stater.updateBlocking { copy(job = coroutineContext.job) }
         try {
             when (action) {
                 VIEW -> {
@@ -114,12 +115,12 @@ class StorageActionDialogVDC @Inject constructor(
             }
 
         } finally {
-            stater.update { it.copy(job = null) }
+            stater.updateBlocking { copy(job = null) }
         }
     }
 
-    fun cancelCurrentOperation() {
-        stater.snapshot.job?.cancel()
+    fun cancelCurrentOperation() = launch {
+        stater.value().job?.cancel()
     }
 
     data class State(
@@ -131,5 +132,9 @@ class StorageActionDialogVDC @Inject constructor(
     ) {
         val isWorking: Boolean
             get() = job != null
+    }
+
+    companion object {
+        private val TAG = logTag("Storage", "ActionDialog", "VDC")
     }
 }

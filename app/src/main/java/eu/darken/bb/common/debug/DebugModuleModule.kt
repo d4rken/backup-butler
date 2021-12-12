@@ -24,9 +24,6 @@ abstract class DebugModuleModule {
     abstract fun recorder(recorderModule: RecorderModule.Factory): DebugModule.Factory<out DebugModule>
 
     @Binds @IntoSet
-    abstract fun acsDebug(recorderModule: ACSDebugModule.Factory): DebugModule.Factory<out DebugModule>
-
-    @Binds @IntoSet
     abstract fun apkDebug(recorderModule: AppInfoModule.Factory): DebugModule.Factory<out DebugModule>
 
     @Binds @IntoSet

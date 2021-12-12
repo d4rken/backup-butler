@@ -8,13 +8,13 @@ import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.backup.core.files.FilesRestoreConfig
 import eu.darken.bb.common.SingleLiveEvent
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
@@ -42,11 +42,11 @@ class RestoreConfigFragmentVDC @Inject constructor(
     private val dataFlow = editorFlow.flatMapConcat { it.editorData }
     private val configWraps = editorFlow.flatMapConcat { it.configWraps }
 
-    private val summaryStater = Stater { SummaryState() }
-    val summaryState = summaryStater.liveData
+    private val summaryStater = DynamicStateFlow(TAG, vdcScope) { SummaryState() }
+    val summaryState = summaryStater.asLiveData2()
 
-    private val configStater = Stater { ConfigState() }
-    val configState = configStater.liveData
+    private val configStater = DynamicStateFlow(TAG, vdcScope) { ConfigState() }
+    val configState = configStater.asLiveData2()
 
     val openPickerEvent = SingleLiveEvent<PathPickerOptions>()
 
@@ -68,15 +68,15 @@ class RestoreConfigFragmentVDC @Inject constructor(
                     }
                     .toList()
 
-                summaryStater.update { state ->
-                    state.copy(
+                summaryStater.updateBlocking {
+                    copy(
                         backupTypes = data.defaultConfigs.values.map { it.restoreType },
                         customConfigCount = customCount,
                         isLoading = false
                     )
                 }
-                configStater.update { state ->
-                    state.copy(
+                configStater.updateBlocking {
+                    copy(
                         defaultConfigs = wrappedDefaults
                     )
                 }
@@ -87,9 +87,9 @@ class RestoreConfigFragmentVDC @Inject constructor(
         configWraps
             .onEach { customConfigs ->
                 val issueCount = customConfigs.fold(0, { a, conf -> a + if (!conf.isValid) 1 else 0 })
-                summaryStater.update { it.copy(configsWithIssues = issueCount) }
-                configStater.update { state ->
-                    state.copy(
+                summaryStater.updateBlocking { copy(configsWithIssues = issueCount) }
+                configStater.updateBlocking {
+                    copy(
                         customConfigs = customConfigs.sortedBy { it.backupInfoOpt!!.backupId.idString }.toList(),
                         isLoading = false
                     )
@@ -129,7 +129,7 @@ class RestoreConfigFragmentVDC @Inject constructor(
     }
 
     private fun save(execute: Boolean) = launch {
-        configStater.update { it.copy(isWorking = true) }
+        configStater.updateBlocking { copy(isWorking = true) }
         val editor = editorFlow.first()
         editor.setSingleUse(execute)
 

@@ -2,8 +2,9 @@ package eu.darken.bb.task.ui.tasklist.actions
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.common.ui.Confirmable
@@ -25,8 +26,8 @@ class TaskActionDialogVDC @Inject constructor(
 
     private val navArgs by handle.navArgs<TaskActionDialogArgs>()
     private val taskId: Task.Id = navArgs.taskId
-    private val stateUpdater = Stater { State(loading = true) }
-    val state = stateUpdater.liveData
+    private val stateUpdater = DynamicStateFlow(TAG, vdcScope) { State(loading = true) }
+    val state = stateUpdater.asLiveData2()
 
     init {
         launch {
@@ -38,11 +39,11 @@ class TaskActionDialogVDC @Inject constructor(
                 Confirmable(DELETE, requiredLvl = 1) { taskAction(it) },
             )
 
-            stateUpdater.update {
+            stateUpdater.updateBlocking {
                 if (task == null) {
-                    it.copy(loading = true, finished = true)
+                    copy(loading = true, finished = true)
                 } else {
-                    it.copy(
+                    copy(
                         taskName = task.label,
                         taskType = task.taskType,
                         loading = false,
@@ -53,8 +54,8 @@ class TaskActionDialogVDC @Inject constructor(
         }
     }
 
-    fun taskAction(action: TaskAction) {
-        stateUpdater.update { it.copy(loading = true) }
+    fun taskAction(action: TaskAction) = launch {
+        stateUpdater.updateBlocking { copy(loading = true) }
         launch {
             try {
                 when (action) {
@@ -73,7 +74,7 @@ class TaskActionDialogVDC @Inject constructor(
                     }
                 }
             } finally {
-                stateUpdater.update { it.copy(loading = false, finished = true) }
+                stateUpdater.updateBlocking { copy(loading = false, finished = true) }
             }
         }
     }
@@ -85,5 +86,9 @@ class TaskActionDialogVDC @Inject constructor(
         val taskType: Task.Type? = null,
         val allowedActions: List<Confirmable<TaskAction>> = listOf()
     )
+
+    companion object {
+        private val TAG = logTag("Task", "ActionDialog", "VDC")
+    }
 
 }

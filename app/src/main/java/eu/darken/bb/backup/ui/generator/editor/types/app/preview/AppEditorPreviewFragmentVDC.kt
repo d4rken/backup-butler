@@ -5,9 +5,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorBuilder
 import eu.darken.bb.backup.core.app.AppSpecGeneratorEditor
-import eu.darken.bb.common.Stater
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.smart.Smart2VDC
@@ -25,8 +25,8 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
     private val navArgs = handle.navArgs<AppEditorPreviewFragmentArgs>().value
     private val generatorId: Generator.Id = navArgs.generatorId
     private val previewMode: PreviewMode = navArgs.previewMode
-    private val stater = Stater { State(previewMode = previewMode) }
-    val state = stater.liveData
+    private val stater = DynamicStateFlow(TAG, vdcScope) { State(previewMode = previewMode) }
+    val state = stater.asLiveData2()
 
     private val editorFlow = builder.generator(generatorId)
         .filter { it.editor != null }
@@ -40,8 +40,8 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
         editorDataFlow
             .map { data -> previewFilter.filter(data, previewMode) }
             .onEach { pkgs ->
-                stater.update { state ->
-                    state.copy(
+                stater.updateBlocking {
+                    copy(
                         pkgs = pkgs.sortedBy { it.pkg.getLabel(pkgOps) }.toList(),
                         selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet(),
                         isLoading = false

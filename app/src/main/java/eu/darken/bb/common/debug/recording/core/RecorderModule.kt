@@ -12,6 +12,7 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.common.debug.DebugModule
 import eu.darken.bb.common.debug.DebugModuleHost
 import eu.darken.bb.common.debug.DebugScope
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.debug.recording.ui.RecorderActivity
 import eu.darken.bb.common.startServiceCompat
@@ -32,6 +33,7 @@ class RecorderModule @AssistedInject constructor(
     init {
         host.observeOptions()
             .onEach { options ->
+                log(TAG) { "New options: $options" }
                 if (recorder == null && options.isRecording) {
                     recorder = Recorder()
 
