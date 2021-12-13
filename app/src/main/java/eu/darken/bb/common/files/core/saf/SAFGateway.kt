@@ -204,7 +204,7 @@ class SAFGateway @Inject constructor(
                 }
                 .map { lookup(it) }
         } catch (e: Exception) {
-            Timber.tag(TAG).w("lookupFiles(%s) failed.", path)
+            log(TAG, WARN) { "lookupFiles($path) failed." }
             throw ReadException(path, cause = e)
         }
     }

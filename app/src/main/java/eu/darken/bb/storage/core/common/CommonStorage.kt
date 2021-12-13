@@ -80,6 +80,7 @@ abstract class CommonStorage<
         .onEach { log(tag, VERBOSE) { "refresh triggered." } }
         .map { dataDir.lookupFilesOrNull(gateway) ?: emptyList() }
         .distinctUntilChanged()
+        .setupCommonEventHandlers(tag) { "dataDirEvents()" }
         .replayingShare(appScope)
 
     override fun info(): Flow<Storage.Info> = infowFlow
