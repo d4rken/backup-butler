@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.*
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -27,7 +28,7 @@ class RootHostLauncher @Inject constructor(
     fun <Binder : Any, Host : RootHost> createConnection(
         binderClass: KClass<Binder>,
         rootHostClass: KClass<Host>,
-        vararg args: String
+        enableDebug: Boolean
     ): Flow<Binder> = callbackFlow {
         log(TAG) { "Initiating connection to host($rootHostClass) via binder($binderClass)" }
 
@@ -37,7 +38,9 @@ class RootHostLauncher @Inject constructor(
             throw RootException("Failed to open root session.", e.cause)
         }
 
-        val ipcReceiver = object : RootIPCReceiver<Binder>(0, binderClass) {
+        val pairingCode = UUID.randomUUID().toString()
+
+        val ipcReceiver = object : RootIPCReceiver<Binder>(pairingCode, binderClass) {
             override fun onConnect(ipc: Binder) {
                 log(TAG) { "onConnect(ipc=$ipc)" }
                 trySendBlocking(ipc)
@@ -61,7 +64,14 @@ class RootHostLauncher @Inject constructor(
 
         val result = try {
             val cmdBuilder = RootHostCmdBuilder(context, rootHostClass)
-            val cmd = cmdBuilder.build(*args)
+
+            val rootHostOptions = RootHostOptions(
+                pairingCode = pairingCode,
+                packageName = context.packageName,
+                isDebug = enableDebug,
+            )
+
+            val cmd = cmdBuilder.build(rootHostOptions)
             log { "Launching root host: $rootHostClass" }
             // Doesn't return until root host has quit
             cmd.submit(rootSession).observeOn(Schedulers.io()).blockingGet()

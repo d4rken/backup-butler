@@ -1,5 +1,6 @@
 package eu.darken.bb.common.root.javaroot
 
+import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
 import eu.darken.bb.common.debug.logging.asLog
@@ -20,9 +21,9 @@ class JavaRootHostLauncher @Inject constructor(
 
     fun create(): Flow<JavaRootClient.Connection> = rootHostLauncher
         .createConnection(
-            JavaRootConnection::class,
-            JavaRootHost::class,
-            *(if (bbDebug.isDebug()) arrayOf(JavaRootHost.DEBUG_FLAG) else emptyArray())
+            binderClass = JavaRootConnection::class,
+            rootHostClass = JavaRootHost::class,
+            enableDebug = BuildConfigWrap.isVerbosebuild || bbDebug.isDebug()
         )
         .onStart { log(TAG) { "Initiating connection to host." } }
         .map { ipc ->

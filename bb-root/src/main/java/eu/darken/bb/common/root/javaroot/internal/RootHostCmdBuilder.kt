@@ -5,11 +5,15 @@ import android.content.Context
 import android.os.Build
 import android.os.Debug
 import android.os.Process
+import android.util.Base64
 import androidx.annotation.RequiresApi
+import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
 import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.parcel.forceParcel
+import eu.darken.bb.common.parcel.marshall
 import eu.darken.rxshell.cmd.Cmd
 import java.io.File
 import java.io.FileNotFoundException
@@ -28,8 +32,6 @@ class RootHostCmdBuilder<Host : RootHost> constructor(
     private val context: Context,
     private val rootHost: KClass<Host>,
 ) {
-
-    private val defaultJavaArgs = listOf(context.packageName)
 
     private val currentInstructionSet by lazy {
         val classVMRuntime = Class.forName("dalvik.system.VMRuntime")
@@ -180,8 +182,8 @@ class RootHostCmdBuilder<Host : RootHost> constructor(
         return script.toString() to relocated
     }
 
-    fun build(vararg javaArgs: String): Cmd.Builder {
-        log { "build(${javaArgs.toList()})" }
+    fun build(options: RootHostOptions): Cmd.Builder {
+        log { "build(${options})" }
         val packageCodePath = context.packageCodePath
 
         val (relocScript, relocPath) = relocateScript()
@@ -189,7 +191,7 @@ class RootHostCmdBuilder<Host : RootHost> constructor(
         var debugParams = ""
         if (Debug.isDebuggerConnected()) {
             debugParams += when (Build.VERSION.SDK_INT) {
-                in 29..Int.MAX_VALUE -> "-XjdwpProvider:adbconnection"
+                in 29..Int.MAX_VALUE -> "-XjdwpProvider:adbconnection -XjdwpOptions:suspend=n,server=y"
                 28 -> "-XjdwpProvider:adbconnection -XjdwpOptions:suspend=n,server=y -Xcompiler-option --debuggable"
                 else -> "-Xrunjdwp:transport=dt_android_adb,suspend=n,server=y -Xcompiler-option --debuggable"
             }
@@ -202,10 +204,19 @@ class RootHostCmdBuilder<Host : RootHost> constructor(
 
         var launchCmd = "CLASSPATH=$packageCodePath exec $relocPath $debugParams /system/bin$extraParams $hostClass"
 
-        (defaultJavaArgs + javaArgs).forEach { launchCmd += " $it" }
+        try {
+            options.forceParcel()
+        } catch (e: Throwable) {
+            log(TAG, ERROR) { "forceParcel() check failed: ${e.asLog()}" }
+            throw RuntimeException("RootHostOptions parcelation failed", e)
+        }
+
+        val optionsBase64 = Base64.encodeToString(options.marshall(), Base64.NO_WRAP)
+
+        launchCmd += " ${RootHost.OPTIONS_KEY}=$optionsBase64"
 
         log(TAG) { "Relocation script: $relocScript" }
-        log(TAG) { "Launch script: $relocScript" }
+        log(TAG) { "Launch command: $launchCmd" }
 
         return Cmd.builder(relocScript, launchCmd)
     }

@@ -22,6 +22,7 @@ import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import java.lang.ref.WeakReference
+import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -35,11 +36,11 @@ import kotlin.reflect.KClass
 </T> */
 //@SuppressWarnings({"unused", "WeakerAccess", "Convert2Diamond", "TryWithIdenticalCatches"})
 abstract class RootIPCReceiver<T : Any> constructor(
-    private val code: Int,
+    private val pairingCode: String,
     private val clazz: KClass<T>,
 ) {
     private val handlerThread: HandlerThread by lazy {
-        HandlerThread("javaroot:RootIPCReceiver#$code")
+        HandlerThread("javaroot:RootIPCReceiver#$pairingCode")
     }
     private val handler: Handler by lazy {
         handlerThread.start()
@@ -72,49 +73,58 @@ abstract class RootIPCReceiver<T : Any> constructor(
      */
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            var received: IBinder? = null
-            if (intent.action != null && intent.action == BROADCAST_ACTION) {
-                val bundle = intent.getBundleExtra(BROADCAST_EXTRA)
-                received = bundle!!.getBinder(BROADCAST_BINDER)
-                val code = bundle.getInt(BROADCAST_CODE)
-                if (code == this@RootIPCReceiver.code && received != null) {
-                    try {
-                        received.linkToDeath(deathRecipient, 0)
-                    } catch (e: RemoteException) {
-                        received = null
-                    }
-                } else {
-                    received = null
-                }
+            if (intent.action == null || intent.action != BROADCAST_ACTION) {
+                log(TAG, WARN) { "Received unexpected intent: $intent" }
+                return
             }
-            if (received != null) {
-                synchronized(binderSync) {
-                    binder = received
-                    internalIpc = IRootIPC.Stub.asInterface(binder).also {
-                        log(TAG) { "Saved internalIpc=$it" }
-                        try {
-                            log(TAG) { "Saving userIPC... " }
-                            userIPC = getInterfaceFromBinder(clazz, it.userIPC)
-                            log(TAG) { "userIPC saved $userIPC " }
-                        } catch (e: RemoteException) {
-                            log(TAG, ERROR) { "getInterfaceFromBinder() failed: ${e.asLog()}" }
-                        }
-                        try {
-                            log(TAG) { "hello($self)" }
-                            // we send over our own Binder that the other end can linkToDeath with
-                            it.hello(self)
 
-                            // schedule a call to doOnConnectRunnable so we stop blocking the receiver
-                            handler.post {
-                                synchronized(binderSync) { doOnConnect() }
-                            }
-                        } catch (e: RemoteException) {
-                            log(TAG, ERROR) { "hello() failed: $it <-> $self" }
-                        }
+            val bundle = intent.getBundleExtra(BROADCAST_EXTRA)
+            if (bundle == null) {
+                log(TAG, WARN) { "Intent is missing a bundle" }
+                return
+            }
+
+            val code = bundle.getString(BROADCAST_CODE)
+            if (code != this@RootIPCReceiver.pairingCode) {
+                log(TAG, ERROR) { "Received invalid code, $code instead of ${this@RootIPCReceiver.pairingCode}" }
+                return
+            }
+
+            val received: IBinder = bundle.getBinder(BROADCAST_BINDER)
+                ?: throw IllegalArgumentException("Intent is missing IBinder")
+
+            try {
+                received.linkToDeath(deathRecipient, 0)
+            } catch (e: RemoteException) {
+                throw e
+            }
+
+            synchronized(binderSync) {
+                binder = received
+                internalIpc = IRootIPC.Stub.asInterface(binder).also {
+                    log(TAG) { "Saved internalIpc=$it" }
+                    try {
+                        log(TAG) { "Saving userIPC... " }
+                        userIPC = getInterfaceFromBinder(clazz, it.userIPC)
+                        log(TAG) { "userIPC saved $userIPC " }
+                    } catch (e: RemoteException) {
+                        log(TAG, ERROR) { "getInterfaceFromBinder() failed: ${e.asLog()}" }
                     }
+                    try {
+                        log(TAG) { "hello($self)" }
+                        // we send over our own Binder that the other end can linkToDeath with
+                        it.hello(self)
 
-                    binderSync.notifyAll()
+                        // schedule a call to doOnConnectRunnable so we stop blocking the receiver
+                        handler.post {
+                            synchronized(binderSync) { doOnConnect() }
+                        }
+                    } catch (e: RemoteException) {
+                        log(TAG, ERROR) { "hello() failed: $it <-> $self" }
+                    }
                 }
+
+                binderSync.notifyAll()
             }
         }
     }
@@ -350,6 +360,7 @@ abstract class RootIPCReceiver<T : Any> constructor(
 
     companion object {
         private val TAG = logTag("Root", "IPCReceiver")
+
         const val BROADCAST_ACTION = "eu.darken.bb.common.root.javaroot.internal.RootIPCReceiver.BROADCAST"
         const val BROADCAST_EXTRA = "eu.darken.bb.common.root.javaroot.internal.RootIPCReceiver.BROADCAST.EXTRA"
         const val BROADCAST_BINDER = "binder"

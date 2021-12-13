@@ -36,17 +36,17 @@ import java.util.concurrent.TimeoutException
  * the non-root processes' state), and broadcasts the wrapper to the non-root process.
 
  * @param packageName           Package name of process to send Binder to. Use BuildConfig.APPLICATION_ID (double check you're importing the correct BuildConfig!) for convenience
- * @param ipc                   Binder object to wrap and send out
- * @param code                  User-value, should be unique per Binder
+ * @param userBinder                   Binder object to wrap and send out
+ * @param pairingCode                  User-value, should be unique per Binder
  * @param timeout               How long to wait for the other process to initiate the connection, 0 to wait forever
  * @throws TimeoutException If the connection times out
 
  * @see RootIPCReceiver
  */
 class RootIPC @AssistedInject constructor(
-    @Assisted private val packageName: String,
+    @Assisted("packageName") private val packageName: String,
     @Assisted private val userBinder: IBinder,
-    @Assisted private val code: Int,
+    @Assisted("pairingCode") private val pairingCode: String,
     @Assisted private val timeout: Long,
     @Assisted private val blocking: Boolean,
     private val reflectionBroadcast: ReflectionBroadcast,
@@ -121,7 +121,7 @@ class RootIPC @AssistedInject constructor(
     }
 
     init {
-        log(TAG) { "init(): $packageName, $userBinder, $code, $timeout, $reflectionBroadcast" }
+        log(TAG) { "init(): $packageName, $userBinder, $pairingCode, $timeout, $reflectionBroadcast" }
         require(timeout >= 0L) { "Timeout can't be negative: $timeout" }
     }
 
@@ -176,7 +176,7 @@ class RootIPC @AssistedInject constructor(
     private fun broadcastIPC() {
         val bundle = Bundle().apply {
             putBinder(RootIPCReceiver.BROADCAST_BINDER, internalBinder)
-            putInt(RootIPCReceiver.BROADCAST_CODE, code)
+            putString(RootIPCReceiver.BROADCAST_CODE, pairingCode)
         }
 
         val intent = Intent().apply {
@@ -234,9 +234,9 @@ class RootIPC @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            packageName: String,
+            @Assisted("packageName") packageName: String,
             userProvidedBinder: IBinder,
-            code: Int = 0,
+            @Assisted("pairingCode") pairingCode: String,
             timeout: Long = 30 * 1000,
             blocking: Boolean = true,
         ): RootIPC

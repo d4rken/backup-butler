@@ -91,14 +91,14 @@ class ReflectionBroadcast @Inject constructor() {
      */
     @SuppressLint("PrivateApi")
     fun sendBroadcast(intent: Intent) {
-        log { "sendBroadcast(${intent})..." }
         try {
+            log { "sendBroadcast(${intent})..." }
             // Prevent system from complaining about unprotected broadcast, if the field exists
             intent.flags = flagReceiverFromShell
-            log { "sendBroadcast(${intent}) flags prepared" }
+            log { "sendBroadcast(...) flags prepared" }
 
             if (broadcastIntent.parameterTypes.size == 13) {
-                log { "sendBroadcast(${intent}) sending (type=13)" }
+                log { "sendBroadcast(...) sending (type=13)" }
                 // API 24+
                 broadcastIntent.invoke(
                     activityManager,
@@ -116,12 +116,12 @@ class ReflectionBroadcast @Inject constructor() {
                     false,
                     0
                 )
-
-                log { "sendBroadcast(${intent}) (type=13) done." }
+                log { "sendBroadcast(..) (type=13) done." }
                 return
             }
+
             if (broadcastIntent.parameterTypes.size == 12) {
-                log { "sendBroadcast(${intent}) sending (type=12)" }
+                log { "sendBroadcast(...) sending (type=12)" }
                 // API 21+
                 broadcastIntent.invoke(
                     activityManager,
@@ -138,14 +138,13 @@ class ReflectionBroadcast @Inject constructor() {
                     false,
                     0
                 )
-                log { "sendBroadcast(${intent}) (type=12) done." }
+                log { "sendBroadcast(..) (type=12) done." }
                 return
             }
         } catch (e: Exception) {
-            log(ERROR) { "sendBroadcast(${intent}) failed: ${e.asLog()}" }
-            return
+            log(ERROR) { "sendBroadcast(...) failed: ${e.asLog()}" }
+            throw RuntimeException("Unable to send broadcast", e)
         }
-        throw RuntimeException("Unable to send broadcast")
     }
 
 }
