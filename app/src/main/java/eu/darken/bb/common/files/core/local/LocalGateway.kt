@@ -2,8 +2,7 @@ package eu.darken.bb.common.files.core.local
 
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
-import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
-import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.Logging.Priority.*
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -107,9 +106,21 @@ class LocalGateway @Inject constructor(
 
     suspend fun createFile(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val file = path.asFile()
-
             if (mode == Mode.NORMAL || mode == Mode.AUTO) {
+                val file = path.asFile()
+
+                if (file.exists() && file.isDirectory) {
+                    throw IllegalStateException("Item exists already, but it's a directory.")
+                }
+
+                file.parentFile?.let {
+                    if (!it.exists()) {
+                        if (!it.mkdirs()) {
+                            log(TAG, WARN) { "Failed to create parent directory $it for $path" }
+                        }
+                    }
+                }
+
                 if (file.createNewFile()) return@runIO true
                 if (file.exists()) return@runIO false
             }
@@ -252,20 +263,20 @@ class LocalGateway @Inject constructor(
 
     suspend fun canWrite(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val javaFile = path.asFile()
+            val file = path.asFile()
             val canNormalWrite = when (mode) {
                 Mode.ROOT -> false
-                else -> javaFile.canWrite()
+                else -> file.parentsInclusive.firstOrNull { it.exists() }?.canWrite() ?: false
             }
 
             when {
                 mode == Mode.NORMAL || mode == Mode.AUTO && canNormalWrite -> {
-                    javaFile.canWrite()
+                    canNormalWrite
                 }
                 hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalWrite) -> {
                     rootOps { it.canWrite(path) }
                 }
-                else -> throw IOException("No matching mode.")
+                else -> false
             }
         } catch (e: IOException) {
             Timber.tag(TAG).w("canWrite(path=%s, mode=%s) failed.", path, mode)
@@ -277,10 +288,10 @@ class LocalGateway @Inject constructor(
 
     suspend fun canRead(path: LocalPath, mode: Mode = Mode.AUTO): Boolean = runIO {
         try {
-            val javaFile = path.asFile()
+            val file = path.asFile()
             val canNormalOpen = when (mode) {
                 Mode.ROOT -> false
-                else -> javaFile.isReadable()
+                else -> file.parentsInclusive.firstOrNull { it.exists() }?.isReadable() ?: false
             }
 
             when {
@@ -290,7 +301,7 @@ class LocalGateway @Inject constructor(
                 hasRoot() && (mode == Mode.ROOT || mode == Mode.AUTO && !canNormalOpen) -> {
                     rootOps { it.canRead(path) }
                 }
-                else -> throw IOException("No matching mode.")
+                else -> false
             }
 
         } catch (e: IOException) {

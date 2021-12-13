@@ -155,3 +155,15 @@ fun File.setOwnership(ownership: Ownership): Boolean {
     Os.lchown(path, ownership.userId.toInt(), ownership.groupId.toInt())
     return true
 }
+
+val File.parents: Sequence<File>
+    get() = sequence {
+        var parent = parentFile
+        while (parent != null) {
+            yield(parent)
+            parent = parentFile
+        }
+    }
+
+val File.parentsInclusive: Sequence<File>
+    get() = sequenceOf(this) + parents

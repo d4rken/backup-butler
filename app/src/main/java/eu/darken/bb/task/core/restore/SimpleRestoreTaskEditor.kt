@@ -13,6 +13,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.error.getRootCause
 import eu.darken.bb.common.files.core.APath
 import eu.darken.bb.common.files.core.GatewaySwitch
+import eu.darken.bb.common.files.core.canWrite
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.flow.replayingShare
 import eu.darken.bb.storage.core.Storage
@@ -31,7 +32,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
     @Assisted private val taskId: Task.Id,
     private val restoreConfigRepo: RestoreConfigRepo,
     private val storageManager: StorageManager,
-    private val pathTool: GatewaySwitch,
+    private val gateway: GatewaySwitch,
     @AppScope private val appScope: CoroutineScope,
 ) : TaskEditor {
 
@@ -90,7 +91,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
                 config as FilesRestoreConfig
                 defaultConfig as FilesRestoreConfig
                 val defaultPath = (infoOpt?.info?.spec as? FilesBackupSpec)?.path
-                val granted = (config.restorePath ?: defaultPath)?.let { pathTool.canWrite(it) } ?: false
+                val granted = (config.restorePath ?: defaultPath)?.canWrite(gateway) ?: false
                 val isCustom = config != defaultConfig
                 FilesConfigWrap(
                     backupInfoOpt = infoOpt,
