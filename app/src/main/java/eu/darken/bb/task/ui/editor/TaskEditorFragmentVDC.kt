@@ -20,7 +20,7 @@ class TaskEditorFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val reqMan: RequirementsManager,
-    private val dispatcherProvider: DispatcherProvider,
+    dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
     private val navArgs = handle.navArgs<TaskEditorFragmentArgs>()
@@ -38,41 +38,40 @@ class TaskEditorFragmentVDC @Inject constructor(
             }
         }
     }
-    private val taskBuilderFlow = flow { emit(taskBuilder.getEditor(taskId, args.taskType)) }
-        .flatMapConcat { taskBuilder.task(it.taskId) }
 
     init {
-        taskBuilderFlow
-            .map { taskData ->
-                val reqs = reqMan.reqsFor(taskData.taskType)
+        launch {
+            val taskData = taskBuilder.getEditor(taskId, args.taskType)
+            val editor = taskData.editor
+            editor.setSingleUse(args.isSingleUse)
 
-                if (reqs.all { it.satisfied }) {
-                    when (taskData.taskType) {
-                        Task.Type.BACKUP_SIMPLE -> TaskEditorFragmentDirections.actionTaskEditorFragmentToIntroFragment(
-                            taskId = taskId
-                        )
-                        Task.Type.RESTORE_SIMPLE -> {
-                            val restoreData =
-                                taskData.editor!!.editorData.first() as SimpleRestoreTaskEditor.Data
-                            if (restoreData.backupTargets.size == 1) {
-                                TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreConfigFragment(
-                                    taskId = taskId
-                                )
-                            } else {
-                                TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreSourcesFragment(
-                                    taskId = taskId
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    TaskEditorFragmentDirections.actionTaskEditorFragmentToRequirementsFragment(
+            val reqs = reqMan.reqsFor(taskData.taskType)
+
+            val navDirection = if (reqs.all { it.satisfied }) {
+                when (taskData.taskType) {
+                    Task.Type.BACKUP_SIMPLE -> TaskEditorFragmentDirections.actionTaskEditorFragmentToIntroFragment(
                         taskId = taskId
                     )
+                    Task.Type.RESTORE_SIMPLE -> {
+                        val restoreData = editor.editorData.first() as SimpleRestoreTaskEditor.Data
+                        if (restoreData.backupTargets.size == 1) {
+                            TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreConfigFragment(
+                                taskId = taskId
+                            )
+                        } else {
+                            TaskEditorFragmentDirections.actionTaskEditorFragmentToRestoreSourcesFragment(
+                                taskId = taskId
+                            )
+                        }
+                    }
                 }
+            } else {
+                TaskEditorFragmentDirections.actionTaskEditorFragmentToRequirementsFragment(
+                    taskId = taskId
+                )
             }
-            .onEach { it.navVia(this@TaskEditorFragmentVDC) }
-            .launchInViewModel()
+            navDirection.navVia(this@TaskEditorFragmentVDC)
+        }
     }
 
     companion object {

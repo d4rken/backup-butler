@@ -218,10 +218,11 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
             copy(defaultConfigs = newConfigs)
         }.defaultConfigs
 
-    suspend fun setSingleUse(isSingleUse: Boolean): Data = editorDataPub.updateBlocking {
-        copy(isSingleUse = isSingleUse)
+    override suspend fun setSingleUse(isSingleUse: Boolean) {
+        editorDataPub.updateBlocking {
+            copy(isSingleUse = isSingleUse)
+        }
     }
-
 
     suspend fun updateCustomConfig(
         backupId: Backup.Id,

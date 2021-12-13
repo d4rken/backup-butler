@@ -31,8 +31,11 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
 
     @Inject lateinit var adapter: RestoreConfigAdapter
 
-    init {
-        onFinishEvent = { findNavController().popBackStack(R.id.mainFragment, false) }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onFinishEvent = {
+            findNavController().popBackStack()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,8 +45,7 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
             toolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
 
             setupbar.apply {
-                buttonPositivePrimary.setOnClickListener { vdc.runTask() }
-                buttonPositivePrimary.setOnLongClickListener { vdc.saveTask().let { true } }
+                buttonPositiveSecondary.setOnClickListener { vdc.onNext() }
             }
         }
 
@@ -62,7 +64,7 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
             )
             countConfigIssues.setGone(state.configsWithIssues == 0)
 
-            setupbar.buttonPositivePrimary.setGone(state.configsWithIssues != 0)
+            setupbar.buttonPositiveSecondary.isEnabled = state.configsWithIssues == 0
 
             countContainer.setInvisible(state.isLoading)
             loadingOverlayCounts.setInvisible(!state.isLoading)

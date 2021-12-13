@@ -8,7 +8,14 @@ import kotlinx.parcelize.Parcelize
 data class TaskEditorArgs constructor(
     val taskId: Task.Id?,
     val taskType: Task.Type?,
+    val isSingleUse: Boolean,
 ) : Parcelable {
-    constructor(taskId: Task.Id?) : this(taskId = taskId, taskType = null)
-    constructor(taskType: Task.Type?) : this(taskId = null, taskType = taskType)
+    constructor(
+        taskId: Task.Id?,
+    ) : this(taskId = taskId, taskType = null, isSingleUse = false)
+
+    constructor(
+        taskType: Task.Type?,
+        isSingleUse: Boolean
+    ) : this(taskId = null, taskType = taskType, isSingleUse = isSingleUse)
 }

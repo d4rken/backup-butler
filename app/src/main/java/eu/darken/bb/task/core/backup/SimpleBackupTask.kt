@@ -5,6 +5,8 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.CaString
+import eu.darken.bb.common.toCaString
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.task.core.Task
 
@@ -22,8 +24,8 @@ data class SimpleBackupTask(
         get() = Task.Type.BACKUP_SIMPLE
         set(value) {}
 
-    override fun getDescription(context: Context): String {
-        return context.getString(R.string.task_type_backupsimple_description, sources.size, destinations.size)
-    }
+    override fun getDescription(): CaString = { context: Context ->
+        context.getString(R.string.task_type_backupsimple_description, sources.size, destinations.size)
+    }.toCaString()
 
 }

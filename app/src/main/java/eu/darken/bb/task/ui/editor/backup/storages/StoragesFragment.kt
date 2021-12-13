@@ -31,9 +31,6 @@ class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fra
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupStoragePickerListener { vdc.onStoragePicked(it) }
-        onFinishEvent = {
-            findNavController().popBackStack(R.id.mainFragment, false)
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,8 +38,7 @@ class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fra
             toolbar.setupWithNavController(findNavController())
 
             setupbar.apply {
-                buttonPositivePrimary.setOnClickListener { vdc.executeTask() }
-                buttonPositiveSecondary.setOnClickListener { vdc.saveTask() }
+                buttonPositiveSecondary.setOnClickListener { vdc.onNext() }
             }
             fab.setOnClickListener { vdc.addStorage() }
 
@@ -54,7 +50,6 @@ class StoragesFragment : Smart2Fragment(R.layout.task_editor_backup_storages_fra
         vdc.state.observe2(ui) { state ->
             adapter.update(state.destinations)
 
-            setupbar.buttonPositivePrimary.isEnabled = state.destinations.isNotEmpty()
             setupbar.buttonPositiveSecondary.isEnabled = state.destinations.isNotEmpty()
         }
 

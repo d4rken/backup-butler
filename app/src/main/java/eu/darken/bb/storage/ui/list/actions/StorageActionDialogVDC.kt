@@ -100,7 +100,11 @@ class StorageActionDialogVDC @Inject constructor(
                     (data.editor as SimpleRestoreTaskEditor).addStorageId(storageId)
 
                     StorageActionDialogDirections.actionStorageActionDialogToTaskEditor(
-                        args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
+                        args = TaskEditorArgs(
+                            taskId = data.taskId,
+                            taskType = Task.Type.RESTORE_SIMPLE,
+                            isSingleUse = true
+                        )
                     ).navVia(navEvents)
                     closeDialogEvent.postValue(Any())
                 }

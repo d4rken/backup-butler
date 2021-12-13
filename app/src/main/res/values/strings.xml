@@ -28,6 +28,7 @@
     </plurals>
     <string name="task_backup_edit_label">Edit backup task</string>
     <string name="task_name_label">Task name</string>
+    <string name="task_description_label">Task description</string>
     <string name="general_next_action">Next</string>
     <string name="general_previous_action">Previous</string>
     <string name="general_cancel_action">Cancel</string>

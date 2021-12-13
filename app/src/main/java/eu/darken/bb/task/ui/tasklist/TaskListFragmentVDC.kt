@@ -62,7 +62,7 @@ class TaskListFragmentVDC @Inject constructor(
 
     fun newTask() {
         MainFragmentDirections.actionMainFragmentToTaskEditor(
-            args = TaskEditorArgs(taskType = Task.Type.BACKUP_SIMPLE)
+            args = TaskEditorArgs(taskType = Task.Type.BACKUP_SIMPLE, isSingleUse = false)
         ).navVia(this)
     }
 

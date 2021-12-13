@@ -13,6 +13,8 @@ interface TaskEditor {
 
     suspend fun updateLabel(label: String)
 
+    suspend fun setSingleUse(isSingleUse: Boolean)
+
     interface Factory<EditorT : TaskEditor> {
         fun create(taskId: Task.Id): EditorT
     }

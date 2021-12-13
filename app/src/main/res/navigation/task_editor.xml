@@ -52,6 +52,9 @@
         <argument
             android:name="taskId"
             app:argType="eu.darken.bb.task.core.Task$Id" />
+        <action
+            android:id="@+id/action_restoreConfigFragment_to_summaryFragment"
+            app:destination="@id/summaryFragment" />
     </fragment>
 
     <fragment
@@ -97,6 +100,9 @@
                 android:name="taskId"
                 app:argType="eu.darken.bb.task.core.Task$Id" />
         </action>
+        <action
+            android:id="@+id/action_destinationsFragment_to_summaryFragment"
+            app:destination="@id/summaryFragment" />
     </fragment>
     <fragment
         android:id="@+id/requirementsFragment"
@@ -111,6 +117,19 @@
         <action
             android:id="@+id/action_permissionFragment_to_introFragment"
             app:destination="@id/introFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/summaryFragment"
+        android:name="eu.darken.bb.task.ui.editor.common.summary.SummaryFragment"
+        android:label="SummaryFragment"
+        tools:layout="@layout/task_editor_summary_fragment">
+        <argument
+            android:name="taskId"
+            app:argType="eu.darken.bb.task.core.Task$Id" />
+        <action
+            android:id="@+id/action_summaryFragment_to_main_nav_graph"
+            app:destination="@id/initFragment" />
     </fragment>
 
     <include app:graph="@navigation/storage_picker" />

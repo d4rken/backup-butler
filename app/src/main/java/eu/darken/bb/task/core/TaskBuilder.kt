@@ -128,7 +128,7 @@ class TaskBuilder @Inject constructor(
     data class Data(
         val taskId: Task.Id,
         val taskType: Task.Type,
-        val editor: TaskEditor? = null
+        val editor: TaskEditor
     )
 
     companion object {

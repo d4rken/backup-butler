@@ -88,7 +88,11 @@ class ContentPageFragmentVDC @Inject constructor(
         (data.editor as SimpleRestoreTaskEditor).addBackupId(storageId, backupSpecId, backupId, type)
 
         StorageContentFragmentDirections.actionItemContentsFragmentToTaskEditor(
-            args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
+            args = TaskEditorArgs(
+                taskId = data.taskId,
+                taskType = Task.Type.RESTORE_SIMPLE,
+                isSingleUse = true
+            )
         ).navVia(this@ContentPageFragmentVDC)
     }
 

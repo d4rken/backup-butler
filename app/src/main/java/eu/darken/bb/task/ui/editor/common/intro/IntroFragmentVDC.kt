@@ -8,7 +8,6 @@ import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
@@ -25,8 +24,7 @@ class IntroFragmentVDC @Inject constructor(
     private val taskId: Task.Id = navArgs.taskId
 
     private val editorObs = taskBuilder.task(taskId)
-        .filter { it.editor != null }
-        .map { it.editor!! }
+        .map { it.editor }
 
     val state = editorObs.flatMapConcat { it.editorData }
         .asLiveData2()

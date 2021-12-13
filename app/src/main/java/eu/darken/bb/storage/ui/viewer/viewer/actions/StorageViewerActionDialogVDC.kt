@@ -107,7 +107,11 @@ class StorageViewerActionDialogVDC @Inject constructor(
                     (data.editor as SimpleRestoreTaskEditor).addBackupSpecId(storageId, backupSpecId)
 
                     StorageViewerActionDialogDirections.actionStorageItemActionDialogToTaskEditor(
-                        args = TaskEditorArgs(taskId = data.taskId, taskType = Task.Type.RESTORE_SIMPLE)
+                        args = TaskEditorArgs(
+                            taskId = data.taskId,
+                            taskType = Task.Type.RESTORE_SIMPLE,
+                            isSingleUse = true
+                        )
                     ).run { navEvents.postValue(this) }
                 }
             }

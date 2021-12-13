@@ -16,6 +16,7 @@ import eu.darken.bb.common.files.ui.picker.PathPickerOptions
 import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
@@ -128,25 +129,11 @@ class RestoreConfigFragmentVDC @Inject constructor(
         editor.updatePath(backupId, result.selection!!.first())
     }
 
-    private fun save(execute: Boolean) = launch {
-        configStater.updateBlocking { copy(isWorking = true) }
-        val editor = editorFlow.first()
-        editor.setSingleUse(execute)
-
-        val savedTask = taskBuilder.save(taskId)
-
-        if (execute) processorControl.submit(savedTask)
-
-        navEvents.postValue(null)
+    fun onNext() {
+        RestoreConfigFragmentDirections.actionRestoreConfigFragmentToSummaryFragment(taskId)
+            .navVia(this)
     }
 
-    fun runTask() {
-        save(execute = true)
-    }
-
-    fun saveTask() {
-        save(execute = false)
-    }
 
     data class SummaryState(
         val backupTypes: List<Backup.Type> = emptyList(),

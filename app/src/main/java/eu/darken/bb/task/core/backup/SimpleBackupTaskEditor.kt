@@ -15,6 +15,8 @@ import eu.darken.bb.task.core.TaskEditor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class SimpleBackupTaskEditor @AssistedInject constructor(
@@ -39,9 +41,16 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
 
     override suspend fun snapshot(): Task {
         val data = editorDataPub.value()
+
+        var label = data.label
+        if (label.isEmpty()) {
+            val sdf = SimpleDateFormat("yyyy.MM.dd hh:mm", Locale.getDefault())
+            label = sdf.format(Date())
+        }
+
         return SimpleBackupTask(
             taskId = data.taskId,
-            label = data.label,
+            label = label,
             sources = data.sources,
             destinations = data.destinations,
             isSingleUse = data.isSingleUse
@@ -94,7 +103,7 @@ class SimpleBackupTaskEditor @AssistedInject constructor(
         }
     }
 
-    suspend fun setSingleUse(isSingleUse: Boolean) {
+    override suspend fun setSingleUse(isSingleUse: Boolean) {
         editorDataPub.updateBlocking {
             copy(isSingleUse = isSingleUse)
         }

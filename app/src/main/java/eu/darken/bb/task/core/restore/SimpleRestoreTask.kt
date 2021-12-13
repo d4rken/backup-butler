@@ -6,6 +6,8 @@ import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
+import eu.darken.bb.common.CaString
+import eu.darken.bb.common.toCaString
 import eu.darken.bb.task.core.Task
 
 @Keep
@@ -23,8 +25,8 @@ data class SimpleRestoreTask(
         get() = Task.Type.RESTORE_SIMPLE
         set(value) {}
 
-    override fun getDescription(context: Context): String {
-        return context.getString(R.string.task_type_restoresimple_description, backupTargets.size)
-    }
+    override fun getDescription(): CaString = { context: Context ->
+        context.getString(R.string.task_type_restoresimple_description, backupTargets.size)
+    }.toCaString()
 
 }

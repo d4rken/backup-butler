@@ -1,6 +1,5 @@
 package eu.darken.bb.task.core
 
-import android.content.Context
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.Keep
@@ -8,6 +7,7 @@ import androidx.annotation.StringRes
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.Generator
+import eu.darken.bb.common.CaString
 import eu.darken.bb.common.IdType
 import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.storage.core.Storage
@@ -33,7 +33,7 @@ interface Task {
     @Keep
     interface Restore : Task
 
-    fun getDescription(context: Context): String
+    fun getDescription(): CaString
 
     @Parcelize @Keep
     enum class Type(

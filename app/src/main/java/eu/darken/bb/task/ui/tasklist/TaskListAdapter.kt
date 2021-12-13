@@ -55,7 +55,7 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
             typeIcon.setImageResource(task.taskType.iconRes)
 
             taskLabel.text = task.label
-            primary.text = task.getDescription(context)
+            primary.text = task.getDescription().get(context)
 
             if (lastResult != null) {
                 primary.append(" | " + DateUtils.getRelativeTimeSpanString(lastResult.startedAt.time + lastResult.duration))

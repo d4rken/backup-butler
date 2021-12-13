@@ -7,6 +7,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.flow.takeUntilAfter
 import eu.darken.bb.common.navigation.navArgs
+import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.storage.core.StorageManager
@@ -54,23 +55,6 @@ class StoragesFragmentVDC @Inject constructor(
         editorFlow.first().removeStorage(storage.info.storageId)
     }
 
-    fun executeTask() {
-        save(true)
-    }
-
-    fun saveTask() {
-        save(false)
-    }
-
-    private fun save(execute: Boolean = false) = launch {
-        stater.updateBlocking { copy(isWorking = true) }
-
-        val savedTask = taskBuilder.save(taskId)
-        if (execute) processorControl.submit(savedTask)
-
-        navEvents.postValue(null)
-    }
-
     fun onStoragePicked(result: StoragePickerResult?) = launch {
         if (result == null) return@launch
 
@@ -82,6 +66,11 @@ class StoragesFragmentVDC @Inject constructor(
         StoragesFragmentDirections.actionDestinationsFragmentToStoragePicker(
             taskId = taskId
         ).run { navEvents.postValue(this) }
+    }
+
+    fun onNext() {
+        StoragesFragmentDirections.actionDestinationsFragmentToSummaryFragment(taskId)
+            .navVia(this)
     }
 
     data class State(
