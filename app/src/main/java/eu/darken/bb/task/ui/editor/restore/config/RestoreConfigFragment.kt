@@ -31,13 +31,6 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
 
     @Inject lateinit var adapter: RestoreConfigAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        onFinishEvent = {
-            findNavController().popBackStack()
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ui.apply {
             configList.setupDefaults(adapter, dividers = false)

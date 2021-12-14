@@ -37,19 +37,16 @@ class PathPickerActivityVDC @Inject constructor(
             options.allowedTypes.size == 1 -> options.allowedTypes.single()
             else -> null
         }
-        when (startType) {
-            APath.PathType.RAW -> throw UnsupportedOperationException("$startType is not supported")
-            APath.PathType.LOCAL -> {
-                showLocal()
-            }
-            APath.PathType.SAF -> {
-                showSAF()
-            }
-            null -> {
-                showPicker()
-            }
-        }
 
+        if (handle.get<Boolean>(KEY_CONSUMED) != true) {
+            when (startType) {
+                APath.PathType.RAW -> throw UnsupportedOperationException("$startType is not supported")
+                APath.PathType.LOCAL -> showLocal()
+                APath.PathType.SAF -> showSAF()
+                null -> showPicker()
+            }
+            handle.set(KEY_CONSUMED, true)
+        }
     }
 
     private fun showLocal() {
@@ -100,5 +97,6 @@ class PathPickerActivityVDC @Inject constructor(
 
     companion object {
         val TAG = logTag("Picker", "Activity", "VDC")
+        const val KEY_CONSUMED = "consumed"
     }
 }
