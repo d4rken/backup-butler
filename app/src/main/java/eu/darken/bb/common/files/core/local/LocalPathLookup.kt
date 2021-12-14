@@ -19,6 +19,7 @@ data class LocalPathLookup(
 
     @IgnoredOnParcel override val path: String = lookedUp.path
     @IgnoredOnParcel override val name: String = lookedUp.name
+    @IgnoredOnParcel override val segments: List<String> = lookedUp.segments
     @IgnoredOnParcel override val pathType: APath.PathType = lookedUp.pathType
 
 }

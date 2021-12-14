@@ -17,6 +17,7 @@ interface APath : Parcelable {
     fun userReadablePath(context: Context) = path
     fun userReadableName(context: Context) = name
 
+    val segments: List<String>
     fun child(vararg segments: String): APath
 
     @Keep

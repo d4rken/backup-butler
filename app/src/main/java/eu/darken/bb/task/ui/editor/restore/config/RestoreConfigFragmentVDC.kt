@@ -18,7 +18,6 @@ import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.navigation.navVia
 import eu.darken.bb.common.smart.Smart2VDC
-import eu.darken.bb.processor.core.ProcessorControl
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
 import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
@@ -30,7 +29,6 @@ class RestoreConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val safGateway: SAFGateway,
-    private val processorControl: ProcessorControl,
     private val dispatcherProvider: DispatcherProvider
 ) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<RestoreConfigFragmentArgs>()
@@ -133,7 +131,6 @@ class RestoreConfigFragmentVDC @Inject constructor(
         RestoreConfigFragmentDirections.actionRestoreConfigFragmentToSummaryFragment(taskId)
             .navVia(this)
     }
-
 
     data class SummaryState(
         val backupTypes: List<Backup.Type> = emptyList(),

@@ -20,8 +20,16 @@ data class SAFPathLookup(
         return lookedUp.child(*segments)
     }
 
-    @IgnoredOnParcel override val path: String = lookedUp.path
-    @IgnoredOnParcel override val name: String = lookedUp.name
-    @IgnoredOnParcel override val pathType: APath.PathType = lookedUp.pathType
+    @IgnoredOnParcel
+    override val path: String = lookedUp.path
+
+    @IgnoredOnParcel
+    override val name: String = lookedUp.name
+
+    @IgnoredOnParcel
+    override val segments: List<String> = lookedUp.segments
+
+    @IgnoredOnParcel
+    override val pathType: APath.PathType = lookedUp.pathType
 
 }

@@ -161,7 +161,7 @@ val File.parents: Sequence<File>
         var parent = parentFile
         while (parent != null) {
             yield(parent)
-            parent = parentFile
+            parent = parent.parentFile
         }
     }
 

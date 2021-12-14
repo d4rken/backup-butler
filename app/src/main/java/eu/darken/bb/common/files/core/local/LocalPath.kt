@@ -6,6 +6,7 @@ import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
+import kotlinx.parcelize.IgnoredOnParcel
 import java.io.File
 
 
@@ -21,11 +22,14 @@ data class LocalPath(
             TypeMissMatchException.check(value, pathType)
         }
 
-    override val path: String
-        get() = file.path
+    @IgnoredOnParcel
+    override val path: String = file.path
 
-    override val name: String
-        get() = file.name
+    @IgnoredOnParcel
+    override val name: String = file.name
+
+    @IgnoredOnParcel
+    override val segments: List<String> = file.parentsInclusive.map { it.name }.toList()
 
     override fun child(vararg segments: String): LocalPath {
         return build(this.file, *segments)

@@ -7,6 +7,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.squareup.moshi.JsonClass
 import eu.darken.bb.common.TypeMissMatchException
 import eu.darken.bb.common.files.core.APath
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
 
@@ -51,6 +52,10 @@ data class SAFPath(
         } else {
             treeRoot.pathSegments.last().split('/').last()
         }
+
+    @IgnoredOnParcel
+    override val segments: List<String>
+        get() = crumbs
 
     override fun child(vararg segments: String): SAFPath {
         return build(this.treeRoot, *this.crumbs.toTypedArray(), *segments)
