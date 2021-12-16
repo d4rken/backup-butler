@@ -37,6 +37,12 @@ abstract class Smart2Fragment(@LayoutRes layoutRes: Int?) : SmartFragment(layout
         }
     }
 
+    inline fun <T> LiveData<T>.observe2(
+        crossinline callback: (T) -> Unit
+    ) {
+        observe(viewLifecycleOwner) { callback.invoke(it) }
+    }
+
     inline fun <T, reified VB : ViewBinding?> LiveData<T>.observe2(
         ui: VB,
         crossinline callback: VB.(T) -> Unit

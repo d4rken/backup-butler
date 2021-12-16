@@ -33,6 +33,7 @@ class FilesSpecGenerator @Inject constructor(
     data class Config(
         override val generatorId: Generator.Id,
         override val label: String,
+        override val isSingleUse: Boolean,
         val path: APath
     ) : Generator.Config {
 

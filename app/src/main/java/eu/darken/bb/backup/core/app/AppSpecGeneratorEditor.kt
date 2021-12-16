@@ -13,6 +13,8 @@ import eu.darken.bb.common.flow.DynamicStateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AppSpecGeneratorEditor @AssistedInject constructor(
     @Assisted private val generatorId: Generator.Id,
@@ -47,9 +49,16 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
     override suspend fun save(): Generator.Config {
         val data = editorDataPub.value()
 
+        val label = if (data.label.isNullOrEmpty()) {
+            val sdf = SimpleDateFormat("yyyy.MM.dd hh:mm", Locale.getDefault())
+            sdf.format(Date())
+        } else {
+            data.label
+        }
+
         val config = AppSpecGenerator.Config(
             generatorId = data.generatorId,
-            label = data.label,
+            label = label,
             autoInclude = data.autoInclude,
             includeUserApps = data.includeUserApps,
             includeSystemApps = data.includeSystemApps,
@@ -58,7 +67,8 @@ class AppSpecGeneratorEditor @AssistedInject constructor(
             backupApk = data.backupApk,
             backupData = data.backupData,
             backupCache = data.backupCache,
-            extraPaths = data.extraPaths
+            extraPaths = data.extraPaths,
+            isSingleUse = data.isSingleUse
         )
         val gens = appSpecGenerator.generate(config)
         log(TAG) { "AppBackupSpecs: $gens" }

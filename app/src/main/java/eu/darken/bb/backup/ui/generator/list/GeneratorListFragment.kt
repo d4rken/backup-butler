@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResultListener
@@ -31,7 +32,10 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ui.generatorList.setupDefaults(adapter)
+        ui.apply {
+            generatorList.setupDefaults(adapter)
+            fab.setOnClickListener { vdc.newGenerator() }
+        }
 
         vdc.viewState.observe2(ui) {
             log { "Updating UI state with $it" }
@@ -39,7 +43,13 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
             fab.isInvisible = false
         }
 
-        ui.fab.setOnClickListener { vdc.newGenerator() }
+        vdc.showSingleUseExplanation.observe2 {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.singleuse_item_label)
+                .setMessage(R.string.singleuse_item_description)
+                .setPositiveButton(R.string.general_ok_action) { _, _ -> }
+                .show()
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }

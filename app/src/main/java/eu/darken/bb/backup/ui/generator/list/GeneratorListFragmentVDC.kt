@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
+import eu.darken.bb.common.SingleLiveEvent
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -21,13 +22,21 @@ class GeneratorListFragmentVDC @Inject constructor(
     dispatcherProvider: DispatcherProvider
 ) : Smart2VDC(dispatcherProvider) {
 
+    val showSingleUseExplanation = SingleLiveEvent<Unit>()
+
     val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
         .map { repos ->
             val refs = repos
                 .map { config ->
                     GeneratorListAdapter.Item(
                         configOpt = GeneratorConfigOpt(config),
-                        onClick = { editGenerator(it) }
+                        onClick = {
+                            if (config.isSingleUse) {
+                                showSingleUseExplanation.postValue(Unit)
+                            } else {
+                                editGenerator(it)
+                            }
+                        }
                     )
                 }
             return@map ViewState(generators = refs)
@@ -38,7 +47,6 @@ class GeneratorListFragmentVDC @Inject constructor(
         MainFragmentDirections.actionMainFragmentToGeneratorEditor()
             .navVia(this)
     }
-
 
     fun editGenerator(generatorId: Generator.Id) {
         log(TAG) { "editGenerator(generatorId=$generatorId)" }

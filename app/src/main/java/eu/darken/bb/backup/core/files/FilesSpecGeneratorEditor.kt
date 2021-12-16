@@ -66,7 +66,8 @@ class FilesSpecGeneratorEditor @AssistedInject constructor(
         val config = FilesSpecGenerator.Config(
             generatorId = data.generatorId,
             label = data.label,
-            path = data.path!!
+            path = data.path!!,
+            isSingleUse = data.isSingleUse
         )
         log(TAG) { "save()'ed $config" }
         return config

@@ -50,7 +50,12 @@ class GeneratorListAdapter @Inject constructor() : ModularAdapter<GeneratorListA
             if (item.configOpt.config != null) {
                 val config = item.configOpt.config
 
-                typeLabel.setText(config.generatorType.labelRes)
+                val typeSb = StringBuilder(getString(config.generatorType.labelRes))
+                if (config.isSingleUse) {
+                    typeSb.append(" (${getString(R.string.singleuse_item_label)})")
+                }
+                typeLabel.text = typeSb.toString()
+
                 label.text = config.label
                 description.text = config.getDescription(context)
 

@@ -334,4 +334,6 @@
     <string name="general_unselect_all">Unselect all</string>
     <string name="uimode_quickmode_to_advanced_description">The quick mode user interface only supports the most common scenarios. Switch to the full UI to use additional features and create more complex backup scenarios. You can always switch back via the menu.</string>
     <string name="root_rooted_device_required_label">Requires rooted device</string>
+    <string name="singleuse_item_label">Single-use item</string>
+    <string name="singleuse_item_description">This is a single-use item. It\'s created temporary ( e.g. by quick mode) and will be removed automatically when all operations are finished.</string>
 </resources>

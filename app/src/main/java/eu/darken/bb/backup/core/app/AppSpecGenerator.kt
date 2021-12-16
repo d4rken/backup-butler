@@ -67,6 +67,7 @@ class AppSpecGenerator @Inject constructor(
     data class Config(
         override val generatorId: Generator.Id,
         override val label: String,
+        override val isSingleUse: Boolean,
         val autoInclude: Boolean,
         val includeUserApps: Boolean,
         val includeSystemApps: Boolean,
@@ -80,7 +81,7 @@ class AppSpecGenerator @Inject constructor(
 
         override fun getDescription(context: Context): String {
             // TODO useful generator description
-            return "TODO$generatorId"
+            return "userApps=$includeUserApps, systemApps=$includeSystemApps, autoInclude=$autoInclude, included=${packagesIncluded.size}, excluded=${packagesExcluded.size}"
         }
 
         override var generatorType: Backup.Type

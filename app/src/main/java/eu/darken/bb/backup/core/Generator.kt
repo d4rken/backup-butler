@@ -21,6 +21,7 @@ interface Generator {
         val generatorId: Id
         val generatorType: Backup.Type
         val label: String
+        val isSingleUse: Boolean
 
         fun getDescription(context: Context): String
 
