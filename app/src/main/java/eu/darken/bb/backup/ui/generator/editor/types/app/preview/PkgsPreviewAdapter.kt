@@ -7,7 +7,6 @@ import eu.darken.bb.common.lists.DataAdapter
 import eu.darken.bb.common.lists.modular.ModularAdapter
 import eu.darken.bb.common.lists.modular.mods.DataBinderMod
 import eu.darken.bb.common.lists.modular.mods.SimpleVHCreatorMod
-import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.AppPreviewRequest
 import eu.darken.bb.common.previews.GlideApp
 import eu.darken.bb.common.previews.into
@@ -15,20 +14,19 @@ import eu.darken.bb.databinding.GeneratorEditorAppPreviewAdapterLineBinding
 import javax.inject.Inject
 
 
-class PkgsPreviewAdapter @Inject constructor(
-    pkgOps: PkgOps
-) : ModularAdapter<PkgsPreviewAdapter.VH>(), DataAdapter<PreviewFilter.PkgWrap> {
+class PkgsPreviewAdapter @Inject constructor() : ModularAdapter<PkgsPreviewAdapter.VH>(),
+    DataAdapter<PreviewFilter.PkgWrap> {
 
     override val data = mutableListOf<PreviewFilter.PkgWrap>()
 
     init {
         modules.add(DataBinderMod(data))
-        modules.add(SimpleVHCreatorMod { VH(it, pkgOps) })
+        modules.add(SimpleVHCreatorMod { VH(it) })
     }
 
     override fun getItemCount(): Int = data.size
 
-    class VH(parent: ViewGroup, private val pkgOps: PkgOps) :
+    class VH(parent: ViewGroup) :
         ModularAdapter.VH(R.layout.generator_editor_app_preview_adapter_line, parent),
         BindableVH<PreviewFilter.PkgWrap, GeneratorEditorAppPreviewAdapterLineBinding> {
 
@@ -42,7 +40,7 @@ class PkgsPreviewAdapter @Inject constructor(
             val isSelected = item.isSelected
             val mode = item.mode
 
-            name.text = pkg.getLabel(pkgOps)
+            name.text = item.label
             when (mode) {
                 PreviewMode.PREVIEW -> {
                     description.setTextColor(getColorForAttr(R.attr.colorOnBackground))

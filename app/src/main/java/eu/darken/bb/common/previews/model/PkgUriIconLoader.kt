@@ -14,6 +14,7 @@ import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.PkgUriPreviewRequest
 import eu.darken.bb.common.previews.UriHelper
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,7 +37,8 @@ class PkgUriIconLoader(val pkgOps: PkgOps) : ModelLoader<PkgUriPreviewRequest, A
     private class AppDataFetcher constructor(val pkgOps: PkgOps, val request: PkgUriPreviewRequest) :
         DataFetcher<AppIconData> {
 
-        override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in AppIconData>) {
+        // TODO runBlocking is not nice, maybe try Coil?
+        override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in AppIconData>) = runBlocking {
             val pkgName = request.uri.host
 
             val applicationInfo = pkgOps.queryAppInfos(pkgName!!)

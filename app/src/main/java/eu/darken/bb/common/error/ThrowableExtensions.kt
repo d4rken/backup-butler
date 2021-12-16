@@ -27,6 +27,7 @@ fun Throwable.getRootCause(): Throwable {
 }
 
 fun Throwable.hasCause(exceptionClazz: KClass<out Throwable>): Boolean {
+    if (exceptionClazz.isInstance(this)) return true
     return exceptionClazz.isInstance(this.getRootCause())
 }
 

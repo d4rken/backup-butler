@@ -17,6 +17,7 @@ import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.model.AppIconData
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 
@@ -29,10 +30,17 @@ class AppIconDecoder(
 
     override fun handles(source: AppIconData, options: Options): Boolean = true
 
-    override fun decode(source: AppIconData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
+    // TODO runBlocking is not nice, maybe check Coil?
+    override fun decode(
+        source: AppIconData,
+        _width: Int,
+        _height: Int,
+        options: Options
+    ): Resource<Bitmap>? = runBlocking {
         var icon: Drawable? = try {
             pkgOpsLazy.get().getIcon(source.applicationInfo)
         } catch (e: Exception) {
+            // TODO, what kind of exception could we get here, do we need to catch?
             Timber.tag(TAG).w(e)
             null
         }
@@ -48,7 +56,7 @@ class AppIconDecoder(
             bitmap = icon.toBitmap(targetWidth, targetHeight)
         }
 
-        return if (bitmap == null) null else BitmapResource(bitmap, bitmapPool)
+        bitmap?.let { BitmapResource(it, bitmapPool) }
     }
 
     companion object {

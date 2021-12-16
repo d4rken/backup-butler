@@ -19,6 +19,7 @@ import eu.darken.bb.common.files.core.local.LocalPathLookup
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.previews.GlideUtil
 import eu.darken.bb.common.previews.model.FileData
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 
@@ -34,17 +35,28 @@ class ApkDecoder constructor(
         return source.type == FileData.Type.APK
     }
 
-    override fun decode(fileData: FileData, _width: Int, _height: Int, options: Options): Resource<Bitmap>? {
+    // TODO runBlocking is not nice, maybe check Coil?
+    override fun decode(
+        fileData: FileData,
+        _width: Int,
+        _height: Int,
+        options: Options
+    ): Resource<Bitmap>? = runBlocking {
         val bitmap: Bitmap? = when (fileData.file.pathType) {
             APath.PathType.LOCAL -> decodeLocalPath(fileData.file as LocalPathLookup, _width, _height, options)
             APath.PathType.SAF -> null // TODO
             else -> null
         }
 
-        return if (bitmap == null) null else BitmapResource(bitmap, bitmapPool)
+        if (bitmap == null) null else BitmapResource(bitmap, bitmapPool)
     }
 
-    private fun decodeLocalPath(filePath: LocalPathLookup, _width: Int, _height: Int, options: Options): Bitmap? {
+    private suspend fun decodeLocalPath(
+        filePath: LocalPathLookup,
+        _width: Int,
+        _height: Int,
+        options: Options
+    ): Bitmap? {
         // TODO Support Root?
         val packageInfo = pkgOpsLazy.get().viewArchive(filePath.path, PackageManager.GET_ACTIVITIES)
         if (packageInfo == null) return null

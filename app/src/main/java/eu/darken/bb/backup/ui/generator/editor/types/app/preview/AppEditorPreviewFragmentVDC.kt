@@ -11,6 +11,7 @@ import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.smart.Smart2VDC
+import eu.darken.bb.common.sortedBySuspending
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ class AppEditorPreviewFragmentVDC @Inject constructor(
             .onEach { pkgs ->
                 stater.updateBlocking {
                     copy(
-                        pkgs = pkgs.sortedBy { it.pkg.getLabel(pkgOps) }.toList(),
+                        pkgs = pkgs.sortedBySuspending { it.pkg.getLabel(pkgOps) },
                         selected = pkgs.filter { it.isSelected }.map { it.pkgName }.toSet(),
                         isLoading = false
                     )

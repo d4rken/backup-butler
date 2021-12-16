@@ -12,7 +12,7 @@ class PreviewFilter @Inject constructor(
     private val pkgOps: PkgOps
 ) {
 
-    fun filter(
+    suspend fun filter(
         data: AppSpecGeneratorEditor.Data,
         previewMode: PreviewMode
     ): Set<PkgWrap> {
@@ -23,17 +23,19 @@ class PreviewFilter @Inject constructor(
         val previewPkgs = mutableSetOf<PkgWrap>()
         if (data.includeUserApps) {
             val userPkgs = allPkgs.filterNot { it.isSystemApp }.map {
-                PkgWrap(
-                    it,
-                    mode = previewMode
+                PkgWrap.create(
+                    pkgOps = pkgOps,
+                    pkg = it,
+                    mode = previewMode,
                 )
             }
             previewPkgs.addAll(userPkgs)
         }
         if (data.includeSystemApps) {
             val systemApps = allPkgs.filter { it.isSystemApp }.map {
-                PkgWrap(
-                    it,
+                PkgWrap.create(
+                    pkgOps = pkgOps,
+                    pkg = it,
                     mode = previewMode
                 )
             }
@@ -45,7 +47,11 @@ class PreviewFilter @Inject constructor(
             PreviewMode.PREVIEW -> {
                 data.packagesIncluded.forEach { pkg ->
                     val pw =
-                        PkgWrap(allPkgs.first { it.packageName == pkg }, mode = previewMode)
+                        PkgWrap.create(
+                            pkgOps = pkgOps,
+                            pkg = allPkgs.first { it.packageName == pkg },
+                            mode = previewMode
+                        )
                     previewPkgs.add(pw)
                 }
                 previewPkgs.removeAll { data.packagesExcluded.contains(it.pkg.packageName) }
@@ -58,7 +64,8 @@ class PreviewFilter @Inject constructor(
                         previewPkgs.find { it.pkg == p } == null
                     }
                     .map {
-                        PkgWrap(
+                        PkgWrap.create(
+                            pkgOps = pkgOps,
                             pkg = it,
                             isSelected = data.packagesIncluded.contains(it.packageName),
                             mode = previewMode
@@ -66,7 +73,12 @@ class PreviewFilter @Inject constructor(
                     }
                 val already = data.packagesIncluded.map { inPkg ->
                     val appPkg = allPkgs.single { it.packageName == inPkg }
-                    PkgWrap(appPkg, true, previewMode)
+                    PkgWrap.create(
+                        pkgOps = pkgOps,
+                        pkg = appPkg,
+                        isSelected = true,
+                        mode = previewMode
+                    )
                 }
                 displayPkgs.addAll(possibly)
                 displayPkgs.addAll(already)
@@ -77,7 +89,12 @@ class PreviewFilter @Inject constructor(
                 }
                 val already = data.packagesExcluded.map { exPkg ->
                     val appPkg = allPkgs.single { it.packageName == exPkg }
-                    PkgWrap(appPkg, true, previewMode)
+                    PkgWrap.create(
+                        pkgOps = pkgOps,
+                        pkg = appPkg,
+                        isSelected = true,
+                        mode = previewMode,
+                    )
                 }
                 displayPkgs.addAll(possibly)
                 displayPkgs.addAll(already)
@@ -86,12 +103,28 @@ class PreviewFilter @Inject constructor(
         return displayPkgs
     }
 
-    data class PkgWrap(
+    @Suppress("DataClassPrivateConstructor")
+    data class PkgWrap private constructor(
         val pkg: AppPkg,
-        val isSelected: Boolean = false,
+        val label: String,
+        val isSelected: Boolean,
         val mode: PreviewMode
     ) {
         val pkgName = pkg.packageName
+
+        companion object {
+            suspend fun create(
+                pkgOps: PkgOps,
+                pkg: AppPkg,
+                isSelected: Boolean = false,
+                mode: PreviewMode,
+            ): PkgWrap = PkgWrap(
+                pkg = pkg,
+                label = pkgOps.getLabel(pkg.packageName) ?: pkg.packageName,
+                mode = mode,
+                isSelected = isSelected
+            )
+        }
     }
 
 }

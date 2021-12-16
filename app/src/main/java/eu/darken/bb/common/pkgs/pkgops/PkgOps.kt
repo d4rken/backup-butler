@@ -1,13 +1,18 @@
 package eu.darken.bb.common.pkgs.pkgops
 
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.TransactionTooLargeException
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.files.core.DeviceEnvironment
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.funnel.IPCFunnel
@@ -32,7 +37,7 @@ class PkgOps @Inject constructor(
     private val ipcFunnel: IPCFunnel,
     private val deviceEnvironment: DeviceEnvironment,
     @AppScope private val appScope: CoroutineScope,
-    private val dispatcherProvider: DispatcherProvider,
+    dispatcherProvider: DispatcherProvider,
 ) : HasSharedResource<Any> {
 
     override val sharedResource = SharedResource.createKeepAlive(
@@ -69,72 +74,80 @@ class PkgOps @Inject constructor(
         it.forceStop(packageName)
     }
 
-    fun queryPkg(pkgName: String, flags: Int = 0): Pkg? = ipcFunnel.queryPM { pm ->
-        var foundPkg: Pkg? = null
-        try {
-            foundPkg = AppPkg(pm.getPackageInfo(pkgName, flags))
+    suspend fun queryPkg(pkgName: String, flags: Int = 0): Pkg? = ipcFunnel.use {
+        log(TAG, VERBOSE) { "queryPkg($pkgName, $flags)..." }
+        val pkgInfo: PackageInfo? = try {
+            packageManager.getPackageInfo(pkgName, flags)
         } catch (e: PackageManager.NameNotFoundException) {
-            listPkgs(flags).first { it.packageName == pkgName }
+            log(TAG, VERBOSE) { "Pkg was not found, trying list-based lookup" }
+            packageManager.getInstalledPackages(flags).singleOrNull { it.packageName == pkgName }
         }
-        foundPkg
+
+        log(TAG, VERBOSE) { "queryPkg($pkgName, $flags): $pkgInfo" }
+        pkgInfo?.let { AppPkg(it) }
     }
 
-    fun listPkgs(flags: Int = 0): Collection<Pkg> = ipcFunnel.queryPM { pm ->
+    suspend fun listPkgs(flags: Int = 0): Collection<Pkg> = ipcFunnel.use {
+        log(TAG, VERBOSE) { "listPkgs($flags)..." }
         try {
-            pm.getInstalledPackages(flags)
+            packageManager.getInstalledPackages(flags)
+                .map { AppPkg(it) }
+                .toList()
+                .also { log(TAG, VERBOSE) { "listPkgs($flags): size=${it.size}" } }
         } catch (e: Exception) {
-            if (e.cause is TransactionTooLargeException) {
-                throw RuntimeException("${IPCFunnel.TAG}:internalGetInstalledPackages($flags):TransactionTooLargeException")
-            } else {
-                throw RuntimeException(e)
+            if (e.hasCause(TransactionTooLargeException::class)) {
+                throw RuntimeException("${IPCFunnel.TAG}:listPkgs($flags):TransactionTooLargeException")
             }
-        }.map { AppPkg(it) }.toList()
-    }
-
-    fun queryAppInfos(pkg: String, flags: Int = 0): ApplicationInfo? = ipcFunnel.queryPM { pm ->
-        try {
-            pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES)
-        } catch (e: Throwable) {
-            Timber.tag(TAG).d(e)
-            null
+            throw RuntimeException(e)
         }
     }
 
-    fun getLabel(packageName: String): String? = ipcFunnel.queryPM { pm ->
+    suspend fun queryAppInfos(
+        pkg: String,
+        flags: Int = PackageManager.GET_UNINSTALLED_PACKAGES
+    ): ApplicationInfo? = ipcFunnel.use {
         try {
-            pm.getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES).loadLabel(pm).toString()
+            packageManager.getApplicationInfo(pkg, flags)
         } catch (e: PackageManager.NameNotFoundException) {
-            Timber.tag(TAG).w(e)
+            log(TAG, WARN) { "queryAppInfos($pkg=pkg,flags=$flags) packageName not found." }
             null
         }
     }
 
-    fun getLabel(applicationInfo: ApplicationInfo): String? = ipcFunnel.queryPM { pm ->
+    suspend fun getLabel(packageName: String): String? = ipcFunnel.use {
         try {
-            applicationInfo.loadLabel(pm).toString()
+            packageManager
+                .getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES)
+                .loadLabel(packageManager)
+                .toString()
         } catch (e: PackageManager.NameNotFoundException) {
-            Timber.tag(TAG).w(e)
+            log(TAG, WARN) { "getLabel(packageName=$packageName) packageName not found." }
             null
         }
     }
 
-    fun viewArchive(path: String, flags: Int = 0): NormalPkg? = ipcFunnel.queryPM { pm ->
-        pm.getPackageArchiveInfo(path, flags)?.let { AppPkg(it) }
-    }
-
-    fun getIcon(pkg: String): Drawable? = ipcFunnel.queryPM { pm ->
+    suspend fun getLabel(applicationInfo: ApplicationInfo): String? = ipcFunnel.use {
         try {
-            getIcon(pm.getApplicationInfo(pkg, PackageManager.GET_UNINSTALLED_PACKAGES))
-        } catch (e: Throwable) {
-            Timber.tag(TAG).d(e)
+            applicationInfo.loadLabel(packageManager).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            log(TAG, WARN) { "getLabel(applicationInfo=$applicationInfo) packageName not found." }
             null
         }
     }
 
-    fun getIcon(appInfo: ApplicationInfo): Drawable? = ipcFunnel.queryPM { pm ->
+    suspend fun viewArchive(path: String, flags: Int = 0): NormalPkg? = ipcFunnel.use {
+        packageManager.getPackageArchiveInfo(path, flags)?.let { AppPkg(it) }
+    }
+
+    suspend fun getIcon(pkg: String): Drawable? {
+        val appInfo = queryAppInfos(pkg, PackageManager.GET_UNINSTALLED_PACKAGES)
+        return appInfo?.let { getIcon(it) }
+    }
+
+    suspend fun getIcon(appInfo: ApplicationInfo): Drawable? = ipcFunnel.use {
         try {
-            appInfo.loadIcon(pm)
-        } catch (e: Throwable) {
+            appInfo.loadIcon(packageManager)
+        } catch (e: Exception) {
             Timber.tag(TAG).d(e)
             null
         }
@@ -153,6 +166,6 @@ class PkgOps @Inject constructor(
     }
 
     companion object {
-        val TAG = logTag("PkgsOps")
+        val TAG = logTag("PkgOps")
     }
 }

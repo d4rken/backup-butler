@@ -10,7 +10,7 @@ interface Pkg {
 
     val packageType: Type
 
-    fun getLabel(pkgOps: PkgOps): String?
+  suspend fun getLabel(pkgOps: PkgOps): String?
 
     @Throws(Exception::class)
     fun <T> tryField(fieldName: String): T?

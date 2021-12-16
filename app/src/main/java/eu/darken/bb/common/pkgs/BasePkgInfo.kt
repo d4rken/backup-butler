@@ -44,7 +44,7 @@ abstract class BasePkgInfo(internal val packageInfo: PackageInfo) : NormalPkg {
     override val permissions: Collection<PermissionInfo>?
         get() = if (packageInfo.permissions == null) null else listOf(*packageInfo.permissions)
 
-    override fun getLabel(pkgOps: PkgOps): String? {
+    override suspend fun getLabel(pkgOps: PkgOps): String? {
         if (labelCache == null && applicationInfo != null) {
             labelCache = pkgOps.getLabel(applicationInfo!!)
         }
