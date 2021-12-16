@@ -17,7 +17,7 @@ import eu.darken.bb.common.files.core.local.root.DetailedInputSourceWrap
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent
-import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
+import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultInstallRoutine
 import eu.darken.bb.common.pkgs.pkgops.root.PkgOpsClient
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
@@ -45,7 +45,8 @@ class APKInstaller @Inject constructor(
     private val javaRootClient: JavaRootClient,
     private val pkgOps: PkgOps,
     @AppScope private val appScope: CoroutineScope, // Shouldn't this be processorScope?
-    private val dispatcherProvider: DispatcherProvider,
+    dispatcherProvider: DispatcherProvider,
+    private val installRoutineFactory: DefaultInstallRoutine.Factory
 ) : Progress.Client, Progress.Host, HasSharedResource<Any> {
 
     private val progressPub = DynamicStateFlow(TAG, appScope) { Progress.Data() }
@@ -77,6 +78,7 @@ class APKInstaller @Inject constructor(
 
     suspend fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
         log(TAG) { "install(request=$request)" }
+
         updateProgressPrimary(R.string.progress_restoring_apk)
         updateProgressSecondary(R.string.progress_working_label)
         updateProgressCount(Progress.Count.Indeterminate())
@@ -120,7 +122,7 @@ class APKInstaller @Inject constructor(
                     it.install(remoteRequest)
                 }
             } else {
-                DefaultRoutine(context).install(remoteRequest)
+                installRoutineFactory.create(rootMode = false).install(remoteRequest)
             }
 
         } finally {

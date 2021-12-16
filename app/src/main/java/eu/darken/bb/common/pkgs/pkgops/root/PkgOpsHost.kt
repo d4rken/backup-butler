@@ -6,7 +6,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.LibcoreTool
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
-import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultRoutine
+import eu.darken.bb.common.pkgs.pkgops.installer.routine.DefaultInstallRoutine
 import eu.darken.bb.common.shell.RootProcessShell
 import eu.darken.bb.common.shell.SharedShell
 import timber.log.Timber
@@ -17,10 +17,11 @@ import javax.inject.Inject
 class PkgOpsHost @Inject constructor(
     @ApplicationContext private val context: Context,
     @RootProcessShell private val sharedShell: SharedShell,
-    private val libcoreTool: LibcoreTool
+    private val libcoreTool: LibcoreTool,
+    private val installRoutineFactory: DefaultInstallRoutine.Factory
 ) : PkgOpsConnection.Stub() {
     override fun install(request: RemoteInstallRequest): Int = try {
-        DefaultRoutine(context).install(request)
+        installRoutineFactory.create(rootMode = true).install(request)
     } catch (e: Exception) {
         Timber.tag(TAG).e(e, "install(request=${request.packageName}) failed.")
         throw wrapPropagating(e)

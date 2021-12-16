@@ -68,7 +68,7 @@ class RootHostLauncher @Inject constructor(
             val rootHostOptions = RootHostOptions(
                 pairingCode = pairingCode,
                 packageName = context.packageName,
-                isDebug = enableDebug,
+                isDebug = enableDebug
             )
 
             val cmd = cmdBuilder.build(rootHostOptions)
