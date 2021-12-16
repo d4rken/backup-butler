@@ -12,9 +12,8 @@ import android.os.UserHandle
 import android.os.storage.StorageVolume
 import android.provider.DocumentsContract
 import androidx.annotation.RequiresApi
-import eu.darken.bb.common.BuildWrap
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.hasAPILevel
+import eu.darken.bb.common.hasApiLevel
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
@@ -48,7 +47,7 @@ class StorageVolumeX constructor(
 
     @get:SuppressLint("NewApi")
     val isPrimary: Boolean?
-        get() = if (BuildWrap.hasAPILevel(24)) {
+        get() = if (hasApiLevel(24)) {
             volume.isPrimary
         } else {
             try {
@@ -70,7 +69,7 @@ class StorageVolumeX constructor(
 
     @get:SuppressLint("NewApi")
     val isRemovable: Boolean?
-        get() = if (BuildWrap.hasAPILevel(24)) {
+        get() = if (hasApiLevel(24)) {
             volume.isRemovable
         } else {
             try {
@@ -97,7 +96,7 @@ class StorageVolumeX constructor(
      */
     @get:SuppressLint("NewApi")
     val isEmulated: Boolean?
-        get() = if (BuildWrap.hasAPILevel(24)) {
+        get() = if (hasApiLevel(24)) {
             volume.isEmulated
         } else {
             try {
@@ -122,7 +121,7 @@ class StorageVolumeX constructor(
      */
     @get:SuppressLint("NewApi")
     val uuid: String?
-        get() = if (BuildWrap.hasAPILevel(24)) {
+        get() = if (hasApiLevel(24)) {
             volume.uuid
         } else {
             try {
@@ -145,7 +144,7 @@ class StorageVolumeX constructor(
     @get:SuppressLint("NewApi")
     val state: String?
         get() = try {
-            if (BuildWrap.hasAPILevel(24)) {
+            if (hasApiLevel(24)) {
                 volume.state
             } else {
                 methodGetState?.invoke(volumeObj) as? String
@@ -216,7 +215,7 @@ class StorageVolumeX constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun getDescription(context: Context?): String? = if (BuildWrap.hasAPILevel(30)) {
+    fun getDescription(context: Context?): String? = if (hasApiLevel(30)) {
         volume.getDescription(context)
     } else {
         try {
@@ -245,7 +244,7 @@ class StorageVolumeX constructor(
         get() = try {
             methodGetOwner?.invoke(volumeObj) as? UserHandle
         } catch (e: NoSuchMethodException) {
-            if (!BuildWrap.hasAPILevel(30)) Timber.tag(TAG).e("StorageVolumeX.getOwner() unavailable.")
+            if (!hasApiLevel(30)) Timber.tag(TAG).e("StorageVolumeX.getOwner() unavailable.")
             null
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "StorageVolumeX.getOwner() threw an error.")
@@ -281,7 +280,7 @@ class StorageVolumeX constructor(
 
     @get:RequiresApi(Build.VERSION_CODES.R)
     val directory: File?
-        get() = if (BuildWrap.hasAPILevel(30)) {
+        get() = if (hasApiLevel(30)) {
             volume.directory
         } else {
             null
@@ -304,7 +303,7 @@ class StorageVolumeX constructor(
         sb.append("emulated=$isEmulated, ")
         sb.append("owner=$owner, ")
         sb.append("userlabel=$userLabel, ")
-        if (BuildWrap.hasAPILevel(29)) {
+        if (hasApiLevel(29)) {
             sb.append("rootUri=$rootUri")
         }
         sb.append(")")

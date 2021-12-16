@@ -6,9 +6,9 @@ import androidx.core.util.Pair
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.*
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.hasApiLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -31,7 +31,7 @@ class BuildPropPrinter @AssistedInject constructor(
             .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
             .onEach { previousOptions = it }
             .onEach {
-                if (!ApiHelper.hasOreo()) {
+                if (!hasApiLevel(26)) {
                     for (info in getSystemBuildProp()) {
                         if (info.first!!.contains("ro.product") || info.first!!.contains("ro.build") || info.first!!.contains(
                                 "ro.semc"
@@ -44,7 +44,7 @@ class BuildPropPrinter @AssistedInject constructor(
                     Timber.tag(TAG).d("Fingerprint: %s", Build.FINGERPRINT)
                     Timber.tag(TAG).d("ro.build.version.codename=%s", Build.VERSION.CODENAME)
                     Timber.tag(TAG).d("ro.build.version.incremental=%s", Build.VERSION.INCREMENTAL)
-                    if (ApiHelper.hasMarshmallow()) Timber.tag(TAG)
+                    if (hasApiLevel(26)) Timber.tag(TAG)
                         .d("ro.build.version.base_os=%s", Build.VERSION.BASE_OS)
                     Timber.tag(TAG).d("ro.build.version.release=%s", Build.VERSION.RELEASE)
                     Timber.tag(TAG).d("ro.build.display.id=%s", Build.DISPLAY)

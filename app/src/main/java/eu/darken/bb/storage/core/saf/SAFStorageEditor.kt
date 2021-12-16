@@ -7,7 +7,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.canWrite
@@ -16,6 +15,7 @@ import eu.darken.bb.common.files.core.isDirectory
 import eu.darken.bb.common.files.core.saf.SAFGateway
 import eu.darken.bb.common.files.core.saf.SAFPath
 import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.hasApiLevel
 import eu.darken.bb.common.moshi.fromAPath
 import eu.darken.bb.common.moshi.toAPath
 import eu.darken.bb.storage.core.ExistingStorageException
@@ -51,7 +51,7 @@ class SAFStorageEditor @AssistedInject constructor(
         check(_path.isDirectory(safGateway)) { "Target is not a directory!" }
 
         val isStorageRoot = safGateway.isStorageRoot(_path)
-        if (isStorageRoot && ApiHelper.hasAndroid11()) {
+        if (isStorageRoot && hasApiLevel(30)) {
             throw IllegalStoragePathException(_path, R.string.storage_saf_error_cant_pick_root)
         }
 

@@ -13,7 +13,6 @@ import eu.darken.bb.App
 import eu.darken.bb.Bugs
 import eu.darken.bb.BuildConfig
 import eu.darken.bb.GeneralSettings
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.BuildConfigWrap
 import eu.darken.bb.common.debug.bugsnag.BugsnagErrorHandler
 import eu.darken.bb.common.debug.bugsnag.BugsnagLogger
@@ -22,6 +21,7 @@ import eu.darken.bb.common.debug.logging.Logging
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
+import eu.darken.bb.common.hasApiLevel
 import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import kotlinx.coroutines.CoroutineScope
@@ -65,9 +65,9 @@ class BBDebug @Inject constructor(
                 .penaltyLog()
 
             @SuppressLint("NewApi")
-            if (ApiHelper.hasMarshmallow()) builder.penaltyDeathOnCleartextNetwork()
+            if (hasApiLevel(23)) builder.penaltyDeathOnCleartextNetwork()
             @SuppressLint("NewApi")
-            if (ApiHelper.hasAndroidNMR1()) builder.penaltyDeathOnFileUriExposure()
+            if (hasApiLevel(25)) builder.penaltyDeathOnFileUriExposure()
 
             StrictMode.setVmPolicy(builder.build())
 

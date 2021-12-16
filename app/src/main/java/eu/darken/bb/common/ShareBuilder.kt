@@ -110,13 +110,13 @@ class ShareBuilder @Inject constructor(
     private fun addAccessibleFiles(context: Context, intent: Intent, paths: Collection<APath>): ArrayList<Uri> {
         val uris = ArrayList<Uri>()
         for (f in paths) {
-            if (ApiHelper.hasAndroidN()) {
+            if (hasApiLevel(24)) {
                 uris.add(FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f.asFile()))
             } else {
                 uris.add(Uri.fromFile(f.asFile()))
             }
         }
-        if (uris.isNotEmpty() && ApiHelper.hasAndroidN()) {
+        if (uris.isNotEmpty() && hasApiLevel(24)) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }

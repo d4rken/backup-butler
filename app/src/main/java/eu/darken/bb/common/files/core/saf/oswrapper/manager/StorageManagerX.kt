@@ -7,9 +7,8 @@ import android.os.storage.StorageManager
 import androidx.annotation.RequiresApi
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.BuildWrap
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.hasAPILevel
+import eu.darken.bb.common.hasApiLevel
 import timber.log.Timber
 import java.io.File
 import java.lang.reflect.Method
@@ -28,7 +27,7 @@ class StorageManagerX @Inject constructor(@ApplicationContext context: Context) 
         get() {
             val svList: MutableList<StorageVolumeX> = ArrayList()
 
-            if (BuildWrap.hasAPILevel(24)) {
+            if (hasApiLevel(24)) {
                 for (vol in storageManager.storageVolumes) svList.add(StorageVolumeX(vol))
             } else {
                 try {
@@ -59,7 +58,7 @@ class StorageManagerX @Inject constructor(@ApplicationContext context: Context) 
 
     fun getStorageVolume(file: File): StorageVolumeX? {
         var volume: StorageVolumeX? = null
-        if (BuildWrap.hasAPILevel(24)) {
+        if (hasApiLevel(24)) {
             @SuppressLint("NewApi")
             volume = storageManager.getStorageVolume(file)?.let { StorageVolumeX(it) }
         }

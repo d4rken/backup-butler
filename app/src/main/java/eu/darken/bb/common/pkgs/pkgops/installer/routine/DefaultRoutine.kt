@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.IBinder
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
 import eu.darken.bb.common.files.core.local.root.inputStream
-import eu.darken.bb.common.hasAPILevel
+import eu.darken.bb.common.hasApiLevel
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallRoutine
 import eu.darken.bb.common.pkgs.pkgops.installer.RemoteInstallRequest
 import timber.log.Timber
@@ -28,7 +28,7 @@ class DefaultRoutine(
             setAppPackageName(request.packageName)
 
             @SuppressLint("NewApi")
-            if (ApiHelper.hasAPILevel(26)) {
+            if (hasApiLevel(Build.VERSION_CODES.P)) {
                 setInstallReason(PackageManager.INSTALL_REASON_USER)
             }
         }

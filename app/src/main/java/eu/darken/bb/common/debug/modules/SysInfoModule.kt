@@ -8,9 +8,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.*
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.hasApiLevel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -30,7 +30,7 @@ class SysInfoModule @AssistedInject constructor(
             .filter { !previousOptions.compareIgnorePath(it) && it.level <= Log.INFO }
             .onEach { previousOptions = it }
             .onEach {
-                if (ApiHelper.hasAndroidN()) {
+                if (hasApiLevel(24)) {
                     val appLocales = context.resources.configuration.locales
                     val deviceLocales = Resources.getSystem().configuration.locales
                     Timber.tag(TAG).d("App locales: %s, Device locales: %s", appLocales, deviceLocales)

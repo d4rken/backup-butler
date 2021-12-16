@@ -7,8 +7,8 @@ import android.graphics.Canvas
 import android.graphics.drawable.*
 import android.os.Build
 import androidx.core.graphics.BitmapCompat
-import eu.darken.bb.common.ApiHelper
 import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.hasApiLevel
 
 
 object GlideUtil {
@@ -28,7 +28,7 @@ object GlideUtil {
                         return Bitmap.createScaledBitmap(drwbl.bitmap, width, height, true)
                 }
             }
-        } else if (ApiHelper.hasLolliPop() && drawable is VectorDrawable) {
+        } else if (hasApiLevel(21) && drawable is VectorDrawable) {
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             drawable.setBounds(0, 0, width, height)
@@ -54,7 +54,7 @@ object GlideUtil {
             }
         } else if (drawable is StateListDrawable) {
             return (drawable.intrinsicWidth * drawable.intrinsicHeight * 5).toLong()
-        } else if (ApiHelper.hasLolliPop() && drawable is VectorDrawable) {
+        } else if (hasApiLevel(21) && drawable is VectorDrawable) {
             return (drawable.intrinsicWidth * drawable.intrinsicHeight * 5).toLong()
         }
         return 1

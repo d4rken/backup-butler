@@ -35,5 +35,5 @@ fun Fragment.getCompatColor(@ColorRes attrId: Int): Int = requireContext().getCo
 
 @SuppressLint("NewApi")
 fun Context.startServiceCompat(intent: Intent) {
-    if (ApiHelper.hasOreo()) startForegroundService(intent) else startService(intent)
+    if (hasApiLevel(26)) startForegroundService(intent) else startService(intent)
 }

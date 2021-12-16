@@ -13,4 +13,4 @@ object BuildWrap {
     }
 }
 
-fun BuildWrap.hasAPILevel(level: Int): Boolean = BuildWrap.VERSION.SDK_INT >= level
+fun hasApiLevel(level: Int): Boolean = BuildWrap.VERSION.SDK_INT >= level

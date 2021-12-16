@@ -5,7 +5,8 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PermissionInfo
-import eu.darken.bb.common.ApiHelper
+import android.os.Build
+import eu.darken.bb.common.hasApiLevel
 import eu.darken.bb.common.pkgs.pkgops.PkgOps
 
 
@@ -23,7 +24,7 @@ abstract class BasePkgInfo(internal val packageInfo: PackageInfo) : NormalPkg {
 
     override val versionCode: Long
         @SuppressLint("NewApi")
-        get() = if (ApiHelper.hasAndroidP()) {
+        get() = if (hasApiLevel(Build.VERSION_CODES.P)) {
             packageInfo.longVersionCode
         } else {
             packageInfo.versionCode.toLong()

@@ -12,11 +12,10 @@ import androidx.core.app.NotificationCompat
 import androidx.work.ForegroundInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
-import eu.darken.bb.common.BuildWrap
 import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
-import eu.darken.bb.common.hasAPILevel
+import eu.darken.bb.common.hasApiLevel
 import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.processor.ui.ProcessorActivity
 import kotlinx.coroutines.flow.Flow
@@ -68,7 +67,7 @@ class ProcessorNotifications @Inject constructor(
         }
 
     @SuppressLint("InlinedApi")
-    private fun NotificationCompat.Builder.toForegroundInfo(): ForegroundInfo = if (BuildWrap.hasAPILevel(29)) {
+    private fun NotificationCompat.Builder.toForegroundInfo(): ForegroundInfo = if (hasApiLevel(29)) {
         ForegroundInfo(
             NOTIFICATION_ID,
             this.build(),
