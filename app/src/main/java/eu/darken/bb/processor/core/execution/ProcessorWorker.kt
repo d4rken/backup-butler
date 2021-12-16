@@ -10,6 +10,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
 import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
 import eu.darken.bb.common.debug.logging.asLog
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
@@ -38,30 +39,41 @@ import kotlinx.coroutines.flow.onEach
     }
 
     init {
-        log(TAG) { "init(): workerId=$id" }
+        log(TAG, VERBOSE) { "init(): workerId=$id" }
     }
 
     override suspend fun doWork(): Result = try {
-        val request = inputData.getParcelable<ProcessorRequest>(WKEY_TASK_REQUEST)
-            ?: throw IllegalArgumentException("Worker executed without valid inputData")
+        val request = try {
+            inputData.getParcelable<ProcessorRequest>(WKEY_TASK_REQUEST)!!
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Worker executed without valid inputData: $inputData", e)
+        }
 
         val start = System.currentTimeMillis()
-        log(TAG) { "Executing $request now (runAttemptCount=$runAttemptCount)" }
+        log(TAG, VERBOSE) { "Executing $request now (runAttemptCount=$runAttemptCount)" }
+        if (runAttemptCount > 0) {
+            // If the app is killed while work is on-going, it will be retried
+            // A stuck task could lead to dozens of workers being retried
+            throw IllegalStateException("Processor requests shouldn't be tried: $request")
+        }
 
         notifications
             .getInfos(runner)
             .onEach { setForeground(it) }
             .launchIn(workerScope)
 
+        // Using runAttemptCount we can track stuck tasks that fail
+        // TODO move task result logic here
         val result = runner.execute(request)
 
         val duration = System.currentTimeMillis() - start
 
-        log(TAG) { "Execution finished after ${duration}ms, $request -> $result" }
+        log(TAG, VERBOSE) { "Execution finished after ${duration}ms, $request -> $result" }
 
         Result.success(inputData)
     } catch (e: Exception) {
-        log(TAG, ERROR) { "Failed execution for $inputData: ${e.asLog()}" }
+        log(TAG, ERROR) { "Excecution failed:\n${e.asLog()}" }
+        // TODO update result?
         Result.failure(inputData)
     } finally {
         this.workerScope.cancel("Worker finished.")
@@ -76,5 +88,5 @@ import kotlinx.coroutines.flow.onEach
 @InstallIn(ProcessorComponent::class)
 @EntryPoint
 interface ProcessorWorkerEntryPoint {
-    fun taskRunner(): ProcessorRunner
+    fun taskRunner(): TaskRunner
 }

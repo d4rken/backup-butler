@@ -321,7 +321,7 @@ class SimpleRestoreTaskEditor @AssistedInject constructor(
         override val backupInfoOpt: Backup.InfoOpt? = null,
         override val isCustomConfig: Boolean = false,
         val isPermissionGranted: Boolean = backupInfoOpt == null,
-        val defaultPath: APath? = null
+        val defaultPath: APath? = null,
     ) : ConfigWrap {
 
         override val isValid: Boolean

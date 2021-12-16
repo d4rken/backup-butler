@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ProcessorRunner @Inject constructor(
+class TaskRunner @Inject constructor(
     @ProcessorScope private val processorScope: CoroutineScope,
     private val taskRepo: TaskRepo,
     private val processorControl: ProcessorControl,
@@ -40,7 +40,7 @@ class ProcessorRunner @Inject constructor(
         progressUpdater.updateAsync(onUpdate = update)
     }
 
-    suspend fun execute(request: ProcessorRequest) = try {
+    suspend fun execute(request: ProcessorRequest): TaskResult = try {
         processorControl.updateProgressHost(this)
         updateProgressPrimary(R.string.progress_preparing_label)
 

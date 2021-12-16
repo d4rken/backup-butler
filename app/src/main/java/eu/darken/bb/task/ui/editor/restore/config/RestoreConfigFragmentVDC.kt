@@ -17,6 +17,7 @@ import eu.darken.bb.common.files.ui.picker.PathPickerResult
 import eu.darken.bb.common.flow.DynamicStateFlow
 import eu.darken.bb.common.navigation.navArgs
 import eu.darken.bb.common.navigation.navVia
+import eu.darken.bb.common.root.RootManager
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskBuilder
@@ -29,7 +30,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
     handle: SavedStateHandle,
     private val taskBuilder: TaskBuilder,
     private val safGateway: SAFGateway,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val rootManager: RootManager,
 ) : Smart2VDC(dispatcherProvider) {
     private val navArgs by handle.navArgs<RestoreConfigFragmentArgs>()
     private val taskId: Task.Id = navArgs.taskId
@@ -38,7 +40,6 @@ class RestoreConfigFragmentVDC @Inject constructor(
         .filterNotNull()
         .map { it.editor as SimpleRestoreTaskEditor }
 
-    private val dataFlow = editorFlow.flatMapConcat { it.editorData }
     private val configWraps = editorFlow.flatMapConcat { it.configWraps }
 
     private val summaryStater = DynamicStateFlow(TAG, vdcScope) { SummaryState() }
@@ -51,7 +52,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
 
     init {
         // Config wraps for item types (defaults, e.g. default for file store)
-        dataFlow
+        editorFlow
+            .flatMapConcat { it.editorData }
             .onEach { data ->
                 val customCount = data.customConfigs
                     .filterNot { data.defaultConfigs.values.contains(it.value) }
@@ -76,7 +78,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
                 }
                 configStater.updateBlocking {
                     copy(
-                        defaultConfigs = wrappedDefaults
+                        defaultConfigs = wrappedDefaults,
+                        isRooted = rootManager.isRooted()
                     )
                 }
             }
@@ -143,7 +146,8 @@ class RestoreConfigFragmentVDC @Inject constructor(
         val defaultConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
         val customConfigs: List<SimpleRestoreTaskEditor.ConfigWrap> = emptyList(),
         val isLoading: Boolean = true,
-        val isWorking: Boolean = false
+        val isWorking: Boolean = false,
+        val isRooted: Boolean = false,
     )
 
     companion object {

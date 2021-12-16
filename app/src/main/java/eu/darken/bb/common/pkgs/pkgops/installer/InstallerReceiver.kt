@@ -5,9 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import dagger.hilt.android.AndroidEntryPoint
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.pkgs.pkgops.installer.InstallerReceiver.InstallEvent.Code
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -16,7 +17,7 @@ class InstallerReceiver : BroadcastReceiver() {
     @Inject lateinit var installer: APKInstaller
 
     override fun onReceive(context: Context, intent: Intent) {
-        Timber.tag(TAG).d("onReceive(context=%s, intent=%s", context, intent)
+        log(TAG, VERBOSE) { "onReceive(context=$context, intent=$intent)" }
 
         val code = when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
             PackageInstaller.STATUS_SUCCESS -> Code.SUCCESS
@@ -34,7 +35,7 @@ class InstallerReceiver : BroadcastReceiver() {
             userAction = intent.getParcelableExtra(Intent.EXTRA_INTENT)
         )
 
-        Timber.tag(TAG).d("Processing event %s", event)
+        log(TAG) { "Processing event $event" }
         installer.handleEvent(event)
     }
 
@@ -51,6 +52,6 @@ class InstallerReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        val TAG = logTag("Installer", "Receiver")
+        val TAG = logTag("PkgOps", "Installer", "Receiver")
     }
 }

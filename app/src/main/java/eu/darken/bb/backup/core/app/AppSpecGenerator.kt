@@ -24,7 +24,9 @@ class AppSpecGenerator @Inject constructor(
         config as Config
         val specs = mutableListOf<AppBackupSpec>()
 
-        val allPkgs = pkgOps.listPkgs().filter { it.packageType == Pkg.Type.NORMAL }.map { it as NormalPkg }
+        val allPkgs = pkgOps.listPkgs()
+            .filter { it.packageType == Pkg.Type.NORMAL }
+            .map { it as NormalPkg }
 
         val targetPackages = mutableSetOf<String>()
         if (config.autoInclude) {
@@ -38,7 +40,9 @@ class AppSpecGenerator @Inject constructor(
             }
         }
 
-        allPkgs.map { it.packageName }.filter { config.packagesIncluded.contains(it) }
+        allPkgs
+            .map { it.packageName }
+            .filter { config.packagesIncluded.contains(it) }
             .forEach { targetPackages.add(it) }
 
         targetPackages.removeAll { config.packagesExcluded.contains(it) }

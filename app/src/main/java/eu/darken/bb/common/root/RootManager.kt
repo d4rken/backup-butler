@@ -3,11 +3,15 @@ package eu.darken.bb.common.root
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.GeneralSettings
+import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.*
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.rxshell.root.RootContext
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
-import timber.log.Timber
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,31 +19,42 @@ import javax.inject.Singleton
 @Singleton
 class RootManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val generalSettings: GeneralSettings
+    private val generalSettings: GeneralSettings,
+    private val dispatcherProvider: DispatcherProvider,
 ) {
-    companion object {
-        internal val TAG = logTag("RootManager")
-    }
 
-    val rootContext: Single<RootContext> = Single.just(generalSettings)
-        .subscribeOn(Schedulers.io())
-        .flatMap {
-            when {
-                generalSettings.isRootDisabled -> {
-                    Timber.tag(TAG).w("Rootcheck is disabled!")
-                    Single.just(RootContext.EMPTY)
-                }
-                else -> {
+    private var cachedContext: RootContext? = null
+    private val cacheLock = Mutex()
+
+    suspend fun isRooted(): Boolean = withContext(dispatcherProvider.IO) {
+        log(TAG, VERBOSE) { "isRooted()?" }
+
+        when {
+            generalSettings.isRootDisabled -> {
+                log(TAG, WARN) { "Rootcheck is disabled!" }
+                false
+            }
+            else -> cacheLock.withLock {
+                cachedContext?.let { return@withContext it.isRooted }
+
+                try {
                     RootContext.Builder(context).build()
                         .timeout(15, TimeUnit.SECONDS)
+                        .blockingGet()
+                        .also {
+                            cachedContext = it
+                            log(TAG) { "New RootContext obtained: $it" }
+                        }
+                        .isRooted
+                } catch (e: Exception) {
+                    log(TAG, ERROR) { "Error while obtaining RootContext: ${e.asLog()}" }
+                    false
                 }
             }
         }
-        .doOnSubscribe { Timber.tag(TAG).d("Acquiring RootContext...") }
-        .doOnSuccess { Timber.tag(TAG).i("RootContext: %s", it) }
-        .onErrorReturnItem(RootContext.EMPTY)
-        .cache()
-        .doOnSubscribe { Timber.tag(TAG).v("Client sub: %s", Thread.currentThread()) }
-        .doOnDispose { Timber.tag(TAG).v("Client disp") }
+    }
 
+    companion object {
+        internal val TAG = logTag("Root", "Manager")
+    }
 }

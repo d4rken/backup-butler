@@ -8,11 +8,11 @@ import eu.darken.bb.backup.core.Restore
 @Keep
 @JsonClass(generateAdapter = true)
 data class AppRestoreConfig(
-    val skipExistingApps: Boolean = false,
-    val restoreApk: Boolean = true,
-    val restoreData: Boolean = true,
-    val restoreCache: Boolean = false,
-    val overwriteExisting: Boolean = true
+    val skipExistingApps: Boolean,
+    val restoreApk: Boolean,
+    val restoreData: Boolean,
+    val restoreCache: Boolean,
+    val overwriteExisting: Boolean
 ) : Restore.Config {
 
     override var restoreType: Backup.Type

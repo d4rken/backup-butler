@@ -201,7 +201,7 @@ dependencies {
 
     implementation "io.github.reactivecircus.flowbinding:flowbinding-material:${flowbinding_version}"
 
-    // Network
+    // IO
     implementation("com.squareup.okio:okio:2.10.0")
 
     // Serialization

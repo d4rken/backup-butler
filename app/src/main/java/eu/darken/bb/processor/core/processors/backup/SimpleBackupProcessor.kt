@@ -9,6 +9,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.progress.*
@@ -56,6 +57,7 @@ class SimpleBackupProcessor @AssistedInject constructor(
         task.sources.forEach { generatorId ->
             val generatorConfig = generatorRepo.get(generatorId)
             requireNotNull(generatorConfig) { "Can't find generator config for $generatorId" }
+            log(TAG) { "Processing generator config: $generatorConfig" }
 
             // TODO what if the config has been deleted?
 

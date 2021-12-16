@@ -30,13 +30,13 @@ class FileConfigVH(parent: ViewGroup) : RestoreConfigAdapter.BaseVH<TaskEditorRe
 
         if (!item.isDefaultItem) {
             optionPathAction.setOnClickListener { item.runPathAction() }
-            optionPathInfo.setGone(item.configWrap.isPermissionGranted)
+            optionPathInfo.setGone(item.filesConfig.isPermissionGranted)
 
-            if (!item.configWrap.isPermissionGranted) {
+            if (!item.filesConfig.isPermissionGranted) {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorError))
                 optionPathInfo.text = getString(
-                    R.string.general_error_cant_access_msg, item.configWrap.currentPath?.userReadablePath(context)
-                        ?: "?"
+                    R.string.general_error_cant_access_msg, item.filesConfig.currentPath?.userReadablePath(context)
+                    ?: "?"
                 )
             } else {
                 optionPathInfo.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
@@ -47,12 +47,12 @@ class FileConfigVH(parent: ViewGroup) : RestoreConfigAdapter.BaseVH<TaskEditorRe
             if (config.restorePath != null) {
                 optionPathDisplay.text = config.restorePath.userReadablePath(context)
             } else {
-                optionPathDisplay.text = item.configWrap.defaultPath?.userReadablePath(context)
+                optionPathDisplay.text = item.filesConfig.defaultPath?.userReadablePath(context)
             }
         }
         optionPath.setGone(item.isDefaultItem)
 
-        if (item.configWrap.isPermissionGranted) {
+        if (item.filesConfig.isPermissionGranted) {
             container.subTitle.setTextColor(context.getColorForAttr(R.attr.colorOnBackground))
         } else {
             container.subTitle.setTextColor(context.getColorForAttr(R.attr.colorError))

@@ -19,6 +19,7 @@ import eu.darken.bb.common.progress.Progress
 import eu.darken.bb.common.progress.updateProgressCount
 import eu.darken.bb.common.progress.updateProgressPrimary
 import eu.darken.bb.common.progress.updateProgressSecondary
+import eu.darken.bb.common.sharedresource.Resource
 import eu.darken.bb.common.sharedresource.SharedResource
 import eu.darken.bb.processor.core.mm.MMDataRepo
 import eu.darken.bb.processor.core.mm.MMRef
@@ -76,11 +77,15 @@ abstract class CommonStorage<
         gateway.sharedResource.get().use { block() }
     }
 
+    private var gatewayKeepAlive: Resource<*>? = null
+
     private val dataDirEvents: Flow<List<PL>> = refreshTrigger
+        .onStart { gatewayKeepAlive = gateway.sharedResource.get() }
         .onEach { log(tag, VERBOSE) { "refresh triggered." } }
         .map { dataDir.lookupFilesOrNull(gateway) ?: emptyList() }
         .distinctUntilChanged()
         .setupCommonEventHandlers(tag) { "dataDirEvents()" }
+        .onCompletion { gatewayKeepAlive?.close() }
         .replayingShare(appScope)
 
     override fun info(): Flow<Storage.Info> = infowFlow

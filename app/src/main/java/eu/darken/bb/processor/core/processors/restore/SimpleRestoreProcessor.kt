@@ -10,6 +10,8 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Restore
 import eu.darken.bb.backup.core.RestoreConfigRepo
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.launchForAction
 import eu.darken.bb.common.progress.*
@@ -53,7 +55,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
 
         // Most specific first
         task.backupTargets.forEachIndexed { index, target ->
-            Timber.tag(TAG).v("Restoring %s", target)
+            log(TAG, INFO) { "Restoring $target" }
             progressParent.updateProgressTertiary(R.string.progress_restoring_backup)
 
             val subResultBuilder = SimpleResult.SubResult.Builder()
@@ -105,17 +107,17 @@ class SimpleRestoreProcessor @AssistedInject constructor(
         val backupType = backupMeta.backupType
         val backupId = backupMeta.backupId
 
-        Timber.tag(TAG).d("Loading backup unit from storage %s", storage)
+        log(TAG) { "Loading backup unit from storage $storage" }
         val backupUnit = storage.forwardProgressTo(progressChild).launchForAction(processorScope) {
             storage.load(specInfo.specId, backupId)
         }
-        Timber.tag(TAG).d("Backup unit loaded: %s", backupUnit)
+        log(TAG) { "Backup unit loaded: $backupUnit" }
 
         val endpoint = endpointCache.getOrPut(backupType) {
             restoreEndpointFactories.getValue(backupType).get().addParent(this)
         }
 
-        Timber.tag(TAG).d("Restoring %s with endpoint %s", backupUnit.spec, endpoint)
+        log(TAG) { "${backupUnit.spec} will be restored via endpoint $endpoint" }
 
         endpoint.forwardProgressTo(progressChild).launchForAction(processorScope) {
             endpoint.sharedResource.get().use {
@@ -125,7 +127,7 @@ class SimpleRestoreProcessor @AssistedInject constructor(
             }
         }
 
-        Timber.tag(TAG).d("Restoration done for %s", backupUnit.spec)
+        log(TAG) { "Restoration done for ${backupUnit.spec}" }
 
         mmDataRepo.release(backupUnit.backupId)
     }

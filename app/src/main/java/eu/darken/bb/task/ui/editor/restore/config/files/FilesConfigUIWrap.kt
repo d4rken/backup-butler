@@ -6,11 +6,11 @@ import eu.darken.bb.task.core.restore.SimpleRestoreTaskEditor
 import eu.darken.bb.task.ui.editor.restore.config.ConfigUIWrap
 
 data class FilesConfigUIWrap(
-    val configWrap: SimpleRestoreTaskEditor.FilesConfigWrap,
+    val filesConfig: SimpleRestoreTaskEditor.FilesConfigWrap,
     val configCallback: (Restore.Config, Backup.Id?) -> Unit,
     val pathAction: ((SimpleRestoreTaskEditor.FilesConfigWrap, Backup.Id?) -> Unit)?
-) : ConfigUIWrap(configWrap, configCallback) {
+) : ConfigUIWrap(filesConfig, configCallback) {
 
-    fun runPathAction() = pathAction?.invoke(configWrap, configWrap.backupInfoOpt!!.backupId)
+    fun runPathAction() = pathAction?.invoke(filesConfig, filesConfig.backupInfoOpt!!.backupId)
 
 }

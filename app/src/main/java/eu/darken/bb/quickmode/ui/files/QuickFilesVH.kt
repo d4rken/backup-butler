@@ -22,7 +22,6 @@ class QuickFilesVH(parent: ViewGroup) :
         item: Item,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
-        // TODO Support infos for more than 1 storage
 
         primaryInfo.text = when {
             item.storageInfos.none { it.info?.config != null } -> getString(R.string.progress_loading_label)
@@ -37,6 +36,7 @@ class QuickFilesVH(parent: ViewGroup) :
         secondaryInfo.text = when {
             item.storageInfos.all { !it.isFinished } -> getString(R.string.progress_loading_label)
             else -> {
+                // TODO Support infos for more than 1 storage
                 item.storageInfos.firstOrNull()?.info?.status?.let {
                     val countStr = getQuantityString(R.plurals.x_items, it.itemCount)
                     val sizeStr = Formatter.formatShortFileSize(context, it.totalSize)

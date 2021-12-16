@@ -40,7 +40,7 @@ open class SharedResource<T : Any> constructor(
         .onStart {
             lock.withLock {
                 isAlive = true
-                log(tag, DEBUG) { "Acquiring shared resource..." }
+                log(tag, VERBOSE) { "Acquiring shared resource..." }
 
                 if (activeLeases.isNotEmpty()) {
                     log(tag, WARN) { "Non-empty activeLeases: $activeLeases" }
@@ -94,7 +94,7 @@ open class SharedResource<T : Any> constructor(
             log(tag, WARN) { "Failed to provide resource: ${it.asLog()}" }
             emit(Event.Error(it))
         }
-        .onEach { log(tag) { "Resource ready: $it" } }
+        .onEach { log(tag, VERBOSE) { "Resource ready: $it" } }
         .shareIn(parentScope, SharingStarted.WhileSubscribed(replayExpirationMillis = 0), replay = 1)
 
     suspend fun get(): Resource<T> {

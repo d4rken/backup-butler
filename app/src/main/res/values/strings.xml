@@ -321,7 +321,7 @@
     <string name="quick_wizard_files_paths_to_back_up_title">Paths to back up</string>
     <string name="general_dismiss_action">Dismiss</string>
     <string name="storage_picker_title">Select storage</string>
-    <string name="quick_wizard_common_storage_multiple_hint">Multiple storages are configured. Switch to the advanced user interface to view them.</string>
+    <string name="quick_wizard_common_storage_multiple_hint">Multiple storages are configured. Switch to the full user interface to view them.</string>
     <string name="quick_files_default_task_label">Default files backup task</string>
     <string name="quick_apps_default_task_label">Default app backup task</string>
     <string name="quick_mode_subtitle">Quick mode</string>
@@ -332,5 +332,6 @@
     <string name="pkg_picker_empty_desc">The app list is empty, that doesn\'t seem right…</string>
     <string name="general_select_all">Select all</string>
     <string name="general_unselect_all">Unselect all</string>
-    <string name="uimode_quickmode_to_advanced_description">Additional features and support for more complex backup scenarios is available via the advanced UI. You can switch back and forth via the menu.</string>
+    <string name="uimode_quickmode_to_advanced_description">The quick mode user interface only supports the most common scenarios. Switch to the full UI to use additional features and create more complex backup scenarios. You can always switch via the menu.</string>
+    <string name="root_rooted_device_required_label">Requires rooted device</string>
 </resources>

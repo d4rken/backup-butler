@@ -7,6 +7,9 @@ import eu.darken.bb.BuildConfig
 import eu.darken.bb.R
 import eu.darken.bb.common.coroutine.AppScope
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
+import eu.darken.bb.common.debug.logging.asLog
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.files.core.local.LocalPath
 import eu.darken.bb.common.files.core.local.root.DetailedInputSource
@@ -73,7 +76,7 @@ class APKInstaller @Inject constructor(
     )
 
     suspend fun install(request: Request, logListener: ((LogEvent) -> Unit)? = null): Result {
-        Timber.tag(TAG).d("install(request=%s)", request)
+        log(TAG) { "install(request=$request)" }
         updateProgressPrimary(R.string.progress_restoring_apk)
         updateProgressSecondary(R.string.progress_working_label)
         updateProgressCount(Progress.Count.Indeterminate())
@@ -125,7 +128,7 @@ class APKInstaller @Inject constructor(
                 try {
                     it.input().close()
                 } catch (e: Exception) {
-                    Timber.tag(TAG).w(e, "Failed to close remote input stream for ${it.path()}")
+                    log(TAG, WARN) { "Failed to close remote input stream for ${it.path()}\n${e.asLog()}" }
                 }
             }
         }
@@ -158,15 +161,20 @@ class APKInstaller @Inject constructor(
             }
         }
 
+        if (success) log(TAG) { "APK install successful: $request" }
+        else log(TAG, WARN) { "APK install failed for $request\n${error?.asLog()}" }
+
         return Result(success = success, error = error)
     }
 
     fun handleEvent(event: InstallEvent) = when (event.code) {
         InstallEvent.Code.SUCCESS, InstallEvent.Code.ERROR -> {
+            log(TAG) { "Handling InstallEvent SUCCESS/ERROR: $event" }
             requireNotNull(event.sessionId) { "Event has no packagename: $event" }
             synchronized(installMap) {
                 var pkgName = event.packageName
                 if (pkgName == null) {
+                    log(TAG) { "Event had no packageName, trying sessionId lookup" }
                     Timber.tag(TAG).d("Event had no package name, trying lookup via session id.")
                     requireNotNull(event.sessionId) { "Event had no session ID and no package name, wtf." }
                     val session = installer.allSessions.find { it.sessionId == event.sessionId }
@@ -178,6 +186,7 @@ class APKInstaller @Inject constructor(
             }
         }
         InstallEvent.Code.USER_ACTION -> {
+            log(TAG) { "Handling InstallEvent USER_ACTION: $event" }
             val actionIntent = event.userAction!!
             actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(actionIntent)
@@ -186,7 +195,7 @@ class APKInstaller @Inject constructor(
 
 
     companion object {
-        val TAG = logTag("Installer")
+        val TAG = logTag("PkgOps", "Installer")
 
         internal fun createAction(packageName: String): String {
             return "${BuildConfig.APPLICATION_ID}.INSTALLER.CALLBACK:$packageName"

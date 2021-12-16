@@ -11,36 +11,52 @@ class AppConfigVH(parent: ViewGroup) : RestoreConfigAdapter.BaseVH<TaskEditorRes
     R.layout.task_editor_restore_configs_adapter_line_app, parent
 ) {
 
-//    override val title =
-
     override val viewBinding: Lazy<TaskEditorRestoreConfigsAdapterLineAppBinding> = lazy {
         TaskEditorRestoreConfigsAdapterLineAppBinding.bind(itemView)
     }
+
     override val onBindData: TaskEditorRestoreConfigsAdapterLineAppBinding.(
         item: ConfigUIWrap,
         payloads: List<Any>
     ) -> Unit = { item, _ ->
-        container.setConfigWrap(
-            getString(R.string.task_editor_restore_app_config_options_label),
-            item,
-        )
+        item as AppConfigUIWrap
         val config = item.config as AppRestoreConfig
 
-        optionSkipExistingApps.isChecked = config.skipExistingApps
-        optionSkipExistingApps.setSwitchListener { _, checked ->
-            item.updateConfig(config.copy(skipExistingApps = checked))
+        container.setConfigWrap(getString(R.string.task_editor_restore_app_config_options_label), item)
+
+        optionSkipExistingApps.apply {
+            isChecked = config.skipExistingApps
+            setSwitchListener { _, checked ->
+                item.updateConfig(config.copy(skipExistingApps = checked))
+            }
         }
-        optionRestoreApk.isChecked = config.restoreApk
-        optionRestoreApk.setSwitchListener { _, checked ->
-            item.updateConfig(config.copy(restoreApk = checked))
+        optionRestoreApk.apply {
+            isChecked = config.restoreApk
+            setSwitchListener { _, checked ->
+                item.updateConfig(config.copy(restoreApk = checked))
+            }
         }
-        optionRestoreData.isChecked = config.restoreData
-        optionRestoreData.setSwitchListener { _, checked ->
-            item.updateConfig(config.copy(restoreData = checked))
+        optionRestoreData.apply {
+            isChecked = config.restoreData
+            setSwitchListener { _, checked ->
+                item.updateConfig(config.copy(restoreData = checked))
+            }
+            isEnabled = item.isRooted
+            description = getString(
+                if (!item.isRooted) R.string.root_rooted_device_required_label
+                else R.string.task_editor_restore_app_config_restore_data_desc
+            )
         }
-        optionRestoreCache.isChecked = config.restoreCache
-        optionRestoreCache.setSwitchListener { _, checked ->
-            item.updateConfig(config.copy(restoreCache = checked))
+        optionRestoreCache.apply {
+            isChecked = config.restoreCache
+            setSwitchListener { _, checked ->
+                item.updateConfig(config.copy(restoreCache = checked))
+            }
+            isEnabled = item.isRooted
+            description = getString(
+                if (!item.isRooted) R.string.root_rooted_device_required_label
+                else R.string.task_editor_restore_app_config_restore_cache_desc
+            )
         }
     }
 }

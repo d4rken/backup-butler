@@ -114,7 +114,7 @@ class AppBackupEndpoint @Inject constructor(
         }
         // TODO root stuff, only when enabled?
 
-        if (spec.backupData) {
+        if (rootAvailable && spec.backupData) {
             listOf(
                 DataType.DATA_PRIVATE_PRIMARY,
                 DataType.DATA_PUBLIC_PRIMARY,
@@ -128,7 +128,7 @@ class AppBackupEndpoint @Inject constructor(
             }
         }
 
-        if (spec.backupCache) {
+        if (rootAvailable && spec.backupCache) {
             listOf(
                 DataType.CACHE_PRIVATE_PRIMARY,
                 DataType.CACHE_PUBLIC_PRIMARY,

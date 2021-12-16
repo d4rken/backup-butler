@@ -67,11 +67,14 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
             val defaultItems = state.defaultConfigs
                 .map {
                     when (it) {
-                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(
+                            appConfig = it,
+                            isRooted = state.isRooted
+                        ) { config, id ->
                             vdc.updateConfig(config, id)
                         }
                         is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(
-                            it,
+                            filesConfig = it,
                             configCallback = { config, id -> vdc.updateConfig(config, id) },
                             pathAction = null
                         )
@@ -82,7 +85,10 @@ class RestoreConfigFragment : Smart2Fragment(R.layout.task_editor_restore_config
             val customItems = state.customConfigs
                 .map {
                     when (it) {
-                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(it) { config, id ->
+                        is SimpleRestoreTaskEditor.AppsConfigWrap -> AppConfigUIWrap(
+                            appConfig = it,
+                            isRooted = state.isRooted,
+                        ) { config, id ->
                             vdc.updateConfig(config, id)
                         }
                         is SimpleRestoreTaskEditor.FilesConfigWrap -> FilesConfigUIWrap(it,

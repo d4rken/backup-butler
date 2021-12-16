@@ -12,6 +12,9 @@ import eu.darken.bb.backup.core.app.AppBackupWrap.DataType
 import eu.darken.bb.backup.core.app.AppRestoreConfig
 import eu.darken.bb.common.HasContext
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
+import eu.darken.bb.common.debug.logging.Logging.Priority.VERBOSE
+import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.error.hasCause
 import eu.darken.bb.common.flow.DynamicStateFlow
@@ -54,40 +57,31 @@ class AppRestoreEndpoint @Inject constructor(
         updateProgressSecondary { backup.spec.getLabel(it) }
         updateProgressCount(Progress.Count.Indeterminate())
 
-        Timber.tag(TAG).i("Restoring %s with config %s.", backup.spec, config)
+        log(TAG, INFO) { "Restoring ${backup.spec} with config $config." }
 
         config as AppRestoreConfig
         val spec = backup.spec as AppBackupSpec
         val wrap = AppBackupWrap(backup)
 
+        log(TAG, VERBOSE) { "Checking if app is already installed..." }
         if (config.skipExistingApps && pkgOps.queryPkg(spec.packageName) != null) {
+            log(TAG, INFO) { "Already installed, skipping ${spec.packageName}" }
             return
         }
 
         val rootAvailable = try {
+            log(TAG, VERBOSE) { "Checking root availability..." }
             javaRootClient.addParent(this)
             true
         } catch (e: Exception) {
             if (e.hasCause(RootUnavailableException::class)) false else throw e
         }
 
+        log(TAG) { "rootAvailable=$rootAvailable" }
+
         if (config.restoreApk) {
-            val request = APKInstaller.Request(
-                packageName = wrap.packageName,
-                baseApk = wrap.baseApk,
-                splitApks = wrap.splitApks.toList(),
-                useRoot = rootAvailable
-            )
-
-            val installResult = apkInstaller.forwardProgressTo(this).launchForAction(processorScope) {
-                apkInstaller.addParent(this).install(request) {
-                    logListener?.invoke(it)
-                }
-            }
-
-            if (!installResult.success) {
-                throw installResult.error!!
-            }
+            log(TAG) { "Restoring APK for ${spec.packageName}" }
+            restoreApk(wrap, rootAvailable, logListener)
         }
 
         val pkg = pkgOps.queryPkg(wrap.packageName)
@@ -99,6 +93,7 @@ class AppRestoreEndpoint @Inject constructor(
         pkgOps.forceStop(appInfo.packageName)
 
         if (config.restoreData) {
+            log(TAG) { "Restoring data for ${spec.packageName}" }
             listOf(
                 DataType.DATA_PRIVATE_PRIMARY,
                 DataType.DATA_PUBLIC_PRIMARY,
@@ -113,6 +108,7 @@ class AppRestoreEndpoint @Inject constructor(
         }
 
         if (config.restoreCache) {
+            log(TAG) { "Restoring cache for ${spec.packageName}" }
             listOf(
                 DataType.CACHE_PRIVATE_PRIMARY,
                 DataType.CACHE_PUBLIC_PRIMARY,
@@ -125,6 +121,27 @@ class AppRestoreEndpoint @Inject constructor(
                 restoreType(type, config, spec, appInfo, wrap, logListener)
             }
         }
+    }
+
+    private suspend fun restoreApk(
+        wrap: AppBackupWrap,
+        rootAvailable: Boolean,
+        logListener: ((LogEvent) -> Unit)?
+    ) {
+        val request = APKInstaller.Request(
+            packageName = wrap.packageName,
+            baseApk = wrap.baseApk,
+            splitApks = wrap.splitApks.toList(),
+            useRoot = rootAvailable
+        )
+
+        val installResult = apkInstaller.forwardProgressTo(this).launchForAction(processorScope) {
+            apkInstaller.addParent(this).install(request) {
+                logListener?.invoke(it)
+            }
+        }
+
+        if (!installResult.success) throw installResult.error!!
     }
 
     private suspend fun restoreType(

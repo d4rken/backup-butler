@@ -42,7 +42,8 @@ class LocalGateway @Inject constructor(
     private val environment: DeviceEnvironment
 ) : APathGateway<LocalPath, LocalPathLookup> {
 
-    // TODO who keeps this alive? getShellSession() sharedUserShell wants to add itself to this as parent.
+    // Represents the resource that keeps the gateway resources alive
+    // Internal resources should add themselfes as child to this
     override val sharedResource = SharedResource.createKeepAlive(TAG, appScope + dispatcherProvider.IO)
 
     private var rootCheckValue = 0

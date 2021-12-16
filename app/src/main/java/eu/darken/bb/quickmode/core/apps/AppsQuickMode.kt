@@ -61,6 +61,7 @@ class AppsQuickMode @Inject constructor(
         (editorData.editor as AppSpecGeneratorEditor).apply {
             update { data ->
                 data.copy(
+                    autoInclude = false,
                     packagesIncluded = selection.map { it.pkg }.toSet(),
                     isSingleUse = true
                 )
