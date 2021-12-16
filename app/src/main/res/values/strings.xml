@@ -332,6 +332,6 @@
     <string name="pkg_picker_empty_desc">The app list is empty, that doesn\'t seem right…</string>
     <string name="general_select_all">Select all</string>
     <string name="general_unselect_all">Unselect all</string>
-    <string name="uimode_quickmode_to_advanced_description">The quick mode user interface only supports the most common scenarios. Switch to the full UI to use additional features and create more complex backup scenarios. You can always switch via the menu.</string>
+    <string name="uimode_quickmode_to_advanced_description">The quick mode user interface only supports the most common scenarios. Switch to the full UI to use additional features and create more complex backup scenarios. You can always switch back via the menu.</string>
     <string name="root_rooted_device_required_label">Requires rooted device</string>
 </resources>
