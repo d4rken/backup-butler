@@ -8,6 +8,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.ui.generator.editor.GeneratorEditorResultListener
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.lists.differ.update
@@ -43,12 +44,17 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
             fab.isInvisible = false
         }
 
-        vdc.showSingleUseExplanation.observe2 {
-            MaterialAlertDialogBuilder(requireContext())
+        vdc.showSingleUseExplanation.observe2 { generatorId ->
+            val builder = MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.singleuse_item_label)
                 .setMessage(R.string.singleuse_item_description)
                 .setPositiveButton(R.string.general_ok_action) { _, _ -> }
-                .show()
+            if (BBDebug.isDebug()) {
+                builder.setNeutralButton(R.string.general_edit_action) { _, _ ->
+                    vdc.editGenerator(generatorId)
+                }
+            }
+            builder.show()
         }
 
         super.onViewCreated(view, savedInstanceState)

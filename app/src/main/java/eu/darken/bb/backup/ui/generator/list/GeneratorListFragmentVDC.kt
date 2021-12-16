@@ -22,7 +22,7 @@ class GeneratorListFragmentVDC @Inject constructor(
     dispatcherProvider: DispatcherProvider
 ) : Smart2VDC(dispatcherProvider) {
 
-    val showSingleUseExplanation = SingleLiveEvent<Unit>()
+    val showSingleUseExplanation = SingleLiveEvent<Generator.Id>()
 
     val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
         .map { repos ->
@@ -32,7 +32,7 @@ class GeneratorListFragmentVDC @Inject constructor(
                         configOpt = GeneratorConfigOpt(config),
                         onClick = {
                             if (config.isSingleUse) {
-                                showSingleUseExplanation.postValue(Unit)
+                                showSingleUseExplanation.postValue(config.generatorId)
                             } else {
                                 editGenerator(it)
                             }
