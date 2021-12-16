@@ -51,7 +51,13 @@ class TaskListAdapter @Inject constructor() : ModularAdapter<TaskListAdapter.Bac
         ) -> Unit = { item, _ ->
             val task = item.task
             val lastResult = item.lastResult
-            typeLabel.setText(task.taskType.labelRes)
+
+            val typeSb = StringBuilder(getString(task.taskType.labelRes))
+            if (task.isSingleUse) {
+                typeSb.append(" (${getString(R.string.singleuse_item_label)})")
+            }
+            typeLabel.text = typeSb.toString()
+
             typeIcon.setImageResource(task.taskType.iconRes)
 
             taskLabel.text = task.label

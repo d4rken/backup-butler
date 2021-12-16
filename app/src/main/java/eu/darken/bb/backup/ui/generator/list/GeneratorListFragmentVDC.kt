@@ -24,7 +24,9 @@ class GeneratorListFragmentVDC @Inject constructor(
 
     val showSingleUseExplanation = SingleLiveEvent<Generator.Id>()
 
-    val viewState: LiveData<ViewState> = generatorRepo.configs.map { it.values }
+    val viewState: LiveData<ViewState> = generatorRepo.configs
+        .map { it.values }
+        .map { configs -> configs.sortedBy { it.isSingleUse } }
         .map { repos ->
             val refs = repos
                 .map { config ->

@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isInvisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.lists.differ.update
 import eu.darken.bb.common.lists.setupDefaults
@@ -49,6 +51,19 @@ class TaskListFragment : Smart2Fragment(R.layout.task_list_fragment) {
                 snackbar?.dismiss()
                 snackbar = null
             }
+        }
+
+        vdc.showSingleUseExplanation.observe2 { taskId ->
+            MaterialAlertDialogBuilder(requireContext()).apply {
+                setTitle(R.string.singleuse_item_label)
+                setMessage(R.string.singleuse_item_description)
+                setPositiveButton(R.string.general_ok_action) { _, _ -> }
+                if (BBDebug.isDebug()) {
+                    setNeutralButton(R.string.general_edit_action) { _, _ ->
+                        vdc.editTask(taskId)
+                    }
+                }
+            }.show()
         }
         super.onViewCreated(view, savedInstanceState)
     }

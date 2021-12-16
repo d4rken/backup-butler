@@ -32,10 +32,8 @@ class TaskListFragmentVDC @Inject constructor(
 
     private val tasksFlow = taskRepo.tasks
         .map { it.values }
-        .map { it.toList() }
-        .map { tasks -> tasks.filter { !it.isSingleUse } }
+        .map { tasks -> tasks.sortedBy { it.isSingleUse } }
         .replayingShare(vdcScope)
-
 
     val state = combine(
         tasksFlow,
@@ -46,11 +44,19 @@ class TaskListFragmentVDC @Inject constructor(
                 TaskListAdapter.Item(
                     task = task,
                     lastResult = results.find { task.taskId == it.taskId },
-                    onClickAction = { editTask(it) }
+                    onClickAction = {
+                        if (task.isSingleUse) {
+                            showSingleUseExplanation.postValue(task.taskId)
+                        } else {
+                            editTask(it)
+                        }
+                    }
                 )
             }
         )
     }.asLiveData2()
+
+    val showSingleUseExplanation = SingleLiveEvent<Task.Id>()
 
     val processorEvent = SingleLiveEvent<Boolean>()
 

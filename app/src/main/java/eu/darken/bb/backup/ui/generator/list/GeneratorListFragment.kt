@@ -45,16 +45,16 @@ class GeneratorListFragment : Smart2Fragment(R.layout.generator_list_fragment), 
         }
 
         vdc.showSingleUseExplanation.observe2 { generatorId ->
-            val builder = MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.singleuse_item_label)
-                .setMessage(R.string.singleuse_item_description)
-                .setPositiveButton(R.string.general_ok_action) { _, _ -> }
-            if (BBDebug.isDebug()) {
-                builder.setNeutralButton(R.string.general_edit_action) { _, _ ->
-                    vdc.editGenerator(generatorId)
+            MaterialAlertDialogBuilder(requireContext()).apply {
+                setTitle(R.string.singleuse_item_label)
+                setMessage(R.string.singleuse_item_description)
+                setPositiveButton(R.string.general_ok_action) { _, _ -> }
+                if (BBDebug.isDebug()) {
+                    setNeutralButton(R.string.general_edit_action) { _, _ ->
+                        vdc.editGenerator(generatorId)
+                    }
                 }
-            }
-            builder.show()
+            }.show()
         }
 
         super.onViewCreated(view, savedInstanceState)
