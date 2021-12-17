@@ -16,7 +16,8 @@ class FilesSpecGeneratorConfigTest {
         val original = FilesSpecGenerator.Config(
             generatorId = Generator.Id(),
             label = "FilesSpecLabel",
-            path = RawPath.build("testcrumb")
+            path = RawPath.build("testcrumb"),
+            isSingleUse = false
         )
 
         val moshi = AppModule().moshi()
@@ -28,7 +29,8 @@ class FilesSpecGeneratorConfigTest {
                 "generatorId":"${original.generatorId.idString}",
                 "label":"FilesSpecLabel",
                 "path":$jsonPath,
-                "generatorType":"FILES"
+                "generatorType":"FILES",
+                "isSingleUse": false
             }
         """.toFormattedJson()
 
@@ -48,7 +50,8 @@ class FilesSpecGeneratorConfigTest {
         val original = FilesSpecGenerator.Config(
             generatorId = Generator.Id(),
             label = "TestLabel",
-            path = RawPath.build("testcrumb")
+            path = RawPath.build("testcrumb"),
+            isSingleUse = false
         )
         original.generatorType shouldBe Backup.Type.FILES
         original.generatorType = Backup.Type.APP

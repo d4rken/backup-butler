@@ -21,7 +21,8 @@ class AppSpecGeneratorConfigTest {
         backupApk = true,
         backupData = true,
         backupCache = false,
-        extraPaths = mapOf("test" to setOf(RawPath.build("rawpath")))
+        extraPaths = mapOf("test" to setOf(RawPath.build("rawpath"))),
+        isSingleUse = false
     )
 
     @Test
@@ -52,7 +53,8 @@ class AppSpecGeneratorConfigTest {
                         }
                     ]
                 },
-                "generatorType": "APP"
+                "generatorType": "APP",
+                "isSingleUse": false
             }
         """.toFormattedJson()
 

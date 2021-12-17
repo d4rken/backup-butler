@@ -16,17 +16,23 @@ class AppRestoreConfigTest {
 
     @Test
     fun `test serialization`() {
-        val original = AppRestoreConfig()
+        val original = AppRestoreConfig(
+            skipExistingApps = true,
+            restoreApk = true,
+            restoreData = true,
+            restoreCache = false,
+            overwriteExisting = false
+        )
 
         val moshi = AppModule().moshi()
 
         val expectedJson = """
             {
-                "skipExistingApps": false,
+                "skipExistingApps": true,
                 "restoreApk": true,
                 "restoreData": true,
                 "restoreCache": false,
-                "overwriteExisting": true,
+                "overwriteExisting": false,
                 "restoreType": "APP"
             }
         """.toFormattedJson()
@@ -44,7 +50,13 @@ class AppRestoreConfigTest {
 
     @Test
     fun `test fixed type`() {
-        val original = AppRestoreConfig()
+        val original = AppRestoreConfig(
+            skipExistingApps = true,
+            restoreApk = true,
+            restoreData = true,
+            restoreCache = false,
+            overwriteExisting = false
+        )
         original.restoreType shouldBe Backup.Type.APP
         original.restoreType = Backup.Type.FILES
         original.restoreType shouldBe Backup.Type.APP
@@ -64,9 +76,27 @@ class AppRestoreConfigTest {
 
     @Test
     fun `test equals and hash`() {
-        val one = AppRestoreConfig(skipExistingApps = false)
-        val two = AppRestoreConfig()
-        val three = AppRestoreConfig(skipExistingApps = true)
+        val one = AppRestoreConfig(
+            skipExistingApps = true,
+            restoreApk = true,
+            restoreData = true,
+            restoreCache = false,
+            overwriteExisting = false
+        )
+        val two = AppRestoreConfig(
+            skipExistingApps = true,
+            restoreApk = true,
+            restoreData = true,
+            restoreCache = false,
+            overwriteExisting = false
+        )
+        val three = AppRestoreConfig(
+            skipExistingApps = true,
+            restoreApk = true,
+            restoreData = true,
+            restoreCache = false,
+            overwriteExisting = true
+        )
 
         one shouldBe two
         one.hashCode() shouldBe two.hashCode()
