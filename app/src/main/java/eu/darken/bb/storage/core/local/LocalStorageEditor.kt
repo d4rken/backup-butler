@@ -146,7 +146,7 @@ class LocalStorageEditor @AssistedInject constructor(
     ) : StorageEditor.Data
 
     companion object {
-        const val STORAGE_CONFIG = "storage.data"
+        const val STORAGE_CONFIG = "storage.json"
         val TAG = logTag("Storage", "Local", "Editor")
     }
 }

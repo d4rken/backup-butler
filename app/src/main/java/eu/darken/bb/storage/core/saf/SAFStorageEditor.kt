@@ -167,7 +167,7 @@ class SAFStorageEditor @AssistedInject constructor(
     interface Factory : StorageEditor.Factory<SAFStorageEditor>
 
     companion object {
-        const val STORAGE_CONFIG = "storage.data"
+        const val STORAGE_CONFIG = "storage.json"
         val TAG = logTag("Storage", "SAF", "Editor")
     }
 }
