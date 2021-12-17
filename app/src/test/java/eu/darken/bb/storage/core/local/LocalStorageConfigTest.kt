@@ -28,7 +28,8 @@ class LocalStorageConfigTest {
             "storageId": "${testID.idString}",
             "label": "testlabel",
             "strategy": $strategyJson,
-            "storageType":"${Storage.Type.LOCAL}"
+            "storageType":"${Storage.Type.LOCAL}",
+            "version": 1
         }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
@@ -55,7 +56,8 @@ class LocalStorageConfigTest {
             "storageId": "${testID.idString}",
             "label": "testlabel",
             "strategy": $strategyJson,
-            "storageType": "${Storage.Type.LOCAL}"
+            "storageType": "${Storage.Type.LOCAL}",
+            "version": 1
         }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)

@@ -101,6 +101,7 @@ interface Storage : Progress.Host, HasSharedResource<Any> {
         val storageId: Id
         val storageType: Type
         val strategy: Strategy
+        val version: Int
     }
 
     data class Info(

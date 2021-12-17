@@ -28,7 +28,8 @@ class SAFStorageConfigTest {
             "strategy": {
                 "type": "SIMPLE"
             },
-            "storageType": "${Storage.Type.SAF}"
+            "storageType": "${Storage.Type.SAF}",
+            "version": 1
         }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
@@ -54,7 +55,8 @@ class SAFStorageConfigTest {
             "strategy": {
                 "type": "SIMPLE"
             },
-            "storageType":"${Storage.Type.SAF}"
+            "storageType":"${Storage.Type.SAF}",
+            "version": 1
         }""".toFormattedJson()
 
         val restored = adapter.fromJson(json)
