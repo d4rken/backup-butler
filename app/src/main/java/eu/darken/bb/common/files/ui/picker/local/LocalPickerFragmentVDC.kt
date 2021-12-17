@@ -47,7 +47,8 @@ class LocalPickerFragmentVDC @Inject constructor(
     private val stater = DynamicStateFlow(TAG, vdcScope) {
         State(
             currentPath = startPath,
-            currentCrumbs = startPath.toCrumbs()
+            currentCrumbs = startPath.toCrumbs(),
+            allowCreateDir = options.allowCreateDir
         )
     }
     val state = stater.asLiveData2()

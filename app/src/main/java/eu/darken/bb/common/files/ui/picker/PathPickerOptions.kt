@@ -13,6 +13,7 @@ data class PathPickerOptions(
     val selectionLimit: Int = 1,
     val allowedTypes: Set<APath.PathType> = emptySet(),
     val onlyDirs: Boolean = true,
+    val allowCreateDir: Boolean = true,
     val payload: Bundle = Bundle()
 ) : Parcelable {
     @IgnoredOnParcel @Transient val type: APath.PathType? = startPath?.pathType

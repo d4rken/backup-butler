@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
@@ -110,16 +111,17 @@ class LocalPickerFragment : Smart2Fragment(R.layout.path_picker_local_fragment) 
         vdc.createDirEvent.observe2(this) {
             val alertLayout = layoutInflater.inflate(R.layout.view_alertdialog_edittext, null)
             val input = alertLayout.findViewById<EditText>(R.id.input_text)
-            val dialog = AlertDialog.Builder(requireContext())
-                .setView(alertLayout)
-                .setTitle(R.string.general_create_dir)
-                .setPositiveButton(R.string.general_create_action) { _, _ ->
+
+            val dialog = MaterialAlertDialogBuilder(requireContext()).apply {
+                setView(alertLayout)
+                setTitle(R.string.general_create_dir)
+                setPositiveButton(R.string.general_create_action) { _, _ ->
                     vdc.createDir(input.text.toString())
                 }
-                .setNegativeButton(R.string.general_cancel_action) { _, _ ->
+                setNegativeButton(R.string.general_cancel_action) { _, _ ->
 
                 }
-                .create()
+            }.create()
 
             dialog.setOnShowListener {
                 val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
