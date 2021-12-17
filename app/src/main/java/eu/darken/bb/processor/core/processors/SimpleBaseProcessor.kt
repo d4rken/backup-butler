@@ -54,18 +54,22 @@ abstract class SimpleBaseProcessor constructor(
             Timber.tag(TAG).e(exception, "Task failed: %s", task)
             resultBuilder.error(context, exception)
         } finally {
-            onCleanup()
-            progressParent.updateProgressSecondary(R.string.progress_working_label)
+            progressParent.updateProgressSecondary(R.string.progress_tidying_label)
+
             progressParent.updateProgressTertiary(CaString.EMPTY)
             progressParent.updateProgressCount(Progress.Count.Indeterminate())
             progressParent.updateProgress { it.copy(child = null) }
+
+            onCleanup(task)
+
+            progressParent.updateProgressSecondary(R.string.progress_working_label)
         }
         return resultBuilder.build(context)
     }
 
     abstract suspend fun doProcess(task: Task)
 
-    open suspend fun onCleanup() {
+    open suspend fun onCleanup(task: Task) {
 
     }
 

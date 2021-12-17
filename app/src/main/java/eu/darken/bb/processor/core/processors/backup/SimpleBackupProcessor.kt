@@ -9,6 +9,7 @@ import eu.darken.bb.backup.core.Backup
 import eu.darken.bb.backup.core.Generator
 import eu.darken.bb.backup.core.GeneratorRepo
 import eu.darken.bb.common.coroutine.DispatcherProvider
+import eu.darken.bb.common.debug.logging.Logging.Priority.WARN
 import eu.darken.bb.common.debug.logging.log
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.launchForAction
@@ -42,7 +43,6 @@ class SimpleBackupProcessor @AssistedInject constructor(
         update
     )
 
-    // TODO remove single use generators
     override suspend fun doProcess(task: Task) {
         updateProgressPrimary(task.taskType.labelRes)
         updateProgressSecondary(task.label)
@@ -110,9 +110,24 @@ class SimpleBackupProcessor @AssistedInject constructor(
         }
     }
 
-    override suspend fun onCleanup() {
+    override suspend fun onCleanup(task: Task) {
+        log(TAG) { "Task finished, checking for single-use elements..." }
+        task as SimpleBackupTask
+
+        task.sources
+            .mapNotNull { generatorId ->
+                generatorRepo.get(generatorId).also {
+                    if (it == null) log(TAG, WARN) { "No generator config available for $generatorId" }
+                }
+            }
+            .filter { it.isSingleUse }
+            .forEach {
+                log(TAG) { "Removing single-use generator: $it" }
+                generatorRepo.remove(it.generatorId)
+            }
+
         mmDataRepo.releaseAll()
-        super.onCleanup()
+        super.onCleanup(task)
     }
 
     @AssistedFactory

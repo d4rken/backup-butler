@@ -336,4 +336,5 @@
     <string name="root_rooted_device_required_label">Requires rooted device</string>
     <string name="singleuse_item_label">Single-use item</string>
     <string name="singleuse_item_description">This is a single-use item. It\'s created temporary ( e.g. by quick mode) and will be removed automatically when all operations are finished.</string>
+    <string name="progress_tidying_label">Tidying up</string>
 </resources>
