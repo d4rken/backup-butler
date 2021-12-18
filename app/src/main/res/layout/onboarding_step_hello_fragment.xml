@@ -60,77 +60,110 @@
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Backup Butler takes data from multiple sources (files, apps, settings...) and copies to multiple destinations (sdcard, cloud, etc.), automatically (timer, events, updates...)."
-                app:layout_constraintBottom_toTopOf="@id/bugreport_title"
+                android:text="@string/onboarding_hello_description"
+                app:layout_constraintBottom_toTopOf="@id/apps_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/app_icon" />
 
             <ImageView
-                android:id="@+id/bugreport_icon"
+                android:id="@+id/apps_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_default_appicon_onsurface"
-                app:layout_constraintBottom_toBottomOf="@id/bugreport_title"
-                app:layout_constraintEnd_toStartOf="@id/bugreport_title"
+                app:layout_constraintBottom_toBottomOf="@id/apps_title"
+                app:layout_constraintEnd_toStartOf="@id/apps_title"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/bugreport_title"
+                app:layout_constraintTop_toTopOf="@id/apps_title"
                 app:tint="?colorOnSurface" />
 
             <TextView
-                android:id="@+id/bugreport_title"
+                android:id="@+id/apps_title"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
-                android:text="Apps &amp; data"
-                app:layout_constraintBottom_toTopOf="@id/bugreport_description"
-                app:layout_constraintStart_toEndOf="@id/bugreport_icon"
+                android:text="@string/onboarding_hello_apps_label"
+                app:layout_constraintBottom_toTopOf="@id/apps_description"
+                app:layout_constraintStart_toEndOf="@id/apps_icon"
                 app:layout_constraintTop_toBottomOf="@+id/app_explanation" />
 
             <TextView
-                android:id="@+id/bugreport_description"
+                android:id="@+id/apps_description"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Backup apps everytime there is an update so you can always go back."
+                android:text="@string/onboarding_hello_apps_description"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/bugreport_title"
-                app:layout_constraintTop_toBottomOf="@+id/bugreport_title" />
+                app:layout_constraintStart_toStartOf="@id/apps_title"
+                app:layout_constraintTop_toBottomOf="@+id/apps_title" />
 
             <ImageView
-                android:id="@+id/betacost_icon"
+                android:id="@+id/files_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_file_onsurface"
-                app:layout_constraintBottom_toBottomOf="@id/betacost_title"
-                app:layout_constraintEnd_toStartOf="@id/betacost_title"
+                app:layout_constraintBottom_toBottomOf="@id/files_title"
+                app:layout_constraintEnd_toStartOf="@id/files_title"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/betacost_title"
+                app:layout_constraintTop_toTopOf="@id/files_title"
                 app:tint="?colorOnSurface" />
 
             <TextView
-                android:id="@+id/betacost_title"
+                android:id="@+id/files_title"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:text="Files &amp; folders"
-                app:layout_constraintBottom_toTopOf="@id/betacost_description"
-                app:layout_constraintStart_toEndOf="@id/betacost_icon"
-                app:layout_constraintTop_toBottomOf="@+id/bugreport_description" />
+                android:text="@string/onboarding_hello_files_label"
+                app:layout_constraintBottom_toTopOf="@id/files_description"
+                app:layout_constraintStart_toEndOf="@id/files_icon"
+                app:layout_constraintTop_toBottomOf="@+id/apps_description" />
 
             <TextView
-                android:id="@+id/betacost_description"
+                android:id="@+id/files_description"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Copy photos to multiple cloud storages so they are always safe, even if you loose your phone."
+                android:text="@string/onboarding_hello_files_description"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/betacost_title"
-                app:layout_constraintTop_toBottomOf="@+id/betacost_title" />
+                app:layout_constraintStart_toStartOf="@id/files_title"
+                app:layout_constraintTop_toBottomOf="@+id/files_title" />
+
+            <ImageView
+                android:id="@+id/triggers_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_event_24"
+                app:layout_constraintBottom_toBottomOf="@id/triggers_title"
+                app:layout_constraintEnd_toStartOf="@id/triggers_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/triggers_title"
+                app:tint="?colorOnSurface" />
+
+            <TextView
+                android:id="@+id/triggers_title"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/onboarding_hello_triggers_label"
+                app:layout_constraintBottom_toTopOf="@id/triggers_description"
+                app:layout_constraintStart_toEndOf="@id/triggers_icon"
+                app:layout_constraintTop_toBottomOf="@+id/files_description" />
+
+            <TextView
+                android:id="@+id/triggers_description"
+                style="@style/TextAppearance.MaterialComponents.Body2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_hello_triggers_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/triggers_title"
+                app:layout_constraintTop_toBottomOf="@+id/triggers_title" />
 
             <TextView
                 android:id="@+id/permissions_ymmv"

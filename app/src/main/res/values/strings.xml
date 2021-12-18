@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Backup Butler</string>
+    <string name="app_name_pro">Backup Butler Pro</string>
     <string name="settings_label">Settings</string>
     <string name="version_label">Version</string>
     <string name="upgrade_status_label">Upgrade status</string>
@@ -284,14 +285,14 @@
     <string name="permission_write_storage_desc">Write access to public storage, e.g. your built-in and/or removable sdcard. Necessary to read backups and restore app data.</string>
     <string name="storage_saf_error_cant_pick_root">Can\'t use the storage root since Android 11. Create or pick a subfolder.</string>
     <string name="onboarding_cost_subtitle">What does it cost?</string>
-    <string name="onboarding_cost_restore_title">Restoring backups</string>
-    <string name="onboarding_cost_restore_description">It\'s your data. You can always restore your backups for free.</string>
-    <string name="onboarding_cost_backup_title">Creating backups</string>
-    <string name="onboarding_cost_backup_description">You need an active subscription to create new backups.</string>
+    <string name="onboarding_cost_restore_title">Restoring backups is always free</string>
+    <string name="onboarding_cost_restore_description">You can always restore your backups for free. After all it\'s your data, taking it hostage is unethical. </string>
+    <string name="onboarding_cost_backup_title">Creating backups is mostly free</string>
+    <string name="onboarding_cost_backup_description">Basic backup functionality is free. Power users may upgrade to the pro version to unlock more options and features.</string>
     <string name="onboarding_cost_subscription_title">Subscription? Purchase?</string>
-    <string name="onboarding_cost_subscription_description">A good backup is reliable. A subscription allows me to prioritize you instead of chasing new users. To spend time on support and improve compatibility with different Android versions and devices.</string>
+    <string name="onboarding_cost_subscription_description">A good backup is reliable. A subscription allows me to prioritize you instead of chasing new users. To spend time on support and improve compatibility with Android versions and devices.</string>
     <string name="onboarding_cost_busfactor_title">Open source</string>
-    <string name="onboarding_cost_busfactor_description">Backup Butler is open-source. When I get hit by a bus, someone else can take over to ensure your backups can be restored on new devices.</string>
+    <string name="onboarding_cost_busfactor_description">This app is open-source. If I get hit by a bus, the project isn\'t necessarily over.</string>
     <string name="onboarding_cost_dontworry_description">Exploring the app is free. Don\'t worry.</string>
     <string name="bugreporting_report_action">Report a bug</string>
     <string name="bugreporting_record_debuglog_action">Record debug log</string>
@@ -306,6 +307,7 @@
     <string name="onboarding_betacost_title">Free stuff</string>
     <string name="onboarding_betacost_description">Paid features are free during this beta.</string>
     <string name="onboarding_hello_subtitle">What does this app do?</string>
+    <string name="onboarding_hello_description">Backup Butler is a backup app, taking data from multiple sources (files, apps, settings etc.) to multiple destinations (sdcards, clouds etc.).</string>
     <string name="general_backup_action">Backup</string>
     <string name="general_upgrade_action">Upgrade</string>
     <string name="quick_apps_create_default_task_description">Quick mode for apps needs to be set up before you can use it.</string>
@@ -338,4 +340,10 @@
     <string name="singleuse_item_description">This is a single-use item. It\'s created temporary ( e.g. by quick mode) and will be removed automatically when all operations are finished.</string>
     <string name="progress_tidying_label">Tidying up</string>
     <string name="error_item_already_exists_msg">Item already exists</string>
+    <string name="onboarding_hello_apps_label">Apps &amp; data</string>
+    <string name="onboarding_hello_apps_description">Backup apps every time there is an update so you can always go back.</string>
+    <string name="onboarding_hello_files_label">Files &amp; folders</string>
+    <string name="onboarding_hello_files_description">Copy photos to multiple cloud storages so they are always safe, even if you loose your phone.</string>
+    <string name="onboarding_hello_triggers_label">Schedules</string>
+    <string name="onboarding_hello_triggers_description">Automatically run actions: When an app updates, at a certain time or when your device is charging.</string>
 </resources>
