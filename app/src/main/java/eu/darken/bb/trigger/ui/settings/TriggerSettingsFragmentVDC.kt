@@ -1,4 +1,4 @@
-package eu.darken.bb.schedule.ui.settings
+package eu.darken.bb.trigger.ui.settings
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel

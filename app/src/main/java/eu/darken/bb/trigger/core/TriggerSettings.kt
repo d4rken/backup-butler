@@ -1,4 +1,4 @@
-package eu.darken.bb.schedule.core
+package eu.darken.bb.trigger.core
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -204,7 +204,7 @@
     <string name="licenses_settings_label">Licenses</string>
     <string name="general_thank_you_label">Thank you</string>
     <string name="task_settings_desc">How tasks are executed.</string>
-    <string name="trigger_settings_label">Trigger</string>
+    <string name="trigger_settings_label">Triggers</string>
     <string name="trigger_settings_desc">How the task triggers behaves.</string>
     <string name="documentation_label">Documentation</string>
     <string name="email_developer_label">Email developer</string>
@@ -235,9 +235,9 @@
     <string name="general_home_action">Return to start</string>
     <string name="general_pick_a_path_action">Pick a path</string>
     <string name="debug_label">Debug</string>
-    <string name="user_interface_mode_label">User interface mode</string>
-    <string name="user_interface_mode_quick_label">Quick</string>
-    <string name="user_interface_mode_normal_label">Normal</string>
+    <string name="user_interface_mode_label">User interface start page</string>
+    <string name="user_interface_mode_quick_label">Quick mode</string>
+    <string name="user_interface_mode_normal_label">Normal mode</string>
     <string name="uimode_switch_action">Switch UI mode</string>
     <string name="general_confirmation_label">Are you sure?</string>
     <string name="general_confirmation_confirmation_label">Are you really sure?</string>

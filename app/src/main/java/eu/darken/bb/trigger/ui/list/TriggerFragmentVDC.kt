@@ -1,4 +1,4 @@
-package eu.darken.bb.schedule.ui.list
+package eu.darken.bb.trigger.ui.list
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle

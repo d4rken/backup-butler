@@ -12,6 +12,7 @@
         <CheckBoxPreference
             android:icon="@drawable/ic_update_onsurface"
             android:summary="Check for new updates!"
+            android:enabled="false"
             android:title="Update check" />
 
         <CheckBoxPreference

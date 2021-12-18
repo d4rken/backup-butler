@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
         android:icon="@drawable/ic_settings_onsurface"
-        app:fragment="eu.darken.bb.main.ui.settings.general.GeneralSettingsFragment"
+        app:fragment="eu.darken.bb.settings.ui.general.GeneralSettingsFragment"
         app:summary="@string/general_settings_desc"
         app:title="@string/general_settings_label" />
 
     <Preference
         android:icon="@drawable/ic_ui_onsurface"
-        app:fragment="eu.darken.bb.main.ui.settings.ui.UISettingsFragment"
+        app:fragment="eu.darken.bb.settings.ui.ui.UISettingsFragment"
         app:summary="@string/userinterface_settings_desc"
         app:title="@string/userinterface_settings_label" />
 
@@ -21,7 +21,7 @@
 
     <Preference
         android:icon="@drawable/ic_support_onsurface"
-        app:fragment="eu.darken.bb.main.ui.settings.support.SupportFragment"
+        app:fragment="eu.darken.bb.settings.ui.support.SupportFragment"
         app:summary="If you need some help."
         app:title="@string/support_settings_label" />
 
@@ -40,7 +40,7 @@
 
         <Preference
             android:icon="@drawable/ic_scheduler_onsurface"
-            app:fragment="eu.darken.bb.schedule.ui.settings.SchedulerSettingsFragment"
+            app:fragment="eu.darken.bb.trigger.ui.settings.TriggerSettingsFragment"
             app:summary="@string/trigger_settings_desc"
             app:title="@string/trigger_settings_label" />
 
@@ -65,7 +65,7 @@
 
         <Preference
             android:icon="@drawable/ic_heart_onsurface"
-            app:fragment="eu.darken.bb.main.ui.settings.acks.AcknowledgementsFragment"
+            app:fragment="eu.darken.bb.settings.ui.acks.AcknowledgementsFragment"
             app:summary="@string/general_thank_you_label"
             app:title="@string/acknowledgements_settings_label" />
 

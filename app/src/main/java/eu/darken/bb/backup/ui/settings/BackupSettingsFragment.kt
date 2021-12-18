@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.backup.core.BackupSettings
+import eu.darken.bb.common.requireActivityActionBar
 import eu.darken.bb.common.smart.SmartPreferenceFragment
 import javax.inject.Inject
 
@@ -18,7 +19,7 @@ class BackupSettingsFragment : SmartPreferenceFragment() {
     override val preferenceFile: Int = R.xml.preferences_backup
 
     override fun onPreferencesCreated() {
-
+        requireActivityActionBar().setSubtitle(R.string.general_todo_msg)
     }
 
 }

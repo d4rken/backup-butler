@@ -14,9 +14,9 @@ import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.debug.DebugFragment
 import eu.darken.bb.main.ui.overview.OverviewFragment
-import eu.darken.bb.schedule.ui.list.TriggerListFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
+import eu.darken.bb.trigger.ui.list.TriggerListFragment
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
