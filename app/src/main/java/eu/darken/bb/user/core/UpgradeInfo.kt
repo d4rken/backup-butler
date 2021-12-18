@@ -2,22 +2,18 @@ package eu.darken.bb.user.core
 
 import androidx.annotation.Keep
 import com.squareup.moshi.JsonClass
+import java.time.Instant
 
 @Keep
 @JsonClass(generateAdapter = true)
-data class UpgradeData(
+data class UpgradeInfo(
     val state: State,
-    val features: Collection<Feature>,
-    val validity: Long = -1L
+    val updatedAt: Instant = Instant.now()
 ) {
 
     @Keep
-    enum class Feature {
-        BACKUP
-    }
-
-    @Keep
     enum class State {
-        BASIC, PRO
+        BASIC,
+        PRO
     }
 }

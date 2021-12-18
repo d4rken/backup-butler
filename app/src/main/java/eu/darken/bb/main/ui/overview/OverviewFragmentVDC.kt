@@ -7,28 +7,27 @@ import eu.darken.bb.BackupButler
 import eu.darken.bb.common.coroutine.DispatcherProvider
 import eu.darken.bb.common.debug.logging.logTag
 import eu.darken.bb.common.flow.DynamicStateFlow
-import eu.darken.bb.common.rx.asLiveData
 import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.user.core.UpgradeControl
-import eu.darken.bb.user.core.UpgradeData
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.kotlin.Observables
+import eu.darken.bb.user.core.UpgradeInfo
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 @HiltViewModel
 class OverviewFragmentVDC @Inject constructor(
     private val handle: SavedStateHandle,
     private val butler: BackupButler,
-    private val upgradeControl: UpgradeControl,
-    private val dispatcherProvider: DispatcherProvider,
+    upgradeControl: UpgradeControl,
+    dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
-    val appState: LiveData<AppState> = Observables
-        .zip(Single.fromCallable { butler.appInfo }.toObservable(), upgradeControl.upgradeData)
-        .map { (appInfo, upgradeData) ->
-            return@map AppState(appInfo = appInfo, upgradeData = upgradeData)
-        }
-        .asLiveData()
+    val appState: LiveData<AppState> = combine(
+        flow { emit(butler.appInfo) },
+        upgradeControl.state
+    ) { appInfo, upgradeData ->
+        AppState(appInfo = appInfo, upgradeInfo = upgradeData)
+    }.asLiveData2()
 
     private val updateStater = DynamicStateFlow(TAG, vdcScope) { UpdateState() }
     val updateState = updateStater.asLiveData2()
@@ -43,7 +42,7 @@ class OverviewFragmentVDC @Inject constructor(
 
     data class AppState(
         val appInfo: BackupButler.AppInfo,
-        val upgradeData: UpgradeData
+        val upgradeInfo: UpgradeInfo
     )
 
     data class UpdateState(

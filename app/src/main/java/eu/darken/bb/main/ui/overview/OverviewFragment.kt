@@ -10,7 +10,7 @@ import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.ui.setGone
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.OverviewFragmentBinding
-import eu.darken.bb.user.core.UpgradeData
+import eu.darken.bb.user.core.UpgradeInfo
 
 @AndroidEntryPoint
 class OverviewFragment : Smart2Fragment(R.layout.overview_fragment) {
@@ -24,7 +24,7 @@ class OverviewFragment : Smart2Fragment(R.layout.overview_fragment) {
             cardAppinfosVersion.text =
                 "v${it.appInfo.versionName}(${it.appInfo.versionCode}) [${it.appInfo.buildState} ${it.appInfo.gitSha} ${it.appInfo.buildTime}]"
             cardAppinfosUpgrades.text = when {
-                it.upgradeData.state == UpgradeData.State.PRO -> getString(R.string.upgrade_proversion_label)
+                it.upgradeInfo.state == UpgradeInfo.State.PRO -> getString(R.string.upgrade_proversion_label)
                 else -> getString(R.string.upgrade_basicversion_label)
             }
         }

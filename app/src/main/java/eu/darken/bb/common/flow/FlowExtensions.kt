@@ -80,6 +80,7 @@ fun <T> Flow<T>.takeUntilAfter(predicate: suspend (T) -> Boolean) = transformWhi
 
 fun <T> Flow<T>.setupCommonEventHandlers(tag: String, identifier: () -> String) = this
     .onStart { log(tag, VERBOSE) { "${identifier()}.onStart()" } }
+    .onEach { log(tag, VERBOSE) { "${identifier()}.onEach(): $it" } }
     .onCompletion { log(tag, VERBOSE) { "${identifier()}.onCompletion()" } }
     .catch {
         if (it.hasCause(CancellationException::class)) {
