@@ -148,6 +148,11 @@ class LocalPickerFragmentVDC @Inject constructor(
         requestPermissionEvent.postValue(permission)
     }
 
+    suspend fun canCreateFolder(currentText: String): Boolean {
+        if (currentText.isEmpty()) return false
+        return stater.value().currentListing?.none { it.name == currentText } ?: false
+    }
+
     data class State(
         val currentPath: APath,
         val currentCrumbs: List<APath>,

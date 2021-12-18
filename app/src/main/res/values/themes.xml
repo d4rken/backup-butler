@@ -17,6 +17,22 @@
 
         <item name="bottomSheetDialogTheme">@style/AppThemeBottomSheet</item>
         <item name="toolbarStyle">@style/Toolbar</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialog</item>
+    </style>
+
+    <style name="AlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/colorSecondary</item>
+        <item name="colorPrimaryDark">@color/colorSecondary</item>
+        <item name="colorPrimaryVariant">@color/colorSecondary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
+        <item name="colorAccent">@color/colorSecondary</item>
+
+        <item name="colorOnError">@color/colorOnError</item>
     </style>
 
     <style name="AppThemeNoActionBar" parent="AppThemeBase">

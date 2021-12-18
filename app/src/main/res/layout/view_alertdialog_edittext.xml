@@ -6,8 +6,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_layout"
-        style="@style/Widget.Design.TextInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
         android:layout_width="match_parent"
+        android:theme="@style/AlertDialog"
+        android:layout_marginTop="16dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:hint="@string/general_name_label"

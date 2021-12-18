@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
 import eu.darken.bb.common.error.asErrorDialogBuilder
@@ -110,24 +111,31 @@ class LocalPickerFragment : Smart2Fragment(R.layout.path_picker_local_fragment) 
 
         vdc.createDirEvent.observe2(this) {
             val alertLayout = layoutInflater.inflate(R.layout.view_alertdialog_edittext, null)
-            val input = alertLayout.findViewById<EditText>(R.id.input_text)
+            val input: EditText = alertLayout.findViewById(R.id.input_text)
+            val inputLayout: TextInputLayout = alertLayout.findViewById(R.id.input_layout)
 
             val dialog = MaterialAlertDialogBuilder(requireContext()).apply {
                 setView(alertLayout)
-                setTitle(R.string.general_create_dir)
-                setPositiveButton(R.string.general_create_action) { _, _ ->
+                setPositiveButton(R.string.general_create_dir) { _, _ ->
                     vdc.createDir(input.text.toString())
                 }
-                setNegativeButton(R.string.general_cancel_action) { _, _ ->
-
-                }
+                setNegativeButton(R.string.general_cancel_action) { _, _ -> }
             }.create()
 
             dialog.setOnShowListener {
                 val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 positiveButton.isEnabled = false
                 input.userTextChangeEvents()
-                    .onEach { positiveButton.isEnabled = it.text.isNotEmpty() }
+                    .onEach {
+                        val currentText = it.text.toString()
+                        if (vdc.canCreateFolder(currentText)) {
+                            inputLayout.error = null
+                            positiveButton.isEnabled = true
+                        } else {
+                            inputLayout.error = getString(R.string.error_item_already_exists_msg)
+                            positiveButton.isEnabled = false
+                        }
+                    }
                     .launchInView(this@LocalPickerFragment)
             }
 

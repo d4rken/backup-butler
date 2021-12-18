@@ -300,7 +300,7 @@
     <string name="onboarding_beta_subtitle">Here be dragons</string>
     <string name="onboarding_beta_bebrave">Be brave. Be bold!</string>
     <string name="onboarding_beta_explanation_title">Beta version</string>
-    <string name="onboarding_beta_explanation_description">This is a beta version. It may have more bugs, it may have less bugs, you never know. Maybe just don\'t use it yet for backups of your firstborn and bitcoins.</string>
+    <string name="onboarding_beta_explanation_description">This is a beta version. It may have more bugs, it may have less bugs, you never know. Maybe just don\'t use it yet for backups of your firstborn or your cheap hot altcoins.</string>
     <string name="onboarding_beta_bugreport_title">Bug reporting</string>
     <string name="onboarding_beta_bugreport_description">Please report issues. Participate on the issue tracker. Even if you are unsure.</string>
     <string name="onboarding_betacost_title">Free stuff</string>
@@ -337,4 +337,5 @@
     <string name="singleuse_item_label">Single-use item</string>
     <string name="singleuse_item_description">This is a single-use item. It\'s created temporary ( e.g. by quick mode) and will be removed automatically when all operations are finished.</string>
     <string name="progress_tidying_label">Tidying up</string>
+    <string name="error_item_already_exists_msg">Item already exists</string>
 </resources>

@@ -22,5 +22,5 @@ fun EditText.setTextIfDifferentAndNotFocused(newText: String) {
 // TODO Flow does not have throttleLatest
 fun EditText.userTextChangeEvents(): Flow<TextChangeEvent> = textChangeEvents()
     .skipInitialValue()
-    .debounce(250)
+    .debounce(50)
     .filter { it.view.hasFocus() }
