@@ -23,7 +23,7 @@
     <!--&lt;!&ndash;The color used for surfaces (i.e. Material “sheets”)&ndash;&gt;-->
     <!--<color name="colorSurface">#FFFFFF</color>-->
     <!--&lt;!&ndash;The color used for elements displayed on top of your surface color&ndash;&gt;-->
-    <!--<color name="colorOnSurface">#000000</color>-->
+    <color name="colorOnSurface">#FFFFFF</color>
     <!--&lt;!&ndash; The color used for elements displayed on top of your background color&ndash;&gt;-->
     <!--<color name="colorOnBackground">#000000</color>-->
     <!--&lt;!&ndash;The color behind all other screen content&ndash;&gt;-->

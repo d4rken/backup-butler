@@ -1,21 +1,44 @@
 package eu.darken.bb.user.ui.settings
 
+import android.os.Bundle
+import android.view.View
 import androidx.annotation.Keep
+import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
-import eu.darken.bb.common.smart.SmartPreferenceFragment
-import eu.darken.bb.user.core.UserSettings
-import javax.inject.Inject
+import eu.darken.bb.common.debug.logging.logTag
+import eu.darken.bb.common.smart.Smart2Fragment
+import eu.darken.bb.common.viewBinding
+import eu.darken.bb.databinding.SettingsUserFragmentBinding
+import eu.darken.bb.user.core.UpgradeInfo.Status.BASIC
+import eu.darken.bb.user.core.UpgradeInfo.Status.PRO
 
 @AndroidEntryPoint
 @Keep
-class UserSettingsFragment : SmartPreferenceFragment() {
+class UserSettingsFragment : Smart2Fragment(R.layout.settings_user_fragment) {
 
-    private val vdc: UserSettingsFragmentVDC by viewModels()
-    @Inject lateinit var userSettings: UserSettings
+    override val vdc: UserSettingsFragmentVDC by viewModels()
+    override val ui: SettingsUserFragmentBinding by viewBinding()
 
-    override val settings: UserSettings by lazy { userSettings }
-    override val preferenceFile: Int = R.xml.preferences_user
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        vdc.state.observe2(ui) { info ->
+            loadingOverlay.isGone = true
+            dataContainer.isGone = false
+
+            statusText.text = when (info.status) {
+                BASIC -> getString(R.string.upgrade_basicversion_label)
+                PRO -> getString(R.string.upgrade_proversion_label)
+            }
+            statusDetailsText.text = getString(R.string.upgrade_status_pro_version_due_to_beta)
+        }
+
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    companion object {
+        val TAG = logTag("Settings", "User", "Fragment")
+    }
 
 }

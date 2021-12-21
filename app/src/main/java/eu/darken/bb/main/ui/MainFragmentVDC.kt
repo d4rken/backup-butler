@@ -13,11 +13,13 @@ import eu.darken.bb.common.smart.Smart2VDC
 import eu.darken.bb.common.vdc.asLog
 import eu.darken.bb.main.core.UISettings
 import eu.darken.bb.main.ui.debug.DebugFragment
-import eu.darken.bb.main.ui.overview.OverviewFragment
 import eu.darken.bb.storage.ui.list.StorageListFragment
 import eu.darken.bb.task.ui.tasklist.TaskListFragment
 import eu.darken.bb.trigger.ui.list.TriggerListFragment
+import eu.darken.bb.user.core.UpgradeControl
+import eu.darken.bb.user.core.UpgradeInfo.Status.PRO
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,7 +29,8 @@ class MainFragmentVDC @Inject constructor(
     private val uiSettings: UISettings,
     private val bbDebug: BBDebug,
     private val backupButler: BackupButler,
-    private val dispatcherProvider: DispatcherProvider,
+    private val upgradeControl: UpgradeControl,
+    dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
     private var currentPosition: Int = 0
@@ -44,7 +47,6 @@ class MainFragmentVDC @Inject constructor(
         uiSettings.showDebugPage.flow
     ) { debug, showDebug ->
         val basePages = listOf(
-            MainPagerAdapter.Page(OverviewFragment::class, R.string.overview_tab_label),
             MainPagerAdapter.Page(TaskListFragment::class, R.string.task_tab_label),
             MainPagerAdapter.Page(StorageListFragment::class, R.string.storage_tab_label),
             MainPagerAdapter.Page(GeneratorListFragment::class, R.string.backup_generators_label),
@@ -62,6 +64,13 @@ class MainFragmentVDC @Inject constructor(
             showDebugStuff = showDebug || BBDebug.isDebug(),
             isRecordingDebug = debug.isRecording
         )
+    }.asLiveData2()
+
+    val appTitle = combine(
+        upgradeControl.state,
+        flowOf(backupButler.appInfo)
+    ) { upgradeState, appInfo ->
+        (upgradeState.status == PRO) to appInfo
     }.asLiveData2()
 
     init {

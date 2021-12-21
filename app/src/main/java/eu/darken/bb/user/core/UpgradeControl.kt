@@ -16,9 +16,9 @@ class UpgradeControl @Inject constructor(
 ) {
     private val internalState = DynamicStateFlow(TAG, scope) {
         UpgradeInfo(
-            state = when (BuildConfigWrap.isBetaBuild) {
-                true -> UpgradeInfo.State.PRO
-                false -> UpgradeInfo.State.BASIC
+            status = when (BuildConfigWrap.isBetaBuild) {
+                true -> UpgradeInfo.Status.PRO
+                false -> UpgradeInfo.Status.BASIC
             },
         )
     }

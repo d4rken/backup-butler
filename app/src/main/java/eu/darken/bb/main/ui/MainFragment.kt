@@ -2,13 +2,17 @@ package eu.darken.bb.main.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import eu.darken.bb.R
+import eu.darken.bb.common.colorString
+import eu.darken.bb.common.debug.BBDebug
 import eu.darken.bb.common.smart.Smart2Fragment
 import eu.darken.bb.common.viewBinding
 import eu.darken.bb.databinding.MainFragmentBinding
@@ -20,6 +24,25 @@ class MainFragment : Smart2Fragment(R.layout.main_fragment) {
     override val ui: MainFragmentBinding by viewBinding()
 
     lateinit var adapter: MainPagerAdapter
+
+    fun Toolbar.updateTitle(isPro: Boolean) {
+        if (!isPro) {
+            title = getString(R.string.app_name)
+            return
+        }
+
+        val split = getString(R.string.app_name_pro)
+            .split(" ".toRegex())
+            .dropLastWhile { it.isEmpty() }
+            .toTypedArray()
+        title = if (split.size == 3) {
+            val builder = SpannableStringBuilder(split[0] + " " + split[1] + " ")
+            builder.append(colorString(context, R.color.colorSecondary, split[2]))
+            builder
+        } else {
+            getString(R.string.app_name)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vdc.state.observe2(ui) { state ->
@@ -42,6 +65,16 @@ class MainFragment : Smart2Fragment(R.layout.main_fragment) {
 
             viewpager.setCurrentItem(state.pagePosition, false)
         }
+
+        vdc.appTitle.observe2(ui) { (isPro, appInfo) ->
+            toolbar.updateTitle(isPro)
+            toolbar.subtitle = if (BBDebug.isDebug()) {
+                "v${appInfo.fullVersionString}"
+            } else {
+                "v${appInfo.versionName}"
+            }
+        }
+
         ui.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 vdc.updateCurrentPage(position)

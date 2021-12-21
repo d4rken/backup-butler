@@ -7,12 +7,12 @@ import java.time.Instant
 @Keep
 @JsonClass(generateAdapter = true)
 data class UpgradeInfo(
-    val state: State,
+    val status: Status,
     val updatedAt: Instant = Instant.now()
 ) {
 
     @Keep
-    enum class State {
+    enum class Status {
         BASIC,
         PRO
     }
