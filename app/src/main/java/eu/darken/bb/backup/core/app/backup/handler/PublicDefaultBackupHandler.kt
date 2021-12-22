@@ -40,7 +40,7 @@ import javax.inject.Inject
 @Reusable
 class PublicDefaultBackupHandler @Inject constructor(
     @ApplicationContext context: Context,
-    private val gatewaySwitch: GatewaySwitch,
+    private val gateway: GatewaySwitch,
     private val mmDataRepo: MMDataRepo,
     private val pkgOps: PkgOps,
     private val userManagerBB: UserManagerBB,
@@ -101,7 +101,7 @@ class PublicDefaultBackupHandler @Inject constructor(
         updateProgressSecondary(CaString.EMPTY)
         updateProgressCount(Progress.Count.Indeterminate())
 
-        gatewaySwitch.addParent(this)
+        gateway.addParent(this)
         pkgOps.addParent(this)
 
         try {
@@ -125,44 +125,46 @@ class PublicDefaultBackupHandler @Inject constructor(
         logListener: ((LogEvent) -> Unit)?
     ): Collection<MMRef> {
         val currentUser = userManagerBB.currentUser
-        val targetPairs = mutableListOf<Pair<APath, Collection<APath>>>()
-        when (type) {
+
+        val targetPairs: List<Pair<APath, Collection<APath>>> = when (type) {
             DataType.DATA_PUBLIC_PRIMARY -> {
-                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary
-                val targets = if (pubDataDir.exists(gatewaySwitch)) {
-                    pubDataDir.listFiles(gatewaySwitch).filter { isNonCache(it) }
-                } else {
-                    emptyList()
-                }
-                targetPairs.add(Pair(pubDataDir, targets))
-            }
-            DataType.DATA_PUBLIC_SECONDARY -> {
-                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.forEach { secStor ->
-                    val targets = if (secStor.exists(gatewaySwitch)) {
-                        secStor.listFiles(gatewaySwitch).filter { isNonCache(it) }
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary.let { pubDataDir ->
+                    val targets = if (pubDataDir.exists(gateway)) {
+                        pubDataDir.listFiles(gateway).filter { !isCache(it) }
                     } else {
                         emptyList()
                     }
-                    targetPairs.add(Pair(secStor, targets))
+                    listOf(pubDataDir to targets)
+                }
+            }
+            DataType.DATA_PUBLIC_SECONDARY -> {
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.map { secStor ->
+                    val targets = if (secStor.exists(gateway)) {
+                        secStor.listFiles(gateway).filter { !isCache(it) }
+                    } else {
+                        emptyList()
+                    }
+                    secStor to targets
                 }
             }
             DataType.CACHE_PUBLIC_PRIMARY -> {
-                val pubDataDir = pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary
-                val targets = if (pubDataDir.exists(gatewaySwitch)) {
-                    pubDataDir.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
-                } else {
-                    emptyList()
-                }
-                targetPairs.add(Pair(pubDataDir, targets))
-            }
-            DataType.CACHE_PUBLIC_SECONDARY -> {
-                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.forEach { secStor ->
-                    val targets = if (secStor.exists(gatewaySwitch)) {
-                        secStor.listFiles(gatewaySwitch).filterNot { isNonCache(it) }
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicPrimary.let { pubDataDir ->
+                    val targets = if (pubDataDir.exists(gateway)) {
+                        pubDataDir.listFiles(gateway).filterNot { isCache(it) }
                     } else {
                         emptyList()
                     }
-                    targetPairs.add(Pair(secStor, targets))
+                    listOf(pubDataDir to targets)
+                }
+            }
+            DataType.CACHE_PUBLIC_SECONDARY -> {
+                pkgOps.getPathInfos(appInfo.packageName, currentUser).publicSecondary.map { secStor ->
+                    val targets = if (secStor.exists(gateway)) {
+                        secStor.listFiles(gateway).filterNot { isCache(it) }
+                    } else {
+                        emptyList()
+                    }
+                    secStor to targets
                 }
             }
             DataType.DATA_SDCARD_PRIMARY -> {
@@ -188,8 +190,8 @@ class PublicDefaultBackupHandler @Inject constructor(
                 updateProgressSecondary(target.toCaString())
                 Timber.tag(TAG).v("Walking: %s", target)
 
-                gatewaySwitch.sharedResource.get().use {
-                    target.walk(gatewaySwitch)
+                gateway.sharedResource.get().use {
+                    target.walk(gateway)
                         .filterNot { it == target }
                         .collect { collectedSubDirContent.add(it) }
                 }
@@ -202,7 +204,7 @@ class PublicDefaultBackupHandler @Inject constructor(
                 MMRef.Request(
                     backupId = backupId,
                     source = ArchiveRefSource.create(
-                        gateway = gatewaySwitch,
+                        gateway = gateway,
                         label = getString(type.labelRes),
                         archivePath = storageBase,
                         targets = collectedSubDirContent
@@ -215,10 +217,8 @@ class PublicDefaultBackupHandler @Inject constructor(
         return refs
     }
 
-    private fun isNonCache(path: APath): Boolean {
-        if (path.name == "cache") return false
-
-        return true
+    private fun isCache(path: APath): Boolean {
+        return path.name == "cache"
     }
 
     companion object {

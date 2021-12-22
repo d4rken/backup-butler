@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.onEach
     private val runner by lazy {
         EntryPoints.get(processorCompoent, ProcessorWorkerEntryPoint::class.java).taskRunner()
     }
+    private var finishedWithError = false
 
     init {
         log(TAG, VERBOSE) { "init(): workerId=$id" }
@@ -71,12 +72,13 @@ import kotlinx.coroutines.flow.onEach
         log(TAG, VERBOSE) { "Execution finished after ${duration}ms, $request -> $result" }
 
         Result.success(inputData)
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         log(TAG, ERROR) { "Excecution failed:\n${e.asLog()}" }
+        finishedWithError = true
         // TODO update result?
         Result.failure(inputData)
     } finally {
-        this.workerScope.cancel("Worker finished.")
+        this.workerScope.cancel("Worker finished (withError?=$finishedWithError).")
     }
 
     companion object {

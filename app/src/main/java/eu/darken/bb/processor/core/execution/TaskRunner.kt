@@ -47,8 +47,8 @@ class TaskRunner @Inject constructor(
         val task = taskRepo.get(request.taskId) ?: throw IllegalArgumentException("Can't find task for $request")
 
         runTask(task)
-    } catch (e: Exception) {
-        log(TAG) { "Task execution failed for $request:\n${e.asLog()}" }
+    } catch (e: Throwable) {
+        log(TAG, ERROR) { "Task execution failed for $request:\n${e.asLog()}" }
         throw e
     } finally {
         processorControl.updateProgressHost(null)
