@@ -54,7 +54,7 @@ import kotlinx.coroutines.flow.onEach
         if (runAttemptCount > 0) {
             // If the app is killed while work is on-going, it will be retried
             // A stuck task could lead to dozens of workers being retried
-            throw IllegalStateException("Processor requests shouldn't be tried: $request")
+            throw IllegalStateException("Processor requests shouldn't be retried: $request")
         }
 
         notifications
