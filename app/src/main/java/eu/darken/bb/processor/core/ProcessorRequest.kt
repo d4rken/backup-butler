@@ -8,4 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class ProcessorRequest(
     val taskId: Task.Id,
     val retryAttempts: Int = 0,
-) : Parcelable
+) : Parcelable {
+    val maxRunAttempts: Int
+        get() = retryAttempts + 1
+}

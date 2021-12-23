@@ -50,7 +50,7 @@ class TaskRunner @Inject constructor(
 
         val task = taskRepo.get(request.taskId) ?: throw IllegalArgumentException("Can't find task for $request")
 
-        if (runAttemptCount >= request.retryAttempts + 1) {
+        if (runAttemptCount > request.maxRunAttempts) {
             // If the app is killed while work is on-going, it will be retried
             // A stuck task could lead to dozens of workers being retried
             throw IllegalStateException("runAttemptCount ($runAttemptCount) exceeded retry attempts: $request")
