@@ -33,6 +33,7 @@ class TaskResultRepo @Inject constructor(
     }
 
     suspend fun submitResult(result: TaskResult) = try {
+        log(TAG) { "Submitting result: $result" }
         addResult(result)
     } catch (e: Exception) {
         if (BBDebug.isDebug()) {

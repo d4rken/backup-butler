@@ -1,5 +1,7 @@
 package eu.darken.bb.processor.core.execution
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import eu.darken.bb.R
 import eu.darken.bb.common.debug.logging.Logging.Priority.ERROR
 import eu.darken.bb.common.debug.logging.Logging.Priority.INFO
@@ -15,6 +17,7 @@ import eu.darken.bb.processor.core.ProcessorRequest
 import eu.darken.bb.processor.core.ProcessorScope
 import eu.darken.bb.task.core.Task
 import eu.darken.bb.task.core.TaskRepo
+import eu.darken.bb.task.core.results.SimpleResult
 import eu.darken.bb.task.core.results.TaskResult
 import eu.darken.bb.task.core.results.TaskResultRepo
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class TaskRunner @Inject constructor(
+    @ApplicationContext private val context: Context,
     @ProcessorScope private val processorScope: CoroutineScope,
     private val taskRepo: TaskRepo,
     private val processorControl: ProcessorControl,
@@ -40,21 +44,30 @@ class TaskRunner @Inject constructor(
         progressUpdater.updateAsync(onUpdate = update)
     }
 
-    suspend fun execute(request: ProcessorRequest): TaskResult = try {
+    suspend fun execute(request: ProcessorRequest, runAttemptCount: Int): TaskResult {
         processorControl.updateProgressHost(this)
         updateProgressPrimary(R.string.progress_preparing_label)
 
         val task = taskRepo.get(request.taskId) ?: throw IllegalArgumentException("Can't find task for $request")
 
-        runTask(task)
-    } catch (e: Throwable) {
-        log(TAG, ERROR) { "Task execution failed for $request:\n${e.asLog()}" }
-        throw e
-    } finally {
+        if (runAttemptCount >= request.retryAttempts + 1) {
+            // If the app is killed while work is on-going, it will be retried
+            // A stuck task could lead to dozens of workers being retried
+            throw IllegalStateException("runAttemptCount ($runAttemptCount) exceeded retry attempts: $request")
+        }
+
+        val taskResult = try {
+            runTask(task)
+        } catch (e: Throwable) {
+            log(TAG, ERROR) { "Task execution failed for $request:\n${e.asLog()}" }
+            SimpleResult.Builder().forTask(task).error(context, e).build(context)
+        }
+
         processorControl.updateProgressHost(null)
+
+        return taskResult
     }
 
-    // TODO remove one time use tasks and generators
     private suspend fun runTask(task: Task): TaskResult {
         updateProgressPrimary(R.string.progress_loading_task_label)
 

@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ProcessorRequest(
-    val taskId: Task.Id
+    val taskId: Task.Id,
+    val retryAttempts: Int = 0,
 ) : Parcelable

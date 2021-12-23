@@ -52,20 +52,13 @@ import kotlinx.coroutines.flow.onEach
 
         val start = System.currentTimeMillis()
         log(TAG, VERBOSE) { "Executing $request now (runAttemptCount=$runAttemptCount)" }
-        if (runAttemptCount > 0) {
-            // If the app is killed while work is on-going, it will be retried
-            // A stuck task could lead to dozens of workers being retried
-            throw IllegalStateException("Processor requests shouldn't be retried: $request")
-        }
 
         notifications
             .getInfos(runner)
             .onEach { setForeground(it) }
             .launchIn(workerScope)
 
-        // Using runAttemptCount we can track stuck tasks that fail
-        // TODO move task result logic here
-        val result = runner.execute(request)
+        val result = runner.execute(request, runAttemptCount)
 
         val duration = System.currentTimeMillis() - start
 
