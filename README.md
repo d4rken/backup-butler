@@ -24,3 +24,13 @@ Backup Butler is a backup app for Android.
 * Help translate Backup Butler [on Crowdin](https://crowdin.com/project/backup-butler)
 
 ## Screenshots
+
+## License
+
+Backup Butler's code is available under a GPL v3 license, this excludes:
+
+* Backup Butler icons, logos, mascots and marketing materials.
+* Backup Butler animations and videos.
+* Backup Butler documentation.
+* Google Play store screenshots.
+* Google Play store texts & descriptions.
