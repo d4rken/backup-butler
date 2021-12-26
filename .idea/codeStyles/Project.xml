@@ -46,7 +46,6 @@
           <package name="io.ktor" alias="false" withSubpackages="true" />
         </value>
       </option>
-      <option name="IMPORT_NESTED_CLASSES" value="true" />
     </JetCodeStyleSettings>
     <XML>
       <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />

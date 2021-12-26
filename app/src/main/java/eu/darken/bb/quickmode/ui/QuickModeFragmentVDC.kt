@@ -33,6 +33,7 @@ import eu.darken.bb.quickmode.ui.files.QuickFilesVH
 import eu.darken.bb.storage.core.Storage
 import eu.darken.bb.storage.core.StorageManager
 import eu.darken.bb.storage.ui.viewer.StorageViewerOptions
+import eu.darken.bb.task.core.results.TaskResultRepo
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -48,6 +49,7 @@ class QuickModeFragmentVDC @Inject constructor(
     private val storageManager: StorageManager,
     private val quickModeSettings: QuickModeSettings,
     private val processorControl: ProcessorControl,
+    private val taskResultRepo: TaskResultRepo,
     private val dispatcherProvider: DispatcherProvider,
 ) : Smart2VDC(dispatcherProvider) {
 
@@ -78,16 +80,15 @@ class QuickModeFragmentVDC @Inject constructor(
                     QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
                 }
             }
+
+            val lastResult = appsConfig.lastTaskId
+                ?.let { taskResultRepo.getLatestTaskResultGlimse(listOf(it)) }
+                ?.first()
+                ?.singleOrNull()
             QuickAppsVH.Item(
                 config = appsConfig,
                 storageInfos = storageInfos,
-                onView = {
-                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        viewerOptions = StorageViewerOptions(
-                            storageId = it.storageIds.first(),
-                        )
-                    ).navVia(this)
-                },
+                lastTaskResult = lastResult,
                 onEdit = {
                     QuickModeFragmentDirections.actionQuickModeFragmentToAppsConfigFragment().navVia(this)
                 },
@@ -127,17 +128,14 @@ class QuickModeFragmentVDC @Inject constructor(
                     QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
                 }
             }
-
+            val lastResult = filesConfig.lastTaskId
+                ?.let { taskResultRepo.getLatestTaskResultGlimse(listOf(it)) }
+                ?.first()
+                ?.singleOrNull()
             QuickFilesVH.Item(
                 config = filesConfig,
                 storageInfos = storageInfos,
-                onView = {
-                    QuickModeFragmentDirections.actionQuickModeFragmentToStorageViewer(
-                        viewerOptions = StorageViewerOptions(
-                            storageId = it.storageIds.first(),
-                        )
-                    ).navVia(this)
-                },
+                lastTaskResult = lastResult,
                 onEdit = {
                     QuickModeFragmentDirections.actionQuickModeFragmentToFilesConfigFragment().navVia(this)
                 },

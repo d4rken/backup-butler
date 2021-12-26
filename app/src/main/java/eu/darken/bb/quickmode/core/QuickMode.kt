@@ -4,6 +4,7 @@ import eu.darken.bb.common.moshi.MyPolymorphicJsonAdapterFactory
 import eu.darken.bb.quickmode.core.apps.AppsQuickModeConfig
 import eu.darken.bb.quickmode.core.files.FilesQuickModeConfig
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.task.core.Task
 
 interface QuickMode {
 
@@ -17,6 +18,7 @@ interface QuickMode {
         val type: Type
         val isSetUp: Boolean
         val storageIds: Set<Storage.Id>
+        val lastTaskId: Task.Id?
 
         companion object {
             val MOSHI_FACTORY: MyPolymorphicJsonAdapterFactory<Config> =

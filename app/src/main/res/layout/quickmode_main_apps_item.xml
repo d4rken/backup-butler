@@ -76,13 +76,13 @@
             app:layout_constraintTop_toBottomOf="@id/primary_info" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/view_action"
+            android:id="@+id/view_error_action"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="@string/general_view_action"
-            android:textColor="?colorOnSurface"
+            android:text="@string/general_error_label"
+            android:textColor="?colorError"
             app:layout_constraintBottom_toBottomOf="@id/restore_action"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/restore_action" />

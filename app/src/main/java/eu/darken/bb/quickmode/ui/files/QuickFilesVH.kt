@@ -1,5 +1,6 @@
 package eu.darken.bb.quickmode.ui.files
 
+import android.app.AlertDialog
 import android.text.format.Formatter
 import android.view.ViewGroup
 import androidx.core.view.isGone
@@ -9,6 +10,7 @@ import eu.darken.bb.databinding.QuickmodeMainFilesItemBinding
 import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.task.core.results.TaskResult
 
 class QuickFilesVH(parent: ViewGroup) :
     QuickModeAdapter.BaseVH<QuickFilesVH.Item, QuickmodeMainFilesItemBinding>(
@@ -45,11 +47,21 @@ class QuickFilesVH(parent: ViewGroup) :
             }
         }
 
+        viewErrorAction.isGone = item.lastTaskResult?.state != TaskResult.State.ERROR
+
         icon.isInvisible = !item.storageInfos.all { it.isFinished }
         loadingAnimation.isGone = item.storageInfos.all { it.isFinished }
 
         val config = item.config
-        viewAction.setOnClickListener { item.onView(config) }
+        viewErrorAction.setOnClickListener {
+            viewErrorAction.setOnClickListener {
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.general_last_result_label)
+                    .setMessage("${item.lastTaskResult!!.primary}\n${item.lastTaskResult.secondary}")
+                    .setPositiveButton(R.string.general_ok_action) { _, _ -> }
+                    .show()
+            }
+        }
         editAction.setOnClickListener { item.onEdit(config) }
         restoreAction.setOnClickListener { item.onRestore(config) }
         backupAction.setOnClickListener { item.onBackup(config) }
@@ -58,7 +70,7 @@ class QuickFilesVH(parent: ViewGroup) :
     data class Item(
         val config: QuickMode.Config,
         val storageInfos: Collection<Storage.InfoOpt>,
-        val onView: (QuickMode.Config) -> Unit,
+        val lastTaskResult: TaskResult? = null,
         val onEdit: (QuickMode.Config) -> Unit,
         val onBackup: (QuickMode.Config) -> Unit,
         val onRestore: (QuickMode.Config) -> Unit,

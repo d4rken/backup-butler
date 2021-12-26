@@ -81,6 +81,9 @@ class FilesQuickMode @Inject constructor(
 
         val task = taskBuilder.save(taskBuilderData.taskId)
         processorControl.submit(task.taskId)
+        state.updateBlocking {
+            copy(lastTaskId = task.taskId)
+        }
     }
 
     companion object {

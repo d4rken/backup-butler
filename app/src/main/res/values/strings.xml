@@ -347,4 +347,5 @@
     <string name="onboarding_hello_triggers_description">Automatically run actions: When an app updates, at a certain time or when your device is charging.</string>
     <string name="upgrade_details_label">Details</string>
     <string name="upgrade_status_pro_version_due_to_beta">Pro status due to beta test.</string>
+    <string name="general_last_result_label">Last result</string>
 </resources>

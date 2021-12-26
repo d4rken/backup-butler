@@ -63,6 +63,7 @@ class TaskRunner @Inject constructor(
             SimpleResult.Builder().forTask(task).error(context, e).build(context)
         }
 
+        resultRepo.submitResult(taskResult)
         processorControl.updateProgressHost(null)
 
         return taskResult
@@ -75,7 +76,6 @@ class TaskRunner @Inject constructor(
 
         val processor = processorFactories.getValue(task.taskType).create(this)
         val taskResult = processor.process(task)
-        resultRepo.submitResult(taskResult)
 
         if (task.isSingleUse) {
             log(TAG, INFO) { "Removing one-time-task: $task" }

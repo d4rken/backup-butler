@@ -1,12 +1,15 @@
 package eu.darken.bb.quickmode.ui.apps
 
+import android.app.AlertDialog
 import android.text.format.Formatter
 import android.view.ViewGroup
+import androidx.core.view.isGone
 import eu.darken.bb.R
 import eu.darken.bb.databinding.QuickmodeMainAppsItemBinding
 import eu.darken.bb.quickmode.core.QuickMode
 import eu.darken.bb.quickmode.ui.QuickModeAdapter
 import eu.darken.bb.storage.core.Storage
+import eu.darken.bb.task.core.results.TaskResult
 
 class QuickAppsVH(parent: ViewGroup) : QuickModeAdapter.BaseVH<QuickAppsVH.Item, QuickmodeMainAppsItemBinding>(
     R.layout.quickmode_main_apps_item,
@@ -42,8 +45,16 @@ class QuickAppsVH(parent: ViewGroup) : QuickModeAdapter.BaseVH<QuickAppsVH.Item,
             }
         }
 
+        viewErrorAction.isGone = item.lastTaskResult?.state != TaskResult.State.ERROR
+
         val config = item.config
-        viewAction.setOnClickListener { item.onView(config) }
+        viewErrorAction.setOnClickListener {
+            AlertDialog.Builder(context)
+                .setTitle(R.string.general_last_result_label)
+                .setMessage("${item.lastTaskResult!!.primary}\n${item.lastTaskResult.secondary}")
+                .setPositiveButton(R.string.general_ok_action) { _, _ -> }
+                .show()
+        }
         editAction.setOnClickListener { item.onEdit(config) }
         backupAction.setOnClickListener { item.onBackup(config) }
         restoreAction.setOnClickListener { item.onRestore(config) }
@@ -52,8 +63,8 @@ class QuickAppsVH(parent: ViewGroup) : QuickModeAdapter.BaseVH<QuickAppsVH.Item,
     data class Item(
         val config: QuickMode.Config,
         val storageInfos: Collection<Storage.InfoOpt>,
+        val lastTaskResult: TaskResult? = null,
         val onBackup: (QuickMode.Config) -> Unit,
-        val onView: (QuickMode.Config) -> Unit,
         val onRestore: (QuickMode.Config) -> Unit,
         val onEdit: (QuickMode.Config) -> Unit,
     ) : QuickModeAdapter.Item {
