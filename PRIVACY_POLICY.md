@@ -7,7 +7,7 @@ Anonymous device information may be collected for automatic crash reporting (see
 
 My underlying privacy princicple is the [Golden Rule](https://en.wikipedia.org/wiki/Golden_Rule).
 
-Send a [quick mail](mailto:support@darken.eu) to  if you have further questions.
+Send a [quick mail](mailto:support@darken.eu) if you have further questions.
 
 ## Automatic crash reports
 The app uses "Bugsnag" for automatic crash reports:
