@@ -11,10 +11,6 @@ import java.util.zip.ZipOutputStream
 
 // https://stackoverflow.com/a/48598099/1251958
 class Zipper {
-    companion object {
-        internal val TAG = logTag("Zipper")
-        const val BUFFER = 2048
-    }
 
     @Throws(Exception::class)
     fun zip(files: Array<String>, zipFile: String) {
@@ -34,5 +30,10 @@ class Zipper {
 
         out.finish()
         out.close()
+    }
+
+    companion object {
+        internal val TAG = logTag("Zipper")
+        const val BUFFER = 2048
     }
 }

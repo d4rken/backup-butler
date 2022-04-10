@@ -29,7 +29,7 @@ class FileLogger(private val logFile: File) : Logging.Logger {
         try {
             logWriter = OutputStreamWriter(FileOutputStream(logFile, true))
             logWriter!!.write("=== BEGIN ===\n")
-            logWriter!!.write("SD Maid logfile: $logFile\n")
+            logWriter!!.write("Logfile: $logFile\n")
             logWriter!!.flush()
             Log.i(TAG, "File logger started.")
         } catch (e: IOException) {
@@ -70,10 +70,10 @@ class FileLogger(private val logFile: File) : Logging.Logger {
         }
     }
 
-    override fun toString(): String = "FileLoggerTree(file=$logFile)"
+    override fun toString(): String = "FileLogger(file=$logFile)"
 
     companion object {
-        private val TAG = logTag("FileLoggerTree")
+        private val TAG = logTag("FileLogger")
     }
 }
 

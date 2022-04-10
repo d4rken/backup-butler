@@ -41,7 +41,7 @@ class SupportFragmentVDC @Inject constructor(
 
                 val email = EmailTool.Email(
                     receipients = listOf("support@darken.eu"),
-                    subject = "[SD Maid] Question/Suggestion/Request\n",
+                    subject = "[Backup Butler] Question/Suggestion/Request\n",
                     body = bodyInfo.toString()
                 )
                 return@fromCallable emailTool.build(email)

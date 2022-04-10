@@ -32,6 +32,7 @@ object MimeHelper {
         MIMES["eml"] = "message/rfc822"
         MIMES["msg"] = "application/vnd.ms-outlook"
 
+        MIMES["zip"] = "application/zip"
         MIMES["bz"] = "application/x-bzip"
         MIMES["bz2"] = "application/x-bzip2"
         MIMES["cab"] = "application/vnd.ms-cab-compressed"
@@ -71,7 +72,7 @@ object MimeHelper {
             val index = fileName.lastIndexOf(".")
             if (index != -1) extension = fileName.substring(index + 1)
         }
-        extension = extension.toLowerCase(Locale.ROOT)
+        extension = extension.lowercase(Locale.ROOT)
 
         var mimeType: String? = null
         if (path.asFile().isDirectory) mimeType = "vnd.android.document/directory"
