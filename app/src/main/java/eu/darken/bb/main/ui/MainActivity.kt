@@ -19,13 +19,14 @@ class MainActivity : AppCompatActivity() {
     var showSplashScreen = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val splashScreen = installSplashScreen()
-        splashScreen.setKeepVisibleCondition { showSplashScreen && savedInstanceState == null }
+        splashScreen.setKeepOnScreenCondition { showSplashScreen && savedInstanceState == null }
 
-        ui = MainActivityBinding.inflate(layoutInflater)
-        setContentView(ui.root)
+        ui = MainActivityBinding.inflate(layoutInflater).also {
+            setContentView(it.root)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

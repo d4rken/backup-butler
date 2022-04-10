@@ -60,9 +60,9 @@ class PathPickerActivity : SmartActivity() {
             val args = LocalPickerFragmentArgs(options = options)
             if (!navController.isGraphSet()) {
                 if (options.allowedTypes.size > 1) {
-                    graph.startDestination = R.id.typesPickerFragment
+                    graph.setStartDestination(R.id.typesPickerFragment)
                 } else {
-                    graph.startDestination = R.id.localPickerFragment
+                    graph.setStartDestination(R.id.localPickerFragment)
                 }
                 navController.setGraph(graph, args.toBundle())
                 setupActionBarWithNavController(navController, appBarConf)
@@ -78,7 +78,7 @@ class PathPickerActivity : SmartActivity() {
             ensureContentView(R.layout.path_picker_activity)
             val args = TypesPickerFragmentArgs(options = it)
             if (!navController.isGraphSet()) {
-                graph.startDestination = R.id.typesPickerFragment
+                graph.setStartDestination(R.id.typesPickerFragment)
                 navController.setGraph(graph, args.toBundle())
                 setupActionBarWithNavController(navController, appBarConf)
             } else {

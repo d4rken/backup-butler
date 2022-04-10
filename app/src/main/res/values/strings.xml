@@ -288,10 +288,10 @@
     <string name="onboarding_cost_restore_description">You can always restore your backups for free. After all it\'s your data, taking it hostage is unethical. </string>
     <string name="onboarding_cost_backup_title">Creating backups is mostly free</string>
     <string name="onboarding_cost_backup_description">Basic backup functionality is free. Power users may upgrade to the pro version to unlock more options and features.</string>
-    <string name="onboarding_cost_subscription_title">Subscription? Purchase?</string>
-    <string name="onboarding_cost_subscription_description">A good backup is reliable. A subscription allows me to prioritize you instead of chasing new users. To spend time on support and improve compatibility with Android versions and devices.</string>
+    <string name="onboarding_cost_subscription_title">Pro subscription</string>
+    <string name="onboarding_cost_subscription_description">For a small fee you get additional features and I can spend time on improving the app. A single time purchase creates the wrong priorities.</string>
     <string name="onboarding_cost_busfactor_title">Open source</string>
-    <string name="onboarding_cost_busfactor_description">This app is open-source. If I get hit by a bus, the project isn\'t necessarily over.</string>
+    <string name="onboarding_cost_busfactor_description">This app is open-source. If I get hit by a bus, the project might not be over.</string>
     <string name="onboarding_cost_dontworry_description">Exploring the app is free. Don\'t worry.</string>
     <string name="bugreporting_report_action">Report a bug</string>
     <string name="bugreporting_record_debuglog_action">Record debug log</string>

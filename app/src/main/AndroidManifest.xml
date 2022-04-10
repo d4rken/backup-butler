@@ -28,7 +28,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppThemeNoActionBar"
+        android:theme="@style/AppThemeBase"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity

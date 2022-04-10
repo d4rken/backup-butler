@@ -19,9 +19,9 @@ buildscript {
 
     ext.versions = [
             'kotlin'     : [
-                    'plugin'      : '1.5.31',
-                    'core'      : '1.5.31',
-                    'coroutines': '1.5.1'
+                    'plugin'      : '1.6.20',
+                    'core'      : '1.6.10',
+                    'coroutines': '1.6.1'
             ],
             'dagger'     : '2.38.1',
             'rxjava'     : '3.0.10',
@@ -31,7 +31,7 @@ buildscript {
             'timber'     : '4.7.1',
             'rxshell'    : '3.0.0',
             'androidx'   : [
-                    'navigation': '2.3.5'
+                    'navigation': '2.4.1'
             ],
     ]
 
@@ -41,7 +41,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin.plugin}"
 
         classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.6.1.0'
