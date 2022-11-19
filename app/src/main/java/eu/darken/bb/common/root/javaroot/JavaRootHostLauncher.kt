@@ -23,7 +23,7 @@ class JavaRootHostLauncher @Inject constructor(
         .createConnection(
             binderClass = JavaRootConnection::class,
             rootHostClass = JavaRootHost::class,
-            enableDebug = BuildConfigWrap.isVerbosebuild || bbDebug.isDebug()
+            enableDebug = BuildConfigWrap.BUILD_TYPE == BuildConfigWrap.BuildType.BETA || bbDebug.isDebug()
         )
         .onStart { log(TAG) { "Initiating connection to host." } }
         .map { ipc ->

@@ -26,7 +26,7 @@ class InitFragmentVDC @Inject constructor(
         // TODO If beta version and not shown yet for this version, show beta disclaimer
 
         val shouldShowBeta =
-            BuildConfigWrap.isBetaBuild && onboardingSettings.lastBetaDisclaimerVersion != butler.appInfo.versionCode
+            BuildConfigWrap.BUILD_TYPE == BuildConfigWrap.BuildType.BETA && onboardingSettings.lastBetaDisclaimerVersion != butler.appInfo.versionCode
         val shouldShowChangelog = false // TODO
 
         when {

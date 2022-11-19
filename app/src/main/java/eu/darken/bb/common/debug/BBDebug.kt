@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
-import rxdogtag2.RxDogTag
+//import rxdogtag2.RxDogTag
 import timber.log.Timber
 import java.io.InterruptedIOException
 import javax.inject.Inject
@@ -53,7 +53,7 @@ class BBDebug @Inject constructor(
     private val modules = mutableSetOf<DebugModule>()
 
     init {
-        RxDogTag.builder().install()
+//        RxDogTag.builder().install()
 
         observeOptions()
             .onEach { Timber.tag(TAG).d("Updated debug options: $it") }
@@ -151,7 +151,7 @@ class BBDebug @Inject constructor(
     companion object {
         private val TAG = logTag("Debug")
 
-        fun isDebug() = BuildConfigWrap.isVerbosebuild
+        fun isDebug() = BuildConfigWrap.DEBUG || BuildConfigWrap.BUILD_TYPE == BuildConfigWrap.BuildType.BETA
     }
 
 }

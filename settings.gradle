@@ -1,3 +1,4 @@
+rootProject.name = "Backup Butler"
 include ':app'
 include ':bb-root'
 include ':bb-common'

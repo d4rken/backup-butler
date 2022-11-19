@@ -28,13 +28,9 @@ class BackupButler @Inject constructor(
         AppInfo(
             versionCode = pkgInfo.versionCode.toLong(),
             versionName = pkgInfo.versionName,
-            buildState = when {
-                BuildConfigWrap.isDebugBuild -> BuildState.DEV
-                BuildConfigWrap.isBetaBuild -> BuildState.BETA
-                else -> BuildState.PRODUCTION
-            },
-            gitSha = BuildConfigWrap.gitSha,
-            buildTime = BuildConfigWrap.buildTime
+            buildState = BuildConfigWrap.BUILD_TYPE,
+            gitSha = BuildConfigWrap.GIT_SHA,
+            buildTime = BuildConfigWrap.BUILD_TIME.toString()
         )
     }
 
@@ -76,15 +72,11 @@ class BackupButler @Inject constructor(
     data class AppInfo(
         val versionCode: Long,
         val versionName: String,
-        val buildState: BuildState,
+        val buildState: BuildConfigWrap.BuildType,
         val gitSha: String,
         val buildTime: String
     ) {
 
         val fullVersionString = "$versionName ($versionCode) [$gitSha]"
-    }
-
-    enum class BuildState {
-        DEV, BETA, PRODUCTION
     }
 }
