@@ -5,6 +5,8 @@ Some of the internal code (e.g. `IO Gateways` or root handling) made it's way in
 
 I'm archiving the project to free up space in my mind. I don't see myself launching it. Other ideas currently motivate me more.
 
+![](https://github.com/d4rken/backup-butler/blob/master/app/src/main/ic_launcher-playstore.png)
+
 # Backup Butler (BB)
 
 ![Build](https://github.com/d4rken/backup-butler/actions/workflows/android.yml/badge.svg)
