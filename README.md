@@ -1,3 +1,10 @@
+### Archived
+
+Backup Butler was never launched. I got it to "almost" alpha stage, but ultimative didn't have the time (or motiviation?) to continue.
+Some of the internal code (e.g. `IO Gateways` or root handling) made it's way into [SD Maid 2/SE](https://github.com/d4rken-org/sdmaid-se).
+
+I'm archiving the project to free up space in my mind. I don't see myself launching it. Other ideas currently motivate me more.
+
 # Backup Butler (BB)
 
 ![Build](https://github.com/d4rken/backup-butler/actions/workflows/android.yml/badge.svg)
